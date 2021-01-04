@@ -6,9 +6,11 @@ Official support for Linux and macOS is on it's way!
 
 # Installation & Setup
 
-1. Link the appropriate library 'libentropy.a'/'entropy.lib' to your project;
-2. Include 'Entropy.h';
+1. On Windows, link entropy.lib to your project. On Unix systems, use libentropy.a.
+2. #include "Entropy.h".
 3. Create a sub-class from parent 'Entropy::Application'
+
+Example from Sandbox:
 ```
 class SandboxGame : public Entropy::Application
 {
@@ -17,6 +19,8 @@ class SandboxGame : public Entropy::Application
 ```
 4. Implement the function Entropy::CreateApplication().
 	If not defined externally, it will not compile!
+	
+Example from Sandbox:
 ```
 Entropy::Application* Entropy::CreateApplication()
 {
