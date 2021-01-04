@@ -8,7 +8,7 @@ Entropy does not come with an editor, Entropy is an API available to develop 3D 
 
 # Installation & Setup
 
-1. On Windows, link entropy.lib to your project. On Unix systems, use libentropy.a.
+1. On Windows, link entropy.lib to your project.
 2. #include "Entropy.h".
 3. Create a sub-class from parent 'Entropy::Application'
 
@@ -29,4 +29,4 @@ Entropy::Application* Entropy::CreateApplication()
 	return new SandboxGame();
 }
 ```
-5. OnCreate(), OnUpdate() and OnApplicationEvent() are methods to be overriden available for your application.
+The setup is complete!
