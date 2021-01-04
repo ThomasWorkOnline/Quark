@@ -12,14 +12,15 @@ Official support for Linux and macOS is on it's way!
 ```
 class SandboxGame : public Entropy::Application
 {
-...
+	...
 }
 ```
 4. Implement the function Entropy::CreateApplication().
-If not defined externally, it will not compile!
+	If not defined externally, it will not compile!
 ```
 Entropy::Application* Entropy::CreateApplication()
 {
 	return new SandboxGame();
 }
 ```
+Entropy now owns the application.
