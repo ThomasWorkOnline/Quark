@@ -18,7 +18,7 @@ class SandboxGame : public Entropy::Application
 }
 ```
 4. Implement the function Entropy::CreateApplication().
-	If not defined externally, it will not compile!
+	If not defined externally, it will not compile! This is what gives Entropy ownership of your application.
 	
 Example from Sandbox:
 ```
