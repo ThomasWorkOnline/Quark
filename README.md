@@ -23,4 +23,4 @@ Entropy::Application* Entropy::CreateApplication()
 	return new SandboxGame();
 }
 ```
-Entropy now owns the application.
+5. OnCreate(), OnUpdate() and OnApplicationEvent() are methods to be overriden available for your application.
