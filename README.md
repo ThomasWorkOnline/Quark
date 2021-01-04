@@ -1,7 +1,7 @@
 # Entropy
 
-Entropy is a 3D game engine in early development.
-Currently supports Windows only.
+Entropy is a 3D game engine in early development inspired by Hazel Game Engine.
+Currently supports Windows, support for Mac and Linux should work as expected though not thoroughly tested.
 Support for Linux and macOS is on the way!
 
 # Installation
