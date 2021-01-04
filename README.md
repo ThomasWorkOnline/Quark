@@ -1,7 +1,8 @@
 # Entropy
 
 Entropy is a bare bones 3D game engine in development.
-Support for Windows, Linux and macOS is on the way!
+Currently supports Windows only.
+Support for Linux and macOS is on the way!
 
 # Installation
 
