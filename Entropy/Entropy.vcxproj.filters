@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="src\Entropy\Core\Application.cpp" />
+    <ClCompile Include="src\Entropy\Core\Input.cpp" />
+    <ClCompile Include="src\Entropy\Renderer\Buffer.cpp" />
+    <ClCompile Include="src\Entropy\Renderer\Camera.cpp" />
+    <ClCompile Include="src\Entropy\Renderer\CameraController.cpp" />
+    <ClCompile Include="src\Entropy\Renderer\GraphicsContext.cpp" />
+    <ClCompile Include="src\Entropy\Renderer\Mesh.cpp" />
+    <ClCompile Include="src\Entropy\Renderer\RenderCommand.cpp" />
+    <ClCompile Include="src\Entropy\Renderer\Renderer.cpp" />
+    <ClCompile Include="src\Entropy\Renderer\RenderingAPI.cpp" />
+    <ClCompile Include="src\Entropy\Renderer\Shader.cpp" />
+    <ClCompile Include="src\Entropy\Renderer\Texture.cpp" />
+    <ClCompile Include="src\Entropy\Renderer\VertexArray.cpp" />
+    <ClCompile Include="src\Entropy\Tools\Colorimetry.cpp" />
+    <ClCompile Include="src\Entropy\Tools\Noise.cpp" />
+    <ClCompile Include="src\Platform\Linux\LinuxWindow.cpp" />
+    <ClCompile Include="src\Platform\Macos\MacosWindow.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\OpenGLGraphicsContext.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\OpenGLRenderingAPI.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\OpenGLShader.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\OpenGLTexture.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\OpenGLVertexArray.cpp" />
+    <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />
+    <ClCompile Include="src\Entropy\Core\EntryPoint.h" />
+    <ClCompile Include="src\Entropy\Tools\EasingCurves.cpp" />
+    <ClCompile Include="src\Entropy\Core\Window.cpp" />
+    <ClCompile Include="src\Entropy\Renderer\Framebuffer.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\OpenGLFramebuffer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Entropy\Core\Application.h" />
+    <ClInclude Include="src\Entropy\Core\Core.h" />
+    <ClInclude Include="src\Entropy\Core\Input.h" />
+    <ClInclude Include="src\Entropy\Core\KeyCodes.h" />
+    <ClInclude Include="src\Entropy\Core\Logger.h" />
+    <ClInclude Include="src\Entropy\Core\MouseCodes.h" />
+    <ClInclude Include="src\Entropy\Core\Window.h" />
+    <ClInclude Include="src\Entropy\Events\ApplicationEvent.h" />
+    <ClInclude Include="src\Entropy\Events\Event.h" />
+    <ClInclude Include="src\Entropy\Events\KeyEvent.h" />
+    <ClInclude Include="src\Entropy\Events\MouseEvent.h" />
+    <ClInclude Include="src\Entropy\Renderer\Buffer.h" />
+    <ClInclude Include="src\Entropy\Renderer\Camera.h" />
+    <ClInclude Include="src\Entropy\Renderer\CameraController.h" />
+    <ClInclude Include="src\Entropy\Renderer\GraphicsContext.h" />
+    <ClInclude Include="src\Entropy\Renderer\Mesh.h" />
+    <ClInclude Include="src\Entropy\Renderer\RenderCommand.h" />
+    <ClInclude Include="src\Entropy\Renderer\Renderer.h" />
+    <ClInclude Include="src\Entropy\Renderer\RenderingAPI.h" />
+    <ClInclude Include="src\Entropy\Renderer\Shader.h" />
+    <ClInclude Include="src\Entropy\Renderer\Texture.h" />
+    <ClInclude Include="src\Entropy\Renderer\VertexArray.h" />
+    <ClInclude Include="src\Entropy\Tools\Colorimetry.h" />
+    <ClInclude Include="src\Entropy\Tools\LogUtils.h" />
+    <ClInclude Include="src\Entropy\Tools\Noise.h" />
+    <ClInclude Include="src\Platform\Linux\LinuxWindow.h" />
+    <ClInclude Include="src\Platform\Macos\MacosWindow.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLBuffer.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLGraphicsContext.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLRenderingAPI.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLShader.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLTexture.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLVertexArray.h" />
+    <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
+    <ClInclude Include="src\Entropy.h" />
+    <ClInclude Include="src\Entropy\Core\Platform.h" />
+    <ClInclude Include="src\Entropy\Tools\EasingCurves.h" />
+    <ClInclude Include="src\Entropy\Renderer\Framebuffer.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLFramebuffer.h" />
+    <ClInclude Include="src\Entropy\Scene\ECS\Entity.h" />
+  </ItemGroup>
+</Project>
