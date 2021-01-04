@@ -7,7 +7,6 @@ int main();
 
 namespace Entropy {
 
-    // Application class containing data
     class Application
     {
     public:

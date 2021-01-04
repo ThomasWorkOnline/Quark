@@ -14,8 +14,7 @@ namespace Entropy {
 
     Scope<Window> Window::Create(uint32_t width, uint32_t height, const char* title)
     {
-        // Platform specefic window creation is done here:
-        // Returns a defuult window instance
+        // Platform specefic window creation is done here
 #if defined NT_PLATFORM_WINDOWS
         NT_TRACE("Created a new window for Windows");
         return CreateScope<WindowsWindow>(width, height, title);
