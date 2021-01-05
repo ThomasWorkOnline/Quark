@@ -60,10 +60,16 @@ namespace Entropy {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
-	void OpenGLFramebuffer::AttachToTextureSlot(uint32_t textureSlot)
+	void OpenGLFramebuffer::AttachColorAttachment(uint32_t textureSlot)
 	{
 		glActiveTexture(GL_TEXTURE0 + textureSlot);
 		glBindTexture(GL_TEXTURE_2D, m_ColorAttachment);
+	}
+
+	void OpenGLFramebuffer::AttachDepthAttachment(uint32_t textureSlot)
+	{
+		glActiveTexture(GL_TEXTURE0 + textureSlot);
+		glBindTexture(GL_TEXTURE_2D, m_DepthAttachment);
 	}
 
 	void OpenGLFramebuffer::Resize(uint32_t width, uint32_t height)

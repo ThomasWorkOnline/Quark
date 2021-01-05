@@ -104,7 +104,7 @@ void SandboxGame::OnUpdate(float elapsedTime)
 
 	m_Framebuffer->Detach();
 
-	m_Framebuffer->AttachToTextureSlot(0);
+	m_Framebuffer->AttachColorAttachment(0);
 	//diffuseMap->Attach(0);
 	specularMap->Attach(1);
 	Entropy::Renderer::Submit(m_SelectedShader, m_Plane.GetVertexArray(), m_PlaneTransform);

@@ -15,7 +15,8 @@ namespace Entropy {
 		virtual void Attach() override;
 		virtual void Detach() override;
 
-		virtual void AttachToTextureSlot(uint32_t textureSlot) override;
+		virtual void AttachColorAttachment(uint32_t textureSlot) override;
+		virtual void AttachDepthAttachment(uint32_t textureSlot) override;
 
 		virtual void Resize(uint32_t width, uint32_t height) override;
 
