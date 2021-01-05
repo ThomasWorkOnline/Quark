@@ -88,12 +88,12 @@ namespace Entropy {
 
 		if (Input::IsKeyPressed(KeyCode::Q))
 		{
-			m_Camera.Rotate(elapsedTime * m_RollSensitivity, glm::vec3(0.0f, 0.0f, -1.0f) * m_Camera.GetOrientation());
+			m_Camera.Rotate(elapsedTime * m_RollSensitivity, m_Camera.GetBackwardVector());
 		}
 
 		if (Input::IsKeyPressed(KeyCode::E))
 		{
-			m_Camera.Rotate(elapsedTime * m_RollSensitivity, glm::vec3(0.0f, 0.0f, 1.0f) * m_Camera.GetOrientation());
+			m_Camera.Rotate(elapsedTime * m_RollSensitivity, m_Camera.GetFowardVector());
 		}
 
 		if (Input::IsKeyPressed(KeyCode::D0))
