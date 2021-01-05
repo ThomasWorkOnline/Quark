@@ -121,6 +121,7 @@ void SandboxGame::OnApplicationEvent(Entropy::Event& e)
 	Entropy::EventDispatcher dispatcher(e);
 	dispatcher.Dispatch<Entropy::MouseButtonPressedEvent>(NT_ATTACH_EVENT_FN(SandboxGame::OnMouseButtonPressed));
 	dispatcher.Dispatch<Entropy::KeyPressedEvent>(NT_ATTACH_EVENT_FN(SandboxGame::OnKeyPressed));
+	dispatcher.Dispatch<Entropy::WindowResizeEvent>(NT_ATTACH_EVENT_FN(SandboxGame::OnWindowResized));
 
 	m_CameraController.OnEvent(e);
 }
@@ -181,5 +182,11 @@ bool SandboxGame::OnKeyPressed(Entropy::KeyPressedEvent& e)
 		break;
 	}
 	}
+	return false;
+}
+
+bool SandboxGame::OnWindowResized(Entropy::WindowResizeEvent& e)
+{
+	m_Framebuffer->Resize(e.GetWidth(), e.GetHeight());
 	return false;
 }

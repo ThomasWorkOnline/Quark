@@ -20,6 +20,7 @@ public:
 
 	bool OnMouseButtonPressed(Entropy::MouseButtonPressedEvent& e);
 	bool OnKeyPressed(Entropy::KeyPressedEvent& e);
+	bool OnWindowResized(Entropy::WindowResizeEvent& e);
 
 private:
 	Entropy::Ref<Entropy::Texture2D> diffuseMap = Entropy::Texture2D::Create("./assets/textures/container.png");
