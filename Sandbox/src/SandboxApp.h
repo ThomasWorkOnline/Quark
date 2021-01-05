@@ -44,6 +44,8 @@ private:
 	glm::vec3 m_PointLightPosition = glm::vec3(-0.7f, 2.0f, -5.0f);
 
 	Entropy::CameraController m_CameraController = Entropy::CameraController(GetWindow().GetWidth(), GetWindow().GetHeight());
+
+	Entropy::Ref<Entropy::Framebuffer> m_Framebuffer = Entropy::Framebuffer::Create(1280, 720);
 };
 
 Entropy::Application* Entropy::CreateApplication()

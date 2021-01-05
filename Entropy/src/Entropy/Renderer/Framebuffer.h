@@ -12,9 +12,12 @@ namespace Entropy {
 		virtual void Attach() = 0;
 		virtual void Detach() = 0;
 
+		virtual void AttachToTextureSlot(uint32_t textureSLot) = 0;
+
 		virtual void Resize(uint32_t width, uint32_t height) = 0;
 
 		virtual uint32_t GetColorAttachmentRendererID() const = 0;
+		virtual uint32_t GetDepthAttachmentRendererID() const = 0;
 
 		static Ref<Framebuffer> Create(uint32_t width, uint32_t height, uint32_t samples = 1, bool swapChainTarget = false);
 	};

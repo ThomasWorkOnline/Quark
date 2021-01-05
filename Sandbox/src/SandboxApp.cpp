@@ -17,7 +17,7 @@ void SandboxGame::OnCreate()
 	m_Model.LoadOBJFromFile("./assets/models/monkey.obj");
 	m_Sphere.LoadOBJFromFile("./assets/models/sphere.obj");
 
-	m_Plane.GenerateTerrain(1, 0);
+	m_Plane.GenerateTerrain(10, 0);
 
 	float lightPower = 5.0f;
 	glm::vec3 lightColor = { 1.0f, 1.0f, 1.0f };
@@ -43,20 +43,12 @@ void SandboxGame::OnUpdate(float elapsedTime)
 		std::cout << std::fixed << 1.0f / elapsedTime << " fps | frametime: " << elapsedTime * 1000 << "ms\n";
 		accumulatedTime = 0.0f;
 
-		std::cout << "Position: " << m_CameraController.GetCamera().GetPosition() << std::endl;
+		/*std::cout << "Position: " << m_CameraController.GetCamera().GetPosition() << std::endl;
 		std::cout << "Velocity: " << m_CameraController.GetCamera().GetVelocity() << std::endl;
-		std::cout << "Orientation: " << m_CameraController.GetCamera().GetOrientation() << std::endl;
+		std::cout << "Orientation: " << m_CameraController.GetCamera().GetOrientation() << std::endl;*/
 	}
 
-	// PLAYER POS
-	/*m_Camera.SetVelocity(m_Camera.GetVelocity() + glm::vec3(0.0f, -9.8f, 0.0f) * elapsedTime);
-	if (m_Camera.GetPosition().y <= 1.0f)
-	{
-		m_Camera.SetVelocity(m_Camera.GetVelocity().x, 0.0f, m_Camera.GetVelocity().z);
-		m_Camera.SetPosition(m_Camera.GetPosition().x, 1.0f, m_Camera.GetPosition().z);
-	}*/
-
-	float speed = 10.0f;
+	const float speed = 10.0f;
 	if (Entropy::Input::IsKeyPressed(Entropy::KeyCode::RightShift))
 	{
 		if (Entropy::Input::IsKeyPressed(Entropy::KeyCode::Up))
@@ -101,13 +93,21 @@ void SandboxGame::OnUpdate(float elapsedTime)
 
 	Entropy::Renderer::BeginScene(m_CameraController.GetCamera());
 
-	diffuseMap->Attach(0);
-	specularMap->Attach(1);
-	Entropy::Renderer::Submit(m_SelectedShader, m_Plane.GetVertexArray(), m_PlaneTransform);
+	m_Framebuffer->Attach();
 
+	// Drawing Suzanne to the framebuffer
+	Entropy::RenderCommand::SetClearColor({ 1.0f, 0.0f, 0.0f, 1.0f });
+	Entropy::RenderCommand::Clear();
 	white->Attach(0);
 	white->Attach(1);
 	Entropy::Renderer::Submit(m_SelectedShader, m_Model.GetVertexArray(), m_ModelTransform);
+
+	m_Framebuffer->Detach();
+
+	m_Framebuffer->AttachToTextureSlot(0);
+	//diffuseMap->Attach(0);
+	specularMap->Attach(1);
+	Entropy::Renderer::Submit(m_SelectedShader, m_Plane.GetVertexArray(), m_PlaneTransform);
 
 	white->Attach(0);
 	white->Attach(1);

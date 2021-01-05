@@ -3,9 +3,6 @@
 #include "../Core/Core.h"
 
 #include "RenderingAPI.h"
-#include "Texture.h"
-#include "Mesh.h"
-#include "Framebuffer.h"
 
 namespace Entropy {
 

@@ -3,6 +3,9 @@
 #include "RenderCommand.h"
 #include "Shader.h"
 #include "Camera.h"
+#include "Framebuffer.h"
+#include "Texture.h"
+#include "Mesh.h"
 
 namespace Entropy {
 

@@ -66,14 +66,13 @@ namespace Entropy {
 
 	void Application::Run()
 	{
-		RenderCommand::SetClearColor(EncodeSRGB(glm::vec4(0.0862f, 0.3764f, 0.6549f, 1.0f)));
-
 		OnCreate();
 
 		float fStartTime = 0.0f;
 
 		while (m_Running)
 		{
+			RenderCommand::SetClearColor(EncodeSRGB({ 0.0862f, 0.3764f, 0.6549f, 1.0f }));
 			RenderCommand::Clear();
 
 			float fEndTime = (float)glfwGetTime();
