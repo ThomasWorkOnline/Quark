@@ -20,7 +20,6 @@ public:
 
 	bool OnMouseButtonPressed(Entropy::MouseButtonPressedEvent& e);
 	bool OnKeyPressed(Entropy::KeyPressedEvent& e);
-	bool OnWindowResized(Entropy::WindowResizeEvent& e);
 
 private:
 	Entropy::Ref<Entropy::Texture2D> diffuseMap = Entropy::Texture2D::Create("./assets/textures/container.png");
@@ -44,9 +43,10 @@ private:
 
 	glm::vec3 m_PointLightPosition = glm::vec3(-0.7f, 2.0f, -5.0f);
 
-	Entropy::CameraController m_CameraController = Entropy::CameraController(GetWindow().GetWidth(), GetWindow().GetHeight());
+	Entropy::CameraController m_CameraController = Entropy::CameraController((float)GetWindow().GetWidth() / (float)GetWindow().GetHeight());
 
-	Entropy::Ref<Entropy::Framebuffer> m_Framebuffer = Entropy::Framebuffer::Create(1280, 720);
+	Entropy::Ref<Entropy::Framebuffer> m_Framebuffer = Entropy::Framebuffer::Create(1024, 1024);
+	Entropy::CameraController m_PortalCameraController = Entropy::CameraController(1.0f);
 };
 
 Entropy::Application* Entropy::CreateApplication()

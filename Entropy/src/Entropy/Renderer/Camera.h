@@ -8,7 +8,7 @@ namespace Entropy {
 	class Camera : public Entity
 	{
 	public:
-		Camera(uint32_t width, uint32_t height, float fov = 45.0f);
+		Camera(float aspectRatio, float fov = 45.0f);
 
 		void CheckAndUpdate();
 
@@ -43,7 +43,7 @@ namespace Entropy {
 
 		void SetFov(float fov) { m_Fov = fov; m_NeedsProjectionUpdate = true; }
 
-		void SetProjectionMatrix(uint32_t width, uint32_t height);
+		void SetProjectionMatrix(float aspectRatio);
 
 	private:
 		void RecalculateViewMatrix();
@@ -54,7 +54,7 @@ namespace Entropy {
 		glm::mat4 m_ViewProjectionMatrix;
 
 		float m_Fov;
-		uint32_t m_Width, m_Height;
+		float m_AspectRatio;
 
 		bool m_NeedsViewUpdate = false;
 		bool m_NeedsProjectionUpdate = false;

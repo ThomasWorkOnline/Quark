@@ -2,10 +2,10 @@
 
 namespace Entropy {
 
-	Camera::Camera(uint32_t width, uint32_t height, float fov)
-		: m_Fov(fov), m_Width(width), m_Height(height)
+	Camera::Camera(float aspectRatio, float fov)
+		: m_Fov(fov)
 	{
-		SetProjectionMatrix(width, height);
+		SetProjectionMatrix(aspectRatio);
 		RecalculateViewMatrix();
 	}
 
@@ -39,14 +39,13 @@ namespace Entropy {
 
 	void Camera::RecalculateProjectionMatrix()
 	{
-		float aspectRatio = (float)m_Width / (float)m_Height;
-		if (isnan(aspectRatio)) aspectRatio = 0.0f;
-		m_ProjectionMatrix = glm::infinitePerspective(glm::radians(m_Fov), aspectRatio, 0.1f);
+		if (isnan(m_AspectRatio)) m_AspectRatio = 0.0f;
+		m_ProjectionMatrix = glm::infinitePerspective(glm::radians(m_Fov), m_AspectRatio, 0.1f);
 	}
 
-	void Camera::SetProjectionMatrix(uint32_t width, uint32_t height)
+	void Camera::SetProjectionMatrix(float aspectRatio)
 	{
-		m_Width = width; m_Height = height;
+		m_AspectRatio = aspectRatio;
 		m_NeedsProjectionUpdate = true;
 	}
 }

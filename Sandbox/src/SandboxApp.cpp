@@ -2,7 +2,7 @@
 
 void SandboxGame::OnCreate()
 {
-	m_CameraController.GetCamera().SetPosition(glm::vec3(0.0f, 1.0f, -8.0f));
+	m_CameraController.GetCamera().SetPosition({ 0.0f, 1.0f, -8.0f });
 
 	m_DefaultShader = m_ShaderLibrary.Load("./assets/shaders/default.glsl");
 	m_DebugShader = m_ShaderLibrary.Load("./assets/shaders/unlitPosGradient.glsl");
@@ -86,34 +86,53 @@ void SandboxGame::OnUpdate(float elapsedTime)
 
 	m_CameraController.OnUpdate(elapsedTime);
 
+	m_PortalCameraController.GetCamera().SetPosition({ 0.0f, 1.0f, -4.0f });
+	m_PortalCameraController.GetCamera().SetOrientation(0.0f, { 1.0f, 0.0f, 0.0f });
+	m_PortalCameraController.GetCamera().SetFov(45.0f);
+	m_PortalCameraController.OnUpdate(elapsedTime);
+
 	m_SelectedShader->SetFloat3("u_Light.position", m_PointLightPosition);
 
 	//m_ModelTransform = glm::translate(m_ModelTransform, elapsedTime * glm::vec3(0.0f, 0.0f, 0.0f));
 	m_ModelTransform = glm::rotate(m_ModelTransform, elapsedTime, glm::vec3(0.0f, 1.0f, 0.0f));
 
-	Entropy::Renderer::BeginScene(m_CameraController.GetCamera());
+	{
+		Entropy::Renderer::BeginScene(m_PortalCameraController.GetCamera());
 
-	m_Framebuffer->Attach();
+		m_Framebuffer->Attach();
 
-	// Drawing Suzanne to the framebuffer
-	Entropy::RenderCommand::SetClearColor({ 1.0f, 0.0f, 0.0f, 1.0f });
-	Entropy::RenderCommand::Clear();
-	white->Attach(0);
-	white->Attach(1);
-	Entropy::Renderer::Submit(m_SelectedShader, m_Model.GetVertexArray(), m_ModelTransform);
+		// Drawing Suzanne to the framebuffer
+		Entropy::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
+		Entropy::RenderCommand::Clear();
+		white->Attach(0);
+		white->Attach(1);
+		Entropy::Renderer::Submit(m_SelectedShader, m_Model.GetVertexArray(), m_ModelTransform);
 
-	m_Framebuffer->Detach();
+		m_Framebuffer->Detach();
 
-	m_Framebuffer->AttachColorAttachment(0);
-	//diffuseMap->Attach(0);
-	specularMap->Attach(1);
-	Entropy::Renderer::Submit(m_SelectedShader, m_Plane.GetVertexArray(), m_PlaneTransform);
+		Entropy::Renderer::EndScene();
+	}
+		
+	Entropy::RenderCommand::SetViewport(0, 0, Application::Get().GetWindow().GetWidth(), Application::Get().GetWindow().GetHeight());
 
-	white->Attach(0);
-	white->Attach(1);
-	Entropy::Renderer::Submit(m_SelectedShader, m_Sphere.GetVertexArray(), glm::translate(glm::mat4(1.0f), m_PointLightPosition) * m_SphereTransform);
+	{
+		Entropy::Renderer::BeginScene(m_CameraController.GetCamera());
 
-	Entropy::Renderer::EndScene();
+		white->Attach(0);
+		white->Attach(1);
+		Entropy::Renderer::Submit(m_SelectedShader, m_Model.GetVertexArray(), m_ModelTransform);
+
+		m_Framebuffer->AttachColorAttachment(0);
+		//diffuseMap->Attach(0);
+		specularMap->Attach(1);
+		Entropy::Renderer::Submit(m_SelectedShader, m_Plane.GetVertexArray(), m_PlaneTransform);
+
+		white->Attach(0);
+		white->Attach(1);
+		Entropy::Renderer::Submit(m_SelectedShader, m_Sphere.GetVertexArray(), glm::translate(glm::mat4(1.0f), m_PointLightPosition) * m_SphereTransform);
+
+		Entropy::Renderer::EndScene();
+	}
 }
 
 void SandboxGame::OnApplicationEvent(Entropy::Event& e)
@@ -121,7 +140,6 @@ void SandboxGame::OnApplicationEvent(Entropy::Event& e)
 	Entropy::EventDispatcher dispatcher(e);
 	dispatcher.Dispatch<Entropy::MouseButtonPressedEvent>(NT_ATTACH_EVENT_FN(SandboxGame::OnMouseButtonPressed));
 	dispatcher.Dispatch<Entropy::KeyPressedEvent>(NT_ATTACH_EVENT_FN(SandboxGame::OnKeyPressed));
-	dispatcher.Dispatch<Entropy::WindowResizeEvent>(NT_ATTACH_EVENT_FN(SandboxGame::OnWindowResized));
 
 	m_CameraController.OnEvent(e);
 }
@@ -182,11 +200,5 @@ bool SandboxGame::OnKeyPressed(Entropy::KeyPressedEvent& e)
 		break;
 	}
 	}
-	return false;
-}
-
-bool SandboxGame::OnWindowResized(Entropy::WindowResizeEvent& e)
-{
-	m_Framebuffer->Resize(e.GetWidth(), e.GetHeight());
 	return false;
 }

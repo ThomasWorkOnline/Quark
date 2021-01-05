@@ -11,8 +11,8 @@ namespace Entropy {
 
 	static float s_ZoomSpeed = 0.0f;
 
-	CameraController::CameraController(uint32_t width, uint32_t height)
-		: m_Camera(width, height)
+	CameraController::CameraController(float aspectRatio)
+		: m_Camera(aspectRatio)
 	{
 	}
 
@@ -139,9 +139,9 @@ namespace Entropy {
 		m_Camera.CheckAndUpdate();
 	}
 
-	void CameraController::OnResize(uint32_t width, uint32_t height)
+	void CameraController::OnResize(float aspectRatio)
 	{
-		m_Camera.SetProjectionMatrix(width, height);
+		m_Camera.SetProjectionMatrix(aspectRatio);
 	}
 
 	void CameraController::OnEvent(Event& e)
@@ -159,7 +159,7 @@ namespace Entropy {
 
 	bool CameraController::OnWindowResized(WindowResizeEvent& e)
 	{
-		OnResize(e.GetWidth(), e.GetHeight());
+		OnResize((float)e.GetWidth() / (float)e.GetHeight());
 		return false;
 	}
 }

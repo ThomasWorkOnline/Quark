@@ -13,11 +13,11 @@ namespace Entropy {
 	class CameraController
 	{
 	public:
-		CameraController(uint32_t width, uint32_t height);
+		CameraController(float aspectRatio);
 
 		void OnEvent(Event& e);
 		void OnUpdate(float elapsedTime);
-		void OnResize(uint32_t width, uint32_t height);
+		void OnResize(float aspectRatio);
 
 		Camera& GetCamera() { return m_Camera; }
 
