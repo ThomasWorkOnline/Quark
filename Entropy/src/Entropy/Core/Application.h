@@ -17,8 +17,6 @@ namespace Entropy {
         virtual void OnCreate() {}
         virtual void OnApplicationEvent(Event& e) {}
 
-        void OnEvent(Event& e);
-
         inline Window& GetWindow() { return *m_Window; }
 
         inline static Application& Get() { return *s_Instance; };
@@ -27,6 +25,8 @@ namespace Entropy {
 
     private:
         void Run();
+
+        void OnEvent(Event& e);
         
         bool OnWindowClose(WindowCloseEvent& e);
 		bool OnWindowResize(WindowResizeEvent& e);

@@ -1,3 +1,5 @@
+#pragma once
+
 ///////////////////////////////////////////////////////////////////////////////////////////////
 // 1. #include "Entropy.h"                                                                   //
 // 2. Create a sub class that inherits from Entropy::Application                             //
@@ -5,8 +7,6 @@
 // 4. Implement OnUpdate() and OnCreate() pure virtual methods                               //
 // You're set!                                                                               //
 ///////////////////////////////////////////////////////////////////////////////////////////////
-
-#pragma once
 
 #include "Entropy.h"
 
