@@ -71,6 +71,6 @@
     <ClInclude Include="src\Entropy\Tools\EasingCurves.h" />
     <ClInclude Include="src\Entropy\Renderer\Framebuffer.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLFramebuffer.h" />
-    <ClInclude Include="src\Entropy\Scene\ECS\Entity.h" />
+    <ClInclude Include="src\Entropy\Scene\Entity.h" />
   </ItemGroup>
 </Project>

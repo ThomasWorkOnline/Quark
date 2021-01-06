@@ -144,7 +144,7 @@
     <ClInclude Include="src\Entropy\Events\Event.h" />
     <ClInclude Include="src\Entropy\Events\KeyEvent.h" />
     <ClInclude Include="src\Entropy\Events\MouseEvent.h" />
-    <ClInclude Include="src\Entropy\Scene\ECS\Entity.h" />
+    <ClInclude Include="src\Entropy\Scene\Entity.h" />
     <ClInclude Include="src\Entropy\Renderer\Buffer.h" />
     <ClInclude Include="src\Entropy\Renderer\Camera.h" />
     <ClInclude Include="src\Entropy\Renderer\CameraController.h" />

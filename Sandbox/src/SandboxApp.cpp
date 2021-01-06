@@ -11,7 +11,7 @@
 class SandboxGame : public Entropy::Application
 {
 public:
-	virtual void OnCreate() override
+	void OnCreate() override
 	{
 		m_CameraController.GetCamera().SetPosition({ 0.0f, 1.0f, -8.0f });
 
@@ -29,7 +29,7 @@ public:
 		m_Model.LoadOBJFromFile("./assets/models/monkey.obj");
 		m_Sphere.LoadOBJFromFile("./assets/models/sphere.obj");
 
-		m_Plane.GenerateTerrain(100, 0);
+		m_Plane.GenerateTerrain(1, 0);
 
 		float lightPower = 5.0f;
 		glm::vec3 lightColor = { 1.0f, 1.0f, 1.0f };
@@ -45,7 +45,7 @@ public:
 		m_SelectedShader->SetFloat("u_Material.shininess", 512.0f);
 	}
 
-	virtual void OnUpdate(float elapsedTime) override
+	void OnUpdate(float elapsedTime) override
 	{
 		static float accumulatedTime = 0.0f;
 		accumulatedTime += elapsedTime;
@@ -55,7 +55,7 @@ public:
 			std::cout << std::fixed << 1.0f / elapsedTime << " fps | frametime: " << elapsedTime * 1000 << "ms\n";
 			accumulatedTime = 0.0f;
 
-			auto& window = Application::Get().GetWindow();
+			auto& window = GetWindow();
 			std::cout << "Window resolution: " << window.GetWidth() << "x" << window.GetHeight() << std::endl;
 
 			/*std::cout << "Position: " << m_CameraController.GetCamera().GetPosition() << std::endl;
@@ -122,16 +122,16 @@ public:
 		m_PortalCameraController.GetCamera().SetFov(45.0f);
 		m_PortalCameraController.OnUpdate(elapsedTime);
 
+		m_SelectedShader->Attach();
 		m_SelectedShader->SetFloat3("u_Light.position", m_PointLightPosition);
-		m_SelectedShader->SetFloat("u_NormalLength", m_NormalLength);
 
 		//m_ModelTransform = glm::translate(m_ModelTransform, elapsedTime * glm::vec3(0.0f, 0.0f, 0.0f));
 		//m_ModelTransform = glm::rotate(m_ModelTransform, elapsedTime, glm::vec3(0.0f, 1.0f, 0.0f));
 
+		m_Framebuffer->Attach();
+
 		{
 			Entropy::Renderer::BeginScene(m_PortalCameraController.GetCamera());
-
-			m_Framebuffer->Attach();
 
 			// Drawing Suzanne to the framebuffer
 			Entropy::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
@@ -145,7 +145,7 @@ public:
 			Entropy::Renderer::EndScene();
 		}
 
-		Entropy::RenderCommand::SetViewport(0, 0, Application::Get().GetWindow().GetWidth(), Application::Get().GetWindow().GetHeight());
+		Entropy::RenderCommand::SetViewport(0, 0, GetWindow().GetWidth(), GetWindow().GetHeight());
 
 		{
 			Entropy::Renderer::BeginScene(m_CameraController.GetCamera());
@@ -160,15 +160,17 @@ public:
 			m_Framebuffer->AttachColorAttachment(1);
 			Entropy::Renderer::Submit(m_SelectedShader, m_Plane.GetVertexArray(), m_PlaneTransform);
 
+			m_DebugNormalShader->Attach();
+			m_DebugNormalShader->SetFloat("u_NormalLength", m_NormalLength);
 			white->Attach(0);
 			white->Attach(1);
-			Entropy::Renderer::Submit(m_SelectedShader, m_Sphere.GetVertexArray(), glm::translate(glm::mat4(1.0f), m_PointLightPosition) * m_SphereTransform);
+			Entropy::Renderer::Submit(m_DebugNormalShader, m_Sphere.GetVertexArray(), glm::translate(glm::mat4(1.0f), m_PointLightPosition) * m_SphereTransform);
 
 			Entropy::Renderer::EndScene();
 		}
 	}
 
-	virtual void OnApplicationEvent(Entropy::Event& e) override
+	void OnApplicationEvent(Entropy::Event& e) override
 	{
 		Entropy::EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<Entropy::MouseButtonPressedEvent>(NT_ATTACH_EVENT_FN(SandboxGame::OnMouseButtonPressed));

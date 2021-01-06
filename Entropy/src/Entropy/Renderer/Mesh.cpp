@@ -122,7 +122,7 @@ namespace Entropy {
 		for (int i = 0; i < noiseSize * noiseSize; i++)
 		{
 			float value = (float)rand() / (float)RAND_MAX;
-			noiseSeed2D[i] = value;
+			noiseSeed2D[i] = value * 0.2f;
 		}
 		//float* perlinNoise2D = new float[noiseSize * noiseSize];
 		//PerlinNoise2D(noiseSize, noiseSize, noiseSeed2D, 10, 2.4f, perlinNoise2D);*/

@@ -29,8 +29,8 @@ namespace Entropy {
 		{
 			if (lastMouseX != Input::GetMouseX() || lastMouseY != Input::GetMouseY())
 			{
-				glm::quat qYaw = glm::angleAxis(-mouseMoveX * m_MouseSensitivity, glm::vec3(0.0f, 1.0f, 0.0f) * m_Camera.GetOrientation());
-				glm::quat qPitch = glm::angleAxis(-mouseMoveY * m_MouseSensitivity, glm::vec3(1.0f, 0.0f, 0.0f) * m_Camera.GetOrientation());
+				glm::quat qYaw = glm::angleAxis(-mouseMoveX * m_MouseSensitivity * m_Camera.GetFov() / 120.0f, glm::vec3(0.0f, 1.0f, 0.0f) * m_Camera.GetOrientation());
+				glm::quat qPitch = glm::angleAxis(-mouseMoveY * m_MouseSensitivity * m_Camera.GetFov() / 120.0f, glm::vec3(1.0f, 0.0f, 0.0f) * m_Camera.GetOrientation());
 
 				m_Camera.Rotate(qPitch * qYaw);
 			}

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../Core/Core.h"
-#include "../Scene/ECS/Entity.h"
+#include "../Scene/Entity.h"
 
 namespace Entropy {
 
