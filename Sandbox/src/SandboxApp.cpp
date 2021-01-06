@@ -16,7 +16,8 @@ public:
 		m_CameraController.GetCamera().SetPosition({ 0.0f, 1.0f, -8.0f });
 
 		m_DefaultShader = m_ShaderLibrary.Load("./assets/shaders/default.glsl");
-		m_DebugShader = m_ShaderLibrary.Load("./assets/shaders/unlitPosGradient.glsl");
+		m_DebugPositionShader = m_ShaderLibrary.Load("./assets/shaders/debugPosition.glsl");
+		m_DebugNormalShader = m_ShaderLibrary.Load("./assets/shaders/debugNormal.glsl");
 		m_SelectedShader = m_DefaultShader;
 
 		m_SelectedShader->Attach();
@@ -28,7 +29,7 @@ public:
 		m_Model.LoadOBJFromFile("./assets/models/monkey.obj");
 		m_Sphere.LoadOBJFromFile("./assets/models/sphere.obj");
 
-		m_Plane.GenerateTerrain(10, 0);
+		m_Plane.GenerateTerrain(100, 0);
 
 		float lightPower = 5.0f;
 		glm::vec3 lightColor = { 1.0f, 1.0f, 1.0f };
@@ -98,6 +99,22 @@ public:
 			m_PointLightPosition.x -= elapsedTime * speed;
 		}
 
+		if (Entropy::Input::IsMouseButtonPressed(Entropy::MouseCode::Button3))
+		{
+			m_NormalLength -= elapsedTime;
+
+			if (m_NormalLength < 0.001f)
+				m_NormalLength = 0.001f;
+		}
+
+		if (Entropy::Input::IsMouseButtonPressed(Entropy::MouseCode::Button4))
+		{
+			m_NormalLength += elapsedTime;
+
+			if (m_NormalLength > 1.0f)
+				m_NormalLength = 1.0f;
+		}
+
 		m_CameraController.OnUpdate(elapsedTime);
 
 		m_PortalCameraController.GetCamera().SetPosition({ 0.0f, 1.0f, -4.0f });
@@ -106,9 +123,10 @@ public:
 		m_PortalCameraController.OnUpdate(elapsedTime);
 
 		m_SelectedShader->SetFloat3("u_Light.position", m_PointLightPosition);
+		m_SelectedShader->SetFloat("u_NormalLength", m_NormalLength);
 
 		//m_ModelTransform = glm::translate(m_ModelTransform, elapsedTime * glm::vec3(0.0f, 0.0f, 0.0f));
-		m_ModelTransform = glm::rotate(m_ModelTransform, elapsedTime, glm::vec3(0.0f, 1.0f, 0.0f));
+		//m_ModelTransform = glm::rotate(m_ModelTransform, elapsedTime, glm::vec3(0.0f, 1.0f, 0.0f));
 
 		{
 			Entropy::Renderer::BeginScene(m_PortalCameraController.GetCamera());
@@ -136,9 +154,10 @@ public:
 			white->Attach(1);
 			Entropy::Renderer::Submit(m_SelectedShader, m_Model.GetVertexArray(), m_ModelTransform);
 
-			m_Framebuffer->AttachColorAttachment(0);
 			//diffuseMap->Attach(0);
-			specularMap->Attach(1);
+			//specularMap->Attach(1);
+			m_Framebuffer->AttachColorAttachment(0);
+			m_Framebuffer->AttachColorAttachment(1);
 			Entropy::Renderer::Submit(m_SelectedShader, m_Plane.GetVertexArray(), m_PlaneTransform);
 
 			white->Attach(0);
@@ -179,9 +198,24 @@ public:
 		case Entropy::KeyCode::F1:
 		{
 			// Toggle debug shader
-			static bool debugShaderEnabled = false;
-			debugShaderEnabled = !debugShaderEnabled;
-			m_SelectedShader = debugShaderEnabled ? m_DebugShader : m_DefaultShader;
+			static uint32_t shaderIndex = 0;
+			shaderIndex++;
+
+			if (shaderIndex > 2)
+				shaderIndex = 0;
+
+			switch (shaderIndex)
+			{
+			case 0:
+				m_SelectedShader = m_DefaultShader;
+				break;
+			case 1:
+				m_SelectedShader = m_DebugPositionShader;
+				break;
+			case 2:
+				m_SelectedShader = m_DebugNormalShader;
+				break;
+			}
 
 			std::stringstream ss;
 			ss << "Shader used: ";
@@ -225,8 +259,10 @@ private:
 
 	Entropy::ShaderLibrary m_ShaderLibrary;
 	Entropy::Ref<Entropy::Shader> m_DefaultShader;
-	Entropy::Ref<Entropy::Shader> m_DebugShader;
+	Entropy::Ref<Entropy::Shader> m_DebugPositionShader;
+	Entropy::Ref<Entropy::Shader> m_DebugNormalShader;
 	Entropy::Ref<Entropy::Shader> m_SelectedShader;
+	float m_NormalLength = 0.1f;
 
 	Entropy::Mesh m_Plane;
 	Entropy::Mesh m_Model;

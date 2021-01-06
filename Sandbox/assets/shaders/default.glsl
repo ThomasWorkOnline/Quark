@@ -14,15 +14,15 @@ out vec3 v_Normal;
 
 void main()
 {
-	vec4 transformedModelPosition = u_Model * vec4(a_Position.xyz, 1.0);
+	vec4 position = u_Model * vec4(a_Position.xyz, 1.0);
 
-	gl_Position = u_ViewProjection * transformedModelPosition;
+	gl_Position = u_ViewProjection * position;
 	// Calculate the transformed normal                      w = 0!
 	vec4 transformedModelNormal = normalize(u_Model * vec4(a_Normal, 0.0));
 
-	v_Position = transformedModelPosition.xyz;
+	v_Position = position.xyz;
 	v_TexCoord = a_TexCoord;
-	v_Normal = mat3(transpose(inverse(u_Model))) * a_Normal.xyz;
+	v_Normal = mat3(transpose(inverse(u_Model))) * a_Normal;
 }
 
 #type fragment

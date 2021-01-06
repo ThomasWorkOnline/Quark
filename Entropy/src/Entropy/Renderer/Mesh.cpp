@@ -43,22 +43,22 @@ namespace Entropy {
 		    0.5f,  0.5f, -0.5f,   0.0f, 1.0f,   0.0f,  0.0f, -1.0f,
 
 		    // left
-		    -0.5f, -0.5f, -0.5f,   0.0f, 0.0f,  -1.0f,  0.0f,  0.0f,
-		    -0.5f, -0.5f,  0.5f,   1.0f, 0.0f,  -1.0f,  0.0f,  0.0f,
-		    -0.5f,  0.5f,  0.5f,   1.0f, 1.0f,  -1.0f,  0.0f,  0.0f,
-		    -0.5f,  0.5f, -0.5f,   0.0f, 1.0f,  -1.0f,  0.0f,  0.0f,
+		   -0.5f, -0.5f, -0.5f,   0.0f, 0.0f,  -1.0f,  0.0f,  0.0f,
+		   -0.5f, -0.5f,  0.5f,   1.0f, 0.0f,  -1.0f,  0.0f,  0.0f,
+		   -0.5f,  0.5f,  0.5f,   1.0f, 1.0f,  -1.0f,  0.0f,  0.0f,
+		   -0.5f,  0.5f, -0.5f,   0.0f, 1.0f,  -1.0f,  0.0f,  0.0f,
 
 		    // bottom
-		    -0.5f, -0.5f, -0.5f,   0.0f, 0.0f,   0.0f, -1.0f,  0.0f,
-		     0.5f, -0.5f, -0.5f,   1.0f, 0.0f,   0.0f, -1.0f,  0.0f,
-		     0.5f, -0.5f,  0.5f,   1.0f, 1.0f,   0.0f, -1.0f,  0.0f,
-		    -0.5f, -0.5f,  0.5f,   0.0f, 1.0f,   0.0f, -1.0f,  0.0f,
+		   -0.5f, -0.5f, -0.5f,   0.0f, 0.0f,   0.0f, -1.0f,  0.0f,
+		    0.5f, -0.5f, -0.5f,   1.0f, 0.0f,   0.0f, -1.0f,  0.0f,
+		    0.5f, -0.5f,  0.5f,   1.0f, 1.0f,   0.0f, -1.0f,  0.0f,
+		   -0.5f, -0.5f,  0.5f,   0.0f, 1.0f,   0.0f, -1.0f,  0.0f,
 
 		    // top
-		    -0.5f,  0.5f,  0.5f,   0.0f, 0.0f,   0.0f,  1.0f,  0.0f,
-		     0.5f,  0.5f,  0.5f,   1.0f, 0.0f,   0.0f,  1.0f,  0.0f,
-		     0.5f,  0.5f, -0.5f,   1.0f, 1.0f,   0.0f,  1.0f,  0.0f,
-		    -0.5f,  0.5f, -0.5f,   0.0f, 1.0f,   0.0f,  1.0f,  0.0f
+		   -0.5f,  0.5f,  0.5f,   0.0f, 0.0f,   0.0f,  1.0f,  0.0f,
+		    0.5f,  0.5f,  0.5f,   1.0f, 0.0f,   0.0f,  1.0f,  0.0f,
+		    0.5f,  0.5f, -0.5f,   1.0f, 1.0f,   0.0f,  1.0f,  0.0f,
+		   -0.5f,  0.5f, -0.5f,   0.0f, 1.0f,   0.0f,  1.0f,  0.0f
 		};
 
 		uint32_t indexBuffer[] = {
@@ -101,17 +101,14 @@ namespace Entropy {
 	{
 		NT_ASSERT(scale > 0, "Terrain scale cannot be smaller than 1");
 
-		// Init buffers
 		m_VertexArray = VertexArray::Create();
 
-		// Init default layout
 		BufferLayout layout = {
 			{ ShaderDataType::Float3, "a_Position" },
 			{ ShaderDataType::Float2, "a_TexCoord" },
 			{ ShaderDataType::Float3, "a_Normal" }
 		};
 
-		// We want the number of vertices, not grid meters, therefore +1
 		uint32_t size = (uint32_t)scale + 1;
 		size_t strideCount = layout.GetStride() / sizeof(float);
 		size_t vertexBufferCount = (size_t)size * (size_t)size * strideCount;
@@ -120,22 +117,16 @@ namespace Entropy {
 		std::vector<uint32_t> indexBuffer;
 
 		// To sample the height of the terrain, we need to know the height of the border
-		/*size_t noiseSize = size + 1;
+		size_t noiseSize = (size_t)size + 1;
 		float* noiseSeed2D = new float[noiseSize * noiseSize];
 		for (int i = 0; i < noiseSize * noiseSize; i++)
 		{
 			float value = (float)rand() / (float)RAND_MAX;
 			noiseSeed2D[i] = value;
 		}
-		float* perlinNoise2D = new float[noiseSize * noiseSize];
+		//float* perlinNoise2D = new float[noiseSize * noiseSize];
 		//PerlinNoise2D(noiseSize, noiseSize, noiseSeed2D, 10, 2.4f, perlinNoise2D);*/
 
-		//static float xScale = 0.1f;
-		//static float zScale = 0.1f;
-		//static float yScale = 48.0f;
-		static const float heightOffset = -1.0f;
-
-		// filling the vertex buffer
 		for (uint32_t y = 0; y < size; y++)
 		{
 			for (uint32_t x = 0; x < size; x++)
@@ -144,43 +135,33 @@ namespace Entropy {
 
 				static const float centerOffset = scale * 0.5f;
 
-				/*float height0 = perlinNoise2D[x + y * noiseSize] * yScale; // center;
-				float height1 = perlinNoise2D[(x + 1) + y * noiseSize] * yScale; // right
-				float height2 = perlinNoise2D[x + (y + 1) * noiseSize] * yScale; // bottom*/
+				float height0 = noiseSeed2D[x + y * noiseSize]; // center;
+				float height1 = noiseSeed2D[(x + 1) + y * noiseSize]; // right
+				float height2 = noiseSeed2D[x + (y + 1) * noiseSize]; // bottom
 
-				// position
-				/*vertexBuffer[pos + 0] = ((float)x - centerOffset) * xScale;
-				vertexBuffer[pos + 1] = height0 + heightOffset;
-				vertexBuffer[pos + 2] = ((float)y - centerOffset) * zScale;*/
-
+				// Position
 				vertexBuffer[pos + 0] = (float)x - centerOffset;
-				vertexBuffer[pos + 1] = heightOffset;
+				vertexBuffer[pos + 1] = height0;
 				vertexBuffer[pos + 2] = (float)y - centerOffset;
 
-				// texCoord
+				// TexCoord
 				vertexBuffer[pos + 3] = (float)x;
 				vertexBuffer[pos + 4] = (float)y;
 
+				// Normal
+				glm::vec3 line1(glm::vec3(x, 0.0f, y + 1) - glm::vec3(x, 0.0f, y)); // bottom
+				glm::vec3 line2(glm::vec3(x + 1, 0.0f, y) - glm::vec3(x, 0.0f, y)); // right
+				glm::vec3 normal = glm::normalize(glm::cross(line1, line2));
 
-				// normal
-				/*glm::vec3 line1(glm::vec3(x, height2, y + zScale) - glm::vec3(x, height0, y)); // bottom
-				glm::vec3 line2(glm::vec3(x + xScale, height1, y) - glm::vec3(x, height0, y)); // right
-				glm::vec3 normal = glm::normalize(glm::cross(line1, line2));*/
-
-				/*vertexBuffer[pos + 5] = normal.x;
+				vertexBuffer[pos + 5] = normal.x;
 				vertexBuffer[pos + 6] = normal.y;
-				vertexBuffer[pos + 7] = normal.z;*/
-
-				vertexBuffer[pos + 5] = 0.0f;
-				vertexBuffer[pos + 6] = 1.0f;
-				vertexBuffer[pos + 7] = 0.0f;
+				vertexBuffer[pos + 7] = normal.z;
 			}
 		}
 
-		//delete[] noiseSeed2D;
+		delete[] noiseSeed2D;
 		//delete[] perlinNoise2D;
 
-		// filling the index buffer
 		for (uint32_t y = 0; y < scale; y++)
 		{
 			for (uint32_t x = 0; x < scale; x++)
@@ -197,12 +178,10 @@ namespace Entropy {
 			}
 		}
 
-		// Takes size in bytes
 		m_VertexBuffer = VertexBuffer::Create(vertexBuffer, vertexBufferCount * sizeof(float));
 		m_VertexBuffer->SetLayout(layout);
 		m_VertexArray->AddVertexBuffer(m_VertexBuffer);
 
-		// Takes index count
 		m_IndexBuffer = IndexBuffer::Create(&indexBuffer[0], (uint32_t)indexBuffer.size());
 		m_VertexArray->SetIndexBuffer(m_IndexBuffer);
 
@@ -249,10 +228,8 @@ namespace Entropy {
 
 	bool Mesh::LoadOBJFromFile(const char* filepath)
 	{
-		// Way faster performance with sync off
 		std::ios::sync_with_stdio(false);
 
-		// return error if file is not readable
 		std::ifstream in(filepath, std::ios::in);
 		if (!in.is_open())
 			return false;
@@ -273,7 +250,6 @@ namespace Entropy {
 			std::getline(in, line);
 			Tokenize(line, ' ', tokens);
 
-			// Starts with v
 			if (line.substr(0, 2) == "v ")
 			{
 				glm::vec3 vertex = {};
@@ -282,7 +258,6 @@ namespace Entropy {
 				vertex.z = std::stof(tokens[3]);
 				positions.push_back(vertex);
 			}
-			// Starts with vt
 			else if (line.substr(0, 2) == "vt")
 			{
 				glm::vec2 texCoord = {};
@@ -290,7 +265,6 @@ namespace Entropy {
 				texCoord.y = std::stof(tokens[2]);
 				textures.push_back(texCoord);
 			}
-			// Starts with vn
 			else if (line.substr(0, 2) == "vn")
 			{
 				glm::vec3 normal = {};
@@ -301,7 +275,6 @@ namespace Entropy {
 			}
 			else if (line.substr(0, 2) == "s ")
 			{
-				// smooth shading flag
 				if (line.substr(2, 3) == "off")
 				{
 					smoothShaded = false;
@@ -312,10 +285,8 @@ namespace Entropy {
 				break;
 		}
 
-		// Init buffers
 		m_VertexArray = VertexArray::Create();
 
-		// Init default layout
 		BufferLayout layout = {
 			{ ShaderDataType::Float3, "a_Position" },
 			{ ShaderDataType::Float2, "a_TexCoord" },
@@ -328,13 +299,10 @@ namespace Entropy {
 		float* vertexBuffer = new float[vertexBufferCount];
 		std::vector<uint32_t> indexBuffer;
 
-		// looping through all faces
 		while (!in.eof())
 		{
-			// executes 2 times
 			if (line.substr(0, 2) == "f ")
 			{
-				// Contains data about how to link position, texture coords and normals
 				uint32_t vertex0[3]; // pos_ptr // tex_ptr // norm_ptr
 				uint32_t vertex1[3];
 				uint32_t vertex2[3];
@@ -356,7 +324,6 @@ namespace Entropy {
 				uint32_t t0 = vertex0[1] - 1; uint32_t t1 = vertex1[1] - 1; uint32_t t2 = vertex2[1] - 1;
 				uint32_t n0 = vertex0[2] - 1; uint32_t n1 = vertex1[2] - 1; uint32_t n2 = vertex2[2] - 1;
 
-				// Construct triangle
 				if (textures.empty())
 				{
 					vertexBuffer[strideCount * v0 + 0] = positions[v0].x;
@@ -421,19 +388,16 @@ namespace Entropy {
 				indexBuffer.push_back(v2);
 			}
 
-			// Reading after because we already read the file once
 			std::getline(in, line);
 			Tokenize(line, ' ', tokens);
 		}
 
 		in.close();
 
-		// Takes size in bytes
 		m_VertexBuffer = VertexBuffer::Create(vertexBuffer, vertexBufferCount * sizeof(float));
 		m_VertexBuffer->SetLayout(layout);
 		m_VertexArray->AddVertexBuffer(m_VertexBuffer);
 
-		// Takes index count
 		m_IndexBuffer = IndexBuffer::Create(&indexBuffer[0], (uint32_t)indexBuffer.size());
 		m_VertexArray->SetIndexBuffer(m_IndexBuffer);
 
