@@ -12,6 +12,11 @@ namespace Entropy {
 	{
 	}
 
+	Mesh::Mesh(const char* filepath)
+	{
+		LoadOBJFromFile(filepath);
+	}
+
 	void Mesh::GenerateUnitCube()
 	{
 		m_VertexArray = VertexArray::Create();

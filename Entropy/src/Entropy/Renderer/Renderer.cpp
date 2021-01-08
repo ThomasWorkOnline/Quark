@@ -1,6 +1,9 @@
 #include "Renderer.h"
 
 #include "../Core/Core.h"
+#include "../Scene/Scene.h"
+#include "../Scene/Entity.h"
+#include "../Scene/Components.h"
 
 #include "RenderingAPI.h"
 
@@ -25,10 +28,17 @@ namespace Entropy {
 
 	}
 
-	void Renderer::BeginScene(const Camera& camera)
+	void Renderer::BeginScene(Entity cameraEntity)
 	{
-		s_SceneData.ViewProjectionMatrix = camera.GetViewProjectionMatrix();
-		s_SceneData.CameraPosition = camera.GetPosition();
+		auto& camera = cameraEntity.GetComponent<CameraComponent>().Camera;
+		auto& transform = cameraEntity.GetComponent<TransformComponent>();
+
+		transform.Orientation = glm::normalize(transform.Orientation);
+		glm::mat4 rotate = glm::toMat4(transform.Orientation);
+		glm::mat4 view = glm::translate(rotate, -transform.Position);
+
+		s_SceneData.ViewProjectionMatrix = camera.GetProjectionMatrix() * view;
+		s_SceneData.CameraPosition = transform.Position;
 
 		StartBatch();
 	}
@@ -43,6 +53,20 @@ namespace Entropy {
 		// TODO: Render
 	}
 
+	void Renderer::Submit(const Ref<Shader>& shader, Entity entity)
+	{
+		auto& transform = entity.GetComponent<TransformComponent>();
+		auto& vao = entity.GetComponent<MeshComponent>().Mesh.GetVertexArray();
+
+		shader->Attach();
+		shader->SetMat4("u_ViewProjection", s_SceneData.ViewProjectionMatrix);
+		shader->SetFloat3("u_CameraPosition", s_SceneData.CameraPosition);
+		shader->SetMat4("u_Model", transform.GetTransform());
+
+		vao->Attach();
+		RenderCommand::Draw(vao);
+	}
+
 	void Renderer::Submit(const Ref<Shader>& shader, const Ref<VertexArray>& va, const glm::mat4& transform)
 	{
 		shader->Attach();
@@ -50,7 +74,6 @@ namespace Entropy {
 		shader->SetFloat3("u_CameraPosition", s_SceneData.CameraPosition);
 		shader->SetMat4("u_Model", transform);
 
-		// TODO: append this to batch
 		va->Attach();
 		RenderCommand::Draw(va);
 	}

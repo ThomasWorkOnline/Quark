@@ -13,19 +13,19 @@ namespace Entropy {
 	class CameraController
 	{
 	public:
-		CameraController(float aspectRatio);
+		CameraController(Entity camera);
 
 		void OnEvent(Event& e);
 		void OnUpdate(float elapsedTime);
 		void OnResize(float aspectRatio);
 
-		Camera& GetCamera() { return m_Camera; }
+		Entity& GetCamera() { return m_CameraEntity; }
 
 	private:
 		bool OnMouseScrolled(MouseScrolledEvent& e);
 		bool OnWindowResized(WindowResizeEvent& e);
 
-		Camera m_Camera;
+		Entity m_CameraEntity;
 
 		float m_RollSensitivity = 1.0f;
 		float m_MovementSpeed = 12.0f;

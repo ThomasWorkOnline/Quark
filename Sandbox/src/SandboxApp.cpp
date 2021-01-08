@@ -13,8 +13,25 @@ class SandboxGame : public Entropy::Application
 public:
 	void OnCreate() override
 	{
-		m_CameraController.GetCamera().SetPosition({ 0.0f, 1.0f, -8.0f });
+		auto& window = GetWindow();
 
+		{
+			m_CameraEntity.AddComponent<Entropy::TransformComponent>().Position = { 0.0f, 1.0f, -8.0f };
+			m_CameraEntity.AddComponent<Entropy::PhysicsComponent>();
+			m_CameraEntity.AddComponent<Entropy::CameraComponent>((float)window.GetWidth() / (float)window.GetHeight(), 45.0f);
+		}
+
+		{
+			m_PortalCamera.AddComponent<Entropy::TransformComponent>().Position = { 0.0f, 0.0f, -6.0f };
+			m_PortalCamera.AddComponent<Entropy::PhysicsComponent>();
+			m_PortalCamera.AddComponent<Entropy::CameraComponent>(1.0f, 45.0f);
+		}
+
+		{
+			m_ModelEntity.AddComponent<Entropy::TransformComponent>().Position.y = 1.0f;
+			m_ModelEntity.AddComponent<Entropy::MeshComponent>("./assets/models/monkey.obj");
+		}
+		
 		m_DefaultShader = m_ShaderLibrary.Load("./assets/shaders/default.glsl");
 		m_DebugPositionShader = m_ShaderLibrary.Load("./assets/shaders/debugPosition.glsl");
 		m_DebugNormalShader = m_ShaderLibrary.Load("./assets/shaders/debugNormal.glsl");
@@ -25,11 +42,8 @@ public:
 		m_SelectedShader->SetInt("u_Material.specular", 1);
 		m_SelectedShader->SetInt("u_Material.normalMap", 2);
 
-		//m_Model.GenerateUnitCube();
-		m_Model.LoadOBJFromFile("./assets/models/monkey.obj");
 		m_Sphere.LoadOBJFromFile("./assets/models/sphere.obj");
-
-		m_Plane.GenerateTerrain(1, 0);
+		m_Plane.GenerateTerrain(10, 0);
 
 		float lightPower = 5.0f;
 		glm::vec3 lightColor = { 1.0f, 1.0f, 1.0f };
@@ -47,6 +61,9 @@ public:
 
 	void OnUpdate(float elapsedTime) override
 	{
+		m_CameraController.OnUpdate(elapsedTime);
+		m_Scene.OnUpdate(elapsedTime);
+
 		static float accumulatedTime = 0.0f;
 		accumulatedTime += elapsedTime;
 
@@ -58,9 +75,10 @@ public:
 			auto& window = GetWindow();
 			std::cout << "Window resolution: " << window.GetWidth() << "x" << window.GetHeight() << std::endl;
 
-			/*std::cout << "Position: " << m_CameraController.GetCamera().GetPosition() << std::endl;
-			std::cout << "Velocity: " << m_CameraController.GetCamera().GetVelocity() << std::endl;
-			std::cout << "Orientation: " << m_CameraController.GetCamera().GetOrientation() << std::endl;*/
+			auto& transform = m_CameraEntity.GetComponent<Entropy::TransformComponent>();
+			std::cout << transform.Position << std::endl;
+			std::cout << transform.Orientation << std::endl;
+			std::cout << transform.Scale << std::endl;
 		}
 
 		const float speed = 10.0f;
@@ -115,56 +133,46 @@ public:
 				m_NormalLength = 1.0f;
 		}
 
-		m_CameraController.OnUpdate(elapsedTime);
-
-		m_PortalCameraController.GetCamera().SetPosition({ 0.0f, 1.0f, -4.0f });
-		m_PortalCameraController.GetCamera().SetOrientation(0.0f, { 1.0f, 0.0f, 0.0f });
-		m_PortalCameraController.GetCamera().SetFov(45.0f);
-		m_PortalCameraController.OnUpdate(elapsedTime);
-
 		m_SelectedShader->Attach();
 		m_SelectedShader->SetFloat3("u_Light.position", m_PointLightPosition);
 
-		//m_ModelTransform = glm::translate(m_ModelTransform, elapsedTime * glm::vec3(0.0f, 0.0f, 0.0f));
-		//m_ModelTransform = glm::rotate(m_ModelTransform, elapsedTime, glm::vec3(0.0f, 1.0f, 0.0f));
+		m_ModelEntity.GetComponent<Entropy::TransformComponent>().Rotate(elapsedTime, glm::vec3(0.0f, 1.0f, 0.0f));
 
 		m_Framebuffer->Attach();
 
 		{
-			Entropy::Renderer::BeginScene(m_PortalCameraController.GetCamera());
+			Entropy::Renderer::BeginScene(m_PortalCamera);
 
 			// Drawing Suzanne to the framebuffer
 			Entropy::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
 			Entropy::RenderCommand::Clear();
 			white->Attach(0);
 			white->Attach(1);
-			Entropy::Renderer::Submit(m_SelectedShader, m_Model.GetVertexArray(), m_ModelTransform);
-
-			m_Framebuffer->Detach();
+			Entropy::Renderer::Submit(m_SelectedShader, m_ModelEntity);
 
 			Entropy::Renderer::EndScene();
 		}
 
+		m_Framebuffer->Detach();
+
 		Entropy::RenderCommand::SetViewport(0, 0, GetWindow().GetWidth(), GetWindow().GetHeight());
 
 		{
-			Entropy::Renderer::BeginScene(m_CameraController.GetCamera());
+			Entropy::Renderer::BeginScene(m_CameraEntity);
 
 			white->Attach(0);
 			white->Attach(1);
-			Entropy::Renderer::Submit(m_SelectedShader, m_Model.GetVertexArray(), m_ModelTransform);
+			Entropy::Renderer::Submit(m_SelectedShader, m_ModelEntity);
 
-			//diffuseMap->Attach(0);
-			//specularMap->Attach(1);
 			m_Framebuffer->AttachColorAttachment(0);
 			m_Framebuffer->AttachColorAttachment(1);
 			Entropy::Renderer::Submit(m_SelectedShader, m_Plane.GetVertexArray(), m_PlaneTransform);
 
-			m_DebugNormalShader->Attach();
-			m_DebugNormalShader->SetFloat("u_NormalLength", m_NormalLength);
+			m_SelectedShader->Attach();
+			m_SelectedShader->SetFloat("u_NormalLength", m_NormalLength);
 			white->Attach(0);
 			white->Attach(1);
-			Entropy::Renderer::Submit(m_DebugNormalShader, m_Sphere.GetVertexArray(), glm::translate(glm::mat4(1.0f), m_PointLightPosition) * m_SphereTransform);
+			Entropy::Renderer::Submit(m_SelectedShader, m_Sphere.GetVertexArray(), glm::translate(glm::mat4(1.0f), m_PointLightPosition) * m_SphereTransform);
 
 			Entropy::Renderer::EndScene();
 		}
@@ -253,6 +261,8 @@ public:
 	}
 
 private:
+	Entropy::Scene m_Scene = Entropy::Scene();
+
 	Entropy::Ref<Entropy::Texture2D> diffuseMap = Entropy::Texture2D::Create("./assets/textures/container.png");
 	Entropy::Ref<Entropy::Texture2D> specularMap = Entropy::Texture2D::Create("./assets/textures/container_specular.png");
 	Entropy::Ref<Entropy::Texture2D> normalMap = Entropy::Texture2D::Create("./assets/textures/normal_map.png");
@@ -266,8 +276,15 @@ private:
 	Entropy::Ref<Entropy::Shader> m_SelectedShader;
 	float m_NormalLength = 0.1f;
 
+	Entropy::Entity m_PlaneEntity = m_Scene.CreateEntity();
+	Entropy::Entity m_ModelEntity = m_Scene.CreateEntity();
+	Entropy::Entity m_SphereEntity = m_Scene.CreateEntity();
+	Entropy::Entity m_CameraEntity = m_Scene.CreateEntity();
+	Entropy::Entity m_PortalCamera = m_Scene.CreateEntity();
+
+	Entropy::CameraController m_CameraController = Entropy::CameraController(m_CameraEntity);
+
 	Entropy::Mesh m_Plane;
-	Entropy::Mesh m_Model;
 	Entropy::Mesh m_Sphere;
 
 	glm::mat4 m_PlaneTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
@@ -276,10 +293,7 @@ private:
 
 	glm::vec3 m_PointLightPosition = glm::vec3(-0.7f, 2.0f, -5.0f);
 
-	Entropy::CameraController m_CameraController = Entropy::CameraController((float)GetWindow().GetWidth() / (float)GetWindow().GetHeight());
-
 	Entropy::Ref<Entropy::Framebuffer> m_Framebuffer = Entropy::Framebuffer::Create(2048, 2048);
-	Entropy::CameraController m_PortalCameraController = Entropy::CameraController(1.0f);
 };
 
 Entropy::Application* Entropy::CreateApplication()

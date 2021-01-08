@@ -60,7 +60,7 @@
       <PreprocessorDefinitions>
       </PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Entropy\vendor\glew\include;$(SolutionDir)Entropy\vendor\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Entropy\vendor\glew\include;$(SolutionDir)Entropy\vendor\glfw\include;$(SolutionDir)Entropy\vendor\entt\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -83,7 +83,7 @@
       <PreprocessorDefinitions>
       </PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Entropy\vendor\glew\include;$(SolutionDir)Entropy\vendor\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Entropy\vendor\glew\include;$(SolutionDir)Entropy\vendor\glfw\include;$(SolutionDir)Entropy\vendor\entt\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -116,6 +116,8 @@
     <ClCompile Include="src\Entropy\Renderer\Shader.cpp" />
     <ClCompile Include="src\Entropy\Renderer\Texture.cpp" />
     <ClCompile Include="src\Entropy\Renderer\VertexArray.cpp" />
+    <ClCompile Include="src\Entropy\Scene\Entity.cpp" />
+    <ClCompile Include="src\Entropy\Scene\Scene.cpp" />
     <ClCompile Include="src\Entropy\Tools\EasingCurves.cpp" />
     <ClCompile Include="src\Entropy\Tools\Colorimetry.cpp" />
     <ClCompile Include="src\Entropy\Tools\Noise.cpp" />
@@ -144,6 +146,7 @@
     <ClInclude Include="src\Entropy\Events\Event.h" />
     <ClInclude Include="src\Entropy\Events\KeyEvent.h" />
     <ClInclude Include="src\Entropy\Events\MouseEvent.h" />
+    <ClInclude Include="src\Entropy\Scene\Components.h" />
     <ClInclude Include="src\Entropy\Scene\Entity.h" />
     <ClInclude Include="src\Entropy\Renderer\Buffer.h" />
     <ClInclude Include="src\Entropy\Renderer\Camera.h" />
@@ -157,6 +160,7 @@
     <ClInclude Include="src\Entropy\Renderer\Shader.h" />
     <ClInclude Include="src\Entropy\Renderer\Texture.h" />
     <ClInclude Include="src\Entropy\Renderer\VertexArray.h" />
+    <ClInclude Include="src\Entropy\Scene\Scene.h" />
     <ClInclude Include="src\Entropy\Tools\EasingCurves.h" />
     <ClInclude Include="src\Entropy\Tools\Colorimetry.h" />
     <ClInclude Include="src\Entropy\Tools\LogUtils.h" />
@@ -171,6 +175,7 @@
     <ClInclude Include="src\Platform\OpenGL\OpenGLTexture.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLVertexArray.h" />
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
+    <ClInclude Include="vendor\entt\include\ENTT\entt.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -10,14 +10,13 @@ namespace Entropy {
 	{
 	public:
 		Mesh();
+		Mesh(const char* filepath);
 
 		const Ref<VertexArray>& GetVertexArray() const { return m_VertexArray; }
 		const Ref<VertexBuffer>& GetVertexBuffer() const { return m_VertexBuffer; }
 		const Ref<IndexBuffer>& GetIndexBuffer() const { return m_IndexBuffer; }
 
-		// Smooth lighting enabled by default
 		// TODO: support sharp edges and sharp angle threshold detector
-		// use Assimp
 		bool LoadOBJFromFile(const char* filepath);
 
 		void GenerateUnitCube();

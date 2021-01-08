@@ -5,58 +5,27 @@
 
 namespace Entropy {
 
-	class Camera : public Entity
+	class Camera
 	{
 	public:
-		Camera(float aspectRatio, float fov = 45.0f);
+		Camera(float aspectRatio, float fov);
 
-		void CheckAndUpdate();
-
-		const glm::mat4& GetProjectionMatrix() const { return m_ProjectionMatrix; }
-		const glm::mat4& GetViewMatrix() const { return m_ViewMatrix; }
-		const glm::mat4& GetViewProjectionMatrix() const { return m_ViewProjectionMatrix; }
-
-		const glm::vec3& GetPosition() const { return m_Position; }
-		const glm::vec3& GetVelocity() const { return m_Velocity; }
-		const glm::quat& GetOrientation() const { return m_Orientation; }
-
-		glm::vec3 GetFowardVector() const { return glm::vec3(0.0f, 0.0f, 1.0f) * m_Orientation; }
-		glm::vec3 GetBackwardVector() const { return glm::vec3(0.0f, 0.0f, -1.0f) * m_Orientation; }
-		glm::vec3 GetRightVector() const { return glm::vec3(1.0f, 0.0f, 0.0f) * m_Orientation; }
-		glm::vec3 GetLeftVector() const { return glm::vec3(-1.0f, 0.0f, 0.0f) * m_Orientation; }
-		glm::vec3 GetTopVector() const { return glm::vec3(0.0f, 1.0f, 0.0f) * m_Orientation; }
-		glm::vec3 GetBottomVector() const { return glm::vec3(0.0f, -1.0f, 0.0f) * m_Orientation; }
+		const glm::mat4& GetProjectionMatrix() const { return m_Projection; }
 
 		float GetFov() const { return m_Fov; }
+		void SetFov(float fov) { m_Fov = fov; m_RequiresUpdate = true; }
 
-		void SetOrientation(const glm::quat& orien) { m_Orientation = orien; m_NeedsViewUpdate = true; }
-		void SetOrientation(float angle, const glm::vec3& axis) { SetOrientation(glm::angleAxis(angle, axis)); }
+		float GetAspectRatio() const { return m_AspectRatio; }
+		void SetAspectRatio(float aspectRatio) { m_AspectRatio = aspectRatio; m_RequiresUpdate = true; }
 
-		void Rotate(const glm::quat& quat) { SetOrientation(m_Orientation * quat); }
-		void Rotate(float angle, const glm::vec3 axis) { Rotate(glm::angleAxis(angle, axis)); }
-
-		void SetPosition(const glm::vec3& pos) { m_Position = pos; m_NeedsViewUpdate = true; }
-		void SetPosition(float x, float y, float z) { SetPosition(glm::vec3(x, y, z)); }
-
-		void SetVelocity(const glm::vec3& vel) { m_Velocity = vel; }
-		void SetVelocity(float x, float y, float z) { SetVelocity(glm::vec3(x, y, z)); }
-
-		void SetFov(float fov) { m_Fov = fov; m_NeedsProjectionUpdate = true; }
-
-		void SetProjectionMatrix(float aspectRatio);
+		void PollUpdate();
 
 	private:
-		void RecalculateViewMatrix();
-		void RecalculateProjectionMatrix();
+		void RecalculateProjection();
 
-		glm::mat4 m_ViewMatrix;
-		glm::mat4 m_ProjectionMatrix;
-		glm::mat4 m_ViewProjectionMatrix;
-
-		float m_Fov;
+		glm::mat4 m_Projection;
 		float m_AspectRatio;
-
-		bool m_NeedsViewUpdate = false;
-		bool m_NeedsProjectionUpdate = false;
+		float m_Fov;
+		bool m_RequiresUpdate = false;
 	};
 }

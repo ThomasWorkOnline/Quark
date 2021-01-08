@@ -75,7 +75,7 @@ void main()
     vec3 faceNormal = normalize(cross(V1, V0));
 
     // Center of the triangle
-    vec3 facePosition = (v_Position[0] + v_Position[1] + v_Position[2]) / 3.0;
+    vec3 facePosition = (v_Position[0] + v_Position[1] + v_Position[2]) / gl_in.length();
   
     gl_Position = u_ViewProjection * vec4(facePosition, 1.0);
     u_Color = vec4(0.0, 1.0, 0.0, 1.0);

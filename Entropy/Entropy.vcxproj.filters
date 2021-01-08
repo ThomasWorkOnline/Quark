@@ -30,6 +30,8 @@
     <ClCompile Include="src\Entropy\Core\Window.cpp" />
     <ClCompile Include="src\Entropy\Renderer\Framebuffer.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLFramebuffer.cpp" />
+    <ClCompile Include="src\Entropy\Scene\Entity.cpp" />
+    <ClCompile Include="src\Entropy\Scene\Scene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Entropy\Core\Application.h" />
@@ -72,5 +74,8 @@
     <ClInclude Include="src\Entropy\Renderer\Framebuffer.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLFramebuffer.h" />
     <ClInclude Include="src\Entropy\Scene\Entity.h" />
+    <ClInclude Include="src\Entropy\Scene\Scene.h" />
+    <ClInclude Include="vendor\entt\include\ENTT\entt.hpp" />
+    <ClInclude Include="src\Entropy\Scene\Components.h" />
   </ItemGroup>
 </Project>

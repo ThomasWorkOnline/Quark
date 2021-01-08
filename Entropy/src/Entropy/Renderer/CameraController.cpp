@@ -7,12 +7,16 @@
 
 #include "../Tools/EasingCurves.h"
 
+#include "../Scene/Scene.h"
+#include "../Scene/Entity.h"
+#include "../Scene/Components.h"
+
 namespace Entropy {
 
 	static float s_ZoomSpeed = 0.0f;
 
-	CameraController::CameraController(float aspectRatio)
-		: m_Camera(aspectRatio)
+	CameraController::CameraController(Entity camera)
+		: m_CameraEntity(camera)
 	{
 	}
 
@@ -24,15 +28,19 @@ namespace Entropy {
 		float mouseMoveX = Input::GetMouseX() - lastMouseX;
 		float mouseMoveY = Input::GetMouseY() - lastMouseY;
 
+		auto& transform = m_CameraEntity.GetComponent<TransformComponent>();
+		auto& camera = m_CameraEntity.GetComponent<CameraComponent>().Camera;
+		auto& physics = m_CameraEntity.GetComponent<PhysicsComponent>();
+
 		// View
 		if (Application::Get().GetWindow().IsSelected())
 		{
 			if (lastMouseX != Input::GetMouseX() || lastMouseY != Input::GetMouseY())
 			{
-				glm::quat qYaw = glm::angleAxis(-mouseMoveX * m_MouseSensitivity * m_Camera.GetFov() / 120.0f, glm::vec3(0.0f, 1.0f, 0.0f) * m_Camera.GetOrientation());
-				glm::quat qPitch = glm::angleAxis(-mouseMoveY * m_MouseSensitivity * m_Camera.GetFov() / 120.0f, glm::vec3(1.0f, 0.0f, 0.0f) * m_Camera.GetOrientation());
+				glm::quat qYaw = glm::angleAxis(-mouseMoveX * m_MouseSensitivity * camera.GetFov() / 120.0f, glm::vec3(0.0f, 1.0f, 0.0f) * transform.Orientation);
+				glm::quat qPitch = glm::angleAxis(-mouseMoveY * m_MouseSensitivity * camera.GetFov() / 120.0f, glm::vec3(1.0f, 0.0f, 0.0f) * transform.Orientation);
 
-				m_Camera.Rotate(qPitch * qYaw);
+				transform.Rotate(qPitch * qYaw);
 			}
 		}
 
@@ -58,62 +66,51 @@ namespace Entropy {
 		// Controls
 		if (Input::IsKeyPressed(KeyCode::W))
 		{
-			m_Camera.SetVelocity(m_Camera.GetVelocity() + m_Camera.GetFowardVector() * elapsedTime * m_MovementSpeed);
+			physics.Velocity += glm::vec3(0.0f, 0.0f, 1.0f) * transform.Orientation * elapsedTime * m_MovementSpeed;
 		}
 
 		if (Input::IsKeyPressed(KeyCode::S))
 		{
-			m_Camera.SetVelocity(m_Camera.GetVelocity() + m_Camera.GetBackwardVector() * elapsedTime * m_MovementSpeed);
+			physics.Velocity += glm::vec3(0.0f, 0.0f, -1.0f) * transform.Orientation * elapsedTime * m_MovementSpeed;
 		}
 
 		if (Input::IsKeyPressed(KeyCode::D))
 		{
-			m_Camera.SetVelocity(m_Camera.GetVelocity() + m_Camera.GetRightVector() * elapsedTime * m_MovementSpeed);
+			physics.Velocity += glm::vec3(1.0f, 0.0f, 0.0f) * transform.Orientation * elapsedTime * m_MovementSpeed;
 		}
 
 		if (Input::IsKeyPressed(KeyCode::A))
 		{
-			m_Camera.SetVelocity(m_Camera.GetVelocity() + m_Camera.GetLeftVector() * elapsedTime * m_MovementSpeed);
+			physics.Velocity += glm::vec3(-1.0f, 0.0f, 0.0f) * transform.Orientation * elapsedTime * m_MovementSpeed;
 		}
 
 		if (Input::IsKeyPressed(KeyCode::Space))
 		{
-			m_Camera.SetVelocity(m_Camera.GetVelocity() + m_Camera.GetTopVector() * elapsedTime * m_MovementSpeed);
+			physics.Velocity += glm::vec3(0.0f, 1.0f, 0.0f) * transform.Orientation * elapsedTime * m_MovementSpeed;
 		}
 
 		if (Input::IsKeyPressed(KeyCode::LeftShift))
 		{
-			m_Camera.SetVelocity(m_Camera.GetVelocity() + m_Camera.GetBottomVector() * elapsedTime * m_MovementSpeed);
+			physics.Velocity += glm::vec3(0.0f, -1.0f, 0.0f) * transform.Orientation * elapsedTime * m_MovementSpeed;
 		}
 
 		if (Input::IsKeyPressed(KeyCode::Q))
 		{
-			m_Camera.Rotate(elapsedTime * m_RollSensitivity, m_Camera.GetBackwardVector());
+			transform.Rotate(elapsedTime * m_RollSensitivity, glm::vec3(0.0f, 0.0f, -1.0f) * transform.Orientation);
 		}
 
 		if (Input::IsKeyPressed(KeyCode::E))
 		{
-			m_Camera.Rotate(elapsedTime * m_RollSensitivity, m_Camera.GetFowardVector());
+			transform.Rotate(elapsedTime * m_RollSensitivity, glm::vec3(0.0f, 0.0f, 1.0f) * transform.Orientation);
 		}
 
 		if (Input::IsKeyPressed(KeyCode::D0))
 		{
-			m_Camera.SetVelocity(glm::vec3());
-			m_Camera.SetPosition(glm::vec3());
-			m_Camera.SetOrientation(glm::quat());
+			//m_Camera.SetVelocity(glm::vec3());
+			transform.Position = { 0.0f, 0.0f, 0.0f };
+			transform.Orientation = glm::quat();
 			NT_TRACE("Teleported to world origin");
 		}
-
-		// Calculating friction loss
-		m_Camera.SetVelocity(m_Camera.GetVelocity() - m_Camera.GetVelocity() * elapsedTime * airFrictionCoeff);
-
-		// Clamping is important as the view matrix is recalculated every time the position changes
-		float cameraSpeed = glm::length(m_Camera.GetVelocity());
-
-		// Setting new position
-		// Check if position needs to be changed
-		if (cameraSpeed > 0.01f)
-			m_Camera.SetPosition(m_Camera.GetPosition() + m_Camera.GetVelocity() * elapsedTime);
 
 		// Zooming
 		static const float zoomFrictionCoeff = 8.0f;
@@ -121,27 +118,27 @@ namespace Entropy {
 
 		// Check if the fov needs to be changed
 		if (abs(s_ZoomSpeed) > 0.1f)
-			m_Camera.SetFov(m_Camera.GetFov() - s_ZoomSpeed * elapsedTime * m_MouseScrollSensitivity * m_Camera.GetFov() / 120.0f);
+			camera.SetFov(camera.GetFov() - s_ZoomSpeed * elapsedTime * m_MouseScrollSensitivity * camera.GetFov() / 120.0f);
 
-		if (m_Camera.GetFov() < 1.0f)
+		if (camera.GetFov() < 1.0f)
 		{
-			m_Camera.SetFov(1.0f);
+			camera.SetFov(1.0f);
 			s_ZoomSpeed = 0.0f;
 		}
 
-		if (m_Camera.GetFov() > 120.0f)
+		if (camera.GetFov() > 120.0f)
 		{
-			m_Camera.SetFov(120.0f);
+			camera.SetFov(120.0f);
 			s_ZoomSpeed = 0.0f;
 		}
 
-		// Update camera matrices
-		m_Camera.CheckAndUpdate();
+		camera.PollUpdate();
 	}
 
 	void CameraController::OnResize(float aspectRatio)
 	{
-		m_Camera.SetProjectionMatrix(aspectRatio);
+		auto& camera = m_CameraEntity.GetComponent<CameraComponent>().Camera;
+		camera.SetAspectRatio(aspectRatio);
 	}
 
 	void CameraController::OnEvent(Event& e)
