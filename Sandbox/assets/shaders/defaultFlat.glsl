@@ -8,9 +8,9 @@ layout(location = 2) in vec3 a_Normal;
 uniform mat4 u_Model;
 uniform mat4 u_ViewProjection;
 
-out vec3 v_Position;
-out vec2 v_TexCoord;
-out vec3 v_Normal;
+out vec3 in_v_Position;
+out vec2 in_v_TexCoord;
+out vec3 in_v_Normal;
 
 void main()
 {
@@ -20,9 +20,44 @@ void main()
 	// Calculate the transformed normal                      w = 0!
 	vec4 transformedModelNormal = normalize(u_Model * vec4(a_Normal, 0.0));
 
-	v_Position = position.xyz;
-	v_TexCoord = a_TexCoord;
-	v_Normal = mat3(transpose(inverse(u_Model))) * a_Normal;
+	in_v_Position = position.xyz;
+	in_v_TexCoord = a_TexCoord;
+	in_v_Normal = mat3(transpose(inverse(u_Model))) * a_Normal;
+}
+
+#type geometry
+#version 330 core
+
+layout(triangles) in;
+layout(triangle_strip, max_vertices = 3) out;
+
+uniform mat4 u_ViewProjection;
+
+in vec3 in_v_Position[];
+in vec2 in_v_TexCoord[];
+in vec3 in_v_Normal[];
+
+out vec3 v_Position;
+out vec2 v_TexCoord;
+out vec3 v_Normal;
+
+void main()
+{
+    // Computing the face normal
+    vec3 V0 = in_v_Position[0] - in_v_Position[1];
+    vec3 V1 = in_v_Position[2] - in_v_Position[1];
+    vec3 faceNormal = normalize(cross(V1, V0));
+
+    for (int i = 0; i < gl_in.length(); i++)
+    {
+        gl_Position = gl_in[i].gl_Position;
+        v_Position = in_v_Position[i];
+        v_TexCoord = in_v_TexCoord[i];
+        v_Normal = faceNormal;
+        EmitVertex();
+    }
+
+    EndPrimitive();
 }
 
 #type fragment

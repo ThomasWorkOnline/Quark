@@ -22,30 +22,9 @@ namespace Entropy {
 
 	void CameraController::OnUpdate(float elapsedTime)
 	{
-		static const float airFrictionCoeff = 4.0f;
-		static float lastMouseX = 0.0f;
-		static float lastMouseY = 0.0f;
-		float mouseMoveX = Input::GetMouseX() - lastMouseX;
-		float mouseMoveY = Input::GetMouseY() - lastMouseY;
-
 		auto& transform = m_CameraEntity.GetComponent<TransformComponent>();
 		auto& camera = m_CameraEntity.GetComponent<CameraComponent>().Camera;
 		auto& physics = m_CameraEntity.GetComponent<PhysicsComponent>();
-
-		// View
-		if (Application::Get().GetWindow().IsSelected())
-		{
-			if (lastMouseX != Input::GetMouseX() || lastMouseY != Input::GetMouseY())
-			{
-				glm::quat qYaw = glm::angleAxis(-mouseMoveX * m_MouseSensitivity * camera.GetFov() / 120.0f, glm::vec3(0.0f, 1.0f, 0.0f) * transform.Orientation);
-				glm::quat qPitch = glm::angleAxis(-mouseMoveY * m_MouseSensitivity * camera.GetFov() / 120.0f, glm::vec3(1.0f, 0.0f, 0.0f) * transform.Orientation);
-
-				transform.Rotate(qPitch * qYaw);
-			}
-		}
-
-		lastMouseX = Input::GetMouseX();
-		lastMouseY = Input::GetMouseY();
 
 		// Movement
 		static const float defaultMovementSpeed = m_MovementSpeed;
@@ -113,7 +92,7 @@ namespace Entropy {
 		}
 
 		// Zooming
-		static const float zoomFrictionCoeff = 8.0f;
+		constexpr float zoomFrictionCoeff = 8.0f;
 		s_ZoomSpeed -= s_ZoomSpeed * elapsedTime * zoomFrictionCoeff;
 
 		// Check if the fov needs to be changed
@@ -146,6 +125,7 @@ namespace Entropy {
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<MouseScrolledEvent>(NT_ATTACH_EVENT_FN(CameraController::OnMouseScrolled));
 		dispatcher.Dispatch<WindowResizeEvent>(NT_ATTACH_EVENT_FN(CameraController::OnWindowResized));
+		dispatcher.Dispatch<MouseMovedEvent>(NT_ATTACH_EVENT_FN(CameraController::OnMouseMoved));
 	}
 
 	bool CameraController::OnMouseScrolled(MouseScrolledEvent& e)
@@ -157,6 +137,27 @@ namespace Entropy {
 	bool CameraController::OnWindowResized(WindowResizeEvent& e)
 	{
 		OnResize((float)e.GetWidth() / (float)e.GetHeight());
+		return false;
+	}
+
+	bool CameraController::OnMouseMoved(MouseMovedEvent& e)
+	{
+		static glm::vec2 lastMousePos = { e.GetX(), e.GetY() };
+
+		if (Application::Get().GetWindow().IsSelected())
+		{
+			auto& transform = m_CameraEntity.GetComponent<TransformComponent>();
+			auto& camera = m_CameraEntity.GetComponent<CameraComponent>().Camera;
+
+			glm::vec2 mouseMove = { e.GetX() - lastMousePos.x, e.GetY() - lastMousePos.y };
+			glm::quat qYaw = glm::angleAxis(-mouseMove.x * m_MouseSensitivity * camera.GetFov() / 120.0f, glm::vec3(0.0f, 1.0f, 0.0f) * transform.Orientation);
+			glm::quat qPitch = glm::angleAxis(-mouseMove.y * m_MouseSensitivity * camera.GetFov() / 120.0f, glm::vec3(1.0f, 0.0f, 0.0f) * transform.Orientation);
+
+			transform.Rotate(qPitch * qYaw);
+		}
+
+		lastMousePos = { e.GetX(), e.GetY() };
+
 		return false;
 	}
 }

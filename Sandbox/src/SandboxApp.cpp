@@ -28,35 +28,24 @@ public:
 		}
 
 		{
-			m_ModelEntity.AddComponent<Entropy::TransformComponent>().Position.y = 1.0f;
+			m_PlaneEntity.AddComponent<Entropy::TransformComponent>();
+			m_PlaneEntity.AddComponent<Entropy::MeshComponent>().Mesh.GenerateTerrain(10, 0);
+		}
+
+		{
+			m_ModelEntity.AddComponent<Entropy::TransformComponent>().Position.y = 1.5f;
 			m_ModelEntity.AddComponent<Entropy::MeshComponent>("./assets/models/monkey.obj");
 		}
-		
+
+		{
+			m_SphereEntity.AddComponent<Entropy::TransformComponent>();
+			m_SphereEntity.AddComponent<Entropy::MeshComponent>("./assets/models/sphere.obj");
+		}
+
 		m_DefaultShader = m_ShaderLibrary.Load("./assets/shaders/default.glsl");
-		m_DebugPositionShader = m_ShaderLibrary.Load("./assets/shaders/debugPosition.glsl");
+		m_DebugPositionShader = m_ShaderLibrary.Load("./assets/shaders/defaultFlat.glsl");
 		m_DebugNormalShader = m_ShaderLibrary.Load("./assets/shaders/debugNormal.glsl");
 		m_SelectedShader = m_DefaultShader;
-
-		m_SelectedShader->Attach();
-		m_SelectedShader->SetInt("u_Material.diffuse", 0);
-		m_SelectedShader->SetInt("u_Material.specular", 1);
-		m_SelectedShader->SetInt("u_Material.normalMap", 2);
-
-		m_Sphere.LoadOBJFromFile("./assets/models/sphere.obj");
-		m_Plane.GenerateTerrain(10, 0);
-
-		float lightPower = 5.0f;
-		glm::vec3 lightColor = { 1.0f, 1.0f, 1.0f };
-		m_SelectedShader->SetFloat3("u_Light.position", m_PointLightPosition);
-		m_SelectedShader->SetFloat3("u_Light.ambient", lightColor * 0.005f * lightPower);
-		m_SelectedShader->SetFloat3("u_Light.diffuse", lightColor * 0.2f * lightPower);
-		m_SelectedShader->SetFloat3("u_Light.specular", lightColor * lightPower);
-		// Light will cover a distance of 50 meters
-		m_SelectedShader->SetFloat("u_Light.constant", 1.0f);
-		m_SelectedShader->SetFloat("u_Light.linear", 0.09f);
-		m_SelectedShader->SetFloat("u_Light.quadratic", 0.032f);
-
-		m_SelectedShader->SetFloat("u_Material.shininess", 512.0f);
 	}
 
 	void OnUpdate(float elapsedTime) override
@@ -135,8 +124,26 @@ public:
 
 		m_SelectedShader->Attach();
 		m_SelectedShader->SetFloat3("u_Light.position", m_PointLightPosition);
+		m_SelectedShader->SetInt("u_Material.diffuse", 0);
+		m_SelectedShader->SetInt("u_Material.specular", 1);
+		m_SelectedShader->SetInt("u_Material.normalMap", 2);
+		constexpr float lightPower = 5.0f;
+		constexpr glm::vec3 lightColor = { 1.0f, 1.0f, 1.0f };
+		m_SelectedShader->SetFloat3("u_Light.position", m_PointLightPosition);
+		m_SelectedShader->SetFloat3("u_Light.ambient", lightColor * 0.005f * lightPower);
+		m_SelectedShader->SetFloat3("u_Light.diffuse", lightColor * 0.2f * lightPower);
+		m_SelectedShader->SetFloat3("u_Light.specular", lightColor * lightPower);
+		// Light will cover a distance of 50 meters
+		m_SelectedShader->SetFloat("u_Light.constant", 1.0f);
+		m_SelectedShader->SetFloat("u_Light.linear", 0.09f);
+		m_SelectedShader->SetFloat("u_Light.quadratic", 0.032f);
+		m_SelectedShader->SetFloat("u_Material.shininess", 512.0f);
+		m_SelectedShader->SetFloat("u_NormalLength", m_NormalLength);
 
 		m_ModelEntity.GetComponent<Entropy::TransformComponent>().Rotate(elapsedTime, glm::vec3(0.0f, 1.0f, 0.0f));
+		auto& transform = m_SphereEntity.GetComponent<Entropy::TransformComponent>();
+		transform.Scale = { 0.01f, 0.01f, 0.01f };
+		transform.Position = m_PointLightPosition;
 
 		m_Framebuffer->Attach();
 
@@ -166,13 +173,11 @@ public:
 
 			m_Framebuffer->AttachColorAttachment(0);
 			m_Framebuffer->AttachColorAttachment(1);
-			Entropy::Renderer::Submit(m_SelectedShader, m_Plane.GetVertexArray(), m_PlaneTransform);
-
-			m_SelectedShader->Attach();
-			m_SelectedShader->SetFloat("u_NormalLength", m_NormalLength);
+			Entropy::Renderer::Submit(m_SelectedShader, m_PlaneEntity);
+			
 			white->Attach(0);
 			white->Attach(1);
-			Entropy::Renderer::Submit(m_SelectedShader, m_Sphere.GetVertexArray(), glm::translate(glm::mat4(1.0f), m_PointLightPosition) * m_SphereTransform);
+			Entropy::Renderer::Submit(m_SelectedShader, m_SphereEntity);
 
 			Entropy::Renderer::EndScene();
 		}
@@ -263,11 +268,11 @@ public:
 private:
 	Entropy::Scene m_Scene = Entropy::Scene();
 
+	Entropy::Ref<Entropy::Texture2D> white = Entropy::Texture2D::Create("./assets/textures/white.jpg");
 	Entropy::Ref<Entropy::Texture2D> diffuseMap = Entropy::Texture2D::Create("./assets/textures/container.png");
 	Entropy::Ref<Entropy::Texture2D> specularMap = Entropy::Texture2D::Create("./assets/textures/container_specular.png");
-	Entropy::Ref<Entropy::Texture2D> normalMap = Entropy::Texture2D::Create("./assets/textures/normal_map.png");
-	Entropy::Ref<Entropy::Texture2D> white = Entropy::Texture2D::Create("./assets/textures/white.jpg");
-	Entropy::Ref<Entropy::Texture2D> cobblestone = Entropy::Texture2D::Create("./assets/textures/cobblestone.png");
+	//Entropy::Ref<Entropy::Texture2D> normalMap = Entropy::Texture2D::Create("./assets/textures/normal_map.png");
+	//Entropy::Ref<Entropy::Texture2D> cobblestone = Entropy::Texture2D::Create("./assets/textures/cobblestone.png");
 
 	Entropy::ShaderLibrary m_ShaderLibrary;
 	Entropy::Ref<Entropy::Shader> m_DefaultShader;
@@ -283,16 +288,7 @@ private:
 	Entropy::Entity m_PortalCamera = m_Scene.CreateEntity();
 
 	Entropy::CameraController m_CameraController = Entropy::CameraController(m_CameraEntity);
-
-	Entropy::Mesh m_Plane;
-	Entropy::Mesh m_Sphere;
-
-	glm::mat4 m_PlaneTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-	glm::mat4 m_SphereTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(0.01f, 0.01f, 0.01f));
-	glm::mat4 m_ModelTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.0f, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-
 	glm::vec3 m_PointLightPosition = glm::vec3(-0.7f, 2.0f, -5.0f);
-
 	Entropy::Ref<Entropy::Framebuffer> m_Framebuffer = Entropy::Framebuffer::Create(2048, 2048);
 };
 

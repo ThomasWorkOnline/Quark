@@ -24,6 +24,7 @@ namespace Entropy {
 	private:
 		bool OnMouseScrolled(MouseScrolledEvent& e);
 		bool OnWindowResized(WindowResizeEvent& e);
+		bool OnMouseMoved(MouseMovedEvent& e);
 
 		Entity m_CameraEntity;
 

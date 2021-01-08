@@ -61,7 +61,7 @@ namespace Entropy {
 		shader->Attach();
 		shader->SetMat4("u_ViewProjection", s_SceneData.ViewProjectionMatrix);
 		shader->SetFloat3("u_CameraPosition", s_SceneData.CameraPosition);
-		shader->SetMat4("u_Model", transform.GetTransform());
+		shader->SetMat4("u_Model", transform);
 
 		vao->Attach();
 		RenderCommand::Draw(vao);

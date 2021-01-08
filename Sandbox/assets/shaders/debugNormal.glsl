@@ -32,7 +32,7 @@ uniform float u_NormalLength;
 in vec3 v_Position[];
 in vec3 v_Normal[];
 
-out vec4 u_Color;
+out vec4 v_Color;
 
 uniform mat4 u_ViewProjection;
 
@@ -40,31 +40,31 @@ void main()
 {
     // Skeleton
 	gl_Position = gl_in[0].gl_Position;
-    u_Color = vec4(1.0, 1.0, 1.0, 1.0);
+    v_Color = vec4(1.0, 1.0, 1.0, 1.0);
     EmitVertex();
 
     gl_Position = gl_in[1].gl_Position;
-    u_Color = vec4(1.0, 1.0, 1.0, 1.0);
+    v_Color = vec4(1.0, 1.0, 1.0, 1.0);
     EmitVertex();
 
 	EndPrimitive();
 
 	gl_Position = gl_in[1].gl_Position;
-    u_Color = vec4(1.0, 1.0, 1.0, 1.0);
+    v_Color = vec4(1.0, 1.0, 1.0, 1.0);
     EmitVertex();
 
 	gl_Position = gl_in[2].gl_Position;
-    u_Color = vec4(1.0, 1.0, 1.0, 1.0);
+    v_Color = vec4(1.0, 1.0, 1.0, 1.0);
     EmitVertex();
 
 	EndPrimitive();
 
 	gl_Position = gl_in[2].gl_Position;
-    u_Color = vec4(1.0, 1.0, 1.0, 1.0);
+    v_Color = vec4(1.0, 1.0, 1.0, 1.0);
     EmitVertex();
 
 	gl_Position = gl_in[0].gl_Position;
-    u_Color = vec4(1.0, 1.0, 1.0, 1.0);
+    v_Color = vec4(1.0, 1.0, 1.0, 1.0);
     EmitVertex();
 
     EndPrimitive();
@@ -78,11 +78,11 @@ void main()
     vec3 facePosition = (v_Position[0] + v_Position[1] + v_Position[2]) / gl_in.length();
   
     gl_Position = u_ViewProjection * vec4(facePosition, 1.0);
-    u_Color = vec4(0.0, 1.0, 0.0, 1.0);
+    v_Color = vec4(0.0, 1.0, 0.0, 1.0);
     EmitVertex();
   
     gl_Position = u_ViewProjection * vec4(facePosition + faceNormal * u_NormalLength, 1.0);
-    u_Color = vec4(0.0, 1.0, 0.0, 1.0);
+    v_Color = vec4(0.0, 1.0, 0.0, 1.0);
     EmitVertex();
 
     EndPrimitive();
@@ -91,11 +91,11 @@ void main()
     for (int i = 0; i < gl_in.length(); i++)
     {
         gl_Position = u_ViewProjection * vec4(v_Position[i], 1.0);
-        u_Color = vec4(1.0, 1.0, 0.0, 1.0);
+        v_Color = vec4(1.0, 1.0, 0.0, 1.0);
         EmitVertex();
 
         gl_Position = u_ViewProjection * vec4(v_Position[i] + v_Normal[i] * u_NormalLength * 0.5, 1.0);
-        u_Color = vec4(1.0, 1.0, 0.0, 1.0);
+        v_Color = vec4(1.0, 1.0, 0.0, 1.0);
         EmitVertex();
 
         EndPrimitive();
@@ -105,9 +105,9 @@ void main()
 #type fragment
 #version 330 core
 
-in vec4 u_Color;
+in vec4 v_Color;
 
 void main()
 {
-	gl_FragColor = u_Color;
+	gl_FragColor = v_Color;
 }

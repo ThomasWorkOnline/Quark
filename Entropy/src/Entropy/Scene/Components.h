@@ -12,24 +12,25 @@ namespace Entropy {
 		glm::vec3 Position;
 		glm::vec3 Scale;
 		glm::quat Orientation;
-
+	private:
+		glm::mat4 m_Transform;
+	public:
 		TransformComponent()
-			: Position(0.0f), Scale(1.0f), Orientation(glm::angleAxis(0.0f, glm::vec3(1.0f, 0.0f, 0.0f))) { }
+			: Position(0.0f), Scale(1.0f), Orientation(glm::angleAxis(0.0f, glm::vec3(1.0f, 0.0f, 0.0f))), m_Transform(glm::mat4(1.0f)) { }
 
 		TransformComponent(glm::vec3 position, glm::vec3 scale, glm::quat orientation)
-			: Position(position), Scale(scale), Orientation(orientation) { }
+			: Position(position), Scale(scale), Orientation(orientation), m_Transform(glm::mat4(1.0f)) { }
+
+		inline operator glm::mat4& ()
+		{
+			m_Transform = glm::translate(glm::mat4(1.0f), Position)
+				* glm::toMat4(Orientation)
+				* glm::scale(glm::mat4(1.0f), Scale);
+			return m_Transform;
+		}
 
 		void Rotate(const glm::quat& quat) { Orientation = Orientation * quat; }
 		void Rotate(float angle, const glm::vec3 axis) { Rotate(glm::angleAxis(angle, axis)); }
-
-		glm::mat4 GetTransform()
-		{
-			glm::mat4 rotation = glm::toMat4(Orientation);
-
-			return glm::translate(glm::mat4(1.0f), Position)
-				* rotation
-				* glm::scale(glm::mat4(1.0f), Scale);
-		}
 	};
 
 	struct PhysicsComponent
@@ -38,14 +39,10 @@ namespace Entropy {
 		float Friction;
 
 		PhysicsComponent()
-			: Velocity(0.0f), Friction(4.0f)
-		{
-		}
+			: Velocity(0.0f), Friction(4.0f) { }
 
 		PhysicsComponent(glm::vec3 initVelocity, float coeffFriction)
-			: Velocity(initVelocity), Friction(coeffFriction)
-		{
-		}
+			: Velocity(initVelocity), Friction(coeffFriction) { }
 	};
 
 	struct MeshComponent
@@ -55,9 +52,7 @@ namespace Entropy {
 		MeshComponent() = default;
 
 		MeshComponent(const char* filepath)
-			: Mesh(filepath)
-		{
-		}
+			: Mesh(filepath) { }
 	};
 
 	struct CameraComponent
@@ -65,8 +60,17 @@ namespace Entropy {
 		Camera Camera;
 
 		CameraComponent(float aspectRatio, float fov)
-			: Camera(aspectRatio, fov)
-		{
-		}
+			: Camera(aspectRatio, fov) { }
+	};
+
+	struct TagComponent
+	{
+		std::string Name;
+
+		TagComponent(const std::string& name)
+			: Name(name) { }
+
+		TagComponent(const char* name)
+			: Name(name) { }
 	};
 }
