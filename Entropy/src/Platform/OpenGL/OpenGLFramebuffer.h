@@ -24,10 +24,10 @@ namespace Entropy {
 		virtual uint32_t GetDepthAttachmentRendererID() const override { return m_DepthAttachment; }
 	private:
 		uint32_t m_RendererID = 0;
-		FramebufferSpecification m_Specification;
+		FramebufferSpecification m_Spec;
 
-		std::vector<FramebufferTextureSpecification> m_ColorAttachmentSpecifications;
-		FramebufferTextureSpecification m_DepthAttachmentSpecification = FramebufferTextureFormat::None;
+		std::vector<FramebufferTextureSpecification> m_ColorSpecs;
+		FramebufferTextureSpecification m_DepthSpec = {};
 
 		std::vector<uint32_t> m_ColorAttachments;
 		uint32_t m_DepthAttachment = 0;

@@ -12,19 +12,36 @@ namespace Entropy {
 		RGBA8,
 
 		// Depth formats
-		DEPTH24STENCIL8
+		Depth24Stencil8
+	};
+
+	enum class FramebufferFilteringFormat
+	{
+		None = 0,
+
+		// Filter formats
+		Nearest,
+		Linear,
+	};
+
+	enum class FramebufferTilingFormat
+	{
+		None = 0
+
+		// Tiling formats
 	};
 
 	struct FramebufferTextureSpecification
 	{
 		FramebufferTextureSpecification() = default;
-		FramebufferTextureSpecification(FramebufferTextureFormat textureFormat)
-			: TextureFormat(textureFormat) {}
+		FramebufferTextureSpecification(FramebufferTextureFormat textureFormat,
+			FramebufferFilteringFormat filteringFormat = FramebufferFilteringFormat::Linear,
+			FramebufferTilingFormat tilingFormat = FramebufferTilingFormat::None)
+			: TextureFormat(textureFormat), FilteringFormat(filteringFormat), TilingFormat(tilingFormat) {}
 
 		FramebufferTextureFormat TextureFormat = FramebufferTextureFormat::None;
-		// TODO:
-		// filtering
-		// wrap mode
+		FramebufferFilteringFormat FilteringFormat = FramebufferFilteringFormat::None;
+		FramebufferTilingFormat TilingFormat = FramebufferTilingFormat::None;
 	};
 
 	struct FramebufferAttachmentSpecification

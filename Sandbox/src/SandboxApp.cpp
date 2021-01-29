@@ -62,12 +62,14 @@ public:
 			accumulatedTime = 0.0f;
 
 			auto& window = GetWindow();
-			std::cout << "Window resolution: " << window.GetWidth() << "x" << window.GetHeight() << std::endl;
+			std::cout << "Window resolution: " << window.GetWidth() << "x" << window.GetHeight() << std::endl << std::endl;
 
 			auto& transform = m_CameraEntity.GetComponent<Entropy::TransformComponent>();
-			std::cout << transform.Position << std::endl;
-			std::cout << transform.Orientation << std::endl;
-			std::cout << transform.Scale << std::endl;
+			std::cout << "Position: " << transform.Position << std::endl;
+			std::cout << "Orientation: " << transform.Orientation << std::endl;
+			std::cout << "Transform: " << transform.Scale << std::endl << std::endl;
+
+			std::cout << "Framebuffer size: " << m_Spec.Width << "x" << m_Spec.Height << std::endl << std::endl;
 		}
 
 		const float speed = 10.0f;
@@ -296,8 +298,8 @@ private:
 	Entropy::CameraController m_CameraController = Entropy::CameraController(m_CameraEntity);
 	glm::vec3 m_PointLightPosition = glm::vec3(-0.7f, 2.0f, -5.0f);
 
-	Entropy::FramebufferSpecification spec = { 2048, 2048, { Entropy::FramebufferTextureFormat::RGBA8, Entropy::FramebufferTextureFormat::DEPTH24STENCIL8 } };
-	Entropy::Ref<Entropy::Framebuffer> m_Framebuffer = Entropy::Framebuffer::Create(spec);
+	Entropy::FramebufferSpecification m_Spec = { 1024, 1024, { { Entropy::FramebufferTextureFormat::RGBA8, Entropy::FramebufferFilteringFormat::Linear }, { Entropy::FramebufferTextureFormat::Depth24Stencil8 } } };
+	Entropy::Ref<Entropy::Framebuffer> m_Framebuffer = Entropy::Framebuffer::Create(m_Spec);
 };
 
 Entropy::Application* Entropy::CreateApplication()
