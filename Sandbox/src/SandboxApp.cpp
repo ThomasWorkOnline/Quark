@@ -298,7 +298,7 @@ private:
 	Entropy::CameraController m_CameraController = Entropy::CameraController(m_CameraEntity);
 	glm::vec3 m_PointLightPosition = glm::vec3(-0.7f, 2.0f, -5.0f);
 
-	Entropy::FramebufferSpecification m_Spec = { 1024, 1024, { { Entropy::FramebufferTextureFormat::RGBA8, Entropy::FramebufferFilteringFormat::Linear }, { Entropy::FramebufferTextureFormat::Depth24Stencil8 } } };
+	Entropy::FramebufferSpecification m_Spec = { 1024, 1024, { { Entropy::FramebufferTextureFormat::RGBA8, Entropy::FramebufferFilteringFormat::Nearest }, { Entropy::FramebufferTextureFormat::Depth24Stencil8 } } };
 	Entropy::Ref<Entropy::Framebuffer> m_Framebuffer = Entropy::Framebuffer::Create(m_Spec);
 };
 

@@ -4,12 +4,12 @@
 
 namespace Entropy {
 
-	static GLenum GetTextureSampleMode(bool multisampled)
+	static inline GLenum GetTextureSampleMode(bool multisampled)
 	{
 		return multisampled ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
 	}
 
-	static GLenum GetTextureFormat(FramebufferTextureFormat format)
+	static inline GLenum GetTextureFormat(FramebufferTextureFormat format)
 	{
 		switch (format)
 		{
@@ -18,7 +18,7 @@ namespace Entropy {
 		}
 	}
 
-	static GLenum GetFilteringFormat(FramebufferFilteringFormat format)
+	static inline GLenum GetFilteringFormat(FramebufferFilteringFormat format)
 	{
 		switch (format)
 		{
@@ -27,7 +27,7 @@ namespace Entropy {
 		}
 	}
 
-	static GLenum GetTilingFormat(FramebufferTilingFormat format)
+	static inline GLenum GetTilingFormat(FramebufferTilingFormat format)
 	{
 		switch (format)
 		{
@@ -35,7 +35,7 @@ namespace Entropy {
 		}
 	}
 
-	static bool IsDepthFormat(FramebufferTextureFormat format)
+	static inline bool IsDepthFormat(FramebufferTextureFormat format)
 	{
 		switch (format)
 		{
@@ -122,8 +122,8 @@ namespace Entropy {
 			{
 				glTexStorage2D(GL_TEXTURE_2D, 1, GetTextureFormat(m_DepthSpec.TextureFormat), m_Spec.Width, m_Spec.Height);
 
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetFilteringFormat(m_DepthSpec.FilteringFormat));
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GetFilteringFormat(m_DepthSpec.FilteringFormat));
 			}
 
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GetTextureSampleMode(multisampled), m_DepthAttachment, 0);
