@@ -8,12 +8,23 @@ namespace Entropy {
     {
         // Gamma correction
         glEnable(GL_FRAMEBUFFER_SRGB);
-        // Enabling alpha channel and blending
+
+        // Alpha and Blending
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glCullFace(GL_FRONT);
+
+        // Face Culling
         glEnable(GL_CULL_FACE);
+        glCullFace(GL_FRONT);
+
+        // Depth Testing
         glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LESS);
+
+        // Stencil Testing
+        glEnable(GL_STENCIL_TEST);
+
+        // Multisampling
         glEnable(GL_MULTISAMPLE);
 
         // Experimental
@@ -22,7 +33,7 @@ namespace Entropy {
 
     void OpenGLRenderingAPI::Clear()
     {
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     }
 
     void OpenGLRenderingAPI::SetClearColor(const glm::vec4& rgba)

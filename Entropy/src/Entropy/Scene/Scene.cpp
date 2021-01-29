@@ -19,16 +19,7 @@ namespace Entropy {
 
 	void Scene::OnUpdate(float elapsedTime)
 	{
-		/*Camera* activeCamera = nullptr;
-		auto cameras = m_Registry.view<TransformComponent, CameraComponent>();
-		for (auto entity : cameras)
-		{
-			// Update Cameras
-			auto [transformComponent, cameraComponent] = cameras.get<TransformComponent, CameraComponent>(entity);
-			activeCamera = &cameraComponent.Camera;
-		}*/
-
-		auto entities = m_Registry.view<TransformComponent, PhysicsComponent>();
+		auto entities = m_Registry.group<TransformComponent, PhysicsComponent>();
 		for (auto entity : entities)
 		{
 			// Update physics

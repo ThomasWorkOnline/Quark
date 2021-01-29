@@ -11,13 +11,6 @@ namespace Entropy {
 
 	Renderer::SceneData Renderer::s_SceneData;
 
-	struct RendererData
-	{
-
-	};
-
-	static RendererData s_Data;
-
 	void Renderer::Init()
 	{
 		RenderCommand::Init();
@@ -25,13 +18,12 @@ namespace Entropy {
 
 	void Renderer::Dispose()
 	{
-
 	}
 
 	void Renderer::BeginScene(Entity cameraEntity)
 	{
-		auto& camera = cameraEntity.GetComponent<CameraComponent>().Camera;
 		auto& transform = cameraEntity.GetComponent<TransformComponent>();
+		auto& camera = cameraEntity.GetComponent<CameraComponent>().Camera;
 
 		transform.Orientation = glm::normalize(transform.Orientation);
 		glm::mat4 rotate = glm::toMat4(transform.Orientation);
@@ -39,18 +31,11 @@ namespace Entropy {
 
 		s_SceneData.ViewProjectionMatrix = camera.GetProjectionMatrix() * view;
 		s_SceneData.CameraPosition = transform.Position;
-
-		StartBatch();
 	}
 
 	void Renderer::EndScene()
 	{
-		Flush();
-	}
 
-	void Renderer::Flush()
-	{
-		// TODO: Render
 	}
 
 	void Renderer::Submit(const Ref<Shader>& shader, Entity entity)
@@ -76,16 +61,6 @@ namespace Entropy {
 
 		va->Attach();
 		RenderCommand::Draw(va);
-	}
-
-	void Renderer::StartBatch()
-	{
-
-	}
-
-	void Renderer::NextBatch()
-	{
-
 	}
 
 	void Renderer::OnWindowResize(uint32_t width, uint32_t height)

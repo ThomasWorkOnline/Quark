@@ -3,7 +3,6 @@
 #include "../Tools/Noise.h"
 
 #include <fstream>
-#include <vector>
 
 namespace Entropy {
 

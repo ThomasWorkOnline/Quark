@@ -43,15 +43,15 @@ public:
 		}
 
 		m_DefaultShader = m_ShaderLibrary.Load("./assets/shaders/default.glsl");
-		m_DebugPositionShader = m_ShaderLibrary.Load("./assets/shaders/defaultFlat.glsl");
+		m_DefaultFlatShader = m_ShaderLibrary.Load("./assets/shaders/defaultFlat.glsl");
 		m_DebugNormalShader = m_ShaderLibrary.Load("./assets/shaders/debugNormal.glsl");
 		m_SelectedShader = m_DefaultShader;
 	}
 
 	void OnUpdate(float elapsedTime) override
 	{
-		m_CameraController.OnUpdate(elapsedTime);
 		m_Scene.OnUpdate(elapsedTime);
+		m_CameraController.OnUpdate(elapsedTime);
 
 		static float accumulatedTime = 0.0f;
 		accumulatedTime += elapsedTime;
@@ -145,10 +145,10 @@ public:
 		transform.Scale = { 0.01f, 0.01f, 0.01f };
 		transform.Position = m_PointLightPosition;
 
-		m_Framebuffer->Attach();
-
 		{
 			Entropy::Renderer::BeginScene(m_PortalCamera);
+
+			m_Framebuffer->Attach();
 
 			// Drawing Suzanne to the framebuffer
 			Entropy::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
@@ -157,12 +157,11 @@ public:
 			white->Attach(1);
 			Entropy::Renderer::Submit(m_SelectedShader, m_ModelEntity);
 
+			m_Framebuffer->Detach();
+			Entropy::RenderCommand::SetViewport(0, 0, GetWindow().GetWidth(), GetWindow().GetHeight());
+
 			Entropy::Renderer::EndScene();
 		}
-
-		m_Framebuffer->Detach();
-
-		Entropy::RenderCommand::SetViewport(0, 0, GetWindow().GetWidth(), GetWindow().GetHeight());
 
 		{
 			Entropy::Renderer::BeginScene(m_CameraEntity);
@@ -174,7 +173,7 @@ public:
 			m_Framebuffer->AttachColorAttachment(0);
 			m_Framebuffer->AttachColorAttachment(1);
 			Entropy::Renderer::Submit(m_SelectedShader, m_PlaneEntity);
-			
+
 			white->Attach(0);
 			white->Attach(1);
 			Entropy::Renderer::Submit(m_SelectedShader, m_SphereEntity);
@@ -188,8 +187,14 @@ public:
 		Entropy::EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<Entropy::MouseButtonPressedEvent>(NT_ATTACH_EVENT_FN(SandboxGame::OnMouseButtonPressed));
 		dispatcher.Dispatch<Entropy::KeyPressedEvent>(NT_ATTACH_EVENT_FN(SandboxGame::OnKeyPressed));
+		dispatcher.Dispatch<Entropy::WindowResizeEvent>(NT_ATTACH_EVENT_FN(SandboxGame::OnWindowResized));
 
 		m_CameraController.OnEvent(e);
+	}
+
+	bool OnWindowResized(Entropy::WindowResizeEvent& e)
+	{
+		return false;
 	}
 
 	bool OnMouseButtonPressed(Entropy::MouseButtonPressedEvent& e)
@@ -225,7 +230,7 @@ public:
 				m_SelectedShader = m_DefaultShader;
 				break;
 			case 1:
-				m_SelectedShader = m_DebugPositionShader;
+				m_SelectedShader = m_DefaultFlatShader;
 				break;
 			case 2:
 				m_SelectedShader = m_DebugNormalShader;
@@ -262,6 +267,7 @@ public:
 			break;
 		}
 		}
+
 		return false;
 	}
 
@@ -276,7 +282,7 @@ private:
 
 	Entropy::ShaderLibrary m_ShaderLibrary;
 	Entropy::Ref<Entropy::Shader> m_DefaultShader;
-	Entropy::Ref<Entropy::Shader> m_DebugPositionShader;
+	Entropy::Ref<Entropy::Shader> m_DefaultFlatShader;
 	Entropy::Ref<Entropy::Shader> m_DebugNormalShader;
 	Entropy::Ref<Entropy::Shader> m_SelectedShader;
 	float m_NormalLength = 0.1f;
@@ -289,7 +295,9 @@ private:
 
 	Entropy::CameraController m_CameraController = Entropy::CameraController(m_CameraEntity);
 	glm::vec3 m_PointLightPosition = glm::vec3(-0.7f, 2.0f, -5.0f);
-	Entropy::Ref<Entropy::Framebuffer> m_Framebuffer = Entropy::Framebuffer::Create(2048, 2048);
+
+	Entropy::FramebufferSpecification spec = { 2048, 2048, { Entropy::FramebufferTextureFormat::RGBA8, Entropy::FramebufferTextureFormat::DEPTH24STENCIL8 } };
+	Entropy::Ref<Entropy::Framebuffer> m_Framebuffer = Entropy::Framebuffer::Create(spec);
 };
 
 Entropy::Application* Entropy::CreateApplication()

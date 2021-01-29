@@ -19,7 +19,6 @@ namespace Entropy {
 
 		static void BeginScene(Entity cameraEntity);
 		static void EndScene();
-		static void Flush();
 
 		static void Submit(const Ref<Shader>& shader, const Ref<VertexArray>& va, const glm::mat4& transform = glm::mat4(1.0f));
 		static void Submit(const Ref<Shader>& shader, Entity entity);
@@ -32,8 +31,5 @@ namespace Entropy {
 		};
 
 		static SceneData s_SceneData;
-
-		static void StartBatch();
-		static void NextBatch();
 	};
 }

@@ -2,8 +2,6 @@
 
 #include "../Core/Core.h"
 
-#include <vector>
-
 namespace Entropy {
 
     enum class ShaderDataType

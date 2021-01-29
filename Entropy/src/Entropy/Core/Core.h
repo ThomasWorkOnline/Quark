@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <sstream>
+#include <vector>
 
 // Platform detection
 #include "Platform.h"

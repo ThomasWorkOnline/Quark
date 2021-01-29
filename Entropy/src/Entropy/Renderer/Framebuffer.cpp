@@ -7,12 +7,12 @@
 
 namespace Entropy {
 
-	Ref<Framebuffer> Framebuffer::Create(uint32_t width, uint32_t height, uint32_t samples, bool swapChainTarget)
+	Ref<Framebuffer> Framebuffer::Create(const FramebufferSpecification& spec)
 	{
 		switch (RenderingAPI::GetAPI())
 		{
 		case RenderingAPI::API::OpenGL:
-			return CreateRef<OpenGLFramebuffer>(width, height, samples, swapChainTarget);
+			return CreateRef<OpenGLFramebuffer>(spec);
 		case RenderingAPI::API::None:
 			NT_FATAL("Rendering API not supported");
 			return nullptr;

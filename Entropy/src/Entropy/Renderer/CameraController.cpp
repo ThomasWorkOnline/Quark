@@ -85,7 +85,7 @@ namespace Entropy {
 
 		if (Input::IsKeyPressed(KeyCode::D0))
 		{
-			//m_Camera.SetVelocity(glm::vec3());
+			physics.Velocity = { 0.0f, 0.0f, 0.0f };
 			transform.Position = { 0.0f, 0.0f, 0.0f };
 			transform.Orientation = glm::quat();
 			NT_TRACE("Teleported to world origin");
@@ -116,8 +116,7 @@ namespace Entropy {
 
 	void CameraController::OnResize(float aspectRatio)
 	{
-		auto& camera = m_CameraEntity.GetComponent<CameraComponent>().Camera;
-		camera.SetAspectRatio(aspectRatio);
+		m_CameraEntity.GetComponent<CameraComponent>().Camera.SetAspectRatio(aspectRatio);
 	}
 
 	void CameraController::OnEvent(Event& e)

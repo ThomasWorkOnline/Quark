@@ -3,6 +3,7 @@
 #include "../Core/Core.h"
 
 #include "../Renderer/Mesh.h"
+#include "../Renderer/Sprite.h"
 #include "../Renderer/Camera.h"
 
 namespace Entropy {
@@ -12,8 +13,6 @@ namespace Entropy {
 		glm::vec3 Position;
 		glm::vec3 Scale;
 		glm::quat Orientation;
-	private:
-		glm::mat4 m_Transform;
 	public:
 		TransformComponent()
 			: Position(0.0f), Scale(1.0f), Orientation(glm::angleAxis(0.0f, glm::vec3(1.0f, 0.0f, 0.0f))), m_Transform(glm::mat4(1.0f)) { }
@@ -31,6 +30,8 @@ namespace Entropy {
 
 		void Rotate(const glm::quat& quat) { Orientation = Orientation * quat; }
 		void Rotate(float angle, const glm::vec3 axis) { Rotate(glm::angleAxis(angle, axis)); }
+	private:
+		glm::mat4 m_Transform;
 	};
 
 	struct PhysicsComponent
@@ -53,6 +54,13 @@ namespace Entropy {
 
 		MeshComponent(const char* filepath)
 			: Mesh(filepath) { }
+	};
+
+	struct SpriteComponent
+	{
+		Sprite Sprite;
+
+		SpriteComponent() = default;
 	};
 
 	struct CameraComponent
