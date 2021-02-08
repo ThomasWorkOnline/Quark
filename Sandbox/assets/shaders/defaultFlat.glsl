@@ -158,13 +158,12 @@ void main()
 	vec3 ambient = u_Light.ambient * vec3(texture(u_Material.diffuse, v_TexCoord));
 
 	float diff = max(dot(norm, lightDir), 0.0);
-	vec3 diffuse = u_Light.diffuse * diff * vec3(texture(u_Material.diffuse, v_TexCoord));
+	vec3 diffuse = u_Light.diffuse * diff * vec3(texture(u_Material.diffuse, v_TexCoord)) * (1 - u_Material.metalness);
 
 	float spec = pow(max(dot(norm, halfwayDir), 0.0), u_Material.shininess);
 	vec3 specular = u_Light.specular * spec * vec3(texture(u_Material.specular, v_TexCoord));
 
 	vec3 result = (ambient + diffuse + specular) * attenuation;
-	//gl_FragColor = vec4(result, 1.0);
 
     vec3 I = normalize(v_Position - v_CameraPosition);
     vec3 R = reflect(I, normalize(v_Normal));
