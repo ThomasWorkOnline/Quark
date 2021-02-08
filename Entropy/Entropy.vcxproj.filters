@@ -16,8 +16,6 @@
     <ClCompile Include="src\Entropy\Renderer\VertexArray.cpp" />
     <ClCompile Include="src\Entropy\Tools\Colorimetry.cpp" />
     <ClCompile Include="src\Entropy\Tools\Noise.cpp" />
-    <ClCompile Include="src\Platform\Linux\LinuxWindow.cpp" />
-    <ClCompile Include="src\Platform\Macos\MacosWindow.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLGraphicsContext.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLRenderingAPI.cpp" />
@@ -60,8 +58,6 @@
     <ClInclude Include="src\Entropy\Tools\Colorimetry.h" />
     <ClInclude Include="src\Entropy\Tools\LogUtils.h" />
     <ClInclude Include="src\Entropy\Tools\Noise.h" />
-    <ClInclude Include="src\Platform\Linux\LinuxWindow.h" />
-    <ClInclude Include="src\Platform\Macos\MacosWindow.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLBuffer.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLGraphicsContext.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLRenderingAPI.h" />

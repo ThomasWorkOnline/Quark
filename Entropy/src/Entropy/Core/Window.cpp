@@ -2,6 +2,7 @@
 
 #include "Core.h"
 
+/*
 #if defined NT_PLATFORM_WINDOWS
     #include "../../Platform/Windows/WindowsWindow.h"
 #elif defined NT_PLATFORM_APPLE
@@ -9,11 +10,15 @@
 #elif defined NT_PLATFORM_LINUX
     #include "../../Platform/Linux/LinuxWindow.h"
 #endif
+*/
+
+#include "../../Platform/Windows/WindowsWindow.h"
 
 namespace Entropy {
 
     Scope<Window> Window::Create(uint32_t width, uint32_t height, const char* title)
     {
+        /*
         // Platform specefic window creation is done here
 #if defined NT_PLATFORM_WINDOWS
         NT_TRACE("Created a new window for Windows");
@@ -25,6 +30,8 @@ namespace Entropy {
         NT_TRACE("Created a new window for Linux");
         return CreateScope<LinuxWindow>(width, height, title);
 #endif
+*/
+        return CreateScope<WindowsWindow>(width, height, title);
         NT_FATAL("Could not create window");
         return nullptr;
     }

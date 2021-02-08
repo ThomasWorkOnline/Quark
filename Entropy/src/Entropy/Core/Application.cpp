@@ -24,7 +24,7 @@ namespace Entropy {
 
 		std::string appendedTitle = " - ";
 		appendedTitle.append(RenderingAPI::GetName());
-		Application::GetWindow().AppendTitle(appendedTitle);
+		m_Window->AppendTitle(appendedTitle);
 
 		NT_INFO(RenderCommand::GetSpecification());
 		Renderer::Init();

@@ -131,7 +131,7 @@ public:
 		{
 			auto& transform = m_LightEntity.AddComponent<Entropy::TransformComponent>();
 			transform.Scale = { 0.01f, 0.01f, 0.01f };
-			transform.Position = { -0.7, 1.8f, -0.3f };
+			transform.Position = { -0.7, 1.8f, -4.3f };
 			m_LightEntity.AddComponent<Entropy::MeshComponent>("./assets/models/sphere.obj");
 		}
 
@@ -269,8 +269,8 @@ public:
 			// Drawing Suzanne to the framebuffer
 			Entropy::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
 			Entropy::RenderCommand::Clear();
-			cobblestone->Attach(0);
-			cobblestone->Attach(1);
+			white->Attach(0);
+			white->Attach(1);
 			Entropy::Renderer::Submit(m_SelectedShader, m_ModelEntity);
 
 			m_Framebuffer->Detach();
@@ -282,8 +282,8 @@ public:
 		{
 			Entropy::Renderer::BeginScene(m_CameraEntity);
 
-			cobblestone->Attach(0);
-			cobblestone->Attach(1);
+			white->Attach(0);
+			white->Attach(1);
 			Entropy::Renderer::Submit(m_SelectedShader, m_ModelEntity);
 
 			m_Framebuffer->AttachColorAttachment(0);
@@ -408,7 +408,17 @@ public:
 		}
 		case Entropy::KeyCode::F11:
 		{
-			GetWindow().EnableFullScreen();
+			auto& window = GetWindow();
+			if (window.IsFullscreen())
+			{
+				window.DisableFullScreen();
+				NT_TRACE("Disabled fullscreen");
+			}
+			else
+			{
+				window.EnableFullScreen();
+				NT_TRACE("Enabled fullscreen");
+			}
 			break;
 		}
 		case Entropy::KeyCode::Escape:

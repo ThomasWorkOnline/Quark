@@ -10,6 +10,8 @@
 namespace Entropy {
 
 	static uint32_t s_WindowCount = 0;
+	static int32_t s_WindowedPosX = 0, s_WindowedPosY = 0;
+	static int32_t s_WindowedWidth = 0, s_WindowedHeight = 0;
 
 	static void GLFWErrorCallback(int32_t error, const char* description)
 	{
@@ -24,6 +26,33 @@ namespace Entropy {
 	WindowsWindow::~WindowsWindow()
 	{
 		Shutdown();
+	}
+
+	void WindowsWindow::EnableFullScreen()
+	{
+		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+		glfwGetWindowPos(m_Window, &s_WindowedPosX, &s_WindowedPosY);
+		glfwGetWindowSize(m_Window, &s_WindowedWidth, &s_WindowedHeight);
+
+		// Switch to full screen
+		glfwSetWindowMonitor(m_Window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+	}
+
+	void WindowsWindow::DisableFullScreen()
+	{
+		m_Data.Width = s_WindowedWidth;
+		m_Data.Height = s_WindowedHeight;
+
+		// Restore last window size and position
+		glfwSetWindowMonitor(m_Window, nullptr, s_WindowedPosX, s_WindowedPosY, (int32_t)m_Data.Width, (int32_t)m_Data.Height, 0);
+	}
+
+	void WindowsWindow::OnUpdate()
+	{
+		glfwPollEvents();
+		m_Context->SwapBuffers();
 	}
 
 	void WindowsWindow::Init(uint32_t width, uint32_t height, const char* title)
@@ -49,8 +78,8 @@ namespace Entropy {
 			glfwWindowHint(GLFW_SAMPLES, 4);
 		}
 
-		m_Window = glfwCreateWindow((int32_t)width, (int32_t)height, title, nullptr, nullptr);
-		
+		m_Window = glfwCreateWindow((int32_t)m_Data.Width, (int32_t)m_Data.Height, m_Data.Title.c_str(), nullptr, nullptr);
+
 		++s_WindowCount;
 
 		// Creating the graphics context
@@ -60,8 +89,7 @@ namespace Entropy {
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 
 		// Experimental
-		glfwSetCursorPos(m_Window, 0.0f, 0.0f);
-		glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		Select();
 
 		// -----------------------------------------------------------------------
 		// CALLBACKS
@@ -163,31 +191,19 @@ namespace Entropy {
 
 		// Cleans up glfw's garbage
 		if (s_WindowCount == 0)
-		{
 			glfwTerminate();
-		}
-	}
-
-	void WindowsWindow::OnUpdate()
-	{
-		glfwPollEvents();
-		m_Context->SwapBuffers();
-	}
-
-	const std::string& WindowsWindow::GetTitle()
-	{
-		return m_Data.Title;
 	}
 
 	void WindowsWindow::SetTitle(const char* title)
 	{
-		glfwSetWindowTitle(m_Window, title);
 		m_Data.Title = title;
+		glfwSetWindowTitle(m_Window, title);
 	}
 
 	void WindowsWindow::SetTitle(const std::string& title)
 	{
-		SetTitle(title.c_str());
+		m_Data.Title = title;
+		glfwSetWindowTitle(m_Window, title.c_str());
 	}
 
 	void WindowsWindow::AppendTitle(const std::string& title)
@@ -215,22 +231,14 @@ namespace Entropy {
 		return glfwGetInputMode(m_Window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL;
 	}
 
-	void WindowsWindow::EnableFullScreen()
+	bool WindowsWindow::IsFullscreen() const
 	{
-	}
-
-	void WindowsWindow::DisableFullScreen()
-	{
+		return glfwGetWindowMonitor(m_Window) != nullptr;
 	}
 
 	void WindowsWindow::SetVSync(bool enabled)
 	{
 		glfwSwapInterval(enabled);
 		m_Data.VSync = enabled;
-	}
-
-	bool WindowsWindow::IsVSync() const
-	{
-		return m_Data.VSync;
 	}
 }
