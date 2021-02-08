@@ -37,12 +37,12 @@ static uint32_t LoadCubemap(std::string* faces)
 }
 
 static std::string files[6] = {
-	"./assets/environments/Storforsen4/posx.jpg",
-	"./assets/environments/Storforsen4/negx.jpg",
-	"./assets/environments/Storforsen4/posy.jpg",
-	"./assets/environments/Storforsen4/negy.jpg",
-	"./assets/environments/Storforsen4/posz.jpg",
-	"./assets/environments/Storforsen4/negz.jpg"
+	"./assets/environments/FishermansBastion/posx.jpg",
+	"./assets/environments/FishermansBastion/negx.jpg",
+	"./assets/environments/FishermansBastion/posy.jpg",
+	"./assets/environments/FishermansBastion/negy.jpg",
+	"./assets/environments/FishermansBastion/posz.jpg",
+	"./assets/environments/FishermansBastion/negz.jpg"
 };
 
 float cubemapVertices[] = {
@@ -108,7 +108,7 @@ public:
 		{
 			m_CameraEntity.AddComponent<Entropy::TransformComponent>().Position = { 0.0f, 1.0f, -8.0f };
 			m_CameraEntity.AddComponent<Entropy::PhysicsComponent>();
-			m_CameraEntity.AddComponent<Entropy::CameraComponent>((float)window.GetWidth() / (float)window.GetHeight(), 45.0f);
+			m_CameraEntity.AddComponent<Entropy::CameraComponent>((float)window.GetWidth() / (float)window.GetHeight(), 50.0f);
 		}
 
 		{
@@ -286,8 +286,10 @@ public:
 			white->Attach(1);
 			Entropy::Renderer::Submit(m_SelectedShader, m_ModelEntity);
 
-			m_Framebuffer->AttachColorAttachment(0);
-			m_Framebuffer->AttachColorAttachment(1);
+			//m_Framebuffer->AttachColorAttachment(0);
+			//m_Framebuffer->AttachColorAttachment(1);
+			diffuseMap->Attach(0);
+			specularMap->Attach(1);
 			Entropy::Renderer::Submit(m_SelectedShader, m_PlaneEntity);
 
 			white->Attach(0);
