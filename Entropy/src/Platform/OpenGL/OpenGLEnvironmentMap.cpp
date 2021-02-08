@@ -39,17 +39,12 @@ namespace Entropy {
 	
 	void OpenGLEnvironmentMap::Attach(uint32_t textureSlot) const
 	{
-		glCullFace(GL_BACK);
-		glDepthFunc(GL_LEQUAL);
 		glActiveTexture(GL_TEXTURE0 + textureSlot);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, m_RendererID);
 	}
 
 	void OpenGLEnvironmentMap::Detach() const
 	{
-		glCullFace(GL_FRONT);
-		glDepthFunc(GL_LESS);
-
 		for (int i = 0; i < 32; i++)
 		{
 			glActiveTexture(GL_TEXTURE0 + i);

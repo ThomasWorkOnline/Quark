@@ -12,7 +12,7 @@
 	// We're on Macos X
 #	include <TargetConditionals.h>
 #	define NT_PLATFORM_APPLE
-#	error "Apple platform is currently not supported (support will come soon!)"
+	// We are on Macos
 #elif defined(__ANDROID__)
 	// We're on Android
 #	define NT_PLATFORM_ANDROID
@@ -20,7 +20,7 @@
 #elif defined(__linux__)
 	// We're on Linux
 #	define NT_PLATFORM_LINUX
-#	error "Linux is not currently supported (support will come soon!)"
+	// We are on Linux
 #else
 	// Unknown platform
 	#error "Unknown platform is not supported by default"

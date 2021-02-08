@@ -16,7 +16,7 @@ namespace Entropy {
 
 	void Camera::RecalculateProjection()
 	{
-		if (isnan(m_AspectRatio)) m_AspectRatio = 0.0f;
+		if (std::isnan(m_AspectRatio)) m_AspectRatio = 0.0f;
 		m_Projection = glm::infinitePerspective(glm::radians(m_Fov), m_AspectRatio, 0.1f);
 		m_RequiresUpdate = false;
 	}

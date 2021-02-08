@@ -7,6 +7,24 @@
 // Implementations are done in the corresponding platform
 namespace Entropy {
 
+    enum class RenderCullFace
+    {
+        Front,
+        Back,
+        FrontAndBack
+    };
+
+    enum class RenderDepthFunction
+    {
+        Never,
+        Always,
+        NotEqual,
+        Less,
+        LessEqual,
+        Greater,
+        GreaterEqual
+    };
+
     class RenderingAPI
     {
     public:
@@ -21,6 +39,8 @@ namespace Entropy {
         virtual void Init() = 0;
         virtual void SetClearColor(const glm::vec4& rgba) = 0;
         virtual void Clear() = 0;
+        virtual void SetCullFace(RenderCullFace face) = 0;
+        virtual void SetDepthFunction(RenderDepthFunction func) = 0;
         virtual void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) = 0;
         virtual void Draw(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) = 0;
         virtual void DrawInstanced(const Ref<VertexArray>& vertexArray, uint32_t repeatCount, uint32_t indexCount = 0) = 0;

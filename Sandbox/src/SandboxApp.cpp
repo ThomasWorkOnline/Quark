@@ -121,10 +121,10 @@ public:
 		m_Scene.OnUpdate(elapsedTime);
 		m_CameraController.OnUpdate(elapsedTime);
 
-#if 0
 		static float accumulatedTime = 0.0f;
 		accumulatedTime += elapsedTime;
 
+#if 0
 		if (accumulatedTime > 1.0f)
 		{
 			std::cout << std::fixed << 1.0f / elapsedTime << " fps | frametime: " << elapsedTime * 1000 << "ms\n";
@@ -208,8 +208,9 @@ public:
 			m_SelectedShader->SetInt("u_Material.specular", 1);
 			m_SelectedShader->SetInt("u_Material.normalMap", 2);
 			m_SelectedShader->SetFloat("u_Material.shininess", 512.0f);
+			m_SelectedShader->SetFloat("u_Material.metalness", 1.0f);
 
-			constexpr float lightPower = 5.0f;
+			constexpr float lightPower = 3.0f;
 			constexpr glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f) * lightPower;
 			m_SelectedShader->SetFloat3("u_Light.ambient", lightColor * 0.005f);
 			m_SelectedShader->SetFloat3("u_Light.diffuse", lightColor * 0.2f);
@@ -220,6 +221,8 @@ public:
 			m_SelectedShader->SetFloat("u_Light.quadratic", 0.032f);
 
 			m_SelectedShader->SetFloat("u_NormalLength", m_NormalLength);
+
+			m_SelectedShader->SetInt("u_Cubemap", 3);
 		}
 
 		{
@@ -254,16 +257,20 @@ public:
 
 			white->Attach(0);
 			white->Attach(1);
+			m_Skybox->Attach(3);
 			Entropy::Renderer::Submit(m_SelectedShader, m_ModelEntity);
 			white->Detach();
+			m_Skybox->Detach();
 
 			//m_Framebuffer->AttachColorAttachment(0);
 			//m_Framebuffer->AttachColorAttachment(1);
+			m_SelectedShader->SetFloat("u_Material.metalness", 0.0f);
 			diffuseMap->Attach(0);
-			white->Attach(1);
+			specularMap->Attach(1);
+			m_Skybox->Attach(3);
 			Entropy::Renderer::Submit(m_SelectedShader, m_PlaneEntity);
 			diffuseMap->Detach();
-			white->Detach();
+			specularMap->Detach();
 
 			white->Attach(0);
 			white->Attach(1);
@@ -277,9 +284,15 @@ public:
 			glm::mat4 view = (glm::mat3)m_CameraEntity.GetComponent<Entropy::TransformComponent>();
 			Entropy::Renderer::BeginScene(m_CameraEntity.GetComponent<Entropy::CameraComponent>().Camera.GetProjectionMatrix(), view);
 
+			Entropy::RenderCommand::SetCullFace(Entropy::RenderCullFace::Back);
+			Entropy::RenderCommand::SetDepthFunction(Entropy::RenderDepthFunction::LessEqual);
+
 			m_Skybox->Attach(3);
 			Entropy::Renderer::Submit(m_ShaderLibrary.Get("skybox"), va);
 			m_Skybox->Detach();
+
+			Entropy::RenderCommand::SetCullFace(Entropy::RenderCullFace::Front);
+			Entropy::RenderCommand::SetDepthFunction(Entropy::RenderDepthFunction::Less);
 
 			Entropy::Renderer::EndScene();
 		}
@@ -404,7 +417,7 @@ private:
 	Entropy::Scene m_Scene = Entropy::Scene();
 
 	Entropy::Ref<Entropy::Texture2D> white = Entropy::Texture2D::Create("./assets/textures/white.jpg");
-	Entropy::Ref<Entropy::Texture2D> diffuseMap = Entropy::Texture2D::Create("./assets/textures/houssem.png");
+	Entropy::Ref<Entropy::Texture2D> diffuseMap = Entropy::Texture2D::Create("./assets/textures/container.png");
 	Entropy::Ref<Entropy::Texture2D> specularMap = Entropy::Texture2D::Create("./assets/textures/container_specular.png");
 	Entropy::Ref<Entropy::Texture2D> normalMap = Entropy::Texture2D::Create("./assets/textures/normal_map.png");
 	Entropy::Ref<Entropy::Texture2D> cobblestone = Entropy::Texture2D::Create("./assets/textures/cobblestone.png");

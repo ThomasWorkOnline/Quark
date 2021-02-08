@@ -30,6 +30,16 @@ namespace Entropy {
 			s_RenderingAPI->Clear();
 		}
 
+		static void SetCullFace(RenderCullFace face)
+		{
+			s_RenderingAPI->SetCullFace(face);
+		}
+
+		static void SetDepthFunction(RenderDepthFunction func)
+		{
+			s_RenderingAPI->SetDepthFunction(func);
+		}
+
 		static void Draw(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0)
 		{
 			s_RenderingAPI->Draw(vertexArray, indexCount);

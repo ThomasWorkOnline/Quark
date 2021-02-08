@@ -36,6 +36,50 @@ namespace Entropy {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     }
 
+    void OpenGLRenderingAPI::SetCullFace(RenderCullFace face)
+    {
+        switch (face)
+        {
+        case RenderCullFace::Front:
+            glCullFace(GL_FRONT);
+            break;
+        case RenderCullFace::Back:
+            glCullFace(GL_BACK);
+            break;
+        case RenderCullFace::FrontAndBack:
+            glCullFace(GL_FRONT_AND_BACK);
+            break;
+        }
+    }
+
+    void OpenGLRenderingAPI::SetDepthFunction(RenderDepthFunction func)
+    {
+        switch (func)
+        {
+        case RenderDepthFunction::Never:
+            glDepthFunc(GL_NEVER);
+            break;
+        case RenderDepthFunction::Always:
+            glDepthFunc(GL_ALWAYS);
+            break;
+        case RenderDepthFunction::NotEqual:
+            glDepthFunc(GL_NOTEQUAL);
+            break;
+        case RenderDepthFunction::Less:
+            glDepthFunc(GL_LESS);
+            break;
+        case RenderDepthFunction::LessEqual:
+            glDepthFunc(GL_LEQUAL);
+            break;
+        case RenderDepthFunction::Greater:
+            glDepthFunc(GL_GREATER);
+            break;
+        case RenderDepthFunction::GreaterEqual:
+            glDepthFunc(GL_GEQUAL);
+            break;
+        }
+    }
+
     void OpenGLRenderingAPI::SetClearColor(const glm::vec4& rgba)
     {
         glClearColor(rgba.x, rgba.y, rgba.z, rgba.w);
