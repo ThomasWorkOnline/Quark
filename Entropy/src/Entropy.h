@@ -1,6 +1,9 @@
 #pragma once
 // This file is included by the client
 
+#include "../vendor/glew/include/GL/glew.h"
+#include "../vendor/stb_image/stb_image.h"
+
 // Core
 #include "Entropy/Core/Core.h"
 #include "Entropy/Core/Application.h"

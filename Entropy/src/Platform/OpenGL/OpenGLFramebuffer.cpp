@@ -9,13 +9,25 @@ namespace Entropy {
 		return multisampled ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
 	}
 
-	static inline GLenum GetTextureFormat(FramebufferTextureFormat format)
+	static inline GLenum GetTextureInternalFormat(FramebufferTextureFormat format)
 	{
 		switch (format)
 		{
-		case FramebufferTextureFormat::RGBA8: return GL_RGBA8;
+		case FramebufferTextureFormat::RGBA8:           return GL_RGBA8;
 		case FramebufferTextureFormat::Depth24Stencil8: return GL_DEPTH24_STENCIL8;
 		}
+
+		NT_FATAL("Invalid framebuffer internal texture format");
+	}
+
+	static inline GLenum GetTextureColorFormat(FramebufferTextureFormat format)
+	{
+		switch (format)
+		{
+		case FramebufferTextureFormat::RGBA8: return GL_RGBA;
+		}
+
+		NT_FATAL("Invalid framebuffer texture color format");
 	}
 
 	static inline GLenum GetFilteringFormat(FramebufferFilteringFormat format)
@@ -23,16 +35,21 @@ namespace Entropy {
 		switch (format)
 		{
 		case FramebufferFilteringFormat::Nearest: return GL_NEAREST;
-		case FramebufferFilteringFormat::Linear: return GL_LINEAR;
+		case FramebufferFilteringFormat::Linear:  return GL_LINEAR;
 		}
+
+		NT_FATAL("Invalid framebuffer filtering format");
 	}
 
 	static inline GLenum GetTilingFormat(FramebufferTilingFormat format)
 	{
 		switch (format)
 		{
-			// TODO: 
+		case FramebufferTilingFormat::Clamp:  return GL_CLAMP_TO_EDGE;
+		case FramebufferTilingFormat::Repeat: return GL_REPEAT;
 		}
+
+		NT_FATAL("Invalid framebuffer tiling format");
 	}
 
 	static inline bool IsDepthFormat(FramebufferTextureFormat format)
@@ -94,21 +111,24 @@ namespace Entropy {
 
 				if (multisampled)
 				{
-					glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Spec.Samples, GetTextureFormat(m_ColorSpecs[i].TextureFormat), m_Spec.Width, m_Spec.Height, GL_FALSE);
+					glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Spec.Samples, GetTextureInternalFormat(m_ColorSpecs[i].TextureFormat), m_Spec.Width, m_Spec.Height, GL_FALSE);
 				}
 				else
 				{
-					glTexImage2D(GL_TEXTURE_2D, 0, GetTextureFormat(m_ColorSpecs[i].TextureFormat), m_Spec.Width, m_Spec.Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+					glTexImage2D(GL_TEXTURE_2D, 0, GetTextureInternalFormat(m_ColorSpecs[i].TextureFormat), m_Spec.Width, m_Spec.Height, 0,
+						GetTextureColorFormat(m_ColorSpecs[i].TextureFormat), GL_UNSIGNED_BYTE, nullptr);
 
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetFilteringFormat(m_ColorSpecs[i].FilteringFormat));
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GetFilteringFormat(m_ColorSpecs[i].FilteringFormat));
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GetTilingFormat(m_ColorSpecs[i].TilingFormat));
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GetTilingFormat(m_ColorSpecs[i].TilingFormat));
 				}
 
 				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GetTextureSampleMode(multisampled), m_ColorAttachments[i], 0);
 			}
 		}
 
-		// Depth format
+		// Depth stencil format
 		if (m_DepthSpec.TextureFormat != FramebufferTextureFormat::None)
 		{
 			glCreateTextures(GetTextureSampleMode(multisampled), 1, &m_DepthAttachment);
@@ -116,14 +136,16 @@ namespace Entropy {
 
 			if (multisampled)
 			{
-				glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Spec.Samples, GetTextureFormat(m_DepthSpec.TextureFormat), m_Spec.Width, m_Spec.Height, GL_FALSE);
+				glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Spec.Samples, GetTextureInternalFormat(m_DepthSpec.TextureFormat), m_Spec.Width, m_Spec.Height, GL_FALSE);
 			}
 			else
 			{
-				glTexStorage2D(GL_TEXTURE_2D, 1, GetTextureFormat(m_DepthSpec.TextureFormat), m_Spec.Width, m_Spec.Height);
+				glTexStorage2D(GL_TEXTURE_2D, 1, GetTextureInternalFormat(m_DepthSpec.TextureFormat), m_Spec.Width, m_Spec.Height);
 
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetFilteringFormat(m_DepthSpec.FilteringFormat));
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GetFilteringFormat(m_DepthSpec.FilteringFormat));
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GetTilingFormat(m_DepthSpec.TilingFormat));
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GetTilingFormat(m_DepthSpec.TilingFormat));
 			}
 
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GetTextureSampleMode(multisampled), m_DepthAttachment, 0);
@@ -140,7 +162,7 @@ namespace Entropy {
 			glDrawBuffer(GL_NONE);
 		}
 
-		NT_ASSERT(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE, "Framebuffer is incomplete");
+		NT_ASSERT(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE, "Framebuffer is invalid");
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
@@ -148,6 +170,7 @@ namespace Entropy {
 	void OpenGLFramebuffer::Attach()
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
+		// TODO: make the viewport part of the render pipeline
 		glViewport(0, 0, m_Spec.Width, m_Spec.Height);
 	}
 

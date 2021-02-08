@@ -6,23 +6,27 @@ layout(location = 1) in vec2 a_TexCoord;
 layout(location = 2) in vec3 a_Normal;
 
 uniform mat4 u_Model;
-uniform mat4 u_ViewProjection;
+uniform mat4 u_View;
+uniform mat4 u_Projection;
 
 out vec3 in_v_Position;
 out vec2 in_v_TexCoord;
 out vec3 in_v_Normal;
+out vec3 in_v_CameraPosition;
 
 void main()
 {
 	vec4 position = u_Model * vec4(a_Position.xyz, 1.0);
 
-	gl_Position = u_ViewProjection * position;
+	gl_Position = u_Projection * u_View * position;
 	// Calculate the transformed normal                      w = 0!
 	vec4 transformedModelNormal = normalize(u_Model * vec4(a_Normal, 0.0));
 
 	in_v_Position = position.xyz;
 	in_v_TexCoord = a_TexCoord;
 	in_v_Normal = mat3(transpose(inverse(u_Model))) * a_Normal;
+    mat4 invView = inverse(u_View);
+    in_v_CameraPosition = vec3(invView[3][0], invView[3][1], invView[3][2]);
 }
 
 #type geometry
@@ -31,15 +35,15 @@ void main()
 layout(triangles) in;
 layout(triangle_strip, max_vertices = 3) out;
 
-uniform mat4 u_ViewProjection;
-
 in vec3 in_v_Position[];
 in vec2 in_v_TexCoord[];
 in vec3 in_v_Normal[];
+in vec3 in_v_CameraPosition[];
 
 out vec3 v_Position;
 out vec2 v_TexCoord;
 out vec3 v_Normal;
+out vec3 v_CameraPosition;
 
 void main()
 {
@@ -54,6 +58,7 @@ void main()
         v_Position = in_v_Position[i];
         v_TexCoord = in_v_TexCoord[i];
         v_Normal = faceNormal;
+        v_CameraPosition = in_v_CameraPosition[0];
         EmitVertex();
     }
 
@@ -63,11 +68,10 @@ void main()
 #type fragment
 #version 330 core
 
-layout(location = 0) out vec4 a_Color;
-
 in vec3 v_Position;
 in vec2 v_TexCoord;
 in vec3 v_Normal;
+in vec3 v_CameraPosition;
 
 struct DirectionalLight
 {
@@ -99,7 +103,6 @@ struct Material
     float shininess;
 };
 
-uniform vec3 u_CameraPosition;
 uniform PointLight u_Light;
 uniform Material u_Material;
 
@@ -140,7 +143,7 @@ vec3 CalculatePointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewD
 void main()
 {
 	vec3 norm = normalize(v_Normal);
-	vec3 viewDir = normalize(u_CameraPosition - v_Position);
+	vec3 viewDir = normalize(v_CameraPosition - v_Position);
 	vec3 lightDir = normalize(u_Light.position - v_Position);
     vec3 halfwayDir = normalize(lightDir + viewDir);
 
@@ -158,5 +161,5 @@ void main()
 	vec3 specular = u_Light.specular * spec * vec3(texture(u_Material.specular, v_TexCoord));
 
 	vec3 result = (ambient + diffuse + specular) * attenuation;
-	a_Color = vec4(result, 1.0);
+	gl_FragColor = vec4(result, 1.0);
 }

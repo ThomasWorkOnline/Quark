@@ -35,7 +35,10 @@ namespace Entropy {
 		// Tiling formats
 		// TODO:
 
-		Default = None
+		Clamp,
+		Repeat,
+
+		Default = Clamp
 	};
 
 	struct FramebufferTextureSpecification

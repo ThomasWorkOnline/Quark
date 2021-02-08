@@ -50,28 +50,12 @@ namespace Entropy {
     {
         uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer()->GetCount();
         glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
-
-        // Unbind all textures
-        int32_t textureSlots = GetTextureSlotsCount();
-        for (int32_t i = 0; i < textureSlots; i++)
-        {
-            glActiveTexture(GL_TEXTURE0 + i);
-            glBindTexture(GL_TEXTURE_2D, 0);
-        }
     }
 
     void OpenGLRenderingAPI::DrawInstanced(const Ref<VertexArray>& vertexArray, uint32_t repeatCount, uint32_t indexCount)
     {
         uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer()->GetCount();
         glDrawElementsInstanced(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr, repeatCount);
-
-        // Unbind all textures
-        int32_t textureSlots = GetTextureSlotsCount();
-        for (int32_t i = 0; i < textureSlots; i++)
-        {
-            glActiveTexture(GL_TEXTURE0 + i);
-            glBindTexture(GL_TEXTURE_2D, 0);
-        }
     }
 
     int32_t OpenGLRenderingAPI::GetTextureSlotsCount() const

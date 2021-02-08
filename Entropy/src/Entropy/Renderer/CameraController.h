@@ -13,20 +13,24 @@ namespace Entropy {
 	class CameraController
 	{
 	public:
-		CameraController(Entity camera);
+		CameraController() = default;
+		CameraController(Entity& camera);
 
 		void OnEvent(Event& e);
 		void OnUpdate(float elapsedTime);
 		void OnResize(float aspectRatio);
 
-		Entity& GetCamera() { return m_CameraEntity; }
+		bool HasCamera() const { return m_CameraEntity; }
+		void AttachCamera(Entity& camera) { m_CameraEntity = &camera; }
+		void DetachCamera() { m_CameraEntity = nullptr; }
 
 	private:
 		bool OnMouseScrolled(MouseScrolledEvent& e);
 		bool OnWindowResized(WindowResizeEvent& e);
 		bool OnMouseMoved(MouseMovedEvent& e);
 
-		Entity m_CameraEntity;
+		// Has to be of generic type Entity to have access to various components
+		Entity* m_CameraEntity = nullptr;
 
 		float m_RollSensitivity = 1.0f;
 		float m_MovementSpeed = 12.0f;

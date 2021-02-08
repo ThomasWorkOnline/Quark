@@ -14,9 +14,6 @@ namespace Entropy {
 		case RenderingAPI::API::OpenGL:
 			NT_TRACE("Created OpenGL Graphics Context!");
 			return CreateScope<OpenGLGraphicsContext>(static_cast<GLFWwindow*>(window));
-		case RenderingAPI::API::None:
-			NT_FATAL("Could not create graphics context");
-			return nullptr;
 		}
 
 		NT_FATAL("Unknown Rendering API");

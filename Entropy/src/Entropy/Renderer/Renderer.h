@@ -18,6 +18,7 @@ namespace Entropy {
 		static void OnWindowResize(uint32_t width, uint32_t height);
 
 		static void BeginScene(Entity cameraEntity);
+		static void BeginScene(const glm::mat4& cameraProjection, const glm::mat4& cameraView);
 		static void EndScene();
 
 		static void Submit(const Ref<Shader>& shader, const Ref<VertexArray>& va, const glm::mat4& transform = glm::mat4(1.0f));
@@ -26,8 +27,8 @@ namespace Entropy {
 	private:
 		struct SceneData
 		{
-			glm::mat4 ViewProjectionMatrix;
-			glm::vec3 CameraPosition;
+			glm::mat4 ProjectionMatrix;
+			glm::mat4 ViewMatrix;
 		};
 
 		static SceneData s_SceneData;

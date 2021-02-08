@@ -8,6 +8,96 @@
 
 #include "Entropy.h"
 
+static uint32_t LoadCubemap(std::string* faces)
+{
+	uint32_t renderedID;
+	glGenTextures(1, &renderedID);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, renderedID);
+	stbi_set_flip_vertically_on_load(false);
+
+	int width, height, channels;
+	for (size_t i = 0; i < 6; i++)
+	{
+		unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &channels, 0);
+		if (data)
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		else
+			NT_ERROR("Cubemap tex failed to load at path: " << faces[i]);
+
+		stbi_image_free(data);
+	}
+
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+	return renderedID;
+}
+
+static std::string files[6] = {
+	"./assets/environments/Storforsen4/posx.jpg",
+	"./assets/environments/Storforsen4/negx.jpg",
+	"./assets/environments/Storforsen4/posy.jpg",
+	"./assets/environments/Storforsen4/negy.jpg",
+	"./assets/environments/Storforsen4/posz.jpg",
+	"./assets/environments/Storforsen4/negz.jpg"
+};
+
+float cubemapVertices[] = {
+   -0.5f, -0.5f,  0.5f,
+	0.5f, -0.5f,  0.5f,
+	0.5f,  0.5f,  0.5f,
+   -0.5f,  0.5f,  0.5f,
+	0.5f, -0.5f,  0.5f,
+	0.5f, -0.5f, -0.5f,
+	0.5f,  0.5f, -0.5f,
+	0.5f,  0.5f,  0.5f,
+	0.5f, -0.5f, -0.5f,
+   -0.5f, -0.5f, -0.5f,
+   -0.5f,  0.5f, -0.5f,
+	0.5f,  0.5f, -0.5f,
+   -0.5f, -0.5f, -0.5f,
+   -0.5f, -0.5f,  0.5f,
+   -0.5f,  0.5f,  0.5f,
+   -0.5f,  0.5f, -0.5f,
+   -0.5f, -0.5f, -0.5f,
+	0.5f, -0.5f, -0.5f,
+	0.5f, -0.5f,  0.5f,
+   -0.5f, -0.5f,  0.5f,
+   -0.5f,  0.5f,  0.5f,
+	0.5f,  0.5f,  0.5f,
+	0.5f,  0.5f, -0.5f,
+   -0.5f,  0.5f, -0.5f
+};
+
+static uint32_t cubemapIndices[] = {
+	// front
+	0, 2, 3,
+	1, 2, 0,
+
+	// right
+	4, 6, 7,
+	5, 6, 4,
+
+	// back
+	8, 10, 11,
+	9, 10, 8,
+
+	// left
+	12, 14, 15,
+	13, 14, 12,
+
+	// bottom
+	16, 18, 19,
+	17, 18, 16,
+
+	// top
+	20, 22, 23,
+	21, 22, 20
+};
+
 class SandboxGame : public Entropy::Application
 {
 public:
@@ -35,24 +125,42 @@ public:
 		{
 			m_ModelEntity.AddComponent<Entropy::TransformComponent>().Position.y = 1.5f;
 			m_ModelEntity.AddComponent<Entropy::MeshComponent>("./assets/models/monkey.obj");
+			//m_ModelEntity.AddComponent<Entropy::MeshComponent>().Mesh.GenerateUnitCube();
 		}
 
 		{
-			m_SphereEntity.AddComponent<Entropy::TransformComponent>();
-			m_SphereEntity.AddComponent<Entropy::MeshComponent>("./assets/models/sphere.obj");
+			auto& transform = m_LightEntity.AddComponent<Entropy::TransformComponent>();
+			transform.Scale = { 0.01f, 0.01f, 0.01f };
+			transform.Position = { -0.7, 1.8f, -0.3f };
+			m_LightEntity.AddComponent<Entropy::MeshComponent>("./assets/models/sphere.obj");
 		}
 
-		m_DefaultShader = m_ShaderLibrary.Load("./assets/shaders/default.glsl");
-		m_DefaultFlatShader = m_ShaderLibrary.Load("./assets/shaders/defaultFlat.glsl");
-		m_DebugNormalShader = m_ShaderLibrary.Load("./assets/shaders/debugNormal.glsl");
-		m_SelectedShader = m_DefaultShader;
+		m_ShaderLibrary.Load("default", "./assets/shaders/default.glsl");
+		m_ShaderLibrary.Load("defaultFlat", "./assets/shaders/defaultFlat.glsl");
+		m_ShaderLibrary.Load("debugNormal", "./assets/shaders/debugNormal.glsl");
+		m_ShaderLibrary.Load("debugPosition", "./assets/shaders/debugPosition.glsl");
+		m_ShaderLibrary.Load("skybox", "./assets/shaders/skybox.glsl");
+		m_SelectedShader = m_ShaderLibrary.Get("default");
+
+		m_CubeMapRendererID = LoadCubemap(files);
+
+		Entropy::BufferLayout layout = {
+			{ Entropy::ShaderDataType::Float3, "a_Position" },
+		};
+		vb->SetLayout(layout);
+		va->AddVertexBuffer(vb);
+		va->SetIndexBuffer(ib);
 	}
 
 	void OnUpdate(float elapsedTime) override
 	{
+		// Update scene before updating the camera controller
+		// The camera controller will use the updated components
+		// The other way around would result in 1 frame offset from the actual scene data
 		m_Scene.OnUpdate(elapsedTime);
 		m_CameraController.OnUpdate(elapsedTime);
 
+#if 0
 		static float accumulatedTime = 0.0f;
 		accumulatedTime += elapsedTime;
 
@@ -71,41 +179,49 @@ public:
 
 			std::cout << "Framebuffer size: " << m_Spec.Width << "x" << m_Spec.Height << std::endl << std::endl;
 		}
+#endif
 
-		const float speed = 10.0f;
-		if (Entropy::Input::IsKeyPressed(Entropy::KeyCode::RightShift))
+		// TODO: have this part of a script
 		{
-			if (Entropy::Input::IsKeyPressed(Entropy::KeyCode::Up))
+			auto& position = m_LightEntity.GetComponent<Entropy::TransformComponent>().Position;
+			const float speed = 10.0f;
+			if (Entropy::Input::IsKeyPressed(Entropy::KeyCode::RightShift))
 			{
-				m_PointLightPosition.y += elapsedTime * speed;
+				if (Entropy::Input::IsKeyPressed(Entropy::KeyCode::Up))
+				{
+					position.y += elapsedTime * speed;
+				}
+
+				if (Entropy::Input::IsKeyPressed(Entropy::KeyCode::Down))
+				{
+					position.y -= elapsedTime * speed;
+				}
+			}
+			else
+			{
+				if (Entropy::Input::IsKeyPressed(Entropy::KeyCode::Up))
+				{
+					position.z += elapsedTime * speed;
+				}
+
+				if (Entropy::Input::IsKeyPressed(Entropy::KeyCode::Down))
+				{
+					position.z -= elapsedTime * speed;
+				}
 			}
 
-			if (Entropy::Input::IsKeyPressed(Entropy::KeyCode::Down))
+			if (Entropy::Input::IsKeyPressed(Entropy::KeyCode::Right))
 			{
-				m_PointLightPosition.y -= elapsedTime * speed;
-			}
-		}
-		else
-		{
-			if (Entropy::Input::IsKeyPressed(Entropy::KeyCode::Up))
-			{
-				m_PointLightPosition.z += elapsedTime * speed;
+				position.x += elapsedTime * speed;
 			}
 
-			if (Entropy::Input::IsKeyPressed(Entropy::KeyCode::Down))
+			if (Entropy::Input::IsKeyPressed(Entropy::KeyCode::Left))
 			{
-				m_PointLightPosition.z -= elapsedTime * speed;
+				position.x -= elapsedTime * speed;
 			}
-		}
 
-		if (Entropy::Input::IsKeyPressed(Entropy::KeyCode::Right))
-		{
-			m_PointLightPosition.x += elapsedTime * speed;
-		}
-
-		if (Entropy::Input::IsKeyPressed(Entropy::KeyCode::Left))
-		{
-			m_PointLightPosition.x -= elapsedTime * speed;
+			m_SelectedShader->Attach();
+			m_SelectedShader->SetFloat3("u_Light.position", position);
 		}
 
 		if (Entropy::Input::IsMouseButtonPressed(Entropy::MouseCode::Button3))
@@ -124,28 +240,26 @@ public:
 				m_NormalLength = 1.0f;
 		}
 
+		// TODO: render pipeline and proper light object
 		m_SelectedShader->Attach();
-		m_SelectedShader->SetFloat3("u_Light.position", m_PointLightPosition);
 		m_SelectedShader->SetInt("u_Material.diffuse", 0);
 		m_SelectedShader->SetInt("u_Material.specular", 1);
 		m_SelectedShader->SetInt("u_Material.normalMap", 2);
+		m_SelectedShader->SetFloat("u_Material.shininess", 512.0f);
+
 		constexpr float lightPower = 5.0f;
-		constexpr glm::vec3 lightColor = { 1.0f, 1.0f, 1.0f };
-		m_SelectedShader->SetFloat3("u_Light.position", m_PointLightPosition);
-		m_SelectedShader->SetFloat3("u_Light.ambient", lightColor * 0.005f * lightPower);
-		m_SelectedShader->SetFloat3("u_Light.diffuse", lightColor * 0.2f * lightPower);
-		m_SelectedShader->SetFloat3("u_Light.specular", lightColor * lightPower);
+		constexpr glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f) * lightPower;
+		m_SelectedShader->SetFloat3("u_Light.ambient", lightColor * 0.005f);
+		m_SelectedShader->SetFloat3("u_Light.diffuse", lightColor * 0.2f);
+		m_SelectedShader->SetFloat3("u_Light.specular", lightColor);
 		// Light will cover a distance of 50 meters
 		m_SelectedShader->SetFloat("u_Light.constant", 1.0f);
 		m_SelectedShader->SetFloat("u_Light.linear", 0.09f);
 		m_SelectedShader->SetFloat("u_Light.quadratic", 0.032f);
-		m_SelectedShader->SetFloat("u_Material.shininess", 512.0f);
+
 		m_SelectedShader->SetFloat("u_NormalLength", m_NormalLength);
 
 		m_ModelEntity.GetComponent<Entropy::TransformComponent>().Rotate(elapsedTime, glm::vec3(0.0f, 1.0f, 0.0f));
-		auto& transform = m_SphereEntity.GetComponent<Entropy::TransformComponent>();
-		transform.Scale = { 0.01f, 0.01f, 0.01f };
-		transform.Position = m_PointLightPosition;
 
 		{
 			Entropy::Renderer::BeginScene(m_PortalCamera);
@@ -155,8 +269,8 @@ public:
 			// Drawing Suzanne to the framebuffer
 			Entropy::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
 			Entropy::RenderCommand::Clear();
-			white->Attach(0);
-			white->Attach(1);
+			cobblestone->Attach(0);
+			cobblestone->Attach(1);
 			Entropy::Renderer::Submit(m_SelectedShader, m_ModelEntity);
 
 			m_Framebuffer->Detach();
@@ -168,8 +282,8 @@ public:
 		{
 			Entropy::Renderer::BeginScene(m_CameraEntity);
 
-			white->Attach(0);
-			white->Attach(1);
+			cobblestone->Attach(0);
+			cobblestone->Attach(1);
 			Entropy::Renderer::Submit(m_SelectedShader, m_ModelEntity);
 
 			m_Framebuffer->AttachColorAttachment(0);
@@ -178,7 +292,26 @@ public:
 
 			white->Attach(0);
 			white->Attach(1);
-			Entropy::Renderer::Submit(m_SelectedShader, m_SphereEntity);
+			Entropy::Renderer::Submit(m_SelectedShader, m_LightEntity);
+
+			Entropy::Renderer::EndScene();
+		}
+		
+		{
+			glm::mat4 view = (glm::mat3)m_CameraEntity.GetComponent<Entropy::TransformComponent>();
+			Entropy::Renderer::BeginScene(m_CameraEntity.GetComponent<Entropy::CameraComponent>().Camera.GetProjectionMatrix(), view);
+
+			glCullFace(GL_BACK);
+			glDepthFunc(GL_LEQUAL);
+
+			glActiveTexture(GL_TEXTURE3);
+			glBindTexture(GL_TEXTURE_CUBE_MAP, m_CubeMapRendererID);
+			m_SelectedShader->SetInt("u_Cubemap", 3);
+			Entropy::Renderer::Submit(m_ShaderLibrary.Get("skybox"), va);
+			glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+			glCullFace(GL_FRONT);
+			glDepthFunc(GL_LESS);
 
 			Entropy::Renderer::EndScene();
 		}
@@ -223,26 +356,42 @@ public:
 			static uint32_t shaderIndex = 0;
 			shaderIndex++;
 
-			if (shaderIndex > 2)
+			if (shaderIndex >= 4)
 				shaderIndex = 0;
 
 			switch (shaderIndex)
 			{
 			case 0:
-				m_SelectedShader = m_DefaultShader;
+				m_SelectedShader = m_ShaderLibrary.Get("default");
 				break;
 			case 1:
-				m_SelectedShader = m_DefaultFlatShader;
+				m_SelectedShader = m_ShaderLibrary.Get("defaultFlat");
 				break;
 			case 2:
-				m_SelectedShader = m_DebugNormalShader;
+				m_SelectedShader = m_ShaderLibrary.Get("debugNormal");
 				break;
+			case 3:
+				m_SelectedShader = m_ShaderLibrary.Get("debugPosition");
 			}
 
 			std::stringstream ss;
 			ss << "Shader used: ";
 			ss << m_SelectedShader->GetName();
 			NT_TRACE(ss.str());
+			break;
+		}
+		case Entropy::KeyCode::F2:
+		{
+			if (m_CameraController.HasCamera())
+			{
+				m_CameraController.DetachCamera();
+				NT_TRACE("Detached camera from controller");
+			}
+			else
+			{
+				m_CameraController.AttachCamera(m_CameraEntity);
+				NT_TRACE("Attached camera to controller");
+			}
 			break;
 		}
 		case Entropy::KeyCode::F3:
@@ -279,27 +428,32 @@ private:
 	Entropy::Ref<Entropy::Texture2D> white = Entropy::Texture2D::Create("./assets/textures/white.jpg");
 	Entropy::Ref<Entropy::Texture2D> diffuseMap = Entropy::Texture2D::Create("./assets/textures/container.png");
 	Entropy::Ref<Entropy::Texture2D> specularMap = Entropy::Texture2D::Create("./assets/textures/container_specular.png");
-	//Entropy::Ref<Entropy::Texture2D> normalMap = Entropy::Texture2D::Create("./assets/textures/normal_map.png");
-	//Entropy::Ref<Entropy::Texture2D> cobblestone = Entropy::Texture2D::Create("./assets/textures/cobblestone.png");
+	Entropy::Ref<Entropy::Texture2D> normalMap = Entropy::Texture2D::Create("./assets/textures/normal_map.png");
+	Entropy::Ref<Entropy::Texture2D> cobblestone = Entropy::Texture2D::Create("./assets/textures/cobblestone.png");
 
 	Entropy::ShaderLibrary m_ShaderLibrary;
-	Entropy::Ref<Entropy::Shader> m_DefaultShader;
-	Entropy::Ref<Entropy::Shader> m_DefaultFlatShader;
-	Entropy::Ref<Entropy::Shader> m_DebugNormalShader;
 	Entropy::Ref<Entropy::Shader> m_SelectedShader;
 	float m_NormalLength = 0.1f;
 
 	Entropy::Entity m_PlaneEntity = m_Scene.CreateEntity();
 	Entropy::Entity m_ModelEntity = m_Scene.CreateEntity();
-	Entropy::Entity m_SphereEntity = m_Scene.CreateEntity();
+	Entropy::Entity m_LightEntity = m_Scene.CreateEntity();
 	Entropy::Entity m_CameraEntity = m_Scene.CreateEntity();
 	Entropy::Entity m_PortalCamera = m_Scene.CreateEntity();
 
 	Entropy::CameraController m_CameraController = Entropy::CameraController(m_CameraEntity);
-	glm::vec3 m_PointLightPosition = glm::vec3(-0.7f, 2.0f, -5.0f);
 
-	Entropy::FramebufferSpecification m_Spec = { 1024, 1024, { { Entropy::FramebufferTextureFormat::RGBA8, Entropy::FramebufferFilteringFormat::Nearest }, { Entropy::FramebufferTextureFormat::Depth24Stencil8 } } };
+	Entropy::FramebufferSpecification m_Spec = { 1024, 1024, {
+		{ Entropy::FramebufferTextureFormat::RGBA8, Entropy::FramebufferFilteringFormat::Nearest, Entropy::FramebufferTilingFormat::Repeat },
+		{ Entropy::FramebufferTextureFormat::Depth24Stencil8 } } };
 	Entropy::Ref<Entropy::Framebuffer> m_Framebuffer = Entropy::Framebuffer::Create(m_Spec);
+
+	uint32_t m_CubeMapRendererID = 0;
+
+	Entropy::Ref<Entropy::VertexArray> va = Entropy::VertexArray::Create();
+	Entropy::Ref<Entropy::IndexBuffer> ib = Entropy::IndexBuffer::Create(cubemapIndices, sizeof(cubemapIndices) / sizeof(uint32_t));
+	Entropy::Ref<Entropy::VertexBuffer> vb = Entropy::VertexBuffer::Create(cubemapVertices, 108 * sizeof(float));
+	Entropy::BufferLayout layout;
 };
 
 Entropy::Application* Entropy::CreateApplication()

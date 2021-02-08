@@ -14,9 +14,6 @@ namespace Entropy {
         {
         case RenderingAPI::API::OpenGL:
             return CreateRef<OpenGLVertexBuffer>(vertices, size);
-        case RenderingAPI::API::None:
-            NT_FATAL("Rendering API not supported");
-            return nullptr;
         }
 
         NT_FATAL("Unknown Rendering API");
@@ -29,9 +26,6 @@ namespace Entropy {
         {
         case RenderingAPI::API::OpenGL:
             return CreateRef<OpenGLVertexBuffer>(size);
-        case RenderingAPI::API::None:
-            NT_FATAL("Rendering API not supported");
-            return nullptr;
         }
 
         NT_FATAL("Unknown Rendering API");
@@ -47,9 +41,6 @@ namespace Entropy {
         {
         case RenderingAPI::API::OpenGL:
             return CreateRef<OpenGLIndexBuffer>(indices, count);
-        case RenderingAPI::API::None:
-            NT_FATAL("Rendering API not supported");
-            return nullptr;
         }
 
         NT_FATAL("Unknown Rendering API");

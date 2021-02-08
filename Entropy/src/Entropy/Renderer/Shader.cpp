@@ -13,10 +13,6 @@ namespace Entropy {
 		{
 		case RenderingAPI::API::OpenGL:
 			return CreateRef<OpenGLShader>(filepath);
-			break;
-		case RenderingAPI::API::None:
-			NT_FATAL("Rendering API not supported");
-			return nullptr;
 		}
 
 		NT_FATAL("Unknown Rendering API");
@@ -29,10 +25,6 @@ namespace Entropy {
 		{
 		case RenderingAPI::API::OpenGL:
 			return CreateRef<OpenGLShader>(name, vertexSource, fragmentSource);
-			break;
-		case RenderingAPI::API::None:
-			NT_FATAL("Rendering API not supported");
-			return nullptr;
 		}
 
 		NT_FATAL("Unknown Rendering API");

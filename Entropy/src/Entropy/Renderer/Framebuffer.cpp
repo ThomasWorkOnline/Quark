@@ -13,9 +13,6 @@ namespace Entropy {
 		{
 		case RenderingAPI::API::OpenGL:
 			return CreateRef<OpenGLFramebuffer>(spec);
-		case RenderingAPI::API::None:
-			NT_FATAL("Rendering API not supported");
-			return nullptr;
 		}
 
 		NT_FATAL("Unknown Rendering API");

@@ -40,6 +40,8 @@ namespace Entropy {
 		Ref<Shader> Get(const std::string& name);
 
 		bool Exists(const std::string& name) const;
+		size_t Size() const { return m_Shaders.size(); }
+
 	private:
 		std::unordered_map<std::string, Ref<Shader>> m_Shaders;
 	};
