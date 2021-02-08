@@ -5,6 +5,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <array>
 
 // Platform detection
 #include "Platform.h"
@@ -28,6 +29,10 @@
 #include "../../../vendor/glm/gtc/matrix_transform.hpp"
 #include "../../../vendor/glm/gtc/quaternion.hpp"
 #include "../../../vendor/glm/gtx/quaternion.hpp"
+
+#define STB_IMAGE_STATIC
+#define STB_IMAGE_IMPLEMENTATION
+#include "../../../vendor/stb_image/stb_image.h"
 
 #include "Logger.h"
 #include "../Tools/LogUtils.h"

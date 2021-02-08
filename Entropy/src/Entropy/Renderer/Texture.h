@@ -16,6 +16,7 @@ namespace Entropy {
 		virtual void SetData(void* data, uint32_t size) = 0;
 
 		virtual void Attach(uint32_t textureSlot = 0) const = 0;
+		virtual void Detach() const = 0;
 
 		virtual bool operator==(const Texture& other) const = 0;
 	};

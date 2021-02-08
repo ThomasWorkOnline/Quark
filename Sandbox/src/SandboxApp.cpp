@@ -8,43 +8,6 @@
 
 #include "Entropy.h"
 
-static uint32_t LoadCubemap(std::string* faces)
-{
-	uint32_t renderedID;
-	glGenTextures(1, &renderedID);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, renderedID);
-	stbi_set_flip_vertically_on_load(false);
-
-	int width, height, channels;
-	for (size_t i = 0; i < 6; i++)
-	{
-		unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &channels, 0);
-		if (data)
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		else
-			NT_ERROR("Cubemap tex failed to load at path: " << faces[i]);
-
-		stbi_image_free(data);
-	}
-
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
-	return renderedID;
-}
-
-static std::string files[6] = {
-	"./assets/environments/FishermansBastion/posx.jpg",
-	"./assets/environments/FishermansBastion/negx.jpg",
-	"./assets/environments/FishermansBastion/posy.jpg",
-	"./assets/environments/FishermansBastion/negy.jpg",
-	"./assets/environments/FishermansBastion/posz.jpg",
-	"./assets/environments/FishermansBastion/negz.jpg"
-};
-
 float cubemapVertices[] = {
    -0.5f, -0.5f,  0.5f,
 	0.5f, -0.5f,  0.5f,
@@ -142,8 +105,6 @@ public:
 		m_ShaderLibrary.Load("skybox", "./assets/shaders/skybox.glsl");
 		m_SelectedShader = m_ShaderLibrary.Get("default");
 
-		m_CubeMapRendererID = LoadCubemap(files);
-
 		Entropy::BufferLayout layout = {
 			{ Entropy::ShaderDataType::Float3, "a_Position" },
 		};
@@ -240,24 +201,32 @@ public:
 				m_NormalLength = 1.0f;
 		}
 
-		// TODO: render pipeline and proper light object
-		m_SelectedShader->Attach();
-		m_SelectedShader->SetInt("u_Material.diffuse", 0);
-		m_SelectedShader->SetInt("u_Material.specular", 1);
-		m_SelectedShader->SetInt("u_Material.normalMap", 2);
-		m_SelectedShader->SetFloat("u_Material.shininess", 512.0f);
+		{
+			// TODO: render pipeline and proper light object
+			m_SelectedShader->Attach();
+			m_SelectedShader->SetInt("u_Material.diffuse", 0);
+			m_SelectedShader->SetInt("u_Material.specular", 1);
+			m_SelectedShader->SetInt("u_Material.normalMap", 2);
+			m_SelectedShader->SetFloat("u_Material.shininess", 512.0f);
 
-		constexpr float lightPower = 5.0f;
-		constexpr glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f) * lightPower;
-		m_SelectedShader->SetFloat3("u_Light.ambient", lightColor * 0.005f);
-		m_SelectedShader->SetFloat3("u_Light.diffuse", lightColor * 0.2f);
-		m_SelectedShader->SetFloat3("u_Light.specular", lightColor);
-		// Light will cover a distance of 50 meters
-		m_SelectedShader->SetFloat("u_Light.constant", 1.0f);
-		m_SelectedShader->SetFloat("u_Light.linear", 0.09f);
-		m_SelectedShader->SetFloat("u_Light.quadratic", 0.032f);
+			constexpr float lightPower = 5.0f;
+			constexpr glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f) * lightPower;
+			m_SelectedShader->SetFloat3("u_Light.ambient", lightColor * 0.005f);
+			m_SelectedShader->SetFloat3("u_Light.diffuse", lightColor * 0.2f);
+			m_SelectedShader->SetFloat3("u_Light.specular", lightColor);
+			// Light will cover a distance of 50 meters
+			m_SelectedShader->SetFloat("u_Light.constant", 1.0f);
+			m_SelectedShader->SetFloat("u_Light.linear", 0.09f);
+			m_SelectedShader->SetFloat("u_Light.quadratic", 0.032f);
 
-		m_SelectedShader->SetFloat("u_NormalLength", m_NormalLength);
+			m_SelectedShader->SetFloat("u_NormalLength", m_NormalLength);
+		}
+
+		{
+			auto shader = m_ShaderLibrary.Get("skybox");
+			shader->Attach();
+			shader->SetInt("u_Cubemap", 3);
+		}
 
 		m_ModelEntity.GetComponent<Entropy::TransformComponent>().Rotate(elapsedTime, glm::vec3(0.0f, 1.0f, 0.0f));
 
@@ -272,6 +241,7 @@ public:
 			white->Attach(0);
 			white->Attach(1);
 			Entropy::Renderer::Submit(m_SelectedShader, m_ModelEntity);
+			white->Detach();
 
 			m_Framebuffer->Detach();
 			Entropy::RenderCommand::SetViewport(0, 0, GetWindow().GetWidth(), GetWindow().GetHeight());
@@ -285,16 +255,20 @@ public:
 			white->Attach(0);
 			white->Attach(1);
 			Entropy::Renderer::Submit(m_SelectedShader, m_ModelEntity);
+			white->Detach();
 
 			//m_Framebuffer->AttachColorAttachment(0);
 			//m_Framebuffer->AttachColorAttachment(1);
 			diffuseMap->Attach(0);
-			specularMap->Attach(1);
+			white->Attach(1);
 			Entropy::Renderer::Submit(m_SelectedShader, m_PlaneEntity);
+			diffuseMap->Detach();
+			white->Detach();
 
 			white->Attach(0);
 			white->Attach(1);
 			Entropy::Renderer::Submit(m_SelectedShader, m_LightEntity);
+			white->Detach();
 
 			Entropy::Renderer::EndScene();
 		}
@@ -303,17 +277,9 @@ public:
 			glm::mat4 view = (glm::mat3)m_CameraEntity.GetComponent<Entropy::TransformComponent>();
 			Entropy::Renderer::BeginScene(m_CameraEntity.GetComponent<Entropy::CameraComponent>().Camera.GetProjectionMatrix(), view);
 
-			glCullFace(GL_BACK);
-			glDepthFunc(GL_LEQUAL);
-
-			glActiveTexture(GL_TEXTURE3);
-			glBindTexture(GL_TEXTURE_CUBE_MAP, m_CubeMapRendererID);
-			m_SelectedShader->SetInt("u_Cubemap", 3);
+			m_Skybox->Attach(3);
 			Entropy::Renderer::Submit(m_ShaderLibrary.Get("skybox"), va);
-			glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-
-			glCullFace(GL_FRONT);
-			glDepthFunc(GL_LESS);
+			m_Skybox->Detach();
 
 			Entropy::Renderer::EndScene();
 		}
@@ -438,7 +404,7 @@ private:
 	Entropy::Scene m_Scene = Entropy::Scene();
 
 	Entropy::Ref<Entropy::Texture2D> white = Entropy::Texture2D::Create("./assets/textures/white.jpg");
-	Entropy::Ref<Entropy::Texture2D> diffuseMap = Entropy::Texture2D::Create("./assets/textures/container.png");
+	Entropy::Ref<Entropy::Texture2D> diffuseMap = Entropy::Texture2D::Create("./assets/textures/houssem.png");
 	Entropy::Ref<Entropy::Texture2D> specularMap = Entropy::Texture2D::Create("./assets/textures/container_specular.png");
 	Entropy::Ref<Entropy::Texture2D> normalMap = Entropy::Texture2D::Create("./assets/textures/normal_map.png");
 	Entropy::Ref<Entropy::Texture2D> cobblestone = Entropy::Texture2D::Create("./assets/textures/cobblestone.png");
@@ -446,6 +412,15 @@ private:
 	Entropy::ShaderLibrary m_ShaderLibrary;
 	Entropy::Ref<Entropy::Shader> m_SelectedShader;
 	float m_NormalLength = 0.1f;
+
+	Entropy::Ref<Entropy::EnvironmentMap> m_Skybox = Entropy::EnvironmentMap::Create({
+	"./assets/environments/FishermansBastion/posx.jpg",
+	"./assets/environments/FishermansBastion/negx.jpg",
+	"./assets/environments/FishermansBastion/posy.jpg",
+	"./assets/environments/FishermansBastion/negy.jpg",
+	"./assets/environments/FishermansBastion/posz.jpg",
+	"./assets/environments/FishermansBastion/negz.jpg"
+		});
 
 	Entropy::Entity m_PlaneEntity = m_Scene.CreateEntity();
 	Entropy::Entity m_ModelEntity = m_Scene.CreateEntity();
@@ -459,8 +434,6 @@ private:
 		{ Entropy::FramebufferTextureFormat::RGBA8, Entropy::FramebufferFilteringFormat::Nearest, Entropy::FramebufferTilingFormat::Repeat },
 		{ Entropy::FramebufferTextureFormat::Depth24Stencil8 } } };
 	Entropy::Ref<Entropy::Framebuffer> m_Framebuffer = Entropy::Framebuffer::Create(m_Spec);
-
-	uint32_t m_CubeMapRendererID = 0;
 
 	Entropy::Ref<Entropy::VertexArray> va = Entropy::VertexArray::Create();
 	Entropy::Ref<Entropy::IndexBuffer> ib = Entropy::IndexBuffer::Create(cubemapIndices, sizeof(cubemapIndices) / sizeof(uint32_t));
