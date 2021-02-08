@@ -78,10 +78,6 @@ namespace Entropy {
 
 	void OpenGLTexture2D::Detach() const
 	{
-		for (int i = 0; i < 32; i++)
-		{
-			glActiveTexture(GL_TEXTURE0 + i);
-			glBindTexture(GL_TEXTURE_2D, 0);
-		}
+		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 }

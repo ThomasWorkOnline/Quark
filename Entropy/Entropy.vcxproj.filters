@@ -23,7 +23,6 @@
     <ClCompile Include="src\Platform\OpenGL\OpenGLTexture.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLVertexArray.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />
-    <ClCompile Include="src\Entropy\Core\EntryPoint.h" />
     <ClCompile Include="src\Entropy\Tools\EasingCurves.cpp" />
     <ClCompile Include="src\Entropy\Core\Window.cpp" />
     <ClCompile Include="src\Entropy\Renderer\Framebuffer.cpp" />

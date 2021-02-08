@@ -3,8 +3,6 @@
 #include "Window.h"
 #include "../Events/ApplicationEvent.h"
 
-int main();
-
 namespace Entropy {
 
     class Application
@@ -22,21 +20,16 @@ namespace Entropy {
         inline static Application& Get() { return *s_Instance; };
 
         void Stop();
-
-    private:
         void Run();
 
+    private:
         void OnEvent(Event& e);
         
         bool OnWindowClose(WindowCloseEvent& e);
 		bool OnWindowResize(WindowResizeEvent& e);
 
-        friend int ::main();
-
         static Application* s_Instance;
         Scope<Window> m_Window;
         bool m_Running = true;
     };
-
-    Application* CreateApplication();
 }

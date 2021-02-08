@@ -45,10 +45,6 @@ namespace Entropy {
 
 	void OpenGLEnvironmentMap::Detach() const
 	{
-		for (int i = 0; i < 32; i++)
-		{
-			glActiveTexture(GL_TEXTURE0 + i);
-			glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-		}
+		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 	}
 }

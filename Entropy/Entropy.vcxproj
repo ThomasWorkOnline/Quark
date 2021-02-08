@@ -101,7 +101,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Entropy\Core\Application.cpp" />
-    <ClCompile Include="src\Entropy\Core\EntryPoint.h" />
     <ClCompile Include="src\Entropy\Core\Input.cpp" />
     <ClCompile Include="src\Entropy\Core\Window.cpp" />
     <ClCompile Include="src\Entropy\Renderer\Buffer.cpp" />

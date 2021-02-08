@@ -86,8 +86,10 @@ public:
 		}
 
 		{
-			m_ModelEntity.AddComponent<Entropy::TransformComponent>().Position.y = 1.5f;
-			m_ModelEntity.AddComponent<Entropy::MeshComponent>("./assets/models/monkey.obj");
+			auto& transform = m_ModelEntity.AddComponent<Entropy::TransformComponent>();
+			transform.Scale = { 0.01f, 0.01f, 0.01f };
+			transform.Position.y += 0.3f;
+			m_ModelEntity.AddComponent<Entropy::MeshComponent>("./assets/models/ironman.obj");
 			//m_ModelEntity.AddComponent<Entropy::MeshComponent>().Mesh.GenerateUnitCube();
 		}
 
@@ -210,7 +212,7 @@ public:
 			m_SelectedShader->SetFloat("u_Material.shininess", 512.0f);
 			m_SelectedShader->SetFloat("u_Material.metalness", 1.0f);
 
-			constexpr float lightPower = 3.0f;
+			constexpr float lightPower = 1.0f;
 			constexpr glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f) * lightPower;
 			m_SelectedShader->SetFloat3("u_Light.ambient", lightColor * 0.005f);
 			m_SelectedShader->SetFloat3("u_Light.diffuse", lightColor * 0.2f);
@@ -241,6 +243,7 @@ public:
 			// Drawing Suzanne to the framebuffer
 			Entropy::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
 			Entropy::RenderCommand::Clear();
+
 			white->Attach(0);
 			white->Attach(1);
 			Entropy::Renderer::Submit(m_SelectedShader, m_ModelEntity);
@@ -454,7 +457,10 @@ private:
 	Entropy::BufferLayout layout;
 };
 
-Entropy::Application* Entropy::CreateApplication()
+int main()
 {
-	return new SandboxGame();
+	auto app = new SandboxGame();
+	app->Run();
+	delete app;
+	return 0;
 }
