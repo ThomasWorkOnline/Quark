@@ -13,14 +13,14 @@ namespace Entropy {
 		glm::vec3 Position;
 		glm::vec3 Scale;
 		glm::quat Orientation;
-	public:
+
 		TransformComponent()
 			: Position(0.0f), Scale(1.0f), Orientation(glm::angleAxis(0.0f, glm::vec3(1.0f, 0.0f, 0.0f))), m_Transform(glm::mat4(1.0f)) { }
 
 		TransformComponent(glm::vec3 position, glm::vec3 scale, glm::quat orientation)
 			: Position(position), Scale(scale), Orientation(orientation), m_Transform(glm::mat4(1.0f)) { }
 
-		inline operator glm::mat4& ()
+		operator glm::mat4& ()
 		{
 			m_Transform = glm::translate(glm::mat4(1.0f), Position)
 				* glm::toMat4(Orientation)
@@ -29,7 +29,7 @@ namespace Entropy {
 		}
 
 		void Rotate(const glm::quat& quat) { Orientation = Orientation * quat; }
-		void Rotate(float angle, const glm::vec3 axis) { Rotate(glm::angleAxis(angle, axis)); }
+		void Rotate(float angle, const glm::vec3 axis) { Rotate(glm::angleAxis(angle, glm::normalize(axis))); }
 	private:
 		glm::mat4 m_Transform;
 	};
@@ -50,15 +50,24 @@ namespace Entropy {
 	{
 		Mesh Mesh;
 
-		MeshComponent() = default;
+		operator Entropy::Mesh& ()
+		{
+			return Mesh;
+		}
 
-		MeshComponent(const char* filepath)
-			: Mesh(filepath) { }
+		MeshComponent() = default;
+		MeshComponent(const BufferLayout& layout, const char* filepath)
+			: Mesh(layout, filepath) { }
 	};
 
 	struct SpriteComponent
 	{
 		Sprite Sprite;
+
+		operator Entropy::Sprite& ()
+		{
+			return Sprite;
+		}
 
 		SpriteComponent() = default;
 	};
@@ -67,6 +76,11 @@ namespace Entropy {
 	{
 		Camera Camera;
 
+		operator Entropy::Camera& ()
+		{
+			return Camera;
+		}
+
 		CameraComponent(float aspectRatio, float fov)
 			: Camera(aspectRatio, fov) { }
 	};
@@ -74,6 +88,11 @@ namespace Entropy {
 	struct TagComponent
 	{
 		std::string Name;
+
+		operator std::string& ()
+		{
+			return Name;
+		}
 
 		TagComponent(const std::string& name)
 			: Name(name) { }

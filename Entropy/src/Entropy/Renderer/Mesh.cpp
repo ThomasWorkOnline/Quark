@@ -6,26 +6,14 @@
 
 namespace Entropy {
 
-	Mesh::Mesh()
-		: m_VertexArray(0), m_VertexBuffer(0), m_IndexBuffer(0)
+	Mesh::Mesh(const BufferLayout& layout, const char* filepath)
 	{
+		LoadOBJFromFile(layout, filepath);
 	}
 
-	Mesh::Mesh(const char* filepath)
-	{
-		LoadOBJFromFile(filepath);
-	}
-
-	void Mesh::GenerateUnitCube()
+	void Mesh::GenerateUnitCube(const BufferLayout& layout)
 	{
 		m_VertexArray = VertexArray::Create();
-
-		// Init default layout
-		BufferLayout layout = {
-			{ ShaderDataType::Float3, "a_Position" },
-			{ ShaderDataType::Float2, "a_TexCoord" },
-			{ ShaderDataType::Float3, "a_Normal" }
-		};
 
 		float vertexBuffer[] = {
 			// front
@@ -101,17 +89,11 @@ namespace Entropy {
 		m_VertexArray->SetIndexBuffer(m_IndexBuffer);
 	}
 
-	void Mesh::GenerateTerrain(size_t scale, uint32_t seed)
+	void Mesh::GenerateTerrain(const BufferLayout& layout, size_t scale, uint32_t seed)
 	{
 		NT_ASSERT(scale > 0, "Terrain scale cannot be smaller than 1");
 
 		m_VertexArray = VertexArray::Create();
-
-		BufferLayout layout = {
-			{ ShaderDataType::Float3, "a_Position" },
-			{ ShaderDataType::Float2, "a_TexCoord" },
-			{ ShaderDataType::Float3, "a_Normal" }
-		};
 
 		uint32_t size = (uint32_t)scale + 1;
 		size_t strideCount = layout.GetStride() / sizeof(float);
@@ -230,7 +212,7 @@ namespace Entropy {
 		indices[count] = std::stoul(sIndex);
 	}
 
-	bool Mesh::LoadOBJFromFile(const char* filepath)
+	bool Mesh::LoadOBJFromFile(const BufferLayout& layout, const char* filepath)
 	{
 		std::ios::sync_with_stdio(false);
 
@@ -290,12 +272,6 @@ namespace Entropy {
 		}
 
 		m_VertexArray = VertexArray::Create();
-
-		BufferLayout layout = {
-			{ ShaderDataType::Float3, "a_Position" },
-			{ ShaderDataType::Float2, "a_TexCoord" },
-			{ ShaderDataType::Float3, "a_Normal" }
-		};
 
 		// PHASE 2 - COMPUTING SECTION -------------------------------------------
 		uint32_t strideCount = (uint32_t)layout.GetStride() / sizeof(float);

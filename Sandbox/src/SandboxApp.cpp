@@ -68,6 +68,12 @@ public:
 	{
 		auto& window = GetWindow();
 
+		Entropy::BufferLayout layout = {
+				{ Entropy::ShaderDataType::Float3, "a_Position" },
+				{ Entropy::ShaderDataType::Float2, "a_TexCoord" },
+				{ Entropy::ShaderDataType::Float3, "a_Normal" }
+		};
+
 		{
 			m_CameraEntity.AddComponent<Entropy::TransformComponent>().Position = { 0.0f, 1.0f, -8.0f };
 			m_CameraEntity.AddComponent<Entropy::PhysicsComponent>();
@@ -82,22 +88,26 @@ public:
 
 		{
 			m_PlaneEntity.AddComponent<Entropy::TransformComponent>();
-			m_PlaneEntity.AddComponent<Entropy::MeshComponent>().Mesh.GenerateTerrain(10, 0);
+			m_PlaneEntity.AddComponent<Entropy::MeshComponent>().Mesh.GenerateTerrain({
+			{ Entropy::ShaderDataType::Float3, "a_Position" },
+			{ Entropy::ShaderDataType::Float2, "a_TexCoord" },
+			{ Entropy::ShaderDataType::Float3, "a_Normal" } }, 10, 0);
 		}
 
 		{
 			auto& transform = m_ModelEntity.AddComponent<Entropy::TransformComponent>();
-			transform.Scale = { 0.01f, 0.01f, 0.01f };
-			transform.Position.y += 0.3f;
-			m_ModelEntity.AddComponent<Entropy::MeshComponent>("./assets/models/ironman.obj");
-			//m_ModelEntity.AddComponent<Entropy::MeshComponent>().Mesh.GenerateUnitCube();
+			//transform.Scale = { 0.01f, 0.01f, 0.01f };
+			transform.Position.y += 1.3f;
+			m_ModelEntity.AddComponent<Entropy::MeshComponent>(layout, "./assets/models/monkey.obj");
+
+			/*m_ModelEntity.AddComponent<Entropy::MeshComponent>().Mesh.GenerateUnitCube(layout);*/
 		}
 
 		{
 			auto& transform = m_LightEntity.AddComponent<Entropy::TransformComponent>();
 			transform.Scale = { 0.01f, 0.01f, 0.01f };
 			transform.Position = { -0.7, 1.8f, -4.3f };
-			m_LightEntity.AddComponent<Entropy::MeshComponent>("./assets/models/sphere.obj");
+			m_LightEntity.AddComponent<Entropy::MeshComponent>(layout, "./assets/models/sphere.obj");
 		}
 
 		m_ShaderLibrary.Load("default", "./assets/shaders/default.glsl");
@@ -107,10 +117,10 @@ public:
 		m_ShaderLibrary.Load("skybox", "./assets/shaders/skybox.glsl");
 		m_SelectedShader = m_ShaderLibrary.Get("default");
 
-		Entropy::BufferLayout layout = {
+		Entropy::BufferLayout skyboxLayout = {
 			{ Entropy::ShaderDataType::Float3, "a_Position" },
 		};
-		vb->SetLayout(layout);
+		vb->SetLayout(skyboxLayout);
 		va->AddVertexBuffer(vb);
 		va->SetIndexBuffer(ib);
 	}
@@ -123,10 +133,11 @@ public:
 		m_Scene.OnUpdate(elapsedTime);
 		m_CameraController.OnUpdate(elapsedTime);
 
+		
+#if 0
 		static float accumulatedTime = 0.0f;
 		accumulatedTime += elapsedTime;
 
-#if 0
 		if (accumulatedTime > 1.0f)
 		{
 			std::cout << std::fixed << 1.0f / elapsedTime << " fps | frametime: " << elapsedTime * 1000 << "ms\n";
@@ -233,7 +244,7 @@ public:
 			shader->SetInt("u_Cubemap", 3);
 		}
 
-		m_ModelEntity.GetComponent<Entropy::TransformComponent>().Rotate(elapsedTime, glm::vec3(0.0f, 1.0f, 0.0f));
+		m_ModelEntity.GetComponent<Entropy::TransformComponent>().Rotate(elapsedTime * 0.2f, glm::vec3(0.0f, 1.0f, 0.0f));
 
 		{
 			Entropy::Renderer::BeginScene(m_PortalCamera);

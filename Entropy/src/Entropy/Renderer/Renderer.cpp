@@ -23,7 +23,7 @@ namespace Entropy {
 	void Renderer::BeginScene(Entity cameraEntity)
 	{
 		auto& transform = cameraEntity.GetComponent<TransformComponent>();
-		auto& camera = cameraEntity.GetComponent<CameraComponent>().Camera;
+		Camera& camera = cameraEntity.GetComponent<CameraComponent>();
 
 		transform.Orientation = glm::normalize(transform.Orientation);
 		glm::mat4 rotate = glm::toMat4(transform.Orientation);
