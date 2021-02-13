@@ -20,12 +20,12 @@ namespace Entropy {
 		else
 		{
 			glTexStorage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Spec.Width, m_Spec.Height);
-		}
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetTextureFilteringFormat(m_Spec.FilteringFormat));
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GetTextureFilteringFormat(m_Spec.FilteringFormat));
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GetTextureTilingFormat(m_Spec.TilingFormat));
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GetTextureTilingFormat(m_Spec.TilingFormat));
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetTextureFilteringFormat(m_Spec.FilteringFormat));
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GetTextureFilteringFormat(m_Spec.FilteringFormat));
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GetTextureTilingFormat(m_Spec.TilingFormat));
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GetTextureTilingFormat(m_Spec.TilingFormat));
+		}
 	}
 
 	OpenGLTexture2D::OpenGLTexture2D(const std::string& filepath)
@@ -78,7 +78,7 @@ namespace Entropy {
 	{
 		uint32_t bpp = m_DataFormat == GL_RGBA ? 4 : 3;
 		NT_ASSERT(size == m_Spec.Width * m_Spec.Height * bpp, "Data must be entire texture");
-		glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Spec.Width, m_Spec.Height, m_DataFormat, GL_UNSIGNED_BYTE, data);
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_Spec.Width, m_Spec.Height, m_DataFormat, GL_UNSIGNED_BYTE, data);
 	}
 
 	void OpenGLTexture2D::Attach(uint32_t textureSlot) const

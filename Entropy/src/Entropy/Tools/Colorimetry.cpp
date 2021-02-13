@@ -1,7 +1,5 @@
 #include "Colorimetry.h"
 
-#include <cmath>
-
 namespace Entropy {
 
 	glm::vec4 EncodeSRGB(const glm::vec4& color)

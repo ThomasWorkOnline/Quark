@@ -32,6 +32,8 @@ namespace Entropy {
 
 	Application::~Application()
 	{
+		OnDestroy();
+
 		Renderer::Dispose();
 
 		NT_TRACE("Hey! Come back next time.");

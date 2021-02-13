@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../../vendor/glm/glm.hpp"
+#include "../Core/Core.h"
 
 namespace Entropy {
 

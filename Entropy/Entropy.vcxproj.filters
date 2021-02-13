@@ -22,7 +22,6 @@
     <ClCompile Include="src\Platform\OpenGL\OpenGLShader.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLTexture.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLVertexArray.cpp" />
-    <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />
     <ClCompile Include="src\Entropy\Tools\EasingCurves.cpp" />
     <ClCompile Include="src\Entropy\Core\Window.cpp" />
     <ClCompile Include="src\Entropy\Renderer\Framebuffer.cpp" />
@@ -30,8 +29,11 @@
     <ClCompile Include="src\Entropy\Scene\Entity.cpp" />
     <ClCompile Include="src\Entropy\Scene\Scene.cpp" />
     <ClCompile Include="src\Entropy\Renderer\Sprite.cpp" />
+    <ClCompile Include="src\Platform\GLFW\GenericWindow.cpp" />
+    <ClCompile Include="src\Entropy\Renderer\CubeMap.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\OpenGLCubeMap.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLEnvironmentMap.cpp" />
-    <ClCompile Include="src\Entropy\Renderer\EnvironmentMap.cpp" />
+    <ClCompile Include="src\Entropy\Renderer\Environment.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Entropy\Core\Application.h" />
@@ -65,7 +67,6 @@
     <ClInclude Include="src\Platform\OpenGL\OpenGLShader.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLTexture.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLVertexArray.h" />
-    <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
     <ClInclude Include="src\Entropy.h" />
     <ClInclude Include="src\Entropy\Core\Platform.h" />
     <ClInclude Include="src\Entropy\Tools\EasingCurves.h" />
@@ -80,5 +81,10 @@
     <ClInclude Include="src\Entropy\Renderer\EnvironmentMap.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLTextureFormats.h" />
     <ClInclude Include="src\Entropy\Renderer\TextureFormats.h" />
+    <ClInclude Include="src\Platform\GLFW\WindowsWindow.h" />
+    <ClInclude Include="src\Platform\GLFW\GenericWindow.h" />
+    <ClInclude Include="src\Entropy\Renderer\CubeMap.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLCubeMap.h" />
+    <ClInclude Include="src\Entropy\Renderer\Environment.h" />
   </ItemGroup>
 </Project>

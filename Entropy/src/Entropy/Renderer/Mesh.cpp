@@ -8,10 +8,7 @@ namespace Entropy {
 
 	Mesh::Mesh(const BufferLayout& layout, const char* filepath)
 	{
-		if (!LoadOBJFromFile(layout, filepath))
-		{
-			NT_ERROR("Could not load model at path: " << filepath);
-		}
+		NT_ASSERT(LoadOBJFromFile(layout, filepath), "Could not load model at path : " << filepath);
 	}
 
 	void Mesh::GenerateUnitCube(const BufferLayout& layout)
@@ -98,15 +95,15 @@ namespace Entropy {
 
 		m_VertexArray = VertexArray::Create();
 
-		uint32_t size = (uint32_t)scale + 1;
+		size_t size = scale + 1;
 		size_t strideCount = layout.GetStride() / sizeof(float);
-		size_t vertexBufferCount = (size_t)size * (size_t)size * strideCount;
+		size_t vertexBufferCount = size * size * strideCount;
 		float* vertexBuffer = new float[vertexBufferCount];
 
 		std::vector<uint32_t> indexBuffer;
 
 		// To sample the height of the terrain, we need to know the height of the border
-		size_t noiseSize = (size_t)size + 1;
+		size_t noiseSize = size + 1;
 		float* noiseSeed2D = new float[noiseSize * noiseSize];
 		for (int i = 0; i < noiseSize * noiseSize; i++)
 		{
@@ -116,21 +113,21 @@ namespace Entropy {
 		//float* perlinNoise2D = new float[noiseSize * noiseSize];
 		//PerlinNoise2D(noiseSize, noiseSize, noiseSeed2D, 10, 2.4f, perlinNoise2D);*/
 
-		for (uint32_t y = 0; y < size; y++)
+		for (size_t y = 0; y < size; y++)
 		{
-			for (uint32_t x = 0; x < size; x++)
+			for (size_t x = 0; x < size; x++)
 			{
-				size_t pos = strideCount * (y * (size_t)size + x);
+				size_t pos = strideCount * (y * size + x);
 
 				static const float centerOffset = scale * 0.5f;
 
-				float height0 = noiseSeed2D[x + y * noiseSize]; // center;
-				float height1 = noiseSeed2D[(x + 1) + y * noiseSize]; // right
-				float height2 = noiseSeed2D[x + (y + 1) * noiseSize]; // bottom
+				float height0 = noiseSeed2D[(x + 0) + (y + 0) * noiseSize]; // center;
+				float height1 = noiseSeed2D[(x + 1) + (y + 0) * noiseSize]; // right
+				float height2 = noiseSeed2D[(x + 0) + (y + 1) * noiseSize]; // bottom
 
 				// Position
 				vertexBuffer[pos + 0] = (float)x - centerOffset;
-				vertexBuffer[pos + 1] = height0;
+				vertexBuffer[pos + 1] = (float)height0;
 				vertexBuffer[pos + 2] = (float)y - centerOffset;
 
 				// TexCoord
@@ -151,9 +148,9 @@ namespace Entropy {
 		delete[] noiseSeed2D;
 		//delete[] perlinNoise2D;
 
-		for (uint32_t y = 0; y < scale; y++)
+		for (size_t y = 0; y < scale; y++)
 		{
-			for (uint32_t x = 0; x < scale; x++)
+			for (size_t x = 0; x < scale; x++)
 			{
 				// face #1
 				indexBuffer.push_back((y + 0) * size + (x + 0));

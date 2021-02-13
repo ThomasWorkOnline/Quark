@@ -15,6 +15,7 @@ namespace Entropy {
 
         virtual void OnUpdate(float deltaTime) {}
         virtual void OnCreate() {}
+        virtual void OnDestroy() {}
         virtual void OnApplicationEvent(Event& e) {}
 
         inline Window& GetWindow() { return *m_Window; }

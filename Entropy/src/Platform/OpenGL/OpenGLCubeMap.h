@@ -1,16 +1,16 @@
 #pragma once
 
-#include "../../Entropy/Renderer/EnvironmentMap.h"
+#include "../../Entropy/Renderer/CubeMap.h"
 
 #include <GL/glew.h>
 
 namespace Entropy {
 
-	class OpenGLEnvironmentMap : public EnvironmentMap
+	class OpenGLCubeMap : public CubeMap
 	{
 	public:
-		OpenGLEnvironmentMap(const std::array<std::string, 6>& filepaths);
-		virtual ~OpenGLEnvironmentMap();
+		OpenGLCubeMap(const std::array<std::string, 6>& filepaths);
+		virtual ~OpenGLCubeMap();
 
 		virtual void Attach(uint32_t textureSlot = 0) const override;
 		virtual void Detach() const override;

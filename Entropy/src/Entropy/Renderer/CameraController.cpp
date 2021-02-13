@@ -156,7 +156,7 @@ namespace Entropy {
 			if (m_CameraEntity)
 			{
 				auto& transform = m_CameraEntity->GetComponent<TransformComponent>();
-				auto& camera = m_CameraEntity->GetComponent<CameraComponent>().Camera;
+				Camera& camera = m_CameraEntity->GetComponent<CameraComponent>();
 
 				glm::vec2 mouseMove = { e.GetX() - lastMousePos.x, e.GetY() - lastMousePos.y };
 				glm::quat qYaw = glm::angleAxis(-mouseMove.x * m_MouseSensitivity * camera.GetFov() / 120.0f, glm::vec3(0.0f, 1.0f, 0.0f) * transform.Orientation);

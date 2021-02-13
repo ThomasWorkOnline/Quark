@@ -4,8 +4,11 @@
 #include <memory>
 #include <string>
 #include <sstream>
-#include <vector>
+#include <iostream>
 #include <array>
+#include <vector>
+#include <functional>
+#include <cmath>
 
 // Platform detection
 #include "Platform.h"

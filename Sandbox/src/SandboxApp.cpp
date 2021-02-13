@@ -8,58 +8,35 @@
 
 #include <Entropy.h>
 
-float cubemapVertices[] = {
-   -0.5f, -0.5f,  0.5f,
-	0.5f, -0.5f,  0.5f,
-	0.5f,  0.5f,  0.5f,
-   -0.5f,  0.5f,  0.5f,
-	0.5f, -0.5f,  0.5f,
-	0.5f, -0.5f, -0.5f,
-	0.5f,  0.5f, -0.5f,
-	0.5f,  0.5f,  0.5f,
-	0.5f, -0.5f, -0.5f,
-   -0.5f, -0.5f, -0.5f,
-   -0.5f,  0.5f, -0.5f,
-	0.5f,  0.5f, -0.5f,
-   -0.5f, -0.5f, -0.5f,
-   -0.5f, -0.5f,  0.5f,
-   -0.5f,  0.5f,  0.5f,
-   -0.5f,  0.5f, -0.5f,
-   -0.5f, -0.5f, -0.5f,
-	0.5f, -0.5f, -0.5f,
-	0.5f, -0.5f,  0.5f,
-   -0.5f, -0.5f,  0.5f,
-   -0.5f,  0.5f,  0.5f,
-	0.5f,  0.5f,  0.5f,
-	0.5f,  0.5f, -0.5f,
-   -0.5f,  0.5f, -0.5f
-};
+static size_t s_MemoryUsage = 0;
 
-static uint32_t cubemapIndices[] = {
-	// front
-	0, 2, 3,
-	1, 2, 0,
+void* operator new (size_t size)
+{
+	s_MemoryUsage += size;
+	//std::cout << "Allocated: " << size << " bytes" << std::endl;
+	return malloc(size);
+}
 
-	// right
-	4, 6, 7,
-	5, 6, 4,
+void* operator new[](size_t size)
+{
+	s_MemoryUsage += size;
+	//std::cout << "Allocated[]: " << size << " bytes" << std::endl;
+	return malloc(size);
+}
 
-	// back
-	8, 10, 11,
-	9, 10, 8,
+void operator delete (void* block, size_t size)
+{
+	s_MemoryUsage -= size;
+	//std::cout << "Deallocated: " << size << " bytes" << std::endl;
+	free(block);
+}
 
-	// left
-	12, 14, 15,
-	13, 14, 12,
-
-	// bottom
-	16, 18, 19,
-	17, 18, 16,
-
-	// top
-	20, 22, 23,
-	21, 22, 20
-};
+void operator delete[](void* block, size_t size)
+{
+	s_MemoryUsage -= size;
+	//std::cout << "Deallocated[]: " << size << " bytes" << std::endl;
+	free(block);
+}
 
 class SandboxGame : public Entropy::Application
 {
@@ -88,17 +65,14 @@ public:
 
 		{
 			m_PlaneEntity.AddComponent<Entropy::TransformComponent>();
-			m_PlaneEntity.AddComponent<Entropy::MeshComponent>().Mesh.GenerateTerrain({
-			{ Entropy::ShaderDataType::Float3, "a_Position" },
-			{ Entropy::ShaderDataType::Float2, "a_TexCoord" },
-			{ Entropy::ShaderDataType::Float3, "a_Normal" } }, 10, 0);
+			m_PlaneEntity.AddComponent<Entropy::MeshComponent>().Mesh.GenerateTerrain(layout, 10, 0);
 		}
 
 		{
 			auto& transform = m_ModelEntity.AddComponent<Entropy::TransformComponent>();
-			//transform.Scale = { 0.01f, 0.01f, 0.01f };
+			transform.Scale = { 0.01f, 0.01f, 0.01f };
 			transform.Position.y += 1.3f;
-			m_ModelEntity.AddComponent<Entropy::MeshComponent>(layout, "./assets/models/monkey.obj");
+			m_ModelEntity.AddComponent<Entropy::MeshComponent>(layout, "./assets/models/ironman.obj");
 
 			/*m_ModelEntity.AddComponent<Entropy::MeshComponent>().Mesh.GenerateUnitCube(layout);*/
 		}
@@ -116,24 +90,18 @@ public:
 		m_ShaderLibrary.Load("debugPosition", "./assets/shaders/debugPosition.glsl");
 		m_ShaderLibrary.Load("skybox", "./assets/shaders/skybox.glsl");
 		m_SelectedShader = m_ShaderLibrary.Get("default");
-
-		Entropy::BufferLayout skyboxLayout = {
-			{ Entropy::ShaderDataType::Float3, "a_Position" },
-		};
-		vb->SetLayout(skyboxLayout);
-		va->AddVertexBuffer(vb);
-		va->SetIndexBuffer(ib);
 	}
 
 	void OnUpdate(float elapsedTime) override
 	{
+#if 1
 		// Update scene before updating the camera controller
 		// The camera controller will use the updated components
 		// The other way around would result in 1 frame offset from the actual scene data
 		m_Scene.OnUpdate(elapsedTime);
 		m_CameraController.OnUpdate(elapsedTime);
-		
-#if 0
+
+
 		static float accumulatedTime = 0.0f;
 		accumulatedTime += elapsedTime;
 
@@ -145,14 +113,13 @@ public:
 			auto& window = GetWindow();
 			std::cout << "Window resolution: " << window.GetWidth() << "x" << window.GetHeight() << std::endl << std::endl;
 
-			auto& transform = m_CameraEntity.GetComponent<Entropy::TransformComponent>();
-			std::cout << "Position: " << transform.Position << std::endl;
-			std::cout << "Orientation: " << transform.Orientation << std::endl;
-			std::cout << "Transform: " << transform.Scale << std::endl << std::endl;
+			std::cout << s_MemoryUsage << " bytes allocated" << std::endl << std::endl;
 
-			std::cout << "Framebuffer size: " << m_Spec.Width << "x" << m_Spec.Height << std::endl << std::endl;
+			//auto& transform = m_CameraEntity.GetComponent<Entropy::TransformComponent>();
+			//std::cout << "Position: " << transform.Position << std::endl;
+			//std::cout << "Orientation: " << transform.Orientation << std::endl;
+			//std::cout << "Transform: " << transform.Scale << std::endl << std::endl;
 		}
-#endif
 
 		// TODO: have this part of a script
 		{
@@ -235,7 +202,7 @@ public:
 
 			m_SelectedShader->SetFloat("u_NormalLength", m_NormalLength);
 
-			m_Skybox->Attach(3);
+			m_Skybox.GetCubeMap()->Attach(3);
 		}
 
 		{
@@ -246,6 +213,7 @@ public:
 
 		m_ModelEntity.GetComponent<Entropy::TransformComponent>().Rotate(elapsedTime * 0.2f, glm::vec3(0.0f, 1.0f, 0.0f));
 
+		/*
 		{
 			Entropy::Renderer::BeginScene(m_PortalCamera);
 
@@ -264,6 +232,7 @@ public:
 
 			Entropy::Renderer::EndScene();
 		}
+		*/
 
 		{
 			Entropy::Renderer::BeginScene(m_CameraEntity);
@@ -275,15 +244,15 @@ public:
 			Entropy::Renderer::Submit(m_SelectedShader, m_LightEntity);
 
 			m_SelectedShader->SetFloat("u_Material.metalness", 0.0f);
-			m_Framebuffer->AttachColorAttachment(0);
-			m_Framebuffer->AttachColorAttachment(1);
-			//diffuseMap->Attach(0);
-			//specularMap->Attach(1);
+			//m_Framebuffer->AttachColorAttachment(0);
+			//m_Framebuffer->AttachColorAttachment(1);
+			diffuseMap->Attach(0);
+			specularMap->Attach(1);
 			Entropy::Renderer::Submit(m_SelectedShader, m_PlaneEntity);
 
 			Entropy::Renderer::EndScene();
 		}
-		
+
 		{
 			glm::mat4 view = (glm::mat3)m_CameraEntity.GetComponent<Entropy::TransformComponent>();
 			Entropy::Renderer::BeginScene(m_CameraEntity.GetComponent<Entropy::CameraComponent>().Camera.GetProjectionMatrix(), view);
@@ -291,14 +260,20 @@ public:
 			Entropy::RenderCommand::SetCullFace(Entropy::RenderCullFace::Back);
 			Entropy::RenderCommand::SetDepthFunction(Entropy::RenderDepthFunction::LessEqual);
 
-			m_Skybox->Attach(0);
-			Entropy::Renderer::Submit(m_ShaderLibrary.Get("skybox"), va);
+			m_Skybox.GetCubeMap()->Attach(0);
+			Entropy::Renderer::Submit(m_ShaderLibrary.Get("skybox"), m_Skybox.GetVertexArray());
 
 			Entropy::RenderCommand::SetCullFace(Entropy::RenderCullFace::Front);
 			Entropy::RenderCommand::SetDepthFunction(Entropy::RenderDepthFunction::Less);
 
 			Entropy::Renderer::EndScene();
 		}
+#endif
+	}
+
+	void OnDestroy() override
+	{
+
 	}
 
 	void OnApplicationEvent(Entropy::Event& e) override
@@ -390,6 +365,34 @@ public:
 			NT_TRACE(ss.str());
 			break;
 		}
+		case Entropy::KeyCode::F4:
+		{
+			static uint32_t environmentIndex = 0;
+			environmentIndex++;
+
+			if (environmentIndex >= 5)
+				environmentIndex = 0;
+
+			switch (environmentIndex)
+			{
+			case 0:
+				m_Skybox = Entropy::Environment("./assets/environments/FishermansBastion");
+				break;
+			case 1:
+				m_Skybox = Entropy::Environment("./assets/environments/Lycksele3");
+				break;
+			case 2:
+				m_Skybox = Entropy::Environment("./assets/environments/GoldenGateBridge");
+				break;
+			case 3:
+				m_Skybox = Entropy::Environment("./assets/environments/GoldenGateBridge2");
+				break;
+			case 4:
+				m_Skybox = Entropy::Environment("./assets/environments/Storforsen4");
+				break;
+			}
+			break;
+		}
 		case Entropy::KeyCode::F11:
 		{
 			auto& window = GetWindow();
@@ -417,7 +420,13 @@ public:
 	}
 
 private:
-	Entropy::Scene m_Scene = Entropy::Scene();
+	Entropy::Scene m_Scene;
+
+	Entropy::Entity m_PlaneEntity = m_Scene.CreateEntity();
+	Entropy::Entity m_ModelEntity = m_Scene.CreateEntity();
+	Entropy::Entity m_LightEntity = m_Scene.CreateEntity();
+	Entropy::Entity m_CameraEntity = m_Scene.CreateEntity();
+	Entropy::Entity m_PortalCamera = m_Scene.CreateEntity();
 
 	Entropy::Ref<Entropy::Texture2D> white = Entropy::Texture2D::Create("./assets/textures/white.jpg");
 	Entropy::Ref<Entropy::Texture2D> diffuseMap = Entropy::Texture2D::Create("./assets/textures/container.png");
@@ -429,20 +438,7 @@ private:
 	Entropy::Ref<Entropy::Shader> m_SelectedShader;
 	float m_NormalLength = 0.1f;
 
-	Entropy::Ref<Entropy::EnvironmentMap> m_Skybox = Entropy::EnvironmentMap::Create({
-	"./assets/environments/FishermansBastion/posx.jpg",
-	"./assets/environments/FishermansBastion/negx.jpg",
-	"./assets/environments/FishermansBastion/posy.jpg",
-	"./assets/environments/FishermansBastion/negy.jpg",
-	"./assets/environments/FishermansBastion/posz.jpg",
-	"./assets/environments/FishermansBastion/negz.jpg"
-		});
-
-	Entropy::Entity m_PlaneEntity = m_Scene.CreateEntity();
-	Entropy::Entity m_ModelEntity = m_Scene.CreateEntity();
-	Entropy::Entity m_LightEntity = m_Scene.CreateEntity();
-	Entropy::Entity m_CameraEntity = m_Scene.CreateEntity();
-	Entropy::Entity m_PortalCamera = m_Scene.CreateEntity();
+	Entropy::Environment m_Skybox = Entropy::Environment("./assets/environments/FishermansBastion");
 
 	Entropy::CameraController m_CameraController = Entropy::CameraController(m_CameraEntity);
 
@@ -450,11 +446,6 @@ private:
 		{ Entropy::TextureDataFormat::RGB8, Entropy::TextureFilteringFormat::Linear, Entropy::TextureTilingFormat::Repeat },
 		{ Entropy::TextureDataFormat::Depth24Stencil8 } } };
 	Entropy::Ref<Entropy::Framebuffer> m_Framebuffer = Entropy::Framebuffer::Create(m_FramebufferSpec);
-
-	Entropy::Ref<Entropy::VertexArray> va = Entropy::VertexArray::Create();
-	Entropy::Ref<Entropy::IndexBuffer> ib = Entropy::IndexBuffer::Create(cubemapIndices, sizeof(cubemapIndices) / sizeof(uint32_t));
-	Entropy::Ref<Entropy::VertexBuffer> vb = Entropy::VertexBuffer::Create(cubemapVertices, 108 * sizeof(float));
-	Entropy::BufferLayout layout;
 };
 
 int main()

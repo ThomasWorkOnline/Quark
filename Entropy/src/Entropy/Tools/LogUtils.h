@@ -2,8 +2,6 @@
 
 #include "../Core/Core.h"
 
-#include <iostream>
-
 // Logging vectors
 inline std::ostream& operator<<(std::ostream& os, const glm::vec2& vec)
 {

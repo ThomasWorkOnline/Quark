@@ -1,8 +1,8 @@
-#include "OpenGLEnvironmentMap.h"
+#include "OpenGLCubeMap.h"
 
 namespace Entropy {
 
-	OpenGLEnvironmentMap::OpenGLEnvironmentMap(const std::array<std::string, 6>& filepaths)
+	OpenGLCubeMap::OpenGLCubeMap(const std::array<std::string, 6>& filepaths)
 		: m_Filepaths(filepaths)
 	{
 		glGenTextures(1, &m_RendererID);
@@ -43,18 +43,18 @@ namespace Entropy {
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 	}
 	
-	OpenGLEnvironmentMap::~OpenGLEnvironmentMap()
+	OpenGLCubeMap::~OpenGLCubeMap()
 	{
 		glDeleteTextures(1, &m_RendererID);
 	}
 	
-	void OpenGLEnvironmentMap::Attach(uint32_t textureSlot) const
+	void OpenGLCubeMap::Attach(uint32_t textureSlot) const
 	{
 		glActiveTexture(GL_TEXTURE0 + textureSlot);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, m_RendererID);
 	}
 
-	void OpenGLEnvironmentMap::Detach() const
+	void OpenGLCubeMap::Detach() const
 	{
 		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 	}

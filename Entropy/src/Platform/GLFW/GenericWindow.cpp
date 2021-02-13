@@ -1,32 +1,57 @@
-#include "LinuxWindow.h"
-
-#include "../../Entropy/Renderer/Renderer.h"
-#include "../../Entropy/Core/Application.h"
-
-#include "../../Platform/OpenGL/OpenGLGraphicsContext.h"
+#include "GenericWindow.h"
 
 #include <GLFW/glfw3.h>
 
 namespace Entropy {
 
 	static uint32_t s_WindowCount = 0;
+	static int32_t s_WindowedPosX = 0, s_WindowedPosY = 0;
+	static int32_t s_WindowedWidth = 0, s_WindowedHeight = 0;
 
 	static void GLFWErrorCallback(int32_t error, const char* description)
 	{
 		NT_FATAL(description);
 	}
 
-	LinuxWindow::LinuxWindow(uint32_t width, uint32_t height, const char* title)
+	GenericWindow::GenericWindow(uint32_t width, uint32_t height, const char* title)
 	{
 		Init(width, height, title);
 	}
 
-	LinuxWindow::~LinuxWindow()
+	GenericWindow::~GenericWindow()
 	{
 		Shutdown();
 	}
 
-	void LinuxWindow::Init(uint32_t width, uint32_t height, const char* title)
+	void GenericWindow::EnableFullScreen()
+	{
+		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+		glfwGetWindowPos(m_Window, &s_WindowedPosX, &s_WindowedPosY);
+		glfwGetWindowSize(m_Window, &s_WindowedWidth, &s_WindowedHeight);
+
+		// Switch to full screen
+		glfwSetWindowMonitor(m_Window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+		glfwSwapInterval(m_Data.VSync);
+	}
+
+	void GenericWindow::DisableFullScreen()
+	{
+		m_Data.Width = s_WindowedWidth;
+		m_Data.Height = s_WindowedHeight;
+
+		// Restore last window size and position
+		glfwSetWindowMonitor(m_Window, nullptr, s_WindowedPosX, s_WindowedPosY, (int32_t)m_Data.Width, (int32_t)m_Data.Height, 0);
+	}
+
+	void GenericWindow::OnUpdate()
+	{
+		glfwPollEvents();
+		m_Context->SwapBuffers();
+	}
+
+	void GenericWindow::Init(uint32_t width, uint32_t height, const char* title)
 	{
 		m_Data.Title = title;
 		m_Data.Width = width;
@@ -43,24 +68,14 @@ namespace Entropy {
 			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+			glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_TRUE);
 
 			// MSAA anti-aliasing
 			glfwWindowHint(GLFW_SAMPLES, 4);
 		}
 
-		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+		m_Window = glfwCreateWindow((int32_t)m_Data.Width, (int32_t)m_Data.Height, m_Data.Title.c_str(), nullptr, nullptr);
 
-		glfwWindowHint(GLFW_RED_BITS, mode->redBits);
-		glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
-		glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
-		glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
-
-		glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_TRUE);
-
-		//m_Window = glfwCreateWindow(mode->width, mode->height, title, monitor, NULL);
-
-		m_Window = glfwCreateWindow((int32_t)width, (int32_t)height, title, nullptr, nullptr);
 		++s_WindowCount;
 
 		// Creating the graphics context
@@ -70,8 +85,7 @@ namespace Entropy {
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 
 		// Experimental
-		glfwSetCursorPos(m_Window, 0.0f, 0.0f);
-		glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		Select();
 
 		// -----------------------------------------------------------------------
 		// CALLBACKS
@@ -166,73 +180,55 @@ namespace Entropy {
 			});
 	}
 
-	void LinuxWindow::Shutdown()
+	void GenericWindow::Shutdown()
 	{
 		glfwDestroyWindow(m_Window);
 		--s_WindowCount;
 
 		// Cleans up glfw's garbage
 		if (s_WindowCount == 0)
-		{
 			glfwTerminate();
-		}
 	}
 
-	void LinuxWindow::OnUpdate()
+	void GenericWindow::SetTitle(const std::string& title)
 	{
-		glfwPollEvents();
-		m_Context->SwapBuffers();
-	}
-
-	const std::string& LinuxWindow::GetTitle()
-	{
-		return m_Data.Title;
-	}
-
-	void LinuxWindow::SetTitle(const char* title)
-	{
-		glfwSetWindowTitle(m_Window, title);
 		m_Data.Title = title;
+		glfwSetWindowTitle(m_Window, title.c_str());
 	}
 
-	void LinuxWindow::SetTitle(const std::string& title)
-	{
-		SetTitle(title.c_str());
-	}
-
-	void LinuxWindow::AppendTitle(const std::string& title)
+	void GenericWindow::AppendTitle(const std::string& title)
 	{
 		SetTitle(m_Data.Title + title);
 	}
 
-	void LinuxWindow::Select()
+	void GenericWindow::Select()
 	{
 		glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	}
 
-	void LinuxWindow::Deselect()
+	void GenericWindow::Deselect()
 	{
 		glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	}
 
-	bool LinuxWindow::IsCursorDisabled() const
+	bool GenericWindow::IsCursorDisabled() const
 	{
 		return glfwGetInputMode(m_Window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED;
 	}
 
-	bool LinuxWindow::IsCursorNormal() const
+	bool GenericWindow::IsCursorNormal() const
 	{
 		return glfwGetInputMode(m_Window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL;
 	}
 
-	void LinuxWindow::SetVSync(bool enabled)
+	bool GenericWindow::IsFullscreen() const
+	{
+		return glfwGetWindowMonitor(m_Window) != nullptr;
+	}
+
+	void GenericWindow::SetVSync(bool enabled)
 	{
 		glfwSwapInterval(enabled);
 		m_Data.VSync = enabled;
-	}
-
-	bool LinuxWindow::IsVSync() const
-	{
-		return m_Data.VSync;
 	}
 }

@@ -106,7 +106,8 @@
     <ClCompile Include="src\Entropy\Renderer\Buffer.cpp" />
     <ClCompile Include="src\Entropy\Renderer\Camera.cpp" />
     <ClCompile Include="src\Entropy\Renderer\CameraController.cpp" />
-    <ClCompile Include="src\Entropy\Renderer\EnvironmentMap.cpp" />
+    <ClCompile Include="src\Entropy\Renderer\CubeMap.cpp" />
+    <ClCompile Include="src\Entropy\Renderer\Environment.cpp" />
     <ClCompile Include="src\Entropy\Renderer\Framebuffer.cpp" />
     <ClCompile Include="src\Entropy\Renderer\GraphicsContext.cpp" />
     <ClCompile Include="src\Entropy\Renderer\Mesh.cpp" />
@@ -123,14 +124,14 @@
     <ClCompile Include="src\Entropy\Tools\Colorimetry.cpp" />
     <ClCompile Include="src\Entropy\Tools\Noise.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp" />
-    <ClCompile Include="src\Platform\OpenGL\OpenGLEnvironmentMap.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\OpenGLCubeMap.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLFramebuffer.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLGraphicsContext.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLRenderingAPI.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLShader.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLTexture.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLVertexArray.cpp" />
-    <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />
+    <ClCompile Include="src\Platform\GLFW\GenericWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Entropy\Core\Application.h" />
@@ -146,6 +147,8 @@
     <ClInclude Include="src\Entropy\Events\Event.h" />
     <ClInclude Include="src\Entropy\Events\KeyEvent.h" />
     <ClInclude Include="src\Entropy\Events\MouseEvent.h" />
+    <ClInclude Include="src\Entropy\Renderer\CubeMap.h" />
+    <ClInclude Include="src\Entropy\Renderer\Environment.h" />
     <ClInclude Include="src\Entropy\Renderer\EnvironmentMap.h" />
     <ClInclude Include="src\Entropy\Renderer\Sprite.h" />
     <ClInclude Include="src\Entropy\Renderer\TextureFormats.h" />
@@ -168,7 +171,9 @@
     <ClInclude Include="src\Entropy\Tools\Colorimetry.h" />
     <ClInclude Include="src\Entropy\Tools\LogUtils.h" />
     <ClInclude Include="src\Entropy\Tools\Noise.h" />
+    <ClInclude Include="src\Platform\GLFW\GenericWindow.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLBuffer.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLCubeMap.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLEnvironmentMap.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLFramebuffer.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLGraphicsContext.h" />
@@ -177,7 +182,7 @@
     <ClInclude Include="src\Platform\OpenGL\OpenGLTexture.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLTextureFormats.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLVertexArray.h" />
-    <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
+    <ClInclude Include="src\Platform\GLFW\WindowsWindow.h" />
     <ClInclude Include="vendor\entt\include\ENTT\entt.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
