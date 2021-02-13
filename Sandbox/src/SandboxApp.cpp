@@ -6,7 +6,7 @@
 // You're set!                                                                               //
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "Entropy.h"
+#include <Entropy.h>
 
 float cubemapVertices[] = {
    -0.5f, -0.5f,  0.5f,
@@ -132,7 +132,6 @@ public:
 		// The other way around would result in 1 frame offset from the actual scene data
 		m_Scene.OnUpdate(elapsedTime);
 		m_CameraController.OnUpdate(elapsedTime);
-
 		
 #if 0
 		static float accumulatedTime = 0.0f;
@@ -220,6 +219,7 @@ public:
 			m_SelectedShader->SetInt("u_Material.diffuse", 0);
 			m_SelectedShader->SetInt("u_Material.specular", 1);
 			m_SelectedShader->SetInt("u_Material.normalMap", 2);
+			m_SelectedShader->SetInt("u_Cubemap", 3);
 			m_SelectedShader->SetFloat("u_Material.shininess", 512.0f);
 			m_SelectedShader->SetFloat("u_Material.metalness", 1.0f);
 
@@ -235,13 +235,13 @@ public:
 
 			m_SelectedShader->SetFloat("u_NormalLength", m_NormalLength);
 
-			m_SelectedShader->SetInt("u_Cubemap", 3);
+			m_Skybox->Attach(3);
 		}
 
 		{
 			auto shader = m_ShaderLibrary.Get("skybox");
 			shader->Attach();
-			shader->SetInt("u_Cubemap", 3);
+			shader->SetInt("u_Cubemap", 0);
 		}
 
 		m_ModelEntity.GetComponent<Entropy::TransformComponent>().Rotate(elapsedTime * 0.2f, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -258,7 +258,6 @@ public:
 			white->Attach(0);
 			white->Attach(1);
 			Entropy::Renderer::Submit(m_SelectedShader, m_ModelEntity);
-			white->Detach();
 
 			m_Framebuffer->Detach();
 			Entropy::RenderCommand::SetViewport(0, 0, GetWindow().GetWidth(), GetWindow().GetHeight());
@@ -271,25 +270,16 @@ public:
 
 			white->Attach(0);
 			white->Attach(1);
-			m_Skybox->Attach(3);
 			Entropy::Renderer::Submit(m_SelectedShader, m_ModelEntity);
-			white->Detach();
-			m_Skybox->Detach();
 
-			//m_Framebuffer->AttachColorAttachment(0);
-			//m_Framebuffer->AttachColorAttachment(1);
-			m_SelectedShader->SetFloat("u_Material.metalness", 0.0f);
-			diffuseMap->Attach(0);
-			specularMap->Attach(1);
-			m_Skybox->Attach(3);
-			Entropy::Renderer::Submit(m_SelectedShader, m_PlaneEntity);
-			diffuseMap->Detach();
-			specularMap->Detach();
-
-			white->Attach(0);
-			white->Attach(1);
 			Entropy::Renderer::Submit(m_SelectedShader, m_LightEntity);
-			white->Detach();
+
+			m_SelectedShader->SetFloat("u_Material.metalness", 0.0f);
+			m_Framebuffer->AttachColorAttachment(0);
+			m_Framebuffer->AttachColorAttachment(1);
+			//diffuseMap->Attach(0);
+			//specularMap->Attach(1);
+			Entropy::Renderer::Submit(m_SelectedShader, m_PlaneEntity);
 
 			Entropy::Renderer::EndScene();
 		}
@@ -301,9 +291,8 @@ public:
 			Entropy::RenderCommand::SetCullFace(Entropy::RenderCullFace::Back);
 			Entropy::RenderCommand::SetDepthFunction(Entropy::RenderDepthFunction::LessEqual);
 
-			m_Skybox->Attach(3);
+			m_Skybox->Attach(0);
 			Entropy::Renderer::Submit(m_ShaderLibrary.Get("skybox"), va);
-			m_Skybox->Detach();
 
 			Entropy::RenderCommand::SetCullFace(Entropy::RenderCullFace::Front);
 			Entropy::RenderCommand::SetDepthFunction(Entropy::RenderDepthFunction::Less);
@@ -457,10 +446,10 @@ private:
 
 	Entropy::CameraController m_CameraController = Entropy::CameraController(m_CameraEntity);
 
-	Entropy::FramebufferSpecification m_Spec = { 1024, 1024, {
-		{ Entropy::FramebufferTextureFormat::RGBA8, Entropy::FramebufferFilteringFormat::Nearest, Entropy::FramebufferTilingFormat::Repeat },
-		{ Entropy::FramebufferTextureFormat::Depth24Stencil8 } } };
-	Entropy::Ref<Entropy::Framebuffer> m_Framebuffer = Entropy::Framebuffer::Create(m_Spec);
+	Entropy::FramebufferSpecification m_FramebufferSpec = { 1024, 1024, {
+		{ Entropy::TextureDataFormat::RGB8, Entropy::TextureFilteringFormat::Linear, Entropy::TextureTilingFormat::Repeat },
+		{ Entropy::TextureDataFormat::Depth24Stencil8 } } };
+	Entropy::Ref<Entropy::Framebuffer> m_Framebuffer = Entropy::Framebuffer::Create(m_FramebufferSpec);
 
 	Entropy::Ref<Entropy::VertexArray> va = Entropy::VertexArray::Create();
 	Entropy::Ref<Entropy::IndexBuffer> ib = Entropy::IndexBuffer::Create(cubemapIndices, sizeof(cubemapIndices) / sizeof(uint32_t));
@@ -473,5 +462,6 @@ int main()
 	auto app = new SandboxGame();
 	app->Run();
 	delete app;
+
 	return 0;
 }

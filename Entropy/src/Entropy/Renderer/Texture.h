@@ -1,8 +1,19 @@
 #pragma once
 
 #include "../Core/Core.h"
+#include "TextureFormats.h"
 
 namespace Entropy {
+
+	struct TextureSpecification
+	{
+		uint32_t Width = 0, Height = 0;
+		uint32_t Samples = 1;
+
+		TextureDataFormat TextureFormat = TextureDataFormat::Default;
+		TextureFilteringFormat FilteringFormat = TextureFilteringFormat::Default;
+		TextureTilingFormat TilingFormat = TextureTilingFormat::Default;
+	};
 
 	class Texture
 	{
@@ -24,7 +35,7 @@ namespace Entropy {
 	class Texture2D : public Texture
 	{
 	public:
-		static Ref<Texture2D> Create(uint32_t width, uint32_t height);
+		static Ref<Texture2D> Create(const TextureSpecification& spec);
 		static Ref<Texture2D> Create(const std::string& filepath);
 	};
 }

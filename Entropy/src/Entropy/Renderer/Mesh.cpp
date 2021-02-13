@@ -8,7 +8,10 @@ namespace Entropy {
 
 	Mesh::Mesh(const BufferLayout& layout, const char* filepath)
 	{
-		LoadOBJFromFile(layout, filepath);
+		if (!LoadOBJFromFile(layout, filepath))
+		{
+			NT_ERROR("Could not load model at path: " << filepath);
+		}
 	}
 
 	void Mesh::GenerateUnitCube(const BufferLayout& layout)

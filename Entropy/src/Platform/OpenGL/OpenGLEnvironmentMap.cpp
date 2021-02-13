@@ -7,20 +7,31 @@ namespace Entropy {
 	{
 		glGenTextures(1, &m_RendererID);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, m_RendererID);
+
+		int32_t width, height, channels;
 		stbi_set_flip_vertically_on_load(false);
-
-		// TODO: do the same as the framebuffer
-		m_InternalFormat = GL_RGB8;
-		m_DataFormat = GL_RGB;
-
-		int width, height, channels;
 		for (size_t i = 0; i < filepaths.size(); i++)
 		{
-			unsigned char* data = stbi_load(filepaths[i].c_str(), &width, &height, &channels, 0);
-			if (data)
-				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, m_InternalFormat, width, height, 0, m_DataFormat, GL_UNSIGNED_BYTE, data);
-			else
-				NT_ERROR("Cubemap tex failed to load at path: " << filepaths[i]);
+			stbi_uc* data = stbi_load(filepaths[i].c_str(), &width, &height, &channels, 0);
+			NT_ASSERT(data, "Failed to load image at path: " << filepaths[i]);
+
+			GLenum internalFormat = 0, dataFormat = 0;
+			if (channels == 4)
+			{
+				internalFormat = GL_SRGB_ALPHA;
+				dataFormat = GL_RGBA;
+			}
+			else if (channels == 3)
+			{
+				internalFormat = GL_SRGB;
+				dataFormat = GL_RGB;
+			}
+
+			m_InternalFormats[i] = internalFormat;
+			m_DataFormats[i] = dataFormat;
+			NT_ASSERT(internalFormat & dataFormat, "Image format not supported");
+
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, m_InternalFormats[i], width, height, 0, m_DataFormats[i], GL_UNSIGNED_BYTE, data);
 
 			stbi_image_free(data);
 		}

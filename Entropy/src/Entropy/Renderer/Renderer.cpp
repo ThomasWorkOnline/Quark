@@ -49,24 +49,30 @@ namespace Entropy {
 		auto& transform = entity.GetComponent<TransformComponent>();
 		auto& vao = entity.GetComponent<MeshComponent>().Mesh.GetVertexArray();
 
-		shader->Attach();
-		shader->SetMat4("u_Projection", s_SceneData.ProjectionMatrix);
-		shader->SetMat4("u_View", s_SceneData.ViewMatrix);
-		shader->SetMat4("u_Model", transform);
+		if (vao)
+		{
+			shader->Attach();
+			shader->SetMat4("u_Projection", s_SceneData.ProjectionMatrix);
+			shader->SetMat4("u_View", s_SceneData.ViewMatrix);
+			shader->SetMat4("u_Model", transform);
 
-		vao->Attach();
-		RenderCommand::Draw(vao);
+			vao->Attach();
+			RenderCommand::Draw(vao);
+		}
 	}
 
 	void Renderer::Submit(const Ref<Shader>& shader, const Ref<VertexArray>& va, const glm::mat4& transform)
 	{
-		shader->Attach();
-		shader->SetMat4("u_Projection", s_SceneData.ProjectionMatrix);
-		shader->SetMat4("u_View", s_SceneData.ViewMatrix);
-		shader->SetMat4("u_Model", transform);
+		if (va)
+		{
+			shader->Attach();
+			shader->SetMat4("u_Projection", s_SceneData.ProjectionMatrix);
+			shader->SetMat4("u_View", s_SceneData.ViewMatrix);
+			shader->SetMat4("u_Model", transform);
 
-		va->Attach();
-		RenderCommand::Draw(va);
+			va->Attach();
+			RenderCommand::Draw(va);
+		}
 	}
 
 	void Renderer::OnWindowResize(uint32_t width, uint32_t height)

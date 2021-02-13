@@ -148,6 +148,7 @@
     <ClInclude Include="src\Entropy\Events\MouseEvent.h" />
     <ClInclude Include="src\Entropy\Renderer\EnvironmentMap.h" />
     <ClInclude Include="src\Entropy\Renderer\Sprite.h" />
+    <ClInclude Include="src\Entropy\Renderer\TextureFormats.h" />
     <ClInclude Include="src\Entropy\Scene\Components.h" />
     <ClInclude Include="src\Entropy\Scene\Entity.h" />
     <ClInclude Include="src\Entropy\Renderer\Buffer.h" />
@@ -174,6 +175,7 @@
     <ClInclude Include="src\Platform\OpenGL\OpenGLRenderingAPI.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLShader.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLTexture.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLTextureFormats.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLVertexArray.h" />
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
     <ClInclude Include="vendor\entt\include\ENTT\entt.hpp" />

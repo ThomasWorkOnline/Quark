@@ -16,8 +16,8 @@ namespace Entropy {
 		virtual void Detach() const override;
 
 	private:
+		uint32_t m_RendererID = 0;
 		std::array<std::string, 6> m_Filepaths;
-		uint32_t m_RendererID;
-		GLenum m_InternalFormat, m_DataFormat;
+		GLenum m_InternalFormats[6], m_DataFormats[6];
 	};
 }

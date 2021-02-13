@@ -8,19 +8,19 @@ namespace Entropy {
 	{
 		constexpr float gamma = 2.2f;
 		return glm::vec4(
-			pow(color.x, gamma),
-			pow(color.y, gamma),
-			pow(color.z, gamma),
-			pow(color.w, gamma));
+			pow(color.r, gamma),
+			pow(color.g, gamma),
+			pow(color.b, gamma),
+			color.a);
 	}
 
 	glm::vec4 DecodeSRGB(const glm::vec4& color)
 	{
 		constexpr float gamma = 2.2f;
 		return glm::vec4(
-			pow(color.x, 1.0f / gamma),
-			pow(color.y, 1.0f / gamma),
-			pow(color.z, 1.0f / gamma),
-			pow(color.w, 1.0f / gamma));
+			pow(color.r, 1.0f / gamma),
+			pow(color.g, 1.0f / gamma),
+			pow(color.b, 1.0f / gamma),
+			color.a);
 	}
 }

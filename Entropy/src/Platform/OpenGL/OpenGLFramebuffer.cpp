@@ -1,72 +1,16 @@
 #include "OpenGLFramebuffer.h"
+#include "OpenGLTextureFormats.h"
 
 #include <GL/glew.h>
 
 namespace Entropy {
-
-	static inline GLenum GetTextureSampleMode(bool multisampled)
-	{
-		return multisampled ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
-	}
-
-	static inline GLenum GetTextureInternalFormat(FramebufferTextureFormat format)
-	{
-		switch (format)
-		{
-		case FramebufferTextureFormat::RGBA8:           return GL_RGBA8;
-		case FramebufferTextureFormat::Depth24Stencil8: return GL_DEPTH24_STENCIL8;
-		}
-
-		NT_FATAL("Invalid framebuffer internal texture format");
-	}
-
-	static inline GLenum GetTextureColorFormat(FramebufferTextureFormat format)
-	{
-		switch (format)
-		{
-		case FramebufferTextureFormat::RGBA8: return GL_RGBA;
-		}
-
-		NT_FATAL("Invalid framebuffer texture color format");
-	}
-
-	static inline GLenum GetFilteringFormat(FramebufferFilteringFormat format)
-	{
-		switch (format)
-		{
-		case FramebufferFilteringFormat::Nearest: return GL_NEAREST;
-		case FramebufferFilteringFormat::Linear:  return GL_LINEAR;
-		}
-
-		NT_FATAL("Invalid framebuffer filtering format");
-	}
-
-	static inline GLenum GetTilingFormat(FramebufferTilingFormat format)
-	{
-		switch (format)
-		{
-		case FramebufferTilingFormat::Clamp:  return GL_CLAMP_TO_EDGE;
-		case FramebufferTilingFormat::Repeat: return GL_REPEAT;
-		}
-
-		NT_FATAL("Invalid framebuffer tiling format");
-	}
-
-	static inline bool IsDepthFormat(FramebufferTextureFormat format)
-	{
-		switch (format)
-		{
-		case FramebufferTextureFormat::Depth24Stencil8: return true;
-		}
-		return false;
-	}
 
 	OpenGLFramebuffer::OpenGLFramebuffer(const FramebufferSpecification& spec)
 		: m_Spec(spec)
 	{
 		for (auto s : m_Spec.Attachments.Attachments)
 		{
-			if (!IsDepthFormat(s.TextureFormat))
+			if (!IsTextureDepthFormat(s.TextureFormat))
 				m_ColorSpecs.emplace_back(s);
 			else
 				m_DepthSpec = s;
@@ -94,7 +38,7 @@ namespace Entropy {
 			m_DepthAttachment = 0;
 		}
 
-		glCreateFramebuffers(1, &m_RendererID);
+		glGenFramebuffers(1, &m_RendererID);
 		glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
 
 		bool multisampled = m_Spec.Samples > 1;
@@ -116,12 +60,12 @@ namespace Entropy {
 				else
 				{
 					glTexImage2D(GL_TEXTURE_2D, 0, GetTextureInternalFormat(m_ColorSpecs[i].TextureFormat), m_Spec.Width, m_Spec.Height, 0,
-						GetTextureColorFormat(m_ColorSpecs[i].TextureFormat), GL_UNSIGNED_BYTE, nullptr);
+						GetTextureDataFormat(m_ColorSpecs[i].TextureFormat), GL_UNSIGNED_BYTE, nullptr);
 
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetFilteringFormat(m_ColorSpecs[i].FilteringFormat));
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GetFilteringFormat(m_ColorSpecs[i].FilteringFormat));
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GetTilingFormat(m_ColorSpecs[i].TilingFormat));
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GetTilingFormat(m_ColorSpecs[i].TilingFormat));
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetTextureFilteringFormat(m_ColorSpecs[i].FilteringFormat));
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GetTextureFilteringFormat(m_ColorSpecs[i].FilteringFormat));
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GetTextureTilingFormat(m_ColorSpecs[i].TilingFormat));
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GetTextureTilingFormat(m_ColorSpecs[i].TilingFormat));
 				}
 
 				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GetTextureSampleMode(multisampled), m_ColorAttachments[i], 0);
@@ -129,7 +73,7 @@ namespace Entropy {
 		}
 
 		// Depth stencil format
-		if (m_DepthSpec.TextureFormat != FramebufferTextureFormat::None)
+		if (m_DepthSpec.TextureFormat != TextureDataFormat::None)
 		{
 			glCreateTextures(GetTextureSampleMode(multisampled), 1, &m_DepthAttachment);
 			glBindTexture(GetTextureSampleMode(multisampled), m_DepthAttachment);
@@ -142,10 +86,10 @@ namespace Entropy {
 			{
 				glTexStorage2D(GL_TEXTURE_2D, 1, GetTextureInternalFormat(m_DepthSpec.TextureFormat), m_Spec.Width, m_Spec.Height);
 
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetFilteringFormat(m_DepthSpec.FilteringFormat));
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GetFilteringFormat(m_DepthSpec.FilteringFormat));
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GetTilingFormat(m_DepthSpec.TilingFormat));
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GetTilingFormat(m_DepthSpec.TilingFormat));
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetTextureFilteringFormat(m_DepthSpec.FilteringFormat));
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GetTextureFilteringFormat(m_DepthSpec.FilteringFormat));
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GetTextureTilingFormat(m_DepthSpec.TilingFormat));
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GetTextureTilingFormat(m_DepthSpec.TilingFormat));
 			}
 
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GetTextureSampleMode(multisampled), m_DepthAttachment, 0);

@@ -1,57 +1,21 @@
 #pragma once
 
 #include "../Core/Core.h"
+#include "TextureFormats.h"
 
 namespace Entropy {
-
-	enum class FramebufferTextureFormat
-	{
-		None = 0,
-
-		// Color formats
-		RGBA8,
-
-		// Depth formats
-		Depth24Stencil8,
-
-		Default = RGBA8
-	};
-
-	enum class FramebufferFilteringFormat
-	{
-		None = 0,
-
-		// Filter formats
-		Nearest,
-		Linear,
-
-		Default = Linear
-	};
-
-	enum class FramebufferTilingFormat
-	{
-		None = 0,
-
-		// Tiling formats
-		// TODO:
-
-		Clamp,
-		Repeat,
-
-		Default = Clamp
-	};
 
 	struct FramebufferTextureSpecification
 	{
 		FramebufferTextureSpecification() = default;
-		FramebufferTextureSpecification(FramebufferTextureFormat textureFormat,
-			FramebufferFilteringFormat filteringFormat = FramebufferFilteringFormat::Default,
-			FramebufferTilingFormat tilingFormat = FramebufferTilingFormat::Default)
+		FramebufferTextureSpecification(TextureDataFormat textureFormat,
+			TextureFilteringFormat filteringFormat = TextureFilteringFormat::Default,
+			TextureTilingFormat tilingFormat = TextureTilingFormat::Default)
 			: TextureFormat(textureFormat), FilteringFormat(filteringFormat), TilingFormat(tilingFormat) {}
 
-		FramebufferTextureFormat TextureFormat = FramebufferTextureFormat::None;
-		FramebufferFilteringFormat FilteringFormat = FramebufferFilteringFormat::Default;
-		FramebufferTilingFormat TilingFormat = FramebufferTilingFormat::Default;
+		TextureDataFormat TextureFormat = TextureDataFormat::Default;
+		TextureFilteringFormat FilteringFormat = TextureFilteringFormat::Default;
+		TextureTilingFormat TilingFormat = TextureTilingFormat::Default;
 	};
 
 	struct FramebufferAttachmentSpecification

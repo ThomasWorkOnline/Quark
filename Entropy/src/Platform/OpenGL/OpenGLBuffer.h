@@ -21,7 +21,7 @@ namespace Entropy {
         virtual void SetData(const void* data, size_t size) override;
 
     private:
-        uint32_t m_RendererID;
+        uint32_t m_RendererID = 0;
         BufferLayout m_layout;
     };
 
@@ -41,7 +41,7 @@ namespace Entropy {
         virtual uint32_t GetCount() const { return m_Count; };
 
     private:
-        uint32_t m_RendererID;
+        uint32_t m_RendererID = 0;
         uint32_t m_Count;
     };
 }

@@ -25,8 +25,8 @@ namespace Entropy {
 		if (m_CameraEntity)
 		{
 			auto& transform = m_CameraEntity->GetComponent<TransformComponent>();
-			auto& camera = m_CameraEntity->GetComponent<CameraComponent>().Camera;
 			auto& physics = m_CameraEntity->GetComponent<PhysicsComponent>();
+			Camera& camera = m_CameraEntity->GetComponent<CameraComponent>();
 
 			// Movement
 			static const float defaultMovementSpeed = m_MovementSpeed;

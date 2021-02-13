@@ -43,7 +43,7 @@ namespace Entropy {
 		std::unordered_map<GLenum, std::string> PreProcess(const std::string& source);
 		void Compile(const std::unordered_map<GLenum, std::string>& shaderSources);
 
-		uint32_t m_RendererID;
+		uint32_t m_RendererID = 0;
 		std::string m_Name;
 	};
 }

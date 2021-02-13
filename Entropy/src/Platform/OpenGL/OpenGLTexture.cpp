@@ -1,21 +1,31 @@
 #include "OpenGLTexture.h"
+#include "OpenGLTextureFormats.h"
 
 namespace Entropy {
 
-	OpenGLTexture2D::OpenGLTexture2D(uint32_t width, uint32_t height)
-		: m_Width(width), m_Height(height)
+	OpenGLTexture2D::OpenGLTexture2D(const TextureSpecification& spec)
+		: m_Spec(spec)
 	{
-		// TODO: do the same as the framebuffer
-		m_InternalFormat = GL_RGBA8;
-		m_DataFormat = GL_RGBA;
-
 		glGenTextures(1, &m_RendererID);
-		glTextureStorage2D(m_RendererID, 1, m_InternalFormat, width, height);
+		glBindTexture(GL_TEXTURE_2D, m_RendererID);
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		m_InternalFormat = GetTextureInternalFormat(m_Spec.TextureFormat);
+		m_DataFormat = GetTextureDataFormat(m_Spec.TextureFormat);
+
+		bool multisampled = m_Spec.Samples > 1;
+		if (multisampled)
+		{
+			glTexStorage2DMultisample(GL_TEXTURE_2D, m_Spec.Samples, m_InternalFormat, m_Spec.Width, m_Spec.Height, GL_FALSE);
+		}
+		else
+		{
+			glTexStorage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Spec.Width, m_Spec.Height);
+		}
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetTextureFilteringFormat(m_Spec.FilteringFormat));
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GetTextureFilteringFormat(m_Spec.FilteringFormat));
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GetTextureTilingFormat(m_Spec.TilingFormat));
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GetTextureTilingFormat(m_Spec.TilingFormat));
 	}
 
 	OpenGLTexture2D::OpenGLTexture2D(const std::string& filepath)
@@ -24,9 +34,10 @@ namespace Entropy {
 		int32_t width, height, channels;
 		stbi_set_flip_vertically_on_load(true);
 		stbi_uc* data = stbi_load(filepath.c_str(), &width, &height, &channels, 0);
-		NT_ASSERT(data, "Failed to load image");
-		m_Width = width;
-		m_Height = height;
+		NT_ASSERT(data, "Failed to load image at path: " << filepath);
+
+		m_Spec.Width = width;
+		m_Spec.Height = height;
 
 		GLenum internalFormat = 0, dataFormat = 0;
 		if (channels == 4)
@@ -42,11 +53,11 @@ namespace Entropy {
 
 		m_InternalFormat = internalFormat;
 		m_DataFormat = dataFormat;
-
 		NT_ASSERT(internalFormat & dataFormat, "Image format not supported");
-		glGenTextures(1, &m_RendererID);
 
+		glGenTextures(1, &m_RendererID);
 		glBindTexture(GL_TEXTURE_2D, m_RendererID);
+
 		glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, dataFormat, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 
@@ -66,8 +77,8 @@ namespace Entropy {
 	void OpenGLTexture2D::SetData(void* data, uint32_t size)
 	{
 		uint32_t bpp = m_DataFormat == GL_RGBA ? 4 : 3;
-		NT_ASSERT(size == m_Width * m_Height * bpp, "Data must be entire texture");
-		glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, m_DataFormat, GL_UNSIGNED_BYTE, data);
+		NT_ASSERT(size == m_Spec.Width * m_Spec.Height * bpp, "Data must be entire texture");
+		glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Spec.Width, m_Spec.Height, m_DataFormat, GL_UNSIGNED_BYTE, data);
 	}
 
 	void OpenGLTexture2D::Attach(uint32_t textureSlot) const
