@@ -8,33 +8,41 @@
 
 #include <Entropy.h>
 
-static size_t s_MemoryUsage = 0;
-
-void* operator new (size_t size)
+struct Statistics
 {
-	s_MemoryUsage += size;
-	//std::cout << "Allocated: " << size << " bytes" << std::endl;
+	size_t MemoryUsage = 0;
+	uint32_t Allocations = 0;
+	uint32_t Deallocations = 0;
+};
+
+static Statistics s_Stats;
+
+
+void* operator new (size_t size) noexcept
+{
+	s_Stats.MemoryUsage += size;
+	s_Stats.Allocations++;
 	return malloc(size);
 }
 
-void* operator new[](size_t size)
+void* operator new[](size_t size) noexcept
 {
-	s_MemoryUsage += size;
-	//std::cout << "Allocated[]: " << size << " bytes" << std::endl;
+	s_Stats.MemoryUsage += size;
+	s_Stats.Allocations++;
 	return malloc(size);
 }
 
-void operator delete (void* block, size_t size)
+void operator delete (void* block, size_t size) noexcept
 {
-	s_MemoryUsage -= size;
-	//std::cout << "Deallocated: " << size << " bytes" << std::endl;
+	s_Stats.MemoryUsage -= size;
+	s_Stats.Deallocations++;
 	free(block);
 }
 
-void operator delete[](void* block, size_t size)
+void operator delete[](void* block, size_t size) noexcept
 {
-	s_MemoryUsage -= size;
-	//std::cout << "Deallocated[]: " << size << " bytes" << std::endl;
+	s_Stats.MemoryUsage -= size;
+	s_Stats.Deallocations++;
 	free(block);
 }
 
@@ -70,11 +78,10 @@ public:
 
 		{
 			auto& transform = m_ModelEntity.AddComponent<Entropy::TransformComponent>();
-			transform.Scale = { 0.01f, 0.01f, 0.01f };
+			//transform.Scale = { 0.01f, 0.01f, 0.01f };
 			transform.Position.y += 1.3f;
-			m_ModelEntity.AddComponent<Entropy::MeshComponent>(layout, "./assets/models/ironman.obj");
-
-			/*m_ModelEntity.AddComponent<Entropy::MeshComponent>().Mesh.GenerateUnitCube(layout);*/
+			//m_ModelEntity.AddComponent<Entropy::MeshComponent>(layout, "./assets/models/ironman.obj");
+			m_ModelEntity.AddComponent<Entropy::MeshComponent>().Mesh.GenerateUnitCube(layout);
 		}
 
 		{
@@ -101,7 +108,6 @@ public:
 		m_Scene.OnUpdate(elapsedTime);
 		m_CameraController.OnUpdate(elapsedTime);
 
-
 		static float accumulatedTime = 0.0f;
 		accumulatedTime += elapsedTime;
 
@@ -113,7 +119,10 @@ public:
 			auto& window = GetWindow();
 			std::cout << "Window resolution: " << window.GetWidth() << "x" << window.GetHeight() << std::endl << std::endl;
 
-			std::cout << s_MemoryUsage << " bytes allocated" << std::endl << std::endl;
+			std::cout << s_Stats.MemoryUsage << " bytes allocated" << std::endl;
+			std::cout << "Total allocations: " << s_Stats.Allocations << std::endl;
+			std::cout << "Total deallocations: " << s_Stats.Deallocations << std::endl;
+			std::cout << "Allocations not freed: " << s_Stats.Allocations - s_Stats.Deallocations << std::endl << std::endl;
 
 			//auto& transform = m_CameraEntity.GetComponent<Entropy::TransformComponent>();
 			//std::cout << "Position: " << transform.Position << std::endl;
@@ -124,7 +133,7 @@ public:
 		// TODO: have this part of a script
 		{
 			auto& position = m_LightEntity.GetComponent<Entropy::TransformComponent>().Position;
-			const float speed = 10.0f;
+			static const float speed = 10.0f;
 			if (Entropy::Input::IsKeyPressed(Entropy::KeyCode::RightShift))
 			{
 				if (Entropy::Input::IsKeyPressed(Entropy::KeyCode::Up))
@@ -211,7 +220,10 @@ public:
 			shader->SetInt("u_Cubemap", 0);
 		}
 
-		m_ModelEntity.GetComponent<Entropy::TransformComponent>().Rotate(elapsedTime * 0.2f, glm::vec3(0.0f, 1.0f, 0.0f));
+		auto& transform = m_ModelEntity.GetComponent<Entropy::TransformComponent>();
+		//transform.Rotate(elapsedTime * 0.2f, glm::vec3(0.0f, 1.0f, 0.0f));
+		static float accT = 0; accT += elapsedTime;
+		transform.Position.x = sinf(accT * 4) * 3;
 
 		/*
 		{
@@ -276,7 +288,7 @@ public:
 
 	}
 
-	void OnApplicationEvent(Entropy::Event& e) override
+	void OnEvent(Entropy::Event& e) override
 	{
 		Entropy::EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<Entropy::MouseButtonPressedEvent>(NT_ATTACH_EVENT_FN(SandboxGame::OnMouseButtonPressed));
@@ -309,7 +321,7 @@ public:
 	{
 		switch (e.GetKeyCode())
 		{
-		case Entropy::KeyCode::F1:
+		case Entropy::Key::F1:
 		{
 			// Toggle debug shader
 			static uint32_t shaderIndex = 0;
@@ -339,7 +351,7 @@ public:
 			NT_TRACE(ss.str());
 			break;
 		}
-		case Entropy::KeyCode::F2:
+		case Entropy::Key::F2:
 		{
 			if (m_CameraController.HasCamera())
 			{
@@ -353,7 +365,7 @@ public:
 			}
 			break;
 		}
-		case Entropy::KeyCode::F3:
+		case Entropy::Key::F3:
 		{
 			// Toggle VSync
 			auto& window = GetWindow();
@@ -365,7 +377,7 @@ public:
 			NT_TRACE(ss.str());
 			break;
 		}
-		case Entropy::KeyCode::F4:
+		case Entropy::Key::F4:
 		{
 			static uint32_t environmentIndex = 0;
 			environmentIndex++;
@@ -391,9 +403,12 @@ public:
 				m_Skybox = Entropy::Environment("./assets/environments/Storforsen4");
 				break;
 			}
+
+			NT_TRACE("Switched environment");
+
 			break;
 		}
-		case Entropy::KeyCode::F11:
+		case Entropy::Key::F11:
 		{
 			auto& window = GetWindow();
 			if (window.IsFullscreen())
@@ -408,7 +423,7 @@ public:
 			}
 			break;
 		}
-		case Entropy::KeyCode::Escape:
+		case Entropy::Key::Escape:
 		{
 			// Focus lost
 			GetWindow().Deselect();
@@ -442,7 +457,7 @@ private:
 
 	Entropy::CameraController m_CameraController = Entropy::CameraController(m_CameraEntity);
 
-	Entropy::FramebufferSpecification m_FramebufferSpec = { 1024, 1024, {
+	Entropy::FramebufferSpecification m_FramebufferSpec = { 1024, 1024, 1, {
 		{ Entropy::TextureDataFormat::RGB8, Entropy::TextureFilteringFormat::Linear, Entropy::TextureTilingFormat::Repeat },
 		{ Entropy::TextureDataFormat::Depth24Stencil8 } } };
 	Entropy::Ref<Entropy::Framebuffer> m_Framebuffer = Entropy::Framebuffer::Create(m_FramebufferSpec);

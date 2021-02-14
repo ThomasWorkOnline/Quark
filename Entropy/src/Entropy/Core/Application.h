@@ -10,13 +10,13 @@ namespace Entropy {
     class Application
     {
     public:
-        Application(uint32_t width = 1280, uint32_t height = 720, const char* title = "Entropy Engine");
+        Application(uint32_t width = 1280, uint32_t height = 720, const std::string& title = "Entropy Engine");
         virtual ~Application();
 
-        virtual void OnUpdate(float deltaTime) {}
         virtual void OnCreate() {}
+        virtual void OnUpdate(float deltaTime) {}
         virtual void OnDestroy() {}
-        virtual void OnApplicationEvent(Event& e) {}
+        virtual void OnEvent(Event& e) {}
 
         inline Window& GetWindow() { return *m_Window; }
 
@@ -27,7 +27,7 @@ namespace Entropy {
     private:
         void Run();
 
-        void OnEvent(Event& e);
+        void OnEventInternal(Event& e);
         
         bool OnWindowClose(WindowCloseEvent& e);
 		bool OnWindowResize(WindowResizeEvent& e);

@@ -6,7 +6,6 @@
 
 namespace Entropy {
 
-	// All event types supported by the application
 	enum class EventType
 	{
 		None = 0,
@@ -15,12 +14,6 @@ namespace Entropy {
 		KeyPressed, KeyReleased, KeyTyped,
 		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled
 	};
-
-#define EVENT_CLASS_TYPE(type) static EventType GetStaticType() { return EventType::type; }\
-								virtual EventType GetType() const override { return GetStaticType(); }\
-								virtual const char* GetName() const override { return #type; }
-
-#define EVENT_CLASS_CATEGORY(category) virtual int32_t GetCategoryFlags() const override { return category; }
 
 	enum EventCategory
 	{
@@ -32,6 +25,13 @@ namespace Entropy {
 		EventCategoryMouseButton = BIT(4)
 	};
 
+	// To be defined in child event declaration
+#define EVENT_CLASS_TYPE(type)  static EventType GetStaticType() { return EventType::type; }\
+								virtual EventType GetType() const override { return GetStaticType(); }\
+								virtual const char* GetName() const override { return #type; }
+
+#define EVENT_CLASS_CATEGORY(category) virtual int32_t GetCategoryFlags() const override { return category; }
+	
 	class Event
 	{
 	public:
@@ -54,7 +54,6 @@ namespace Entropy {
 		return os << e.ToString();
 	}
 
-	// Dispatches (throws) events
 	class EventDispatcher
 	{
 	public:

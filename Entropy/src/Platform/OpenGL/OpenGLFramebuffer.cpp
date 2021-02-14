@@ -47,7 +47,7 @@ namespace Entropy {
 		if (m_ColorSpecs.size())
 		{
 			m_ColorAttachments.resize(m_ColorSpecs.size());
-			glCreateTextures(GetTextureSampleMode(multisampled), m_ColorAttachments.size(), m_ColorAttachments.data());
+			glGenTextures(m_ColorAttachments.size(), m_ColorAttachments.data());
 
 			for (size_t i = 0; i < m_ColorAttachments.size(); i++)
 			{
@@ -75,7 +75,7 @@ namespace Entropy {
 		// Depth stencil format
 		if (m_DepthSpec.TextureFormat != TextureDataFormat::None)
 		{
-			glCreateTextures(GetTextureSampleMode(multisampled), 1, &m_DepthAttachment);
+			glGenTextures(1, &m_DepthAttachment);
 			glBindTexture(GetTextureSampleMode(multisampled), m_DepthAttachment);
 
 			if (multisampled)

@@ -11,14 +11,14 @@ namespace Entropy {
 	{
 	public:
 		Mesh() = default;
-		Mesh(const BufferLayout& layout, const char* filepath);
+		Mesh(const BufferLayout& layout, const std::string& filepath);
 
 		const Ref<VertexArray>& GetVertexArray() const { return m_VertexArray; }
 		const Ref<VertexBuffer>& GetVertexBuffer() const { return m_VertexBuffer; }
 		const Ref<IndexBuffer>& GetIndexBuffer() const { return m_IndexBuffer; }
 
 		// TODO: support sharp edges and sharp angle threshold detector
-		bool LoadOBJFromFile(const BufferLayout& layout, const char* filepath);
+		bool LoadOBJFromFile(const BufferLayout& layout, const std::string& filepath);
 
 		void GenerateUnitCube(const BufferLayout& layout);
 		void GenerateTerrain(const BufferLayout& layout, size_t scale, uint32_t seed);

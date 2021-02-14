@@ -19,6 +19,7 @@ namespace Entropy {
 		}
 		else
 		{
+			// Immutable texture format, contents can change but not specification
 			glTexStorage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Spec.Width, m_Spec.Height);
 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetTextureFilteringFormat(m_Spec.FilteringFormat));

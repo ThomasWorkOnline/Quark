@@ -18,6 +18,6 @@ namespace Entropy {
 	private:
 		uint32_t m_RendererID = 0;
 		std::array<std::string, 6> m_Filepaths;
-		GLenum m_InternalFormats[6], m_DataFormats[6];
+		GLenum m_InternalFormats[6] = {}, m_DataFormats[6] = {};
 	};
 }

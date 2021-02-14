@@ -41,6 +41,6 @@ namespace Entropy {
 
         virtual void* GetNativeWindow() const = 0;
 
-        static Scope<Window> Create(uint32_t width, uint32_t height, const char* title);
+        static Scope<Window> Create(uint32_t width, uint32_t height, const std::string& title);
     };
 }

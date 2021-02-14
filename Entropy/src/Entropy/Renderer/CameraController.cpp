@@ -33,7 +33,7 @@ namespace Entropy {
 			static const float defaultRollSensitivity = m_RollSensitivity;
 
 			// Boost key
-			if (Input::IsKeyPressed(KeyCode::LeftControl))
+			if (Input::IsKeyPressed(Key::LeftControl))
 			{
 				m_MovementSpeed = 100.0f;
 				m_RollSensitivity = 5.0f;
@@ -45,47 +45,47 @@ namespace Entropy {
 			}
 
 			// Controls
-			if (Input::IsKeyPressed(KeyCode::W))
+			if (Input::IsKeyPressed(Key::W))
 			{
 				physics.Velocity += glm::vec3(0.0f, 0.0f, 1.0f) * transform.Orientation * elapsedTime * m_MovementSpeed;
 			}
 
-			if (Input::IsKeyPressed(KeyCode::S))
+			if (Input::IsKeyPressed(Key::S))
 			{
 				physics.Velocity += glm::vec3(0.0f, 0.0f, -1.0f) * transform.Orientation * elapsedTime * m_MovementSpeed;
 			}
 
-			if (Input::IsKeyPressed(KeyCode::D))
+			if (Input::IsKeyPressed(Key::D))
 			{
 				physics.Velocity += glm::vec3(1.0f, 0.0f, 0.0f) * transform.Orientation * elapsedTime * m_MovementSpeed;
 			}
 
-			if (Input::IsKeyPressed(KeyCode::A))
+			if (Input::IsKeyPressed(Key::A))
 			{
 				physics.Velocity += glm::vec3(-1.0f, 0.0f, 0.0f) * transform.Orientation * elapsedTime * m_MovementSpeed;
 			}
 
-			if (Input::IsKeyPressed(KeyCode::Space))
+			if (Input::IsKeyPressed(Key::Space))
 			{
 				physics.Velocity += glm::vec3(0.0f, 1.0f, 0.0f) * transform.Orientation * elapsedTime * m_MovementSpeed;
 			}
 
-			if (Input::IsKeyPressed(KeyCode::LeftShift))
+			if (Input::IsKeyPressed(Key::LeftShift))
 			{
 				physics.Velocity += glm::vec3(0.0f, -1.0f, 0.0f) * transform.Orientation * elapsedTime * m_MovementSpeed;
 			}
 
-			if (Input::IsKeyPressed(KeyCode::Q))
+			if (Input::IsKeyPressed(Key::Q))
 			{
 				transform.Rotate(elapsedTime * m_RollSensitivity, glm::vec3(0.0f, 0.0f, -1.0f) * transform.Orientation);
 			}
 
-			if (Input::IsKeyPressed(KeyCode::E))
+			if (Input::IsKeyPressed(Key::E))
 			{
 				transform.Rotate(elapsedTime * m_RollSensitivity, glm::vec3(0.0f, 0.0f, 1.0f) * transform.Orientation);
 			}
 
-			if (Input::IsKeyPressed(KeyCode::D0))
+			if (Input::IsKeyPressed(Key::D0))
 			{
 				physics.Velocity = { 0.0f, 0.0f, 0.0f };
 				transform.Position = { 0.0f, 0.0f, 0.0f };
@@ -95,11 +95,13 @@ namespace Entropy {
 
 			// Zooming
 			constexpr float zoomFrictionCoeff = 8.0f;
-			s_ZoomSpeed -= s_ZoomSpeed * elapsedTime * zoomFrictionCoeff;
+			s_ZoomSpeed -= (s_ZoomSpeed * zoomFrictionCoeff) * elapsedTime;
 
 			// Check if the fov needs to be changed
 			if (abs(s_ZoomSpeed) > 0.1f)
+			{
 				camera.SetFov(camera.GetFov() - s_ZoomSpeed * elapsedTime * m_MouseScrollSensitivity * camera.GetFov() / 120.0f);
+			}
 
 			if (camera.GetFov() < 1.0f)
 			{
@@ -107,9 +109,9 @@ namespace Entropy {
 				s_ZoomSpeed = 0.0f;
 			}
 
-			if (camera.GetFov() > 120.0f)
+			if (camera.GetFov() > 90.0f)
 			{
-				camera.SetFov(120.0f);
+				camera.SetFov(90.0f);
 				s_ZoomSpeed = 0.0f;
 			}
 
@@ -159,8 +161,8 @@ namespace Entropy {
 				Camera& camera = m_CameraEntity->GetComponent<CameraComponent>();
 
 				glm::vec2 mouseMove = { e.GetX() - lastMousePos.x, e.GetY() - lastMousePos.y };
-				glm::quat qYaw = glm::angleAxis(-mouseMove.x * m_MouseSensitivity * camera.GetFov() / 120.0f, glm::vec3(0.0f, 1.0f, 0.0f) * transform.Orientation);
-				glm::quat qPitch = glm::angleAxis(-mouseMove.y * m_MouseSensitivity * camera.GetFov() / 120.0f, glm::vec3(1.0f, 0.0f, 0.0f) * transform.Orientation);
+				glm::quat qYaw = glm::angleAxis(-mouseMove.x * m_MouseSensitivity * camera.GetFov() / 90.0f, glm::vec3(0.0f, 1.0f, 0.0f) * transform.Orientation);
+				glm::quat qPitch = glm::angleAxis(-mouseMove.y * m_MouseSensitivity * camera.GetFov() / 90.0f, glm::vec3(1.0f, 0.0f, 0.0f) * transform.Orientation);
 
 				transform.Rotate(qPitch * qYaw);
 			}

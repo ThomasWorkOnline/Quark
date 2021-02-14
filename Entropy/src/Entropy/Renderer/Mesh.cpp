@@ -6,7 +6,7 @@
 
 namespace Entropy {
 
-	Mesh::Mesh(const BufferLayout& layout, const char* filepath)
+	Mesh::Mesh(const BufferLayout& layout, const std::string& filepath)
 	{
 		NT_ASSERT(LoadOBJFromFile(layout, filepath), "Could not load model at path : " << filepath);
 	}
@@ -212,7 +212,7 @@ namespace Entropy {
 		indices[count] = std::stoul(sIndex);
 	}
 
-	bool Mesh::LoadOBJFromFile(const BufferLayout& layout, const char* filepath)
+	bool Mesh::LoadOBJFromFile(const BufferLayout& layout, const std::string& filepath)
 	{
 		std::ios::sync_with_stdio(false);
 

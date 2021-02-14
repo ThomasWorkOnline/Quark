@@ -14,13 +14,12 @@ namespace Entropy {
 
 	Application* Application::s_Instance = nullptr;
 
-	Application::Application(uint32_t width, uint32_t height, const char* title)
+	Application::Application(uint32_t width, uint32_t height, const std::string& title)
 	{
 		s_Instance = this;
 
 		m_Window = Window::Create(width, height, title);
-		m_Window->SetEventCallback(NT_ATTACH_EVENT_FN(Application::OnEvent));
-		m_Window->SetVSync(false);
+		m_Window->SetEventCallback(NT_ATTACH_EVENT_FN(Application::OnEventInternal));
 
 		std::string appendedTitle = " - ";
 		appendedTitle.append(RenderingAPI::GetName());
@@ -39,14 +38,14 @@ namespace Entropy {
 		NT_TRACE("Hey! Come back next time.");
 	}
 
-	void Application::OnEvent(Event& e)
+	void Application::OnEventInternal(Event& e)
 	{
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(NT_ATTACH_EVENT_FN(Application::OnWindowClose));
 		dispatcher.Dispatch<WindowResizeEvent>(NT_ATTACH_EVENT_FN(Application::OnWindowResize));
 
 		// Dispatch all other not already handled events
-		if (!e.Handled) OnApplicationEvent(e);
+		if (!e.Handled) OnEvent(e);
 	}
 
 	bool Application::OnWindowClose(WindowCloseEvent& e)

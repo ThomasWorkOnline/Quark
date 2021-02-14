@@ -30,8 +30,8 @@ namespace Entropy {
 	struct FramebufferSpecification
 	{
 		uint32_t Width = 0, Height = 0;
-		FramebufferAttachmentSpecification Attachments;
 		uint32_t Samples = 1;
+		FramebufferAttachmentSpecification Attachments;
 		bool SwapChainTarget = false;
 	};
 

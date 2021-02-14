@@ -56,7 +56,7 @@ namespace Entropy {
 		}
 
 		MeshComponent() = default;
-		MeshComponent(const BufferLayout& layout, const char* filepath)
+		MeshComponent(const BufferLayout& layout, const std::string& filepath)
 			: Mesh(layout, filepath) { }
 	};
 
@@ -95,9 +95,6 @@ namespace Entropy {
 		}
 
 		TagComponent(const std::string& name)
-			: Name(name) { }
-
-		TagComponent(const char* name)
 			: Name(name) { }
 	};
 }

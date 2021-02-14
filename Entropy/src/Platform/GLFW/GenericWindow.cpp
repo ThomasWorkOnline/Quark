@@ -13,9 +13,10 @@ namespace Entropy {
 		NT_FATAL(description);
 	}
 
-	GenericWindow::GenericWindow(uint32_t width, uint32_t height, const char* title)
+	GenericWindow::GenericWindow(uint32_t width, uint32_t height, const std::string& title)
 	{
 		Init(width, height, title);
+		//std::cout << glfwGetMonitorName(glfwGetPrimaryMonitor()) << std::endl;
 	}
 
 	GenericWindow::~GenericWindow()
@@ -23,35 +24,13 @@ namespace Entropy {
 		Shutdown();
 	}
 
-	void GenericWindow::EnableFullScreen()
-	{
-		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-
-		glfwGetWindowPos(m_Window, &s_WindowedPosX, &s_WindowedPosY);
-		glfwGetWindowSize(m_Window, &s_WindowedWidth, &s_WindowedHeight);
-
-		// Switch to full screen
-		glfwSetWindowMonitor(m_Window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
-		glfwSwapInterval(m_Data.VSync);
-	}
-
-	void GenericWindow::DisableFullScreen()
-	{
-		m_Data.Width = s_WindowedWidth;
-		m_Data.Height = s_WindowedHeight;
-
-		// Restore last window size and position
-		glfwSetWindowMonitor(m_Window, nullptr, s_WindowedPosX, s_WindowedPosY, (int32_t)m_Data.Width, (int32_t)m_Data.Height, 0);
-	}
-
 	void GenericWindow::OnUpdate()
 	{
-		glfwPollEvents();
 		m_Context->SwapBuffers();
+		glfwPollEvents();
 	}
 
-	void GenericWindow::Init(uint32_t width, uint32_t height, const char* title)
+	void GenericWindow::Init(uint32_t width, uint32_t height, const std::string& title)
 	{
 		m_Data.Title = title;
 		m_Data.Width = width;
@@ -188,6 +167,28 @@ namespace Entropy {
 		// Cleans up glfw's garbage
 		if (s_WindowCount == 0)
 			glfwTerminate();
+	}
+
+	void GenericWindow::EnableFullScreen()
+	{
+		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+		glfwGetWindowPos(m_Window, &s_WindowedPosX, &s_WindowedPosY);
+		glfwGetWindowSize(m_Window, &s_WindowedWidth, &s_WindowedHeight);
+
+		// Switch to full screen
+		glfwSetWindowMonitor(m_Window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+		glfwSwapInterval(m_Data.VSync);
+	}
+
+	void GenericWindow::DisableFullScreen()
+	{
+		m_Data.Width = s_WindowedWidth;
+		m_Data.Height = s_WindowedHeight;
+
+		// Restore last window size and position
+		glfwSetWindowMonitor(m_Window, nullptr, s_WindowedPosX, s_WindowedPosY, (int32_t)m_Data.Width, (int32_t)m_Data.Height, 0);
 	}
 
 	void GenericWindow::SetTitle(const std::string& title)

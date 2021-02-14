@@ -12,7 +12,7 @@ namespace Entropy {
 	{
 	public:
 		Environment(const std::array<std::string, 6>& filepaths);
-		Environment(const char* directory);
+		Environment(const std::string& directory);
 
 		const Ref<VertexArray>& GetVertexArray() const { return m_VertexArray; }
 		const Ref<VertexBuffer>& GetVertexBuffer() const { return m_VertexBuffer; }
