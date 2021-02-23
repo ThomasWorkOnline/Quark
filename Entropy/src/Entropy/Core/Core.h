@@ -1,16 +1,15 @@
 #pragma once
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <memory>
-#include <string>
-#include <sstream>
-#include <iostream>
-#include <functional>
 #include <array>
-#include <vector>
+#include <cstring>
 #include <cmath>
+#include <functional>
 #include <future>
+#include <iostream>
+#include <memory>
+#include <sstream>
+#include <string>
+#include <vector>
 
 // Platform detection
 #include "Platform.h"
