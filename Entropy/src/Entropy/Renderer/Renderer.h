@@ -9,6 +9,11 @@
 
 namespace Entropy {
 
+	struct RenderStats
+	{
+		uint32_t DrawCalls;
+	};
+
 	class Renderer
 	{
 	public:
@@ -22,9 +27,16 @@ namespace Entropy {
 		static void EndScene();
 
 		static void Submit(const Ref<Shader>& shader, const Ref<VertexArray>& va, const glm::mat4& transform = glm::mat4(1.0f));
-		static void Submit(const Ref<Shader>& shader, Entity entity);
+		static void Submit(const Ref<Shader>& shader, const Ref<Texture2D>& texture, const Ref<VertexArray>& va, const glm::mat4& transform = glm::mat4(1.0f));
+
+		static void SubmitSprite(const Ref<Texture2D>& texture, const glm::mat4& transform = glm::mat4(1.0f));
+
+		static RenderStats& GetStats() { return s_Stats; }
 
 	private:
+		static void StartBatch();
+		static void PushBatch();
+
 		struct SceneData
 		{
 			glm::mat4 ProjectionMatrix;
@@ -32,5 +44,6 @@ namespace Entropy {
 		};
 
 		static SceneData s_SceneData;
+		static RenderStats s_Stats;
 	};
 }

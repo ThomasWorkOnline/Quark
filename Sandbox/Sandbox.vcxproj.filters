@@ -5,5 +5,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\defaultFlat.glsl" />
+    <None Include="assets\shaders\defaultMultisampled.glsl" />
+    <None Include="assets\shaders\debugNormal.glsl" />
+    <None Include="assets\shaders\debugPosition.glsl" />
+    <None Include="assets\shaders\skybox.glsl" />
+    <None Include="assets\shaders\defaultTexture.glsl" />
+    <None Include="assets\shaders\default.glsl" />
   </ItemGroup>
 </Project>

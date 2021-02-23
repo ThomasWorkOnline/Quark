@@ -1,5 +1,7 @@
 #include "Mesh.h"
 
+#include "../Core/Core.h"
+
 #include "../Tools/Noise.h"
 
 #include <fstream>
@@ -8,7 +10,7 @@ namespace Entropy {
 
 	Mesh::Mesh(const BufferLayout& layout, const std::string& filepath)
 	{
-		NT_ASSERT(LoadOBJFromFile(layout, filepath), "Could not load model at path : " << filepath);
+		NT_ASSERT(LoadOBJFromFile(layout, filepath), "Could not load model at path: " << filepath);
 	}
 
 	void Mesh::GenerateUnitCube(const BufferLayout& layout)
@@ -22,35 +24,35 @@ namespace Entropy {
 			0.5f,  0.5f,  0.5f,   1.0f, 1.0f,   0.0f,  0.0f,  1.0f,
 		   -0.5f,  0.5f,  0.5f,   0.0f, 1.0f,   0.0f,  0.0f,  1.0f,
 
-		    // right
-		    0.5f, -0.5f,  0.5f,   0.0f, 0.0f,   1.0f,  0.0f,  0.0f,
-		    0.5f, -0.5f, -0.5f,   1.0f, 0.0f,   1.0f,  0.0f,  0.0f,
-		    0.5f,  0.5f, -0.5f,   1.0f, 1.0f,   1.0f,  0.0f,  0.0f,
-		    0.5f,  0.5f,  0.5f,   0.0f, 1.0f,   1.0f,  0.0f,  0.0f,
+		   // right
+		   0.5f, -0.5f,  0.5f,   0.0f, 0.0f,   1.0f,  0.0f,  0.0f,
+		   0.5f, -0.5f, -0.5f,   1.0f, 0.0f,   1.0f,  0.0f,  0.0f,
+		   0.5f,  0.5f, -0.5f,   1.0f, 1.0f,   1.0f,  0.0f,  0.0f,
+		   0.5f,  0.5f,  0.5f,   0.0f, 1.0f,   1.0f,  0.0f,  0.0f,
 
-		    // back
-		    0.5f, -0.5f, -0.5f,   0.0f, 0.0f,   0.0f,  0.0f, -1.0f,
-		   -0.5f, -0.5f, -0.5f,   1.0f, 0.0f,   0.0f,  0.0f, -1.0f,
-		   -0.5f,  0.5f, -0.5f,   1.0f, 1.0f,   0.0f,  0.0f, -1.0f,
-		    0.5f,  0.5f, -0.5f,   0.0f, 1.0f,   0.0f,  0.0f, -1.0f,
+		   // back
+		   0.5f, -0.5f, -0.5f,   0.0f, 0.0f,   0.0f,  0.0f, -1.0f,
+		  -0.5f, -0.5f, -0.5f,   1.0f, 0.0f,   0.0f,  0.0f, -1.0f,
+		  -0.5f,  0.5f, -0.5f,   1.0f, 1.0f,   0.0f,  0.0f, -1.0f,
+		   0.5f,  0.5f, -0.5f,   0.0f, 1.0f,   0.0f,  0.0f, -1.0f,
 
-		    // left
-		   -0.5f, -0.5f, -0.5f,   0.0f, 0.0f,  -1.0f,  0.0f,  0.0f,
-		   -0.5f, -0.5f,  0.5f,   1.0f, 0.0f,  -1.0f,  0.0f,  0.0f,
-		   -0.5f,  0.5f,  0.5f,   1.0f, 1.0f,  -1.0f,  0.0f,  0.0f,
-		   -0.5f,  0.5f, -0.5f,   0.0f, 1.0f,  -1.0f,  0.0f,  0.0f,
+		   // left
+		  -0.5f, -0.5f, -0.5f,   0.0f, 0.0f,  -1.0f,  0.0f,  0.0f,
+		  -0.5f, -0.5f,  0.5f,   1.0f, 0.0f,  -1.0f,  0.0f,  0.0f,
+		  -0.5f,  0.5f,  0.5f,   1.0f, 1.0f,  -1.0f,  0.0f,  0.0f,
+		  -0.5f,  0.5f, -0.5f,   0.0f, 1.0f,  -1.0f,  0.0f,  0.0f,
 
-		    // bottom
-		   -0.5f, -0.5f, -0.5f,   0.0f, 0.0f,   0.0f, -1.0f,  0.0f,
-		    0.5f, -0.5f, -0.5f,   1.0f, 0.0f,   0.0f, -1.0f,  0.0f,
-		    0.5f, -0.5f,  0.5f,   1.0f, 1.0f,   0.0f, -1.0f,  0.0f,
-		   -0.5f, -0.5f,  0.5f,   0.0f, 1.0f,   0.0f, -1.0f,  0.0f,
+		  // bottom
+		 -0.5f, -0.5f, -0.5f,   0.0f, 0.0f,   0.0f, -1.0f,  0.0f,
+		  0.5f, -0.5f, -0.5f,   1.0f, 0.0f,   0.0f, -1.0f,  0.0f,
+		  0.5f, -0.5f,  0.5f,   1.0f, 1.0f,   0.0f, -1.0f,  0.0f,
+		 -0.5f, -0.5f,  0.5f,   0.0f, 1.0f,   0.0f, -1.0f,  0.0f,
 
-		    // top
-		   -0.5f,  0.5f,  0.5f,   0.0f, 0.0f,   0.0f,  1.0f,  0.0f,
-		    0.5f,  0.5f,  0.5f,   1.0f, 0.0f,   0.0f,  1.0f,  0.0f,
-		    0.5f,  0.5f, -0.5f,   1.0f, 1.0f,   0.0f,  1.0f,  0.0f,
-		   -0.5f,  0.5f, -0.5f,   0.0f, 1.0f,   0.0f,  1.0f,  0.0f
+		 // top
+		-0.5f,  0.5f,  0.5f,   0.0f, 0.0f,   0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,   1.0f, 0.0f,   0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f, -0.5f,   1.0f, 1.0f,   0.0f,  1.0f,  0.0f,
+		-0.5f,  0.5f, -0.5f,   0.0f, 1.0f,   0.0f,  1.0f,  0.0f
 		};
 
 		uint32_t indexBuffer[] = {
@@ -97,22 +99,14 @@ namespace Entropy {
 
 		size_t size = scale + 1;
 		size_t strideCount = layout.GetStride() / sizeof(float);
+
 		size_t vertexBufferCount = size * size * strideCount;
 		float* vertexBuffer = new float[vertexBufferCount];
 
-		std::vector<uint32_t> indexBuffer;
+		size_t indexBufferCount = scale * scale * 6;
+		uint32_t* indexBuffer = new uint32_t[indexBufferCount];
 
-		// To sample the height of the terrain, we need to know the height of the border
-		size_t noiseSize = size + 1;
-		float* noiseSeed2D = new float[noiseSize * noiseSize];
-		for (int i = 0; i < noiseSize * noiseSize; i++)
-		{
-			float value = (float)rand() / (float)RAND_MAX;
-			noiseSeed2D[i] = value * 0.2f;
-		}
-		//float* perlinNoise2D = new float[noiseSize * noiseSize];
-		//PerlinNoise2D(noiseSize, noiseSize, noiseSeed2D, 10, 2.4f, perlinNoise2D);*/
-
+		srand(seed);
 		for (size_t y = 0; y < size; y++)
 		{
 			for (size_t x = 0; x < size; x++)
@@ -121,57 +115,48 @@ namespace Entropy {
 
 				static const float centerOffset = scale * 0.5f;
 
-				float height0 = noiseSeed2D[(x + 0) + (y + 0) * noiseSize]; // center;
-				float height1 = noiseSeed2D[(x + 1) + (y + 0) * noiseSize]; // right
-				float height2 = noiseSeed2D[(x + 0) + (y + 1) * noiseSize]; // bottom
-
-				// Position
-				vertexBuffer[pos + 0] = (float)x - centerOffset;
-				vertexBuffer[pos + 1] = (float)height0;
-				vertexBuffer[pos + 2] = (float)y - centerOffset;
-
-				// TexCoord
-				vertexBuffer[pos + 3] = (float)x;
-				vertexBuffer[pos + 4] = (float)y;
-
 				// Normal
 				glm::vec3 line1(glm::vec3(x, 0.0f, y + 1) - glm::vec3(x, 0.0f, y)); // bottom
 				glm::vec3 line2(glm::vec3(x + 1, 0.0f, y) - glm::vec3(x, 0.0f, y)); // right
 				glm::vec3 normal = glm::normalize(glm::cross(line1, line2));
 
+				vertexBuffer[pos + 0] = (float)x - centerOffset;
+				vertexBuffer[pos + 1] = 0.0f; // rand() / (float)RAND_MAX;
+				vertexBuffer[pos + 2] = (float)y - centerOffset;
+				vertexBuffer[pos + 3] = (float)x;
+				vertexBuffer[pos + 4] = (float)y;
 				vertexBuffer[pos + 5] = normal.x;
 				vertexBuffer[pos + 6] = normal.y;
 				vertexBuffer[pos + 7] = normal.z;
 			}
 		}
 
-		delete[] noiseSeed2D;
-		//delete[] perlinNoise2D;
-
 		for (size_t y = 0; y < scale; y++)
 		{
 			for (size_t x = 0; x < scale; x++)
 			{
-				// face #1
-				indexBuffer.push_back((y + 0) * size + (x + 0));
-				indexBuffer.push_back((y + 1) * size + (x + 0));
-				indexBuffer.push_back((y + 0) * size + (x + 1));
+				size_t pos = 6 * (y * scale + x);
 
-				// face #2
-				indexBuffer.push_back((y + 1) * size + (x + 1));
-				indexBuffer.push_back((y + 0) * size + (x + 1));
-				indexBuffer.push_back((y + 1) * size + (x + 0));
+				// face #1
+				indexBuffer[pos + 0] = (y + 0) * size + (x + 0);
+				indexBuffer[pos + 1] = (y + 1) * size + (x + 0);
+				indexBuffer[pos + 2] = (y + 0) * size + (x + 1);
+
+				// face #2 	  
+				indexBuffer[pos + 3] = (y + 1) * size + (x + 1);
+				indexBuffer[pos + 4] = (y + 0) * size + (x + 1);
+				indexBuffer[pos + 5] = (y + 1) * size + (x + 0);
 			}
 		}
 
 		m_VertexBuffer = VertexBuffer::Create(vertexBuffer, vertexBufferCount * sizeof(float));
 		m_VertexBuffer->SetLayout(layout);
 		m_VertexArray->AddVertexBuffer(m_VertexBuffer);
-
-		m_IndexBuffer = IndexBuffer::Create(&indexBuffer[0], (uint32_t)indexBuffer.size());
+		m_IndexBuffer = IndexBuffer::Create(indexBuffer, indexBufferCount);
 		m_VertexArray->SetIndexBuffer(m_IndexBuffer);
 
 		delete[] vertexBuffer;
+		delete[] indexBuffer;
 	}
 
 	void Tokenize(const std::string& str, const char delim, std::vector<std::string>& out)

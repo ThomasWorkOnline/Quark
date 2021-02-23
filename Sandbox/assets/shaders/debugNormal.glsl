@@ -72,13 +72,9 @@ void main()
 
     EndPrimitive();
 
-    // Computing the face normal
-    vec3 V0 = v_Position[0] - v_Position[1];
-    vec3 V1 = v_Position[2] - v_Position[1];
-    vec3 faceNormal = normalize(cross(V1, V0));
-
     // Center of the triangle
     vec3 facePosition = (v_Position[0] + v_Position[1] + v_Position[2]) / gl_in.length();
+    vec3 faceNormal = normalize(v_Normal[0] + v_Normal[1] + v_Normal[2]);
   
     gl_Position = viewProjection * vec4(facePosition, 1.0);
     v_Color = vec4(0.0, 1.0, 0.0, 1.0);

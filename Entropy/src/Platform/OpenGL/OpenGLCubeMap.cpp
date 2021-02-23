@@ -1,5 +1,9 @@
 #include "OpenGLCubeMap.h"
 
+#define STB_IMAGE_STATIC
+#define STB_IMAGE_IMPLEMENTATION
+#include "../../../vendor/stb_image/stb_image.h"
+
 namespace Entropy {
 
 	OpenGLCubeMap::OpenGLCubeMap(const std::array<std::string, 6>& filepaths)

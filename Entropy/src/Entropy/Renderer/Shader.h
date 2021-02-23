@@ -33,7 +33,7 @@ namespace Entropy {
 	{
 	public:
 		void Add(const std::string& name, Ref<Shader> shader);
-		void Add(Ref<Shader> shader);
+		void Add(const Ref<Shader>& shader);
 		Ref<Shader> Load(const std::string& filepath);
 		Ref<Shader> Load(const std::string& name, const std::string& filepath);
 

@@ -13,12 +13,11 @@ namespace Entropy {
         virtual void Attach() const override;
         virtual void Detach() const override;
 
-        virtual void AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer) override;
-        virtual void SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer) override;
+        virtual void AddVertexBuffer(Ref<VertexBuffer> vertexBuffer) override;
+        virtual void SetIndexBuffer(Ref<IndexBuffer> indexBuffer) override;
 
-        // Getters
         virtual const std::vector<Ref<VertexBuffer>>& GetVertexBuffers() const { return m_VertexBuffers; }
-        virtual const Ref<IndexBuffer>& GetIndexBuffer() const { return m_IndexBuffer; }
+        virtual Ref<IndexBuffer> GetIndexBuffer() const { return m_IndexBuffer; }
 
     private:
         uint32_t m_RendererID = 0;

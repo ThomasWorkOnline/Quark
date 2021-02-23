@@ -1,5 +1,4 @@
 #pragma once
-// This file is included by the client
 
 // Core
 #include "Entropy/Core/Core.h"
@@ -16,6 +15,7 @@
 #include "Entropy/Renderer/Mesh.h"
 #include "Entropy/Renderer/Renderer.h"
 #include "Entropy/Renderer/Shader.h"
+#include "Entropy/Renderer/SpriteSheet.h"
 #include "Entropy/Renderer/Texture.h"
 
 // Events

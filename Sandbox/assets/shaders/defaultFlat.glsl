@@ -47,10 +47,7 @@ out vec3 v_CameraPosition;
 
 void main()
 {
-    // Computing the face normal
-    vec3 V0 = in_v_Position[0] - in_v_Position[1];
-    vec3 V1 = in_v_Position[2] - in_v_Position[1];
-    vec3 faceNormal = normalize(cross(V1, V0));
+    vec3 faceNormal = normalize(in_v_Normal[0] + in_v_Normal[1] + in_v_Normal[2]);
 
     for (int i = 0; i < gl_in.length(); i++)
     {

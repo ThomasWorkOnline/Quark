@@ -26,7 +26,7 @@ namespace Entropy {
 		{
 			auto& transform = m_CameraEntity->GetComponent<TransformComponent>();
 			auto& physics = m_CameraEntity->GetComponent<PhysicsComponent>();
-			Camera& camera = m_CameraEntity->GetComponent<CameraComponent>();
+			auto& camera = m_CameraEntity->GetComponent<CameraComponent>().Camera;
 
 			// Movement
 			static const float defaultMovementSpeed = m_MovementSpeed;
@@ -36,7 +36,7 @@ namespace Entropy {
 			if (Input::IsKeyPressed(Key::LeftControl))
 			{
 				m_MovementSpeed = 100.0f;
-				m_RollSensitivity = 5.0f;
+				m_RollSensitivity = 100.0f;
 			}
 			else
 			{
@@ -158,7 +158,7 @@ namespace Entropy {
 			if (m_CameraEntity)
 			{
 				auto& transform = m_CameraEntity->GetComponent<TransformComponent>();
-				Camera& camera = m_CameraEntity->GetComponent<CameraComponent>();
+				auto& camera = m_CameraEntity->GetComponent<CameraComponent>().Camera;
 
 				glm::vec2 mouseMove = { e.GetX() - lastMousePos.x, e.GetY() - lastMousePos.y };
 				glm::quat qYaw = glm::angleAxis(-mouseMove.x * m_MouseSensitivity * camera.GetFov() / 90.0f, glm::vec3(0.0f, 1.0f, 0.0f) * transform.Orientation);

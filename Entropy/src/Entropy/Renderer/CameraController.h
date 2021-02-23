@@ -32,7 +32,7 @@ namespace Entropy {
 		// Has to be of generic type Entity to have access to various components
 		Entity* m_CameraEntity = nullptr;
 
-		float m_RollSensitivity = 1.0f;
+		float m_RollSensitivity = 32.0f;
 		float m_MovementSpeed = 12.0f;
 		float m_MouseSensitivity = 0.002f;
 		float m_MouseScrollSensitivity = 12.0f;

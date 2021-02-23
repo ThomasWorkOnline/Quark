@@ -50,8 +50,9 @@ namespace Entropy {
 	{
 		switch (format)
 		{
-		case TextureTilingFormat::Clamp:  return GL_CLAMP_TO_EDGE;
-		case TextureTilingFormat::Repeat: return GL_REPEAT;
+		case TextureTilingFormat::ChampToBorder: return GL_CLAMP_TO_BORDER;
+		case TextureTilingFormat::ClampToEdge:   return GL_CLAMP_TO_EDGE;
+		case TextureTilingFormat::Repeat:        return GL_REPEAT;
 		}
 
 		NT_FATAL("Invalid texture tiling format");

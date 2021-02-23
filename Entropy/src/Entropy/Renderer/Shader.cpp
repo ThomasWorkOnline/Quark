@@ -39,10 +39,9 @@ namespace Entropy {
 			NT_WARN("Shader already exists! It was not added");
 	}
 
-	void ShaderLibrary::Add(Ref<Shader> shader)
+	void ShaderLibrary::Add(const Ref<Shader>& shader)
 	{
-		const std::string& name = shader->GetName();
-		Add(name, shader);
+		Add(shader->GetName(), shader);
 	}
 
 	Ref<Shader> ShaderLibrary::Load(const std::string& filepath)

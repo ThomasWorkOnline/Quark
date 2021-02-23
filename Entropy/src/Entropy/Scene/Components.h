@@ -3,7 +3,6 @@
 #include "../Core/Core.h"
 
 #include "../Renderer/Mesh.h"
-#include "../Renderer/Sprite.h"
 #include "../Renderer/Camera.h"
 
 namespace Entropy {
@@ -28,8 +27,8 @@ namespace Entropy {
 			return m_Transform;
 		}
 
-		void Rotate(const glm::quat& quat) { Orientation = Orientation * quat; }
-		void Rotate(float angle, const glm::vec3 axis) { Rotate(glm::angleAxis(angle, glm::normalize(axis))); }
+		TransformComponent& Rotate(const glm::quat& quat) { Orientation = Orientation * quat; return *this; }
+		TransformComponent& Rotate(float angle, const glm::vec3 axis) { Rotate(glm::angleAxis(glm::radians(angle), glm::normalize(axis))); return *this; }
 	private:
 		glm::mat4 m_Transform;
 	};
@@ -50,36 +49,14 @@ namespace Entropy {
 	{
 		Mesh Mesh;
 
-		operator Entropy::Mesh& ()
-		{
-			return Mesh;
-		}
-
 		MeshComponent() = default;
 		MeshComponent(const BufferLayout& layout, const std::string& filepath)
 			: Mesh(layout, filepath) { }
 	};
 
-	struct SpriteComponent
-	{
-		Sprite Sprite;
-
-		operator Entropy::Sprite& ()
-		{
-			return Sprite;
-		}
-
-		SpriteComponent() = default;
-	};
-
 	struct CameraComponent
 	{
 		Camera Camera;
-
-		operator Entropy::Camera& ()
-		{
-			return Camera;
-		}
 
 		CameraComponent(float aspectRatio, float fov)
 			: Camera(aspectRatio, fov) { }
@@ -88,11 +65,6 @@ namespace Entropy {
 	struct TagComponent
 	{
 		std::string Name;
-
-		operator std::string& ()
-		{
-			return Name;
-		}
 
 		TagComponent(const std::string& name)
 			: Name(name) { }

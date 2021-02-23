@@ -32,9 +32,10 @@ namespace Entropy {
 		None = 0,
 
 		// Tiling formats
-		Clamp,
+		ChampToBorder,
+		ClampToEdge,
 		Repeat,
 
-		Default = Clamp
+		Default = ChampToBorder
 	};
 }

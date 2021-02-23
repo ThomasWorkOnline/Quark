@@ -1,15 +1,17 @@
 #pragma once
 
+#include "../Core/Core.h"
+
 #include "Texture.h"
 
 namespace Entropy {
 
-	class Sprite
+	class Ressource
 	{
 	public:
-		Sprite() = default;
+
 
 	private:
-		Ref<Texture2D> m_Texture;
+
 	};
 }

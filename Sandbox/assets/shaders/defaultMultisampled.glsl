@@ -4,18 +4,14 @@
 layout(location = 0) in vec3 a_Position;
 layout(location = 1) in vec2 a_TexCoord;
 layout(location = 2) in vec3 a_Normal;
-layout(location = 3) in int a_TexIndex;
 
 uniform mat4 u_Model;
 uniform mat4 u_View;
 uniform mat4 u_Projection;
-uniform int u_Samplers[];
 
 out vec3 v_Position;
 out vec2 v_TexCoord;
 out vec3 v_Normal;
-out int v_TexIndex;
-
 out vec3 v_CameraPosition;
 
 void main()
@@ -29,8 +25,6 @@ void main()
 	v_Position = position.xyz;
 	v_TexCoord = a_TexCoord;
 	v_Normal = mat3(transpose(inverse(u_Model))) * a_Normal;
-    v_TexIndex = a_TexIndex;
-
     mat4 invView = inverse(u_View);
     v_CameraPosition = vec3(invView[3][0], invView[3][1], invView[3][2]);
 }
@@ -41,8 +35,6 @@ void main()
 in vec3 v_Position;
 in vec2 v_TexCoord;
 in vec3 v_Normal;
-in int v_TexIndex;
-
 in vec3 v_CameraPosition;
 
 struct DirectionalLight
@@ -69,9 +61,9 @@ struct PointLight
 
 struct Material
 {
-	sampler2D diffuse;
-	sampler2D specular;
-    sampler2D normalMap;
+	sampler2DMS diffuse;
+	sampler2DMS specular;
+    sampler2DMS normalMap;
     float shininess;
     float metalness;
 };
@@ -84,35 +76,68 @@ uniform samplerCube u_Cubemap;
 vec3 CalculateDirectionLight(DirectionalLight light, vec3 normal, vec3 viewDir)
 {
 	vec3 lightDir = normalize(-light.direction);
+
     // Diffuse shading
     float diff = max(dot(normal, lightDir), 0.0);
+
     // Specular shading
     vec3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), u_Material.shininess);
+
 	// Combine results
-    vec3 ambient  = light.ambient  * vec3(texture(u_Material.diffuse, v_TexCoord));
-	vec3 diffuse  = light.diffuse  * diff * vec3(texture(u_Material.diffuse, v_TexCoord));
-    vec3 specular = light.specular * spec * vec3(texture(u_Material.specular, v_TexCoord));
-    return (ambient + diffuse + specular);
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+    for (int i = 0; i < 4; i++)
+    {
+        ambient = ambient + vec3(texelFetch(u_Material.diffuse, ivec2(v_TexCoord), i));
+        diffuse = diffuse + diff * vec3(texelFetch(u_Material.diffuse, ivec2(v_TexCoord), i));
+        specular = specular + spec * vec3(texelFetch(u_Material.specular, ivec2(v_TexCoord), i));
+    }
+    ambient = ambient * light.ambient;
+    diffuse = diffuse * light.diffuse;
+    specular = specular * light.specular;
+
+    //vec3 ambient = light.ambient  * vec3(texture(u_Material.diffuse, v_TexCoord));
+	//vec3 diffuse  = light.diffuse  * diff * vec3(texture(u_Material.diffuse, v_TexCoord));
+    //vec3 specular = light.specular * spec * vec3(texture(u_Material.specular, v_TexCoord));
+    return (ambient + diffuse + specular) / 4;
 }
 
 vec3 CalculatePointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 {
     vec3 lightDir = normalize(light.position - fragPos);
+
     // Diffuse shading
     float diff = max(dot(normal, lightDir), 0.0);
+
     // Specular shading
     vec3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), u_Material.shininess);
+
     // Attenuation
     float distance    = length(light.position - fragPos);
     float attenuation = 1.0 / (light.constant + light.linear * distance +
   			     light.quadratic * (distance * distance));
+
     // Combine results
-    vec3 ambient  = light.ambient  * vec3(texture(u_Material.diffuse, v_TexCoord));
-    vec3 diffuse  = light.diffuse  * diff * vec3(texture(u_Material.diffuse, v_TexCoord));
-    vec3 specular = light.specular * spec * vec3(texture(u_Material.specular, v_TexCoord));
-    return (ambient + diffuse + specular) * attenuation;
+    vec3 ambient = vec3(0.0);
+    vec3 diffuse = vec3(0.0);
+    vec3 specular = vec3(0.0);
+    for (int i = 0; i < 4; i++)
+    {
+        ambient += vec3(texelFetch(u_Material.diffuse, ivec2(v_TexCoord), i));
+        diffuse += diff * vec3(texelFetch(u_Material.diffuse, ivec2(v_TexCoord), i));
+        specular += spec * vec3(texelFetch(u_Material.specular, ivec2(v_TexCoord), i));
+    }
+    ambient = ambient * light.ambient;
+    diffuse = diffuse * light.diffuse;
+    specular = specular * light.specular;
+
+    //vec3 ambient  = light.ambient  * vec3(texture(u_Material.diffuse, v_TexCoord));
+    //vec3 diffuse  = light.diffuse  * diff * vec3(texture(u_Material.diffuse, v_TexCoord));
+    //vec3 specular = light.specular * spec * vec3(texture(u_Material.specular, v_TexCoord));
+    return (ambient + diffuse + specular) * attenuation / 4;
 }
 
 void main()
@@ -127,17 +152,29 @@ void main()
 	float attenuation = 1.0 / (u_Light.constant + u_Light.linear * distance +
     		    u_Light.quadratic * (distance * distance));
 
-	vec3 ambient = u_Light.ambient * vec3(texture(u_Material.diffuse, v_TexCoord));
-
 	float diff = max(dot(norm, lightDir), 0.0);
-	vec3 diffuse = u_Light.diffuse * diff * vec3(texture(u_Material.diffuse, v_TexCoord)) * (1 - u_Material.metalness);
-
 	float spec = pow(max(dot(norm, halfwayDir), 0.0), u_Material.shininess);
-	vec3 specular = u_Light.specular * spec * vec3(texture(u_Material.specular, v_TexCoord));
 
-	vec3 result = (ambient + diffuse + specular) * attenuation;
+    vec3 ambient = vec3(0.0);
+    vec3 diffuse = vec3(0.0);
+    vec3 specular = vec3(0.0);
+    for (int i = 0; i < 4; i++)
+    {
+        ambient += + u_Light.ambient * vec3(texelFetch(u_Material.diffuse, ivec2(v_TexCoord), i));
+        diffuse += + u_Light.diffuse * diff * vec3(texelFetch(u_Material.diffuse, ivec2(v_TexCoord), i));
+        specular += + u_Light.specular * spec * vec3(texelFetch(u_Material.specular, ivec2(v_TexCoord), i));
+    }
+    diffuse *= (1 - u_Material.metalness);
+
+	//vec3 ambient = u_Light.ambient * vec3(texture(u_Material.diffuse, v_TexCoord));
+	//vec3 diffuse = u_Light.diffuse * diff * vec3(texture(u_Material.diffuse, v_TexCoord)) * (1 - u_Material.metalness);
+	//vec3 specular = u_Light.specular * spec * vec3(texture(u_Material.specular, v_TexCoord));
+
+	//vec3 result = (ambient + diffuse + specular) * attenuation / 4;
 
     vec3 I = normalize(v_Position - v_CameraPosition);
     vec3 R = reflect(I, normalize(v_Normal));
-    gl_FragColor = vec4(result + texture(u_Cubemap, R).rgb * 0.6 * u_Material.metalness, 1.0);
+    //gl_FragColor = vec4(result + texture(u_Cubemap, R).rgb * 0.6 * u_Material.metalness, 1.0);
+    //gl_FragColor = vec4(vec3(texelFetch(u_Material.diffuse, ivec2(v_TexCoord), 0)), 1.0);
+    gl_FragColor = vec4(ambient, 1.0);
 }

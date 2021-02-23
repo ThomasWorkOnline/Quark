@@ -1,14 +1,16 @@
 #pragma once
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <memory>
 #include <string>
 #include <sstream>
 #include <iostream>
+#include <functional>
 #include <array>
 #include <vector>
-#include <functional>
 #include <cmath>
+#include <future>
 
 // Platform detection
 #include "Platform.h"
@@ -28,14 +30,9 @@
 // Standards configuration
 #define GLM_FORCE_LEFT_HANDED
 #include "../../../vendor/glm/glm.hpp"
-// includes matrix transform and operators
 #include "../../../vendor/glm/gtc/matrix_transform.hpp"
 #include "../../../vendor/glm/gtc/quaternion.hpp"
 #include "../../../vendor/glm/gtx/quaternion.hpp"
-
-#define STB_IMAGE_STATIC
-#define STB_IMAGE_IMPLEMENTATION
-#include "../../../vendor/stb_image/stb_image.h"
 
 #include "Logger.h"
 #include "../Tools/LogUtils.h"

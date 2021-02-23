@@ -1,6 +1,5 @@
-#include "Sprite.h"
+#include "Ressource.h"
 
 namespace Entropy {
-
 
 }
