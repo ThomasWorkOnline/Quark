@@ -10,7 +10,7 @@
 
 namespace Entropy {
 
-	struct Vertex
+	struct SpriteVertex
 	{
 		glm::vec3 Position;
 		glm::vec2 TexCoord;
@@ -25,8 +25,8 @@ namespace Entropy {
 		static const uint32_t MaxIndices = MaxQuads * 6;
 		uint32_t MaxTextureSlots;
 
-		Vertex* VertexPtr = nullptr;
-		Vertex* Vertices  = nullptr;
+		SpriteVertex* VertexPtr = nullptr;
+		SpriteVertex* Vertices  = nullptr;
 
 		uint32_t IndexCount = 0;
 
@@ -52,7 +52,7 @@ namespace Entropy {
 
 		s_Data.VertexArray  = VertexArray::Create();
 
-		s_Data.VertexBuffer = VertexBuffer::Create(s_Data.MaxVertices * sizeof(Vertex));
+		s_Data.VertexBuffer = VertexBuffer::Create(s_Data.MaxVertices * sizeof(SpriteVertex));
 		s_Data.VertexBuffer->SetLayout({
 			{ ShaderDataType::Float3, "a_Position" },
 			{ ShaderDataType::Float2, "a_TexCoord" },
@@ -62,7 +62,7 @@ namespace Entropy {
 		s_Data.VertexArray->AddVertexBuffer(s_Data.VertexBuffer);
 
 		// Indices
-		uint32_t* indices = new uint32_t[s_Data.MaxVertices * 6];
+		uint32_t* indices = new uint32_t[s_Data.MaxIndices];
 
 		uint32_t offset = 0;
 		for (uint32_t i = 0; i < s_Data.MaxVertices; i += 6)
@@ -82,7 +82,7 @@ namespace Entropy {
 		delete[] indices;
 
 		// Vertices
-		s_Data.Vertices = new Vertex[s_Data.MaxVertices];
+		s_Data.Vertices = new SpriteVertex[s_Data.MaxVertices];
 		memset(s_Data.Vertices, 0, s_Data.MaxVertices);
 
 		s_Data.SpriteVertexPositions[0] = { -0.5f, -0.5f,  0.0f,  1.0f };
@@ -101,11 +101,11 @@ namespace Entropy {
 		s_Data.DefaultTexture = Texture2D::Create(spec);
 		s_Data.DefaultTexture->SetData(&textureColor, sizeof(uint32_t));
 
+		s_Data.Textures[0] = s_Data.DefaultTexture;
+
 		int32_t* samplers = new int32_t[s_Data.MaxTextureSlots];
 		for (uint32_t i = 0; i < s_Data.MaxTextureSlots; i++)
 			samplers[i] = i;
-
-		s_Data.Textures[0] = s_Data.DefaultTexture;
 
 		s_Data.SpriteShader = Shader::Create("assets/shaders/defaultTexture.glsl");
 		s_Data.SpriteShader->Attach();
@@ -211,6 +211,19 @@ namespace Entropy {
 
 	void Renderer::SubmitSprite(const Ref<Texture2D>& texture, const glm::mat4& transform)
 	{
+		constexpr glm::vec2 textureCoords[4] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
+
+		SubmitSprite(texture, textureCoords, transform);
+	}
+
+	void Renderer::SubmitSprite(const SubTexture2D& subTexture, const glm::mat4& transform)
+	{
+		SubmitSprite(subTexture.GetTexture(), subTexture.GetCoords(), transform);
+	}
+
+	void Renderer::SubmitSprite(const Ref<Texture2D>& texture, const glm::vec2* texCoords, const glm::mat4& transform)
+	{
+		// Check if buffer is full
 		if (s_Data.IndexCount >= s_Data.MaxIndices)
 		{
 			PushBatch();
@@ -243,13 +256,11 @@ namespace Entropy {
 			s_Data.TextureSlotIndex++;
 		}
 
-		constexpr glm::vec2 textureCoords[4] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
-
 		for (uint8_t i = 0; i < 4; i++)
 		{
 			s_Data.VertexPtr->Position = transform * s_Data.SpriteVertexPositions[i];
-			s_Data.VertexPtr->TexCoord = textureCoords[i];
-			s_Data.VertexPtr->Normal   = { 0.0f, 0.0f, 1.0f };
+			s_Data.VertexPtr->TexCoord = texCoords[i];
+			s_Data.VertexPtr->Normal = { 0.0f, 0.0f, 1.0f };
 			s_Data.VertexPtr->TexIndex = textureIndex;
 
 			s_Data.VertexPtr++;

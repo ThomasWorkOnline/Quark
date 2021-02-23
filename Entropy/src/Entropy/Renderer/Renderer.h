@@ -1,11 +1,12 @@
 #pragma once
 
-#include "RenderCommand.h"
-#include "Shader.h"
 #include "Camera.h"
 #include "Framebuffer.h"
-#include "Texture.h"
 #include "Mesh.h"
+#include "RenderCommand.h"
+#include "Shader.h"
+#include "SubTexture.h"
+#include "Texture.h"
 
 namespace Entropy {
 
@@ -30,8 +31,10 @@ namespace Entropy {
 		static void Submit(const Ref<Shader>& shader, const Ref<Texture2D>& texture, const Ref<VertexArray>& va, const glm::mat4& transform = glm::mat4(1.0f));
 
 		static void SubmitSprite(const Ref<Texture2D>& texture, const glm::mat4& transform = glm::mat4(1.0f));
+		static void SubmitSprite(const Ref<Texture2D>& texture, const glm::vec2* texCoords, const glm::mat4& transform = glm::mat4(1.0f));
+		static void SubmitSprite(const SubTexture2D& subTexture, const glm::mat4& transform = glm::mat4(1.0f));
 
-		static RenderStats& GetStats() { return s_Stats; }
+		static const RenderStats& GetStats() { return s_Stats; }
 
 	private:
 		static void StartBatch();

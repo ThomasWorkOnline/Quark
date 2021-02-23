@@ -38,5 +38,8 @@ flat in float v_TexIndex;
 
 void main()
 {
-    gl_FragColor = texture(u_Samplers[int(v_TexIndex)], v_TexCoord);
+	vec4 color = texture(u_Samplers[int(v_TexIndex)], v_TexCoord);
+	if (color.a < 1)
+		discard;
+    gl_FragColor = color;
 }

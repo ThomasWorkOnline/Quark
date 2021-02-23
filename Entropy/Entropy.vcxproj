@@ -116,7 +116,7 @@
     <ClCompile Include="src\Entropy\Renderer\RenderingAPI.cpp" />
     <ClCompile Include="src\Entropy\Renderer\Ressource.cpp" />
     <ClCompile Include="src\Entropy\Renderer\Shader.cpp" />
-    <ClCompile Include="src\Entropy\Renderer\SpriteSheet.cpp" />
+    <ClCompile Include="src\Entropy\Renderer\SubTexture.cpp" />
     <ClCompile Include="src\Entropy\Renderer\Texture.cpp" />
     <ClCompile Include="src\Entropy\Renderer\VertexArray.cpp" />
     <ClCompile Include="src\Entropy\Scene\Entity.cpp" />
@@ -152,7 +152,7 @@
     <ClInclude Include="src\Entropy\Renderer\Environment.h" />
     <ClInclude Include="src\Entropy\Renderer\EnvironmentMap.h" />
     <ClInclude Include="src\Entropy\Renderer\Ressource.h" />
-    <ClInclude Include="src\Entropy\Renderer\SpriteSheet.h" />
+    <ClInclude Include="src\Entropy\Renderer\SubTexture.h" />
     <ClInclude Include="src\Entropy\Renderer\TextureFormats.h" />
     <ClInclude Include="src\Entropy\Scene\Components.h" />
     <ClInclude Include="src\Entropy\Scene\Entity.h" />

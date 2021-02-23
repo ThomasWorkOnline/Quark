@@ -114,7 +114,7 @@ public:
 
 		if (accumulatedTime > 1.0f)
 		{
-#if 1
+#if 0 && _DEBUG
 			std::cout << std::fixed << 1.0f / elapsedTime << " fps | frametime: " << elapsedTime * 1000 << "ms\n";
 			accumulatedTime = 0.0f;
 
@@ -172,22 +172,22 @@ public:
 
 			m_SelectedShader->Attach();
 			m_SelectedShader->SetFloat3("u_Light.position", position);
-		}
 
-		if (Entropy::Input::IsMouseButtonPressed(Entropy::MouseCode::Button3))
-		{
-			m_NormalLength -= elapsedTime;
+			if (Entropy::Input::IsMouseButtonPressed(Entropy::MouseCode::Button3))
+			{
+				m_NormalLength -= elapsedTime;
 
-			if (m_NormalLength < 0.001f)
-				m_NormalLength = 0.001f;
-		}
+				if (m_NormalLength < 0.001f)
+					m_NormalLength = 0.001f;
+			}
 
-		if (Entropy::Input::IsMouseButtonPressed(Entropy::MouseCode::Button4))
-		{
-			m_NormalLength += elapsedTime;
+			if (Entropy::Input::IsMouseButtonPressed(Entropy::MouseCode::Button4))
+			{
+				m_NormalLength += elapsedTime;
 
-			if (m_NormalLength > 1.0f)
-				m_NormalLength = 1.0f;
+				if (m_NormalLength > 1.0f)
+					m_NormalLength = 1.0f;
+			}
 		}
 
 		{
@@ -213,9 +213,7 @@ public:
 			m_SelectedShader->SetFloat("u_NormalLength", m_NormalLength);
 
 			m_Skybox.GetCubeMap()->Attach(3);
-		}
 
-		{
 			auto shader = m_ShaderLibrary.Get("skybox");
 			shader->Attach();
 			shader->SetInt("u_Cubemap", 0);
@@ -224,7 +222,7 @@ public:
 		auto& transform = m_ModelEntity.GetComponent<Entropy::TransformComponent>();
 		transform.Rotate(elapsedTime * 5.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 
-		{
+		/*{
 			Entropy::Renderer::BeginScene(m_PortalCameraEntity);
 
 			m_Framebuffer->Attach();
@@ -241,7 +239,7 @@ public:
 			Entropy::RenderCommand::SetViewport(0, 0, GetWindow().GetWidth(), GetWindow().GetHeight());
 
 			Entropy::Renderer::EndScene();
-		}
+		}*/
 
 		{
 			Entropy::Renderer::BeginScene(m_CameraEntity);
@@ -250,19 +248,31 @@ public:
 			//m_White->Attach(1);
 			//Entropy::Renderer::Submit(m_SelectedShader, m_ModelEntity.GetComponent<Entropy::MeshComponent>().Mesh.GetVertexArray(), m_ModelEntity.GetComponent<Entropy::TransformComponent>());
 
-			Entropy::Renderer::SubmitSprite(m_DiffuseMap);
-
-			auto t = m_LightEntity.GetComponent<Entropy::TransformComponent>();
-			t.Scale = { 0.5f, 0.5f, 0.5f };
-			Entropy::Renderer::SubmitSprite(m_DiffuseMap, t);
+			constexpr float animationSpeed = 8.0f;
+			switch ((int32_t)(accumulatedTime * animationSpeed) % 6)
+			{
+			case 0:
+				Entropy::Renderer::SubmitSprite(m_Coin0);
+				break;
+			case 1:
+			case 5:
+				Entropy::Renderer::SubmitSprite(m_Coin1);
+				break;
+			case 2:
+			case 4:
+				Entropy::Renderer::SubmitSprite(m_Coin2);
+				break;
+			case 3:
+				Entropy::Renderer::SubmitSprite(m_Coin3);
+				break;
+			}
 
 			Entropy::Renderer::Submit(m_SelectedShader, m_LightEntity.GetComponent<Entropy::MeshComponent>().Mesh.GetVertexArray(), m_LightEntity.GetComponent<Entropy::TransformComponent>());
 
-			m_SelectedShader->SetFloat("u_Material.metalness", 0.0f);
-			m_Framebuffer->AttachColorAttachment(0);
-			m_Framebuffer->AttachColorAttachment(1);
-			//m_CoinSheet->Attach(0);
-			Entropy::Renderer::Submit(m_SelectedShader, m_PlaneEntity.GetComponent<Entropy::MeshComponent>().Mesh.GetVertexArray(), m_PlaneEntity.GetComponent<Entropy::TransformComponent>());
+			//m_SelectedShader->SetFloat("u_Material.metalness", 0.0f);
+			//m_Framebuffer->AttachColorAttachment(0);
+			//m_Framebuffer->AttachColorAttachment(1);
+			//Entropy::Renderer::Submit(m_SelectedShader, m_PlaneEntity.GetComponent<Entropy::MeshComponent>().Mesh.GetVertexArray(), m_PlaneEntity.GetComponent<Entropy::TransformComponent>());
 
 			Entropy::Renderer::EndScene();
 		}
@@ -457,8 +467,12 @@ private:
 	Entropy::Ref<Entropy::Texture2D> m_SpecularMap = Entropy::Texture2D::Create("./assets/textures/container_specular.png");
 	Entropy::Ref<Entropy::Texture2D> m_NormalMap   = Entropy::Texture2D::Create("./assets/textures/normal_map.png");
 	Entropy::Ref<Entropy::Texture2D> m_Cobblestone = Entropy::Texture2D::Create("./assets/textures/cobblestone.png");
-	Entropy::Ref<Entropy::Texture2D> m_CoinSheet   = Entropy::Texture2D::Create("./assets/textures/coin_sprite.png");
-	Entropy::SubTexture2D m_SpriteSheet = Entropy::SubTexture2D(m_CoinSheet, { 16, 16 }, {  });
+	Entropy::Ref<Entropy::Texture2D> m_CoinSheet   = Entropy::Texture2D::Create("./assets/textures/coin.png");
+
+	Entropy::SubTexture2D m_Coin0 = Entropy::SubTexture2D(m_CoinSheet, { 0, 0 }, { 16, 16 });
+	Entropy::SubTexture2D m_Coin1 = Entropy::SubTexture2D(m_CoinSheet, { 1, 0 }, { 16, 16 });
+	Entropy::SubTexture2D m_Coin2 = Entropy::SubTexture2D(m_CoinSheet, { 2, 0 }, { 16, 16 });
+	Entropy::SubTexture2D m_Coin3 = Entropy::SubTexture2D(m_CoinSheet, { 3, 0 }, { 16, 16 });
 
 	Entropy::ShaderLibrary m_ShaderLibrary;
 	Entropy::Ref<Entropy::Shader> m_SelectedShader;
@@ -480,9 +494,6 @@ int main()
 	auto app = new SandboxGame();
 	app->Run();
 	delete app;
-
-	std::cout << "Allocations not freed: " << s_Stats.Allocations - s_Stats.Deallocations << std::endl;
-	std::cout << "Memory not freed: " << s_Stats.MemoryUsage << " bytes" << std::endl;
 
 	return 0;
 }

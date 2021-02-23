@@ -33,7 +33,7 @@
     <ClCompile Include="src\Platform\OpenGL\OpenGLCubeMap.cpp" />
     <ClCompile Include="src\Entropy\Renderer\Environment.cpp" />
     <ClCompile Include="src\Entropy\Renderer\Ressource.cpp" />
-    <ClCompile Include="src\Entropy\Renderer\SpriteSheet.cpp" />
+    <ClCompile Include="src\Entropy\Renderer\SubTexture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Entropy\Core\Application.h" />
@@ -86,6 +86,6 @@
     <ClInclude Include="src\Platform\OpenGL\OpenGLCubeMap.h" />
     <ClInclude Include="src\Entropy\Renderer\Environment.h" />
     <ClInclude Include="src\Entropy\Renderer\Ressource.h" />
-    <ClInclude Include="src\Entropy\Renderer\SpriteSheet.h" />
+    <ClInclude Include="src\Entropy\Renderer\SubTexture.h" />
   </ItemGroup>
 </Project>
