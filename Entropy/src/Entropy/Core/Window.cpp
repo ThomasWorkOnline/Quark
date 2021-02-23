@@ -9,7 +9,5 @@ namespace Entropy {
     Scope<Window> Window::Create(uint32_t width, uint32_t height, const std::string& title)
     {
         return CreateScope<GenericWindow>(width, height, title);
-        NT_FATAL("Could not create window");
-        return nullptr;
     }
 }

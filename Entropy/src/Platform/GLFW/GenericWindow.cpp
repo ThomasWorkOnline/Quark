@@ -16,7 +16,6 @@ namespace Entropy {
 	GenericWindow::GenericWindow(uint32_t width, uint32_t height, const std::string& title)
 	{
 		Init(width, height, title);
-		//std::cout << glfwGetMonitorName(glfwGetPrimaryMonitor()) << std::endl;
 	}
 
 	GenericWindow::~GenericWindow()
@@ -47,7 +46,7 @@ namespace Entropy {
 			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-			glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_TRUE);
+			//glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_TRUE);
 
 			// MSAA anti-aliasing
 			glfwWindowHint(GLFW_SAMPLES, 4);
@@ -164,7 +163,6 @@ namespace Entropy {
 		glfwDestroyWindow(m_Window);
 		--s_WindowCount;
 
-		// Cleans up glfw's garbage
 		if (s_WindowCount == 0)
 			glfwTerminate();
 	}

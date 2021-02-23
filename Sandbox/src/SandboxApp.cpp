@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
-// 1. #include "Entropy.h"                                                                   //
+// 1. #include <Entropy.h>                                                                   //
 // 2. Create a sub class that inherits from Entropy::Application                             //
 // 3. Call Entropy::CreateApplication() returns your class instance                          //
 // 4. Implement OnUpdate() and OnCreate() pure virtual methods                               //
