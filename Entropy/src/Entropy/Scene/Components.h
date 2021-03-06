@@ -3,7 +3,8 @@
 #include "../Core/Core.h"
 
 #include "../Renderer/Mesh.h"
-#include "../Renderer/Camera.h"
+#include "../Renderer/PerspectiveCamera.h"
+#include "../Renderer/OrthographicCamera.h"
 
 namespace Entropy {
 
@@ -27,8 +28,13 @@ namespace Entropy {
 			return m_Transform;
 		}
 
-		TransformComponent& Rotate(const glm::quat& quat) { Orientation = Orientation * quat; return *this; }
-		TransformComponent& Rotate(float angle, const glm::vec3 axis) { Rotate(glm::angleAxis(glm::radians(angle), glm::normalize(axis))); return *this; }
+		glm::vec3 GetFrontVector() const { return glm::vec3(0.0, 0.0f, 1.0f) * Orientation; }
+		glm::vec3 GetRightVector() const { return glm::vec3(1.0, 0.0f, 0.0f) * Orientation; }
+		glm::vec3 GetTopVector() const { return glm::vec3(0.0, 1.0f, 0.0f) * Orientation; }
+
+		void Rotate(const glm::quat& quat) { Orientation = Orientation * quat; }
+		void Rotate(float angle, const glm::vec3& axis) { Rotate(glm::angleAxis(glm::radians(angle), glm::normalize(axis))); }
+
 	private:
 		glm::mat4 m_Transform;
 	};
@@ -54,12 +60,20 @@ namespace Entropy {
 			: Mesh(layout, filepath) { }
 	};
 
-	struct CameraComponent
+	struct PerspectiveCameraComponent
 	{
-		Camera Camera;
+		PerspectiveCamera Camera;
 
-		CameraComponent(float aspectRatio, float fov)
+		PerspectiveCameraComponent(float aspectRatio, float fov)
 			: Camera(aspectRatio, fov) { }
+	};
+
+	struct OrthographicCameraComponent
+	{
+		OrthographicCamera Camera;
+
+		OrthographicCameraComponent(float aspectRatio, float zoom)
+			: Camera(aspectRatio, zoom) { }
 	};
 
 	struct TagComponent

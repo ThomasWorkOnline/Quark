@@ -2,9 +2,11 @@
 
 #include "../Core/Core.h"
 
+#include "Ressource.h"
+
 namespace Entropy {
 
-	class CubeMap
+	class CubeMap : public Ressource
 	{
 	public:
 		virtual ~CubeMap() = default;
@@ -13,8 +15,6 @@ namespace Entropy {
 		virtual void Detach() const = 0;
 
 		virtual uint32_t GetRendererID() const = 0;
-
-		virtual bool operator==(const CubeMap& other) = 0;
 
 		static Ref<CubeMap> Create(const std::array<std::string, 6>& filepaths);
 	};

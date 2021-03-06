@@ -4,8 +4,6 @@
     <ClCompile Include="src\Entropy\Core\Application.cpp" />
     <ClCompile Include="src\Entropy\Core\Input.cpp" />
     <ClCompile Include="src\Entropy\Renderer\Buffer.cpp" />
-    <ClCompile Include="src\Entropy\Renderer\Camera.cpp" />
-    <ClCompile Include="src\Entropy\Renderer\CameraController.cpp" />
     <ClCompile Include="src\Entropy\Renderer\GraphicsContext.cpp" />
     <ClCompile Include="src\Entropy\Renderer\Mesh.cpp" />
     <ClCompile Include="src\Entropy\Renderer\RenderCommand.cpp" />
@@ -34,6 +32,14 @@
     <ClCompile Include="src\Entropy\Renderer\Environment.cpp" />
     <ClCompile Include="src\Entropy\Renderer\Ressource.cpp" />
     <ClCompile Include="src\Entropy\Renderer\SubTexture.cpp" />
+    <ClCompile Include="src\Entropy\Animation\SpriteAnimator.cpp" />
+    <ClCompile Include="src\Entropy\Debug\Monitoring.cpp" />
+    <ClCompile Include="src\Entropy\UI\Canvas.cpp" />
+    <ClCompile Include="src\Entropy\Audio\AudioEngine.cpp" />
+    <ClCompile Include="src\Entropy\Renderer\PerspectiveCamera.cpp" />
+    <ClCompile Include="src\Entropy\Renderer\OrthographicCamera.cpp" />
+    <ClCompile Include="src\Entropy\Renderer\PerspectiveCameraController.cpp" />
+    <ClCompile Include="src\Entropy\Renderer\OrthographicCameraController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Entropy\Core\Application.h" />
@@ -48,8 +54,6 @@
     <ClInclude Include="src\Entropy\Events\KeyEvent.h" />
     <ClInclude Include="src\Entropy\Events\MouseEvent.h" />
     <ClInclude Include="src\Entropy\Renderer\Buffer.h" />
-    <ClInclude Include="src\Entropy\Renderer\Camera.h" />
-    <ClInclude Include="src\Entropy\Renderer\CameraController.h" />
     <ClInclude Include="src\Entropy\Renderer\GraphicsContext.h" />
     <ClInclude Include="src\Entropy\Renderer\Mesh.h" />
     <ClInclude Include="src\Entropy\Renderer\RenderCommand.h" />
@@ -87,5 +91,14 @@
     <ClInclude Include="src\Entropy\Renderer\Environment.h" />
     <ClInclude Include="src\Entropy\Renderer\Ressource.h" />
     <ClInclude Include="src\Entropy\Renderer\SubTexture.h" />
+    <ClInclude Include="src\Entropy\Animation\SpriteAnimator.h" />
+    <ClInclude Include="src\Entropy\Debug\Monitoring.h" />
+    <ClInclude Include="src\Entropy\UI\UIElement.h" />
+    <ClInclude Include="src\Entropy\UI\Canvas.h" />
+    <ClInclude Include="src\Entropy\Audio\AudioEngine.h" />
+    <ClInclude Include="src\Entropy\Renderer\PerspectiveCamera.h" />
+    <ClInclude Include="src\Entropy\Renderer\OrthographicCamera.h" />
+    <ClInclude Include="src\Entropy\Renderer\PerspectiveCameraController.h" />
+    <ClInclude Include="src\Entropy\Renderer\OrthographicCameraController.h" />
   </ItemGroup>
 </Project>

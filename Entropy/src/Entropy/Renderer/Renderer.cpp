@@ -119,23 +119,6 @@ namespace Entropy {
 		delete[] s_Data.Textures;
 	}
 
-	void Renderer::BeginScene(Entity cameraEntity)
-	{
-		auto& transform = cameraEntity.GetComponent<TransformComponent>();
-		auto& camera = cameraEntity.GetComponent<CameraComponent>().Camera;
-
-		transform.Orientation = glm::normalize(transform.Orientation);
-		glm::mat4 rotate = glm::toMat4(transform.Orientation);
-		glm::mat4 view = glm::translate(rotate, -transform.Position);
-
-		s_SceneData.ProjectionMatrix = camera.GetProjectionMatrix();
-		s_SceneData.ViewMatrix = view;
-
-		StartBatch();
-
-		s_Stats.DrawCalls = 0;
-	}
-
 	void Renderer::BeginScene(const glm::mat4& cameraProjection, const glm::mat4& cameraView)
 	{
 		s_SceneData.ProjectionMatrix = cameraProjection;
@@ -188,7 +171,7 @@ namespace Entropy {
 			shader->SetMat4("u_View", s_SceneData.ViewMatrix);
 			shader->SetMat4("u_Model", transform);
 
-			texture->Attach(0);
+			texture->Attach();
 
 			va->Attach();
 			RenderCommand::Draw(va);
@@ -203,6 +186,26 @@ namespace Entropy {
 			shader->SetMat4("u_Projection", s_SceneData.ProjectionMatrix);
 			shader->SetMat4("u_View", s_SceneData.ViewMatrix);
 			shader->SetMat4("u_Model", transform);
+
+			s_Data.DefaultTexture->Attach(0);
+			s_Data.DefaultTexture->Attach(1);
+
+			va->Attach();
+			RenderCommand::Draw(va);
+		}
+	}
+
+	void Renderer::Submit(const Ref<Shader>& shader, const Ref<Framebuffer>& framebuffer, const Ref<VertexArray>& va, const glm::mat4& transform)
+	{
+		if (va)
+		{
+			shader->Attach();
+			shader->SetMat4("u_Projection", s_SceneData.ProjectionMatrix);
+			shader->SetMat4("u_View", s_SceneData.ViewMatrix);
+			shader->SetMat4("u_Model", transform);
+
+			framebuffer->AttachColorAttachment(0);
+			framebuffer->AttachColorAttachment(1);
 
 			va->Attach();
 			RenderCommand::Draw(va);

@@ -17,7 +17,7 @@ namespace Entropy {
 
 		virtual uint32_t GetRendererID() const override { return m_RendererID; }
 
-		virtual bool operator==(const CubeMap& other) override
+		virtual bool operator==(const Ressource& other) const override
 		{
 			return m_RendererID == ((OpenGLCubeMap&)other).m_RendererID;
 		}

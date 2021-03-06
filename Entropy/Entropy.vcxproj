@@ -60,7 +60,7 @@
       <PreprocessorDefinitions>
       </PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Entropy\vendor\glew\include;$(SolutionDir)Entropy\vendor\glfw\include;$(SolutionDir)Entropy\vendor\entt\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Entropy\vendor\glew\include;$(SolutionDir)Entropy\vendor\glfw\include;$(SolutionDir)Entropy\vendor\entt\include;$(SolutionDir)Entropy\vendor\irrKlang\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -70,8 +70,8 @@
       <AdditionalDependencies>opengl32.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
-      <AdditionalDependencies>glew32s.lib;glfw3.lib;opengl32.lib;</AdditionalDependencies>
-      <AdditionalLibraryDirectories>vendor\glew\lib\Release\x64;vendor\glfw\lib-vc2019\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glew32s.lib;glfw3.lib;opengl32.lib;irrKlang.lib;</AdditionalDependencies>
+      <AdditionalLibraryDirectories>vendor\glew\lib\Release\x64;vendor\glfw\lib-vc2019\x64;vendor\irrKlang\lib\Winx64-visualStudio;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -83,7 +83,7 @@
       <PreprocessorDefinitions>
       </PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Entropy\vendor\glew\include;$(SolutionDir)Entropy\vendor\glfw\include;$(SolutionDir)Entropy\vendor\entt\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Entropy\vendor\glew\include;$(SolutionDir)Entropy\vendor\glfw\include;$(SolutionDir)Entropy\vendor\entt\include;$(SolutionDir)Entropy\vendor\irrKlang\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -95,27 +95,32 @@
       <AdditionalDependencies>opengl32.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
-      <AdditionalDependencies>glew32s.lib;glfw3.lib;opengl32.lib;</AdditionalDependencies>
-      <AdditionalLibraryDirectories>vendor\glew\lib\Release\x64;vendor\glfw\lib-vc2019\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glew32s.lib;glfw3.lib;opengl32.lib;irrKlang.lib;</AdditionalDependencies>
+      <AdditionalLibraryDirectories>vendor\glew\lib\Release\x64;vendor\glfw\lib-vc2019\x64;vendor\irrKlang\lib\Winx64-visualStudio;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Entropy\Audio\AudioEngine.cpp" />
     <ClCompile Include="src\Entropy\Core\Application.cpp" />
     <ClCompile Include="src\Entropy\Core\Input.cpp" />
     <ClCompile Include="src\Entropy\Core\Window.cpp" />
+    <ClCompile Include="src\Entropy\Debug\Monitoring.cpp" />
     <ClCompile Include="src\Entropy\Renderer\Buffer.cpp" />
-    <ClCompile Include="src\Entropy\Renderer\Camera.cpp" />
-    <ClCompile Include="src\Entropy\Renderer\CameraController.cpp" />
+    <ClCompile Include="src\Entropy\Renderer\OrthographicCameraController.cpp" />
+    <ClCompile Include="src\Entropy\Renderer\PerspectiveCameraController.cpp" />
     <ClCompile Include="src\Entropy\Renderer\CubeMap.cpp" />
     <ClCompile Include="src\Entropy\Renderer\Environment.cpp" />
     <ClCompile Include="src\Entropy\Renderer\Framebuffer.cpp" />
     <ClCompile Include="src\Entropy\Renderer\GraphicsContext.cpp" />
     <ClCompile Include="src\Entropy\Renderer\Mesh.cpp" />
+    <ClCompile Include="src\Entropy\Renderer\OrthographicCamera.cpp" />
+    <ClCompile Include="src\Entropy\Renderer\PerspectiveCamera.cpp" />
     <ClCompile Include="src\Entropy\Renderer\RenderCommand.cpp" />
     <ClCompile Include="src\Entropy\Renderer\Renderer.cpp" />
     <ClCompile Include="src\Entropy\Renderer\RenderingAPI.cpp" />
     <ClCompile Include="src\Entropy\Renderer\Ressource.cpp" />
     <ClCompile Include="src\Entropy\Renderer\Shader.cpp" />
+    <ClCompile Include="src\Entropy\Animation\SpriteAnimator.cpp" />
     <ClCompile Include="src\Entropy\Renderer\SubTexture.cpp" />
     <ClCompile Include="src\Entropy\Renderer\Texture.cpp" />
     <ClCompile Include="src\Entropy\Renderer\VertexArray.cpp" />
@@ -124,6 +129,7 @@
     <ClCompile Include="src\Entropy\Tools\EasingCurves.cpp" />
     <ClCompile Include="src\Entropy\Tools\Colorimetry.cpp" />
     <ClCompile Include="src\Entropy\Tools\Noise.cpp" />
+    <ClCompile Include="src\Entropy\UI\Canvas.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLCubeMap.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLFramebuffer.cpp" />
@@ -135,6 +141,7 @@
     <ClCompile Include="src\Platform\GLFW\GenericWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Entropy\Audio\AudioEngine.h" />
     <ClInclude Include="src\Entropy\Core\Application.h" />
     <ClInclude Include="src\Entropy\Core\Core.h" />
     <ClInclude Include="src\Entropy\Core\Input.h" />
@@ -144,6 +151,7 @@
     <ClInclude Include="src\Entropy\Core\Platform.h" />
     <ClInclude Include="src\Entropy\Core\Window.h" />
     <ClInclude Include="src\Entropy.h" />
+    <ClInclude Include="src\Entropy\Debug\Monitoring.h" />
     <ClInclude Include="src\Entropy\Events\ApplicationEvent.h" />
     <ClInclude Include="src\Entropy\Events\Event.h" />
     <ClInclude Include="src\Entropy\Events\KeyEvent.h" />
@@ -151,14 +159,17 @@
     <ClInclude Include="src\Entropy\Renderer\CubeMap.h" />
     <ClInclude Include="src\Entropy\Renderer\Environment.h" />
     <ClInclude Include="src\Entropy\Renderer\EnvironmentMap.h" />
+    <ClInclude Include="src\Entropy\Renderer\OrthographicCamera.h" />
+    <ClInclude Include="src\Entropy\Renderer\OrthographicCameraController.h" />
+    <ClInclude Include="src\Entropy\Renderer\PerspectiveCamera.h" />
     <ClInclude Include="src\Entropy\Renderer\Ressource.h" />
+    <ClInclude Include="src\Entropy\Animation\SpriteAnimator.h" />
     <ClInclude Include="src\Entropy\Renderer\SubTexture.h" />
     <ClInclude Include="src\Entropy\Renderer\TextureFormats.h" />
     <ClInclude Include="src\Entropy\Scene\Components.h" />
     <ClInclude Include="src\Entropy\Scene\Entity.h" />
     <ClInclude Include="src\Entropy\Renderer\Buffer.h" />
-    <ClInclude Include="src\Entropy\Renderer\Camera.h" />
-    <ClInclude Include="src\Entropy\Renderer\CameraController.h" />
+    <ClInclude Include="src\Entropy\Renderer\PerspectiveCameraController.h" />
     <ClInclude Include="src\Entropy\Renderer\Framebuffer.h" />
     <ClInclude Include="src\Entropy\Renderer\GraphicsContext.h" />
     <ClInclude Include="src\Entropy\Renderer\Mesh.h" />
@@ -173,6 +184,8 @@
     <ClInclude Include="src\Entropy\Tools\Colorimetry.h" />
     <ClInclude Include="src\Entropy\Tools\LogUtils.h" />
     <ClInclude Include="src\Entropy\Tools\Noise.h" />
+    <ClInclude Include="src\Entropy\UI\Canvas.h" />
+    <ClInclude Include="src\Entropy\UI\UIElement.h" />
     <ClInclude Include="src\Platform\GLFW\GenericWindow.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLBuffer.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLCubeMap.h" />

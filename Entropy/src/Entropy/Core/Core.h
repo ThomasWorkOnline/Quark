@@ -26,6 +26,13 @@
 #	define NT_DEBUGBREAK()
 #endif
 
+// Configuration
+#if defined(_DEBUG)
+#	define NT_DEBUG
+#else
+#	define NT_RELEASE
+#endif
+
 // Standards configuration
 #define GLM_FORCE_LEFT_HANDED
 #include "../../../vendor/glm/glm.hpp"

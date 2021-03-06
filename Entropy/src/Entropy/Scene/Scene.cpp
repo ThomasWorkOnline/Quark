@@ -5,7 +5,8 @@
 #include "Entity.h"
 #include "Components.h"
 
-#include "../Renderer/Camera.h"
+#include "../Renderer/PerspectiveCamera.h"
+#include "../Renderer/OrthographicCamera.h"
 
 namespace Entropy {
 

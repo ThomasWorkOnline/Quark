@@ -8,52 +8,13 @@
 
 #include <Entropy.h>
 
-struct Statistics
-{
-	size_t MemoryUsage = 0;
-	uint32_t Allocations = 0;
-	uint32_t Deallocations = 0;
-};
-
-static Statistics s_Stats;
-
-#pragma region operators
-
-void* operator new (size_t size) noexcept
-{
-	s_Stats.MemoryUsage += size;
-	s_Stats.Allocations++;
-	return malloc(size);
-}
-
-void* operator new[](size_t size) noexcept
-{
-	s_Stats.MemoryUsage += size;
-	s_Stats.Allocations++;
-	return malloc(size);
-}
-
-void operator delete (void* block, size_t size) noexcept
-{
-	s_Stats.MemoryUsage -= size;
-	s_Stats.Deallocations++;
-	free(block);
-}
-
-void operator delete[](void* block, size_t size) noexcept
-{
-	s_Stats.MemoryUsage -= size;
-	s_Stats.Deallocations++;
-	free(block);
-}
-
-#pragma endregion
-
 class SandboxGame : public Entropy::Application
 {
 public:
 	void OnCreate() override
 	{
+		NT_TIME_SCOPE_DEBUG(SandboxApp::OnCreate);
+
 		auto& window = GetWindow();
 		Entropy::BufferLayout layout = {
 				{ Entropy::ShaderDataType::Float3, "a_Position" },
@@ -62,19 +23,25 @@ public:
 		};
 
 		{
-			m_CameraEntity.AddComponent<Entropy::TransformComponent>().Position = { 0.0f, 1.0f, -8.0f };
+			m_CameraEntity.AddComponent<Entropy::TransformComponent>().Position = { 0.0f, 0.0f, 0.0f };
 			m_CameraEntity.AddComponent<Entropy::PhysicsComponent>();
-			m_CameraEntity.AddComponent<Entropy::CameraComponent>((float)window.GetWidth() / (float)window.GetHeight(), 50.0f);
+			m_CameraEntity.AddComponent<Entropy::PerspectiveCameraComponent>((float)window.GetWidth() / (float)window.GetHeight(), 50.0f);
+		}
+
+		{
+			m_OrthoCamera.AddComponent<Entropy::TransformComponent>();
+			m_OrthoCamera.AddComponent<Entropy::PhysicsComponent>();
+			m_OrthoCamera.AddComponent<Entropy::OrthographicCameraComponent>((float)window.GetWidth() / (float)window.GetHeight(), 8.0f);
 		}
 
 		{
 			m_PortalCameraEntity.AddComponent<Entropy::TransformComponent>().Position = { 0.0f, 0.0f, -6.0f };
 			m_PortalCameraEntity.AddComponent<Entropy::PhysicsComponent>();
-			m_PortalCameraEntity.AddComponent<Entropy::CameraComponent>(1.0f, 45.0f);
+			m_PortalCameraEntity.AddComponent<Entropy::PerspectiveCameraComponent>(1.0f, 45.0f);
 		}
 
 		{
-			m_PlaneEntity.AddComponent<Entropy::TransformComponent>();
+			m_PlaneEntity.AddComponent<Entropy::TransformComponent>().Position.y = -2.0f;
 			m_PlaneEntity.AddComponent<Entropy::MeshComponent>().Mesh.GenerateTerrain(layout, 10, 0);
 		}
 
@@ -103,33 +70,25 @@ public:
 
 	void OnUpdate(float elapsedTime) override
 	{
+		NT_TIME_SCOPE_DEBUG(SandboxApp::OnUpdate);
+
 		// Update scene before updating the camera controller
 		// The camera controller will use the updated components
 		// The other way around would result in 1 frame offset from the actual scene data
 		m_Scene.OnUpdate(elapsedTime);
 		m_CameraController.OnUpdate(elapsedTime);
+		m_OrthoCameraController.OnUpdate(elapsedTime);
+		m_CoinAnimator.OnUpdate(elapsedTime);
 
 		static float accumulatedTime = 0.0f;
 		accumulatedTime += elapsedTime;
 
 		if (accumulatedTime > 1.0f)
 		{
-#if 0 && _DEBUG
+#			if defined(NT_DEBUG) && 0
 			std::cout << std::fixed << 1.0f / elapsedTime << " fps | frametime: " << elapsedTime * 1000 << "ms\n";
 			accumulatedTime = 0.0f;
-
-			auto& window = GetWindow();
-			std::cout << "Window resolution: " << window.GetWidth() << "x" << window.GetHeight() << std::endl << std::endl;
-
-			std::cout << s_Stats.MemoryUsage << " bytes allocated" << std::endl;
-			std::cout << "Total allocations: " << s_Stats.Allocations << std::endl;
-			std::cout << "Total deallocations: " << s_Stats.Deallocations << std::endl;
-			std::cout << "Allocations not freed: " << s_Stats.Allocations - s_Stats.Deallocations << std::endl << std::endl;
-#endif
-			//auto& transform = m_CameraEntity.GetComponent<Entropy::TransformComponent>();
-			//std::cout << "Position: " << transform.Position << std::endl;
-			//std::cout << "Orientation: " << transform.Orientation << std::endl;
-			//std::cout << "Transform: " << transform.Scale << std::endl << std::endl;
+#			endif
 		}
 
 		{
@@ -219,20 +178,18 @@ public:
 			shader->SetInt("u_Cubemap", 0);
 		}
 
-		auto& transform = m_ModelEntity.GetComponent<Entropy::TransformComponent>();
-		transform.Rotate(elapsedTime * 5.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+		m_ModelEntity.GetComponent<Entropy::TransformComponent>().Rotate(elapsedTime * 8.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 
 		/*{
 			Entropy::Renderer::BeginScene(m_PortalCameraEntity);
 
 			m_Framebuffer->Attach();
+			Entropy::RenderCommand::SetViewport(0, 0, m_Framebuffer->GetWidth(), m_Framebuffer->GetHeight());
 
 			// Drawing Suzanne to the framebuffer
 			Entropy::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
 			Entropy::RenderCommand::Clear();
 
-			m_White->Attach(0);
-			m_White->Attach(1);
 			Entropy::Renderer::Submit(m_SelectedShader, m_ModelEntity.GetComponent<Entropy::MeshComponent>().Mesh.GetVertexArray(), m_ModelEntity.GetComponent<Entropy::TransformComponent>());
 
 			m_Framebuffer->Detach();
@@ -240,46 +197,38 @@ public:
 
 			Entropy::Renderer::EndScene();
 		}*/
-
+		
 		{
-			Entropy::Renderer::BeginScene(m_CameraEntity);
+			auto& cameraTransform = m_OrthoCamera.GetComponent<Entropy::TransformComponent>();
 
-			//m_White->Attach(0);
-			//m_White->Attach(1);
+			cameraTransform.Orientation = glm::normalize(cameraTransform.Orientation);
+			glm::mat4 rotate = glm::toMat4(cameraTransform.Orientation);
+			glm::mat4 view = glm::translate(rotate, -cameraTransform.Position);
+
+			Entropy::Renderer::BeginScene(m_OrthoCamera.GetComponent<Entropy::OrthographicCameraComponent>().Camera.GetMatrix(), view);
+			//Entropy::Renderer::BeginScene(m_CameraEntity.GetComponent<Entropy::PerspectiveCameraComponent>().Camera.GetMatrix(), view);
+
+			static Entropy::TransformComponent transform;
+			transform.Position.x = Entropy::Input::GetMouseX() * 0.01f;
+			transform.Position.y = -Entropy::Input::GetMouseY() * 0.01f;
+
+			//transform.Position += ((cameraTransform.Position + cameraTransform.GetFrontVector() * 4.0f) - transform.Position) * 2.0f * elapsedTime;
+			transform.Position.y += glm::sin(accumulatedTime * 2.5f) * 0.5f * elapsedTime;
+			//transform.Orientation = glm::inverse(cameraTransform.Orientation);
+
+			Entropy::Renderer::SubmitSprite(m_CoinAnimator.GetTexture(), transform);
+
 			//Entropy::Renderer::Submit(m_SelectedShader, m_ModelEntity.GetComponent<Entropy::MeshComponent>().Mesh.GetVertexArray(), m_ModelEntity.GetComponent<Entropy::TransformComponent>());
-
-			constexpr float animationSpeed = 8.0f;
-			switch ((int32_t)(accumulatedTime * animationSpeed) % 6)
-			{
-			case 0:
-				Entropy::Renderer::SubmitSprite(m_Coin0);
-				break;
-			case 1:
-			case 5:
-				Entropy::Renderer::SubmitSprite(m_Coin1);
-				break;
-			case 2:
-			case 4:
-				Entropy::Renderer::SubmitSprite(m_Coin2);
-				break;
-			case 3:
-				Entropy::Renderer::SubmitSprite(m_Coin3);
-				break;
-			}
-
 			Entropy::Renderer::Submit(m_SelectedShader, m_LightEntity.GetComponent<Entropy::MeshComponent>().Mesh.GetVertexArray(), m_LightEntity.GetComponent<Entropy::TransformComponent>());
-
-			//m_SelectedShader->SetFloat("u_Material.metalness", 0.0f);
-			//m_Framebuffer->AttachColorAttachment(0);
-			//m_Framebuffer->AttachColorAttachment(1);
-			//Entropy::Renderer::Submit(m_SelectedShader, m_PlaneEntity.GetComponent<Entropy::MeshComponent>().Mesh.GetVertexArray(), m_PlaneEntity.GetComponent<Entropy::TransformComponent>());
+			Entropy::Renderer::Submit(m_SelectedShader, m_Framebuffer, m_PlaneEntity.GetComponent<Entropy::MeshComponent>().Mesh.GetVertexArray(), m_PlaneEntity.GetComponent<Entropy::TransformComponent>());
 
 			Entropy::Renderer::EndScene();
 		}
 
+#if 0
 		{
 			glm::mat4 view = (glm::mat3)m_CameraEntity.GetComponent<Entropy::TransformComponent>();
-			Entropy::Renderer::BeginScene(m_CameraEntity.GetComponent<Entropy::CameraComponent>().Camera.GetProjectionMatrix(), view);
+			Entropy::Renderer::BeginScene(m_CameraEntity.GetComponent<Entropy::PerspectiveCameraComponent>().Camera.GetMatrix(), view);
 
 			Entropy::RenderCommand::SetCullFace(Entropy::RenderCullFace::Back);
 			Entropy::RenderCommand::SetDepthFunction(Entropy::RenderDepthFunction::LessEqual);
@@ -292,10 +241,13 @@ public:
 
 			Entropy::Renderer::EndScene();
 		}
+#endif
 	}
 
 	void OnDestroy() override
 	{
+		NT_TIME_SCOPE_DEBUG(SandboxApp::OnDestroy);
+
 		m_Scene.DeleteEntity(m_PlaneEntity);
 		m_Scene.DeleteEntity(m_ModelEntity);
 		m_Scene.DeleteEntity(m_LightEntity);
@@ -305,27 +257,34 @@ public:
 
 	void OnEvent(Entropy::Event& e) override
 	{
+		NT_TIME_SCOPE_DEBUG(SandboxApp::OnEvent);
+
 		Entropy::EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<Entropy::MouseButtonPressedEvent>(NT_ATTACH_EVENT_FN(SandboxGame::OnMouseButtonPressed));
 		dispatcher.Dispatch<Entropy::KeyPressedEvent>(NT_ATTACH_EVENT_FN(SandboxGame::OnKeyPressed));
-		dispatcher.Dispatch<Entropy::WindowResizeEvent>(NT_ATTACH_EVENT_FN(SandboxGame::OnWindowResized));
 
 		m_CameraController.OnEvent(e);
-	}
-
-	bool OnWindowResized(Entropy::WindowResizeEvent& e)
-	{
-		return false;
+		m_OrthoCameraController.OnEvent(e);
 	}
 
 	bool OnMouseButtonPressed(Entropy::MouseButtonPressedEvent& e)
 	{
 		switch (e.GetMouseButton())
 		{
-		case Entropy::MouseCode::Button0:
+		case Entropy::MouseCode::ButtonLeft:
 		{
 			// Focus enabled
+			if (GetWindow().IsSelected())
+				Entropy::AudioEngine::PlaySound("assets/audio/bloop.wav");
+
 			GetWindow().Select();
+			break;
+		}
+		case Entropy::MouseCode::ButtonRight:
+		{
+			// Focus enabled
+			if (GetWindow().IsSelected())
+				Entropy::AudioEngine::PlaySound("assets/audio/bloop2.wav");
 			break;
 		}
 		}
@@ -460,27 +419,34 @@ private:
 	Entropy::Entity m_ModelEntity = m_Scene.CreateEntity();
 	Entropy::Entity m_LightEntity = m_Scene.CreateEntity();
 	Entropy::Entity m_CameraEntity = m_Scene.CreateEntity();
+	Entropy::Entity m_OrthoCamera = m_Scene.CreateEntity();
 	Entropy::Entity m_PortalCameraEntity = m_Scene.CreateEntity();
 
-	Entropy::Ref<Entropy::Texture2D> m_White       = Entropy::Texture2D::Create("./assets/textures/white.jpg");
 	Entropy::Ref<Entropy::Texture2D> m_DiffuseMap  = Entropy::Texture2D::Create("./assets/textures/container.png");
 	Entropy::Ref<Entropy::Texture2D> m_SpecularMap = Entropy::Texture2D::Create("./assets/textures/container_specular.png");
 	Entropy::Ref<Entropy::Texture2D> m_NormalMap   = Entropy::Texture2D::Create("./assets/textures/normal_map.png");
 	Entropy::Ref<Entropy::Texture2D> m_Cobblestone = Entropy::Texture2D::Create("./assets/textures/cobblestone.png");
 	Entropy::Ref<Entropy::Texture2D> m_CoinSheet   = Entropy::Texture2D::Create("./assets/textures/coin.png");
 
-	Entropy::SubTexture2D m_Coin0 = Entropy::SubTexture2D(m_CoinSheet, { 0, 0 }, { 16, 16 });
-	Entropy::SubTexture2D m_Coin1 = Entropy::SubTexture2D(m_CoinSheet, { 1, 0 }, { 16, 16 });
-	Entropy::SubTexture2D m_Coin2 = Entropy::SubTexture2D(m_CoinSheet, { 2, 0 }, { 16, 16 });
-	Entropy::SubTexture2D m_Coin3 = Entropy::SubTexture2D(m_CoinSheet, { 3, 0 }, { 16, 16 });
+	Entropy::SpriteAnimator m_CoinAnimator = { {
+		{ m_CoinSheet, { 0, 0 }, { 16, 16 } },
+		{ m_CoinSheet, { 1, 0 }, { 16, 16 } },
+		{ m_CoinSheet, { 2, 0 }, { 16, 16 } },
+		{ m_CoinSheet, { 3, 0 }, { 16, 16 } },
+		{ m_CoinSheet, { 4, 0 }, { 16, 16 } },
+		{ m_CoinSheet, { 5, 0 }, { 16, 16 } } }, 8.0f
+	};
 
 	Entropy::ShaderLibrary m_ShaderLibrary;
 	Entropy::Ref<Entropy::Shader> m_SelectedShader;
 	float m_NormalLength = 0.1f;
 
-	Entropy::Environment m_Skybox = Entropy::Environment("./assets/environments/Lycksele3");
+	Entropy::UIElement m_Element;
 
-	Entropy::CameraController m_CameraController = Entropy::CameraController(m_CameraEntity);
+	Entropy::Environment m_Skybox = { "./assets/environments/Lycksele3" };
+
+	Entropy::PerspectiveCameraController m_CameraController = { m_CameraEntity };
+	Entropy::OrthographicCameraController m_OrthoCameraController = { m_OrthoCamera };
 
 	// TODO: fix multisampling
 	Entropy::FramebufferSpecification m_FramebufferSpec = { 1024, 1024, 1, {

@@ -114,8 +114,6 @@ namespace Entropy {
 	void OpenGLFramebuffer::Attach()
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
-		// TODO: make the viewport part of the render pipeline
-		glViewport(0, 0, m_Spec.Width, m_Spec.Height);
 	}
 
 	void OpenGLFramebuffer::Detach()

@@ -1,7 +1,9 @@
 #pragma once
 
 #include "../Core/Core.h"
+
 #include "TextureFormats.h"
+#include "Ressource.h"
 
 namespace Entropy {
 
@@ -15,7 +17,7 @@ namespace Entropy {
 		TextureTilingFormat TilingFormat = TextureTilingFormat::Default;
 	};
 
-	class Texture
+	class Texture : public Ressource
 	{
 	public:
 		virtual ~Texture() = default;
@@ -29,8 +31,6 @@ namespace Entropy {
 
 		virtual void Attach(uint32_t textureSlot = 0) const = 0;
 		virtual void Detach() const = 0;
-
-		virtual bool operator==(const Texture& other) const = 0;
 	};
 
 	class Texture2D : public Texture

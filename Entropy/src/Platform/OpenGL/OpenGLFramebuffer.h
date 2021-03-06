@@ -22,6 +22,10 @@ namespace Entropy {
 
 		virtual uint32_t GetColorAttachmentRendererID(uint32_t index) const override { return m_ColorAttachments[index]; }
 		virtual uint32_t GetDepthAttachmentRendererID() const override { return m_DepthAttachment; }
+
+		virtual uint32_t GetWidth() const override { return m_Spec.Width; }
+		virtual uint32_t GetHeight() const override { return m_Spec.Height; }
+
 	private:
 		uint32_t m_RendererID = 0;
 		FramebufferSpecification m_Spec;

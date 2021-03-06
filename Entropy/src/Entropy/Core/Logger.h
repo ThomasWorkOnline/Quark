@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#ifdef _DEBUG
+#ifdef NT_DEBUG
 #define NT_TRACE(...) std::cout << __VA_ARGS__ << std::endl
 #define NT_INFO(...)  std::cout << __VA_ARGS__ << std::endl
 #define NT_WARN(...)  std::cout << __VA_ARGS__ << std::endl

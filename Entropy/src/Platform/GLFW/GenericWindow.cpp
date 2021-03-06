@@ -5,6 +5,7 @@
 namespace Entropy {
 
 	static uint32_t s_WindowCount = 0;
+
 	static int32_t s_WindowedPosX = 0, s_WindowedPosY = 0;
 	static int32_t s_WindowedWidth = 0, s_WindowedHeight = 0;
 
@@ -43,13 +44,13 @@ namespace Entropy {
 
 			glfwSetErrorCallback(GLFWErrorCallback);
 
-			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-			//glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_TRUE);
+			//glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+			//glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+			//glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+			//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
 			// MSAA anti-aliasing
-			glfwWindowHint(GLFW_SAMPLES, 4);
+			//glfwWindowHint(GLFW_SAMPLES, 4);
 		}
 
 		m_Window = glfwCreateWindow((int32_t)m_Data.Width, (int32_t)m_Data.Height, m_Data.Title.c_str(), nullptr, nullptr);

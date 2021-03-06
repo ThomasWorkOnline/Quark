@@ -2,10 +2,10 @@
 
 #include "Core.h"
 
+#include "../Audio/AudioEngine.h"
+#include "../Tools/Colorimetry.h"
 #include "../Renderer/Renderer.h"
 #include "../Renderer/RenderCommand.h"
-
-#include "../Tools/Colorimetry.h"
 
 // Only to get time
 #include <GLFW/glfw3.h>
@@ -20,6 +20,7 @@ namespace Entropy {
 
 		m_Window = Window::Create(width, height, title);
 		m_Window->SetEventCallback(NT_ATTACH_EVENT_FN(Application::OnEventInternal));
+		m_Window->SetVSync(true);
 
 		std::string appendedTitle = " - ";
 		appendedTitle.append(RenderingAPI::GetName());
@@ -27,12 +28,15 @@ namespace Entropy {
 
 		NT_INFO(RenderCommand::GetSpecification());
 		Renderer::Init();
+
+		AudioEngine::Init();
 	}
 
 	Application::~Application()
 	{
 		OnDestroy();
 
+		AudioEngine::Dispose();
 		Renderer::Dispose();
 
 		NT_TRACE("Hey! Come back next time.");
@@ -80,6 +84,7 @@ namespace Entropy {
 			OnUpdate(fEndTime - fStartTime);
 			fStartTime = fEndTime;
 
+			AudioEngine::OnUpdate();
 			m_Window->OnUpdate();
 		}
 	}

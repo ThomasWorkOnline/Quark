@@ -23,7 +23,7 @@ namespace Entropy {
 		virtual void Attach(uint32_t textureSlot = 0) const override;
 		virtual void Detach() const override;
 
-		virtual bool operator==(const Texture& other) const override
+		virtual bool operator==(const Ressource& other) const override
 		{
 			return m_RendererID == ((OpenGLTexture2D&)other).m_RendererID;
 		}

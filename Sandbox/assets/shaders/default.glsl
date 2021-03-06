@@ -139,5 +139,5 @@ void main()
 
     vec3 I = normalize(v_Position - v_CameraPosition);
     vec3 R = reflect(I, normalize(v_Normal));
-    gl_FragColor = vec4(result + texture(u_Cubemap, R).rgb * 0.6 * u_Material.metalness, 1.0);
+    gl_FragColor = vec4(result + texture(u_Cubemap, R).rgb * u_Material.metalness, 1.0);
 }
