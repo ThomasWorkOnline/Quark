@@ -16,13 +16,16 @@ namespace Entropy {
 
 		const SubTexture2D& GetTexture() const;
 
+		void Pause() { m_Paused = true; }
+		void Resume() { m_Paused = false; }
+
 		void SetAnimationSpeed(float speed) { m_AnimationSpeed = speed; }
 		float GetAnimationSpeed() const { return m_AnimationSpeed; }
 
 	private:
 		std::vector<SubTexture2D> m_Textures;
 		float m_AnimationSpeed;
-		
 		float m_AccumulatedTime = 0.0f;
+		bool m_Paused = false;
 	};
 }

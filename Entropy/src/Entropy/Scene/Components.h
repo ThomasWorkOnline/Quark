@@ -8,17 +8,17 @@
 
 namespace Entropy {
 
-	struct TransformComponent
+	struct Transform3DComponent
 	{
 		glm::vec3 Position;
 		glm::vec3 Scale;
 		glm::quat Orientation;
 
-		TransformComponent()
-			: Position(0.0f), Scale(1.0f), Orientation(glm::angleAxis(0.0f, glm::vec3(1.0f, 0.0f, 0.0f))), m_Transform(glm::mat4(1.0f)) { }
+		Transform3DComponent()
+			: Position(0.0f), Scale(1.0f), Orientation(glm::angleAxis(0.0f, glm::vec3(0.0f, 0.0f, 1.0f))), m_Transform(1.0f) { }
 
-		TransformComponent(glm::vec3 position, glm::vec3 scale, glm::quat orientation)
-			: Position(position), Scale(scale), Orientation(orientation), m_Transform(glm::mat4(1.0f)) { }
+		Transform3DComponent(const glm::vec3& position, const glm::vec3& scale, const glm::quat& orientation)
+			: Position(position), Scale(scale), Orientation(orientation), m_Transform(1.0f) { }
 
 		operator glm::mat4& ()
 		{
@@ -32,8 +32,8 @@ namespace Entropy {
 		glm::vec3 GetRightVector() const { return glm::vec3(1.0, 0.0f, 0.0f) * Orientation; }
 		glm::vec3 GetTopVector() const { return glm::vec3(0.0, 1.0f, 0.0f) * Orientation; }
 
-		void Rotate(const glm::quat& quat) { Orientation = Orientation * quat; }
-		void Rotate(float angle, const glm::vec3& axis) { Rotate(glm::angleAxis(glm::radians(angle), glm::normalize(axis))); }
+		Transform3DComponent& Rotate(const glm::quat& quat) { Orientation *= quat; return *this; }
+		Transform3DComponent& Rotate(float angle, const glm::vec3& axis) { Rotate(glm::angleAxis(glm::radians(angle), glm::normalize(axis))); return *this; }
 
 	private:
 		glm::mat4 m_Transform;

@@ -9,12 +9,13 @@ namespace Entropy {
 
 	void SpriteAnimator::OnUpdate(float elapsedTime)
 	{
-		m_AccumulatedTime += elapsedTime;
+		if (!m_Paused)
+			m_AccumulatedTime += elapsedTime;
 	}
 
 	const SubTexture2D& SpriteAnimator::GetTexture() const
 	{
-		uint32_t textureIndex = (uint32_t)(m_AccumulatedTime * m_AnimationSpeed) % m_Textures.size();
+		uint32_t textureIndex = (uint32_t)(m_AccumulatedTime * m_AnimationSpeed) % (uint32_t)m_Textures.size();
 		return m_Textures[textureIndex];
 	}
 }

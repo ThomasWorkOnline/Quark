@@ -26,7 +26,7 @@ namespace Entropy {
 		double xpos, ypos;
 		glfwGetCursorPos(window, &xpos, &ypos);
 
-		return { (float)xpos, (float)ypos };
+		return { (float)xpos, -(float)ypos };
 	}
 
 	float Input::GetMouseX()

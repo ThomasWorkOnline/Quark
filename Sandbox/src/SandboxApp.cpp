@@ -13,7 +13,7 @@ class SandboxGame : public Entropy::Application
 public:
 	void OnCreate() override
 	{
-		NT_TIME_SCOPE_DEBUG(SandboxApp::OnCreate);
+		//NT_TIME_SCOPE_DEBUG(SandboxApp::OnCreate);
 
 		auto& window = GetWindow();
 		Entropy::BufferLayout layout = {
@@ -23,37 +23,38 @@ public:
 		};
 
 		{
-			m_CameraEntity.AddComponent<Entropy::TransformComponent>().Position = { 0.0f, 0.0f, 0.0f };
+			m_CameraEntity.AddComponent<Entropy::Transform3DComponent>().Position = { 0.0f, 0.0f, 0.0f };
 			m_CameraEntity.AddComponent<Entropy::PhysicsComponent>();
 			m_CameraEntity.AddComponent<Entropy::PerspectiveCameraComponent>((float)window.GetWidth() / (float)window.GetHeight(), 50.0f);
 		}
 
 		{
-			m_OrthoCamera.AddComponent<Entropy::TransformComponent>();
-			m_OrthoCamera.AddComponent<Entropy::PhysicsComponent>();
-			m_OrthoCamera.AddComponent<Entropy::OrthographicCameraComponent>((float)window.GetWidth() / (float)window.GetHeight(), 8.0f);
+			m_OrthoCameraEntity.AddComponent<Entropy::Transform3DComponent>();
+			m_OrthoCameraEntity.AddComponent<Entropy::PhysicsComponent>();
+			m_OrthoCameraEntity.AddComponent<Entropy::OrthographicCameraComponent>((float)window.GetWidth() / (float)window.GetHeight(), 8.0f);
 		}
 
 		{
-			m_PortalCameraEntity.AddComponent<Entropy::TransformComponent>().Position = { 0.0f, 0.0f, -6.0f };
+			m_PortalCameraEntity.AddComponent<Entropy::Transform3DComponent>().Position = { 0.0f, 0.0f, -6.0f };
 			m_PortalCameraEntity.AddComponent<Entropy::PhysicsComponent>();
 			m_PortalCameraEntity.AddComponent<Entropy::PerspectiveCameraComponent>(1.0f, 45.0f);
 		}
 
 		{
-			m_PlaneEntity.AddComponent<Entropy::TransformComponent>().Position.y = -2.0f;
+			auto& transform = m_PlaneEntity.AddComponent<Entropy::Transform3DComponent>();
+			transform.Position.y = -2.0f;
 			m_PlaneEntity.AddComponent<Entropy::MeshComponent>().Mesh.GenerateTerrain(layout, 10, 0);
 		}
 
 		{
-			auto& transform = m_ModelEntity.AddComponent<Entropy::TransformComponent>();
+			auto& transform = m_ModelEntity.AddComponent<Entropy::Transform3DComponent>();
 			//transform.Scale = { 0.01f, 0.01f, 0.01f };
 			transform.Position.y += 1.3f;
 			m_ModelEntity.AddComponent<Entropy::MeshComponent>(layout, "./assets/models/monkey.obj");
 		}
 
 		{
-			auto& transform = m_LightEntity.AddComponent<Entropy::TransformComponent>();
+			auto& transform = m_LightEntity.AddComponent<Entropy::Transform3DComponent>();
 			transform.Scale = { 0.01f, 0.01f, 0.01f };
 			transform.Position = { -0.7, 1.8f, -4.3f };
 			m_LightEntity.AddComponent<Entropy::MeshComponent>(layout, "./assets/models/sphere.obj");
@@ -70,29 +71,30 @@ public:
 
 	void OnUpdate(float elapsedTime) override
 	{
-		NT_TIME_SCOPE_DEBUG(SandboxApp::OnUpdate);
-
 		// Update scene before updating the camera controller
 		// The camera controller will use the updated components
 		// The other way around would result in 1 frame offset from the actual scene data
 		m_Scene.OnUpdate(elapsedTime);
-		m_CameraController.OnUpdate(elapsedTime);
-		m_OrthoCameraController.OnUpdate(elapsedTime);
 		m_CoinAnimator.OnUpdate(elapsedTime);
 
+		if (m_Perspective)
+			m_CameraController.OnUpdate(elapsedTime);
+		else
+			m_OrthoCameraController.OnUpdate(elapsedTime);
+
+#		if defined(NT_DEBUG) && 0
 		static float accumulatedTime = 0.0f;
 		accumulatedTime += elapsedTime;
 
 		if (accumulatedTime > 1.0f)
 		{
-#			if defined(NT_DEBUG) && 0
 			std::cout << std::fixed << 1.0f / elapsedTime << " fps | frametime: " << elapsedTime * 1000 << "ms\n";
 			accumulatedTime = 0.0f;
-#			endif
 		}
+#		endif
 
 		{
-			auto& position = m_LightEntity.GetComponent<Entropy::TransformComponent>().Position;
+			auto& position = m_LightEntity.GetComponent<Entropy::Transform3DComponent>().Position;
 			static const float speed = 10.0f;
 			if (Entropy::Input::IsKeyPressed(Entropy::KeyCode::RightShift))
 			{
@@ -178,7 +180,7 @@ public:
 			shader->SetInt("u_Cubemap", 0);
 		}
 
-		m_ModelEntity.GetComponent<Entropy::TransformComponent>().Rotate(elapsedTime * 8.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+		m_ModelEntity.GetComponent<Entropy::Transform3DComponent>().Rotate(elapsedTime * 8.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 
 		/*{
 			Entropy::Renderer::BeginScene(m_PortalCameraEntity);
@@ -198,50 +200,62 @@ public:
 			Entropy::Renderer::EndScene();
 		}*/
 		
+		if (m_Perspective)
 		{
-			auto& cameraTransform = m_OrthoCamera.GetComponent<Entropy::TransformComponent>();
+			{
+				auto& cameraTransform = m_CameraEntity.GetComponent<Entropy::Transform3DComponent>();
+				Entropy::Renderer::BeginScene(m_CameraEntity.GetComponent<Entropy::PerspectiveCameraComponent>().Camera.GetMatrix(), cameraTransform);
 
-			cameraTransform.Orientation = glm::normalize(cameraTransform.Orientation);
-			glm::mat4 rotate = glm::toMat4(cameraTransform.Orientation);
-			glm::mat4 view = glm::translate(rotate, -cameraTransform.Position);
+				Entropy::Renderer::SubmitSprite(m_CoinAnimator.GetTexture(), glm::mat4(1.0f));
 
-			Entropy::Renderer::BeginScene(m_OrthoCamera.GetComponent<Entropy::OrthographicCameraComponent>().Camera.GetMatrix(), view);
-			//Entropy::Renderer::BeginScene(m_CameraEntity.GetComponent<Entropy::PerspectiveCameraComponent>().Camera.GetMatrix(), view);
+				Entropy::Renderer::Submit(m_SelectedShader, m_ModelEntity.GetComponent<Entropy::MeshComponent>().Mesh.GetVertexArray(), m_ModelEntity.GetComponent<Entropy::Transform3DComponent>());
+				Entropy::Renderer::Submit(m_SelectedShader, m_LightEntity.GetComponent<Entropy::MeshComponent>().Mesh.GetVertexArray(), m_LightEntity.GetComponent<Entropy::Transform3DComponent>());
+				Entropy::Renderer::Submit(m_SelectedShader, m_Framebuffer, m_PlaneEntity.GetComponent<Entropy::MeshComponent>().Mesh.GetVertexArray(), m_PlaneEntity.GetComponent<Entropy::Transform3DComponent>());
 
-			static Entropy::TransformComponent transform;
+				Entropy::Renderer::EndScene();
+			}
+
+			{
+				glm::mat4 view = (glm::mat3)m_CameraEntity.GetComponent<Entropy::Transform3DComponent>();
+				Entropy::Renderer::BeginScene(m_CameraEntity.GetComponent<Entropy::PerspectiveCameraComponent>().Camera.GetMatrix(), view);
+
+				Entropy::RenderCommand::SetCullFace(Entropy::RenderCullFace::Back);
+				Entropy::RenderCommand::SetDepthFunction(Entropy::RenderDepthFunction::LessEqual);
+
+				m_Skybox.GetCubeMap()->Attach(0);
+				Entropy::Renderer::Submit(m_ShaderLibrary.Get("skybox"), m_Skybox.GetVertexArray());
+
+				Entropy::RenderCommand::SetCullFace(Entropy::RenderCullFace::Front);
+				Entropy::RenderCommand::SetDepthFunction(Entropy::RenderDepthFunction::Less);
+
+				Entropy::Renderer::EndScene();
+			}
+		}
+		else
+		{
+			auto& orthoCameraTransform = m_OrthoCameraEntity.GetComponent<Entropy::Transform3DComponent>();
+			Entropy::Renderer::BeginScene(m_OrthoCameraEntity.GetComponent<Entropy::OrthographicCameraComponent>().Camera.GetMatrix(), orthoCameraTransform);
+
+			static Entropy::Transform3DComponent transform;
 			transform.Position.x = Entropy::Input::GetMouseX() * 0.01f;
-			transform.Position.y = -Entropy::Input::GetMouseY() * 0.01f;
+			transform.Position.y = Entropy::Input::GetMouseY() * 0.01f;
 
-			//transform.Position += ((cameraTransform.Position + cameraTransform.GetFrontVector() * 4.0f) - transform.Position) * 2.0f * elapsedTime;
-			transform.Position.y += glm::sin(accumulatedTime * 2.5f) * 0.5f * elapsedTime;
-			//transform.Orientation = glm::inverse(cameraTransform.Orientation);
+			transform.Scale.x = (float)m_Maxwell->GetWidth() / (float)m_Maxwell->GetHeight();
+			Entropy::Renderer::SubmitSprite(m_Maxwell, transform);
 
-			Entropy::Renderer::SubmitSprite(m_CoinAnimator.GetTexture(), transform);
-
-			//Entropy::Renderer::Submit(m_SelectedShader, m_ModelEntity.GetComponent<Entropy::MeshComponent>().Mesh.GetVertexArray(), m_ModelEntity.GetComponent<Entropy::TransformComponent>());
-			Entropy::Renderer::Submit(m_SelectedShader, m_LightEntity.GetComponent<Entropy::MeshComponent>().Mesh.GetVertexArray(), m_LightEntity.GetComponent<Entropy::TransformComponent>());
-			Entropy::Renderer::Submit(m_SelectedShader, m_Framebuffer, m_PlaneEntity.GetComponent<Entropy::MeshComponent>().Mesh.GetVertexArray(), m_PlaneEntity.GetComponent<Entropy::TransformComponent>());
-
-			Entropy::Renderer::EndScene();
-		}
-
-#if 0
-		{
-			glm::mat4 view = (glm::mat3)m_CameraEntity.GetComponent<Entropy::TransformComponent>();
-			Entropy::Renderer::BeginScene(m_CameraEntity.GetComponent<Entropy::PerspectiveCameraComponent>().Camera.GetMatrix(), view);
-
-			Entropy::RenderCommand::SetCullFace(Entropy::RenderCullFace::Back);
-			Entropy::RenderCommand::SetDepthFunction(Entropy::RenderDepthFunction::LessEqual);
-
-			m_Skybox.GetCubeMap()->Attach(0);
-			Entropy::Renderer::Submit(m_ShaderLibrary.Get("skybox"), m_Skybox.GetVertexArray());
-
-			Entropy::RenderCommand::SetCullFace(Entropy::RenderCullFace::Front);
-			Entropy::RenderCommand::SetDepthFunction(Entropy::RenderDepthFunction::Less);
+			constexpr int32_t halfScale = 20;
+			static Entropy::Transform3DComponent trans;
+			for (int y = -halfScale; y < halfScale; y++)
+			{
+				for (int x = -halfScale; x < halfScale; x++)
+				{	
+					trans.Position = { y, x, 0.0f };
+					Entropy::Renderer::SubmitSprite(m_Cobblestone, trans);
+				}
+			}
 
 			Entropy::Renderer::EndScene();
 		}
-#endif
 	}
 
 	void OnDestroy() override
@@ -252,19 +266,22 @@ public:
 		m_Scene.DeleteEntity(m_ModelEntity);
 		m_Scene.DeleteEntity(m_LightEntity);
 		m_Scene.DeleteEntity(m_CameraEntity);
+		m_Scene.DeleteEntity(m_OrthoCameraEntity);
 		m_Scene.DeleteEntity(m_PortalCameraEntity);
 	}
 
 	void OnEvent(Entropy::Event& e) override
 	{
-		NT_TIME_SCOPE_DEBUG(SandboxApp::OnEvent);
+		//NT_TIME_SCOPE_DEBUG(SandboxApp::OnEvent);
 
 		Entropy::EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<Entropy::MouseButtonPressedEvent>(NT_ATTACH_EVENT_FN(SandboxGame::OnMouseButtonPressed));
 		dispatcher.Dispatch<Entropy::KeyPressedEvent>(NT_ATTACH_EVENT_FN(SandboxGame::OnKeyPressed));
 
-		m_CameraController.OnEvent(e);
-		m_OrthoCameraController.OnEvent(e);
+		if (m_Perspective)
+			m_CameraController.OnEvent(e);
+		else
+			m_OrthoCameraController.OnEvent(e);
 	}
 
 	bool OnMouseButtonPressed(Entropy::MouseButtonPressedEvent& e)
@@ -327,16 +344,7 @@ public:
 		}
 		case Entropy::Key::F2:
 		{
-			if (m_CameraController.HasCamera())
-			{
-				m_CameraController.DetachCamera();
-				NT_TRACE("Detached camera from controller");
-			}
-			else
-			{
-				m_CameraController.AttachCamera(m_CameraEntity);
-				NT_TRACE("Attached camera to controller");
-			}
+			m_Perspective = !m_Perspective;
 			break;
 		}
 		case Entropy::Key::F3:
@@ -351,6 +359,7 @@ public:
 			NT_TRACE(ss.str());
 			break;
 		}
+		/*
 		case Entropy::Key::F4:
 		{
 			static uint32_t environmentIndex = 0;
@@ -382,10 +391,7 @@ public:
 
 			break;
 		}
-		case Entropy::Key::F5:
-		{
-			break;
-		}
+		*/
 		case Entropy::Key::F11:
 		{
 			auto& window = GetWindow();
@@ -419,7 +425,7 @@ private:
 	Entropy::Entity m_ModelEntity = m_Scene.CreateEntity();
 	Entropy::Entity m_LightEntity = m_Scene.CreateEntity();
 	Entropy::Entity m_CameraEntity = m_Scene.CreateEntity();
-	Entropy::Entity m_OrthoCamera = m_Scene.CreateEntity();
+	Entropy::Entity m_OrthoCameraEntity = m_Scene.CreateEntity();
 	Entropy::Entity m_PortalCameraEntity = m_Scene.CreateEntity();
 
 	Entropy::Ref<Entropy::Texture2D> m_DiffuseMap  = Entropy::Texture2D::Create("./assets/textures/container.png");
@@ -427,6 +433,7 @@ private:
 	Entropy::Ref<Entropy::Texture2D> m_NormalMap   = Entropy::Texture2D::Create("./assets/textures/normal_map.png");
 	Entropy::Ref<Entropy::Texture2D> m_Cobblestone = Entropy::Texture2D::Create("./assets/textures/cobblestone.png");
 	Entropy::Ref<Entropy::Texture2D> m_CoinSheet   = Entropy::Texture2D::Create("./assets/textures/coin.png");
+	Entropy::Ref<Entropy::Texture2D> m_Maxwell     = Entropy::Texture2D::Create("./assets/textures/Maxwell.png");
 
 	Entropy::SpriteAnimator m_CoinAnimator = { {
 		{ m_CoinSheet, { 0, 0 }, { 16, 16 } },
@@ -446,13 +453,15 @@ private:
 	Entropy::Environment m_Skybox = { "./assets/environments/Lycksele3" };
 
 	Entropy::PerspectiveCameraController m_CameraController = { m_CameraEntity };
-	Entropy::OrthographicCameraController m_OrthoCameraController = { m_OrthoCamera };
+	Entropy::OrthographicCameraController m_OrthoCameraController = { m_OrthoCameraEntity };
 
 	// TODO: fix multisampling
 	Entropy::FramebufferSpecification m_FramebufferSpec = { 1024, 1024, 1, {
 		{ Entropy::TextureDataFormat::RGB8, Entropy::TextureFilteringFormat::Linear, Entropy::TextureTilingFormat::Repeat },
 		{ Entropy::TextureDataFormat::Depth24Stencil8 } } };
 	Entropy::Ref<Entropy::Framebuffer> m_Framebuffer = Entropy::Framebuffer::Create(m_FramebufferSpec);
+
+	bool m_Perspective = false;
 };
 
 int main()

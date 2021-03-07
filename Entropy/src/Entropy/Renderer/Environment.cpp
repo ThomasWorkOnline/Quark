@@ -74,7 +74,14 @@ namespace Entropy {
 
 	Environment::Environment(const std::string& directory)
 	{
-		SetEnvironment(directory);
+		m_CubeMap = Entropy::CubeMap::Create({
+		directory + "/posx.jpg",
+		directory + "/negx.jpg",
+		directory + "/posy.jpg",
+		directory + "/negy.jpg",
+		directory + "/posz.jpg",
+		directory + "/negz.jpg"
+			});
 
 		m_VertexArray = VertexArray::Create();
 
@@ -89,21 +96,15 @@ namespace Entropy {
 		m_VertexArray->SetIndexBuffer(m_IndexBuffer);
 	}
 
-	void Environment::SetEnvironment(const std::array<std::string, 6>& filepaths)
-	{
-		m_CubeMap = CubeMap::Create(filepaths);
-	}
-
 	void Environment::SetEnvironment(const std::string& directory)
 	{
-		// TODO: change
-		m_CubeMap = CubeMap::Create({
+		m_CubeMap = Entropy::CubeMap::Create({
 			directory + "/posx.jpg",
 			directory + "/negx.jpg",
 			directory + "/posy.jpg",
 			directory + "/negy.jpg",
 			directory + "/posz.jpg",
 			directory + "/negz.jpg"
-			});
+		});
 	}
 }

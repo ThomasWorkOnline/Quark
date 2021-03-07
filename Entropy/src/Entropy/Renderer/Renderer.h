@@ -9,6 +9,8 @@
 #include "SubTexture.h"
 #include "Texture.h"
 
+#include "../Scene/Components.h"
+
 namespace Entropy {
 
 	struct RenderStats
@@ -24,6 +26,22 @@ namespace Entropy {
 
 		static void OnWindowResize(uint32_t width, uint32_t height);
 
+		/// <summary>
+		/// Recieves the camera tranformation in world space, not the view matrix.
+		/// This function applies the inverse transformation for the position.
+		/// Make sure to call `EndScene` to flush all queued objects.
+		/// </summary>
+		/// <param name="cameraProjection">Camera projection matrix</param>
+		/// <param name="cameraTransform">Camera transform in world space</param>
+		static void BeginScene(const glm::mat4& cameraProjection, const Transform3DComponent& cameraTransform);
+
+		/// <summary>
+		/// Recieves the camera view matrix.
+		/// No extra transformation is applied to the view matrix.
+		/// Make sure to call `EndScene` to flush all queued objects.
+		/// </summary>
+		/// <param name="cameraProjection">Camera projection matrix</param>
+		/// <param name="cameraView">Camera view matrix</param>
 		static void BeginScene(const glm::mat4& cameraProjection, const glm::mat4& cameraView);
 		static void EndScene();
 

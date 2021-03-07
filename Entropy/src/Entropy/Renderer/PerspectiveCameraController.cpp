@@ -24,7 +24,7 @@ namespace Entropy {
 	{
 		if (m_CameraEntity)
 		{
-			auto& transform = m_CameraEntity->GetComponent<TransformComponent>();
+			auto& transform = m_CameraEntity->GetComponent<Transform3DComponent>();
 			auto& physics = m_CameraEntity->GetComponent<PhysicsComponent>();
 			auto& camera = m_CameraEntity->GetComponent<PerspectiveCameraComponent>().Camera;
 
@@ -47,49 +47,49 @@ namespace Entropy {
 			// Controls
 			if (Input::IsKeyPressed(Key::W))
 			{
-				physics.Velocity += glm::vec3(0.0f, 0.0f, 1.0f) * transform.Orientation * elapsedTime * m_MovementSpeed;
+				physics.Velocity += transform.GetFrontVector() * elapsedTime * m_MovementSpeed;
 			}
 
 			if (Input::IsKeyPressed(Key::S))
 			{
-				physics.Velocity += glm::vec3(0.0f, 0.0f, -1.0f) * transform.Orientation * elapsedTime * m_MovementSpeed;
+				physics.Velocity -= transform.GetFrontVector() * elapsedTime * m_MovementSpeed;
 			}
 
 			if (Input::IsKeyPressed(Key::D))
 			{
-				physics.Velocity += glm::vec3(1.0f, 0.0f, 0.0f) * transform.Orientation * elapsedTime * m_MovementSpeed;
+				physics.Velocity += transform.GetRightVector() * elapsedTime * m_MovementSpeed;
 			}
 
 			if (Input::IsKeyPressed(Key::A))
 			{
-				physics.Velocity += glm::vec3(-1.0f, 0.0f, 0.0f) * transform.Orientation * elapsedTime * m_MovementSpeed;
+				physics.Velocity -= transform.GetRightVector() * elapsedTime * m_MovementSpeed;
 			}
 
 			if (Input::IsKeyPressed(Key::Space))
 			{
-				physics.Velocity += glm::vec3(0.0f, 1.0f, 0.0f) * transform.Orientation * elapsedTime * m_MovementSpeed;
+				physics.Velocity += transform.GetTopVector() * elapsedTime * m_MovementSpeed;
 			}
 
 			if (Input::IsKeyPressed(Key::LeftShift))
 			{
-				physics.Velocity += glm::vec3(0.0f, -1.0f, 0.0f) * transform.Orientation * elapsedTime * m_MovementSpeed;
+				physics.Velocity -= transform.GetTopVector() * elapsedTime * m_MovementSpeed;
 			}
 
 			if (Input::IsKeyPressed(Key::Q))
 			{
-				transform.Rotate(elapsedTime * m_RollSensitivity, glm::vec3(0.0f, 0.0f, -1.0f) * transform.Orientation);
+				transform.Rotate(elapsedTime * m_RollSensitivity, -transform.GetFrontVector());
 			}
 
 			if (Input::IsKeyPressed(Key::E))
 			{
-				transform.Rotate(elapsedTime * m_RollSensitivity, glm::vec3(0.0f, 0.0f, 1.0f) * transform.Orientation);
+				transform.Rotate(elapsedTime * m_RollSensitivity, transform.GetFrontVector());
 			}
 
 			if (Input::IsKeyPressed(Key::D0))
 			{
 				physics.Velocity = { 0.0f, 0.0f, 0.0f };
 				transform.Position = { 0.0f, 0.0f, 0.0f };
-				transform.Orientation = glm::quat();
+				transform.Orientation = glm::angleAxis(0.0f, glm::vec3(0.0f, 0.0f, 1.0f));
 				NT_TRACE("Teleported to world origin");
 			}
 
@@ -157,7 +157,7 @@ namespace Entropy {
 		{
 			if (m_CameraEntity)
 			{
-				auto& transform = m_CameraEntity->GetComponent<TransformComponent>();
+				auto& transform = m_CameraEntity->GetComponent<Transform3DComponent>();
 				auto& camera = m_CameraEntity->GetComponent<PerspectiveCameraComponent>().Camera;
 
 				glm::vec2 mouseMove = { e.GetX() - lastMousePos.x, e.GetY() - lastMousePos.y };

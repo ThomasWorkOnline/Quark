@@ -1,6 +1,7 @@
 #include "Renderer.h"
 
 #include "../Core/Core.h"
+#include "../Debug/Monitoring.h"
 
 #include "../Scene/Scene.h"
 #include "../Scene/Entity.h"
@@ -38,8 +39,6 @@ namespace Entropy {
 		Ref<Texture2D>* Textures;
 		Ref<Texture2D> DefaultTexture;
 		uint32_t TextureSlotIndex = 1; // Next texture slot to be attached
-
-		glm::vec4 SpriteVertexPositions[4];
 	};
 
 	Renderer::SceneData Renderer::s_SceneData;
@@ -50,73 +49,78 @@ namespace Entropy {
 	{
 		RenderCommand::Init();
 
-		s_Data.VertexArray  = VertexArray::Create();
-
-		s_Data.VertexBuffer = VertexBuffer::Create(s_Data.MaxVertices * sizeof(SpriteVertex));
-		s_Data.VertexBuffer->SetLayout({
-			{ ShaderDataType::Float3, "a_Position" },
-			{ ShaderDataType::Float2, "a_TexCoord" },
-			{ ShaderDataType::Float3, "a_Normal"   },
-			{ ShaderDataType::Float,  "a_TexIndex" }
-			});
-		s_Data.VertexArray->AddVertexBuffer(s_Data.VertexBuffer);
-
-		// Indices
-		uint32_t* indices = new uint32_t[s_Data.MaxIndices];
-
-		uint32_t offset = 0;
-		for (uint32_t i = 0; i < s_Data.MaxVertices; i += 6)
 		{
-			indices[i + 0] = offset + 0;
-			indices[i + 1] = offset + 3;
-			indices[i + 2] = offset + 2;
-			indices[i + 3] = offset + 0;
-			indices[i + 4] = offset + 2;
-			indices[i + 5] = offset + 1;
+			s_Data.VertexArray = VertexArray::Create();
 
-			offset += 4;
+			s_Data.VertexBuffer = VertexBuffer::Create(s_Data.MaxVertices * sizeof(SpriteVertex));
+			s_Data.VertexBuffer->SetLayout({
+				{ ShaderDataType::Float3, "a_Position" },
+				{ ShaderDataType::Float2, "a_TexCoord" },
+				{ ShaderDataType::Float3, "a_Normal"   },
+				{ ShaderDataType::Float,  "a_TexIndex" }
+				});
+			s_Data.VertexArray->AddVertexBuffer(s_Data.VertexBuffer);
+
+			// Indices
+			uint32_t* indices = new uint32_t[s_Data.MaxIndices];
+
+			uint32_t offset = 0;
+			for (uint32_t i = 0; i < s_Data.MaxIndices; i += 6)
+			{
+				indices[i + 0] = offset + 0;
+				indices[i + 1] = offset + 3;
+				indices[i + 2] = offset + 2;
+				indices[i + 3] = offset + 0;
+				indices[i + 4] = offset + 2;
+				indices[i + 5] = offset + 1;
+
+				offset += 4;
+			}
+
+			s_Data.IndexBuffer = IndexBuffer::Create(indices, s_Data.MaxIndices);
+			s_Data.VertexArray->SetIndexBuffer(s_Data.IndexBuffer);
+			delete[] indices;
+
+			// Vertices
+			s_Data.Vertices = new SpriteVertex[s_Data.MaxVertices];
+			memset(s_Data.Vertices, 0, s_Data.MaxVertices);
+
+			// Textures
+			s_Data.MaxTextureSlots = RenderCommand::GetTextureSlotsCount();
+			s_Data.Textures = new Ref<Texture2D>[s_Data.MaxTextureSlots];
+
+			uint32_t textureColor = 0xffffffff;
+			TextureSpecification spec = { 1, 1, 1, TextureDataFormat::RGBA8,
+				TextureFilteringFormat::Nearest, TextureTilingFormat::Repeat
+			};
+			s_Data.DefaultTexture = Texture2D::Create(spec);
+			s_Data.DefaultTexture->SetData(&textureColor, sizeof(uint32_t));
+
+			s_Data.Textures[0] = s_Data.DefaultTexture;
+
+			int32_t* samplers = new int32_t[s_Data.MaxTextureSlots];
+			for (uint32_t i = 0; i < s_Data.MaxTextureSlots; i++)
+				samplers[i] = i;
+
+			s_Data.SpriteShader = Shader::Create("assets/shaders/defaultTexture.glsl");
+			s_Data.SpriteShader->Attach();
+			s_Data.SpriteShader->SetIntArray("u_Samplers", samplers, s_Data.MaxTextureSlots);
+			delete[] samplers;
 		}
-
-		s_Data.IndexBuffer = IndexBuffer::Create(indices, s_Data.MaxIndices);
-		s_Data.VertexArray->SetIndexBuffer(s_Data.IndexBuffer);
-		delete[] indices;
-
-		// Vertices
-		s_Data.Vertices = new SpriteVertex[s_Data.MaxVertices];
-		memset(s_Data.Vertices, 0, s_Data.MaxVertices);
-
-		s_Data.SpriteVertexPositions[0] = { -0.5f, -0.5f,  0.0f,  1.0f };
-		s_Data.SpriteVertexPositions[1] = {  0.5f, -0.5f,  0.0f,  1.0f };
-		s_Data.SpriteVertexPositions[2] = {  0.5f,  0.5f,  0.0f,  1.0f };
-		s_Data.SpriteVertexPositions[3] = { -0.5f,  0.5f,  0.0f,  1.0f };
-
-		// Textures
-		s_Data.MaxTextureSlots = RenderCommand::GetTextureSlotsCount();
-		s_Data.Textures = new Ref<Texture2D>[s_Data.MaxTextureSlots];
-
-		uint32_t textureColor = 0xffffffff;
-		TextureSpecification spec = { 1, 1, 1, TextureDataFormat::RGBA8,
-			TextureFilteringFormat::Nearest, TextureTilingFormat::Repeat
-		};
-		s_Data.DefaultTexture = Texture2D::Create(spec);
-		s_Data.DefaultTexture->SetData(&textureColor, sizeof(uint32_t));
-
-		s_Data.Textures[0] = s_Data.DefaultTexture;
-
-		int32_t* samplers = new int32_t[s_Data.MaxTextureSlots];
-		for (uint32_t i = 0; i < s_Data.MaxTextureSlots; i++)
-			samplers[i] = i;
-
-		s_Data.SpriteShader = Shader::Create("assets/shaders/defaultTexture.glsl");
-		s_Data.SpriteShader->Attach();
-		s_Data.SpriteShader->SetIntArray("u_Samplers", samplers, s_Data.MaxTextureSlots);
-		delete[] samplers;
 	}
 
 	void Renderer::Dispose()
 	{
 		delete[] s_Data.Vertices;
 		delete[] s_Data.Textures;
+	}
+
+	void Renderer::BeginScene(const glm::mat4& cameraProjection, const Transform3DComponent& cameraTransform)
+	{
+		glm::mat4 rotate = glm::toMat4(cameraTransform.Orientation);
+		glm::mat4 view = glm::translate(rotate, -cameraTransform.Position);
+		
+		BeginScene(cameraProjection, view);
 	}
 
 	void Renderer::BeginScene(const glm::mat4& cameraProjection, const glm::mat4& cameraView)
@@ -143,7 +147,7 @@ namespace Entropy {
 
 	void Renderer::PushBatch()
 	{
-		if (s_Data.VertexPtr == s_Data.Vertices)
+		if (s_Data.IndexCount == 0)
 			return;
 
 		size_t size = ((uint8_t*)s_Data.VertexPtr - (uint8_t*)s_Data.Vertices);
@@ -259,9 +263,16 @@ namespace Entropy {
 			s_Data.TextureSlotIndex++;
 		}
 
+		constexpr glm::vec4 spriteVertexPositions[4] = {
+			{ -0.5f, -0.5f, 0.0f, 1.0f },
+			{  0.5f, -0.5f, 0.0f, 1.0f },
+			{  0.5f,  0.5f, 0.0f, 1.0f },
+			{ -0.5f,  0.5f, 0.0f, 1.0f }
+		};
+
 		for (uint8_t i = 0; i < 4; i++)
 		{
-			s_Data.VertexPtr->Position = transform * s_Data.SpriteVertexPositions[i];
+			s_Data.VertexPtr->Position = transform * spriteVertexPositions[i];
 			s_Data.VertexPtr->TexCoord = texCoords[i];
 			s_Data.VertexPtr->Normal = { 0.0f, 0.0f, 1.0f };
 			s_Data.VertexPtr->TexIndex = textureIndex;

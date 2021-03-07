@@ -10,7 +10,7 @@ namespace Entropy {
 
 	void OrthographicCamera::RecalculateProjection()
 	{
-		m_Projection = glm::ortho(-m_Zoom * m_AspectRatio, m_Zoom * m_AspectRatio, -m_Zoom, m_Zoom);
+		m_Projection = glm::ortho(-m_Zoom * m_AspectRatio, m_Zoom * m_AspectRatio, -m_Zoom, m_Zoom, -500.0f, 500.0f);
 		m_RequiresUpdate = false;
 	}
 
