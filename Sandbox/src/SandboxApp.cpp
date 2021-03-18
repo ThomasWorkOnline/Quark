@@ -43,7 +43,7 @@ public:
 		{
 			auto& transform = m_PlaneEntity.AddComponent<Entropy::Transform3DComponent>();
 			transform.Position.y = -2.0f;
-			m_PlaneEntity.AddComponent<Entropy::MeshComponent>().Mesh.GenerateTerrain(layout, 10, 0);
+			m_PlaneEntity.AddComponent<Entropy::MeshComponent>().Mesh.GenerateTerrain(layout, 100, 0);
 		}
 
 		{
@@ -71,17 +71,6 @@ public:
 
 	void OnUpdate(float elapsedTime) override
 	{
-		// Update scene before updating the camera controller
-		// The camera controller will use the updated components
-		// The other way around would result in 1 frame offset from the actual scene data
-		m_Scene.OnUpdate(elapsedTime);
-		m_CoinAnimator.OnUpdate(elapsedTime);
-
-		if (m_Perspective)
-			m_CameraController.OnUpdate(elapsedTime);
-		else
-			m_OrthoCameraController.OnUpdate(elapsedTime);
-
 #		if defined(NT_DEBUG) && 0
 		static float accumulatedTime = 0.0f;
 		accumulatedTime += elapsedTime;
@@ -151,6 +140,15 @@ public:
 			}
 		}
 
+		if (m_Perspective)
+			m_CameraController.OnUpdate(elapsedTime);
+		else
+			m_OrthoCameraController.OnUpdate(elapsedTime);
+
+		m_Scene.OnUpdate(elapsedTime);
+
+		m_CoinAnimator.OnUpdate(elapsedTime);
+
 		{
 			// TODO: render pipeline and proper light object
 			m_SelectedShader->Attach();
@@ -161,7 +159,7 @@ public:
 			m_SelectedShader->SetFloat("u_Material.shininess", 512.0f);
 			m_SelectedShader->SetFloat("u_Material.metalness", 1.0f);
 
-			constexpr float lightPower = 4.0f;
+			constexpr float lightPower = 1.0f;
 			constexpr glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f) * lightPower;
 			m_SelectedShader->SetFloat3("u_Light.ambient", lightColor * 0.005f);
 			m_SelectedShader->SetFloat3("u_Light.diffuse", lightColor * 0.2f);
@@ -182,8 +180,10 @@ public:
 
 		m_ModelEntity.GetComponent<Entropy::Transform3DComponent>().Rotate(elapsedTime * 8.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 
-		/*{
-			Entropy::Renderer::BeginScene(m_PortalCameraEntity);
+		{
+			m_SelectedShader->SetFloat("u_Material.metalness", 0.0f);
+			Entropy::Renderer::BeginScene(m_PortalCameraEntity.GetComponent<Entropy::PerspectiveCameraComponent>().Camera.GetMatrix(),
+				m_PortalCameraEntity.GetComponent<Entropy::Transform3DComponent>());
 
 			m_Framebuffer->Attach();
 			Entropy::RenderCommand::SetViewport(0, 0, m_Framebuffer->GetWidth(), m_Framebuffer->GetHeight());
@@ -192,13 +192,14 @@ public:
 			Entropy::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
 			Entropy::RenderCommand::Clear();
 
-			Entropy::Renderer::Submit(m_SelectedShader, m_ModelEntity.GetComponent<Entropy::MeshComponent>().Mesh.GetVertexArray(), m_ModelEntity.GetComponent<Entropy::TransformComponent>());
+			Entropy::Renderer::Submit(m_SelectedShader, m_ModelEntity.GetComponent<Entropy::MeshComponent>().Mesh.GetVertexArray(), m_ModelEntity.GetComponent<Entropy::Transform3DComponent>());
 
 			m_Framebuffer->Detach();
 			Entropy::RenderCommand::SetViewport(0, 0, GetWindow().GetWidth(), GetWindow().GetHeight());
 
 			Entropy::Renderer::EndScene();
-		}*/
+			m_SelectedShader->SetFloat("u_Material.metalness", 1.0f);
+		}
 		
 		if (m_Perspective)
 		{
@@ -237,24 +238,31 @@ public:
 			Entropy::Renderer::BeginScene(m_OrthoCameraEntity.GetComponent<Entropy::OrthographicCameraComponent>().Camera.GetMatrix(), orthoCameraTransform);
 
 			static Entropy::Transform3DComponent transform;
-			transform.Position.x = Entropy::Input::GetMouseX() * 0.01f;
-			transform.Position.y = Entropy::Input::GetMouseY() * 0.01f;
+			if (GetWindow().IsSelected())
+			{
+				transform.Position.x = Entropy::Input::GetMouseX() * 0.01f;
+				transform.Position.y = Entropy::Input::GetMouseY() * 0.01f;
+			}
 
 			transform.Scale.x = (float)m_Maxwell->GetWidth() / (float)m_Maxwell->GetHeight();
 			Entropy::Renderer::SubmitSprite(m_Maxwell, transform);
 
-			constexpr int32_t halfScale = 20;
+			constexpr int32_t scale = 100;
 			static Entropy::Transform3DComponent trans;
-			for (int y = -halfScale; y < halfScale; y++)
+			for (int y = 0; y < scale; y++)
 			{
-				for (int x = -halfScale; x < halfScale; x++)
+				for (int x = 0; x < scale; x++)
 				{	
-					trans.Position = { y, x, 0.0f };
+					trans.Position = { y - scale * 0.5f, x - scale * 0.5f, 0.0f };
+					//Entropy::Renderer::SubmitSprite({ x * 0.01f, y * 0.01f, 0.0f, 1.0f }, trans);
 					Entropy::Renderer::SubmitSprite(m_Cobblestone, trans);
 				}
 			}
 
 			Entropy::Renderer::EndScene();
+
+			//std::cout << Entropy::Renderer::GetStats().DrawCalls << std::endl;
+			//std::cout << Entropy::Renderer::GetStats().QuadsDrawn << std::endl;
 		}
 	}
 
@@ -395,16 +403,7 @@ public:
 		case Entropy::Key::F11:
 		{
 			auto& window = GetWindow();
-			if (window.IsFullscreen())
-			{
-				window.DisableFullScreen();
-				NT_TRACE("Disabled fullscreen");
-			}
-			else
-			{
-				window.EnableFullScreen();
-				NT_TRACE("Enabled fullscreen");
-			}
+			window.SetFullScreen(!window.IsFullscreen());
 			break;
 		}
 		case Entropy::Key::Escape:

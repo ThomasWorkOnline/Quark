@@ -4,7 +4,9 @@
 
 #include <chrono>
 
-#if defined(NT_DEBUG)
+#define NT_FORCE_TIME_SCOPE_RELEASE
+
+#if defined(NT_DEBUG) || defined(NT_FORCE_TIME_SCOPE_RELEASE)
 #	define NT_TIME_SCOPE_DEBUG(scope) Entropy::ScopeTimer scopeTimer(#scope)
 #else
 #	define NT_TIME_SCOPE_DEBUG(scope)

@@ -13,46 +13,46 @@ namespace Entropy {
 		NT_ASSERT(LoadOBJFromFile(layout, filepath), "Could not load model at path: " << filepath);
 	}
 
-	void Mesh::GenerateUnitCube(const BufferLayout& layout)
+	void Mesh::GenerateUnitCube()
 	{
 		m_VertexArray = VertexArray::Create();
 
 		float vertexBuffer[] = {
 			// front
-		   -0.5f, -0.5f,  0.5f,   0.0f, 0.0f,   0.0f,  0.0f,  1.0f,
-			0.5f, -0.5f,  0.5f,   1.0f, 0.0f,   0.0f,  0.0f,  1.0f,
-			0.5f,  0.5f,  0.5f,   1.0f, 1.0f,   0.0f,  0.0f,  1.0f,
-		   -0.5f,  0.5f,  0.5f,   0.0f, 1.0f,   0.0f,  0.0f,  1.0f,
+		   -0.5f, -0.5f,  0.5f,   0.0f, 0.0f,  0.0f,
+			0.5f, -0.5f,  0.5f,   1.0f, 0.0f,  0.0f,
+			0.5f,  0.5f,  0.5f,   1.0f, 1.0f,  0.0f,
+		   -0.5f,  0.5f,  0.5f,   0.0f, 1.0f,  0.0f,
+											   
+		    // right						   
+		    0.5f, -0.5f,  0.5f,   0.0f, 0.0f,  0.0f,
+		    0.5f, -0.5f, -0.5f,   1.0f, 0.0f,  0.0f,
+		    0.5f,  0.5f, -0.5f,   1.0f, 1.0f,  0.0f,
+		    0.5f,  0.5f,  0.5f,   0.0f, 1.0f,  0.0f,
 
-		   // right
-		   0.5f, -0.5f,  0.5f,   0.0f, 0.0f,   1.0f,  0.0f,  0.0f,
-		   0.5f, -0.5f, -0.5f,   1.0f, 0.0f,   1.0f,  0.0f,  0.0f,
-		   0.5f,  0.5f, -0.5f,   1.0f, 1.0f,   1.0f,  0.0f,  0.0f,
-		   0.5f,  0.5f,  0.5f,   0.0f, 1.0f,   1.0f,  0.0f,  0.0f,
+		    // back
+		    0.5f, -0.5f, -0.5f,   0.0f, 0.0f,  0.0f,
+		   -0.5f, -0.5f, -0.5f,   1.0f, 0.0f,  0.0f,
+		   -0.5f,  0.5f, -0.5f,   1.0f, 1.0f,  0.0f,
+		    0.5f,  0.5f, -0.5f,   0.0f, 1.0f,  0.0f,
 
-		   // back
-		   0.5f, -0.5f, -0.5f,   0.0f, 0.0f,   0.0f,  0.0f, -1.0f,
-		  -0.5f, -0.5f, -0.5f,   1.0f, 0.0f,   0.0f,  0.0f, -1.0f,
-		  -0.5f,  0.5f, -0.5f,   1.0f, 1.0f,   0.0f,  0.0f, -1.0f,
-		   0.5f,  0.5f, -0.5f,   0.0f, 1.0f,   0.0f,  0.0f, -1.0f,
+		    // left
+		   -0.5f, -0.5f, -0.5f,   0.0f, 0.0f,  0.0f,
+		   -0.5f, -0.5f,  0.5f,   1.0f, 0.0f,  0.0f,
+		   -0.5f,  0.5f,  0.5f,   1.0f, 1.0f,  0.0f,
+		   -0.5f,  0.5f, -0.5f,   0.0f, 1.0f,  0.0f,
 
-		   // left
-		  -0.5f, -0.5f, -0.5f,   0.0f, 0.0f,  -1.0f,  0.0f,  0.0f,
-		  -0.5f, -0.5f,  0.5f,   1.0f, 0.0f,  -1.0f,  0.0f,  0.0f,
-		  -0.5f,  0.5f,  0.5f,   1.0f, 1.0f,  -1.0f,  0.0f,  0.0f,
-		  -0.5f,  0.5f, -0.5f,   0.0f, 1.0f,  -1.0f,  0.0f,  0.0f,
+		    // bottom
+		   -0.5f, -0.5f, -0.5f,   0.0f, 0.0f,  0.0f,
+		    0.5f, -0.5f, -0.5f,   1.0f, 0.0f,  0.0f,
+		    0.5f, -0.5f,  0.5f,   1.0f, 1.0f,  0.0f,
+		   -0.5f, -0.5f,  0.5f,   0.0f, 1.0f,  0.0f,
 
-		  // bottom
-		 -0.5f, -0.5f, -0.5f,   0.0f, 0.0f,   0.0f, -1.0f,  0.0f,
-		  0.5f, -0.5f, -0.5f,   1.0f, 0.0f,   0.0f, -1.0f,  0.0f,
-		  0.5f, -0.5f,  0.5f,   1.0f, 1.0f,   0.0f, -1.0f,  0.0f,
-		 -0.5f, -0.5f,  0.5f,   0.0f, 1.0f,   0.0f, -1.0f,  0.0f,
-
-		 // top
-		-0.5f,  0.5f,  0.5f,   0.0f, 0.0f,   0.0f,  1.0f,  0.0f,
-		 0.5f,  0.5f,  0.5f,   1.0f, 0.0f,   0.0f,  1.0f,  0.0f,
-		 0.5f,  0.5f, -0.5f,   1.0f, 1.0f,   0.0f,  1.0f,  0.0f,
-		-0.5f,  0.5f, -0.5f,   0.0f, 1.0f,   0.0f,  1.0f,  0.0f
+		    // top
+		   -0.5f,  0.5f,  0.5f,   0.0f, 0.0f,  0.0f,
+		    0.5f,  0.5f,  0.5f,   1.0f, 0.0f,  0.0f,
+		    0.5f,  0.5f, -0.5f,   1.0f, 1.0f,  0.0f,
+		   -0.5f,  0.5f, -0.5f,   0.0f, 1.0f,  0.0f
 		};
 
 		uint32_t indexBuffer[] = {
@@ -83,7 +83,11 @@ namespace Entropy {
 
 		// Takes size in bytes
 		m_VertexBuffer = VertexBuffer::Create(vertexBuffer, sizeof(vertexBuffer));
-		m_VertexBuffer->SetLayout(layout);
+		m_VertexBuffer->SetLayout({
+			{ ShaderDataType::Float3, "a_Position" },
+			{ ShaderDataType::Float2, "a_TexCoord" },
+			{ ShaderDataType::Float,  "a_TexIndex" }
+		});
 		m_VertexArray->AddVertexBuffer(m_VertexBuffer);
 
 		// Takes index count

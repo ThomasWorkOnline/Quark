@@ -3,6 +3,7 @@
 #include <array>
 #include <cstring>
 #include <cmath>
+#include <fstream>
 #include <functional>
 #include <future>
 #include <iostream>

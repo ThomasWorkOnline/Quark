@@ -23,6 +23,10 @@ namespace Entropy {
 		// Filter formats
 		Nearest,
 		Linear,
+		NearestMipmapNearest,
+		NearestMipmapLinear,
+		LinearMipmapNearest,
+		LinearMipmapLinear,
 
 		Default = Linear
 	};

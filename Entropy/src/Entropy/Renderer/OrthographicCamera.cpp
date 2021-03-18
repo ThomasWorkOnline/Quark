@@ -8,15 +8,17 @@ namespace Entropy {
 		RecalculateProjection();
 	}
 
-	void OrthographicCamera::RecalculateProjection()
-	{
-		m_Projection = glm::ortho(-m_Zoom * m_AspectRatio, m_Zoom * m_AspectRatio, -m_Zoom, m_Zoom, -500.0f, 500.0f);
-		m_RequiresUpdate = false;
-	}
-
-	void OrthographicCamera::PollUpdate()
+	void OrthographicCamera::OnUpdate()
 	{
 		if (m_RequiresUpdate)
+		{
 			RecalculateProjection();
+			m_RequiresUpdate = false;
+		}
+	}
+
+	void OrthographicCamera::RecalculateProjection()
+	{
+		m_Projection = glm::ortho(-m_Zoom * m_AspectRatio, m_Zoom * m_AspectRatio, -m_Zoom, m_Zoom, -1.0f, 1.0f);
 	}
 }

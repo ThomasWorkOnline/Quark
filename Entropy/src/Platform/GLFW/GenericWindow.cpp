@@ -63,9 +63,6 @@ namespace Entropy {
 
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 
-		// Experimental
-		Select();
-
 		// -----------------------------------------------------------------------
 		// CALLBACKS
 		// -----------------------------------------------------------------------
@@ -168,28 +165,6 @@ namespace Entropy {
 			glfwTerminate();
 	}
 
-	void GenericWindow::EnableFullScreen()
-	{
-		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-
-		glfwGetWindowPos(m_Window, &s_WindowedPosX, &s_WindowedPosY);
-		glfwGetWindowSize(m_Window, &s_WindowedWidth, &s_WindowedHeight);
-
-		// Switch to full screen
-		glfwSetWindowMonitor(m_Window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
-		glfwSwapInterval(m_Data.VSync);
-	}
-
-	void GenericWindow::DisableFullScreen()
-	{
-		m_Data.Width = s_WindowedWidth;
-		m_Data.Height = s_WindowedHeight;
-
-		// Restore last window size and position
-		glfwSetWindowMonitor(m_Window, nullptr, s_WindowedPosX, s_WindowedPosY, (int32_t)m_Data.Width, (int32_t)m_Data.Height, 0);
-	}
-
 	void GenericWindow::SetTitle(const std::string& title)
 	{
 		m_Data.Title = title;
@@ -221,14 +196,41 @@ namespace Entropy {
 		return glfwGetInputMode(m_Window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL;
 	}
 
-	bool GenericWindow::IsFullscreen() const
-	{
-		return glfwGetWindowMonitor(m_Window) != nullptr;
-	}
-
 	void GenericWindow::SetVSync(bool enabled)
 	{
 		glfwSwapInterval(enabled);
 		m_Data.VSync = enabled;
+	}
+
+	void GenericWindow::SetFullScreen(bool enabled)
+	{
+		if (enabled != IsFullscreen())
+		{
+			if (enabled)
+			{
+				GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+				const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+				glfwGetWindowPos(m_Window, &s_WindowedPosX, &s_WindowedPosY);
+				glfwGetWindowSize(m_Window, &s_WindowedWidth, &s_WindowedHeight);
+
+				// Switch to full screen
+				glfwSetWindowMonitor(m_Window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+				glfwSwapInterval(m_Data.VSync);
+			}
+			else
+			{
+				m_Data.Width = s_WindowedWidth;
+				m_Data.Height = s_WindowedHeight;
+
+				// Restore last window size and position
+				glfwSetWindowMonitor(m_Window, nullptr, s_WindowedPosX, s_WindowedPosY, (int32_t)m_Data.Width, (int32_t)m_Data.Height, 0);
+			}
+		}
+	}
+
+	bool GenericWindow::IsFullscreen() const
+	{
+		return glfwGetWindowMonitor(m_Window) != nullptr;
 	}
 }

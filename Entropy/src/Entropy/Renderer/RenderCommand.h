@@ -40,14 +40,14 @@ namespace Entropy {
 			s_RenderingAPI->SetDepthFunction(func);
 		}
 
-		static void Draw(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0)
+		static void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0)
 		{
-			s_RenderingAPI->Draw(vertexArray, indexCount);
+			s_RenderingAPI->DrawIndexed(vertexArray, indexCount);
 		}
-
-		static void DrawInstanced(const Ref<VertexArray>& vertexArray, uint32_t repeatCount, uint32_t indexCount = 0)
+		
+		static void DrawIndexedInstanced(const Ref<VertexArray>& vertexArray, uint32_t repeatCount, uint32_t indexCount = 0)
 		{
-			s_RenderingAPI->DrawInstanced(vertexArray, repeatCount, indexCount);
+			s_RenderingAPI->DrawIndexedInstanced(vertexArray, repeatCount, indexCount);
 		}
 
 		static int32_t GetTextureSlotsCount()

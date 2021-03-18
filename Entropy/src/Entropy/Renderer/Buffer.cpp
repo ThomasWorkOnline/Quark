@@ -7,7 +7,6 @@
 
 namespace Entropy {
 
-    // Vertex buffer
     Ref<VertexBuffer> VertexBuffer::Create(float* vertices, size_t size)
     {
         switch(RenderingAPI::GetAPI())
@@ -32,15 +31,24 @@ namespace Entropy {
         return nullptr;
     }
 
-
-
-    // Index buffer
     Ref<IndexBuffer> IndexBuffer::Create(uint32_t* indices, uint32_t count)
     {
         switch(RenderingAPI::GetAPI())
         {
         case RenderingAPI::API::OpenGL:
             return CreateRef<OpenGLIndexBuffer>(indices, count);
+        }
+
+        NT_FATAL("Unknown Rendering API");
+        return nullptr;
+    }
+
+    Ref<IndexBuffer> IndexBuffer::Create(uint32_t count)
+    {
+        switch (RenderingAPI::GetAPI())
+        {
+        case RenderingAPI::API::OpenGL:
+            return CreateRef<OpenGLIndexBuffer>(count);
         }
 
         NT_FATAL("Unknown Rendering API");

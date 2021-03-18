@@ -17,7 +17,7 @@ namespace Entropy {
 
 		const glm::mat4& GetMatrix() const { return m_Projection; }
 
-		void PollUpdate();
+		void OnUpdate();
 
 	private:
 		void RecalculateProjection();

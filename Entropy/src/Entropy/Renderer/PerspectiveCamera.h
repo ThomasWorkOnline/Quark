@@ -17,7 +17,7 @@ namespace Entropy {
 		float GetAspectRatio() const { return m_AspectRatio; }
 		void SetAspectRatio(float aspectRatio) { m_AspectRatio = aspectRatio; m_RequiresUpdate = true; }
 
-		void PollUpdate();
+		void OnUpdate();
 
 	private:
 		void RecalculateProjection();

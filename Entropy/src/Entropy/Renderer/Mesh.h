@@ -20,7 +20,7 @@ namespace Entropy {
 		// TODO: support sharp edges and sharp angle threshold detector
 		bool LoadOBJFromFile(const BufferLayout& layout, const std::string& filepath);
 
-		void GenerateUnitCube(const BufferLayout& layout);
+		void GenerateUnitCube();
 		void GenerateTerrain(const BufferLayout& layout, size_t scale, uint32_t seed);
 
 	private:

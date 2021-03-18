@@ -10,12 +10,15 @@
 #include "Texture.h"
 
 #include "../Scene/Components.h"
+#include "../Scene/Entity.h"
+#include "../Scene/Scene.h"
 
 namespace Entropy {
 
 	struct RenderStats
 	{
 		uint32_t DrawCalls;
+		uint32_t QuadsDrawn;
 	};
 
 	class Renderer
@@ -52,6 +55,7 @@ namespace Entropy {
 		static void SubmitSprite(const Ref<Texture2D>& texture, const glm::mat4& transform = glm::mat4(1.0f));
 		static void SubmitSprite(const Ref<Texture2D>& texture, const glm::vec2* texCoords, const glm::mat4& transform = glm::mat4(1.0f));
 		static void SubmitSprite(const SubTexture2D& subTexture, const glm::mat4& transform = glm::mat4(1.0f));
+		static void SubmitSprite(const glm::vec4& color, const glm::mat4& transform = glm::mat4(1.0f));
 
 		static const RenderStats& GetStats() { return s_Stats; }
 

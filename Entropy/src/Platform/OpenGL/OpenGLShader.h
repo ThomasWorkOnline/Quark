@@ -27,6 +27,11 @@ namespace Entropy {
 
 		virtual void SetMat4(const std::string& name, const glm::mat4& value) override;
 
+		virtual bool operator==(const Ressource& other) const override
+		{
+			return m_RendererID == ((OpenGLShader&)other).m_RendererID;
+		}
+
 		void UploadUniformInt(const std::string& name, int32_t value);
 		void UploadUniformIntArray(const std::string& name, int32_t* values, uint32_t count);
 

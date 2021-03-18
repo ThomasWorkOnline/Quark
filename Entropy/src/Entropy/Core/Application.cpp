@@ -34,8 +34,6 @@ namespace Entropy {
 
 	Application::~Application()
 	{
-		OnDestroy();
-
 		AudioEngine::Dispose();
 		Renderer::Dispose();
 
@@ -55,7 +53,7 @@ namespace Entropy {
 	bool Application::OnWindowClose(WindowCloseEvent& e)
 	{
 		m_Running = false;
-		return true;
+		return false;
 	}
 
 	bool Application::OnWindowResize(WindowResizeEvent& e)
@@ -87,5 +85,7 @@ namespace Entropy {
 			AudioEngine::OnUpdate();
 			m_Window->OnUpdate();
 		}
+
+		OnDestroy();
 	}
 }

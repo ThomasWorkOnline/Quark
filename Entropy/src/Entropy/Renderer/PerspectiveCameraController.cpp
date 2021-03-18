@@ -100,7 +100,7 @@ namespace Entropy {
 			// Check if the fov needs to be changed
 			if (abs(s_ZoomSpeed) > 0.1f)
 			{
-				camera.SetFov(camera.GetFov() - s_ZoomSpeed * elapsedTime * m_MouseScrollSensitivity * camera.GetFov() / 120.0f);
+				camera.SetFov(camera.GetFov() - s_ZoomSpeed * elapsedTime * camera.GetFov());
 			}
 
 			if (camera.GetFov() < 1.0f)
@@ -115,17 +115,7 @@ namespace Entropy {
 				s_ZoomSpeed = 0.0f;
 			}
 
-			// Updates the projection matrix if needed
-			// View matrix is handled by the transform component
-			camera.PollUpdate();
-		}
-	}
-
-	void PerspectiveCameraController::OnResize(float width, float height)
-	{
-		if (m_CameraEntity)
-		{
-			m_CameraEntity->GetComponent<PerspectiveCameraComponent>().Camera.SetAspectRatio(width / height);
+			camera.OnUpdate();
 		}
 	}
 
@@ -145,7 +135,10 @@ namespace Entropy {
 
 	bool PerspectiveCameraController::OnWindowResized(WindowResizeEvent& e)
 	{
-		OnResize((float)e.GetWidth(), (float)e.GetHeight());
+		if (m_CameraEntity)
+		{
+			m_CameraEntity->GetComponent<PerspectiveCameraComponent>().Camera.SetAspectRatio((float)e.GetWidth() / (float)e.GetHeight());
+		}
 		return false;
 	}
 

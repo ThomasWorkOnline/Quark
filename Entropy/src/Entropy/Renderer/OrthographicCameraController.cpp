@@ -90,7 +90,7 @@ namespace Entropy {
 			// Check if the fov needs to be changed
 			if (abs(s_ZoomSpeed) > 0.1f)
 			{
-				camera.SetZoom(camera.GetZoom() - s_ZoomSpeed * elapsedTime * m_MouseScrollSensitivity * camera.GetZoom() / 120.0f);
+				camera.SetZoom(camera.GetZoom() - s_ZoomSpeed * elapsedTime * camera.GetZoom());
 			}
 
 			if (camera.GetZoom() < 1.0f)
@@ -99,23 +99,13 @@ namespace Entropy {
 				s_ZoomSpeed = 0.0f;
 			}
 
-			if (camera.GetZoom() > 100.0f)
+			if (camera.GetZoom() > 1000.0f)
 			{
-				camera.SetZoom(100.0f);
+				camera.SetZoom(1000.0f);
 				s_ZoomSpeed = 0.0f;
 			}
 
-			// Updates the projection matrix if needed
-			// View matrix is handled by the transform component
-			camera.PollUpdate();
-		}
-	}
-
-	void OrthographicCameraController::OnResize(float width, float height)
-	{
-		if (m_CameraEntity)
-		{
-			m_CameraEntity->GetComponent<OrthographicCameraComponent>().Camera.SetAspectRatio(width / height);
+			camera.OnUpdate();
 		}
 	}
 
@@ -135,7 +125,10 @@ namespace Entropy {
 
 	bool OrthographicCameraController::OnWindowResized(WindowResizeEvent& e)
 	{
-		OnResize((float)e.GetWidth(), (float)e.GetHeight());
+		if (m_CameraEntity)
+		{
+			m_CameraEntity->GetComponent<OrthographicCameraComponent>().Camera.SetAspectRatio((float)e.GetWidth() / (float)e.GetHeight());
+		}
 		return false;
 	}
 

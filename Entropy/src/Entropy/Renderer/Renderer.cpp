@@ -3,10 +3,6 @@
 #include "../Core/Core.h"
 #include "../Debug/Monitoring.h"
 
-#include "../Scene/Scene.h"
-#include "../Scene/Entity.h"
-#include "../Scene/Components.h"
-
 #include "RenderingAPI.h"
 
 namespace Entropy {
@@ -16,6 +12,7 @@ namespace Entropy {
 		glm::vec3 Position;
 		glm::vec2 TexCoord;
 		glm::vec3 Normal;
+		glm::vec4 Color;
 		float TexIndex;
 	};
 
@@ -57,6 +54,7 @@ namespace Entropy {
 				{ ShaderDataType::Float3, "a_Position" },
 				{ ShaderDataType::Float2, "a_TexCoord" },
 				{ ShaderDataType::Float3, "a_Normal"   },
+				{ ShaderDataType::Float4, "a_Color"    },
 				{ ShaderDataType::Float,  "a_TexIndex" }
 				});
 			s_Data.VertexArray->AddVertexBuffer(s_Data.VertexBuffer);
@@ -98,11 +96,70 @@ namespace Entropy {
 
 			s_Data.Textures[0] = s_Data.DefaultTexture;
 
+			const char* vertexSource = R"(
+				#version 330 core
+
+				layout(location = 0) in vec3 a_Position;
+				layout(location = 1) in vec2 a_TexCoord;
+				layout(location = 2) in vec3 a_Normal;
+				layout(location = 3) in vec4 a_Color;
+				layout(location = 4) in float a_TexIndex;
+
+				uniform mat4 u_View;
+				uniform mat4 u_Projection;
+
+				out vec3 v_Position;
+				out vec2 v_TexCoord;
+				out vec3 v_Normal;
+				out vec4 v_Color;
+				flat out float v_TexIndex;
+
+				void main()
+				{
+					vec4 position = vec4(a_Position, 1.0);
+
+					gl_Position = u_Projection * u_View * position;
+
+					v_Position = position.xyz;
+					v_TexCoord = a_TexCoord;
+					v_Normal = a_Normal;
+					v_Color = a_Color;
+					v_TexIndex = a_TexIndex;
+				}
+			)";
+
+			const char* fragmentSource = R"(
+				#version 330 core
+
+				uniform sampler2D u_Samplers[32];
+
+				in vec3 v_Position;
+				in vec2 v_TexCoord;
+				in vec3 v_Normal;
+				in vec4 v_Color;
+				flat in float v_TexIndex;
+
+				void main()
+				{
+					vec4 color;
+
+					if (v_TexIndex == -1.0)
+						color = v_Color;
+					else
+						color = texture(u_Samplers[int(v_TexIndex)], v_TexCoord);
+
+					if (color.a < 1)
+						discard;
+	
+					gl_FragColor = color;
+				}
+			)";
+
 			int32_t* samplers = new int32_t[s_Data.MaxTextureSlots];
 			for (uint32_t i = 0; i < s_Data.MaxTextureSlots; i++)
 				samplers[i] = i;
 
-			s_Data.SpriteShader = Shader::Create("assets/shaders/defaultTexture.glsl");
+			s_Data.SpriteShader = Shader::Create("defaultSprite", vertexSource, fragmentSource);
 			s_Data.SpriteShader->Attach();
 			s_Data.SpriteShader->SetIntArray("u_Samplers", samplers, s_Data.MaxTextureSlots);
 			delete[] samplers;
@@ -131,6 +188,7 @@ namespace Entropy {
 		StartBatch();
 
 		s_Stats.DrawCalls = 0;
+		s_Stats.QuadsDrawn = 0;
 	}
 
 	void Renderer::EndScene()
@@ -161,7 +219,7 @@ namespace Entropy {
 		s_Data.SpriteShader->SetMat4("u_View", s_SceneData.ViewMatrix);
 
 		s_Data.VertexArray->Attach();
-		RenderCommand::Draw(s_Data.VertexArray, s_Data.IndexCount);
+		RenderCommand::DrawIndexed(s_Data.VertexArray, s_Data.IndexCount);
 
 		s_Stats.DrawCalls++;
 	}
@@ -178,7 +236,7 @@ namespace Entropy {
 			texture->Attach();
 
 			va->Attach();
-			RenderCommand::Draw(va);
+			RenderCommand::DrawIndexed(va);
 		}
 	}
 
@@ -195,7 +253,7 @@ namespace Entropy {
 			s_Data.DefaultTexture->Attach(1);
 
 			va->Attach();
-			RenderCommand::Draw(va);
+			RenderCommand::DrawIndexed(va);
 		}
 	}
 
@@ -212,7 +270,7 @@ namespace Entropy {
 			framebuffer->AttachColorAttachment(1);
 
 			va->Attach();
-			RenderCommand::Draw(va);
+			RenderCommand::DrawIndexed(va);
 		}
 	}
 
@@ -274,13 +332,65 @@ namespace Entropy {
 		{
 			s_Data.VertexPtr->Position = transform * spriteVertexPositions[i];
 			s_Data.VertexPtr->TexCoord = texCoords[i];
-			s_Data.VertexPtr->Normal = { 0.0f, 0.0f, 1.0f };
+			s_Data.VertexPtr->Normal   = { 0.0f, 0.0f, 1.0f };
+			s_Data.VertexPtr->Color    = { 0.0f, 0.0f, 0.0f, 1.0f };
 			s_Data.VertexPtr->TexIndex = textureIndex;
 
 			s_Data.VertexPtr++;
 		}
 
 		s_Data.IndexCount += 6;
+		s_Stats.QuadsDrawn++;
+	}
+
+	void Renderer::SubmitSprite(const glm::vec4& color, const glm::mat4& transform)
+	{
+		// Check if buffer is full
+		if (s_Data.IndexCount >= s_Data.MaxIndices)
+		{
+			PushBatch();
+			StartBatch();
+		}
+
+		constexpr glm::vec4 spriteVertexPositions[4] = {
+			{ -0.5f, -0.5f, 0.0f, 1.0f },
+			{  0.5f, -0.5f, 0.0f, 1.0f },
+			{  0.5f,  0.5f, 0.0f, 1.0f },
+			{ -0.5f,  0.5f, 0.0f, 1.0f }
+		};
+
+#if 0
+		// Viewport culling
+		glm::mat4 mvp = s_SceneData.ProjectionMatrix * s_SceneData.ViewMatrix * transform;
+		glm::vec3 bottomLeft = mvp * spriteVertexPositions[0];
+		glm::vec3 topRight = mvp * spriteVertexPositions[2];
+
+		if (topRight.x < -1.0f)
+			return;
+
+		if (bottomLeft.x > 1.0f)
+			return;
+
+		if (topRight.y < -1.0f)
+			return;
+
+		if (bottomLeft.y > 1.0f)
+			return;
+#endif
+
+		for (uint8_t i = 0; i < 4; i++)
+		{
+			s_Data.VertexPtr->Position = transform * spriteVertexPositions[i];
+			s_Data.VertexPtr->TexCoord = { 0.0f, 0.0f };
+			s_Data.VertexPtr->Normal   = { 0.0f, 0.0f, 1.0f };
+			s_Data.VertexPtr->Color    = color;
+			s_Data.VertexPtr->TexIndex = -1.0f;
+
+			s_Data.VertexPtr++;
+		}
+
+		s_Data.IndexCount += 6;
+		s_Stats.QuadsDrawn++;
 	}
 
 	void Renderer::OnWindowResize(uint32_t width, uint32_t height)

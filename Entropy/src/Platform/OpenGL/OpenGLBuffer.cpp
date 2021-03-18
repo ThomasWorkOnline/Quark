@@ -4,7 +4,6 @@
 
 namespace Entropy {
 
-    // Vertex buffer
     OpenGLVertexBuffer::OpenGLVertexBuffer(size_t size)
     {
         glGenBuffers(1, &m_RendererID);
@@ -34,16 +33,20 @@ namespace Entropy {
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 
-    void OpenGLVertexBuffer::SetData(const void* data, size_t size)
+    void OpenGLVertexBuffer::SetData(const void* data, size_t size, size_t offset)
     {
         glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
+        glBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
     }
 
+    OpenGLIndexBuffer::OpenGLIndexBuffer(uint32_t count)
+        : m_Count(count)
+    {
+        glGenBuffers(1, &m_RendererID);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), nullptr, GL_DYNAMIC_DRAW);
+    }
 
-
-
-    // Index buffer
     OpenGLIndexBuffer::OpenGLIndexBuffer(uint32_t* indices, uint32_t count)
         : m_Count(count)
     {
@@ -65,5 +68,11 @@ namespace Entropy {
     void OpenGLIndexBuffer::Detach() const
     {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    }
+
+    void OpenGLIndexBuffer::SetData(uint32_t* data, uint32_t count, size_t offset)
+    {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
+        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, offset * sizeof(uint32_t), count * sizeof(uint32_t), data);
     }
 }

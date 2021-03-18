@@ -4,7 +4,8 @@
 layout(location = 0) in vec3 a_Position;
 layout(location = 1) in vec2 a_TexCoord;
 layout(location = 2) in vec3 a_Normal;
-layout(location = 3) in float a_TexIndex;
+layout(location = 3) in vec4 a_Color;
+layout(location = 4) in float a_TexIndex;
 
 uniform mat4 u_View;
 uniform mat4 u_Projection;
@@ -12,6 +13,7 @@ uniform mat4 u_Projection;
 out vec3 v_Position;
 out vec2 v_TexCoord;
 out vec3 v_Normal;
+out vec4 v_Color;
 flat out float v_TexIndex;
 
 void main()
@@ -23,6 +25,7 @@ void main()
 	v_Position = position.xyz;
 	v_TexCoord = a_TexCoord;
 	v_Normal = a_Normal;
+	v_Color = a_Color;
     v_TexIndex = a_TexIndex;
 }
 
@@ -34,12 +37,20 @@ uniform sampler2D u_Samplers[32];
 in vec3 v_Position;
 in vec2 v_TexCoord;
 in vec3 v_Normal;
+in vec4 v_Color;
 flat in float v_TexIndex;
 
 void main()
 {
-	vec4 color = texture(u_Samplers[int(v_TexIndex)], v_TexCoord);
+	vec4 color;
+
+	if (v_TexIndex == -1.0)
+		color = v_Color;
+	else
+		color = texture(u_Samplers[int(v_TexIndex)], v_TexCoord);
+
 	if (color.a < 1)
 		discard;
+	
     gl_FragColor = color;
 }

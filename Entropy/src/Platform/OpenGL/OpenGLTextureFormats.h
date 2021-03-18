@@ -39,8 +39,12 @@ namespace Entropy {
 	{
 		switch (format)
 		{
-		case TextureFilteringFormat::Nearest: return GL_NEAREST;
-		case TextureFilteringFormat::Linear:  return GL_LINEAR;
+		case TextureFilteringFormat::Nearest:				return GL_NEAREST;
+		case TextureFilteringFormat::Linear:				return GL_LINEAR;
+		case TextureFilteringFormat::NearestMipmapNearest:	return GL_NEAREST_MIPMAP_NEAREST;
+		case TextureFilteringFormat::NearestMipmapLinear:	return GL_NEAREST_MIPMAP_LINEAR;
+		case TextureFilteringFormat::LinearMipmapNearest:	return GL_LINEAR_MIPMAP_NEAREST;
+		case TextureFilteringFormat::LinearMipmapLinear:	return GL_LINEAR_MIPMAP_LINEAR;
 		}
 
 		NT_FATAL("Invalid texture filtering format");

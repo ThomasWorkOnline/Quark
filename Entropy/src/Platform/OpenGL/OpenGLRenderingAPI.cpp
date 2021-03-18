@@ -90,13 +90,13 @@ namespace Entropy {
         glViewport(x, y, width, height);
     }
 
-    void OpenGLRenderingAPI::Draw(Ref<VertexArray> vertexArray, uint32_t indexCount)
+    void OpenGLRenderingAPI::DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount)
     {
         uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer()->GetCount();
         glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
     }
 
-    void OpenGLRenderingAPI::DrawInstanced(Ref<VertexArray> vertexArray, uint32_t repeatCount, uint32_t indexCount)
+    void OpenGLRenderingAPI::DrawIndexedInstanced(const Ref<VertexArray>& vertexArray, uint32_t repeatCount, uint32_t indexCount)
     {
         uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer()->GetCount();
         glDrawElementsInstanced(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr, repeatCount);

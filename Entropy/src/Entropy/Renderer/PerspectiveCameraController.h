@@ -15,16 +15,29 @@ namespace Entropy {
 	public:
 		PerspectiveCameraController() = default;
 		PerspectiveCameraController(Entity& camera);
+		virtual ~PerspectiveCameraController() = default;
 
-		void OnEvent(Event& e);
-		void OnUpdate(float elapsedTime);
-		void OnResize(float width, float height);
+		/// <summary>
+		/// Propagates the events to the controller.
+		/// Make sure the camera entity has all `Transform3DComponent`, `PhysicsComponent` and `PerspectiveCameraComponent` components.
+		/// This method can be overriden.
+		/// </summary>
+		/// <param name="e">Event to propagate</param>
+		virtual void OnEvent(Event& e);
+
+		/// <summary>
+		/// Updates the logic for controlling the bound camera.
+		/// Make sure the camera entity has all `Transform3DComponent`, `PhysicsComponent` and `PerspectiveCameraComponent` components.
+		/// This method can be overriden.
+		/// </summary>
+		/// <param name="elapsedTime">Time elapsed between the last update</param>
+		virtual void OnUpdate(float elapsedTime);
 
 		bool HasCamera() const { return m_CameraEntity; }
 		void AttachCamera(Entity& camera) { m_CameraEntity = &camera; }
 		void DetachCamera() { m_CameraEntity = nullptr; }
 
-	private:
+	protected:
 		bool OnMouseScrolled(MouseScrolledEvent& e);
 		bool OnWindowResized(WindowResizeEvent& e);
 		bool OnMouseMoved(MouseMovedEvent& e);
@@ -32,9 +45,12 @@ namespace Entropy {
 		// Has to be of generic type Entity to have access to various components
 		Entity* m_CameraEntity = nullptr;
 
+		/// <summary>
+		/// Members can be altered.
+		/// </summary>
 		float m_RollSensitivity = 32.0f;
 		float m_MovementSpeed = 12.0f;
 		float m_MouseSensitivity = 0.002f;
-		float m_MouseScrollSensitivity = 12.0f;
+		float m_MouseScrollSensitivity = 1.0f;
 	};
 }
