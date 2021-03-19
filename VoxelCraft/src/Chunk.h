@@ -4,6 +4,14 @@
 
 #include "Block.h"
 
+struct Vertex
+{
+	glm::vec3 Position;
+	glm::vec2 TexCoord;
+	float TexIndex;
+	float Intensity;
+};
+
 struct ChunkSpecification
 {
 	static const uint32_t Width  = 16;   // x
@@ -58,14 +66,6 @@ struct ChunkSpecification
 	};
 };
 
-struct Vertex
-{
-	glm::vec3 Position;
-	glm::vec2 TexCoord;
-	float TexIndex;
-	float Intensity;
-};
-
 struct World;
 
 class Chunk
@@ -104,7 +104,7 @@ private:
 
 	std::vector<Vertex> m_Vertices;
 	uint32_t m_IndexCount = 0;
-	uint32_t* m_Indices;
+	uint32_t* m_Indices = nullptr;
 
 	Block* m_Blocks = nullptr;
 	World* m_World = nullptr;

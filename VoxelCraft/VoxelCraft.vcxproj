@@ -153,12 +153,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Chunk.cpp" />
+    <ClCompile Include="src\ChunkRenderer.cpp" />
     <ClCompile Include="src\EntryPoint.cpp" />
+    <ClCompile Include="src\Player.cpp" />
     <ClCompile Include="src\World.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Block.h" />
     <ClInclude Include="src\Chunk.h" />
+    <ClInclude Include="src\ChunkRenderer.h" />
+    <ClInclude Include="src\Player.h" />
     <ClInclude Include="src\World.h" />
   </ItemGroup>
   <ItemGroup>

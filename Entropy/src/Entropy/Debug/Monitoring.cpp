@@ -12,6 +12,7 @@ namespace Entropy {
 	{
 		m_End = std::chrono::steady_clock::now();
 		m_Elapsed = m_End - m_Start;
-		std::cout << m_Scope << " took:\t" << m_Elapsed.count() * 1000.0f << "ms         \r";
+
+		std::cout << m_Scope << " took:\t" << m_Elapsed.count() * 1000.0f << "ms\n";
 	}
 }

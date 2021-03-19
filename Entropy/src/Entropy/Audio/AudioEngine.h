@@ -9,7 +9,10 @@ namespace Entropy {
 	class AudioEngine
 	{
 	public:
-		static void Init();
+		AudioEngine() = delete;
+		AudioEngine operator= (const AudioEngine& other) = delete;
+
+		static void Initialize();
 		static void Dispose();
 
 		static void PlaySound(const char* filepath);

@@ -31,10 +31,12 @@ public:
 
 	void OnUpdate(float elapsedTime) override
 	{
+		
 		constexpr uint32_t movementSpeed = 80.0f;
 		auto& playerPhysics = m_Maxwell.GetComponent<Entropy::PhysicsComponent>();
 		auto& playerTransform = m_Maxwell.GetComponent<Entropy::Transform3DComponent>();
 
+		
 		if (Entropy::Input::IsKeyPressed(Entropy::Key::W))
 			playerPhysics.Velocity.y += movementSpeed * elapsedTime;
 
@@ -50,7 +52,7 @@ public:
 		m_CameraController.OnUpdate(elapsedTime, m_Maxwell);
 
 		m_Scene.OnUpdate(elapsedTime);
-
+		
 		Entropy::Renderer::BeginScene(m_Camera.GetComponent<Entropy::OrthographicCameraComponent>().Camera.GetMatrix(),
 			m_Camera.GetComponent<Entropy::Transform3DComponent>());
 

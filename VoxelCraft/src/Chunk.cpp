@@ -45,9 +45,7 @@ static glm::ivec3 GetDirection(BlockFace facing)
 }
 
 Chunk::Chunk(const glm::ivec2& position, World* world)
-	: m_Position(position), m_World(world)
-{
-}
+	: m_Position(position), m_World(world) { }
 
 Chunk::~Chunk()
 {
@@ -82,8 +80,6 @@ void Chunk::ConstructData(const std::atomic<bool>& running)
 
 void Chunk::ConstructMesh(const std::atomic<bool>& running)
 {
-	NT_TIME_SCOPE_DEBUG(Chunk::ConstructMesh);
-
 	for (uint32_t y = 0; y < s_Spec.Height; y++)
 	{
 		for (uint32_t z = 0; z < s_Spec.Depth; z++)

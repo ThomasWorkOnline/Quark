@@ -42,7 +42,7 @@ namespace Entropy {
 	RenderStats Renderer::s_Stats;
 	SpriteRendererData s_Data;
 	
-	void Renderer::Init()
+	void Renderer::Initialize()
 	{
 		RenderCommand::Init();
 

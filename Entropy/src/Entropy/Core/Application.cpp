@@ -27,9 +27,9 @@ namespace Entropy {
 		m_Window->AppendTitle(appendedTitle);
 
 		NT_INFO(RenderCommand::GetSpecification());
-		Renderer::Init();
+		Renderer::Initialize();
 
-		AudioEngine::Init();
+		AudioEngine::Initialize();
 	}
 
 	Application::~Application()
@@ -53,7 +53,7 @@ namespace Entropy {
 	bool Application::OnWindowClose(WindowCloseEvent& e)
 	{
 		m_Running = false;
-		return false;
+		return true;
 	}
 
 	bool Application::OnWindowResize(WindowResizeEvent& e)

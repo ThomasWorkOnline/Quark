@@ -1,6 +1,7 @@
 #include <Entropy.h>
 
 #include "World.h"
+#include "Player.h"
 
 class VoxelCraft : public Entropy::Application
 {
@@ -9,15 +10,6 @@ public:
 	{
 		m_Shader = m_ShaderDefault;
 
-		{
-			m_Player = m_Scene.CreateEntity();
-			m_Player.AddComponent<Entropy::PerspectiveCameraComponent>((float)GetWindow().GetWidth() / (float)GetWindow().GetHeight(), 70.0f);
-			auto& transform = m_Player.AddComponent<Entropy::Transform3DComponent>();
-			transform.Position.z = -2.0f;
-			transform.Position.y = 65.0f;
-			m_Player.AddComponent<Entropy::PhysicsComponent>();
-		}
-
 		GetWindow().Select();
 		GetWindow().SetVSync(false);
 		GetWindow().SetFullScreen(false);
@@ -25,18 +17,14 @@ public:
 
 	void OnUpdate(float elapsedTime) override
 	{
-		m_Scene.OnUpdate(elapsedTime);
+		m_World.OnUpdate(elapsedTime);
 		m_Controller.OnUpdate(elapsedTime);
 
-		Entropy::Renderer::BeginScene(m_Player.GetComponent<Entropy::PerspectiveCameraComponent>().Camera.GetMatrix(),
-			m_Player.GetComponent<Entropy::Transform3DComponent>());
+		Entropy::Renderer::BeginScene(m_Player.GetCamera().Camera.GetMatrix(),
+			m_Player.GetTransform());
 
-		for (auto& chunk : m_World.GetChunks())
-		{
-			chunk.PushData();
-			Entropy::Renderer::Submit(m_Shader, m_Stone, chunk.GetVertexArray());
-		}
-
+		m_World.OnRender(m_Shader);
+		
 		Entropy::Renderer::EndScene();
 	}
 
@@ -45,7 +33,6 @@ public:
 		Entropy::EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<Entropy::KeyPressedEvent>(NT_ATTACH_EVENT_FN(VoxelCraft::OnKeyPressed));
 		dispatcher.Dispatch<Entropy::MouseButtonPressedEvent>(NT_ATTACH_EVENT_FN(VoxelCraft::OnMouseButtonPressed));
-		dispatcher.Dispatch<Entropy::WindowCloseEvent>(NT_ATTACH_EVENT_FN(VoxelCraft::OnWindowClose));
 
 		m_Controller.OnEvent(e);
 	}
@@ -87,25 +74,15 @@ public:
 		return false;
 	}
 
-	bool OnWindowClose(Entropy::WindowCloseEvent& e)
-	{
-		std::cout << "Shutdown world\n";
-		m_World.Shutdown();
-		return false;
-	}
-
 private:
-	Entropy::Scene m_Scene;
-	Entropy::Entity m_Player;
+	World m_World;
+
+	Player m_Player = { &m_World.GetScene() };
 	Entropy::PerspectiveCameraController m_Controller = { m_Player };
 
 	Entropy::Ref<Entropy::Shader> m_ShaderDebug = Entropy::Shader::Create("assets/shaders/debugNormal.glsl");
 	Entropy::Ref<Entropy::Shader> m_ShaderDefault = Entropy::Shader::Create("assets/shaders/default.glsl");
 	Entropy::Ref<Entropy::Shader> m_Shader;
-
-	Entropy::Ref<Entropy::Texture2D> m_Stone = Entropy::Texture2D::Create("assets/textures/stone.png");
-
-	World m_World;
 };
 
 int main()

@@ -6,7 +6,7 @@ namespace Entropy {
 
 	irrklang::ISoundEngine* AudioEngine::s_Engine;
 
-	void AudioEngine::Init()
+	void AudioEngine::Initialize()
 	{
 		s_Engine = irrklang::createIrrKlangDevice();
 	}

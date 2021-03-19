@@ -10,9 +10,9 @@ void PlayerCameraController::OnEvent(Entropy::Event& e)
 
 void PlayerCameraController::OnUpdate(float elapsedTime)
 {
-	auto& camera = m_CameraEntity->GetComponent<Entropy::OrthographicCameraComponent>().Camera;
+	auto& camera = m_CameraEntity.GetComponent<Entropy::OrthographicCameraComponent>().Camera;
 
-	auto& cameraTransform = m_CameraEntity->GetComponent<Entropy::Transform3DComponent>();
+	auto& cameraTransform = m_CameraEntity.GetComponent<Entropy::Transform3DComponent>();
 	auto& playerTransform = m_Player.GetComponent<Entropy::Transform3DComponent>();
 	auto& playerPhysics   = m_Player.GetComponent<Entropy::PhysicsComponent>();
 

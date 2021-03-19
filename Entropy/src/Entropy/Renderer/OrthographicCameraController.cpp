@@ -17,16 +17,16 @@ namespace Entropy {
 
 	OrthographicCameraController::OrthographicCameraController(Entity& camera)
 	{
-		m_CameraEntity = &camera;
+		m_CameraEntity = camera;
 	}
 
 	void OrthographicCameraController::OnUpdate(float elapsedTime)
 	{
 		if (m_CameraEntity)
 		{
-			auto& transform = m_CameraEntity->GetComponent<Transform3DComponent>();
-			auto& physics = m_CameraEntity->GetComponent<PhysicsComponent>();
-			auto& camera = m_CameraEntity->GetComponent<OrthographicCameraComponent>().Camera;
+			auto& transform = m_CameraEntity.GetComponent<Transform3DComponent>();
+			auto& physics = m_CameraEntity.GetComponent<PhysicsComponent>();
+			auto& camera = m_CameraEntity.GetComponent<OrthographicCameraComponent>().Camera;
 
 			// Movement
 			static const float defaultMovementSpeed = m_MovementSpeed;
@@ -127,7 +127,7 @@ namespace Entropy {
 	{
 		if (m_CameraEntity)
 		{
-			m_CameraEntity->GetComponent<OrthographicCameraComponent>().Camera.SetAspectRatio((float)e.GetWidth() / (float)e.GetHeight());
+			m_CameraEntity.GetComponent<OrthographicCameraComponent>().Camera.SetAspectRatio((float)e.GetWidth() / (float)e.GetHeight());
 		}
 		return false;
 	}
@@ -140,8 +140,8 @@ namespace Entropy {
 		{
 			if (m_CameraEntity)
 			{
-				auto& transform = m_CameraEntity->GetComponent<Transform3DComponent>();
-				auto& camera = m_CameraEntity->GetComponent<OrthographicCameraComponent>().Camera;
+				auto& transform = m_CameraEntity.GetComponent<Transform3DComponent>();
+				auto& camera = m_CameraEntity.GetComponent<OrthographicCameraComponent>().Camera;
 
 				// TODO:
 			}

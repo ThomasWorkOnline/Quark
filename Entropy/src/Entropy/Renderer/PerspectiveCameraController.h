@@ -34,8 +34,8 @@ namespace Entropy {
 		virtual void OnUpdate(float elapsedTime);
 
 		bool HasCamera() const { return m_CameraEntity; }
-		void AttachCamera(Entity& camera) { m_CameraEntity = &camera; }
-		void DetachCamera() { m_CameraEntity = nullptr; }
+		void AttachCamera(Entity camera) { m_CameraEntity = camera; }
+		void DetachCamera() { m_CameraEntity = Entity(); }
 
 	protected:
 		bool OnMouseScrolled(MouseScrolledEvent& e);
@@ -43,7 +43,7 @@ namespace Entropy {
 		bool OnMouseMoved(MouseMovedEvent& e);
 
 		// Has to be of generic type Entity to have access to various components
-		Entity* m_CameraEntity = nullptr;
+		Entity m_CameraEntity;
 
 		/// <summary>
 		/// Members can be altered.

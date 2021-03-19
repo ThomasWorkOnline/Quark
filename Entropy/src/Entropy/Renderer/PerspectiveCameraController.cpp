@@ -17,16 +17,16 @@ namespace Entropy {
 
 	PerspectiveCameraController::PerspectiveCameraController(Entity& camera)
 	{
-		m_CameraEntity = &camera;
+		m_CameraEntity = camera;
 	}
 
 	void PerspectiveCameraController::OnUpdate(float elapsedTime)
 	{
 		if (m_CameraEntity)
 		{
-			auto& transform = m_CameraEntity->GetComponent<Transform3DComponent>();
-			auto& physics = m_CameraEntity->GetComponent<PhysicsComponent>();
-			auto& camera = m_CameraEntity->GetComponent<PerspectiveCameraComponent>().Camera;
+			auto& transform = m_CameraEntity.GetComponent<Transform3DComponent>();
+			auto& physics = m_CameraEntity.GetComponent<PhysicsComponent>();
+			auto& camera = m_CameraEntity.GetComponent<PerspectiveCameraComponent>().Camera;
 
 			// Movement
 			static const float defaultMovementSpeed = m_MovementSpeed;
@@ -137,7 +137,7 @@ namespace Entropy {
 	{
 		if (m_CameraEntity)
 		{
-			m_CameraEntity->GetComponent<PerspectiveCameraComponent>().Camera.SetAspectRatio((float)e.GetWidth() / (float)e.GetHeight());
+			m_CameraEntity.GetComponent<PerspectiveCameraComponent>().Camera.SetAspectRatio((float)e.GetWidth() / (float)e.GetHeight());
 		}
 		return false;
 	}
@@ -150,8 +150,8 @@ namespace Entropy {
 		{
 			if (m_CameraEntity)
 			{
-				auto& transform = m_CameraEntity->GetComponent<Transform3DComponent>();
-				auto& camera = m_CameraEntity->GetComponent<PerspectiveCameraComponent>().Camera;
+				auto& transform = m_CameraEntity.GetComponent<Transform3DComponent>();
+				auto& camera = m_CameraEntity.GetComponent<PerspectiveCameraComponent>().Camera;
 
 				glm::vec2 mouseMove = { e.GetX() - lastMousePos.x, e.GetY() - lastMousePos.y };
 				glm::quat qYaw = glm::angleAxis(-mouseMove.x * m_MouseSensitivity * camera.GetFov() / 90.0f, glm::vec3(0.0f, 1.0f, 0.0f) * transform.Orientation);
