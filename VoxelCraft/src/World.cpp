@@ -73,7 +73,7 @@ Chunk* World::GetChunk(const glm::ivec2& position)
 	return nullptr;
 }
 
-const Block* World::GetBlockFromPositionAbsolute(const glm::ivec3& position) const
+BlockId World::GetBlockFromPositionAbsolute(const glm::ivec3& position) const
 {
 	auto& spec = Chunk::GetSpecification();
 	glm::ivec2 chunkPosition = { std::floor(position.x / (float)spec.Width), std::floor(position.z / (float)spec.Depth) };
@@ -82,10 +82,10 @@ const Block* World::GetBlockFromPositionAbsolute(const glm::ivec3& position) con
 	const Chunk* chunk = GetChunk(chunkPosition);
 	if (chunk)
 		return chunk->GetBlockAt(blockPosition);
-	return nullptr;
+	return BlockId::None;
 }
 
-void World::ReplaceBlockFromPositionAbsolute(const glm::ivec3& position, BlockType type)
+void World::ReplaceBlockFromPositionAbsolute(const glm::ivec3& position, BlockId type)
 {
 	auto& spec = Chunk::GetSpecification();
 	glm::ivec2 chunkPosition = { std::floor(position.x / (float)spec.Width), std::floor(position.z / (float)spec.Depth) };
@@ -94,17 +94,17 @@ void World::ReplaceBlockFromPositionAbsolute(const glm::ivec3& position, BlockTy
 	Chunk* chunk = GetChunk(chunkPosition);
 	if (chunk)
 	{
-		const Block* oldBlock = chunk->GetBlockAt(blockPosition);
-		if (oldBlock->Id != type)
+		BlockId oldBlock = chunk->GetBlockAt(blockPosition);
+		if (oldBlock != type)
 		{
-			if (oldBlock->Id == BlockType::Air)
+			if (oldBlock == BlockId::Air)
 			{
 				auto& blockProperties = ChunkRenderer::GetBlockProperties().at(type);
 				Entropy::AudioEngine::PlaySound(blockProperties.BreakSound);
 			}
 			else
 			{
-				auto& blockProperties = ChunkRenderer::GetBlockProperties().at(oldBlock->Id);
+				auto& blockProperties = ChunkRenderer::GetBlockProperties().at(oldBlock);
 				Entropy::AudioEngine::PlaySound(blockProperties.BreakSound);
 			}
 
@@ -113,17 +113,17 @@ void World::ReplaceBlockFromPositionAbsolute(const glm::ivec3& position, BlockTy
 	}
 }
 
-std::tuple<const Block*, glm::ivec3, glm::ivec3> World::RayCast(const glm::vec3& start, const glm::vec3& direction, float length)
+std::tuple<BlockId, glm::ivec3, glm::ivec3> World::RayCast(const glm::vec3& start, const glm::vec3& direction, float length)
 {
 	glm::vec3 normDir = glm::normalize(direction);
 
 	for (float i = 0; i < length; i += 0.01f)
 	{
 		glm::ivec3 position = glm::floor(start + normDir * i);
-		const Block* block = GetBlockFromPositionAbsolute(position);
-		if (block)
+		BlockId block = GetBlockFromPositionAbsolute(position);
+		if (block != BlockId::None)
 		{
-			if (block->Id != BlockType::Air)
+			if (block != BlockId::Air)
 				return { block, position, glm::round(-direction) };
 		}
 	}

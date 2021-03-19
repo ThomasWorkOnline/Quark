@@ -14,5 +14,6 @@
     <ClInclude Include="src\Player.h" />
     <ClInclude Include="src\ChunkRenderer.h" />
     <ClInclude Include="src\PlayerController.h" />
+    <ClInclude Include="src\Blocks.h" />
   </ItemGroup>
 </Project>

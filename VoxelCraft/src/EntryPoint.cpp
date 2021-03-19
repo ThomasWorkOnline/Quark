@@ -85,16 +85,16 @@ public:
 		case Entropy::MouseCode::ButtonLeft:
 			GetWindow().Select();
 
-			if (block)
+			if (block != BlockId::None && block != BlockId::Air)
 			{
-				m_World.ReplaceBlockFromPositionAbsolute(position, BlockType::Air);
+				m_World.ReplaceBlockFromPositionAbsolute(position, BlockId::Air);
 			}
 			break;
 		case Entropy::MouseCode::ButtonRight:
 		{
-			if (block)
+			if (block != BlockId::None && block != BlockId::Air)
 			{
-				m_World.ReplaceBlockFromPositionAbsolute(position + next, BlockType::Cobblestone);
+				m_World.ReplaceBlockFromPositionAbsolute(position + next, BlockId::Cobblestone);
 			}
 			break;
 		}

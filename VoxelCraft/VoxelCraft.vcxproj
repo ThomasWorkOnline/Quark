@@ -160,6 +160,7 @@
     <ClCompile Include="src\World.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Blocks.h" />
     <ClInclude Include="src\Chunk.h" />
     <ClInclude Include="src\ChunkRenderer.h" />
     <ClInclude Include="src\Player.h" />

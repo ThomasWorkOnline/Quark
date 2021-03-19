@@ -2,38 +2,7 @@
 
 #include <Entropy.h>
 
-enum BlockFace
-{
-	Front = 0,
-	Right,
-	Back,
-	Left,
-	Top,
-	Bottom
-};
-
-enum class BlockType
-{
-	Air = 0,
-	Bedrock,
-	Dirt,
-	GrassBlock,
-	Stone,
-	Cobblestone
-};
-
-struct Block
-{
-	BlockType Id = BlockType::Air;
-};
-
-struct Vertex
-{
-	glm::vec3 Position;
-	glm::vec2 TexCoord;
-	float TexIndex;
-	float Intensity;
-};
+#include "Blocks.h"
 
 struct ChunkSpecification
 {
@@ -93,11 +62,14 @@ public:
 	const Entropy::Ref<Entropy::VertexArray>& GetVertexArray() const { return m_VertexArray; }
 
 	const glm::ivec2& GetPosition() const { return m_Position; }
+	glm::ivec3 GetBlockPositionAbsolute(const glm::ivec3& position) const;
 
 	bool IsInitialized() const { return m_Initialized; }
 
-	void ReplaceBlock(const glm::ivec3& position, BlockType type);
-	const Block* GetBlockAt(const glm::ivec3& position) const;
+	BlockId GetBlockAt(const glm::ivec3& position) const;
+	bool SetBlockAt(const glm::ivec3& position, BlockId block);
+
+	void ReplaceBlock(const glm::ivec3& position, BlockId type);
 
 	void ConstructChunkData(const std::atomic<bool>& running);
 	void ConstructChunkMesh(const std::atomic<bool>& running);
@@ -106,11 +78,11 @@ public:
 	static const ChunkSpecification& GetSpecification();
 
 private:
-	void ConstructMeshIndices();
+	void GenerateFaceVertices(const glm::ivec3& position, BlockId type, BlockFace face);
+	void GenerateFaceIndices();
 
 	bool IsBlockFaceVisible(const glm::ivec3& position, BlockFace face) const;
 	bool IsBlockOpaqueAt(const glm::ivec3& position) const;
-	glm::ivec3 GetBlockPositionAbsolute(const glm::ivec3& position) const;
 
 	Entropy::Ref<Entropy::VertexArray> m_VertexArray;
 	Entropy::Ref<Entropy::VertexBuffer> m_VertexBuffer;
@@ -121,9 +93,10 @@ private:
 	bool m_UpdatePending = false;
 
 	uint32_t m_IndexCount = 0;
-	std::vector<Vertex> m_Vertices;
+	uint32_t m_VertexCount = 0;
+	std::vector<BlockVertex> m_Vertices;
 	std::vector<uint32_t> m_Indices;
 
-	Block* m_Blocks = nullptr;
+	BlockId* m_Blocks = nullptr;
 	World* m_World = nullptr;
 };

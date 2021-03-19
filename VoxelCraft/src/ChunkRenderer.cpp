@@ -9,9 +9,9 @@ struct RendererData
 };
 
 static RendererData s_Data;
-static std::unordered_map<BlockType, BlockProperties> s_BlockProperties;
+static std::unordered_map<BlockId, BlockProperties> s_BlockProperties;
 
-const std::unordered_map<BlockType, BlockProperties>& ChunkRenderer::GetBlockProperties()
+const std::unordered_map<BlockId, BlockProperties>& ChunkRenderer::GetBlockProperties()
 {
 	return s_BlockProperties;
 }
@@ -22,12 +22,12 @@ void ChunkRenderer::Initialize()
 	s_Data.Texture = Entropy::Texture2D::Create("assets/textures/sprite_sheet.png");
 
 	s_BlockProperties = {
-		{ BlockType::Air,           { true,  { s_Data.Texture, { 0, 0 }, s_Data.SubTextureSize }, "" } },
-		{ BlockType::Bedrock,       { false, { s_Data.Texture, { 0, 0 }, s_Data.SubTextureSize }, "assets/sounds/break_stone.mp3" } },
-		{ BlockType::Dirt,          { false, { s_Data.Texture, { 1, 0 }, s_Data.SubTextureSize }, "assets/sounds/break_dirt.mp3"  } },
-		{ BlockType::GrassBlock,    { false, { s_Data.Texture, { 2, 0 }, s_Data.SubTextureSize }, "assets/sounds/break_grass.mp3" } },
-		{ BlockType::Stone,         { false, { s_Data.Texture, { 0, 1 }, s_Data.SubTextureSize }, "assets/sounds/break_stone.mp3" } },
-		{ BlockType::Cobblestone,   { false, { s_Data.Texture, { 1, 1 }, s_Data.SubTextureSize }, "assets/sounds/break_stone.mp3" } }
+		{ BlockId::Air,           { true,  { s_Data.Texture, { 0, 0 }, s_Data.SubTextureSize }, "" } },
+		{ BlockId::Bedrock,       { false, { s_Data.Texture, { 0, 0 }, s_Data.SubTextureSize }, "assets/sounds/break_stone.mp3" } },
+		{ BlockId::Dirt,          { false, { s_Data.Texture, { 1, 0 }, s_Data.SubTextureSize }, "assets/sounds/break_dirt.mp3"  } },
+		{ BlockId::GrassBlock,    { false, { s_Data.Texture, { 2, 0 }, s_Data.SubTextureSize }, "assets/sounds/break_grass.mp3" } },
+		{ BlockId::Stone,         { false, { s_Data.Texture, { 0, 1 }, s_Data.SubTextureSize }, "assets/sounds/break_stone.mp3" } },
+		{ BlockId::Cobblestone,   { false, { s_Data.Texture, { 1, 1 }, s_Data.SubTextureSize }, "assets/sounds/break_stone.mp3" } }
 	};
 }
 

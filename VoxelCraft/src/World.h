@@ -18,12 +18,13 @@ public:
 
 	const Chunk* GetChunk(const glm::ivec2& position) const;
 	Chunk* GetChunk(const glm::ivec2& position);
-	const Block* GetBlockFromPositionAbsolute(const glm::ivec3& position) const;
-	void ReplaceBlockFromPositionAbsolute(const glm::ivec3& position, BlockType type);
+
+	BlockId GetBlockFromPositionAbsolute(const glm::ivec3& position) const;
+	void ReplaceBlockFromPositionAbsolute(const glm::ivec3& position, BlockId type);
 
 	Entropy::Scene& GetScene() { return m_Scene; }
 
-	std::tuple<const Block*, glm::ivec3, glm::ivec3> RayCast(const glm::vec3& start, const glm::vec3& direction, float length);
+	std::tuple<BlockId, glm::ivec3, glm::ivec3> RayCast(const glm::vec3& start, const glm::vec3& direction, float length);
 
 	void OnUpdate(float elapsedTime);
 

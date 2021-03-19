@@ -99,5 +99,10 @@ bool PlayerController::OnMouseMoved(Entropy::MouseMovedEvent& e)
 
 bool PlayerController::OnWindowResized(Entropy::WindowResizedEvent& e)
 {
+	if (m_CameraEntity)
+	{
+		auto& camera = m_CameraEntity.GetComponent<Entropy::PerspectiveCameraComponent>().Camera;
+		camera.SetAspectRatio((float)e.GetWidth() / (float)e.GetHeight());
+	}
 	return false;
 }
