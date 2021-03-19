@@ -29,8 +29,8 @@ namespace Entropy {
 
         void OnEventInternal(Event& e);
         
-        bool OnWindowClose(WindowCloseEvent& e);
-		bool OnWindowResize(WindowResizeEvent& e);
+        bool OnWindowClose(WindowClosedEvent& e);
+		bool OnWindowResize(WindowResizedEvent& e);
 
         friend int ::main();
 

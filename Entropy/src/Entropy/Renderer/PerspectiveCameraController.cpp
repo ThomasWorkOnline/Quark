@@ -16,9 +16,7 @@ namespace Entropy {
 	static float s_ZoomSpeed = 0.0f;
 
 	PerspectiveCameraController::PerspectiveCameraController(Entity& camera)
-	{
-		m_CameraEntity = camera;
-	}
+		: m_CameraEntity(camera) { }
 
 	void PerspectiveCameraController::OnUpdate(float elapsedTime)
 	{
@@ -123,7 +121,7 @@ namespace Entropy {
 	{
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<MouseScrolledEvent>(NT_ATTACH_EVENT_FN(PerspectiveCameraController::OnMouseScrolled));
-		dispatcher.Dispatch<WindowResizeEvent>(NT_ATTACH_EVENT_FN(PerspectiveCameraController::OnWindowResized));
+		dispatcher.Dispatch<WindowResizedEvent>(NT_ATTACH_EVENT_FN(PerspectiveCameraController::OnWindowResized));
 		dispatcher.Dispatch<MouseMovedEvent>(NT_ATTACH_EVENT_FN(PerspectiveCameraController::OnMouseMoved));
 	}
 
@@ -133,7 +131,7 @@ namespace Entropy {
 		return false;
 	}
 
-	bool PerspectiveCameraController::OnWindowResized(WindowResizeEvent& e)
+	bool PerspectiveCameraController::OnWindowResized(WindowResizedEvent& e)
 	{
 		if (m_CameraEntity)
 		{

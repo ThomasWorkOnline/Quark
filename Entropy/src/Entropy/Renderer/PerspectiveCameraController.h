@@ -39,7 +39,7 @@ namespace Entropy {
 
 	protected:
 		bool OnMouseScrolled(MouseScrolledEvent& e);
-		bool OnWindowResized(WindowResizeEvent& e);
+		bool OnWindowResized(WindowResizedEvent& e);
 		bool OnMouseMoved(MouseMovedEvent& e);
 
 		// Has to be of generic type Entity to have access to various components

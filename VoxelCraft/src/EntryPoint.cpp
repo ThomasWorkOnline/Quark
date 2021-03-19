@@ -3,6 +3,7 @@
 #include "Chunk.h"
 #include "ChunkRenderer.h"
 #include "Player.h"
+#include "PlayerController.h"
 #include "World.h"
 
 class VoxelCraft : public Entropy::Application
@@ -86,7 +87,6 @@ public:
 
 			if (block)
 			{
-				std::cout << (glm::vec3)position << std::endl;
 				m_World.ReplaceBlockFromPositionAbsolute(position, BlockType::Air);
 			}
 			break;
@@ -101,7 +101,7 @@ public:
 		default:
 			break;
 		}
-
+		
 		return false;
 	}
 
@@ -109,7 +109,7 @@ private:
 	World m_World;
 
 	Player m_Player = { &m_World.GetScene() };
-	Entropy::PerspectiveCameraController m_Controller = { m_Player };
+	PlayerController m_Controller = { m_Player };
 
 	Entropy::Environment m_Environment = { "assets/environments/Lycksele3" };
 	Entropy::Ref<Entropy::Shader> m_Shader = Entropy::Shader::Create("assets/shaders/skybox.glsl");

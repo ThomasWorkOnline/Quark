@@ -2,7 +2,30 @@
 
 #include <Entropy.h>
 
-#include "Block.h"
+enum BlockFace
+{
+	Front = 0,
+	Right,
+	Back,
+	Left,
+	Top,
+	Bottom
+};
+
+enum class BlockType
+{
+	Air = 0,
+	Bedrock,
+	Dirt,
+	GrassBlock,
+	Stone,
+	Cobblestone
+};
+
+struct Block
+{
+	BlockType Id = BlockType::Air;
+};
 
 struct Vertex
 {
@@ -56,13 +79,6 @@ struct ChunkSpecification
 		{  0.0f,  0.0f,  1.0f },
 		{  0.0f,  0.0f,  0.0f },
 		{  1.0f,  0.0f,  0.0f }
-	};
-
-	static constexpr glm::vec2 VertexTexCoords[4] = {
-		{  0.0f,  0.0f },
-		{  1.0f,  0.0f },
-		{  1.0f,  1.0f },
-		{  0.0f,  1.0f }
 	};
 };
 

@@ -58,7 +58,7 @@ void Chunk::ReplaceBlock(const glm::ivec3& position, BlockType type)
 	int32_t index = IndexAtPosition(position);
 	if (index > 0)
 	{
-		m_Blocks[index] = Block(type, type == BlockType::Air);
+		m_Blocks[index] = { type };
 
 		// TODO: optimize
 		m_IndexCount = 0;
@@ -88,18 +88,18 @@ void Chunk::ConstructChunkData(const std::atomic<bool>& running)
 				uint32_t genBedrock = 1 + noise * 4.0f;
 
 				BlockType type;
-				if (y <= genBedrock)
+				if (y < genBedrock)
 					type = BlockType::Bedrock;
-				else if (y > genBedrock && y <= 58)
+				else if (y >= genBedrock && y < 58)
 					type = BlockType::Stone;
-				else if (y > 58 && y <= 63)
+				else if (y >= 58 && y < 63)
 					type = BlockType::Dirt;
-				else if (y > 63 && y <= 64)
+				else if (y >= 63 && y < 64)
 					type = BlockType::GrassBlock;
 				else
 					type = BlockType::Air;
 
-				m_Blocks[IndexAtPosition({ x, y, z })] = Block(type, type == BlockType::Air);
+				m_Blocks[IndexAtPosition({ x, y, z })] = { type };
 			}
 		}
 	}
@@ -130,19 +130,12 @@ void Chunk::ConstructChunkMesh(const std::atomic<bool>& running)
 
 					for (uint8_t i = 0; i < 4; i++)
 					{
+						auto& blockProperties = ChunkRenderer::GetBlockProperties().at(block.Id);
+
 						Vertex v;
 						v.Position = s_Spec.VertexPositions[i + f * 4]
 							+ glm::vec3(x + m_Position.x * (float)s_Spec.Width, y, z + m_Position.y * (float)s_Spec.Depth);
-
-						auto& data = ChunkRenderer::GetData();
-
-						glm::vec2 texCoord = s_Spec.VertexTexCoords[i];
-						texCoord.x += ((uint32_t)block.Id - 1) % (data.Texture->GetWidth() / data.SubTextureSize.x);
-						texCoord.y += ((uint32_t)block.Id - 1) / (data.Texture->GetWidth() / data.SubTextureSize.x);
-						texCoord.x /= data.Texture->GetWidth() / data.SubTextureSize.x;
-						texCoord.y /= data.Texture->GetHeight() / data.SubTextureSize.y;
-
-						v.TexCoord = texCoord;
+						v.TexCoord = blockProperties.Texture.GetCoords()[i];
 						v.TexIndex = (float)block.Id - 1;
 						v.Intensity = (f + 1) / 6.0f;
 
@@ -253,7 +246,10 @@ bool Chunk::IsBlockOpaqueAt(const glm::ivec3& position) const
 {
 	int32_t index = IndexAtPosition(position);
 	if (index != -1)
-		return !m_Blocks[index].Transparent;
+	{
+		auto& blockProperties = ChunkRenderer::GetBlockProperties();
+		return !blockProperties.at(m_Blocks[index].Id).Transparent;
+	}
 	return false;
 }
 

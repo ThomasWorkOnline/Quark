@@ -43,20 +43,20 @@ namespace Entropy {
 	void Application::OnEventInternal(Event& e)
 	{
 		EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<WindowCloseEvent>(NT_ATTACH_EVENT_FN(Application::OnWindowClose));
-		dispatcher.Dispatch<WindowResizeEvent>(NT_ATTACH_EVENT_FN(Application::OnWindowResize));
+		dispatcher.Dispatch<WindowClosedEvent>(NT_ATTACH_EVENT_FN(Application::OnWindowClose));
+		dispatcher.Dispatch<WindowResizedEvent>(NT_ATTACH_EVENT_FN(Application::OnWindowResize));
 
 		// Dispatch all other not already handled events
 		if (!e.Handled) OnEvent(e);
 	}
 
-	bool Application::OnWindowClose(WindowCloseEvent& e)
+	bool Application::OnWindowClose(WindowClosedEvent& e)
 	{
 		m_Running = false;
 		return true;
 	}
 
-	bool Application::OnWindowResize(WindowResizeEvent& e)
+	bool Application::OnWindowResize(WindowResizedEvent& e)
 	{
 		Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
 		return false;

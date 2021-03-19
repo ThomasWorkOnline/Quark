@@ -6,12 +6,13 @@
     <ClCompile Include="src\World.cpp" />
     <ClCompile Include="src\Player.cpp" />
     <ClCompile Include="src\ChunkRenderer.cpp" />
+    <ClCompile Include="src\PlayerController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Chunk.h" />
-    <ClInclude Include="src\Block.h" />
     <ClInclude Include="src\World.h" />
     <ClInclude Include="src\Player.h" />
     <ClInclude Include="src\ChunkRenderer.h" />
+    <ClInclude Include="src\PlayerController.h" />
   </ItemGroup>
 </Project>

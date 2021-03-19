@@ -16,9 +16,7 @@ namespace Entropy {
 	static float s_ZoomSpeed = 0.0f;
 
 	OrthographicCameraController::OrthographicCameraController(Entity& camera)
-	{
-		m_CameraEntity = camera;
-	}
+		: m_CameraEntity(camera) { }
 
 	void OrthographicCameraController::OnUpdate(float elapsedTime)
 	{
@@ -113,7 +111,7 @@ namespace Entropy {
 	{
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<MouseScrolledEvent>(NT_ATTACH_EVENT_FN(OrthographicCameraController::OnMouseScrolled));
-		dispatcher.Dispatch<WindowResizeEvent>(NT_ATTACH_EVENT_FN(OrthographicCameraController::OnWindowResized));
+		dispatcher.Dispatch<WindowResizedEvent>(NT_ATTACH_EVENT_FN(OrthographicCameraController::OnWindowResized));
 		dispatcher.Dispatch<MouseMovedEvent>(NT_ATTACH_EVENT_FN(OrthographicCameraController::OnMouseMoved));
 	}
 
@@ -123,7 +121,7 @@ namespace Entropy {
 		return false;
 	}
 
-	bool OrthographicCameraController::OnWindowResized(WindowResizeEvent& e)
+	bool OrthographicCameraController::OnWindowResized(WindowResizedEvent& e)
 	{
 		if (m_CameraEntity)
 		{

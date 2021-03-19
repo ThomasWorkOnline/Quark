@@ -33,7 +33,7 @@ namespace Entropy {
 		glm::vec3 GetTopVector() const { return glm::vec3(0.0, 1.0f, 0.0f) * Orientation; }
 
 		Transform3DComponent& Rotate(const glm::quat& quat) { Orientation *= quat; return *this; }
-		Transform3DComponent& Rotate(float angle, const glm::vec3& axis) { Rotate(glm::angleAxis(glm::radians(angle), glm::normalize(axis))); return *this; }
+		Transform3DComponent& Rotate(float angle, const glm::vec3& axis) { Rotate(glm::angleAxis(angle, glm::normalize(axis))); return *this; }
 
 	private:
 		glm::mat4 m_Transform;

@@ -1,7 +1,5 @@
 #include "World.h"
 
-#include "ChunkRenderer.h"
-
 #include <future>
 #include <chrono>
 
@@ -43,6 +41,9 @@ void World::InitializeChunksAsync()
 
 	for (auto& chunk : m_Chunks)
 		m_ChunksConstructDataFutures.push_back(std::async(std::launch::async, ConstructChunkData, &chunk));
+
+	//for (auto& future : m_ChunksConstructDataFutures)
+	//	future.wait();
 
 	for (auto& chunk : m_Chunks)
 		m_ChunksConstructMeshFutures.push_back(std::async(std::launch::async, ConstructChunkMesh, &chunk, this));
@@ -93,10 +94,21 @@ void World::ReplaceBlockFromPositionAbsolute(const glm::ivec3& position, BlockTy
 	Chunk* chunk = GetChunk(chunkPosition);
 	if (chunk)
 	{
-		if (chunk->GetBlockAt(blockPosition)->Id != type)
+		const Block* oldBlock = chunk->GetBlockAt(blockPosition);
+		if (oldBlock->Id != type)
 		{
+			if (oldBlock->Id == BlockType::Air)
+			{
+				auto& blockProperties = ChunkRenderer::GetBlockProperties().at(type);
+				Entropy::AudioEngine::PlaySound(blockProperties.BreakSound);
+			}
+			else
+			{
+				auto& blockProperties = ChunkRenderer::GetBlockProperties().at(oldBlock->Id);
+				Entropy::AudioEngine::PlaySound(blockProperties.BreakSound);
+			}
+
 			chunk->ReplaceBlock(blockPosition, type);
-			Entropy::AudioEngine::PlaySound("assets/sounds/break_stone.mp3");
 		}
 	}
 }

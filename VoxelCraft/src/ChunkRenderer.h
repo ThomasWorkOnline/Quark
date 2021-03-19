@@ -6,12 +6,11 @@
 
 #include <unordered_map>
 
-struct RendererData
+struct BlockProperties
 {
-	glm::ivec2 SubTextureSize = { 16, 16 };
-
-	Entropy::Ref<Entropy::Shader> Shader;
-	Entropy::Ref<Entropy::Texture2D> Texture;
+	bool Transparent = true;
+	Entropy::SubTexture2D Texture;
+	const char* BreakSound;
 };
 
 class ChunkRenderer
@@ -20,13 +19,12 @@ public:
 	ChunkRenderer() = delete;
 	ChunkRenderer operator= (const ChunkRenderer& other) = delete;
 
-	static const RendererData& GetData();
+	static const std::unordered_map<BlockType, BlockProperties>& GetBlockProperties();
 
 	static void Initialize();
 	static void Shutdown();
 
 	static void SubmitChunk(const Chunk& chunk);
-
 private:
 
 };
