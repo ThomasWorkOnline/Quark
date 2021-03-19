@@ -13,8 +13,11 @@ enum BlockFace
 enum class BlockType
 {
 	Air = 0,
+	Bedrock,
 	Dirt,
-	Stone
+	GrassBlock,
+	Stone,
+	Cobblestone
 };
 
 struct Block

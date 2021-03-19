@@ -9,10 +9,10 @@ static std::atomic<bool> s_WorldGenerating = true;
 static std::atomic<uint32_t> s_ChunksInitialized = 0;
 
 static std::mutex s_ChunkMutex;
-static void ConstructChunkData(Chunk* chunk, Entropy::Ref<Entropy::Texture2D>* textures)
+static void ConstructChunkData(Chunk* chunk)
 {
 	std::lock_guard<std::mutex> lock(s_ChunkMutex);
-	chunk->ConstructData(s_WorldGenerating);
+	chunk->ConstructChunkData(s_WorldGenerating);
 	s_ChunksInitialized++;
 }
 
@@ -21,7 +21,7 @@ static void ConstructChunkMesh(Chunk* chunk, World* world)
 	while (s_ChunksInitialized != world->GetChunks().size());
 
 	std::lock_guard<std::mutex> lock(s_ChunkMutex);
-	chunk->ConstructMesh(s_WorldGenerating);
+	chunk->ConstructChunkMesh(s_WorldGenerating);
 }
 
 void World::InitializeChunksAsync()
@@ -36,16 +36,13 @@ void World::InitializeChunksAsync()
 	{
 		for (int32_t x = 0; x < m_RenderDistance; x++)
 		{
-			glm::ivec2 position = { x - m_RenderDistance / 2, y };
+			glm::ivec2 position = { x - m_RenderDistance / 2, y - m_RenderDistance / 2 };
 			m_Chunks.emplace_back(position, this);
 		}
 	}
 
-	Entropy::Ref<Entropy::Texture2D> textures[1];
-	textures[0] = Entropy::Texture2D::Create("assets/textures/stone.png");
-
 	for (auto& chunk : m_Chunks)
-		m_ChunksConstructDataFutures.push_back(std::async(std::launch::async, ConstructChunkData, &chunk, textures));
+		m_ChunksConstructDataFutures.push_back(std::async(std::launch::async, ConstructChunkData, &chunk));
 
 	for (auto& chunk : m_Chunks)
 		m_ChunksConstructMeshFutures.push_back(std::async(std::launch::async, ConstructChunkMesh, &chunk, this));
@@ -63,18 +60,70 @@ const Chunk* World::GetChunk(const glm::ivec2& position) const
 	return nullptr;
 }
 
-void World::OnUpdate(float elapsedTime)
-{
-	m_Scene.OnUpdate(elapsedTime);
-}
-
-void World::OnRender(const Entropy::Ref<Entropy::Shader>& shader)
+Chunk* World::GetChunk(const glm::ivec2& position)
 {
 	for (auto& chunk : m_Chunks)
 	{
-		chunk.PushData();
-		Entropy::Renderer::Submit(shader, m_Stone, chunk.GetVertexArray());
+		if (chunk.GetPosition() == position)
+		{
+			return &chunk;
+		}
 	}
+	return nullptr;
+}
+
+const Block* World::GetBlockFromPositionAbsolute(const glm::ivec3& position) const
+{
+	auto& spec = Chunk::GetSpecification();
+	glm::ivec2 chunkPosition = { std::floor(position.x / (float)spec.Width), std::floor(position.z / (float)spec.Depth) };
+	glm::ivec3 blockPosition = position - glm::ivec3(chunkPosition.x * (int32_t)spec.Width, 0, chunkPosition.y * (int32_t)spec.Depth);
+
+	const Chunk* chunk = GetChunk(chunkPosition);
+	if (chunk)
+		return chunk->GetBlockAt(blockPosition);
+	return nullptr;
+}
+
+void World::ReplaceBlockFromPositionAbsolute(const glm::ivec3& position, BlockType type)
+{
+	auto& spec = Chunk::GetSpecification();
+	glm::ivec2 chunkPosition = { std::floor(position.x / (float)spec.Width), std::floor(position.z / (float)spec.Depth) };
+	glm::ivec3 blockPosition = position - glm::ivec3(chunkPosition.x * spec.Width, 0, chunkPosition.y * spec.Depth);
+
+	Chunk* chunk = GetChunk(chunkPosition);
+	if (chunk)
+	{
+		if (chunk->GetBlockAt(blockPosition)->Id != type)
+		{
+			chunk->ReplaceBlock(blockPosition, type);
+			Entropy::AudioEngine::PlaySound("assets/sounds/break_stone.mp3");
+		}
+	}
+}
+
+std::tuple<const Block*, glm::ivec3, glm::ivec3> World::RayCast(const glm::vec3& start, const glm::vec3& direction, float length)
+{
+	glm::vec3 normDir = glm::normalize(direction);
+
+	for (float i = 0; i < length; i += 0.01f)
+	{
+		glm::ivec3 position = glm::floor(start + normDir * i);
+		const Block* block = GetBlockFromPositionAbsolute(position);
+		if (block)
+		{
+			if (block->Id != BlockType::Air)
+				return { block, position, glm::round(-direction) };
+		}
+	}
+	return {};
+}
+
+void World::OnUpdate(float elapsedTime)
+{
+	m_Scene.OnUpdate(elapsedTime);
+
+	for (auto& chunk : m_Chunks)
+		chunk.PushData();
 }
 
 World::World()

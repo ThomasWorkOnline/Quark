@@ -1,6 +1,7 @@
 #include "Chunk.h"
 
 #include "World.h"
+#include "ChunkRenderer.h"
 
 static ChunkSpecification s_Spec;
 
@@ -17,7 +18,7 @@ static int32_t IndexAtPosition(const glm::ivec3& position)
 	return position.x + s_Spec.Width * position.z + s_Spec.Width * s_Spec.Depth * position.y;
 }
 
-static glm::ivec3 GetDirection(BlockFace facing)
+static glm::ivec3 GetFaceNormal(BlockFace facing)
 {
 	switch (facing)
 	{
@@ -50,10 +51,24 @@ Chunk::Chunk(const glm::ivec2& position, World* world)
 Chunk::~Chunk()
 {
 	delete[] m_Blocks;
-	delete[] m_Indices;
 }
 
-void Chunk::ConstructData(const std::atomic<bool>& running)
+void Chunk::ReplaceBlock(const glm::ivec3& position, BlockType type)
+{
+	int32_t index = IndexAtPosition(position);
+	if (index > 0)
+	{
+		m_Blocks[index] = Block(type, type == BlockType::Air);
+
+		// TODO: optimize
+		m_IndexCount = 0;
+		m_Vertices.clear();
+		m_Indices.clear();
+		ConstructChunkMesh(true);
+	}
+}
+
+void Chunk::ConstructChunkData(const std::atomic<bool>& running)
 {
 	m_Blocks = new Block[s_Spec.BlockCount];
 
@@ -67,10 +82,24 @@ void Chunk::ConstructData(const std::atomic<bool>& running)
 					return;
 
 				glm::ivec3 pos = GetBlockPositionAbsolute({ x, y, z });
-				//bool gen = (rand() / (float)RAND_MAX > 0.1f || y >= 64);
-				bool gen = y >= 64;
-				BlockType type = gen ? BlockType::Air : BlockType::Stone;
-				m_Blocks[IndexAtPosition({ x, y, z })] = Block(type, gen);
+
+				float noise = rand() / (float)RAND_MAX;
+
+				uint32_t genBedrock = 1 + noise * 4.0f;
+
+				BlockType type;
+				if (y <= genBedrock)
+					type = BlockType::Bedrock;
+				else if (y > genBedrock && y <= 58)
+					type = BlockType::Stone;
+				else if (y > 58 && y <= 63)
+					type = BlockType::Dirt;
+				else if (y > 63 && y <= 64)
+					type = BlockType::GrassBlock;
+				else
+					type = BlockType::Air;
+
+				m_Blocks[IndexAtPosition({ x, y, z })] = Block(type, type == BlockType::Air);
 			}
 		}
 	}
@@ -78,7 +107,7 @@ void Chunk::ConstructData(const std::atomic<bool>& running)
 	m_Initialized = true;
 }
 
-void Chunk::ConstructMesh(const std::atomic<bool>& running)
+void Chunk::ConstructChunkMesh(const std::atomic<bool>& running)
 {
 	for (uint32_t y = 0; y < s_Spec.Height; y++)
 	{
@@ -89,7 +118,9 @@ void Chunk::ConstructMesh(const std::atomic<bool>& running)
 				if (!running)
 					return;
 
-				if (m_Blocks[IndexAtPosition({ x, y, z })].Id == BlockType::Air)
+				auto& block = m_Blocks[IndexAtPosition({ x, y, z })];
+
+				if (block.Id == BlockType::Air)
 					continue;
 
 				for (uint8_t f = 0; f < 6; f++)
@@ -102,11 +133,20 @@ void Chunk::ConstructMesh(const std::atomic<bool>& running)
 						Vertex v;
 						v.Position = s_Spec.VertexPositions[i + f * 4]
 							+ glm::vec3(x + m_Position.x * (float)s_Spec.Width, y, z + m_Position.y * (float)s_Spec.Depth);
-						v.TexCoord = s_Spec.VertexTexCoords[i];
-						v.TexIndex = (float)m_Blocks[IndexAtPosition({ x, y, z })].Id;
+
+						auto& data = ChunkRenderer::GetData();
+
+						glm::vec2 texCoord = s_Spec.VertexTexCoords[i];
+						texCoord.x += ((uint32_t)block.Id - 1) % (data.Texture->GetWidth() / data.SubTextureSize.x);
+						texCoord.y += ((uint32_t)block.Id - 1) / (data.Texture->GetWidth() / data.SubTextureSize.x);
+						texCoord.x /= data.Texture->GetWidth() / data.SubTextureSize.x;
+						texCoord.y /= data.Texture->GetHeight() / data.SubTextureSize.y;
+
+						v.TexCoord = texCoord;
+						v.TexIndex = (float)block.Id - 1;
 						v.Intensity = (f + 1) / 6.0f;
 
-						m_Vertices.push_back(v);
+						m_Vertices.emplace_back(std::move(v));
 
 						m_IndexCount += 6;
 					}
@@ -115,22 +155,8 @@ void Chunk::ConstructMesh(const std::atomic<bool>& running)
 		}
 	}
 
-	m_Indices = new uint32_t[m_IndexCount];
+	ConstructMeshIndices();
 
-	size_t offset = 0;
-	for (uint32_t i = 0; i < m_IndexCount; i += 6)
-	{
-		m_Indices[i + 0] = 0 + offset;
-		m_Indices[i + 1] = 1 + offset;
-		m_Indices[i + 2] = 3 + offset;
-		m_Indices[i + 3] = 1 + offset;
-		m_Indices[i + 4] = 2 + offset;
-		m_Indices[i + 5] = 3 + offset;
-
-		offset += 4;
-	}
-
-	m_Generated = true;
 	m_UpdatePending = true;
 }
 
@@ -149,16 +175,34 @@ void Chunk::PushData()
 			});
 		m_VertexArray->AddVertexBuffer(m_VertexBuffer);
 
-		m_IndexBuffer = Entropy::IndexBuffer::Create(m_Indices, m_IndexCount);
+		m_IndexBuffer = Entropy::IndexBuffer::Create(m_Indices.data(), m_Indices.size());
 		m_VertexArray->SetIndexBuffer(m_IndexBuffer);
 
 		m_UpdatePending = false;
 	}
 }
 
+void Chunk::ConstructMeshIndices()
+{
+	m_Indices.reserve(m_IndexCount);
+
+	size_t offset = 0;
+	for (uint32_t i = 0; i < m_IndexCount; i += 6)
+	{
+		m_Indices.push_back(0 + offset);
+		m_Indices.push_back(1 + offset);
+		m_Indices.push_back(3 + offset);
+		m_Indices.push_back(1 + offset);
+		m_Indices.push_back(2 + offset);
+		m_Indices.push_back(3 + offset);
+
+		offset += 4;
+	}
+}
+
 bool Chunk::IsBlockFaceVisible(const glm::ivec3& position, BlockFace face) const
 {
-	glm::ivec3 neighborPosition = position + GetDirection(face);
+	glm::ivec3 neighborPosition = position + GetFaceNormal(face);
 
 	bool visible = !IsBlockOpaqueAt(neighborPosition);
 

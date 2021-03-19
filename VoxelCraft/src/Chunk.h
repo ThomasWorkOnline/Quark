@@ -22,47 +22,47 @@ struct ChunkSpecification
 
 	static constexpr glm::vec3 VertexPositions[24] = {
 		// front
-		{ -0.5f, -0.5f,  0.5f },
-		{  0.5f, -0.5f,  0.5f },
-		{  0.5f,  0.5f,  0.5f },
-		{ -0.5f,  0.5f,  0.5f },
+		{  0.0f,  0.0f,  1.0f },
+		{  1.0f,  0.0f,  1.0f },
+		{  1.0f,  1.0f,  1.0f },
+		{  0.0f,  1.0f,  1.0f },
 
 		// right
-		{  0.5f, -0.5f,  0.5f },
-		{  0.5f, -0.5f, -0.5f },
-		{  0.5f,  0.5f, -0.5f },
-		{  0.5f,  0.5f,  0.5f },
+		{  1.0f,  0.0f,  1.0f },
+		{  1.0f,  0.0f,  0.0f },
+		{  1.0f,  1.0f,  0.0f },
+		{  1.0f,  1.0f,  1.0f },
 
 		// back
-		{  0.5f, -0.5f, -0.5f },
-		{ -0.5f, -0.5f, -0.5f },
-		{ -0.5f,  0.5f, -0.5f },
-		{  0.5f,  0.5f, -0.5f },
+		{  1.0f,  0.0f,  0.0f },
+		{  0.0f,  0.0f,  0.0f },
+		{  0.0f,  1.0f,  0.0f },
+		{  1.0f,  1.0f,  0.0f },
 
 		// left
-		{ -0.5f, -0.5f, -0.5f },
-		{ -0.5f, -0.5f,  0.5f },
-		{ -0.5f,  0.5f,  0.5f },
-		{ -0.5f,  0.5f, -0.5f },
+		{  0.0f,  0.0f,  0.0f },
+		{  0.0f,  0.0f,  1.0f },
+		{  0.0f,  1.0f,  1.0f },
+		{  0.0f,  1.0f,  0.0f },
 
 		// top
-		{ -0.5f,  0.5f,  0.5f },
-		{  0.5f,  0.5f,  0.5f },
-		{  0.5f,  0.5f, -0.5f },
-		{ -0.5f,  0.5f, -0.5f },
+		{  0.0f,  1.0f,  1.0f },
+		{  1.0f,  1.0f,  1.0f },
+		{  1.0f,  1.0f,  0.0f },
+		{  0.0f,  1.0f,  0.0f },
 
 		// bottom
-		{  0.5f, -0.5f,  0.5f },
-		{ -0.5f, -0.5f,  0.5f },
-		{ -0.5f, -0.5f, -0.5f },
-		{  0.5f, -0.5f, -0.5f }
+		{  1.0f,  0.0f,  1.0f },
+		{  0.0f,  0.0f,  1.0f },
+		{  0.0f,  0.0f,  0.0f },
+		{  1.0f,  0.0f,  0.0f }
 	};
 
 	static constexpr glm::vec2 VertexTexCoords[4] = {
 		{  0.0f,  0.0f },
 		{  1.0f,  0.0f },
 		{  1.0f,  1.0f },
-		{  0.0f,  1.0f },
+		{  0.0f,  1.0f }
 	};
 };
 
@@ -79,18 +79,21 @@ public:
 	const glm::ivec2& GetPosition() const { return m_Position; }
 
 	bool IsInitialized() const { return m_Initialized; }
-	bool IsGenerated() const { return m_Generated; }
 
-	void ConstructData(const std::atomic<bool>& running);
-	void ConstructMesh(const std::atomic<bool>& running);
+	void ReplaceBlock(const glm::ivec3& position, BlockType type);
+	const Block* GetBlockAt(const glm::ivec3& position) const;
+
+	void ConstructChunkData(const std::atomic<bool>& running);
+	void ConstructChunkMesh(const std::atomic<bool>& running);
 	void PushData();
 
 	static const ChunkSpecification& GetSpecification();
 
 private:
+	void ConstructMeshIndices();
+
 	bool IsBlockFaceVisible(const glm::ivec3& position, BlockFace face) const;
 	bool IsBlockOpaqueAt(const glm::ivec3& position) const;
-	const Block* GetBlockAt(const glm::ivec3& position) const;
 	glm::ivec3 GetBlockPositionAbsolute(const glm::ivec3& position) const;
 
 	Entropy::Ref<Entropy::VertexArray> m_VertexArray;
@@ -99,12 +102,11 @@ private:
 
 	glm::ivec2 m_Position;
 	bool m_Initialized = false;
-	bool m_Generated = false;
 	bool m_UpdatePending = false;
 
-	std::vector<Vertex> m_Vertices;
 	uint32_t m_IndexCount = 0;
-	uint32_t* m_Indices = nullptr;
+	std::vector<Vertex> m_Vertices;
+	std::vector<uint32_t> m_Indices;
 
 	Block* m_Blocks = nullptr;
 	World* m_World = nullptr;

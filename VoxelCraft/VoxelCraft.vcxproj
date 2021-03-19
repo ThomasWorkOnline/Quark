@@ -165,9 +165,6 @@
     <ClInclude Include="src\Player.h" />
     <ClInclude Include="src\World.h" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="assets\shaders\debugNormal.glsl" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -26,15 +26,6 @@
       <Project>{287f7095-d792-4da0-8a69-855cf2e81033}</Project>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="assets\shaders\debugNormal.glsl" />
-    <None Include="assets\shaders\debugPosition.glsl" />
-    <None Include="assets\shaders\default.glsl" />
-    <None Include="assets\shaders\defaultFlat.glsl" />
-    <None Include="assets\shaders\defaultMultisampled.glsl" />
-    <None Include="assets\shaders\spriteShader.glsl" />
-    <None Include="assets\shaders\skybox.glsl" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>

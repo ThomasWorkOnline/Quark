@@ -15,6 +15,9 @@ public:
 	Player(Entropy::Scene* scene, const PlayerSettings& settings = {});
 	~Player();
 
+	glm::vec3 GetHeadPosition() { return GetTransform().Position; }
+	glm::vec3 GetFeetPosition() { return GetTransform().Position - m_Settings.HeadRelativeToFeet; }
+
 	Entropy::Transform3DComponent& GetTransform() { return m_Entity.GetComponent<Entropy::Transform3DComponent>(); }
 	Entropy::PhysicsComponent& GetPhysics() { return m_Entity.GetComponent<Entropy::PhysicsComponent>(); }
 	Entropy::PerspectiveCameraComponent& GetCamera() { return m_Entity.GetComponent<Entropy::PerspectiveCameraComponent>(); }

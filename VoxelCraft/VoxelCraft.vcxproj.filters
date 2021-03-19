@@ -14,7 +14,4 @@
     <ClInclude Include="src\Player.h" />
     <ClInclude Include="src\ChunkRenderer.h" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="assets\shaders\debugNormal.glsl" />
-  </ItemGroup>
 </Project>
