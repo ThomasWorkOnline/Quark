@@ -55,7 +55,7 @@ namespace Quark {
 
 	bool Application::OnWindowClose(WindowClosedEvent& e)
 	{
-		m_Running = false;
+		Stop();
 		return true;
 	}
 

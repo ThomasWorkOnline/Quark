@@ -21,7 +21,7 @@ namespace Quark {
         const Window& GetWindow() const { return *m_Window; }
         Window& GetWindow() { return *m_Window; }
 
-        const std::atomic<bool>& IsRunning() const { return m_Running; }
+        const std::atomic<bool>& IsRunning() const { return m_Running; };
 
         static Application& Get() { return *s_Instance; };
 
@@ -39,6 +39,7 @@ namespace Quark {
 
         static Application* s_Instance;
         Scope<Window> m_Window;
+
         std::atomic<bool> m_Running = true;
     };
 }

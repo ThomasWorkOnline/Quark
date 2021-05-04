@@ -96,6 +96,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Chunk.cpp" />
+    <ClCompile Include="src\ChunkLoader.cpp" />
     <ClCompile Include="src\ChunkRenderer.cpp" />
     <ClCompile Include="src\EntryPoint.cpp" />
     <ClCompile Include="src\Player.cpp" />
@@ -105,6 +106,7 @@
   <ItemGroup>
     <ClInclude Include="src\Blocks.h" />
     <ClInclude Include="src\Chunk.h" />
+    <ClInclude Include="src\ChunkLoader.h" />
     <ClInclude Include="src\ChunkRenderer.h" />
     <ClInclude Include="src\Player.h" />
     <ClInclude Include="src\PlayerController.h" />

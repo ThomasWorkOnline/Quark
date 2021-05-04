@@ -47,7 +47,7 @@ constexpr static glm::ivec3 GetFaceNormal(BlockFace facing)
 
 
 
-Chunk::Chunk(const glm::ivec2& position, World& world)
+Chunk::Chunk(const glm::ivec2& position, World* world)
 	: m_Position(position), m_World(world) {}
 
 Chunk::~Chunk()
@@ -72,7 +72,7 @@ void Chunk::GenerateTerrain()
 
 				glm::ivec3 pos = GetBlockPositionAbsolute({ x, y, z });
 
-				float noise = rand() / (float)RAND_MAX;
+				float noise = rand() / static_cast<float>(RAND_MAX);
 
 				uint32_t genBedrock = 1 + noise * 4.0f;
 
@@ -92,6 +92,8 @@ void Chunk::GenerateTerrain()
 			}
 		}
 	}
+
+	m_DataCreated = true;
 }
 
 void Chunk::GenerateMesh()
@@ -101,10 +103,10 @@ void Chunk::GenerateMesh()
 	m_Vertices.clear();
 	m_Indices.clear();
 
-	Chunk* rightChunk	= m_World.GetChunk(m_Position + glm::ivec2( 1,  0));
-	Chunk* leftChunk	= m_World.GetChunk(m_Position + glm::ivec2(-1,  0));
-	Chunk* frontChunk	= m_World.GetChunk(m_Position + glm::ivec2( 0,  1));
-	Chunk* backChunk	= m_World.GetChunk(m_Position + glm::ivec2( 0, -1));
+	Chunk* rightChunk	= m_World->GetChunk(m_Position + glm::ivec2( 1,  0));
+	Chunk* leftChunk	= m_World->GetChunk(m_Position + glm::ivec2(-1,  0));
+	Chunk* frontChunk	= m_World->GetChunk(m_Position + glm::ivec2( 0,  1));
+	Chunk* backChunk	= m_World->GetChunk(m_Position + glm::ivec2( 0, -1));
 
 	for (uint32_t y = 0; y < s_Spec.Height; y++)
 	{
@@ -115,7 +117,7 @@ void Chunk::GenerateMesh()
 				if (!Quark::Application::Get().IsRunning())
 					return;
 
-				BlockId block = GetBlockAt({ x, y, z });
+				BlockId block = GetBlock({ x, y, z });
 
 				if (block == BlockId::Air)
 					continue;
@@ -145,7 +147,6 @@ bool Chunk::PushData()
 	bool pushed = m_UpdatePending;
 	if (m_UpdatePending)
 	{
-		// TODO: fix
 		m_VertexArray = Quark::VertexArray::Create();
 
 		m_VertexBuffer = Quark::VertexBuffer::Create((float*)m_Vertices.data(), m_Vertices.size() * sizeof(BlockVertex));
@@ -203,7 +204,7 @@ bool Chunk::IsBlockFaceVisible(const glm::ivec3& position, BlockFace face, Chunk
 {
 	glm::ivec3 neighborPosition = position + GetFaceNormal(face);
 
-	bool visible = !IsBlockOpaqueAt(neighborPosition);
+	bool visible = !IsBlockOpaque(neighborPosition);
 
 	if (neighborPosition.x > s_Spec.Width - 1)
 	{
@@ -211,7 +212,7 @@ bool Chunk::IsBlockFaceVisible(const glm::ivec3& position, BlockFace face, Chunk
 		{
 			if (face == BlockFace::Right)
 			{
-				if (rightChunk->IsBlockOpaqueAt({ 0, position.y, position.z }) && position.x == s_Spec.Width - 1)
+				if (rightChunk->IsBlockOpaque({ 0, position.y, position.z }) && position.x == s_Spec.Width - 1)
 					visible = false;
 			}
 		}
@@ -223,7 +224,7 @@ bool Chunk::IsBlockFaceVisible(const glm::ivec3& position, BlockFace face, Chunk
 		{
 			if (face == BlockFace::Left)
 			{
-				if (leftChunk->IsBlockOpaqueAt({ s_Spec.Width - 1, position.y, position.z }) && position.x == 0)
+				if (leftChunk->IsBlockOpaque({ s_Spec.Width - 1, position.y, position.z }) && position.x == 0)
 					visible = false;
 			}
 		}
@@ -235,7 +236,7 @@ bool Chunk::IsBlockFaceVisible(const glm::ivec3& position, BlockFace face, Chunk
 		{
 			if (face == BlockFace::Front)
 			{
-				if (frontChunk->IsBlockOpaqueAt({ position.x, position.y, 0 }) && position.z == s_Spec.Depth - 1)
+				if (frontChunk->IsBlockOpaque({ position.x, position.y, 0 }) && position.z == s_Spec.Depth - 1)
 					visible = false;
 			}
 		}
@@ -247,7 +248,7 @@ bool Chunk::IsBlockFaceVisible(const glm::ivec3& position, BlockFace face, Chunk
 		{
 			if (face == BlockFace::Back)
 			{
-				if (backChunk->IsBlockOpaqueAt({ position.x, position.y, s_Spec.Depth - 1 }) && position.z == 0)
+				if (backChunk->IsBlockOpaque({ position.x, position.y, s_Spec.Depth - 1 }) && position.z == 0)
 					visible = false;
 			}
 		}
@@ -256,7 +257,7 @@ bool Chunk::IsBlockFaceVisible(const glm::ivec3& position, BlockFace face, Chunk
 	return visible;
 }
 
-bool Chunk::IsBlockOpaqueAt(const glm::ivec3& position) const
+bool Chunk::IsBlockOpaque(const glm::ivec3& position) const
 {
 	int32_t index = IndexAtPosition(position);
 	if (index != -1)
@@ -267,7 +268,7 @@ bool Chunk::IsBlockOpaqueAt(const glm::ivec3& position) const
 	return false;
 }
 
-BlockId Chunk::GetBlockAt(const glm::ivec3& position) const
+BlockId Chunk::GetBlock(const glm::ivec3& position) const
 {
 	int32_t index = IndexAtPosition(position);
 	if (index != -1)
@@ -328,54 +329,4 @@ void Chunk::ReplaceBlock(const glm::ivec3& position, BlockId type)
 glm::ivec3 Chunk::GetBlockPositionAbsolute(const glm::ivec3& position) const
 {
 	return { position.x + m_Position.x * s_Spec.Width, position.y, position.z + m_Position.y * s_Spec.Depth };
-}
-
-
-
-static std::mutex s_ChunkGenMutex;
-void Chunk::GenerateChunk(glm::ivec2 coord, World* world)
-{
-	std::lock_guard<std::mutex> lock(s_ChunkGenMutex);
-
-	// If a generate request occurs again, ignore it
-	if (!world->GetChunk(coord))
-	{
-		Chunk* newChunk = new Chunk(coord, *world);
-		newChunk->GenerateTerrain();
-
-		world->AddChunk(newChunk);
-	}
-}
-
-static std::future<void> s_ChunkConstructFuture;
-static std::future<void> s_ChunkFriendLeftConstructFuture;
-static std::future<void> s_ChunkFriendTopConstructFuture;
-static std::future<void> s_ChunkFriendRightConstructFuture;
-static std::future<void> s_ChunkFriendBottomConstructFuture;
-
-Chunk* Chunk::Load(glm::ivec2 coord, World* world)
-{
-	QK_TIME_SCOPE_DEBUG(Chunk::Load);
-
-	// First pass
-	/// Summary
-	/// Generates a cross pattern of chunks around the chunk to be loaded
-	/// This step is mendatory to compute the visible faces on chunk edges
-	s_ChunkConstructFuture				= std::async(std::launch::async, GenerateChunk, coord, world);
-	s_ChunkFriendLeftConstructFuture	= std::async(std::launch::async, GenerateChunk, coord + glm::ivec2(-1,  0), world);
-	s_ChunkFriendTopConstructFuture		= std::async(std::launch::async, GenerateChunk, coord + glm::ivec2( 0,  1), world);
-	s_ChunkFriendRightConstructFuture	= std::async(std::launch::async, GenerateChunk, coord + glm::ivec2( 1,  0), world);
-	s_ChunkFriendBottomConstructFuture	= std::async(std::launch::async, GenerateChunk, coord + glm::ivec2( 0, -1), world);
-	s_ChunkConstructFuture.				get();
-	s_ChunkFriendLeftConstructFuture.	get();
-	s_ChunkFriendTopConstructFuture.	get();
-	s_ChunkFriendRightConstructFuture.	get();
-	s_ChunkFriendBottomConstructFuture.	get();
-
-	auto newChunk = world->GetChunk(coord);
-
-	// Second pass
-	newChunk->GenerateMesh();
-
-	return newChunk;
 }

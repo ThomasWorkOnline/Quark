@@ -56,44 +56,43 @@ class World;
 class Chunk
 {
 public:
-	Chunk(const glm::ivec2& position, World& world);
+	Chunk(const glm::ivec2& position, World* world);
 	~Chunk();
 
 	const Quark::Ref<Quark::VertexArray>& GetVertexArray() const { return m_VertexArray; }
 
-	const World& GetWorld() const { return m_World; }
-	World& GetWorld() { return m_World; }
+	const World& GetWorld() const { return *m_World; }
+	World& GetWorld() { return *m_World; }
 
 	const glm::ivec2& GetPosition() const { return m_Position; }
-	glm::ivec3 GetBlockPositionAbsolute(const glm::ivec3& position) const;
-	BlockId GetBlockAt(const glm::ivec3& position) const;
+	BlockId GetBlock(const glm::ivec3& position) const;
 
 	void ReplaceBlock(const glm::ivec3& position, BlockId type);
 
-	bool Loaded() const { return m_MeshCreated; }
+	bool DataCreated() const { return m_DataCreated; }
+	bool MeshCreated() const { return m_MeshCreated; }
 	bool PushData();
 
 	static const ChunkSpecification& GetSpecification();
 
-	static Chunk* Load(glm::ivec2 coord, World* world);
-
-private:
-	static void GenerateChunk(glm::ivec2 coord, World* world);
-
 	void GenerateTerrain();
 	void GenerateMesh();
+
+private:
+	glm::ivec3 GetBlockPositionAbsolute(const glm::ivec3& position) const;
 
 	void GenerateFaceVertices(const glm::ivec3& position, BlockId type, BlockFace face);
 	void GenerateFaceIndices();
 
 	bool IsBlockFaceVisible(const glm::ivec3& position, BlockFace face, Chunk* rightChunk, Chunk* leftChunk, Chunk* frontChunk, Chunk* backChunk) const;
-	bool IsBlockOpaqueAt(const glm::ivec3& position) const;
+	bool IsBlockOpaque(const glm::ivec3& position) const;
 
 	Quark::Ref<Quark::VertexArray> m_VertexArray;
 	Quark::Ref<Quark::VertexBuffer> m_VertexBuffer;
 	Quark::Ref<Quark::IndexBuffer> m_IndexBuffer;
 
 	glm::ivec2 m_Position;
+	bool m_DataCreated = false;
 	bool m_MeshCreated = false;
 	bool m_UpdatePending = false;
 
@@ -103,5 +102,5 @@ private:
 	std::vector<uint32_t> m_Indices;
 
 	BlockId* m_Blocks = nullptr;
-	World& m_World;
+	World* m_World;
 };

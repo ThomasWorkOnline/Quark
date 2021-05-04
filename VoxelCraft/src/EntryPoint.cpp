@@ -14,7 +14,7 @@ public:
 		QK_TIME_SCOPE_DEBUG(VoxelCraft::OnCreate);
 
 		GetWindow().Select();
-		GetWindow().SetVSync(true);
+		GetWindow().SetVSync(false);
 		GetWindow().SetFullScreen(false);
 	}
 
@@ -62,14 +62,14 @@ public:
 
 			if (block != BlockId::None && block != BlockId::Air)
 			{
-				m_World.ReplaceBlockFromPositionAbsolute(position, BlockId::Air);
+				m_World.ReplaceBlock(position, BlockId::Air);
 			}
 			break;
 		case Quark::MouseCode::ButtonRight:
 		{
 			if (block != BlockId::None && block != BlockId::Air)
 			{
-				m_World.ReplaceBlockFromPositionAbsolute(position + next, BlockId::Cobblestone);
+				m_World.ReplaceBlock(position + next, BlockId::Cobblestone);
 			}
 			break;
 		}
