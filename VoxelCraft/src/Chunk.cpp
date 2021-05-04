@@ -48,11 +48,7 @@ constexpr static glm::ivec3 GetFaceNormal(BlockFace facing)
 
 
 Chunk::Chunk(const glm::ivec2& position, World& world)
-	: m_Position(position), m_World(world)
-{
-	static uint32_t increment = 0;
-	m_Id = increment++;
-}
+	: m_Position(position), m_World(world) {}
 
 Chunk::~Chunk()
 {
@@ -61,7 +57,7 @@ Chunk::~Chunk()
 
 
 
-void Chunk::GenerateTerrain(const std::atomic<bool>& running)
+void Chunk::GenerateTerrain()
 {
 	m_Blocks = new BlockId[s_Spec.BlockCount];
 
@@ -71,7 +67,7 @@ void Chunk::GenerateTerrain(const std::atomic<bool>& running)
 		{
 			for (uint32_t x = 0; x < s_Spec.Width; x++)
 			{
-				if (!running)
+				if (!Quark::Application::Get().IsRunning())
 					return;
 
 				glm::ivec3 pos = GetBlockPositionAbsolute({ x, y, z });
@@ -98,7 +94,7 @@ void Chunk::GenerateTerrain(const std::atomic<bool>& running)
 	}
 }
 
-void Chunk::GenerateMesh(const std::atomic<bool>& running)
+void Chunk::GenerateMesh()
 {
 	m_VertexCount = 0;
 	m_IndexCount = 0;
@@ -116,7 +112,7 @@ void Chunk::GenerateMesh(const std::atomic<bool>& running)
 		{
 			for (uint32_t x = 0; x < s_Spec.Width; x++)
 			{
-				if (!running)
+				if (!Quark::Application::Get().IsRunning())
 					return;
 
 				BlockId block = GetBlockAt({ x, y, z });
@@ -149,18 +145,19 @@ bool Chunk::PushData()
 	bool pushed = m_UpdatePending;
 	if (m_UpdatePending)
 	{
-		m_VertexArray = Entropy::VertexArray::Create();
+		// TODO: fix
+		m_VertexArray = Quark::VertexArray::Create();
 
-		m_VertexBuffer = Entropy::VertexBuffer::Create((float*)m_Vertices.data(), m_Vertices.size() * sizeof(BlockVertex));
+		m_VertexBuffer = Quark::VertexBuffer::Create((float*)m_Vertices.data(), m_Vertices.size() * sizeof(BlockVertex));
 		m_VertexBuffer->SetLayout({
-			{ Entropy::ShaderDataType::Float3, "a_Position"  },
-			{ Entropy::ShaderDataType::Float2, "a_TexCoord"  },
-			{ Entropy::ShaderDataType::Float,  "a_TexIndex"  },
-			{ Entropy::ShaderDataType::Float,  "a_Intensity" }
+			{ Quark::ShaderDataType::Float3, "a_Position"  },
+			{ Quark::ShaderDataType::Float2, "a_TexCoord"  },
+			{ Quark::ShaderDataType::Float,  "a_TexIndex"  },
+			{ Quark::ShaderDataType::Float,  "a_Intensity" }
 			});
 		m_VertexArray->AddVertexBuffer(m_VertexBuffer);
 
-		m_IndexBuffer = Entropy::IndexBuffer::Create(m_Indices.data(), m_Indices.size());
+		m_IndexBuffer = Quark::IndexBuffer::Create(m_Indices.data(), m_Indices.size());
 		m_VertexArray->SetIndexBuffer(m_IndexBuffer);
 
 		m_UpdatePending = false;
@@ -335,26 +332,19 @@ glm::ivec3 Chunk::GetBlockPositionAbsolute(const glm::ivec3& position) const
 
 
 
-static std::mutex s_ChunkDataMutex;
+static std::mutex s_ChunkGenMutex;
 void Chunk::GenerateChunk(glm::ivec2 coord, World* world)
 {
-	std::lock_guard<std::mutex> lock(s_ChunkDataMutex);
+	std::lock_guard<std::mutex> lock(s_ChunkGenMutex);
 
 	// If a generate request occurs again, ignore it
 	if (!world->GetChunk(coord))
 	{
 		Chunk* newChunk = new Chunk(coord, *world);
-		newChunk->GenerateTerrain(Entropy::Application::Get().IsRunning());
+		newChunk->GenerateTerrain();
 
 		world->AddChunk(newChunk);
 	}
-}
-
-static std::mutex s_ChunkMeshMutex;
-void Chunk::GenerateChunkMesh(Chunk* chunk, World* world)
-{
-	std::lock_guard<std::mutex> lock(s_ChunkMeshMutex);
-	chunk->GenerateMesh(Entropy::Application::Get().IsRunning());
 }
 
 static std::future<void> s_ChunkConstructFuture;
@@ -363,16 +353,14 @@ static std::future<void> s_ChunkFriendTopConstructFuture;
 static std::future<void> s_ChunkFriendRightConstructFuture;
 static std::future<void> s_ChunkFriendBottomConstructFuture;
 
-static std::future<void> s_ChunkConstructMeshFuture;
-
-std::mutex s_LoadChunkMutex;
 Chunk* Chunk::Load(glm::ivec2 coord, World* world)
 {
-	NT_TIME_SCOPE_DEBUG(Chunk::Load);
-
-	std::lock_guard<std::mutex> lock(s_LoadChunkMutex);
+	QK_TIME_SCOPE_DEBUG(Chunk::Load);
 
 	// First pass
+	/// Summary
+	/// Generates a cross pattern of chunks around the chunk to be loaded
+	/// This step is mendatory to compute the visible faces on chunk edges
 	s_ChunkConstructFuture				= std::async(std::launch::async, GenerateChunk, coord, world);
 	s_ChunkFriendLeftConstructFuture	= std::async(std::launch::async, GenerateChunk, coord + glm::ivec2(-1,  0), world);
 	s_ChunkFriendTopConstructFuture		= std::async(std::launch::async, GenerateChunk, coord + glm::ivec2( 0,  1), world);
@@ -387,8 +375,7 @@ Chunk* Chunk::Load(glm::ivec2 coord, World* world)
 	auto newChunk = world->GetChunk(coord);
 
 	// Second pass
-	s_ChunkConstructMeshFuture = std::async(std::launch::async, GenerateChunkMesh, newChunk, world);
-	s_ChunkConstructMeshFuture.get();
+	newChunk->GenerateMesh();
 
 	return newChunk;
 }

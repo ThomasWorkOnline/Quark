@@ -8,56 +8,56 @@
 
 #include <Entropy.h>
 
-class SandboxGame : public Entropy::Application
+class SandboxGame : public Quark::Application
 {
 public:
 	void OnCreate() override
 	{
-		//NT_TIME_SCOPE_DEBUG(SandboxApp::OnCreate);
+		//QK_TIME_SCOPE_DEBUG(SandboxApp::OnCreate);
 
 		auto& window = GetWindow();
-		Entropy::BufferLayout layout = {
-				{ Entropy::ShaderDataType::Float3, "a_Position" },
-				{ Entropy::ShaderDataType::Float2, "a_TexCoord" },
-				{ Entropy::ShaderDataType::Float3, "a_Normal" }
+		Quark::BufferLayout layout = {
+				{ Quark::ShaderDataType::Float3, "a_Position" },
+				{ Quark::ShaderDataType::Float2, "a_TexCoord" },
+				{ Quark::ShaderDataType::Float3, "a_Normal" }
 		};
 
 		{
-			m_CameraEntity.AddComponent<Entropy::Transform3DComponent>().Position = { 0.0f, 0.0f, 0.0f };
-			m_CameraEntity.AddComponent<Entropy::PhysicsComponent>();
-			m_CameraEntity.AddComponent<Entropy::PerspectiveCameraComponent>((float)window.GetWidth() / (float)window.GetHeight(), 50.0f);
+			m_CameraEntity.AddComponent<Quark::Transform3DComponent>().Position = { 0.0f, 0.0f, 0.0f };
+			m_CameraEntity.AddComponent<Quark::PhysicsComponent>();
+			m_CameraEntity.AddComponent<Quark::PerspectiveCameraComponent>((float)window.GetWidth() / (float)window.GetHeight(), 50.0f);
 		}
 
 		{
-			m_OrthoCameraEntity.AddComponent<Entropy::Transform3DComponent>();
-			m_OrthoCameraEntity.AddComponent<Entropy::PhysicsComponent>();
-			m_OrthoCameraEntity.AddComponent<Entropy::OrthographicCameraComponent>((float)window.GetWidth() / (float)window.GetHeight(), 8.0f);
+			m_OrthoCameraEntity.AddComponent<Quark::Transform3DComponent>();
+			m_OrthoCameraEntity.AddComponent<Quark::PhysicsComponent>();
+			m_OrthoCameraEntity.AddComponent<Quark::OrthographicCameraComponent>((float)window.GetWidth() / (float)window.GetHeight(), 8.0f);
 		}
 
 		{
-			m_PortalCameraEntity.AddComponent<Entropy::Transform3DComponent>().Position = { 0.0f, 0.0f, -6.0f };
-			m_PortalCameraEntity.AddComponent<Entropy::PhysicsComponent>();
-			m_PortalCameraEntity.AddComponent<Entropy::PerspectiveCameraComponent>(1.0f, 45.0f);
+			m_PortalCameraEntity.AddComponent<Quark::Transform3DComponent>().Position = { 0.0f, 0.0f, -6.0f };
+			m_PortalCameraEntity.AddComponent<Quark::PhysicsComponent>();
+			m_PortalCameraEntity.AddComponent<Quark::PerspectiveCameraComponent>(1.0f, 45.0f);
 		}
 
 		{
-			auto& transform = m_PlaneEntity.AddComponent<Entropy::Transform3DComponent>();
+			auto& transform = m_PlaneEntity.AddComponent<Quark::Transform3DComponent>();
 			transform.Position.y = -2.0f;
-			m_PlaneEntity.AddComponent<Entropy::MeshComponent>().Mesh.GenerateTerrain(layout, 100, 0);
+			m_PlaneEntity.AddComponent<Quark::MeshComponent>().Mesh.GenerateTerrain(layout, 100, 0);
 		}
 
 		{
-			auto& transform = m_ModelEntity.AddComponent<Entropy::Transform3DComponent>();
+			auto& transform = m_ModelEntity.AddComponent<Quark::Transform3DComponent>();
 			//transform.Scale = { 0.01f, 0.01f, 0.01f };
 			transform.Position.y += 1.3f;
-			m_ModelEntity.AddComponent<Entropy::MeshComponent>(layout, "./assets/models/monkey.obj");
+			m_ModelEntity.AddComponent<Quark::MeshComponent>(layout, "./assets/models/monkey.obj");
 		}
 
 		{
-			auto& transform = m_LightEntity.AddComponent<Entropy::Transform3DComponent>();
+			auto& transform = m_LightEntity.AddComponent<Quark::Transform3DComponent>();
 			transform.Scale = { 0.01f, 0.01f, 0.01f };
 			transform.Position = { -0.7, 1.8f, -4.3f };
-			m_LightEntity.AddComponent<Entropy::MeshComponent>(layout, "./assets/models/sphere.obj");
+			m_LightEntity.AddComponent<Quark::MeshComponent>(layout, "./assets/models/sphere.obj");
 		}
 
 		m_ShaderLibrary.Load("default", "./assets/shaders/default.glsl");
@@ -71,7 +71,7 @@ public:
 
 	void OnUpdate(float elapsedTime) override
 	{
-#		if defined(NT_DEBUG) && 0
+#		if defined(QK_DEBUG) && 0
 		static float accumulatedTime = 0.0f;
 		accumulatedTime += elapsedTime;
 
@@ -83,39 +83,39 @@ public:
 #		endif
 
 		{
-			auto& position = m_LightEntity.GetComponent<Entropy::Transform3DComponent>().Position;
+			auto& position = m_LightEntity.GetComponent<Quark::Transform3DComponent>().Position;
 			static const float speed = 10.0f;
-			if (Entropy::Input::IsKeyPressed(Entropy::KeyCode::RightShift))
+			if (Quark::Input::IsKeyPressed(Quark::KeyCode::RightShift))
 			{
-				if (Entropy::Input::IsKeyPressed(Entropy::KeyCode::Up))
+				if (Quark::Input::IsKeyPressed(Quark::KeyCode::Up))
 				{
 					position.y += elapsedTime * speed;
 				}
 
-				if (Entropy::Input::IsKeyPressed(Entropy::KeyCode::Down))
+				if (Quark::Input::IsKeyPressed(Quark::KeyCode::Down))
 				{
 					position.y -= elapsedTime * speed;
 				}
 			}
 			else
 			{
-				if (Entropy::Input::IsKeyPressed(Entropy::KeyCode::Up))
+				if (Quark::Input::IsKeyPressed(Quark::KeyCode::Up))
 				{
 					position.z += elapsedTime * speed;
 				}
 
-				if (Entropy::Input::IsKeyPressed(Entropy::KeyCode::Down))
+				if (Quark::Input::IsKeyPressed(Quark::KeyCode::Down))
 				{
 					position.z -= elapsedTime * speed;
 				}
 			}
 
-			if (Entropy::Input::IsKeyPressed(Entropy::KeyCode::Right))
+			if (Quark::Input::IsKeyPressed(Quark::KeyCode::Right))
 			{
 				position.x += elapsedTime * speed;
 			}
 
-			if (Entropy::Input::IsKeyPressed(Entropy::KeyCode::Left))
+			if (Quark::Input::IsKeyPressed(Quark::KeyCode::Left))
 			{
 				position.x -= elapsedTime * speed;
 			}
@@ -123,7 +123,7 @@ public:
 			m_SelectedShader->Attach();
 			m_SelectedShader->SetFloat3("u_Light.position", position);
 
-			if (Entropy::Input::IsMouseButtonPressed(Entropy::MouseCode::Button3))
+			if (Quark::Input::IsMouseButtonPressed(Quark::MouseCode::Button3))
 			{
 				m_NormalLength -= elapsedTime;
 
@@ -131,7 +131,7 @@ public:
 					m_NormalLength = 0.001f;
 			}
 
-			if (Entropy::Input::IsMouseButtonPressed(Entropy::MouseCode::Button4))
+			if (Quark::Input::IsMouseButtonPressed(Quark::MouseCode::Button4))
 			{
 				m_NormalLength += elapsedTime;
 
@@ -178,88 +178,88 @@ public:
 			shader->SetInt("u_Cubemap", 0);
 		}
 
-		m_ModelEntity.GetComponent<Entropy::Transform3DComponent>().Rotate(elapsedTime * 8.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+		m_ModelEntity.GetComponent<Quark::Transform3DComponent>().Rotate(elapsedTime * 8.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 
 		{
 			m_SelectedShader->SetFloat("u_Material.metalness", 0.0f);
-			Entropy::Renderer::BeginScene(m_PortalCameraEntity.GetComponent<Entropy::PerspectiveCameraComponent>().Camera.GetMatrix(),
-				m_PortalCameraEntity.GetComponent<Entropy::Transform3DComponent>());
+			Quark::Renderer::BeginScene(m_PortalCameraEntity.GetComponent<Quark::PerspectiveCameraComponent>().Camera.GetMatrix(),
+				m_PortalCameraEntity.GetComponent<Quark::Transform3DComponent>());
 
 			m_Framebuffer->Attach();
-			Entropy::RenderCommand::SetViewport(0, 0, m_Framebuffer->GetWidth(), m_Framebuffer->GetHeight());
+			Quark::RenderCommand::SetViewport(0, 0, m_Framebuffer->GetWidth(), m_Framebuffer->GetHeight());
 
 			// Drawing Suzanne to the framebuffer
-			Entropy::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
-			Entropy::RenderCommand::Clear();
+			Quark::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
+			Quark::RenderCommand::Clear();
 
-			Entropy::Renderer::Submit(m_SelectedShader, m_ModelEntity.GetComponent<Entropy::MeshComponent>().Mesh.GetVertexArray(), m_ModelEntity.GetComponent<Entropy::Transform3DComponent>());
+			Quark::Renderer::Submit(m_SelectedShader, m_ModelEntity.GetComponent<Quark::MeshComponent>().Mesh.GetVertexArray(), m_ModelEntity.GetComponent<Quark::Transform3DComponent>());
 
 			m_Framebuffer->Detach();
-			Entropy::RenderCommand::SetViewport(0, 0, GetWindow().GetWidth(), GetWindow().GetHeight());
+			Quark::RenderCommand::SetViewport(0, 0, GetWindow().GetWidth(), GetWindow().GetHeight());
 
-			Entropy::Renderer::EndScene();
+			Quark::Renderer::EndScene();
 			m_SelectedShader->SetFloat("u_Material.metalness", 1.0f);
 		}
 		
 		if (m_Perspective)
 		{
 			{
-				auto& cameraTransform = m_CameraEntity.GetComponent<Entropy::Transform3DComponent>();
-				Entropy::Renderer::BeginScene(m_CameraEntity.GetComponent<Entropy::PerspectiveCameraComponent>().Camera.GetMatrix(), cameraTransform);
+				auto& cameraTransform = m_CameraEntity.GetComponent<Quark::Transform3DComponent>();
+				Quark::Renderer::BeginScene(m_CameraEntity.GetComponent<Quark::PerspectiveCameraComponent>().Camera.GetMatrix(), cameraTransform);
 
-				Entropy::Renderer::SubmitSprite(m_CoinAnimator.GetTexture(), glm::mat4(1.0f));
+				Quark::Renderer::SubmitSprite(m_CoinAnimator.GetTexture(), glm::mat4(1.0f));
 
-				Entropy::Renderer::Submit(m_SelectedShader, m_ModelEntity.GetComponent<Entropy::MeshComponent>().Mesh.GetVertexArray(), m_ModelEntity.GetComponent<Entropy::Transform3DComponent>());
-				Entropy::Renderer::Submit(m_SelectedShader, m_LightEntity.GetComponent<Entropy::MeshComponent>().Mesh.GetVertexArray(), m_LightEntity.GetComponent<Entropy::Transform3DComponent>());
-				Entropy::Renderer::Submit(m_SelectedShader, m_Framebuffer, m_PlaneEntity.GetComponent<Entropy::MeshComponent>().Mesh.GetVertexArray(), m_PlaneEntity.GetComponent<Entropy::Transform3DComponent>());
+				Quark::Renderer::Submit(m_SelectedShader, m_ModelEntity.GetComponent<Quark::MeshComponent>().Mesh.GetVertexArray(), m_ModelEntity.GetComponent<Quark::Transform3DComponent>());
+				Quark::Renderer::Submit(m_SelectedShader, m_LightEntity.GetComponent<Quark::MeshComponent>().Mesh.GetVertexArray(), m_LightEntity.GetComponent<Quark::Transform3DComponent>());
+				Quark::Renderer::Submit(m_SelectedShader, m_Framebuffer, m_PlaneEntity.GetComponent<Quark::MeshComponent>().Mesh.GetVertexArray(), m_PlaneEntity.GetComponent<Quark::Transform3DComponent>());
 
-				Entropy::Renderer::EndScene();
+				Quark::Renderer::EndScene();
 			}
 
 			{
-				glm::mat4 view = (glm::mat3)m_CameraEntity.GetComponent<Entropy::Transform3DComponent>();
-				Entropy::Renderer::BeginScene(m_CameraEntity.GetComponent<Entropy::PerspectiveCameraComponent>().Camera.GetMatrix(), view);
+				glm::mat4 view = (glm::mat3)m_CameraEntity.GetComponent<Quark::Transform3DComponent>();
+				Quark::Renderer::BeginScene(m_CameraEntity.GetComponent<Quark::PerspectiveCameraComponent>().Camera.GetMatrix(), view);
 
-				Entropy::RenderCommand::SetCullFace(Entropy::RenderCullFace::Back);
-				Entropy::RenderCommand::SetDepthFunction(Entropy::RenderDepthFunction::LessEqual);
+				Quark::RenderCommand::SetCullFace(Quark::RenderCullFace::Back);
+				Quark::RenderCommand::SetDepthFunction(Quark::RenderDepthFunction::LessEqual);
 
 				m_Skybox.GetCubeMap()->Attach(0);
-				Entropy::Renderer::Submit(m_ShaderLibrary.Get("skybox"), m_Skybox.GetVertexArray());
+				Quark::Renderer::Submit(m_ShaderLibrary.Get("skybox"), m_Skybox.GetVertexArray());
 
-				Entropy::RenderCommand::SetCullFace(Entropy::RenderCullFace::Front);
-				Entropy::RenderCommand::SetDepthFunction(Entropy::RenderDepthFunction::Less);
+				Quark::RenderCommand::SetCullFace(Quark::RenderCullFace::Front);
+				Quark::RenderCommand::SetDepthFunction(Quark::RenderDepthFunction::Less);
 
-				Entropy::Renderer::EndScene();
+				Quark::Renderer::EndScene();
 			}
 		}
 		else
 		{
-			auto& orthoCameraTransform = m_OrthoCameraEntity.GetComponent<Entropy::Transform3DComponent>();
-			Entropy::Renderer::BeginScene(m_OrthoCameraEntity.GetComponent<Entropy::OrthographicCameraComponent>().Camera.GetMatrix(), orthoCameraTransform);
+			auto& orthoCameraTransform = m_OrthoCameraEntity.GetComponent<Quark::Transform3DComponent>();
+			Quark::Renderer::BeginScene(m_OrthoCameraEntity.GetComponent<Quark::OrthographicCameraComponent>().Camera.GetMatrix(), orthoCameraTransform);
 
-			static Entropy::Transform3DComponent transform;
+			static Quark::Transform3DComponent transform;
 			if (GetWindow().IsSelected())
 			{
-				transform.Position.x = Entropy::Input::GetMouseX() * 0.01f;
-				transform.Position.y = Entropy::Input::GetMouseY() * 0.01f;
+				transform.Position.x = Quark::Input::GetMouseX() * 0.01f;
+				transform.Position.y = Quark::Input::GetMouseY() * 0.01f;
 			}
 
 			transform.Scale.x = (float)m_Maxwell->GetWidth() / (float)m_Maxwell->GetHeight();
-			Entropy::Renderer::SubmitSprite(m_Maxwell, transform);
+			Quark::Renderer::SubmitSprite(m_Maxwell, transform);
 
 			constexpr int32_t scale = 100;
-			static Entropy::Transform3DComponent trans;
+			static Quark::Transform3DComponent trans;
 			for (int y = 0; y < scale; y++)
 			{
 				for (int x = 0; x < scale; x++)
 				{	
 					trans.Position = { y - scale * 0.5f, x - scale * 0.5f, 0.0f };
 					//Entropy::Renderer::SubmitSprite({ x * 0.01f, y * 0.01f, 0.0f, 1.0f }, trans);
-					Entropy::Renderer::SubmitSprite(m_Cobblestone, trans);
+					Quark::Renderer::SubmitSprite(m_Cobblestone, trans);
 				}
 			}
 
-			Entropy::Renderer::EndScene();
+			Quark::Renderer::EndScene();
 
 			//std::cout << Entropy::Renderer::GetStats().DrawCalls << std::endl;
 			//std::cout << Entropy::Renderer::GetStats().QuadsDrawn << std::endl;
@@ -268,7 +268,7 @@ public:
 
 	void OnDestroy() override
 	{
-		NT_TIME_SCOPE_DEBUG(SandboxApp::OnDestroy);
+		QK_TIME_SCOPE_DEBUG(SandboxApp::OnDestroy);
 
 		m_Scene.DeleteEntity(m_PlaneEntity);
 		m_Scene.DeleteEntity(m_ModelEntity);
@@ -278,13 +278,13 @@ public:
 		m_Scene.DeleteEntity(m_PortalCameraEntity);
 	}
 
-	void OnEvent(Entropy::Event& e) override
+	void OnEvent(Quark::Event& e) override
 	{
-		//NT_TIME_SCOPE_DEBUG(SandboxApp::OnEvent);
+		//QK_TIME_SCOPE_DEBUG(SandboxApp::OnEvent);
 
-		Entropy::EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<Entropy::MouseButtonPressedEvent>(NT_ATTACH_EVENT_FN(SandboxGame::OnMouseButtonPressed));
-		dispatcher.Dispatch<Entropy::KeyPressedEvent>(NT_ATTACH_EVENT_FN(SandboxGame::OnKeyPressed));
+		Quark::EventDispatcher dispatcher(e);
+		dispatcher.Dispatch<Quark::MouseButtonPressedEvent>(ATTACH_EVENT_FN(SandboxGame::OnMouseButtonPressed));
+		dispatcher.Dispatch<Quark::KeyPressedEvent>(ATTACH_EVENT_FN(SandboxGame::OnKeyPressed));
 
 		if (m_Perspective)
 			m_CameraController.OnEvent(e);
@@ -292,35 +292,35 @@ public:
 			m_OrthoCameraController.OnEvent(e);
 	}
 
-	bool OnMouseButtonPressed(Entropy::MouseButtonPressedEvent& e)
+	bool OnMouseButtonPressed(Quark::MouseButtonPressedEvent& e)
 	{
 		switch (e.GetMouseButton())
 		{
-		case Entropy::MouseCode::ButtonLeft:
+		case Quark::MouseCode::ButtonLeft:
 		{
 			// Focus enabled
 			if (GetWindow().IsSelected())
-				Entropy::AudioEngine::PlaySound("assets/audio/bloop.wav");
+				Quark::AudioEngine::PlaySound("assets/audio/bloop.wav");
 
 			GetWindow().Select();
 			break;
 		}
-		case Entropy::MouseCode::ButtonRight:
+		case Quark::MouseCode::ButtonRight:
 		{
 			// Focus enabled
 			if (GetWindow().IsSelected())
-				Entropy::AudioEngine::PlaySound("assets/audio/bloop2.wav");
+				Quark::AudioEngine::PlaySound("assets/audio/bloop2.wav");
 			break;
 		}
 		}
 		return false;
 	}
 
-	bool OnKeyPressed(Entropy::KeyPressedEvent& e)
+	bool OnKeyPressed(Quark::KeyPressedEvent& e)
 	{
 		switch (e.GetKeyCode())
 		{
-		case Entropy::Key::F1:
+		case Quark::Key::F1:
 		{
 			// Toggle debug shader
 			static uint32_t shaderIndex = 0;
@@ -347,15 +347,15 @@ public:
 			std::stringstream ss;
 			ss << "Shader used: ";
 			ss << m_SelectedShader->GetName();
-			NT_TRACE(ss.str());
+			QK_CORE_TRACE(ss.str());
 			break;
 		}
-		case Entropy::Key::F2:
+		case Quark::Key::F2:
 		{
 			m_Perspective = !m_Perspective;
 			break;
 		}
-		case Entropy::Key::F3:
+		case Quark::Key::F3:
 		{
 			// Toggle VSync
 			auto& window = GetWindow();
@@ -364,7 +364,7 @@ public:
 			std::stringstream ss;
 			ss << "VSync is now ";
 			ss << (window.IsVSync() ? "enabled" : "disabled");
-			NT_TRACE(ss.str());
+			QK_CORE_TRACE(ss.str());
 			break;
 		}
 		/*
@@ -395,18 +395,18 @@ public:
 				break;
 			}
 
-			NT_TRACE("Switched environment");
+			QK_TRACE("Switched environment");
 
 			break;
 		}
 		*/
-		case Entropy::Key::F11:
+		case Quark::Key::F11:
 		{
 			auto& window = GetWindow();
 			window.SetFullScreen(!window.IsFullscreen());
 			break;
 		}
-		case Entropy::Key::Escape:
+		case Quark::Key::Escape:
 		{
 			// Focus lost
 			GetWindow().Deselect();
@@ -418,23 +418,23 @@ public:
 	}
 
 private:
-	Entropy::Scene m_Scene;
+	Quark::Scene m_Scene;
 
-	Entropy::Entity m_PlaneEntity = m_Scene.CreateEntity();
-	Entropy::Entity m_ModelEntity = m_Scene.CreateEntity();
-	Entropy::Entity m_LightEntity = m_Scene.CreateEntity();
-	Entropy::Entity m_CameraEntity = m_Scene.CreateEntity();
-	Entropy::Entity m_OrthoCameraEntity = m_Scene.CreateEntity();
-	Entropy::Entity m_PortalCameraEntity = m_Scene.CreateEntity();
+	Quark::Entity m_PlaneEntity = m_Scene.CreateEntity();
+	Quark::Entity m_ModelEntity = m_Scene.CreateEntity();
+	Quark::Entity m_LightEntity = m_Scene.CreateEntity();
+	Quark::Entity m_CameraEntity = m_Scene.CreateEntity();
+	Quark::Entity m_OrthoCameraEntity = m_Scene.CreateEntity();
+	Quark::Entity m_PortalCameraEntity = m_Scene.CreateEntity();
 
-	Entropy::Ref<Entropy::Texture2D> m_DiffuseMap  = Entropy::Texture2D::Create("./assets/textures/container.png");
-	Entropy::Ref<Entropy::Texture2D> m_SpecularMap = Entropy::Texture2D::Create("./assets/textures/container_specular.png");
-	Entropy::Ref<Entropy::Texture2D> m_NormalMap   = Entropy::Texture2D::Create("./assets/textures/normal_map.png");
-	Entropy::Ref<Entropy::Texture2D> m_Cobblestone = Entropy::Texture2D::Create("./assets/textures/cobblestone.png");
-	Entropy::Ref<Entropy::Texture2D> m_CoinSheet   = Entropy::Texture2D::Create("./assets/textures/coin.png");
-	Entropy::Ref<Entropy::Texture2D> m_Maxwell     = Entropy::Texture2D::Create("./assets/textures/Maxwell.png");
+	Quark::Ref<Quark::Texture2D> m_DiffuseMap  = Quark::Texture2D::Create("./assets/textures/container.png");
+	Quark::Ref<Quark::Texture2D> m_SpecularMap = Quark::Texture2D::Create("./assets/textures/container_specular.png");
+	Quark::Ref<Quark::Texture2D> m_NormalMap   = Quark::Texture2D::Create("./assets/textures/normal_map.png");
+	Quark::Ref<Quark::Texture2D> m_Cobblestone = Quark::Texture2D::Create("./assets/textures/cobblestone.png");
+	Quark::Ref<Quark::Texture2D> m_CoinSheet   = Quark::Texture2D::Create("./assets/textures/coin.png");
+	Quark::Ref<Quark::Texture2D> m_Maxwell     = Quark::Texture2D::Create("./assets/textures/Maxwell.png");
 
-	Entropy::SpriteAnimator m_CoinAnimator = { {
+	Quark::SpriteAnimator m_CoinAnimator = { {
 		{ m_CoinSheet, { 0, 0 }, { 16, 16 } },
 		{ m_CoinSheet, { 1, 0 }, { 16, 16 } },
 		{ m_CoinSheet, { 2, 0 }, { 16, 16 } },
@@ -443,22 +443,22 @@ private:
 		{ m_CoinSheet, { 5, 0 }, { 16, 16 } } }, 8.0f
 	};
 
-	Entropy::ShaderLibrary m_ShaderLibrary;
-	Entropy::Ref<Entropy::Shader> m_SelectedShader;
+	Quark::ShaderLibrary m_ShaderLibrary;
+	Quark::Ref<Quark::Shader> m_SelectedShader;
 	float m_NormalLength = 0.1f;
 
-	Entropy::UIElement m_Element;
+	Quark::UIElement m_Element;
 
-	Entropy::Environment m_Skybox = { "./assets/environments/Lycksele3" };
+	Quark::Environment m_Skybox = { "./assets/environments/Lycksele3" };
 
-	Entropy::PerspectiveCameraController m_CameraController = { m_CameraEntity };
-	Entropy::OrthographicCameraController m_OrthoCameraController = { m_OrthoCameraEntity };
+	Quark::PerspectiveCameraController m_CameraController = { m_CameraEntity };
+	Quark::OrthographicCameraController m_OrthoCameraController = { m_OrthoCameraEntity };
 
 	// TODO: fix multisampling
-	Entropy::FramebufferSpecification m_FramebufferSpec = { 1024, 1024, 1, {
-		{ Entropy::TextureDataFormat::RGB8, Entropy::TextureFilteringFormat::Linear, Entropy::TextureTilingFormat::Repeat },
-		{ Entropy::TextureDataFormat::Depth24Stencil8 } } };
-	Entropy::Ref<Entropy::Framebuffer> m_Framebuffer = Entropy::Framebuffer::Create(m_FramebufferSpec);
+	Quark::FramebufferSpecification m_FramebufferSpec = { 1024, 1024, 1, {
+		{ Quark::TextureDataFormat::RGB8, Quark::TextureFilteringFormat::Linear, Quark::TextureTilingFormat::Repeat },
+		{ Quark::TextureDataFormat::Depth24Stencil8 } } };
+	Quark::Ref<Quark::Framebuffer> m_Framebuffer = Quark::Framebuffer::Create(m_FramebufferSpec);
 
 	bool m_Perspective = false;
 };

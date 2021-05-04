@@ -2,16 +2,16 @@
 
 #include <Entropy.h>
 
-class PlayerCameraController : public Entropy::OrthographicCameraController
+class PlayerCameraController : public Quark::OrthographicCameraController
 {
 public:
-	void OnEvent(Entropy::Event& e) override;
+	void OnEvent(Quark::Event& e) override;
 
 	void OnUpdate(float elapsedTime) override;
-	void OnUpdate(float elapsedTime, Entropy::Entity player);
+	void OnUpdate(float elapsedTime, Quark::Entity player);
 
 private:
-	bool OnMouseScrolled(Entropy::MouseScrolledEvent& e);
+	bool OnMouseScrolled(Quark::MouseScrolledEvent& e);
 
-	Entropy::Entity m_Player;
+	Quark::Entity m_Player;
 };

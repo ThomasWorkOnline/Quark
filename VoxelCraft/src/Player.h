@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Entropy.h>
+#include <Quark.h>
 
 struct PlayerSettings
 {
@@ -12,22 +12,22 @@ struct PlayerSettings
 class Player
 {
 public:
-	Player(Entropy::Scene& scene, const PlayerSettings& settings = {});
+	Player(Quark::Scene& scene, const PlayerSettings& settings = {});
 	~Player();
 
 	const glm::vec3& GetHeadPosition() { return GetTransform().Position; }
 	glm::vec3 GetFeetPosition() { return GetTransform().Position - m_Settings.HeadRelativeToFeet; }
 
-	Entropy::Transform3DComponent& GetTransform() { return m_Entity.GetComponent<Entropy::Transform3DComponent>(); }
-	Entropy::PhysicsComponent& GetPhysics() { return m_Entity.GetComponent<Entropy::PhysicsComponent>(); }
-	Entropy::PerspectiveCameraComponent& GetCamera() { return m_Entity.GetComponent<Entropy::PerspectiveCameraComponent>(); }
+	Quark::Transform3DComponent& GetTransform() { return m_Entity.GetComponent<Quark::Transform3DComponent>(); }
+	Quark::PhysicsComponent& GetPhysics() { return m_Entity.GetComponent<Quark::PhysicsComponent>(); }
+	Quark::PerspectiveCameraComponent& GetCamera() { return m_Entity.GetComponent<Quark::PerspectiveCameraComponent>(); }
 
-	operator Entropy::Entity() { return m_Entity; }
+	operator Quark::Entity() { return m_Entity; }
 
 private:
 	void Initialize();
 
-	Entropy::Scene& m_Scene;
-	Entropy::Entity m_Entity;
+	Quark::Scene& m_Scene;
+	Quark::Entity m_Entity;
 	PlayerSettings m_Settings;
 };

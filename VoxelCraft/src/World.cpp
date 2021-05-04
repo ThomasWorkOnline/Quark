@@ -4,29 +4,37 @@
 #include <chrono>
 
 static std::mutex s_RenderQueueMutex;
-static void LoadChunksAsync(std::vector<Chunk*>* chunksToRender, World* world, glm::vec3 playerPos)
+static void LoadChunks(World* world)
 {
 	std::lock_guard<std::mutex> lock(s_RenderQueueMutex);
 
-	glm::ivec2 chunkCoord = world->GetChunkCoordFromPositionAbsolute(playerPos);
+	glm::ivec2 chunkCoord = world->GetChunkCoordFromPositionAbsolute(world->GetPlayer().GetFeetPosition());
 	auto queryChunk = world->GetChunk(chunkCoord);
 	if (!queryChunk || !queryChunk->Loaded())
 	{
 		Chunk* newChunk = Chunk::Load(chunkCoord, world);
 
-		chunksToRender->push_back(newChunk);
+		world->GetRenderableChunks().push_back(newChunk);
 	}
 }
 
-
+static void UnloadChunks(World* world)
+{
+	auto& renderableChunks = world->GetRenderableChunks();
+	// Test
+	if (!renderableChunks.empty())
+	{
+		renderableChunks.erase(renderableChunks.begin());
+	}
+}
 
 World::World()
 {
-	NT_TIME_SCOPE_DEBUG(World::World);
+	QK_TIME_SCOPE_DEBUG(World::World);
 
 	ChunkRenderer::Initialize();
 
-	m_Chunks.reserve((size_t)m_RenderDistance * (size_t)m_RenderDistance);
+	//m_Chunks.reserve((size_t)m_RenderDistance * (size_t)m_RenderDistance);
 }
 
 World::~World()
@@ -40,19 +48,37 @@ World::~World()
 }
 
 
-
+static std::future<void> s_ChunkUnloadFuture;
 void World::OnUpdate(float elapsedTime)
 {
 	m_Scene.OnUpdate(elapsedTime);
 	glm::vec3 playerPos = m_Player.GetFeetPosition();
 
-	m_WorldGenFuture = std::async(std::launch::async, LoadChunksAsync, &m_RenderableChunks, this, playerPos);
+	m_WorldGenFuture = std::async(std::launch::async, LoadChunks, this);
 
 	for (auto chunk : m_RenderableChunks)
 	{
-		chunk->PushData();
+		ChunkRenderer::SubmitChunk(chunk);
 	}
 }
+
+void World::OnEvent(Quark::Event& e)
+{
+	Quark::EventDispatcher dispatcher(e);
+
+	dispatcher.Dispatch<Quark::KeyPressedEvent>(ATTACH_EVENT_FN(World::OnKeyPressed));
+}
+
+bool World::OnKeyPressed(Quark::KeyPressedEvent& e)
+{
+	if (Quark::Input::IsKeyPressed(Quark::Key::T))
+	{
+		UnloadChunks(this);
+	}
+	
+	return false;
+}
+
 
 Chunk* World::GetChunk(const glm::ivec2& position) const
 {
@@ -83,12 +109,12 @@ void World::ReplaceBlockFromPositionAbsolute(const glm::ivec3& position, BlockId
 			if (oldBlock == BlockId::Air)
 			{
 				auto& blockProperties = ChunkRenderer::GetBlockProperties().at(type);
-				Entropy::AudioEngine::PlaySound(blockProperties.BreakSound);
+				Quark::AudioEngine::PlaySound(blockProperties.BreakSound);
 			}
 			else
 			{
 				auto& blockProperties = ChunkRenderer::GetBlockProperties().at(oldBlock);
-				Entropy::AudioEngine::PlaySound(blockProperties.BreakSound);
+				Quark::AudioEngine::PlaySound(blockProperties.BreakSound);
 			}
 
 			chunk->ReplaceBlock(blockPosition, type);
@@ -141,5 +167,5 @@ void World::AddChunk(Chunk* chunk)
 
 void World::RemoveChunk(Chunk* chunk)
 {
-
+	
 }

@@ -1,19 +1,19 @@
 #pragma once
 
-#include <Entropy.h>
+#include <Quark.h>
 
-class PlayerController : public Entropy::PerspectiveCameraController
+class PlayerController : public Quark::PerspectiveCameraController
 {
 public:
 	PlayerController() = default;
-	PlayerController(Entropy::Entity camera);
+	PlayerController(Quark::Entity camera);
 
 	void OnUpdate(float elapsedTime) override;
-	void OnEvent(Entropy::Event& e) override;
+	void OnEvent(Quark::Event& e) override;
 
 private:
-	bool OnMouseMoved(Entropy::MouseMovedEvent& e);
-	bool OnWindowResized(Entropy::WindowResizedEvent& e);
+	bool OnMouseMoved(Quark::MouseMovedEvent& e);
+	bool OnWindowResized(Quark::WindowResizedEvent& e);
 
 	float m_MovementSpeed = 100.0f;
 	float m_MouseSensitivity = 0.002f;

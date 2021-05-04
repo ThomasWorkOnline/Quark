@@ -4,10 +4,11 @@ struct RendererData
 {
 	glm::ivec2 SubTextureSize = { 16, 16 };
 
-	Entropy::Ref<Entropy::Shader> Shader;
-	Entropy::Ref<Entropy::Texture2D> Texture;
+	Quark::Ref<Quark::Shader> Shader;
+	Quark::Ref<Quark::Texture2D> Texture;
 };
 
+Quark::RenderStats ChunkRenderer::s_Stats;
 static RendererData s_Data;
 static std::unordered_map<BlockId, BlockProperties> s_BlockProperties;
 
@@ -18,10 +19,10 @@ const std::unordered_map<BlockId, BlockProperties>& ChunkRenderer::GetBlockPrope
 
 void ChunkRenderer::Initialize()
 {
-	NT_TIME_SCOPE_DEBUG(ChunkRenderer::Initialize);
+	QK_TIME_SCOPE_DEBUG(ChunkRenderer::Initialize);
 
-	s_Data.Shader = Entropy::Shader::Create("assets/shaders/default.glsl");
-	s_Data.Texture = Entropy::Texture2D::Create("assets/textures/sprite_sheet.png");
+	s_Data.Shader = Quark::Shader::Create("assets/shaders/default.glsl");
+	s_Data.Texture = Quark::Texture2D::Create("assets/textures/sprite_sheet.png");
 
 	s_BlockProperties = {
 		{ BlockId::Air,           { true,  { s_Data.Texture, { 0, 0 }, s_Data.SubTextureSize }, "" } },
@@ -38,7 +39,14 @@ void ChunkRenderer::Shutdown()
 
 }
 
-void ChunkRenderer::SubmitChunk(const Chunk& chunk)
+void ChunkRenderer::SubmitChunk(Chunk* chunk)
 {
-	Entropy::Renderer::Submit(s_Data.Shader, s_Data.Texture, chunk.GetVertexArray());
+	Quark::Renderer::BeginScene(chunk->GetWorld().GetPlayer().GetCamera().Camera.GetMatrix(),
+		chunk->GetWorld().GetPlayer().GetTransform());
+
+	chunk->PushData();
+	Quark::Renderer::Submit(s_Data.Shader, s_Data.Texture, chunk->GetVertexArray());
+	s_Stats.DrawCalls++;
+
+	Quark::Renderer::EndScene();
 }

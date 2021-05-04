@@ -25,7 +25,7 @@ enum class BlockId : uint8_t
 struct BlockProperties
 {
 	bool Transparent = true;
-	Entropy::SubTexture2D Face;
+	Quark::SubTexture2D Face;
 	const char* BreakSound;
 };
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Entropy.h>
+#include <Quark.h>
 
 #include "Blocks.h"
 
@@ -59,7 +59,11 @@ public:
 	Chunk(const glm::ivec2& position, World& world);
 	~Chunk();
 
-	const Entropy::Ref<Entropy::VertexArray>& GetVertexArray() const { return m_VertexArray; }
+	const Quark::Ref<Quark::VertexArray>& GetVertexArray() const { return m_VertexArray; }
+
+	const World& GetWorld() const { return m_World; }
+	World& GetWorld() { return m_World; }
+
 	const glm::ivec2& GetPosition() const { return m_Position; }
 	glm::ivec3 GetBlockPositionAbsolute(const glm::ivec3& position) const;
 	BlockId GetBlockAt(const glm::ivec3& position) const;
@@ -70,14 +74,14 @@ public:
 	bool PushData();
 
 	static const ChunkSpecification& GetSpecification();
+
 	static Chunk* Load(glm::ivec2 coord, World* world);
 
 private:
 	static void GenerateChunk(glm::ivec2 coord, World* world);
-	static void GenerateChunkMesh(Chunk* chunk, World* world);
 
-	void GenerateTerrain(const std::atomic<bool>& running);
-	void GenerateMesh(const std::atomic<bool>& running);
+	void GenerateTerrain();
+	void GenerateMesh();
 
 	void GenerateFaceVertices(const glm::ivec3& position, BlockId type, BlockFace face);
 	void GenerateFaceIndices();
@@ -85,11 +89,10 @@ private:
 	bool IsBlockFaceVisible(const glm::ivec3& position, BlockFace face, Chunk* rightChunk, Chunk* leftChunk, Chunk* frontChunk, Chunk* backChunk) const;
 	bool IsBlockOpaqueAt(const glm::ivec3& position) const;
 
-	Entropy::Ref<Entropy::VertexArray> m_VertexArray;
-	Entropy::Ref<Entropy::VertexBuffer> m_VertexBuffer;
-	Entropy::Ref<Entropy::IndexBuffer> m_IndexBuffer;
+	Quark::Ref<Quark::VertexArray> m_VertexArray;
+	Quark::Ref<Quark::VertexBuffer> m_VertexBuffer;
+	Quark::Ref<Quark::IndexBuffer> m_IndexBuffer;
 
-	int32_t m_Id;
 	glm::ivec2 m_Position;
 	bool m_MeshCreated = false;
 	bool m_UpdatePending = false;

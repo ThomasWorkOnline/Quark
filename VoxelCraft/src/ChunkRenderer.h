@@ -1,11 +1,8 @@
 #pragma once
 
-#include <Entropy.h>
-
 #include "Chunk.h"
 #include "Blocks.h"
-
-#include <unordered_map>
+#include "World.h"
 
 class ChunkRenderer
 {
@@ -18,7 +15,10 @@ public:
 	static void Initialize();
 	static void Shutdown();
 
-	static void SubmitChunk(const Chunk& chunk);
-private:
+	static void SubmitChunk(Chunk* chunk);
 
+	static const Quark::RenderStats& GetStats() { return s_Stats; }
+
+private:
+	static Quark::RenderStats s_Stats;
 };

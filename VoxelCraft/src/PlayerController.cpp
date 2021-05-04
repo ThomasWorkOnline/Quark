@@ -1,10 +1,10 @@
 #include "PlayerController.h"
 
-PlayerController::PlayerController(Entropy::Entity camera)
+PlayerController::PlayerController(Quark::Entity camera)
 {
 	m_CameraEntity = camera;
 
-	auto& physics = m_CameraEntity.GetComponent<Entropy::PhysicsComponent>();
+	auto& physics = m_CameraEntity.GetComponent<Quark::PhysicsComponent>();
 	physics.Friction = 6.0f;
 }
 
@@ -12,15 +12,15 @@ void PlayerController::OnUpdate(float elapsedTime)
 {
 	if (m_CameraEntity)
 	{
-		auto& transform = m_CameraEntity.GetComponent<Entropy::Transform3DComponent>();
-		auto& physics = m_CameraEntity.GetComponent<Entropy::PhysicsComponent>();
-		auto& camera = m_CameraEntity.GetComponent<Entropy::PerspectiveCameraComponent>().Camera;
+		auto& transform = m_CameraEntity.GetComponent<Quark::Transform3DComponent>();
+		auto& physics = m_CameraEntity.GetComponent<Quark::PhysicsComponent>();
+		auto& camera = m_CameraEntity.GetComponent<Quark::PerspectiveCameraComponent>().Camera;
 
 		// Movement
 		static const float defaultMovementSpeed = m_MovementSpeed;
 
 		// Boost key
-		if (Entropy::Input::IsKeyPressed(Entropy::Key::LeftControl))
+		if (Quark::Input::IsKeyPressed(Quark::Key::LeftControl))
 		{
 			m_MovementSpeed = defaultMovementSpeed * 3.0f;
 		}
@@ -30,40 +30,40 @@ void PlayerController::OnUpdate(float elapsedTime)
 		}
 
 		// Controls
-		if (Entropy::Input::IsKeyPressed(Entropy::Key::W))
+		if (Quark::Input::IsKeyPressed(Quark::Key::W))
 		{
 			glm::vec3 front = { transform.GetFrontVector().x, 0.0f, transform.GetFrontVector().z };
 			front = glm::normalize(front);
 			physics.Velocity -= -front * elapsedTime * m_MovementSpeed;
 		}
 
-		if (Entropy::Input::IsKeyPressed(Entropy::Key::S))
+		if (Quark::Input::IsKeyPressed(Quark::Key::S))
 		{
 			glm::vec3 front = { transform.GetFrontVector().x, 0.0f, transform.GetFrontVector().z };
 			front = glm::normalize(front);
 			physics.Velocity -= front * elapsedTime * m_MovementSpeed;
 		}
 
-		if (Entropy::Input::IsKeyPressed(Entropy::Key::D))
+		if (Quark::Input::IsKeyPressed(Quark::Key::D))
 		{
 			glm::vec3 right = { transform.GetRightVector().x, 0.0f, transform.GetRightVector().z };
 			right = glm::normalize(right);
 			physics.Velocity -= -right * elapsedTime * m_MovementSpeed;
 		}
 
-		if (Entropy::Input::IsKeyPressed(Entropy::Key::A))
+		if (Quark::Input::IsKeyPressed(Quark::Key::A))
 		{
 			glm::vec3 right = { transform.GetRightVector().x, 0.0f, transform.GetRightVector().z };
 			right = glm::normalize(right);
 			physics.Velocity -= right * elapsedTime * m_MovementSpeed;
 		}
 
-		if (Entropy::Input::IsKeyPressed(Entropy::Key::Space))
+		if (Quark::Input::IsKeyPressed(Quark::Key::Space))
 		{
 			physics.Velocity.y += elapsedTime * m_MovementSpeed;
 		}
 
-		if (Entropy::Input::IsKeyPressed(Entropy::Key::LeftShift))
+		if (Quark::Input::IsKeyPressed(Quark::Key::LeftShift))
 		{
 			physics.Velocity.y -= elapsedTime * m_MovementSpeed;
 		}
@@ -72,23 +72,23 @@ void PlayerController::OnUpdate(float elapsedTime)
 	}
 }
 
-void PlayerController::OnEvent(Entropy::Event& e)
+void PlayerController::OnEvent(Quark::Event& e)
 {
-	Entropy::EventDispatcher dispatcher(e);
-	dispatcher.Dispatch<Entropy::WindowResizedEvent>(NT_ATTACH_EVENT_FN(PlayerController::OnWindowResized));
-	dispatcher.Dispatch<Entropy::MouseMovedEvent>(NT_ATTACH_EVENT_FN(PlayerController::OnMouseMoved));
+	Quark::EventDispatcher dispatcher(e);
+	dispatcher.Dispatch<Quark::WindowResizedEvent>(ATTACH_EVENT_FN(PlayerController::OnWindowResized));
+	dispatcher.Dispatch<Quark::MouseMovedEvent>(ATTACH_EVENT_FN(PlayerController::OnMouseMoved));
 }
 
-bool PlayerController::OnMouseMoved(Entropy::MouseMovedEvent& e)
+bool PlayerController::OnMouseMoved(Quark::MouseMovedEvent& e)
 {
 	static glm::vec2 lastMousePos = { e.GetX(), e.GetY() };
 
-	if (Entropy::Application::Get().GetWindow().IsSelected())
+	if (Quark::Application::Get().GetWindow().IsSelected())
 	{
 		if (m_CameraEntity)
 		{
-			auto& transform = m_CameraEntity.GetComponent<Entropy::Transform3DComponent>();
-			auto& camera = m_CameraEntity.GetComponent<Entropy::PerspectiveCameraComponent>().Camera;
+			auto& transform = m_CameraEntity.GetComponent<Quark::Transform3DComponent>();
+			auto& camera = m_CameraEntity.GetComponent<Quark::PerspectiveCameraComponent>().Camera;
 
 			static glm::quat qPitch = glm::angleAxis(0.0f, glm::vec3(1.0f, 0.0f, 0.0f));
 			static glm::quat qYaw	= glm::angleAxis(0.0f, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -121,11 +121,11 @@ bool PlayerController::OnMouseMoved(Entropy::MouseMovedEvent& e)
 	return false;
 }
 
-bool PlayerController::OnWindowResized(Entropy::WindowResizedEvent& e)
+bool PlayerController::OnWindowResized(Quark::WindowResizedEvent& e)
 {
 	if (m_CameraEntity)
 	{
-		auto& camera = m_CameraEntity.GetComponent<Entropy::PerspectiveCameraComponent>().Camera;
+		auto& camera = m_CameraEntity.GetComponent<Quark::PerspectiveCameraComponent>().Camera;
 		camera.SetAspectRatio((float)e.GetWidth() / (float)e.GetHeight());
 	}
 	return false;

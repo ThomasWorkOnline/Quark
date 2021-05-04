@@ -2,19 +2,19 @@
 
 static float s_ZoomSpeed = 0.0f;
 
-void PlayerCameraController::OnEvent(Entropy::Event& e)
+void PlayerCameraController::OnEvent(Quark::Event& e)
 {
-	Entropy::EventDispatcher dispatcher(e);
-	dispatcher.Dispatch<Entropy::MouseScrolledEvent>(NT_ATTACH_EVENT_FN(PlayerCameraController::OnMouseScrolled));
+	Quark::EventDispatcher dispatcher(e);
+	dispatcher.Dispatch<Quark::MouseScrolledEvent>(ATTACH_EVENT_FN(PlayerCameraController::OnMouseScrolled));
 }
 
 void PlayerCameraController::OnUpdate(float elapsedTime)
 {
-	auto& camera = m_CameraEntity.GetComponent<Entropy::OrthographicCameraComponent>().Camera;
+	auto& camera = m_CameraEntity.GetComponent<Quark::OrthographicCameraComponent>().Camera;
 
-	auto& cameraTransform = m_CameraEntity.GetComponent<Entropy::Transform3DComponent>();
-	auto& playerTransform = m_Player.GetComponent<Entropy::Transform3DComponent>();
-	auto& playerPhysics   = m_Player.GetComponent<Entropy::PhysicsComponent>();
+	auto& cameraTransform = m_CameraEntity.GetComponent<Quark::Transform3DComponent>();
+	auto& playerTransform = m_Player.GetComponent<Quark::Transform3DComponent>();
+	auto& playerPhysics   = m_Player.GetComponent<Quark::PhysicsComponent>();
 
 	// Distance between player and camera
 	glm::vec3 distance = playerTransform.Position - cameraTransform.Position;
@@ -45,14 +45,14 @@ void PlayerCameraController::OnUpdate(float elapsedTime)
 	camera.OnUpdate();
 }
 
-void PlayerCameraController::OnUpdate(float elapsedTime, Entropy::Entity player)
+void PlayerCameraController::OnUpdate(float elapsedTime, Quark::Entity player)
 {
 	m_Player = player;
 
 	OnUpdate(elapsedTime);
 }
 
-bool PlayerCameraController::OnMouseScrolled(Entropy::MouseScrolledEvent& e)
+bool PlayerCameraController::OnMouseScrolled(Quark::MouseScrolledEvent& e)
 {
 	s_ZoomSpeed += e.GetYOffset() * m_MouseScrollSensitivity;
 	return false;
