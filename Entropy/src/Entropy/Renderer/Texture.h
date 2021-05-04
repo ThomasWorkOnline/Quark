@@ -3,7 +3,7 @@
 #include "../Core/Core.h"
 
 #include "TextureFormats.h"
-#include "Ressource.h"
+#include "Resource.h"
 
 namespace Entropy {
 
@@ -17,7 +17,7 @@ namespace Entropy {
 		TextureTilingFormat TilingFormat = TextureTilingFormat::Default;
 	};
 
-	class Texture : public Ressource
+	class Texture : public Resource
 	{
 	public:
 		virtual ~Texture() = default;

@@ -31,11 +31,9 @@ public:
 
 	void OnUpdate(float elapsedTime) override
 	{
-		
 		constexpr uint32_t movementSpeed = 80.0f;
 		auto& playerPhysics = m_Maxwell.GetComponent<Entropy::PhysicsComponent>();
 		auto& playerTransform = m_Maxwell.GetComponent<Entropy::Transform3DComponent>();
-
 		
 		if (Entropy::Input::IsKeyPressed(Entropy::Key::W))
 			playerPhysics.Velocity.y += movementSpeed * elapsedTime;
@@ -102,6 +100,8 @@ private:
 	Entropy::Ref<Entropy::Texture2D> m_Floor = Entropy::Texture2D::Create("assets/textures/cobblestone.png");
 
 	PlayerCameraController m_CameraController;
+
+	Entropy::Text m_Text = { "" };
 };
 
 int main()

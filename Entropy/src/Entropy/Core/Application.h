@@ -18,9 +18,12 @@ namespace Entropy {
         virtual void OnDestroy() {}
         virtual void OnEvent(Event& e) {}
 
-        inline Window& GetWindow() { return *m_Window; }
+        const Window& GetWindow() const { return *m_Window; }
+        Window& GetWindow() { return *m_Window; }
 
-        inline static Application& Get() { return *s_Instance; };
+        const std::atomic<bool>& IsRunning() const { return m_Running; }
+
+        static Application& Get() { return *s_Instance; };
 
         void Stop();
 
@@ -36,6 +39,6 @@ namespace Entropy {
 
         static Application* s_Instance;
         Scope<Window> m_Window;
-        bool m_Running = true;
+        std::atomic<bool> m_Running = true;
     };
 }

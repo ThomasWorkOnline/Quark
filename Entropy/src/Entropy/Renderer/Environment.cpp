@@ -57,6 +57,8 @@ namespace Entropy {
 
 	Environment::Environment(const std::array<std::string, 6>& filepaths)
 	{
+		NT_TIME_SCOPE_DEBUG(Environment::Environment);
+
 		m_CubeMap = CubeMap::Create(filepaths);
 
 		m_VertexArray = VertexArray::Create();
@@ -74,6 +76,8 @@ namespace Entropy {
 
 	Environment::Environment(const std::string& directory)
 	{
+		NT_TIME_SCOPE_DEBUG(Environment::Environment);
+
 		m_CubeMap = Entropy::CubeMap::Create({
 		directory + "/posx.jpg",
 		directory + "/negx.jpg",
@@ -98,6 +102,8 @@ namespace Entropy {
 
 	void Environment::SetEnvironment(const std::string& directory)
 	{
+		NT_TIME_SCOPE_DEBUG(Environment::SetEnvironment);
+
 		m_CubeMap = Entropy::CubeMap::Create({
 			directory + "/posx.jpg",
 			directory + "/negx.jpg",

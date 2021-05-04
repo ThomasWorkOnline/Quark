@@ -15,6 +15,8 @@ namespace Entropy {
 
 	void OpenGLGraphicsContext::Init()
 	{
+		NT_TIME_SCOPE_DEBUG(OpenGLGraphicsContext::Init);
+
 		// Need to make the context before init glew
 		glfwMakeContextCurrent(m_WindowHandle);
 

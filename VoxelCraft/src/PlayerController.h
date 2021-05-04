@@ -15,6 +15,6 @@ private:
 	bool OnMouseMoved(Entropy::MouseMovedEvent& e);
 	bool OnWindowResized(Entropy::WindowResizedEvent& e);
 
-	float m_MovementSpeed = 40.0f;
+	float m_MovementSpeed = 100.0f;
 	float m_MouseSensitivity = 0.002f;
 };

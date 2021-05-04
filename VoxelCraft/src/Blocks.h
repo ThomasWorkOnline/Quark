@@ -1,6 +1,6 @@
 #pragma once
 
-enum BlockFace
+enum class BlockFace : uint8_t
 {
 	Front = 0,
 	Right,
@@ -10,7 +10,7 @@ enum BlockFace
 	Bottom
 };
 
-enum class BlockId
+enum class BlockId : uint8_t
 {
 	None = -1,
 
@@ -25,7 +25,7 @@ enum class BlockId
 struct BlockProperties
 {
 	bool Transparent = true;
-	Entropy::SubTexture2D Texture;
+	Entropy::SubTexture2D Face;
 	const char* BreakSound;
 };
 

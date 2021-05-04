@@ -43,6 +43,7 @@
 
 #include "Logger.h"
 #include "../Tools/LogUtils.h"
+#include "../Debug/Monitoring.h"
 
 #define NT_FATAL(...) { NT_ERROR(__VA_ARGS__); NT_DEBUGBREAK(); }
 

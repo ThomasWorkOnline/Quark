@@ -70,7 +70,7 @@
       <AdditionalDependencies>opengl32.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
-      <AdditionalDependencies>glew32s.lib;glfw3.lib;opengl32.lib;irrKlang.lib;</AdditionalDependencies>
+      <AdditionalDependencies>glew32s.lib;glfw3.lib;opengl32.lib;irrKlang.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>vendor\glew\lib\Release\x64;vendor\glfw\lib-vc2019\x64;vendor\irrKlang\lib\Winx64-visualStudio;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
@@ -95,7 +95,7 @@
       <AdditionalDependencies>opengl32.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
-      <AdditionalDependencies>glew32s.lib;glfw3.lib;opengl32.lib;irrKlang.lib;</AdditionalDependencies>
+      <AdditionalDependencies>glew32s.lib;glfw3.lib;opengl32.lib;irrKlang.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>vendor\glew\lib\Release\x64;vendor\glfw\lib-vc2019\x64;vendor\irrKlang\lib\Winx64-visualStudio;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
@@ -118,7 +118,7 @@
     <ClCompile Include="src\Entropy\Renderer\RenderCommand.cpp" />
     <ClCompile Include="src\Entropy\Renderer\Renderer.cpp" />
     <ClCompile Include="src\Entropy\Renderer\RenderingAPI.cpp" />
-    <ClCompile Include="src\Entropy\Renderer\Ressource.cpp" />
+    <ClCompile Include="src\Entropy\Renderer\Resource.cpp" />
     <ClCompile Include="src\Entropy\Renderer\Shader.cpp" />
     <ClCompile Include="src\Entropy\Animation\SpriteAnimator.cpp" />
     <ClCompile Include="src\Entropy\Renderer\SubTexture.cpp" />
@@ -130,6 +130,7 @@
     <ClCompile Include="src\Entropy\Tools\Colorimetry.cpp" />
     <ClCompile Include="src\Entropy\Tools\Noise.cpp" />
     <ClCompile Include="src\Entropy\UI\Canvas.cpp" />
+    <ClCompile Include="src\Entropy\UI\Text.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLCubeMap.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLFramebuffer.cpp" />
@@ -162,7 +163,7 @@
     <ClInclude Include="src\Entropy\Renderer\OrthographicCamera.h" />
     <ClInclude Include="src\Entropy\Renderer\OrthographicCameraController.h" />
     <ClInclude Include="src\Entropy\Renderer\PerspectiveCamera.h" />
-    <ClInclude Include="src\Entropy\Renderer\Ressource.h" />
+    <ClInclude Include="src\Entropy\Renderer\Resource.h" />
     <ClInclude Include="src\Entropy\Animation\SpriteAnimator.h" />
     <ClInclude Include="src\Entropy\Renderer\SubTexture.h" />
     <ClInclude Include="src\Entropy\Renderer\TextureFormats.h" />
@@ -185,6 +186,7 @@
     <ClInclude Include="src\Entropy\Tools\LogUtils.h" />
     <ClInclude Include="src\Entropy\Tools\Noise.h" />
     <ClInclude Include="src\Entropy\UI\Canvas.h" />
+    <ClInclude Include="src\Entropy\UI\Text.h" />
     <ClInclude Include="src\Entropy\UI\UIElement.h" />
     <ClInclude Include="src\Platform\GLFW\GenericWindow.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLBuffer.h" />

@@ -11,8 +11,10 @@ class VoxelCraft : public Entropy::Application
 public:
 	void OnCreate() override
 	{
+		NT_TIME_SCOPE_DEBUG(VoxelCraft::OnCreate);
+
 		GetWindow().Select();
-		GetWindow().SetVSync(false);
+		GetWindow().SetVSync(true);
 		GetWindow().SetFullScreen(false);
 	}
 
@@ -22,32 +24,14 @@ public:
 		m_Controller.OnUpdate(elapsedTime);
 
 		{
-			Entropy::Renderer::BeginScene(m_Player.GetCamera().Camera.GetMatrix(),
-				m_Player.GetTransform());
+			Entropy::Renderer::BeginScene(m_World.GetPlayer().GetCamera().Camera.GetMatrix(),
+				m_World.GetPlayer().GetTransform());
 
-			for (auto& chunk : m_World.GetChunks())
-				ChunkRenderer::SubmitChunk(chunk);
-
-			Entropy::Renderer::EndScene();
-		}
-		
-		/*
-		{
-			glm::mat4 view = (glm::mat3)m_Player.GetTransform();
-			Entropy::Renderer::BeginScene(m_Player.GetCamera().Camera.GetMatrix(), view);
-
-			Entropy::RenderCommand::SetCullFace(Entropy::RenderCullFace::Back);
-			Entropy::RenderCommand::SetDepthFunction(Entropy::RenderDepthFunction::LessEqual);
-
-			m_Environment.GetCubeMap()->Attach(0);
-			Entropy::Renderer::Submit(m_Shader, m_Environment.GetVertexArray());
-
-			Entropy::RenderCommand::SetCullFace(Entropy::RenderCullFace::Front);
-			Entropy::RenderCommand::SetDepthFunction(Entropy::RenderDepthFunction::Less);
+			for (auto& chunk : m_World.GetRenderableChunks())
+				ChunkRenderer::SubmitChunk(*chunk);
 
 			Entropy::Renderer::EndScene();
 		}
-		*/
 	}
 
 	void OnEvent(Entropy::Event& e) override
@@ -78,7 +62,7 @@ public:
 
 	bool OnMouseButtonPressed(Entropy::MouseButtonPressedEvent& e)
 	{
-		auto [block, position, next] = m_World.RayCast(m_Player.GetHeadPosition(), m_Player.GetTransform().GetFrontVector(), 5.0f);
+		auto [block, position, next] = m_World.RayCast(m_World.GetPlayer().GetHeadPosition(), m_World.GetPlayer().GetTransform().GetFrontVector(), 5.0f);
 
 		switch (e.GetMouseButton())
 		{
@@ -98,8 +82,6 @@ public:
 			}
 			break;
 		}
-		default:
-			break;
 		}
 		
 		return false;
@@ -107,12 +89,7 @@ public:
 
 private:
 	World m_World;
-
-	Player m_Player = { &m_World.GetScene() };
-	PlayerController m_Controller = { m_Player };
-
-	Entropy::Environment m_Environment = { "assets/environments/Lycksele3" };
-	Entropy::Ref<Entropy::Shader> m_Shader = Entropy::Shader::Create("assets/shaders/skybox.glsl");
+	PlayerController m_Controller = { m_World.GetPlayer() };
 };
 
 int main()

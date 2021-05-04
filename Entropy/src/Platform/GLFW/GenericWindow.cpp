@@ -16,6 +16,8 @@ namespace Entropy {
 
 	GenericWindow::GenericWindow(uint32_t width, uint32_t height, const std::string& title)
 	{
+		NT_TIME_SCOPE_DEBUG(GenericWindow::GenericWindow);
+
 		Init(width, height, title);
 	}
 

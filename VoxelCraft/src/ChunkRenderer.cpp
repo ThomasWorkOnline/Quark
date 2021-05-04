@@ -18,6 +18,8 @@ const std::unordered_map<BlockId, BlockProperties>& ChunkRenderer::GetBlockPrope
 
 void ChunkRenderer::Initialize()
 {
+	NT_TIME_SCOPE_DEBUG(ChunkRenderer::Initialize);
+
 	s_Data.Shader = Entropy::Shader::Create("assets/shaders/default.glsl");
 	s_Data.Texture = Entropy::Texture2D::Create("assets/textures/sprite_sheet.png");
 

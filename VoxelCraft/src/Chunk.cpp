@@ -10,7 +10,7 @@ const ChunkSpecification& Chunk::GetSpecification()
 	return s_Spec;
 }
 
-static int32_t IndexAtPosition(const glm::ivec3& position)
+constexpr static int32_t IndexAtPosition(const glm::ivec3& position)
 {
 	if (position.x < 0 || position.y < 0 || position.z < 0
 		|| position.x >= s_Spec.Width || position.y >= s_Spec.Height || position.z >= s_Spec.Depth)
@@ -18,26 +18,26 @@ static int32_t IndexAtPosition(const glm::ivec3& position)
 	return position.x + s_Spec.Width * position.z + s_Spec.Width * s_Spec.Depth * position.y;
 }
 
-static glm::ivec3 GetFaceNormal(BlockFace facing)
+constexpr static glm::ivec3 GetFaceNormal(BlockFace facing)
 {
 	switch (facing)
 	{
-	case Front:
+	case BlockFace::Front:
 		return { 0, 0, 1 };
 		break;
-	case Right:
+	case BlockFace::Right:
 		return { 1, 0, 0 };
 		break;
-	case Back:
+	case BlockFace::Back:
 		return { 0, 0, -1 };
 		break;
-	case Left:
+	case BlockFace::Left:
 		return { -1, 0, 0 };
 		break;
-	case Top:
+	case BlockFace::Top:
 		return { 0, 1, 0 };
 		break;
-	case Bottom:
+	case BlockFace::Bottom:
 		return { 0, -1, 0 };
 		break;
 	default:
@@ -45,20 +45,23 @@ static glm::ivec3 GetFaceNormal(BlockFace facing)
 	}
 }
 
-Chunk::Chunk(const glm::ivec2& position, World* world)
-	: m_Position(position), m_World(world) { }
+
+
+Chunk::Chunk(const glm::ivec2& position, World& world)
+	: m_Position(position), m_World(world)
+{
+	static uint32_t increment = 0;
+	m_Id = increment++;
+}
 
 Chunk::~Chunk()
 {
 	delete[] m_Blocks;
 }
 
-glm::ivec3 Chunk::GetBlockPositionAbsolute(const glm::ivec3& position) const
-{
-	return { position.x + m_Position.x * s_Spec.Width, position.y, position.z + m_Position.y * s_Spec.Depth };
-}
 
-void Chunk::ConstructChunkData(const std::atomic<bool>& running)
+
+void Chunk::GenerateTerrain(const std::atomic<bool>& running)
 {
 	m_Blocks = new BlockId[s_Spec.BlockCount];
 
@@ -93,12 +96,20 @@ void Chunk::ConstructChunkData(const std::atomic<bool>& running)
 			}
 		}
 	}
-
-	m_Initialized = true;
 }
 
-void Chunk::ConstructChunkMesh(const std::atomic<bool>& running)
+void Chunk::GenerateMesh(const std::atomic<bool>& running)
 {
+	m_VertexCount = 0;
+	m_IndexCount = 0;
+	m_Vertices.clear();
+	m_Indices.clear();
+
+	Chunk* rightChunk	= m_World.GetChunk(m_Position + glm::ivec2( 1,  0));
+	Chunk* leftChunk	= m_World.GetChunk(m_Position + glm::ivec2(-1,  0));
+	Chunk* frontChunk	= m_World.GetChunk(m_Position + glm::ivec2( 0,  1));
+	Chunk* backChunk	= m_World.GetChunk(m_Position + glm::ivec2( 0, -1));
+
 	for (uint32_t y = 0; y < s_Spec.Height; y++)
 	{
 		for (uint32_t z = 0; z < s_Spec.Depth; z++)
@@ -115,7 +126,7 @@ void Chunk::ConstructChunkMesh(const std::atomic<bool>& running)
 
 				for (uint8_t f = 0; f < 6; f++)
 				{
-					if (!IsBlockFaceVisible({ x, y, z }, (BlockFace)f))
+					if (!IsBlockFaceVisible({ x, y, z }, (BlockFace)f, rightChunk, leftChunk, frontChunk, backChunk))
 						continue;
 
 					GenerateFaceVertices({ x, y, z}, block, (BlockFace)f);
@@ -124,17 +135,18 @@ void Chunk::ConstructChunkMesh(const std::atomic<bool>& running)
 		}
 	}
 
-	m_Indices.reserve(m_IndexCount);
 	for (uint32_t i = 0; i < m_IndexCount; i += 6)
 	{
 		GenerateFaceIndices();
 	}
 
+	m_MeshCreated = true;
 	m_UpdatePending = true;
 }
 
-void Chunk::PushData()
+bool Chunk::PushData()
 {
+	bool pushed = m_UpdatePending;
 	if (m_UpdatePending)
 	{
 		m_VertexArray = Entropy::VertexArray::Create();
@@ -153,22 +165,24 @@ void Chunk::PushData()
 
 		m_UpdatePending = false;
 	}
+
+	return pushed;
 }
 
 void Chunk::GenerateFaceVertices(const glm::ivec3& position, BlockId type, BlockFace face)
 {
+	auto& blockProperties = ChunkRenderer::GetBlockProperties().at(type);
+
 	for (uint8_t i = 0; i < 4; i++)
 	{
-		auto& blockProperties = ChunkRenderer::GetBlockProperties().at(type);
-
 		BlockVertex v;
-		v.Position = s_Spec.VertexPositions[i + face * 4]
+		v.Position = s_Spec.VertexPositions[i + static_cast<uint8_t>(face) * 4]
 			+ glm::vec3(position.x + m_Position.x * (float)s_Spec.Width, position.y, position.z + m_Position.y * (float)s_Spec.Depth);
-		v.TexCoord = blockProperties.Texture.GetCoords()[i];
+		v.TexCoord = blockProperties.Face.GetCoords()[i];
 		v.TexIndex = 0.0f;
-		v.Intensity = (face + 1) / 6.0f;
+		v.Intensity = (static_cast<uint8_t>(face) + 1) / 6.0f;
 
-		m_Vertices.emplace_back(std::move(v));
+		m_Vertices.push_back(v);
 	}
 
 	m_IndexCount += 24;
@@ -186,49 +200,59 @@ void Chunk::GenerateFaceIndices()
 	m_VertexCount += 4;
 }
 
-bool Chunk::IsBlockFaceVisible(const glm::ivec3& position, BlockFace face) const
+
+
+bool Chunk::IsBlockFaceVisible(const glm::ivec3& position, BlockFace face, Chunk* rightChunk, Chunk* leftChunk, Chunk* frontChunk, Chunk* backChunk) const
 {
 	glm::ivec3 neighborPosition = position + GetFaceNormal(face);
 
 	bool visible = !IsBlockOpaqueAt(neighborPosition);
 
-	const Chunk* rightChunk = m_World->GetChunk(m_Position + glm::ivec2(1, 0));
-	if (rightChunk)
+	if (neighborPosition.x > s_Spec.Width - 1)
 	{
-		if (face == BlockFace::Right)
+		if (rightChunk)
 		{
-			if (rightChunk->IsBlockOpaqueAt({ 0, position.y, position.z }) && position.x == s_Spec.Width - 1)
-				visible = false;
+			if (face == BlockFace::Right)
+			{
+				if (rightChunk->IsBlockOpaqueAt({ 0, position.y, position.z }) && position.x == s_Spec.Width - 1)
+					visible = false;
+			}
 		}
 	}
 
-	const Chunk* leftChunk = m_World->GetChunk(m_Position + glm::ivec2(-1, 0));
-	if (leftChunk)
+	if (neighborPosition.x < 0)
 	{
-		if (face == BlockFace::Left)
+		if (leftChunk)
 		{
-			if (leftChunk->IsBlockOpaqueAt({ s_Spec.Width - 1, position.y, position.z }) && position.x == 0)
-				visible = false;
+			if (face == BlockFace::Left)
+			{
+				if (leftChunk->IsBlockOpaqueAt({ s_Spec.Width - 1, position.y, position.z }) && position.x == 0)
+					visible = false;
+			}
 		}
 	}
 
-	const Chunk* frontChunk = m_World->GetChunk(m_Position + glm::ivec2(0, 1));
-	if (frontChunk)
-	{
-		if (face == BlockFace::Front)
+	if (neighborPosition.z > s_Spec.Depth - 1)
+	{ 
+		if (frontChunk)
 		{
-			if (frontChunk->IsBlockOpaqueAt({ position.x, position.y, 0 }) && position.z == s_Spec.Depth - 1)
-				visible = false;
+			if (face == BlockFace::Front)
+			{
+				if (frontChunk->IsBlockOpaqueAt({ position.x, position.y, 0 }) && position.z == s_Spec.Depth - 1)
+					visible = false;
+			}
 		}
 	}
 
-	const Chunk* backChunk = m_World->GetChunk(m_Position + glm::ivec2(0, -1));
-	if (backChunk)
+	if (neighborPosition.z < 0)
 	{
-		if (face == BlockFace::Back)
+		if (backChunk)
 		{
-			if (backChunk->IsBlockOpaqueAt({ position.x, position.y, s_Spec.Depth - 1 }) && position.z == 0)
-				visible = false;
+			if (face == BlockFace::Back)
+			{
+				if (backChunk->IsBlockOpaqueAt({ position.x, position.y, s_Spec.Depth - 1 }) && position.z == 0)
+					visible = false;
+			}
 		}
 	}
 	
@@ -255,29 +279,116 @@ BlockId Chunk::GetBlockAt(const glm::ivec3& position) const
 		return BlockId::None;
 }
 
-bool Chunk::SetBlockAt(const glm::ivec3& position, BlockId block)
-{
-	int32_t index = IndexAtPosition(position);
-	if (index != -1)
-	{
-		m_Blocks[index] = block;
-		return true;
-	}
-	return false;
-}
-
+// TODO: fix chunk regeneration
 void Chunk::ReplaceBlock(const glm::ivec3& position, BlockId type)
 {
-	int32_t index = IndexAtPosition(position);
-	if (index > 0)
+	/*int32_t index = IndexAtPosition(position);
+	if (index != - 1)
 	{
 		m_Blocks[index] = { type };
 
 		// TODO: optimize
-		m_IndexCount = 0;
-		m_VertexCount = 0;
-		m_Vertices.clear();
-		m_Indices.clear();
-		ConstructChunkMesh(true);
+		GenerateMesh(true);
+
+		if (position.x == 0)
+		{
+			Chunk* chunk = m_World.GetChunk(m_Position + glm::ivec2(-1, 0));
+			if (chunk)
+			{
+				chunk->GenerateMesh(true);
+			}
+		}
+
+		if (position.x == s_Spec.Width - 1)
+		{
+			Chunk* chunk = m_World.GetChunk(m_Position + glm::ivec2(1, 0));
+			if (chunk)
+			{
+				chunk->GenerateMesh(true);
+			}
+		}
+
+		if (position.z == 0)
+		{
+			Chunk* chunk = m_World.GetChunk(m_Position + glm::ivec2(0, -1));
+			if (chunk)
+			{
+				chunk->GenerateMesh(true);
+			}
+		}
+
+		if (position.z == s_Spec.Depth - 1)
+		{
+			Chunk* chunk = m_World.GetChunk(m_Position + glm::ivec2(0, 1));
+			if (chunk)
+			{
+				chunk->GenerateMesh(true);
+			}
+		}
+	}*/
+}
+
+glm::ivec3 Chunk::GetBlockPositionAbsolute(const glm::ivec3& position) const
+{
+	return { position.x + m_Position.x * s_Spec.Width, position.y, position.z + m_Position.y * s_Spec.Depth };
+}
+
+
+
+static std::mutex s_ChunkDataMutex;
+void Chunk::GenerateChunk(glm::ivec2 coord, World* world)
+{
+	std::lock_guard<std::mutex> lock(s_ChunkDataMutex);
+
+	// If a generate request occurs again, ignore it
+	if (!world->GetChunk(coord))
+	{
+		Chunk* newChunk = new Chunk(coord, *world);
+		newChunk->GenerateTerrain(Entropy::Application::Get().IsRunning());
+
+		world->AddChunk(newChunk);
 	}
+}
+
+static std::mutex s_ChunkMeshMutex;
+void Chunk::GenerateChunkMesh(Chunk* chunk, World* world)
+{
+	std::lock_guard<std::mutex> lock(s_ChunkMeshMutex);
+	chunk->GenerateMesh(Entropy::Application::Get().IsRunning());
+}
+
+static std::future<void> s_ChunkConstructFuture;
+static std::future<void> s_ChunkFriendLeftConstructFuture;
+static std::future<void> s_ChunkFriendTopConstructFuture;
+static std::future<void> s_ChunkFriendRightConstructFuture;
+static std::future<void> s_ChunkFriendBottomConstructFuture;
+
+static std::future<void> s_ChunkConstructMeshFuture;
+
+std::mutex s_LoadChunkMutex;
+Chunk* Chunk::Load(glm::ivec2 coord, World* world)
+{
+	NT_TIME_SCOPE_DEBUG(Chunk::Load);
+
+	std::lock_guard<std::mutex> lock(s_LoadChunkMutex);
+
+	// First pass
+	s_ChunkConstructFuture				= std::async(std::launch::async, GenerateChunk, coord, world);
+	s_ChunkFriendLeftConstructFuture	= std::async(std::launch::async, GenerateChunk, coord + glm::ivec2(-1,  0), world);
+	s_ChunkFriendTopConstructFuture		= std::async(std::launch::async, GenerateChunk, coord + glm::ivec2( 0,  1), world);
+	s_ChunkFriendRightConstructFuture	= std::async(std::launch::async, GenerateChunk, coord + glm::ivec2( 1,  0), world);
+	s_ChunkFriendBottomConstructFuture	= std::async(std::launch::async, GenerateChunk, coord + glm::ivec2( 0, -1), world);
+	s_ChunkConstructFuture.				get();
+	s_ChunkFriendLeftConstructFuture.	get();
+	s_ChunkFriendTopConstructFuture.	get();
+	s_ChunkFriendRightConstructFuture.	get();
+	s_ChunkFriendBottomConstructFuture.	get();
+
+	auto newChunk = world->GetChunk(coord);
+
+	// Second pass
+	s_ChunkConstructMeshFuture = std::async(std::launch::async, GenerateChunkMesh, newChunk, world);
+	s_ChunkConstructMeshFuture.get();
+
+	return newChunk;
 }

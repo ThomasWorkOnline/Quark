@@ -6,12 +6,12 @@
 
 namespace Entropy {
 
-	class Canvas : public UIElement
+	class Text : public UIElement
 	{
 	public:
-		// TODO: framebuffer
+		Text(const std::string& text);
 
 	private:
-		float m_Width, m_Height;
+		std::string m_Text;
 	};
 }

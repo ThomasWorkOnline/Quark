@@ -1,4 +1,4 @@
-#include "Ressource.h"
+#include "Resource.h"
 
 namespace Entropy {
 

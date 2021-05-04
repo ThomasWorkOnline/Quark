@@ -2,11 +2,11 @@
 
 #include "../Core/Core.h"
 
-#include "Ressource.h"
+#include "Resource.h"
 
 namespace Entropy {
 
-	class CubeMap : public Ressource
+	class CubeMap : public Resource
 	{
 	public:
 		virtual ~CubeMap() = default;

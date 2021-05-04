@@ -4,10 +4,10 @@
 
 namespace Entropy {
 
-	class Ressource
+	class Resource
 	{
 	public:
-		virtual bool operator==(const Ressource& other) const = 0;
+		virtual bool operator==(const Resource& other) const = 0;
 
 	private:
 

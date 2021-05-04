@@ -7,8 +7,7 @@
 #include "../Renderer/Renderer.h"
 #include "../Renderer/RenderCommand.h"
 
-// Only to get time
-#include <GLFW/glfw3.h>
+#include <ctime>
 
 namespace Entropy {
 
@@ -16,6 +15,8 @@ namespace Entropy {
 
 	Application::Application(uint32_t width, uint32_t height, const std::string& title)
 	{
+		NT_TIME_SCOPE_DEBUG(Application::Application);
+
 		s_Instance = this;
 
 		m_Window = Window::Create(width, height, title);
@@ -34,6 +35,8 @@ namespace Entropy {
 
 	Application::~Application()
 	{
+		NT_TIME_SCOPE_DEBUG(Application::~Application);
+
 		AudioEngine::Dispose();
 		Renderer::Dispose();
 
@@ -71,18 +74,21 @@ namespace Entropy {
 	{
 		OnCreate();
 
-		float fStartTime = 0.0f;
+		auto tStart = std::chrono::steady_clock::now();
 
 		while (m_Running)
 		{
 			RenderCommand::SetClearColor(EncodeSRGB({ 0.1f, 0.1f, 0.1f, 1.0f }));
 			RenderCommand::Clear();
 
-			float fEndTime = (float)glfwGetTime();
-			OnUpdate(fEndTime - fStartTime);
-			fStartTime = fEndTime;
-
 			AudioEngine::OnUpdate();
+
+			auto tNow = std::chrono::steady_clock::now();
+			std::chrono::duration<float> elapsedTime = tNow - tStart;
+			tStart = std::chrono::steady_clock::now();
+
+			OnUpdate(elapsedTime.count());
+
 			m_Window->OnUpdate();
 		}
 

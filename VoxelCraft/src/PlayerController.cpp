@@ -22,7 +22,7 @@ void PlayerController::OnUpdate(float elapsedTime)
 		// Boost key
 		if (Entropy::Input::IsKeyPressed(Entropy::Key::LeftControl))
 		{
-			m_MovementSpeed = 100.0f;
+			m_MovementSpeed = defaultMovementSpeed * 3.0f;
 		}
 		else
 		{
@@ -33,24 +33,28 @@ void PlayerController::OnUpdate(float elapsedTime)
 		if (Entropy::Input::IsKeyPressed(Entropy::Key::W))
 		{
 			glm::vec3 front = { transform.GetFrontVector().x, 0.0f, transform.GetFrontVector().z };
-			physics.Velocity += front * elapsedTime * m_MovementSpeed;
+			front = glm::normalize(front);
+			physics.Velocity -= -front * elapsedTime * m_MovementSpeed;
 		}
 
 		if (Entropy::Input::IsKeyPressed(Entropy::Key::S))
 		{
 			glm::vec3 front = { transform.GetFrontVector().x, 0.0f, transform.GetFrontVector().z };
+			front = glm::normalize(front);
 			physics.Velocity -= front * elapsedTime * m_MovementSpeed;
 		}
 
 		if (Entropy::Input::IsKeyPressed(Entropy::Key::D))
 		{
 			glm::vec3 right = { transform.GetRightVector().x, 0.0f, transform.GetRightVector().z };
-			physics.Velocity += transform.GetRightVector() * elapsedTime * m_MovementSpeed;
+			right = glm::normalize(right);
+			physics.Velocity -= -right * elapsedTime * m_MovementSpeed;
 		}
 
 		if (Entropy::Input::IsKeyPressed(Entropy::Key::A))
 		{
 			glm::vec3 right = { transform.GetRightVector().x, 0.0f, transform.GetRightVector().z };
+			right = glm::normalize(right);
 			physics.Velocity -= right * elapsedTime * m_MovementSpeed;
 		}
 
@@ -86,10 +90,30 @@ bool PlayerController::OnMouseMoved(Entropy::MouseMovedEvent& e)
 			auto& transform = m_CameraEntity.GetComponent<Entropy::Transform3DComponent>();
 			auto& camera = m_CameraEntity.GetComponent<Entropy::PerspectiveCameraComponent>().Camera;
 
-			glm::vec2 mouseMove = { e.GetX() - lastMousePos.x, e.GetY() - lastMousePos.y };
+			static glm::quat qPitch = glm::angleAxis(0.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+			static glm::quat qYaw	= glm::angleAxis(0.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 
-			transform.Rotate(-mouseMove.x * m_MouseSensitivity, { 0.0f, 1.0f, 0.0f });
-			transform.Rotate(-mouseMove.y * m_MouseSensitivity, transform.GetRightVector());
+			glm::vec2 mouseMove = { e.GetX() - lastMousePos.x, e.GetY() - lastMousePos.y };
+			glm::vec3 rightVector = glm::normalize(glm::vec3(transform.GetRightVector().x, 0.0f, transform.GetRightVector().z));
+
+			glm::quat pitch = glm::angleAxis(-mouseMove.y * m_MouseSensitivity, rightVector);
+			glm::quat yaw = glm::angleAxis(-mouseMove.x * m_MouseSensitivity, glm::vec3(0.0f, 1.0f, 0.0f));
+
+			qPitch *= pitch;
+			qYaw *= yaw;
+
+			constexpr float threshold = glm::half_pi<float>() - 0.0001f;
+			if (glm::angle(qPitch) > threshold && glm::axis(qPitch).x < 0)
+			{
+				qPitch = glm::angleAxis(threshold, glm::axis(qPitch));
+			}
+
+			if (glm::angle(qPitch) > threshold && glm::axis(qPitch).x > 0)
+			{
+				qPitch = glm::angleAxis(threshold, glm::axis(qPitch));
+			}
+
+			transform.Rotate(pitch * yaw);
 		}
 	}
 

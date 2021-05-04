@@ -3,7 +3,6 @@
 // Core
 #include "Entropy/Core/Core.h"
 #include "Entropy/Core/Application.h"
-#include "Entropy/Core/Logger.h"
 #include "Entropy/Core/Input.h"
 
 // Animation
@@ -23,9 +22,6 @@
 #include "Entropy/Events/MouseEvent.h"
 #include "Entropy/Events/KeyEvent.h"
 
-// Monitoring
-#include "Entropy/Debug/Monitoring.h"
-
 // Rendering
 #include "Entropy/Renderer/OrthographicCamera.h"
 #include "Entropy/Renderer/OrthographicCameraController.h"
@@ -36,6 +32,7 @@
 #include "Entropy/Renderer/Framebuffer.h"
 #include "Entropy/Renderer/Mesh.h"
 #include "Entropy/Renderer/Renderer.h"
+#include "Entropy/Renderer/Resource.h"
 #include "Entropy/Renderer/Shader.h"
 #include "Entropy/Renderer/SubTexture.h"
 #include "Entropy/Renderer/Texture.h"
@@ -49,3 +46,4 @@
 // UI
 #include "Entropy/UI/UIElement.h"
 #include "Entropy/UI/Canvas.h"
+#include "Entropy/UI/Text.h"

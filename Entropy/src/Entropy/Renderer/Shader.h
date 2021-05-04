@@ -2,13 +2,13 @@
 
 #include "../Core/Core.h"
 
-#include "Ressource.h"
+#include "Resource.h"
 
 #include <unordered_map>
 
 namespace Entropy {
 
-	class Shader : public Ressource
+	class Shader : public Resource
 	{
 	public:
 		virtual ~Shader() = default;
@@ -26,8 +26,6 @@ namespace Entropy {
 		virtual void SetMat4(const std::string& name, const glm::mat4& value) = 0;
 
 		virtual const std::string& GetName() const = 0;
-
-		virtual bool operator==(const Ressource& other) const = 0;
 
 		static Ref<Shader> Create(const std::string& filepath);
 		static Ref<Shader> Create(const std::string& name, const std::string& vertexSource, const std::string& fragmentSource);

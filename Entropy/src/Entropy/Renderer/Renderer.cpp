@@ -44,6 +44,8 @@ namespace Entropy {
 	
 	void Renderer::Initialize()
 	{
+		NT_TIME_SCOPE_DEBUG(Renderer::Initialize);
+
 		RenderCommand::Init();
 
 		{

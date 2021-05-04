@@ -8,6 +8,8 @@ namespace Entropy {
 
 	void AudioEngine::Initialize()
 	{
+		NT_TIME_SCOPE_DEBUG(AudioEngine::Initialize);
+
 		s_Engine = irrklang::createIrrKlangDevice();
 	}
 
