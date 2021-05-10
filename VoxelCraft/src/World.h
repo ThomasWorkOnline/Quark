@@ -2,11 +2,11 @@
 
 #include <Quark.h>
 
+#include "Blocks.h"
 #include "Chunk.h"
 #include "ChunkRenderer.h"
 #include "Player.h"
-
-#include <vector>
+#include "Collision.h"
 
 class ChunkLoader;
 
@@ -29,7 +29,7 @@ public:
 
 	uint32_t GetRenderDistance() const { return m_RenderDistance; }
 
-	std::tuple<BlockId, glm::ivec3, glm::ivec3> RayCast(const glm::vec3& start, const glm::vec3& direction, float length);
+	CollisionData RayCast(const glm::vec3& start, const glm::vec3& direction, float length);
 
 	void ReplaceBlock(const glm::ivec3& position, BlockId type);
 	BlockId GetBlock(const glm::ivec3& position) const;

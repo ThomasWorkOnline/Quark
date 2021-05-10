@@ -71,6 +71,7 @@ public:
 
 	bool DataCreated() const { return m_DataCreated; }
 	bool MeshCreated() const { return m_MeshCreated; }
+	bool UpdatePending() const { return m_UpdatePending; }
 	bool PushData();
 
 	static const ChunkSpecification& GetSpecification();
@@ -92,9 +93,9 @@ private:
 	Quark::Ref<Quark::IndexBuffer> m_IndexBuffer;
 
 	glm::ivec2 m_Position;
-	bool m_DataCreated = false;
-	bool m_MeshCreated = false;
-	bool m_UpdatePending = false;
+	std::atomic<bool> m_DataCreated = false;
+	std::atomic<bool> m_MeshCreated = false;
+	std::atomic<bool> m_UpdatePending = false;
 
 	uint32_t m_IndexCount = 0;
 	uint32_t m_VertexCount = 0;

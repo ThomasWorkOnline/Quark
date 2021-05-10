@@ -41,12 +41,6 @@ void ChunkRenderer::Shutdown()
 
 void ChunkRenderer::SubmitChunk(Chunk* chunk)
 {
-	Quark::Renderer::BeginScene(chunk->GetWorld().GetPlayer().GetCamera().Camera.GetMatrix(),
-		chunk->GetWorld().GetPlayer().GetTransform());
-
-	chunk->PushData();
 	Quark::Renderer::Submit(s_Data.Shader, s_Data.Texture, chunk->GetVertexArray());
 	s_Stats.DrawCalls++;
-
-	Quark::Renderer::EndScene();
 }

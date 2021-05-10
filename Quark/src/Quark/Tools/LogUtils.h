@@ -21,6 +21,26 @@ inline std::ostream& operator<<(std::ostream& os, const glm::vec4& vec)
 	return os << "[ x:" << vec.x << ", y:" << vec.y << ", z:" << vec.z << ", w:" << vec.w << " ]";
 }
 
+
+inline std::ostream& operator<<(std::ostream& os, const glm::ivec2& vec)
+{
+	os << std::fixed;
+	return os << "[ x:" << vec.x << ", y:" << vec.y << " ]";
+}
+
+inline std::ostream& operator<<(std::ostream& os, const glm::ivec3& vec)
+{
+	os << std::fixed;
+	return os << "[ x:" << vec.x << ", y:" << vec.y << ", z:" << vec.z << " ]";
+}
+
+inline std::ostream& operator<<(std::ostream& os, const glm::ivec4& vec)
+{
+	os << std::fixed;
+	return os << "[ x:" << vec.x << ", y:" << vec.y << ", z:" << vec.z << ", w:" << vec.w << " ]";
+}
+
+
 // Logging matrices
 inline std::ostream& operator<<(std::ostream& os, const glm::mat4& mat)
 {

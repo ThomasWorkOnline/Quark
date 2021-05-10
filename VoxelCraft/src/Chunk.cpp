@@ -10,39 +10,12 @@ const ChunkSpecification& Chunk::GetSpecification()
 	return s_Spec;
 }
 
-constexpr static int32_t IndexAtPosition(const glm::ivec3& position)
+static int32_t IndexAtPosition(const glm::ivec3& position)
 {
 	if (position.x < 0 || position.y < 0 || position.z < 0
 		|| position.x >= s_Spec.Width || position.y >= s_Spec.Height || position.z >= s_Spec.Depth)
 		return -1;
 	return position.x + s_Spec.Width * position.z + s_Spec.Width * s_Spec.Depth * position.y;
-}
-
-constexpr static glm::ivec3 GetFaceNormal(BlockFace facing)
-{
-	switch (facing)
-	{
-	case BlockFace::Front:
-		return { 0, 0, 1 };
-		break;
-	case BlockFace::Right:
-		return { 1, 0, 0 };
-		break;
-	case BlockFace::Back:
-		return { 0, 0, -1 };
-		break;
-	case BlockFace::Left:
-		return { -1, 0, 0 };
-		break;
-	case BlockFace::Top:
-		return { 0, 1, 0 };
-		break;
-	case BlockFace::Bottom:
-		return { 0, -1, 0 };
-		break;
-	default:
-		break;
-	}
 }
 
 
@@ -55,10 +28,11 @@ Chunk::~Chunk()
 	delete[] m_Blocks;
 }
 
-
-
+// TODO: fix, non thread safe
 void Chunk::GenerateTerrain()
 {
+	QK_ASSERT(m_Blocks == nullptr, "Tried to allocate chunk more than once");
+
 	m_Blocks = new BlockId[s_Spec.BlockCount];
 
 	for (uint32_t y = 0; y < s_Spec.Height; y++)
@@ -74,7 +48,7 @@ void Chunk::GenerateTerrain()
 
 				float noise = rand() / static_cast<float>(RAND_MAX);
 
-				uint32_t genBedrock = 1 + noise * 4.0f;
+				uint32_t genBedrock = static_cast<uint32_t>(1.0f + noise * 4.0f);
 
 				BlockId type;
 				if (y < genBedrock)
@@ -98,6 +72,8 @@ void Chunk::GenerateTerrain()
 
 void Chunk::GenerateMesh()
 {
+	//QK_ASSERT(m_Vertices.size() == 0, "Tried to allocate chunk more than once");
+
 	m_VertexCount = 0;
 	m_IndexCount = 0;
 	m_Vertices.clear();
@@ -138,13 +114,14 @@ void Chunk::GenerateMesh()
 		GenerateFaceIndices();
 	}
 
-	m_MeshCreated = true;
 	m_UpdatePending = true;
+	m_MeshCreated = true;
 }
 
 bool Chunk::PushData()
 {
-	bool pushed = m_UpdatePending;
+	bool success = m_UpdatePending;
+
 	if (m_UpdatePending)
 	{
 		m_VertexArray = Quark::VertexArray::Create();
@@ -164,7 +141,7 @@ bool Chunk::PushData()
 		m_UpdatePending = false;
 	}
 
-	return pushed;
+	return success;
 }
 
 void Chunk::GenerateFaceVertices(const glm::ivec3& position, BlockId type, BlockFace face)
@@ -280,50 +257,50 @@ BlockId Chunk::GetBlock(const glm::ivec3& position) const
 // TODO: fix chunk regeneration
 void Chunk::ReplaceBlock(const glm::ivec3& position, BlockId type)
 {
-	/*int32_t index = IndexAtPosition(position);
+	int32_t index = IndexAtPosition(position);
 	if (index != - 1)
 	{
 		m_Blocks[index] = { type };
 
 		// TODO: optimize
-		GenerateMesh(true);
+		GenerateMesh();
 
 		if (position.x == 0)
 		{
-			Chunk* chunk = m_World.GetChunk(m_Position + glm::ivec2(-1, 0));
+			Chunk* chunk = m_World->GetChunk(m_Position + glm::ivec2(-1, 0));
 			if (chunk)
 			{
-				chunk->GenerateMesh(true);
+				chunk->GenerateMesh();
 			}
 		}
 
 		if (position.x == s_Spec.Width - 1)
 		{
-			Chunk* chunk = m_World.GetChunk(m_Position + glm::ivec2(1, 0));
+			Chunk* chunk = m_World->GetChunk(m_Position + glm::ivec2(1, 0));
 			if (chunk)
 			{
-				chunk->GenerateMesh(true);
+				chunk->GenerateMesh();
 			}
 		}
 
 		if (position.z == 0)
 		{
-			Chunk* chunk = m_World.GetChunk(m_Position + glm::ivec2(0, -1));
+			Chunk* chunk = m_World->GetChunk(m_Position + glm::ivec2(0, -1));
 			if (chunk)
 			{
-				chunk->GenerateMesh(true);
+				chunk->GenerateMesh();
 			}
 		}
 
 		if (position.z == s_Spec.Depth - 1)
 		{
-			Chunk* chunk = m_World.GetChunk(m_Position + glm::ivec2(0, 1));
+			Chunk* chunk = m_World->GetChunk(m_Position + glm::ivec2(0, 1));
 			if (chunk)
 			{
-				chunk->GenerateMesh(true);
+				chunk->GenerateMesh();
 			}
 		}
-	}*/
+	}
 }
 
 glm::ivec3 Chunk::GetBlockPositionAbsolute(const glm::ivec3& position) const

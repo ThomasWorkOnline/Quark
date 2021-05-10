@@ -8,6 +8,7 @@
     <ClCompile Include="src\ChunkRenderer.cpp" />
     <ClCompile Include="src\PlayerController.cpp" />
     <ClCompile Include="src\ChunkLoader.cpp" />
+    <ClCompile Include="src\Blocks.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Chunk.h" />
@@ -17,5 +18,6 @@
     <ClInclude Include="src\PlayerController.h" />
     <ClInclude Include="src\Blocks.h" />
     <ClInclude Include="src\ChunkLoader.h" />
+    <ClInclude Include="src\Collision.h" />
   </ItemGroup>
 </Project>

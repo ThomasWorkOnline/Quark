@@ -5,6 +5,9 @@
 #include <future>
 #include <chrono>
 
+static constexpr uint32_t size = 50;
+static constexpr uint32_t expected = (size + 2) * (size + 2) - 4;
+
 World::World()
 {
 	QK_TIME_SCOPE_DEBUG(World::World);
@@ -13,12 +16,58 @@ World::World()
 
 	m_Loader = ChunkLoader::Create(this);
 
-	constexpr uint32_t size = 50;
-	for (uint32_t z = 0; z < size; z++)
+	enum Orientation : int8_t
 	{
-		for (uint32_t x = 0; x < size; x++)
+		Right,
+		Top,
+		Left,
+		Bottom
+	};
+
+	int incrementX = 1;
+	int incrementZ = 0;
+
+	float distance = 1.0f;
+	int x = 0;
+	int z = 0;
+	int orien = 0;
+
+	for (int i = 0; i < size; i++)
+	{
+		// go in straight line for the required distance
+		for (int d = 0; d < (int)distance; d++)
 		{
 			m_Loader->Queue({ x, z });
+
+			x += incrementX;
+			z += incrementZ;
+		}
+
+		orien++;
+
+		// turn left 90 degrees
+		switch (orien % 4)
+		{
+		case Right:
+			incrementX = 1;
+			incrementZ = 0;
+			distance += 0.5f;
+			break;
+		case Top:
+			incrementX = 0;
+			incrementZ = 1;
+			distance += 0.5f;
+			break;
+		case Left:
+			incrementX = -1;
+			incrementZ = 0;
+			distance += 0.5f;
+			break;
+		case Bottom:
+			incrementX = 0;
+			incrementZ = -1;
+			distance += 0.5f;
+			break;
 		}
 	}
 }
@@ -33,11 +82,23 @@ void World::OnUpdate(float elapsedTime)
 	m_Scene.OnUpdate(elapsedTime);
 	glm::vec3 playerPos = m_Player.GetFeetPosition();
 
-	auto& chunks = m_Loader->GetChunks();
-	for (auto chunk : chunks)
+	Quark::Renderer::BeginScene(GetPlayer().GetCamera().Camera.GetMatrix(),
+		GetPlayer().GetTransform());
+
+	int32_t pushCount = 0;
+
+	static auto& chunks = m_Loader->GetLoadedChunks();
+	for (auto& chunk : chunks)
 	{
-		if (chunk.second) ChunkRenderer::SubmitChunk(chunk.second);
+		if (chunk.second && chunk.second->MeshCreated())
+		{
+			pushCount += chunk.second->PushData();
+
+			ChunkRenderer::SubmitChunk(chunk.second);
+		}
 	}
+
+	Quark::Renderer::EndScene();
 }
 
 void World::OnEvent(Quark::Event& e)
@@ -49,6 +110,16 @@ void World::OnEvent(Quark::Event& e)
 
 bool World::OnKeyPressed(Quark::KeyPressedEvent& e)
 {
+	switch (e.GetKeyCode())
+	{
+	case Quark::KeyCode::T:
+		std::cout << m_Loader->GetStats().ChunksTerrainGenerated << " chunks terrain generated!\n";
+		std::cout << m_Loader->GetStats().ChunksMeshGenerated << " chunks meshes generated!\n";
+		std::cout << "chunks terrain expected: " << expected << '\n';
+		std::cout << "Idling: " << m_Loader->Idling() << '\n';
+		break;
+	}
+
 	return false;
 }
 
@@ -56,7 +127,7 @@ bool World::OnKeyPressed(Quark::KeyPressedEvent& e)
 
 Chunk* World::GetChunk(const glm::ivec2& position) const
 {
-	return m_Loader->GetChunk(position);
+	return m_Loader->GetDataGeneratedChunk(position);
 }
 
 void World::ReplaceBlock(const glm::ivec3& position, BlockId type)
@@ -114,18 +185,24 @@ bool World::HasGeneratedChunk(const glm::ivec2& position) const
 
 
 // TODO: implement a proper raycast
-std::tuple<BlockId, glm::ivec3, glm::ivec3> World::RayCast(const glm::vec3& start, const glm::vec3& direction, float length)
+CollisionData World::RayCast(const glm::vec3& start, const glm::vec3& direction, float length)
 {
+	CollisionData data;
+	data.Block = BlockId::None;
+
 	glm::vec3 normDir = glm::normalize(direction);
 
 	for (float i = 0; i < length; i += 0.01f)
 	{
 		glm::ivec3 position = glm::floor(start + normDir * i);
 		BlockId block = GetBlock(position);
-		if (block != BlockId::None)
+		if (block != BlockId::None && block != BlockId::Air)
 		{
-			if (block != BlockId::Air)
-				return { block, position, glm::round(-direction) };
+			data.Block = block;
+			data.Impact = position;
+			data.Side = BlockFace::Top;
+
+			return data;
 		}
 	}
 	return {};

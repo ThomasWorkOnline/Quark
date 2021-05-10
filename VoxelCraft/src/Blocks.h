@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Quark.h>
+
 enum class BlockFace : uint8_t
 {
 	Front = 0,
@@ -10,7 +12,7 @@ enum class BlockFace : uint8_t
 	Bottom
 };
 
-enum class BlockId : uint8_t
+enum class BlockId : int8_t
 {
 	None = -1,
 
@@ -36,3 +38,5 @@ struct BlockVertex
 	float TexIndex;
 	float Intensity;
 };
+
+glm::ivec3 GetFaceNormal(BlockFace facing);

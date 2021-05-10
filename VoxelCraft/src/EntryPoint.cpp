@@ -9,19 +9,43 @@
 class VoxelCraft : public Quark::Application
 {
 public:
+	Quark::Ref<Quark::Shader> m_Shader;
+	Quark::BufferLayout m_Layout = {
+		{ Quark::ShaderDataType::Float3, "a_Position" },
+		{ Quark::ShaderDataType::Float3, "a_Normal"   },
+		{ Quark::ShaderDataType::Float2, "a_TexCoord" }
+	};
+	Quark::Mesh m_Mesh = { m_Layout, "assets/models/arrow.obj" };
+
+	Quark::Transform3DComponent m_Transform;
+
 	void OnCreate() override
 	{
 		QK_TIME_SCOPE_DEBUG(VoxelCraft::OnCreate);
 
 		GetWindow().Select();
-		GetWindow().SetVSync(false);
+		GetWindow().SetVSync(true);
 		GetWindow().SetFullScreen(false);
+
+		m_Shader = Quark::Shader::Create("assets/shaders/default.glsl");
+
+		m_Transform.Scale = { 0.2f, 0.1f, 0.1f };
+		m_Transform.Position = { 0.0f, 65.0f, 0.0f };
 	}
 
 	void OnUpdate(float elapsedTime) override
 	{
 		m_World.OnUpdate(elapsedTime);
 		m_Controller.OnUpdate(elapsedTime);
+
+		/*Quark::Renderer::BeginScene(m_World.GetPlayer().GetCamera().Camera.GetMatrix(),
+			m_World.GetPlayer().GetTransform());
+
+		m_Transform.Orientation = glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+		Quark::Renderer::Submit(m_Shader, m_Mesh.GetVertexArray(), m_Transform);
+
+		Quark::Renderer::EndScene();*/
 	}
 
 	void OnEvent(Quark::Event& e) override
@@ -53,23 +77,27 @@ public:
 
 	bool OnMouseButtonPressed(Quark::MouseButtonPressedEvent& e)
 	{
-		auto [block, position, next] = m_World.RayCast(m_World.GetPlayer().GetHeadPosition(), m_World.GetPlayer().GetTransform().GetFrontVector(), 5.0f);
+		Ray ray;
+		ray.Origin = m_World.GetPlayer().GetHeadPosition();
+		ray.Direction = glm::normalize(m_World.GetPlayer().GetTransform().GetFrontVector());
+
+		auto collisionData = m_World.RayCast(ray.Origin, ray.Direction, 5.0f);
 
 		switch (e.GetMouseButton())
 		{
 		case Quark::MouseCode::ButtonLeft:
 			GetWindow().Select();
 
-			if (block != BlockId::None && block != BlockId::Air)
+			if (collisionData.Block != BlockId::None && collisionData.Block != BlockId::Air)
 			{
-				m_World.ReplaceBlock(position, BlockId::Air);
+				m_World.ReplaceBlock(collisionData.Impact, BlockId::Air);
 			}
 			break;
 		case Quark::MouseCode::ButtonRight:
 		{
-			if (block != BlockId::None && block != BlockId::Air)
+			if (collisionData.Block != BlockId::None && collisionData.Block != BlockId::Air)
 			{
-				m_World.ReplaceBlock(position + next, BlockId::Cobblestone);
+				m_World.ReplaceBlock(collisionData.Impact + (glm::vec3)GetFaceNormal(collisionData.Side), BlockId::Cobblestone);
 			}
 			break;
 		}
