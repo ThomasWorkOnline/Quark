@@ -4,7 +4,7 @@ Quark is a 3D game engine in early development inspired by Hazel Game Engine.
 Currently supports Windows. Support for Mac and Linux might not work as expected.
 Official support for Linux and macOS is on it's way!
 
-Quark is an API available to develop 2D or 3D applications.
+Quark is an API available to develop 2D and 3D applications.
 
 # Installation & Setup
 
