@@ -13,7 +13,7 @@ Quark is an API available to develop 2D and 3D applications.
 3. Create a sub-class from parent 'Quark::Application'
 
 Example from Sandbox:
-```
+```c++
 class SandboxGame : public Quark::Application
 {
 	...
@@ -24,7 +24,7 @@ class SandboxGame : public Quark::Application
 	This is what internally creates your Quark application.
 	
 Example from Sandbox:
-```
+```c++
 Quark::Application* Quark::CreateApplication()
 {
 	return new SandboxGame();
