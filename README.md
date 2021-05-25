@@ -29,4 +29,4 @@ Quark::Application* Quark::CreateApplication()
 ```
 The setup is complete!
 
-Feel free to use this source code as a documentation.
+Feel free to use this source code as documentation.
