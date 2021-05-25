@@ -7,7 +7,7 @@ Official support for Linux and macOS is on it's way!
 
 # Installation & Setup
 
-1. On Windows, link quark.lib to your project.
+1. Link quark.lib to your project.
 2. #include <Quark.h>
 3. Create a class extending Quark::Application
 
