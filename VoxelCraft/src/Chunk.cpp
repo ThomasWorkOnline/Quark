@@ -25,11 +25,12 @@ Chunk::Chunk(const glm::ivec2& position, World* world)
 
 Chunk::~Chunk()
 {
+	QK_ASSERT(m_Blocks != nullptr, "Tried to delete chunks more than once");
+
 	delete[] m_Blocks;
 }
 
-// TODO: fix, non thread safe
-void Chunk::GenerateTerrain()
+void Chunk::GenerateWorld()
 {
 	QK_ASSERT(m_Blocks == nullptr, "Tried to allocate chunk more than once");
 
@@ -66,14 +67,10 @@ void Chunk::GenerateTerrain()
 			}
 		}
 	}
-
-	m_DataCreated = true;
 }
 
 void Chunk::GenerateMesh()
 {
-	//QK_ASSERT(m_Vertices.size() == 0, "Tried to allocate chunk more than once");
-
 	m_VertexCount = 0;
 	m_IndexCount = 0;
 	m_Vertices.clear();
@@ -115,7 +112,6 @@ void Chunk::GenerateMesh()
 	}
 
 	m_UpdatePending = true;
-	m_MeshCreated = true;
 }
 
 bool Chunk::PushData()
@@ -153,7 +149,7 @@ void Chunk::GenerateFaceVertices(const glm::ivec3& position, BlockId type, Block
 		BlockVertex v;
 		v.Position = s_Spec.VertexPositions[i + static_cast<uint8_t>(face) * 4]
 			+ glm::vec3(position.x + m_Position.x * (float)s_Spec.Width, position.y, position.z + m_Position.y * (float)s_Spec.Depth);
-		v.TexCoord = blockProperties.Face.GetCoords()[i];
+		v.TexCoord = blockProperties.Faces[static_cast<uint8_t>(face)].GetCoords()[i];
 		v.TexIndex = 0.0f;
 		v.Intensity = (static_cast<uint8_t>(face) + 1) / 6.0f;
 

@@ -5,7 +5,7 @@
 #include <future>
 #include <chrono>
 
-static constexpr uint32_t size = 50;
+static constexpr uint32_t size = 20;
 static constexpr uint32_t expected = (size + 2) * (size + 2) - 4;
 
 World::World()
@@ -15,14 +15,6 @@ World::World()
 	ChunkRenderer::Initialize();
 
 	m_Loader = ChunkLoader::Create(this);
-
-	enum Orientation : int8_t
-	{
-		Right,
-		Top,
-		Left,
-		Bottom
-	};
 
 	int incrementX = 1;
 	int incrementZ = 0;
@@ -37,7 +29,7 @@ World::World()
 		// go in straight line for the required distance
 		for (int d = 0; d < (int)distance; d++)
 		{
-			m_Loader->Queue({ x, z });
+			m_Loader->Persist({ x, z });
 
 			x += incrementX;
 			z += incrementZ;
@@ -48,22 +40,22 @@ World::World()
 		// turn left 90 degrees
 		switch (orien % 4)
 		{
-		case Right:
+		case 0:
 			incrementX = 1;
 			incrementZ = 0;
 			distance += 0.5f;
 			break;
-		case Top:
+		case 1:
 			incrementX = 0;
 			incrementZ = 1;
 			distance += 0.5f;
 			break;
-		case Left:
+		case 2:
 			incrementX = -1;
 			incrementZ = 0;
 			distance += 0.5f;
 			break;
-		case Bottom:
+		case 3:
 			incrementX = 0;
 			incrementZ = -1;
 			distance += 0.5f;
@@ -87,10 +79,9 @@ void World::OnUpdate(float elapsedTime)
 
 	int32_t pushCount = 0;
 
-	static auto& chunks = m_Loader->GetLoadedChunks();
-	for (auto& chunk : chunks)
+	for (auto& chunk : m_Loader->GetChunks())
 	{
-		if (chunk.second && chunk.second->MeshCreated())
+		if (chunk.second)
 		{
 			pushCount += chunk.second->PushData();
 
@@ -113,8 +104,8 @@ bool World::OnKeyPressed(Quark::KeyPressedEvent& e)
 	switch (e.GetKeyCode())
 	{
 	case Quark::KeyCode::T:
-		std::cout << m_Loader->GetStats().ChunksTerrainGenerated << " chunks terrain generated!\n";
-		std::cout << m_Loader->GetStats().ChunksMeshGenerated << " chunks meshes generated!\n";
+		std::cout << m_Loader->GetStats().ChunksWorldGen << " chunks terrain generated!\n";
+		std::cout << m_Loader->GetStats().ChunksMeshGen << " chunks meshes generated!\n";
 		std::cout << "chunks terrain expected: " << expected << '\n';
 		std::cout << "Idling: " << m_Loader->Idling() << '\n';
 		break;
@@ -127,7 +118,7 @@ bool World::OnKeyPressed(Quark::KeyPressedEvent& e)
 
 Chunk* World::GetChunk(const glm::ivec2& position) const
 {
-	return m_Loader->GetDataGeneratedChunk(position);
+	return m_Loader->GetChunk(position);
 }
 
 void World::ReplaceBlock(const glm::ivec3& position, BlockId type)
@@ -174,12 +165,6 @@ glm::ivec2 World::GetChunkCoord(const glm::ivec3& position) const
 {
 	auto& spec = Chunk::GetSpecification();
 	return { std::floor(position.x / (float)spec.Width), std::floor(position.z / (float)spec.Depth) };
-}
-
-bool World::HasGeneratedChunk(const glm::ivec2& position) const
-{
-	auto queryChunk = GetChunk(position);
-	return queryChunk && queryChunk->MeshCreated();
 }
 
 

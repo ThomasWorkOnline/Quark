@@ -9,7 +9,7 @@
 class VoxelCraft : public Quark::Application
 {
 public:
-	Quark::Ref<Quark::Shader> m_Shader;
+	/*Quark::Ref<Quark::Shader> m_Shader;
 	Quark::BufferLayout m_Layout = {
 		{ Quark::ShaderDataType::Float3, "a_Position" },
 		{ Quark::ShaderDataType::Float3, "a_Normal"   },
@@ -17,7 +17,7 @@ public:
 	};
 	Quark::Mesh m_Mesh = { m_Layout, "assets/models/arrow.obj" };
 
-	Quark::Transform3DComponent m_Transform;
+	Quark::Transform3DComponent m_Transform;*/
 
 	void OnCreate() override
 	{
@@ -27,10 +27,15 @@ public:
 		GetWindow().SetVSync(true);
 		GetWindow().SetFullScreen(false);
 
-		m_Shader = Quark::Shader::Create("assets/shaders/default.glsl");
+		//m_Shader = Quark::Shader::Create("assets/shaders/default.glsl");
 
-		m_Transform.Scale = { 0.2f, 0.1f, 0.1f };
-		m_Transform.Position = { 0.0f, 65.0f, 0.0f };
+		//m_Transform.Scale = { 0.2f, 0.1f, 0.1f };
+		//m_Transform.Position = { 0.0f, 65.0f, 0.0f };
+	}
+
+	void OnDestroy() override
+	{
+		
 	}
 
 	void OnUpdate(float elapsedTime) override
@@ -116,6 +121,8 @@ int main()
 	auto app = new VoxelCraft();
 	app->Run();
 	delete app;
+
+	std::cin.get();
 
 	return 0;
 }

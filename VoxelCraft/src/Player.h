@@ -6,7 +6,7 @@ struct PlayerSettings
 {
 	float Fov = 70;
 	glm::vec3 HeadRelativeToFeet = { 0.0f, 1.0f, 0.0f };
-	glm::vec3 SpawnPoint = { 0.5f, 65.0f, 0.5f };
+	glm::vec3 SpawnPoint = { 0.5f, 128.0f, 0.5f };
 };
 
 class Player

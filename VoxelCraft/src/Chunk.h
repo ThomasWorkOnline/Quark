@@ -2,7 +2,7 @@
 
 #include <Quark.h>
 
-#include "Blocks.h"
+#include "Block.h"
 
 struct ChunkSpecification
 {
@@ -66,17 +66,13 @@ public:
 
 	const glm::ivec2& GetPosition() const { return m_Position; }
 	BlockId GetBlock(const glm::ivec3& position) const;
-
 	void ReplaceBlock(const glm::ivec3& position, BlockId type);
 
-	bool DataCreated() const { return m_DataCreated; }
-	bool MeshCreated() const { return m_MeshCreated; }
-	bool UpdatePending() const { return m_UpdatePending; }
 	bool PushData();
 
 	static const ChunkSpecification& GetSpecification();
 
-	void GenerateTerrain();
+	void GenerateWorld();
 	void GenerateMesh();
 
 private:
@@ -93,9 +89,7 @@ private:
 	Quark::Ref<Quark::IndexBuffer> m_IndexBuffer;
 
 	glm::ivec2 m_Position;
-	std::atomic<bool> m_DataCreated = false;
-	std::atomic<bool> m_MeshCreated = false;
-	std::atomic<bool> m_UpdatePending = false;
+	bool m_UpdatePending = false;
 
 	uint32_t m_IndexCount = 0;
 	uint32_t m_VertexCount = 0;

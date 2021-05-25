@@ -2,7 +2,7 @@
 
 #include <Quark.h>
 
-#include "Blocks.h"
+#include "Block.h"
 #include "Chunk.h"
 #include "ChunkRenderer.h"
 #include "Player.h"
@@ -35,7 +35,6 @@ public:
 	BlockId GetBlock(const glm::ivec3& position) const;
 
 	glm::ivec2 GetChunkCoord(const glm::ivec3& position) const;
-	bool HasGeneratedChunk(const glm::ivec2& position) const;
 
 private:
 	bool OnKeyPressed(Quark::KeyPressedEvent& e);

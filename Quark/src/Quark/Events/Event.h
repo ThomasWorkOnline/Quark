@@ -25,7 +25,7 @@ namespace Quark {
 		EventCategoryMouseButton = BIT(4)
 	};
 
-	// To be defined in child event declaration
+	// To be defined in event declaration
 #define EVENT_CLASS_TYPE(type)  static EventType GetStaticType() { return EventType::type; }\
 								virtual EventType GetType() const override { return GetStaticType(); }\
 								virtual const char* GetName() const override { return #type; }

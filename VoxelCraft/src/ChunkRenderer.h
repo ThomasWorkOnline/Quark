@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Chunk.h"
-#include "Blocks.h"
+#include "Block.h"
 #include "World.h"
 
 class ChunkRenderer

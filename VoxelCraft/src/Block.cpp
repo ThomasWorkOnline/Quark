@@ -1,4 +1,4 @@
-#include "Blocks.h"
+#include "Block.h"
 
 glm::ivec3 GetFaceNormal(BlockFace facing)
 {
