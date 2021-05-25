@@ -18,9 +18,7 @@ class SandboxGame : public Quark::Application
 	...
 }
 ```
-4. Implement the function Quark::CreateApplication().
-	If not defined, it will not compile!
-	This is what internally creates your Quark application.
+4. Implement Quark::CreateApplication() in your project.
 	
 Example from Sandbox:
 ```c++
