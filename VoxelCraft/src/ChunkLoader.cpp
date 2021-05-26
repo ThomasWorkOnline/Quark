@@ -10,37 +10,32 @@ Quark::Scope<ChunkLoader> ChunkLoader::Create(World* world)
 
 static const int32_t s_QueueLimit = 10000;
 
-static std::condition_variable s_ConditionVariable;
 static std::thread s_Worker;
-static std::mutex s_Mutex;
+static std::condition_variable s_ConditionVariable;
+static std::mutex s_ConditionMutex;
 static bool s_Paused = true;
 static bool s_Stopping = false;
+
+static std::recursive_mutex s_Mutex;
 
 ChunkLoader::ChunkLoader(World* world)
 	: m_World(world)
 {
 	s_Worker = std::thread(&ChunkLoader::FlushQueue, this);
-
-	std::this_thread::sleep_for(std::chrono::milliseconds(100));
 }
 
 ChunkLoader::~ChunkLoader()
 {
 	{
-		std::lock_guard<std::mutex> lock(s_Mutex);
+		std::lock_guard<std::mutex> cdnLock(s_ConditionMutex);
 
 		s_Paused = false;
 		s_Stopping = true;
 	}
 	
-	s_ConditionVariable.notify_one();
+	s_ConditionVariable.notify_all();
 
 	s_Worker.join();
-
-	while (!m_LoadingQueue.empty())
-	{
-		m_LoadingQueue.pop();
-	}
 
 	for (auto& chunk : m_Chunks)
 	{
@@ -48,10 +43,7 @@ ChunkLoader::~ChunkLoader()
 		m_Stats.ChunksFreed++;
 	}
 
-	m_Chunks.clear();
-
 	QK_ASSERT(m_Stats.ChunksAllocated == m_Stats.ChunksFreed, "Memory leak detected!" << m_Stats.ChunksAllocated - m_Stats.ChunksFreed << " chunks could not be deleted.");
-
 
 	std::cout << "Batch summary:\n" << std::dec <<
 		"Allocated: " << m_Stats.ChunksAllocated << '\n' <<
@@ -60,16 +52,30 @@ ChunkLoader::~ChunkLoader()
 		"Mesh Gen: " << m_Stats.ChunksMeshGen << '\n';
 }
 
-void ChunkLoader::Persist(glm::ivec2 coord)
+void ChunkLoader::OnUpdate(float elapsedTime)
 {
-	std::lock_guard<std::mutex> lock(s_Mutex);
+	for (auto& chunk : m_Chunks)
+	{
+		if (chunk.second->GetStatus() == LoadingChunk::Status::Loaded
+			&& !chunk.second->IsPushed())
+		{
+			chunk.second->PushData();
+		}
+	}
+}
+
+void ChunkLoader::Load(glm::ivec2 coord)
+{
+	std::lock_guard<std::recursive_mutex> lock(s_Mutex);
 
 	if (m_LoadingQueue.size() < s_QueueLimit)
 	{
 		m_LoadingQueue.push(CHUNK_UUID(coord));
 
-		// resume the worker
+		std::unique_lock<std::mutex> cdnLock(s_ConditionMutex);
+
 		s_Paused = false;
+		cdnLock.unlock();
 
 		s_ConditionVariable.notify_one();
 	}
@@ -79,35 +85,51 @@ void ChunkLoader::Persist(glm::ivec2 coord)
 	}
 }
 
-void ChunkLoader::Dispose(glm::ivec2 coord)
+void ChunkLoader::Unload(glm::ivec2 coord)
 {
-	/*std::lock_guard<std::mutex> lock(s_Mutex);
+	
+}
 
-	if (m_LoadingQueue.size() < s_QueueLimit)
+void ChunkLoader::Rebuild(Chunk* chunk)
+{
+	if (chunk)
 	{
-		m_UnloadingQueue[CHUNK_UUID(coord)] = std::async(std::launch::async, &ChunkLoader::Unload, this, coord);
-	}*/
+		glm::ivec2 coord = chunk->GetCoord();
+
+		Chunk* nR = GetChunk(coord + glm::ivec2( 1,  0));
+		Chunk* nL = GetChunk(coord + glm::ivec2(-1,  0));
+		Chunk* nF = GetChunk(coord + glm::ivec2( 0,  1));
+		Chunk* nB = GetChunk(coord + glm::ivec2( 0, -1));
+
+		chunk->GenerateMesh(nR, nL, nF, nB);
+		chunk->PushData();
+	}
 }
 
 bool ChunkLoader::Idling() const
 {
-	std::lock_guard<std::mutex> lock(s_Mutex);
+	std::lock_guard<std::mutex> cdnLock(s_ConditionMutex);
 
 	return s_Paused;
 }
 
 const std::unordered_map<size_t, LoadingChunk*>& ChunkLoader::GetChunks() const
 {
-	std::lock_guard<std::mutex> lock(s_Mutex);
+	std::lock_guard<std::recursive_mutex> lock(s_Mutex);
 
 	return m_Chunks;
 }
 
-Chunk* ChunkLoader::GetChunk(glm::ivec2 coord)
+LoadingChunk* ChunkLoader::GetChunk(glm::ivec2 coord)
 {
-	std::lock_guard<std::mutex> lock(s_Mutex);
+	return GetChunk(CHUNK_UUID(coord));
+}
 
-	auto it = m_Chunks.find(CHUNK_UUID(coord));
+LoadingChunk* ChunkLoader::GetChunk(size_t id)
+{
+	std::lock_guard<std::recursive_mutex> lock(s_Mutex);
+
+	auto it = m_Chunks.find(id);
 
 	if (it != m_Chunks.end())
 	{
@@ -124,122 +146,87 @@ void ChunkLoader::FlushQueue()
 	while (true)
 	{
 		LoadingChunk* chunk = nullptr;
+		LoadingChunk* nR = nullptr;
+		LoadingChunk* nL = nullptr;
+		LoadingChunk* nF = nullptr;
+		LoadingChunk* nB = nullptr;
 		{
-			std::unique_lock<std::mutex> lock(s_Mutex);
-
-			if (s_Stopping) break;
-
-			if (m_LoadingQueue.empty())
 			{
-				s_Paused = true;
+				std::unique_lock<std::mutex> cdnLock(s_ConditionMutex);
 
-				// wait for the main thread to resume this
-				s_ConditionVariable.wait(lock, []() { return !s_Paused; });
+				if (m_LoadingQueue.empty())
+				{
+					s_Paused = true;
+				}
+
+				s_ConditionVariable.wait(cdnLock, []() { return !s_Paused; });
+
+				if (s_Stopping) break;
 			}
-			else
+
+			std::lock_guard<std::recursive_mutex> lock(s_Mutex);
+
+			if (!m_LoadingQueue.empty())
 			{
 				size_t id = m_LoadingQueue.front();
-				auto it = m_Chunks.find(id);
 				m_LoadingQueue.pop();
 
-				// generate if not found
-				if (it == m_Chunks.end())
-				{
-					chunk = new LoadingChunk(CHUNK_COORD(id), this->m_World);
-					chunk->SetStatus(LoadingChunk::Status::Allocated);
-					m_Stats.ChunksAllocated++;
+				glm::ivec2 coord = CHUNK_COORD(id);
+				glm::ivec2 coordNR = coord + glm::ivec2( 1,  0);
+				glm::ivec2 coordNL = coord + glm::ivec2(-1,  0);
+				glm::ivec2 coordNF = coord + glm::ivec2( 0,  1);
+				glm::ivec2 coordNB = coord + glm::ivec2( 0, -1);
 
-					m_Chunks.insert({ id, chunk });
-				}
+				chunk = UniqueChunkAllocator(id);
+				nR = UniqueChunkAllocator(coordNR);
+				nL = UniqueChunkAllocator(coordNL);
+				nF = UniqueChunkAllocator(coordNF);
+				nB = UniqueChunkAllocator(coordNB);
 			}
 		}
 
-		if (chunk)
-		{
-			chunk->GenerateWorld();
-			chunk->SetStatus(LoadingChunk::Status::WorldGenerated);
-			m_Stats.ChunksWorldGen++;
+		UniqueChunkDataGenerator(chunk);
+		UniqueChunkDataGenerator(nR);
+		UniqueChunkDataGenerator(nL);
+		UniqueChunkDataGenerator(nF);
+		UniqueChunkDataGenerator(nB);
 
-			chunk->GenerateMesh();
-			chunk->SetStatus(LoadingChunk::Status::Loaded);
-			m_Stats.ChunksMeshGen++;
-		}
+		chunk->GenerateMesh(nR, nL, nF, nB);
+		chunk->SetStatus(LoadingChunk::Status::Loaded);
+		m_Stats.ChunksMeshGen++;
 	}
 
 	std::cout << "Task done! Thread 0x" << std::hex << std::this_thread::get_id() << " exited.\n";
 }
 
-/*static std::mutex s_ChunkMutex;
-Chunk* ChunkLoader::UniqueChunkAllocator(glm::ivec2 coord)
+LoadingChunk* ChunkLoader::UniqueChunkAllocator(glm::ivec2 coord)
 {
-	std::lock_guard<std::mutex> lock(s_ChunkMutex);
+	return UniqueChunkAllocator(CHUNK_UUID(coord));
+}
 
-	// This will return nullptr if no chunk exsists
-	auto ptr = m_AllocatedChunks[CHUNK_UUID(coord)];
+LoadingChunk* ChunkLoader::UniqueChunkAllocator(size_t id)
+{
+	LoadingChunk* chunk = GetChunk(id);
 
-	if (!ptr)
+	if (!chunk)
 	{
-		// Request allocation
-		ptr = new Chunk(coord, this->m_World);
+		chunk = new LoadingChunk(CHUNK_COORD(id), this->m_World);
 		m_Stats.ChunksAllocated++;
 
-		m_AllocatedChunks[CHUNK_UUID(coord)] = ptr;
+		std::lock_guard<std::recursive_mutex> lock(s_Mutex);
+
+		m_Chunks.insert({ id, chunk });
 	}
 
-	QK_ASSERT(ptr, "Unique chunk allocator returned nullptr!");
-
-	return ptr;
+	return chunk;
 }
 
-Chunk* ChunkLoader::UniqueChunkDataGenerator(glm::ivec2 coord)
+void ChunkLoader::UniqueChunkDataGenerator(LoadingChunk* chunk)
 {
-	std::lock_guard<std::mutex> lock(s_ChunkMutex);
-
-	// step 1: if not allocated, allocate
-	auto ptr = UniqueChunkAllocator(coord);
-
-	// step 2: if terrain not generated, generate terrain
-	auto generatedPtr = m_DataGeneratedChunks[CHUNK_UUID(coord)];
-
-	if (!generatedPtr)
+	if (chunk && chunk->GetStatus() == LoadingChunk::Status::Allocated)
 	{
-		ptr->GenerateTerrain();
-		m_Stats.ChunksTerrainGenerated++;
-
-		m_DataGeneratedChunks[CHUNK_UUID(coord)] = ptr;
+		chunk->GenerateWorld();
+		chunk->SetStatus(LoadingChunk::Status::WorldGenerated);
+		m_Stats.ChunksWorldGen++;
 	}
-
-	QK_ASSERT(ptr, "Unique chunk data generator returned nullptr!");
-
-	return ptr;
 }
-
-Chunk* ChunkLoader::UniqueChunkMeshGenerator(glm::ivec2 coord)
-{
-	std::lock_guard<std::mutex> lock(s_ChunkMutex);
-
-	// step 1: if not data generated, generate data
-	auto center = UniqueChunkDataGenerator(coord);
-	auto left	= UniqueChunkDataGenerator(coord + glm::ivec2(-1,  0));
-	auto right	= UniqueChunkDataGenerator(coord + glm::ivec2( 1,  0));
-	auto bottom = UniqueChunkDataGenerator(coord + glm::ivec2( 0, -1));
-	auto top	= UniqueChunkDataGenerator(coord + glm::ivec2( 0,  1));
-
-	// step 2: if mesh not generated, generate mesh
-	auto generatedPtr = m_MeshGeneratedChunks[CHUNK_UUID(coord)];
-
-	if (!generatedPtr)
-	{
-		center->GenerateMesh();
-		m_Stats.ChunksMeshGenerated++;
-		
-		m_MeshGeneratedChunks[CHUNK_UUID(coord)] = center;
-
-		// TODO: change
-		m_FinishedChunks[CHUNK_UUID(coord)] = center;
-	}
-
-	QK_ASSERT(center, "Unique chunk mesh generator returned nullptr!");
-
-	return center;
-}*/

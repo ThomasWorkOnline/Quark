@@ -32,13 +32,17 @@ public:
 	ChunkLoader(World* world);
 	~ChunkLoader();
 
-	void Persist(glm::ivec2 coord);
-	void Dispose(glm::ivec2 coord);
+	void OnUpdate(float elapsedTime);
+
+	void Load(glm::ivec2 coord);
+	void Unload(glm::ivec2 coord);
+	void Rebuild(Chunk* chunk);
 
 	bool Idling() const;
 
 	const std::unordered_map<size_t, LoadingChunk*>& GetChunks() const;
-	Chunk* GetChunk(glm::ivec2 coord);
+	LoadingChunk* GetChunk(glm::ivec2 coord);
+	LoadingChunk* GetChunk(size_t id);
 
 	const ChunkLoaderStats& GetStats() const { return m_Stats; }
 
@@ -47,17 +51,12 @@ public:
 private:
 	void FlushQueue();
 
-	//Chunk* UniqueChunkAllocator(glm::ivec2 coord);
-	//Chunk* UniqueChunkDataGenerator(glm::ivec2 coord);
-	//Chunk* UniqueChunkMeshGenerator(glm::ivec2 coord);
+	LoadingChunk* UniqueChunkAllocator(glm::ivec2 coord);
+	LoadingChunk* UniqueChunkAllocator(size_t id);
+	void UniqueChunkDataGenerator(LoadingChunk* chunk);
 
 	std::unordered_map<size_t, LoadingChunk*> m_Chunks;
-
 	std::queue<size_t> m_LoadingQueue;
-
-	//std::unordered_map<size_t, Chunk*> m_AllocatedChunks;
-	//std::unordered_map<size_t, Chunk*> m_DataGeneratedChunks;
-	//std::unordered_map<size_t, Chunk*> m_MeshGeneratedChunks;
 
 	ChunkLoaderStats m_Stats;
 

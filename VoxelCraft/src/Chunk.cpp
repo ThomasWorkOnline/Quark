@@ -3,6 +3,44 @@
 #include "ChunkRenderer.h"
 #include "World.h"
 
+static constexpr glm::vec3 s_VertexPositions[24] = {
+	// front
+	{  0.0f,  0.0f,  1.0f },
+	{  1.0f,  0.0f,  1.0f },
+	{  1.0f,  1.0f,  1.0f },
+	{  0.0f,  1.0f,  1.0f },
+
+	// right
+	{  1.0f,  0.0f,  1.0f },
+	{  1.0f,  0.0f,  0.0f },
+	{  1.0f,  1.0f,  0.0f },
+	{  1.0f,  1.0f,  1.0f },
+
+	// back
+	{  1.0f,  0.0f,  0.0f },
+	{  0.0f,  0.0f,  0.0f },
+	{  0.0f,  1.0f,  0.0f },
+	{  1.0f,  1.0f,  0.0f },
+
+	// left
+	{  0.0f,  0.0f,  0.0f },
+	{  0.0f,  0.0f,  1.0f },
+	{  0.0f,  1.0f,  1.0f },
+	{  0.0f,  1.0f,  0.0f },
+
+	// top
+	{  0.0f,  1.0f,  1.0f },
+	{  1.0f,  1.0f,  1.0f },
+	{  1.0f,  1.0f,  0.0f },
+	{  0.0f,  1.0f,  0.0f },
+
+	// bottom
+	{  1.0f,  0.0f,  1.0f },
+	{  0.0f,  0.0f,  1.0f },
+	{  0.0f,  0.0f,  0.0f },
+	{  1.0f,  0.0f,  0.0f }
+};
+
 static ChunkSpecification s_Spec;
 
 const ChunkSpecification& Chunk::GetSpecification()
@@ -21,12 +59,10 @@ static int32_t IndexAtPosition(const glm::ivec3& position)
 
 
 Chunk::Chunk(const glm::ivec2& position, World* world)
-	: m_Position(position), m_World(world) {}
+	: m_Coord(position), m_World(world) {}
 
 Chunk::~Chunk()
 {
-	QK_ASSERT(m_Blocks != nullptr, "Tried to delete chunks more than once");
-
 	delete[] m_Blocks;
 }
 
@@ -45,7 +81,7 @@ void Chunk::GenerateWorld()
 				if (!Quark::Application::Get().IsRunning())
 					return;
 
-				glm::ivec3 pos = GetBlockPositionAbsolute({ x, y, z });
+				glm::ivec3 pos = GetBlockPosition({ x, y, z });
 
 				float noise = rand() / static_cast<float>(RAND_MAX);
 
@@ -69,17 +105,14 @@ void Chunk::GenerateWorld()
 	}
 }
 
-void Chunk::GenerateMesh()
+void Chunk::GenerateMesh(Chunk* right, Chunk* left, Chunk* front, Chunk* back)
 {
+	QK_ASSERT(right && left && front && back, "Cannot generate chunk mesh without neighbor information");
+
 	m_VertexCount = 0;
 	m_IndexCount = 0;
 	m_Vertices.clear();
 	m_Indices.clear();
-
-	Chunk* rightChunk	= m_World->GetChunk(m_Position + glm::ivec2( 1,  0));
-	Chunk* leftChunk	= m_World->GetChunk(m_Position + glm::ivec2(-1,  0));
-	Chunk* frontChunk	= m_World->GetChunk(m_Position + glm::ivec2( 0,  1));
-	Chunk* backChunk	= m_World->GetChunk(m_Position + glm::ivec2( 0, -1));
 
 	for (uint32_t y = 0; y < s_Spec.Height; y++)
 	{
@@ -97,7 +130,7 @@ void Chunk::GenerateMesh()
 
 				for (uint8_t f = 0; f < 6; f++)
 				{
-					if (!IsBlockFaceVisible({ x, y, z }, (BlockFace)f, rightChunk, leftChunk, frontChunk, backChunk))
+					if (!IsBlockFaceVisible({ x, y, z }, (BlockFace)f, right, left, front, back))
 						continue;
 
 					GenerateFaceVertices({ x, y, z}, block, (BlockFace)f);
@@ -110,34 +143,25 @@ void Chunk::GenerateMesh()
 	{
 		GenerateFaceIndices();
 	}
-
-	m_UpdatePending = true;
 }
 
-bool Chunk::PushData()
+void Chunk::PushData()
 {
-	bool success = m_UpdatePending;
+	m_Pushed.store(true);
 
-	if (m_UpdatePending)
-	{
-		m_VertexArray = Quark::VertexArray::Create();
+	m_VertexArray = Quark::VertexArray::Create();
 
-		m_VertexBuffer = Quark::VertexBuffer::Create((float*)m_Vertices.data(), m_Vertices.size() * sizeof(BlockVertex));
-		m_VertexBuffer->SetLayout({
-			{ Quark::ShaderDataType::Float3, "a_Position"  },
-			{ Quark::ShaderDataType::Float2, "a_TexCoord"  },
-			{ Quark::ShaderDataType::Float,  "a_TexIndex"  },
-			{ Quark::ShaderDataType::Float,  "a_Intensity" }
-			});
-		m_VertexArray->AddVertexBuffer(m_VertexBuffer);
+	m_VertexBuffer = Quark::VertexBuffer::Create((float*)m_Vertices.data(), m_Vertices.size() * sizeof(BlockVertex));
+	m_VertexBuffer->SetLayout({
+		{ Quark::ShaderDataType::Float3, "a_Position"  },
+		{ Quark::ShaderDataType::Float2, "a_TexCoord"  },
+		{ Quark::ShaderDataType::Float,  "a_TexIndex"  },
+		{ Quark::ShaderDataType::Float,  "a_Intensity" }
+		});
+	m_VertexArray->AddVertexBuffer(m_VertexBuffer);
 
-		m_IndexBuffer = Quark::IndexBuffer::Create(m_Indices.data(), m_Indices.size());
-		m_VertexArray->SetIndexBuffer(m_IndexBuffer);
-
-		m_UpdatePending = false;
-	}
-
-	return success;
+	m_IndexBuffer = Quark::IndexBuffer::Create(m_Indices.data(), m_Indices.size());
+	m_VertexArray->SetIndexBuffer(m_IndexBuffer);
 }
 
 void Chunk::GenerateFaceVertices(const glm::ivec3& position, BlockId type, BlockFace face)
@@ -147,8 +171,8 @@ void Chunk::GenerateFaceVertices(const glm::ivec3& position, BlockId type, Block
 	for (uint8_t i = 0; i < 4; i++)
 	{
 		BlockVertex v;
-		v.Position = s_Spec.VertexPositions[i + static_cast<uint8_t>(face) * 4]
-			+ glm::vec3(position.x + m_Position.x * (float)s_Spec.Width, position.y, position.z + m_Position.y * (float)s_Spec.Depth);
+		v.Position = s_VertexPositions[i + static_cast<uint8_t>(face) * 4]
+			+ glm::vec3(position.x + m_Coord.x * (float)s_Spec.Width, position.y, position.z + m_Coord.y * (float)s_Spec.Depth);
 		v.TexCoord = blockProperties.Faces[static_cast<uint8_t>(face)].GetCoords()[i];
 		v.TexIndex = 0.0f;
 		v.Intensity = (static_cast<uint8_t>(face) + 1) / 6.0f;
@@ -171,7 +195,67 @@ void Chunk::GenerateFaceIndices()
 	m_VertexCount += 4;
 }
 
+BlockId Chunk::GetBlock(const glm::ivec3& position) const
+{
+	int32_t index = IndexAtPosition(position);
+	if (index != -1)
+	{
+		return m_Blocks[index];
+	}
+	return BlockId::None;
+}
 
+glm::ivec3 Chunk::GetBlockPosition(const glm::ivec3& position) const
+{
+	return { position.x + m_Coord.x * s_Spec.Width, position.y, position.z + m_Coord.y * s_Spec.Depth };
+}
+
+void Chunk::ReplaceBlock(const glm::ivec3& position, BlockId type)
+{
+	int32_t index = IndexAtPosition(position);
+	if (index != - 1)
+	{
+		m_Blocks[index] = { type };
+
+		m_World->OnChunkModified(this);
+
+		if (position.x == 0)
+		{
+			Chunk* chunk = m_World->GetChunk(m_Coord + glm::ivec2(-1, 0));
+			if (chunk)
+			{
+				m_World->OnChunkModified(chunk);
+			}
+		}
+
+		if (position.x == s_Spec.Width - 1)
+		{
+			Chunk* chunk = m_World->GetChunk(m_Coord + glm::ivec2(1, 0));
+			if (chunk)
+			{
+				m_World->OnChunkModified(chunk);
+			}
+		}
+
+		if (position.z == 0)
+		{
+			Chunk* chunk = m_World->GetChunk(m_Coord + glm::ivec2(0, -1));
+			if (chunk)
+			{
+				m_World->OnChunkModified(chunk);
+			}
+		}
+
+		if (position.z == s_Spec.Depth - 1)
+		{
+			Chunk* chunk = m_World->GetChunk(m_Coord + glm::ivec2(0, 1));
+			if (chunk)
+			{
+				m_World->OnChunkModified(chunk);
+			}
+		}
+	}
+}
 
 bool Chunk::IsBlockFaceVisible(const glm::ivec3& position, BlockFace face, Chunk* rightChunk, Chunk* leftChunk, Chunk* frontChunk, Chunk* backChunk) const
 {
@@ -204,7 +288,7 @@ bool Chunk::IsBlockFaceVisible(const glm::ivec3& position, BlockFace face, Chunk
 	}
 
 	if (neighborPosition.z > s_Spec.Depth - 1)
-	{ 
+	{
 		if (frontChunk)
 		{
 			if (face == BlockFace::Front)
@@ -226,7 +310,7 @@ bool Chunk::IsBlockFaceVisible(const glm::ivec3& position, BlockFace face, Chunk
 			}
 		}
 	}
-	
+
 	return visible;
 }
 
@@ -239,67 +323,4 @@ bool Chunk::IsBlockOpaque(const glm::ivec3& position) const
 		return !blockProperties.at(m_Blocks[index]).Transparent;
 	}
 	return false;
-}
-
-BlockId Chunk::GetBlock(const glm::ivec3& position) const
-{
-	int32_t index = IndexAtPosition(position);
-	if (index != -1)
-		return m_Blocks[index];
-	else
-		return BlockId::None;
-}
-
-// TODO: fix chunk regeneration
-void Chunk::ReplaceBlock(const glm::ivec3& position, BlockId type)
-{
-	int32_t index = IndexAtPosition(position);
-	if (index != - 1)
-	{
-		m_Blocks[index] = { type };
-
-		// TODO: optimize
-		GenerateMesh();
-
-		if (position.x == 0)
-		{
-			Chunk* chunk = m_World->GetChunk(m_Position + glm::ivec2(-1, 0));
-			if (chunk)
-			{
-				chunk->GenerateMesh();
-			}
-		}
-
-		if (position.x == s_Spec.Width - 1)
-		{
-			Chunk* chunk = m_World->GetChunk(m_Position + glm::ivec2(1, 0));
-			if (chunk)
-			{
-				chunk->GenerateMesh();
-			}
-		}
-
-		if (position.z == 0)
-		{
-			Chunk* chunk = m_World->GetChunk(m_Position + glm::ivec2(0, -1));
-			if (chunk)
-			{
-				chunk->GenerateMesh();
-			}
-		}
-
-		if (position.z == s_Spec.Depth - 1)
-		{
-			Chunk* chunk = m_World->GetChunk(m_Position + glm::ivec2(0, 1));
-			if (chunk)
-			{
-				chunk->GenerateMesh();
-			}
-		}
-	}
-}
-
-glm::ivec3 Chunk::GetBlockPositionAbsolute(const glm::ivec3& position) const
-{
-	return { position.x + m_Position.x * s_Spec.Width, position.y, position.z + m_Position.y * s_Spec.Depth };
 }

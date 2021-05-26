@@ -39,8 +39,8 @@ void ChunkRenderer::Shutdown()
 
 }
 
-void ChunkRenderer::SubmitChunk(Chunk* chunk)
+void ChunkRenderer::Submit(const Quark::Ref<Quark::VertexArray>& va)
 {
-	Quark::Renderer::Submit(s_Data.Shader, s_Data.Texture, chunk->GetVertexArray());
+	Quark::Renderer::Submit(s_Data.Shader, s_Data.Texture, va);
 	s_Stats.DrawCalls++;
 }

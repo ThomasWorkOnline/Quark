@@ -5,7 +5,7 @@
 #include <future>
 #include <chrono>
 
-static constexpr uint32_t size = 20;
+static constexpr uint32_t size = 50;
 static constexpr uint32_t expected = (size + 2) * (size + 2) - 4;
 
 World::World()
@@ -29,7 +29,7 @@ World::World()
 		// go in straight line for the required distance
 		for (int d = 0; d < (int)distance; d++)
 		{
-			m_Loader->Persist({ x, z });
+			m_Loader->Load({ x, z });
 
 			x += incrementX;
 			z += incrementZ;
@@ -72,21 +72,15 @@ World::~World()
 void World::OnUpdate(float elapsedTime)
 {
 	m_Scene.OnUpdate(elapsedTime);
+	m_Loader->OnUpdate(elapsedTime);
 	glm::vec3 playerPos = m_Player.GetFeetPosition();
 
 	Quark::Renderer::BeginScene(GetPlayer().GetCamera().Camera.GetMatrix(),
 		GetPlayer().GetTransform());
 
-	int32_t pushCount = 0;
-
 	for (auto& chunk : m_Loader->GetChunks())
 	{
-		if (chunk.second)
-		{
-			pushCount += chunk.second->PushData();
-
-			ChunkRenderer::SubmitChunk(chunk.second);
-		}
+		ChunkRenderer::Submit(chunk.second->GetVertexArray());
 	}
 
 	Quark::Renderer::EndScene();
@@ -99,6 +93,11 @@ void World::OnEvent(Quark::Event& e)
 	dispatcher.Dispatch<Quark::KeyPressedEvent>(ATTACH_EVENT_FN(World::OnKeyPressed));
 }
 
+void World::OnChunkModified(Chunk* chunk)
+{
+	m_Loader->Rebuild(chunk);
+}
+
 bool World::OnKeyPressed(Quark::KeyPressedEvent& e)
 {
 	switch (e.GetKeyCode())
@@ -107,14 +106,12 @@ bool World::OnKeyPressed(Quark::KeyPressedEvent& e)
 		std::cout << m_Loader->GetStats().ChunksWorldGen << " chunks terrain generated!\n";
 		std::cout << m_Loader->GetStats().ChunksMeshGen << " chunks meshes generated!\n";
 		std::cout << "chunks terrain expected: " << expected << '\n';
-		std::cout << "Idling: " << m_Loader->Idling() << '\n';
+		std::cout << "Idling: " << (m_Loader->Idling() ? "true" : "false") << '\n';
 		break;
 	}
 
 	return false;
 }
-
-
 
 Chunk* World::GetChunk(const glm::ivec2& position) const
 {
@@ -166,8 +163,6 @@ glm::ivec2 World::GetChunkCoord(const glm::ivec3& position) const
 	auto& spec = Chunk::GetSpecification();
 	return { std::floor(position.x / (float)spec.Width), std::floor(position.z / (float)spec.Depth) };
 }
-
-
 
 // TODO: implement a proper raycast
 CollisionData World::RayCast(const glm::vec3& start, const glm::vec3& direction, float length)

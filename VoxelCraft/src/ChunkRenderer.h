@@ -15,7 +15,7 @@ public:
 	static void Initialize();
 	static void Shutdown();
 
-	static void SubmitChunk(Chunk* chunk);
+	static void Submit(const Quark::Ref<Quark::VertexArray>& va);
 
 	static const Quark::RenderStats& GetStats() { return s_Stats; }
 

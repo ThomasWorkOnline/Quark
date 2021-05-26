@@ -11,44 +11,6 @@ struct ChunkSpecification
 	static const uint32_t Depth  = 16;   // z
 
 	static const uint32_t BlockCount = Width * Height * Depth;
-
-	static constexpr glm::vec3 VertexPositions[24] = {
-		// front
-		{  0.0f,  0.0f,  1.0f },
-		{  1.0f,  0.0f,  1.0f },
-		{  1.0f,  1.0f,  1.0f },
-		{  0.0f,  1.0f,  1.0f },
-
-		// right
-		{  1.0f,  0.0f,  1.0f },
-		{  1.0f,  0.0f,  0.0f },
-		{  1.0f,  1.0f,  0.0f },
-		{  1.0f,  1.0f,  1.0f },
-
-		// back
-		{  1.0f,  0.0f,  0.0f },
-		{  0.0f,  0.0f,  0.0f },
-		{  0.0f,  1.0f,  0.0f },
-		{  1.0f,  1.0f,  0.0f },
-
-		// left
-		{  0.0f,  0.0f,  0.0f },
-		{  0.0f,  0.0f,  1.0f },
-		{  0.0f,  1.0f,  1.0f },
-		{  0.0f,  1.0f,  0.0f },
-
-		// top
-		{  0.0f,  1.0f,  1.0f },
-		{  1.0f,  1.0f,  1.0f },
-		{  1.0f,  1.0f,  0.0f },
-		{  0.0f,  1.0f,  0.0f },
-
-		// bottom
-		{  1.0f,  0.0f,  1.0f },
-		{  0.0f,  0.0f,  1.0f },
-		{  0.0f,  0.0f,  0.0f },
-		{  1.0f,  0.0f,  0.0f }
-	};
 };
 
 class World;
@@ -61,22 +23,24 @@ public:
 
 	const Quark::Ref<Quark::VertexArray>& GetVertexArray() const { return m_VertexArray; }
 
+	bool IsPushed() const { return m_Pushed.load(); }
+
 	const World& GetWorld() const { return *m_World; }
 	World& GetWorld() { return *m_World; }
 
-	const glm::ivec2& GetPosition() const { return m_Position; }
+	const glm::ivec2& GetCoord() const { return m_Coord; }
 	BlockId GetBlock(const glm::ivec3& position) const;
 	void ReplaceBlock(const glm::ivec3& position, BlockId type);
-
-	bool PushData();
 
 	static const ChunkSpecification& GetSpecification();
 
 	void GenerateWorld();
-	void GenerateMesh();
+	void GenerateMesh(Chunk* right, Chunk* left, Chunk* front, Chunk* back);
+
+	void PushData();
 
 private:
-	glm::ivec3 GetBlockPositionAbsolute(const glm::ivec3& position) const;
+	glm::ivec3 GetBlockPosition(const glm::ivec3& position) const;
 
 	void GenerateFaceVertices(const glm::ivec3& position, BlockId type, BlockFace face);
 	void GenerateFaceIndices();
@@ -88,8 +52,9 @@ private:
 	Quark::Ref<Quark::VertexBuffer> m_VertexBuffer;
 	Quark::Ref<Quark::IndexBuffer> m_IndexBuffer;
 
-	glm::ivec2 m_Position;
-	bool m_UpdatePending = false;
+	std::atomic_bool m_Pushed = false;
+
+	glm::ivec2 m_Coord;
 
 	uint32_t m_IndexCount = 0;
 	uint32_t m_VertexCount = 0;

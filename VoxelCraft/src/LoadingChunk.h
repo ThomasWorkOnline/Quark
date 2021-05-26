@@ -8,12 +8,11 @@ class LoadingChunk : public Chunk
 {
 public:
 	LoadingChunk(const glm::ivec2& coord, World* world)
-		: Chunk(coord, world), m_Status(Status::Empty) {}
+		: Chunk(coord, world) {}
 
 	enum class Status : int8_t
 	{
-		Empty = 0,
-		Allocated,
+		Allocated = 0,
 		WorldGenerated,
 		Loaded
 	};
@@ -23,20 +22,17 @@ public:
 
 	operator Chunk* ()
 	{
-		return (Chunk*)this;
+		return static_cast<Chunk*>(this);
 	}
 
 private:
-	std::atomic<Status> m_Status;
+	std::atomic<Status> m_Status = Status::Allocated;
 };
 
 inline std::ostream& operator<< (std::ostream& os, LoadingChunk::Status status)
 {
 	switch (status)
 	{
-	case LoadingChunk::Status::Empty:
-		os << "Empty";
-		break;
 	case LoadingChunk::Status::Allocated:
 		os << "Allocated";
 		break;
@@ -46,8 +42,6 @@ inline std::ostream& operator<< (std::ostream& os, LoadingChunk::Status status)
 	case LoadingChunk::Status::Loaded:
 		os << "Loaded";
 		break;
-	default:
-		os << "Undefined";
 	}
 
 	return os;

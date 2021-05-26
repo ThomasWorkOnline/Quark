@@ -2,6 +2,8 @@
 
 #include <Quark.h>
 
+#include <queue>
+
 #include "Block.h"
 #include "Chunk.h"
 #include "ChunkRenderer.h"
@@ -18,6 +20,8 @@ public:
 
 	void OnUpdate(float elapsedTime);
 	void OnEvent(Quark::Event& e);
+
+	void OnChunkModified(Chunk* chunk);
 
 	Chunk* GetChunk(const glm::ivec2& position) const;
 

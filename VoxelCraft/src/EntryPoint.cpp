@@ -122,7 +122,5 @@ int main()
 	app->Run();
 	delete app;
 
-	std::cin.get();
-
 	return 0;
 }
