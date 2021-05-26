@@ -1,12 +1,14 @@
 #include "Resources.h"
 
 Quark::Ref<Quark::Shader> Resources::s_Shader;
+Quark::Ref<Quark::Shader> Resources::s_DebugShader;
 Quark::Ref<Quark::Texture2D> Resources::s_Texture;
 std::unordered_map<Block, BlockProperties> Resources::s_BlockProperties;
 
 void Resources::Initialize()
 {
 	s_Shader = Quark::Shader::Create("assets/shaders/default.glsl");
+	s_DebugShader = Quark::Shader::Create("assets/shaders/debugMesh.glsl");
 	s_Texture = Quark::Texture2D::Create("assets/textures/sprite_sheet.png");
 
 	s_BlockProperties = {

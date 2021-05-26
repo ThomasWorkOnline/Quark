@@ -13,11 +13,12 @@ World::World()
 {
 	QK_TIME_SCOPE_DEBUG(World::World);
 
+	Resources::Initialize();
 	ChunkRenderer::Initialize();
 
 	m_Loader = ChunkLoader::Create(this);
 
-	static constexpr uint32_t size = 50;
+	static constexpr uint32_t size = 10;
 
 	int incrementX = 1;
 	int incrementZ = 0;
@@ -87,7 +88,10 @@ void World::OnUpdate(float elapsedTime)
 
 	for (auto& chunk : m_Loader->GetChunks())
 	{
-		ChunkRenderer::Submit(chunk.second->GetVertexArray());
+		if (chunk.second->GetStatus() == LoadingChunk::Status::Loaded)
+		{
+			ChunkRenderer::Submit(chunk.second->GetVertexArray());
+		}
 	}
 
 	Quark::Renderer::EndScene();
@@ -117,6 +121,11 @@ bool World::OnKeyPressed(Quark::KeyPressedEvent& e)
 		std::cout << "Idling: " << (m_Loader->Idling() ? "true" : "false") << '\n';
 		std::cout << ChunkSpecification::BlockCount * m_Loader->GetStats().ChunksWorldGen << " blocks generated!\n";
 		break;
+	case Quark::KeyCode::F1:
+	{
+		ChunkRenderer::SwitchShader();
+		break;
+	}
 	}
 
 	return false;

@@ -24,8 +24,6 @@ public:
 	{
 		QK_TIME_SCOPE_DEBUG(VoxelCraft::OnCreate);
 
-		Resources::Initialize();
-
 		GetWindow().Select();
 		GetWindow().SetVSync(false);
 		GetWindow().SetFullScreen(false);
