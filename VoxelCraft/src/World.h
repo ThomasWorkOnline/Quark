@@ -40,6 +40,7 @@ public:
 
 private:
 	bool OnKeyPressed(Quark::KeyPressedEvent& e);
+	bool OnMouseButtonPressed(Quark::MouseButtonPressedEvent& e);
 
 	Quark::Scene m_Scene;
 	Player m_Player = { m_Scene };

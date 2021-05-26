@@ -17,7 +17,7 @@ World::World()
 
 	m_Loader = ChunkLoader::Create(this);
 
-	static constexpr uint32_t size = 20;
+	static constexpr uint32_t size = 60;
 
 	int incrementX = 1;
 	int incrementZ = 0;
@@ -79,6 +79,9 @@ void World::OnUpdate(float elapsedTime)
 	m_Loader->OnUpdate(elapsedTime);
 	glm::vec3 playerPos = m_Player.GetFeetPosition();
 
+	auto coord = GetChunkCoord(m_Player.GetHeadPosition());
+	m_Loader->Load(coord);
+
 	Quark::Renderer::BeginScene(GetPlayer().GetCamera().Camera.GetMatrix(),
 		GetPlayer().GetTransform());
 
@@ -95,6 +98,7 @@ void World::OnEvent(Quark::Event& e)
 	Quark::EventDispatcher dispatcher(e);
 
 	dispatcher.Dispatch<Quark::KeyPressedEvent>(ATTACH_EVENT_FN(World::OnKeyPressed));
+	dispatcher.Dispatch<Quark::MouseButtonPressedEvent>(ATTACH_EVENT_FN(World::OnMouseButtonPressed));
 }
 
 void World::OnChunkModified(Chunk* chunk)
@@ -112,6 +116,19 @@ bool World::OnKeyPressed(Quark::KeyPressedEvent& e)
 		std::cout << "chunks terrain expected: " << s_ChunksExpected << '\n';
 		std::cout << "Idling: " << (m_Loader->Idling() ? "true" : "false") << '\n';
 		std::cout << ChunkSpecification::BlockCount * m_Loader->GetStats().ChunksWorldGen << " blocks generated!\n";
+		break;
+	}
+
+	return false;
+}
+
+bool World::OnMouseButtonPressed(Quark::MouseButtonPressedEvent& e)
+{
+	switch (e.GetMouseButton())
+	{
+	case Quark::MouseCode::ButtonLeft:
+		auto coord = GetChunkCoord(m_Player.GetHeadPosition());
+		m_Loader->Load(coord);
 		break;
 	}
 

@@ -22,7 +22,7 @@ void PlayerController::OnUpdate(float elapsedTime)
 		// Boost key
 		if (Quark::Input::IsKeyPressed(Quark::Key::LeftControl))
 		{
-			m_MovementSpeed = defaultMovementSpeed * 3.0f;
+			m_MovementSpeed = defaultMovementSpeed * 8.0f;
 		}
 		else
 		{

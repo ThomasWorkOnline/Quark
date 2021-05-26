@@ -69,9 +69,6 @@ void Chunk::GenerateWorld()
 		{
 			for (uint32_t x = 0; x < ChunkSpecification::Width; x++)
 			{
-				if (!Quark::Application::Get().IsRunning())
-					return;
-
 				glm::ivec3 pos = GetBlockPosition({ x, y, z });
 
 				float noise = rand() / static_cast<float>(RAND_MAX);
@@ -109,9 +106,6 @@ void Chunk::GenerateMesh(Chunk* right, Chunk* left, Chunk* front, Chunk* back)
 		{
 			for (uint32_t x = 0; x < ChunkSpecification::Width; x++)
 			{
-				if (!Quark::Application::Get().IsRunning())
-					return;
-
 				Block block = GetBlock({ x, y, z });
 
 				if (block == Block::Air)
@@ -132,6 +126,8 @@ void Chunk::GenerateMesh(Chunk* right, Chunk* left, Chunk* front, Chunk* back)
 	{
 		GenerateFaceIndices();
 	}
+
+	m_Pushed.store(false);
 }
 
 void Chunk::PushData()

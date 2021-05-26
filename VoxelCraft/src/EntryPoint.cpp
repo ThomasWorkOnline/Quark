@@ -27,7 +27,7 @@ public:
 		Resources::Initialize();
 
 		GetWindow().Select();
-		GetWindow().SetVSync(true);
+		GetWindow().SetVSync(false);
 		GetWindow().SetFullScreen(false);
 
 		//m_Shader = Quark::Shader::Create("assets/shaders/default.glsl");

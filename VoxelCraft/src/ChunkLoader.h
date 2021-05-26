@@ -4,14 +4,11 @@
 #include "LoadingChunk.h"
 #include "World.h"
 
-#include <atomic>
-#include <future>
+#include <list>
 #include <mutex>
-#include <stack>
 #include <thread>
 #include <tuple>
 #include <unordered_map>
-#include <vector>
 #include <queue>
 
 struct ChunkLoaderStats
@@ -50,13 +47,15 @@ public:
 
 private:
 	void FlushQueue();
+	void RebuildChunk(Chunk* chunk);
+	bool QueueContains(size_t id);
 
 	LoadingChunk* UniqueChunkAllocator(glm::ivec2 coord);
 	LoadingChunk* UniqueChunkAllocator(size_t id);
 	void UniqueChunkDataGenerator(LoadingChunk* chunk);
 
 	std::unordered_map<size_t, LoadingChunk*> m_Chunks;
-	std::queue<size_t> m_LoadingQueue;
+	std::list<size_t> m_LoadingQueue;
 
 	ChunkLoaderStats m_Stats;
 

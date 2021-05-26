@@ -8,7 +8,7 @@ Quark::Scope<ChunkLoader> ChunkLoader::Create(World* world)
 	return Quark::CreateScope<ChunkLoader>(world);
 }
 
-static const int32_t s_QueueLimit = 10000;
+static const int32_t s_QueueLimit = 1000;
 
 static std::thread s_Worker;
 static std::condition_variable s_ConditionVariable;
@@ -70,9 +70,10 @@ void ChunkLoader::Load(glm::ivec2 coord)
 
 	if (m_LoadingQueue.size() < s_QueueLimit)
 	{
-		if (!GetChunk(coord))
+		LoadingChunk* chunk = GetChunk(coord);
+		if (!QueueContains(CHUNK_UUID(coord)) && (!chunk || chunk->GetStatus() <= LoadingChunk::Status::WorldGenerated))
 		{
-			m_LoadingQueue.push(CHUNK_UUID(coord));
+			m_LoadingQueue.emplace_front(CHUNK_UUID(coord));
 
 			std::unique_lock<std::mutex> cdnLock(s_ConditionMutex);
 
@@ -93,20 +94,22 @@ void ChunkLoader::Unload(glm::ivec2 coord)
 	
 }
 
+void ChunkLoader::RebuildChunk(Chunk* chunk)
+{
+	glm::ivec2 coord = chunk->GetCoord();
+
+	Chunk* nR = GetChunk(coord + glm::ivec2(1, 0));
+	Chunk* nL = GetChunk(coord + glm::ivec2(-1, 0));
+	Chunk* nF = GetChunk(coord + glm::ivec2(0, 1));
+	Chunk* nB = GetChunk(coord + glm::ivec2(0, -1));
+
+	chunk->GenerateMesh(nR, nL, nF, nB);
+}
+
 void ChunkLoader::Rebuild(Chunk* chunk)
 {
-	if (chunk)
-	{
-		glm::ivec2 coord = chunk->GetCoord();
-
-		Chunk* nR = GetChunk(coord + glm::ivec2( 1,  0));
-		Chunk* nL = GetChunk(coord + glm::ivec2(-1,  0));
-		Chunk* nF = GetChunk(coord + glm::ivec2( 0,  1));
-		Chunk* nB = GetChunk(coord + glm::ivec2( 0, -1));
-
-		chunk->GenerateMesh(nR, nL, nF, nB);
-		chunk->PushData();
-	}
+	std::thread t(&ChunkLoader::RebuildChunk, this, chunk);
+	t.detach();
 }
 
 bool ChunkLoader::Idling() const
@@ -148,8 +151,6 @@ void ChunkLoader::FlushQueue()
 
 	while (true)
 	{
-		QK_TIME_SCOPE_DEBUG(Generating Chunk);
-
 		LoadingChunk* chunk = nullptr;
 		LoadingChunk* nR = nullptr;
 		LoadingChunk* nL = nullptr;
@@ -169,12 +170,12 @@ void ChunkLoader::FlushQueue()
 				if (s_Stopping) break;
 			}
 
-			std::lock_guard<std::recursive_mutex> lock(s_Mutex);
+			std::unique_lock<std::recursive_mutex> lock(s_Mutex);
 
 			if (!m_LoadingQueue.empty())
 			{
-				size_t id = m_LoadingQueue.front();
-				m_LoadingQueue.pop();
+				size_t id = m_LoadingQueue.back();
+				m_LoadingQueue.pop_back();
 
 				glm::ivec2 coord = CHUNK_COORD(id);
 				glm::ivec2 coordNR = coord + glm::ivec2( 1,  0);
@@ -190,18 +191,36 @@ void ChunkLoader::FlushQueue()
 			}
 		}
 
+		QK_TIME_SCOPE_DEBUG(Generating Chunk);
+
 		UniqueChunkDataGenerator(chunk);
 		UniqueChunkDataGenerator(nR);
 		UniqueChunkDataGenerator(nL);
 		UniqueChunkDataGenerator(nF);
 		UniqueChunkDataGenerator(nB);
 
-		chunk->GenerateMesh(nR, nL, nF, nB);
-		chunk->SetStatus(LoadingChunk::Status::Loaded);
-		m_Stats.ChunksMeshGen++;
+		if (chunk && chunk->GetStatus() == LoadingChunk::Status::WorldGenerated)
+		{
+			chunk->GenerateMesh(nR, nL, nF, nB);
+			chunk->SetStatus(LoadingChunk::Status::Loaded);
+			m_Stats.ChunksMeshGen++;
+		}
 	}
 
 	std::cout << "Task done! Thread 0x" << std::hex << std::this_thread::get_id() << " exited.\n";
+}
+
+bool ChunkLoader::QueueContains(size_t id)
+{
+	std::lock_guard<std::recursive_mutex> lock(s_Mutex);
+
+	for (size_t _id : m_LoadingQueue)
+	{
+		if (_id == id)
+			return true;
+	}
+
+	return false;
 }
 
 LoadingChunk* ChunkLoader::UniqueChunkAllocator(glm::ivec2 coord)
