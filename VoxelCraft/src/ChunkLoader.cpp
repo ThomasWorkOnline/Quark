@@ -70,14 +70,17 @@ void ChunkLoader::Load(glm::ivec2 coord)
 
 	if (m_LoadingQueue.size() < s_QueueLimit)
 	{
-		m_LoadingQueue.push(CHUNK_UUID(coord));
+		if (!GetChunk(coord))
+		{
+			m_LoadingQueue.push(CHUNK_UUID(coord));
 
-		std::unique_lock<std::mutex> cdnLock(s_ConditionMutex);
+			std::unique_lock<std::mutex> cdnLock(s_ConditionMutex);
 
-		s_Paused = false;
-		cdnLock.unlock();
+			s_Paused = false;
+			cdnLock.unlock();
 
-		s_ConditionVariable.notify_one();
+			s_ConditionVariable.notify_one();
+		}
 	}
 	else
 	{
