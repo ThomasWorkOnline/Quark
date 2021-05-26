@@ -47,12 +47,12 @@ public:
 
 private:
 	void FlushQueue();
-	void RebuildChunk(Chunk* chunk);
 	bool QueueContains(size_t id);
 
 	LoadingChunk* UniqueChunkAllocator(glm::ivec2 coord);
 	LoadingChunk* UniqueChunkAllocator(size_t id);
 	void UniqueChunkDataGenerator(LoadingChunk* chunk);
+	void UniqueChunkMeshGenerator(LoadingChunk* chunk, LoadingChunk* right, LoadingChunk* left, LoadingChunk* front, LoadingChunk* back);
 
 	std::unordered_map<size_t, LoadingChunk*> m_Chunks;
 	std::list<size_t> m_LoadingQueue;

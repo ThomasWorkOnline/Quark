@@ -13,7 +13,9 @@ public:
 	enum class Status : int8_t
 	{
 		Allocated = 0,
+		WorldGenerating,
 		WorldGenerated,
+		Loading,
 		Loaded
 	};
 

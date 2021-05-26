@@ -8,7 +8,7 @@ Quark::Scope<ChunkLoader> ChunkLoader::Create(World* world)
 	return Quark::CreateScope<ChunkLoader>(world);
 }
 
-static const int32_t s_QueueLimit = 1000;
+static const int32_t s_QueueLimit = 10000;
 
 static std::thread s_Worker;
 static std::condition_variable s_ConditionVariable;
@@ -94,22 +94,16 @@ void ChunkLoader::Unload(glm::ivec2 coord)
 	
 }
 
-void ChunkLoader::RebuildChunk(Chunk* chunk)
+void ChunkLoader::Rebuild(Chunk* chunk)
 {
 	glm::ivec2 coord = chunk->GetCoord();
 
-	Chunk* nR = GetChunk(coord + glm::ivec2(1, 0));
-	Chunk* nL = GetChunk(coord + glm::ivec2(-1, 0));
-	Chunk* nF = GetChunk(coord + glm::ivec2(0, 1));
-	Chunk* nB = GetChunk(coord + glm::ivec2(0, -1));
+	Chunk* nR = GetChunk(coord + glm::ivec2( 1,  0));
+	Chunk* nL = GetChunk(coord + glm::ivec2(-1,  0));
+	Chunk* nF = GetChunk(coord + glm::ivec2( 0,  1));
+	Chunk* nB = GetChunk(coord + glm::ivec2( 0, -1));
 
 	chunk->GenerateMesh(nR, nL, nF, nB);
-}
-
-void ChunkLoader::Rebuild(Chunk* chunk)
-{
-	std::thread t(&ChunkLoader::RebuildChunk, this, chunk);
-	t.detach();
 }
 
 bool ChunkLoader::Idling() const
@@ -199,12 +193,7 @@ void ChunkLoader::FlushQueue()
 		UniqueChunkDataGenerator(nF);
 		UniqueChunkDataGenerator(nB);
 
-		if (chunk && chunk->GetStatus() == LoadingChunk::Status::WorldGenerated)
-		{
-			chunk->GenerateMesh(nR, nL, nF, nB);
-			chunk->SetStatus(LoadingChunk::Status::Loaded);
-			m_Stats.ChunksMeshGen++;
-		}
+		UniqueChunkMeshGenerator(chunk, nR, nL, nF, nB);
 	}
 
 	std::cout << "Task done! Thread 0x" << std::hex << std::this_thread::get_id() << " exited.\n";
@@ -228,8 +217,15 @@ LoadingChunk* ChunkLoader::UniqueChunkAllocator(glm::ivec2 coord)
 	return UniqueChunkAllocator(CHUNK_UUID(coord));
 }
 
+/// <summary>
+/// Thread safe, unique chunk allocator
+/// </summary>
+/// <param name="id"></param>
+/// <returns></returns>
 LoadingChunk* ChunkLoader::UniqueChunkAllocator(size_t id)
 {
+	std::lock_guard<std::recursive_mutex> lock(s_Mutex);
+
 	LoadingChunk* chunk = GetChunk(id);
 
 	if (!chunk)
@@ -237,20 +233,58 @@ LoadingChunk* ChunkLoader::UniqueChunkAllocator(size_t id)
 		chunk = new LoadingChunk(CHUNK_COORD(id), this->m_World);
 		m_Stats.ChunksAllocated++;
 
-		std::lock_guard<std::recursive_mutex> lock(s_Mutex);
-
 		m_Chunks.insert({ id, chunk });
 	}
 
 	return chunk;
 }
 
+/// <summary>
+/// Thread safe, unique chunk world data generator
+/// </summary>
+/// <param name="chunk"></param>
 void ChunkLoader::UniqueChunkDataGenerator(LoadingChunk* chunk)
 {
-	if (chunk && chunk->GetStatus() == LoadingChunk::Status::Allocated)
+	{
+		std::lock_guard<std::recursive_mutex> lock(s_Mutex);
+
+		if (chunk && chunk->GetStatus() == LoadingChunk::Status::Allocated)
+		{
+			chunk->SetStatus(LoadingChunk::Status::WorldGenerating);
+		}
+	}
+
+	if (chunk && chunk->GetStatus() == LoadingChunk::Status::WorldGenerating)
 	{
 		chunk->GenerateWorld();
 		chunk->SetStatus(LoadingChunk::Status::WorldGenerated);
 		m_Stats.ChunksWorldGen++;
+	}
+}
+
+/// <summary>
+/// Thread safe, unique chunk mesh generator
+/// </summary>
+/// <param name="chunk"></param>
+/// <param name="right"></param>
+/// <param name="left"></param>
+/// <param name="front"></param>
+/// <param name="back"></param>
+void ChunkLoader::UniqueChunkMeshGenerator(LoadingChunk* chunk, LoadingChunk* right, LoadingChunk* left, LoadingChunk* front, LoadingChunk* back)
+{
+	{
+		std::lock_guard<std::recursive_mutex> lock(s_Mutex);
+
+		if (chunk && chunk->GetStatus() == LoadingChunk::Status::WorldGenerated)
+		{
+			chunk->SetStatus(LoadingChunk::Status::Loading);
+		}
+	}
+
+	if (chunk && chunk->GetStatus() == LoadingChunk::Status::Loading)
+	{
+		chunk->GenerateMesh(right, left, front, back);
+		chunk->SetStatus(LoadingChunk::Status::Loaded);
+		m_Stats.ChunksMeshGen++;
 	}
 }
