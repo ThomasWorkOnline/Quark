@@ -5,8 +5,7 @@
 #include <future>
 #include <chrono>
 
-static constexpr uint32_t size = 50;
-static constexpr uint32_t expected = (size + 2) * (size + 2) - 4;
+static uint32_t s_ChunksExpected = 0;
 
 World::World()
 {
@@ -15,6 +14,8 @@ World::World()
 	ChunkRenderer::Initialize();
 
 	m_Loader = ChunkLoader::Create(this);
+
+	static constexpr uint32_t size = 50;
 
 	int incrementX = 1;
 	int incrementZ = 0;
@@ -30,6 +31,7 @@ World::World()
 		for (int d = 0; d < (int)distance; d++)
 		{
 			m_Loader->Load({ x, z });
+			s_ChunksExpected++;
 
 			x += incrementX;
 			z += incrementZ;
@@ -105,7 +107,7 @@ bool World::OnKeyPressed(Quark::KeyPressedEvent& e)
 	case Quark::KeyCode::T:
 		std::cout << m_Loader->GetStats().ChunksWorldGen << " chunks terrain generated!\n";
 		std::cout << m_Loader->GetStats().ChunksMeshGen << " chunks meshes generated!\n";
-		std::cout << "chunks terrain expected: " << expected << '\n';
+		std::cout << "chunks terrain expected: " << s_ChunksExpected << '\n';
 		std::cout << "Idling: " << (m_Loader->Idling() ? "true" : "false") << '\n';
 		break;
 	}

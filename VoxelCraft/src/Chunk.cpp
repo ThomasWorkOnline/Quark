@@ -155,7 +155,6 @@ void Chunk::PushData()
 	m_VertexBuffer->SetLayout({
 		{ Quark::ShaderDataType::Float3, "a_Position"  },
 		{ Quark::ShaderDataType::Float2, "a_TexCoord"  },
-		{ Quark::ShaderDataType::Float,  "a_TexIndex"  },
 		{ Quark::ShaderDataType::Float,  "a_Intensity" }
 		});
 	m_VertexArray->AddVertexBuffer(m_VertexBuffer);
@@ -174,7 +173,6 @@ void Chunk::GenerateFaceVertices(const glm::ivec3& position, BlockId type, Block
 		v.Position = s_VertexPositions[i + static_cast<uint8_t>(face) * 4]
 			+ glm::vec3(position.x + m_Coord.x * (float)s_Spec.Width, position.y, position.z + m_Coord.y * (float)s_Spec.Depth);
 		v.TexCoord = blockProperties.Faces[static_cast<uint8_t>(face)].GetCoords()[i];
-		v.TexIndex = 0.0f;
 		v.Intensity = (static_cast<uint8_t>(face) + 1) / 6.0f;
 
 		m_Vertices.push_back(v);

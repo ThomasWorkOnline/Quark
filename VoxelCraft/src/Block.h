@@ -18,7 +18,6 @@ struct BlockVertex
 {
 	glm::vec3 Position;
 	glm::vec2 TexCoord;
-	float TexIndex;
 	float Intensity;
 };
 
