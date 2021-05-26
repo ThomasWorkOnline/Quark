@@ -163,7 +163,7 @@ void Chunk::GenerateFaceVertices(const glm::ivec3& position, Block type, BlockFa
 		m_Vertices.push_back(v);
 	}
 
-	m_IndexCount += 24;
+	m_IndexCount += 6;
 }
 
 void Chunk::GenerateFaceIndices()
