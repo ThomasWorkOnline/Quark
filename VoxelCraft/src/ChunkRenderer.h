@@ -1,8 +1,11 @@
 #pragma once
 
-#include "Chunk.h"
-#include "Block.h"
-#include "World.h"
+#include <Quark.h>
+
+struct ChunkRendererStats
+{
+	uint32_t DrawCalls = 0;
+};
 
 class ChunkRenderer
 {
@@ -10,15 +13,13 @@ public:
 	ChunkRenderer() = delete;
 	ChunkRenderer operator= (const ChunkRenderer& other) = delete;
 
-	static const std::unordered_map<BlockId, BlockProperties>& GetBlockProperties();
-
 	static void Initialize();
 	static void Shutdown();
 
 	static void Submit(const Quark::Ref<Quark::VertexArray>& va);
 
-	static const Quark::RenderStats& GetStats() { return s_Stats; }
+	static const ChunkRendererStats& GetStats() { return s_Stats; }
 
 private:
-	static Quark::RenderStats s_Stats;
+	static ChunkRendererStats s_Stats;
 };

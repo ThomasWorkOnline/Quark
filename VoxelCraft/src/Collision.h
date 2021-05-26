@@ -8,7 +8,7 @@ struct CollisionData
 {
 	glm::vec3 Impact;
 	BlockFace Side;
-	BlockId Block;
+	Blocks Block;
 };
 
 struct Ray

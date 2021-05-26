@@ -2,8 +2,6 @@
 
 #include <Quark.h>
 
-#include "BlockProperties.h"
-
 enum class BlockFace : uint8_t
 {
 	Front = 0,
@@ -23,7 +21,7 @@ struct BlockVertex
 
 glm::ivec3 GetFaceNormal(BlockFace facing);
 
-enum class BlockId : int8_t
+enum class Blocks : int8_t
 {
 	None = -1,
 

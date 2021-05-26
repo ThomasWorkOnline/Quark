@@ -148,6 +148,8 @@ void ChunkLoader::FlushQueue()
 
 	while (true)
 	{
+		QK_TIME_SCOPE_DEBUG(Generating Chunk);
+
 		LoadingChunk* chunk = nullptr;
 		LoadingChunk* nR = nullptr;
 		LoadingChunk* nL = nullptr;

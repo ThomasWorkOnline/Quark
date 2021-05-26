@@ -15,7 +15,7 @@
 
 namespace Quark {
 
-	struct RenderStats
+	struct RendererStats
 	{
 		uint32_t DrawCalls;
 		uint32_t QuadsDrawn;
@@ -60,7 +60,7 @@ namespace Quark {
 		static void SubmitSprite(const SubTexture2D& subTexture, const glm::mat4& transform = glm::mat4(1.0f));
 		static void SubmitSprite(const glm::vec4& color, const glm::mat4& transform = glm::mat4(1.0f));
 
-		static const RenderStats& GetStats() { return s_Stats; }
+		static const RendererStats& GetStats() { return s_Stats; }
 
 	private:
 		static void StartBatch();
@@ -73,6 +73,6 @@ namespace Quark {
 		};
 
 		static SceneData s_SceneData;
-		static RenderStats s_Stats;
+		static RendererStats s_Stats;
 	};
 }

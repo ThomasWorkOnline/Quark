@@ -7,11 +7,7 @@ struct BlockProperties
 	Quark::SubTexture2D Faces[6];
 	bool Transparent = true;
 	const char* BreakSound;
-};
 
-class BlockPropertiesFactory
-{
-public:
 	static BlockProperties Create(Quark::SubTexture2D texture, bool transparent, const char* breakSound)
 	{
 		BlockProperties prop = {

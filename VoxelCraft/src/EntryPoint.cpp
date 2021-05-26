@@ -5,6 +5,7 @@
 #include "Player.h"
 #include "PlayerController.h"
 #include "World.h"
+#include "Resources.h"
 
 class VoxelCraft : public Quark::Application
 {
@@ -22,6 +23,8 @@ public:
 	void OnCreate() override
 	{
 		QK_TIME_SCOPE_DEBUG(VoxelCraft::OnCreate);
+
+		Resources::Initialize();
 
 		GetWindow().Select();
 		GetWindow().SetVSync(true);
@@ -93,16 +96,16 @@ public:
 		case Quark::MouseCode::ButtonLeft:
 			GetWindow().Select();
 
-			if (collisionData.Block != BlockId::None && collisionData.Block != BlockId::Air)
+			if (collisionData.Block != Blocks::None && collisionData.Block != Blocks::Air)
 			{
-				m_World.ReplaceBlock(collisionData.Impact, BlockId::Air);
+				m_World.ReplaceBlock(collisionData.Impact, Blocks::Air);
 			}
 			break;
 		case Quark::MouseCode::ButtonRight:
 		{
-			if (collisionData.Block != BlockId::None && collisionData.Block != BlockId::Air)
+			if (collisionData.Block != Blocks::None && collisionData.Block != Blocks::Air)
 			{
-				m_World.ReplaceBlock(collisionData.Impact + (glm::vec3)GetFaceNormal(collisionData.Side), BlockId::Cobblestone);
+				m_World.ReplaceBlock(collisionData.Impact + (glm::vec3)GetFaceNormal(collisionData.Side), Blocks::Cobblestone);
 			}
 			break;
 		}

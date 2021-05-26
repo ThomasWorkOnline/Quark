@@ -10,7 +10,7 @@ struct ChunkSpecification
 	static const uint32_t Height = 256;  // y
 	static const uint32_t Depth  = 16;   // z
 
-	static const uint32_t BlockCount = Width * Height * Depth;
+	static constexpr uint32_t BlockCount = Width * Height * Depth;
 };
 
 class World;
@@ -29,10 +29,8 @@ public:
 	World& GetWorld() { return *m_World; }
 
 	const glm::ivec2& GetCoord() const { return m_Coord; }
-	BlockId GetBlock(const glm::ivec3& position) const;
-	void ReplaceBlock(const glm::ivec3& position, BlockId type);
-
-	static const ChunkSpecification& GetSpecification();
+	Blocks GetBlock(const glm::ivec3& position) const;
+	void ReplaceBlock(const glm::ivec3& position, Blocks type);
 
 	void GenerateWorld();
 	void GenerateMesh(Chunk* right, Chunk* left, Chunk* front, Chunk* back);
@@ -42,7 +40,7 @@ public:
 private:
 	glm::ivec3 GetBlockPosition(const glm::ivec3& position) const;
 
-	void GenerateFaceVertices(const glm::ivec3& position, BlockId type, BlockFace face);
+	void GenerateFaceVertices(const glm::ivec3& position, Blocks type, BlockFace face);
 	void GenerateFaceIndices();
 
 	bool IsBlockFaceVisible(const glm::ivec3& position, BlockFace face, Chunk* rightChunk, Chunk* leftChunk, Chunk* frontChunk, Chunk* backChunk) const;
@@ -61,6 +59,6 @@ private:
 	std::vector<BlockVertex> m_Vertices;
 	std::vector<uint32_t> m_Indices;
 
-	BlockId* m_Blocks = nullptr;
+	Blocks* m_Blocks = nullptr;
 	World* m_World;
 };

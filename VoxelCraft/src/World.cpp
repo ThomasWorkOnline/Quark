@@ -1,9 +1,11 @@
 #include "World.h"
 
-#include "ChunkLoader.h"
-
 #include <future>
 #include <chrono>
+
+#include "ChunkLoader.h"
+#include "ChunkRenderer.h"
+#include "Resources.h"
 
 static uint32_t s_ChunksExpected = 0;
 
@@ -15,7 +17,7 @@ World::World()
 
 	m_Loader = ChunkLoader::Create(this);
 
-	static constexpr uint32_t size = 50;
+	static constexpr uint32_t size = 20;
 
 	int incrementX = 1;
 	int incrementZ = 0;
@@ -109,6 +111,7 @@ bool World::OnKeyPressed(Quark::KeyPressedEvent& e)
 		std::cout << m_Loader->GetStats().ChunksMeshGen << " chunks meshes generated!\n";
 		std::cout << "chunks terrain expected: " << s_ChunksExpected << '\n';
 		std::cout << "Idling: " << (m_Loader->Idling() ? "true" : "false") << '\n';
+		std::cout << ChunkSpecification::BlockCount * m_Loader->GetStats().ChunksWorldGen << " blocks generated!\n";
 		break;
 	}
 
@@ -120,26 +123,25 @@ Chunk* World::GetChunk(const glm::ivec2& position) const
 	return m_Loader->GetChunk(position);
 }
 
-void World::ReplaceBlock(const glm::ivec3& position, BlockId type)
+void World::ReplaceBlock(const glm::ivec3& position, Blocks type)
 {
-	auto& spec = Chunk::GetSpecification();
 	glm::ivec2 chunkPosition = GetChunkCoord(position);
-	glm::ivec3 blockPosition = position - glm::ivec3(chunkPosition.x * spec.Width, 0, chunkPosition.y * spec.Depth);
+	glm::ivec3 blockPosition = position - glm::ivec3(chunkPosition.x * ChunkSpecification::Width, 0, chunkPosition.y * ChunkSpecification::Depth);
 
 	Chunk* chunk = GetChunk(chunkPosition);
 	if (chunk)
 	{
-		BlockId oldBlock = chunk->GetBlock(blockPosition);
+		Blocks oldBlock = chunk->GetBlock(blockPosition);
 		if (oldBlock != type)
 		{
-			if (oldBlock == BlockId::Air)
+			if (oldBlock == Blocks::Air)
 			{
-				auto& blockProperties = ChunkRenderer::GetBlockProperties().at(type);
+				auto& blockProperties = Resources::GetBlockProperties().at(type);
 				Quark::AudioEngine::PlaySound(blockProperties.BreakSound);
 			}
 			else
 			{
-				auto& blockProperties = ChunkRenderer::GetBlockProperties().at(oldBlock);
+				auto& blockProperties = Resources::GetBlockProperties().at(oldBlock);
 				Quark::AudioEngine::PlaySound(blockProperties.BreakSound);
 			}
 
@@ -148,37 +150,35 @@ void World::ReplaceBlock(const glm::ivec3& position, BlockId type)
 	}
 }
 
-BlockId World::GetBlock(const glm::ivec3& position) const
+Blocks World::GetBlock(const glm::ivec3& position) const
 {
-	auto& spec = Chunk::GetSpecification();
 	glm::ivec2 chunkPosition = GetChunkCoord(position);
-	glm::ivec3 blockPosition = position - glm::ivec3(chunkPosition.x * (int32_t)spec.Width, 0, chunkPosition.y * (int32_t)spec.Depth);
+	glm::ivec3 blockPosition = position - glm::ivec3(chunkPosition.x * (int32_t)ChunkSpecification::Width, 0, chunkPosition.y * (int32_t)ChunkSpecification::Depth);
 
 	Chunk* chunk = GetChunk(chunkPosition);
 	if (chunk)
 		return chunk->GetBlock(blockPosition);
-	return BlockId::None;
+	return Blocks::None;
 }
 
 glm::ivec2 World::GetChunkCoord(const glm::ivec3& position) const
 {
-	auto& spec = Chunk::GetSpecification();
-	return { std::floor(position.x / (float)spec.Width), std::floor(position.z / (float)spec.Depth) };
+	return { std::floor(position.x / (float)ChunkSpecification::Width), std::floor(position.z / (float)ChunkSpecification::Depth) };
 }
 
 // TODO: implement a proper raycast
 CollisionData World::RayCast(const glm::vec3& start, const glm::vec3& direction, float length)
 {
 	CollisionData data;
-	data.Block = BlockId::None;
+	data.Block = Blocks::None;
 
 	glm::vec3 normDir = glm::normalize(direction);
 
 	for (float i = 0; i < length; i += 0.01f)
 	{
 		glm::ivec3 position = glm::floor(start + normDir * i);
-		BlockId block = GetBlock(position);
-		if (block != BlockId::None && block != BlockId::Air)
+		Blocks block = GetBlock(position);
+		if (block != Blocks::None && block != Blocks::Air)
 		{
 			data.Block = block;
 			data.Impact = position;

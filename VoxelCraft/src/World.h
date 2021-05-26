@@ -4,13 +4,11 @@
 
 #include <queue>
 
-#include "Block.h"
 #include "Chunk.h"
-#include "ChunkRenderer.h"
 #include "Player.h"
 #include "Collision.h"
 
-class ChunkLoader;
+typedef class ChunkLoader;
 
 class World
 {
@@ -35,8 +33,8 @@ public:
 
 	CollisionData RayCast(const glm::vec3& start, const glm::vec3& direction, float length);
 
-	void ReplaceBlock(const glm::ivec3& position, BlockId type);
-	BlockId GetBlock(const glm::ivec3& position) const;
+	void ReplaceBlock(const glm::ivec3& position, Blocks type);
+	Blocks GetBlock(const glm::ivec3& position) const;
 
 	glm::ivec2 GetChunkCoord(const glm::ivec3& position) const;
 

@@ -39,7 +39,7 @@ namespace Quark {
 	};
 
 	Renderer::SceneData Renderer::s_SceneData;
-	RenderStats Renderer::s_Stats;
+	RendererStats Renderer::s_Stats;
 	static SpriteRendererData s_Data;
 	
 	void Renderer::Initialize()
