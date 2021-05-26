@@ -61,7 +61,7 @@ void Chunk::GenerateWorld()
 {
 	QK_ASSERT(m_Blocks == nullptr, "Tried to allocate chunk more than once");
 
-	m_Blocks = new Blocks[ChunkSpecification::BlockCount];
+	m_Blocks = new Block[ChunkSpecification::BlockCount];
 
 	for (uint32_t y = 0; y < ChunkSpecification::Height; y++)
 	{
@@ -78,17 +78,17 @@ void Chunk::GenerateWorld()
 
 				uint32_t genBedrock = static_cast<uint32_t>(1.0f + noise * 4.0f);
 
-				Blocks type;
+				Block type;
 				if (y < genBedrock)
-					type = Blocks::Bedrock;
+					type = Block::Bedrock;
 				else if (y >= genBedrock && y < 58)
-					type = Blocks::Stone;
+					type = Block::Stone;
 				else if (y >= 58 && y < 63)
-					type = Blocks::Dirt;
+					type = Block::Dirt;
 				else if (y >= 63 && y < 64)
-					type = Blocks::GrassBlock;
+					type = Block::GrassBlock;
 				else
-					type = Blocks::Air;
+					type = Block::Air;
 
 				m_Blocks[IndexAtPosition({ x, y, z })] = { type };
 			}
@@ -112,9 +112,9 @@ void Chunk::GenerateMesh(Chunk* right, Chunk* left, Chunk* front, Chunk* back)
 				if (!Quark::Application::Get().IsRunning())
 					return;
 
-				Blocks block = GetBlock({ x, y, z });
+				Block block = GetBlock({ x, y, z });
 
-				if (block == Blocks::Air)
+				if (block == Block::Air)
 					continue;
 
 				for (uint8_t f = 0; f < 6; f++)
@@ -152,7 +152,7 @@ void Chunk::PushData()
 	m_VertexArray->SetIndexBuffer(m_IndexBuffer);
 }
 
-void Chunk::GenerateFaceVertices(const glm::ivec3& position, Blocks type, BlockFace face)
+void Chunk::GenerateFaceVertices(const glm::ivec3& position, Block type, BlockFace face)
 {
 	auto& blockProperties = Resources::GetBlockProperties().at(type);
 
@@ -182,14 +182,14 @@ void Chunk::GenerateFaceIndices()
 	m_VertexCount += 4;
 }
 
-Blocks Chunk::GetBlock(const glm::ivec3& position) const
+Block Chunk::GetBlock(const glm::ivec3& position) const
 {
 	int32_t index = IndexAtPosition(position);
 	if (index != -1)
 	{
 		return m_Blocks[index];
 	}
-	return Blocks::None;
+	return Block::None;
 }
 
 glm::ivec3 Chunk::GetBlockPosition(const glm::ivec3& position) const
@@ -197,7 +197,7 @@ glm::ivec3 Chunk::GetBlockPosition(const glm::ivec3& position) const
 	return { position.x + m_Coord.x * ChunkSpecification::Width, position.y, position.z + m_Coord.y * ChunkSpecification::Depth };
 }
 
-void Chunk::ReplaceBlock(const glm::ivec3& position, Blocks type)
+void Chunk::ReplaceBlock(const glm::ivec3& position, Block type)
 {
 	int32_t index = IndexAtPosition(position);
 	if (index != - 1)

@@ -12,7 +12,7 @@ class Resources
 public:
 	static void Initialize();
 
-	static const std::unordered_map<Blocks, BlockProperties>& GetBlockProperties()
+	static const std::unordered_map<Block, BlockProperties>& GetBlockProperties()
 	{
 		return s_BlockProperties;
 	}
@@ -31,7 +31,7 @@ private:
 	static constexpr glm::ivec2 SubTextureSize = { 16, 16 };
 
 	// TODO: load from json
-	static std::unordered_map<Blocks, BlockProperties> s_BlockProperties;
+	static std::unordered_map<Block, BlockProperties> s_BlockProperties;
 
 	static Quark::Ref<Quark::Shader> s_Shader;
 	static Quark::Ref<Quark::Texture2D> s_Texture;

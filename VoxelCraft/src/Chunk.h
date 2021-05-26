@@ -29,8 +29,8 @@ public:
 	World& GetWorld() { return *m_World; }
 
 	const glm::ivec2& GetCoord() const { return m_Coord; }
-	Blocks GetBlock(const glm::ivec3& position) const;
-	void ReplaceBlock(const glm::ivec3& position, Blocks type);
+	Block GetBlock(const glm::ivec3& position) const;
+	void ReplaceBlock(const glm::ivec3& position, Block type);
 
 	void GenerateWorld();
 	void GenerateMesh(Chunk* right, Chunk* left, Chunk* front, Chunk* back);
@@ -40,7 +40,7 @@ public:
 private:
 	glm::ivec3 GetBlockPosition(const glm::ivec3& position) const;
 
-	void GenerateFaceVertices(const glm::ivec3& position, Blocks type, BlockFace face);
+	void GenerateFaceVertices(const glm::ivec3& position, Block type, BlockFace face);
 	void GenerateFaceIndices();
 
 	bool IsBlockFaceVisible(const glm::ivec3& position, BlockFace face, Chunk* rightChunk, Chunk* leftChunk, Chunk* frontChunk, Chunk* backChunk) const;
@@ -59,6 +59,6 @@ private:
 	std::vector<BlockVertex> m_Vertices;
 	std::vector<uint32_t> m_Indices;
 
-	Blocks* m_Blocks = nullptr;
+	Block* m_Blocks = nullptr;
 	World* m_World;
 };

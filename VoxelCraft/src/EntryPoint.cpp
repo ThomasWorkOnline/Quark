@@ -96,16 +96,16 @@ public:
 		case Quark::MouseCode::ButtonLeft:
 			GetWindow().Select();
 
-			if (collisionData.Block != Blocks::None && collisionData.Block != Blocks::Air)
+			if (collisionData.Block != Block::None && collisionData.Block != Block::Air)
 			{
-				m_World.ReplaceBlock(collisionData.Impact, Blocks::Air);
+				m_World.ReplaceBlock(collisionData.Impact, Block::Air);
 			}
 			break;
 		case Quark::MouseCode::ButtonRight:
 		{
-			if (collisionData.Block != Blocks::None && collisionData.Block != Blocks::Air)
+			if (collisionData.Block != Block::None && collisionData.Block != Block::Air)
 			{
-				m_World.ReplaceBlock(collisionData.Impact + (glm::vec3)GetFaceNormal(collisionData.Side), Blocks::Cobblestone);
+				m_World.ReplaceBlock(collisionData.Impact + (glm::vec3)GetFaceNormal(collisionData.Side), Block::Cobblestone);
 			}
 			break;
 		}

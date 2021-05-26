@@ -21,7 +21,7 @@ struct BlockVertex
 
 glm::ivec3 GetFaceNormal(BlockFace facing);
 
-enum class Blocks : int8_t
+enum class Block : int8_t
 {
 	None = -1,
 

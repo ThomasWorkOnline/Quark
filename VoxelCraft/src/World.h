@@ -33,8 +33,8 @@ public:
 
 	CollisionData RayCast(const glm::vec3& start, const glm::vec3& direction, float length);
 
-	void ReplaceBlock(const glm::ivec3& position, Blocks type);
-	Blocks GetBlock(const glm::ivec3& position) const;
+	void ReplaceBlock(const glm::ivec3& position, Block type);
+	Block GetBlock(const glm::ivec3& position) const;
 
 	glm::ivec2 GetChunkCoord(const glm::ivec3& position) const;
 

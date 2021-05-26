@@ -123,7 +123,7 @@ Chunk* World::GetChunk(const glm::ivec2& position) const
 	return m_Loader->GetChunk(position);
 }
 
-void World::ReplaceBlock(const glm::ivec3& position, Blocks type)
+void World::ReplaceBlock(const glm::ivec3& position, Block type)
 {
 	glm::ivec2 chunkPosition = GetChunkCoord(position);
 	glm::ivec3 blockPosition = position - glm::ivec3(chunkPosition.x * ChunkSpecification::Width, 0, chunkPosition.y * ChunkSpecification::Depth);
@@ -131,10 +131,10 @@ void World::ReplaceBlock(const glm::ivec3& position, Blocks type)
 	Chunk* chunk = GetChunk(chunkPosition);
 	if (chunk)
 	{
-		Blocks oldBlock = chunk->GetBlock(blockPosition);
+		Block oldBlock = chunk->GetBlock(blockPosition);
 		if (oldBlock != type)
 		{
-			if (oldBlock == Blocks::Air)
+			if (oldBlock == Block::Air)
 			{
 				auto& blockProperties = Resources::GetBlockProperties().at(type);
 				Quark::AudioEngine::PlaySound(blockProperties.BreakSound);
@@ -150,7 +150,7 @@ void World::ReplaceBlock(const glm::ivec3& position, Blocks type)
 	}
 }
 
-Blocks World::GetBlock(const glm::ivec3& position) const
+Block World::GetBlock(const glm::ivec3& position) const
 {
 	glm::ivec2 chunkPosition = GetChunkCoord(position);
 	glm::ivec3 blockPosition = position - glm::ivec3(chunkPosition.x * (int32_t)ChunkSpecification::Width, 0, chunkPosition.y * (int32_t)ChunkSpecification::Depth);
@@ -158,7 +158,7 @@ Blocks World::GetBlock(const glm::ivec3& position) const
 	Chunk* chunk = GetChunk(chunkPosition);
 	if (chunk)
 		return chunk->GetBlock(blockPosition);
-	return Blocks::None;
+	return Block::None;
 }
 
 glm::ivec2 World::GetChunkCoord(const glm::ivec3& position) const
@@ -170,15 +170,15 @@ glm::ivec2 World::GetChunkCoord(const glm::ivec3& position) const
 CollisionData World::RayCast(const glm::vec3& start, const glm::vec3& direction, float length)
 {
 	CollisionData data;
-	data.Block = Blocks::None;
+	data.Block = Block::None;
 
 	glm::vec3 normDir = glm::normalize(direction);
 
 	for (float i = 0; i < length; i += 0.01f)
 	{
 		glm::ivec3 position = glm::floor(start + normDir * i);
-		Blocks block = GetBlock(position);
-		if (block != Blocks::None && block != Blocks::Air)
+		Block block = GetBlock(position);
+		if (block != Block::None && block != Block::Air)
 		{
 			data.Block = block;
 			data.Impact = position;
