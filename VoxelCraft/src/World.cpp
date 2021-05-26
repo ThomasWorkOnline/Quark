@@ -79,7 +79,7 @@ void World::OnUpdate(float elapsedTime)
 	m_Loader->OnUpdate(elapsedTime);
 	glm::vec3 playerPos = m_Player.GetFeetPosition();
 
-	auto coord = GetChunkCoord(m_Player.GetHeadPosition());
+	auto coord = GetChunkCoord(m_Player.GetPosition());
 	m_Loader->Load(coord);
 
 	Quark::Renderer::BeginScene(GetPlayer().GetCamera().Camera.GetMatrix(),
@@ -127,7 +127,7 @@ bool World::OnMouseButtonPressed(Quark::MouseButtonPressedEvent& e)
 	switch (e.GetMouseButton())
 	{
 	case Quark::MouseCode::ButtonLeft:
-		auto coord = GetChunkCoord(m_Player.GetHeadPosition());
+		auto coord = GetChunkCoord(m_Player.GetPosition());
 		m_Loader->Load(coord);
 		break;
 	}

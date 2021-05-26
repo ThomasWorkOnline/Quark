@@ -1,8 +1,9 @@
 #include "PlayerController.h"
 
-PlayerController::PlayerController(Quark::Entity camera)
+PlayerController::PlayerController(Player& player)
+	: m_Player(player)
 {
-	m_CameraEntity = camera;
+	m_CameraEntity = player;
 
 	auto& physics = m_CameraEntity.GetComponent<Quark::PhysicsComponent>();
 	physics.Friction = 6.0f;
@@ -16,17 +17,14 @@ void PlayerController::OnUpdate(float elapsedTime)
 		auto& physics = m_CameraEntity.GetComponent<Quark::PhysicsComponent>();
 		auto& camera = m_CameraEntity.GetComponent<Quark::PerspectiveCameraComponent>().Camera;
 
-		// Movement
-		static const float defaultMovementSpeed = m_MovementSpeed;
-
 		// Boost key
 		if (Quark::Input::IsKeyPressed(Quark::Key::LeftControl))
 		{
-			m_MovementSpeed = defaultMovementSpeed * 8.0f;
+			m_MovementSpeed = m_Player.GetSettings().SprintMovementSpeed;
 		}
 		else
 		{
-			m_MovementSpeed = defaultMovementSpeed;
+			m_MovementSpeed = m_Player.GetSettings().BaseMovementSpeed;
 		}
 
 		// Controls
@@ -96,8 +94,8 @@ bool PlayerController::OnMouseMoved(Quark::MouseMovedEvent& e)
 			glm::vec2 mouseMove = { e.GetX() - lastMousePos.x, e.GetY() - lastMousePos.y };
 			glm::vec3 rightVector = glm::normalize(glm::vec3(transform.GetRightVector().x, 0.0f, transform.GetRightVector().z));
 
-			glm::quat pitch = glm::angleAxis(-mouseMove.y * m_MouseSensitivity, rightVector);
-			glm::quat yaw = glm::angleAxis(-mouseMove.x * m_MouseSensitivity, glm::vec3(0.0f, 1.0f, 0.0f));
+			glm::quat pitch = glm::angleAxis(-mouseMove.y * m_Player.GetSettings().MouseSensitivity, rightVector);
+			glm::quat yaw = glm::angleAxis(-mouseMove.x * m_Player.GetSettings().MouseSensitivity, glm::vec3(0.0f, 1.0f, 0.0f));
 
 			qPitch *= pitch;
 			qYaw *= yaw;

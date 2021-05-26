@@ -86,7 +86,7 @@ public:
 	bool OnMouseButtonPressed(Quark::MouseButtonPressedEvent& e)
 	{
 		Ray ray;
-		ray.Origin = m_World.GetPlayer().GetHeadPosition();
+		ray.Origin = m_World.GetPlayer().GetPosition();
 		ray.Direction = glm::normalize(m_World.GetPlayer().GetTransform().GetFrontVector());
 
 		auto collisionData = m_World.RayCast(ray.Origin, ray.Direction, 5.0f);
