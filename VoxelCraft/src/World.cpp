@@ -17,7 +17,7 @@ World::World()
 
 	m_Loader = ChunkLoader::Create(this);
 
-	static constexpr uint32_t size = 10;
+	static constexpr uint32_t size = 50;
 
 	int incrementX = 1;
 	int incrementZ = 0;

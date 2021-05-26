@@ -38,8 +38,14 @@ inline std::ostream& operator<< (std::ostream& os, LoadingChunk::Status status)
 	case LoadingChunk::Status::Allocated:
 		os << "Allocated";
 		break;
+	case LoadingChunk::Status::WorldGenerating:
+		os << "WorldGenerating";
+		break;
 	case LoadingChunk::Status::WorldGenerated:
 		os << "WorldGenerated";
+		break;
+	case LoadingChunk::Status::Loading:
+		os << "Loading";
 		break;
 	case LoadingChunk::Status::Loaded:
 		os << "Loaded";

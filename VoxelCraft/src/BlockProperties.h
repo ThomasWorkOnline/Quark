@@ -8,7 +8,7 @@ struct BlockProperties
 	bool Transparent = true;
 	const char* BreakSound;
 
-	static BlockProperties Create(Quark::SubTexture2D texture, bool transparent, const char* breakSound)
+	static inline BlockProperties Create(const Quark::SubTexture2D& texture, bool transparent, const char* breakSound)
 	{
 		BlockProperties prop = {
 			{ texture, texture, texture, texture, texture, texture },
@@ -19,7 +19,7 @@ struct BlockProperties
 		return prop;
 	}
 
-	static BlockProperties Create(Quark::SubTexture2D top, Quark::SubTexture2D bottom, Quark::SubTexture2D sides, bool transparent, const char* breakSound)
+	static inline BlockProperties Create(const Quark::SubTexture2D& top, const Quark::SubTexture2D& bottom, const Quark::SubTexture2D& sides, bool transparent, const char* breakSound)
 	{
 		BlockProperties prop = {
 			{ sides, sides, sides, sides, top, bottom },
