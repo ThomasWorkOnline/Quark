@@ -1,5 +1,7 @@
 #include "Chunk.h"
 
+#include <fstream>
+
 #include "World.h"
 #include "Resources.h"
 
@@ -57,6 +59,27 @@ Chunk::~Chunk()
 	delete[] m_Blocks;
 }
 
+static void DumpAsBinary(std::ofstream& out, const void* data, size_t size)
+{
+	out.write(reinterpret_cast<const char*>(data), size);
+}
+
+void Chunk::Save() const
+{
+	if (this)
+	{
+		std::stringstream filepath;
+		filepath << CHUNK_UUID(m_Coord);
+		filepath << ".dat";
+
+		std::ofstream out(filepath.str(), std::ios::out | std::ios::binary);
+
+		DumpAsBinary(out, this, sizeof(Chunk));
+
+		out.close();
+	}
+}
+
 void Chunk::GenerateWorld()
 {
 	QK_ASSERT(m_Blocks == nullptr, "Tried to allocate chunk more than once");
@@ -78,7 +101,7 @@ void Chunk::GenerateWorld()
 	}
 }
 
-void Chunk::GenerateMesh()
+void Chunk::GenerateMesh(Chunk* left, Chunk* right, Chunk* back, Chunk* front, bool ignoreNullNeighbors)
 {
 	m_VertexCount = 0;
 	m_IndexCount = 0;
@@ -98,7 +121,7 @@ void Chunk::GenerateMesh()
 
 				for (uint8_t f = 0; f < 6; f++)
 				{
-					if (!IsBlockFaceVisible({ x, y, z }, static_cast<BlockFace>(f)))
+					if (!IsBlockFaceVisible({ x, y, z }, static_cast<BlockFace>(f), left, right, back, front, ignoreNullNeighbors))
 						continue;
 
 					GenerateFaceVertices({ x, y, z}, block, static_cast<BlockFace>(f));
@@ -204,69 +227,33 @@ void Chunk::ReplaceBlock(const glm::ivec3& position, Block type)
 	int32_t index = IndexAtPosition(position);
 	if (index != - 1)
 	{
+		m_Edited.store(true);
+
 		m_Blocks[index] = type;
 
-		Chunk* corner1 = nullptr;
-		Chunk* corner2 = nullptr;
+		m_World->OnChunkModified(m_Coord);
 
 		if (position.x == 0)
 		{
-			corner1 = m_World->GetChunk(m_Coord + glm::ivec2(-1, 0));
+			m_World->OnChunkModified(m_Coord + glm::ivec2(-1, 0));
 		}
 		else if (position.x == ChunkSpecification::Width - 1)
 		{
-			corner1 = m_World->GetChunk(m_Coord + glm::ivec2(1, 0));
+			m_World->OnChunkModified(m_Coord + glm::ivec2(1, 0));
 		}
 
 		if (position.z == 0)
 		{
-			corner2 = m_World->GetChunk(m_Coord + glm::ivec2(0, -1));
+			m_World->OnChunkModified(m_Coord + glm::ivec2(0, -1));
 		}
 		else if (position.z == ChunkSpecification::Depth - 1)
 		{
-			corner2 = m_World->GetChunk(m_Coord + glm::ivec2(0, 1));
+			m_World->OnChunkModified(m_Coord + glm::ivec2(0, 1));
 		}
-
-		m_World->OnChunkModified(this, corner1, corner2);
 	}
 }
 
-/*bool Chunk::IsBlockFaceVisible(const glm::ivec3& position, BlockFace face) const
-{
-	glm::ivec3 neighborPosition = position + GetFaceNormal(face);
-
-	bool visible = !IsBlockOpaque(neighborPosition);
-
-	if (neighborPosition.x < 0)
-	{
-		auto& blockProperties = Resources::GetBlockProperties();
-		if (!blockProperties.at(GenerateBlock(neighborPosition)).Transparent)
-			visible = false;
-	}
-	else if (neighborPosition.x > ChunkSpecification::Width - 1)
-	{
-		auto& blockProperties = Resources::GetBlockProperties();
-		if (!blockProperties.at(GenerateBlock(neighborPosition)).Transparent)
-			visible = false;
-	}
-
-	if (neighborPosition.z < 0)
-	{
-		auto& blockProperties = Resources::GetBlockProperties();
-		if (!blockProperties.at(GenerateBlock(neighborPosition)).Transparent)
-			visible = false;
-	}
-	else if (neighborPosition.z > ChunkSpecification::Depth - 1)
-	{
-		auto& blockProperties = Resources::GetBlockProperties();
-		if (!blockProperties.at(GenerateBlock(neighborPosition)).Transparent)
-			visible = false;
-	}
-
-	return visible;
-}*/
-
-bool Chunk::IsBlockFaceVisible(const glm::ivec3& position, BlockFace face) const
+bool Chunk::IsBlockFaceVisible(const glm::ivec3& position, BlockFace face, Chunk* left, Chunk* right, Chunk* back, Chunk* front, bool ignoreNullNeighbors) const
 {
 	glm::ivec3 neighborPosition = position + GetFaceNormal(face);
 
@@ -276,28 +263,24 @@ bool Chunk::IsBlockFaceVisible(const glm::ivec3& position, BlockFace face) const
 	{
 		auto& blockProperties = Resources::GetBlockProperties();
 
-		Block block;
-
-		Chunk* chunk = m_World->GetChunk(m_Coord + glm::ivec2(-1, 0));
-		if (chunk)
-			block = chunk->GetBlock(glm::ivec3(ChunkSpecification::Width - 1, neighborPosition.y, neighborPosition.z));
-		else
-			block = GenerateBlock(neighborPosition);
-
+		Block block = left->GetBlock(glm::ivec3(ChunkSpecification::Width - 1, neighborPosition.y, neighborPosition.z));;
 		if (!blockProperties.at(block).Transparent)
 			visible = false;
+
+		/*else if (!ignoreNullNeighbors)
+		{
+			QK_ASSERT(false, "");
+
+			block = GenerateBlock(neighborPosition);
+			if (!blockProperties.at(block).Transparent)
+				visible = false;
+		}*/
 	}
 	else if (neighborPosition.x > ChunkSpecification::Width - 1)
 	{
 		auto& blockProperties = Resources::GetBlockProperties();
 
-		Block block;
-		Chunk* chunk = m_World->GetChunk(m_Coord + glm::ivec2(1, 0));
-		if (chunk)
-			block = chunk->GetBlock(glm::ivec3(0, neighborPosition.y, neighborPosition.z));
-		else
-			block = GenerateBlock(neighborPosition);
-
+		Block block = right->GetBlock(glm::ivec3(0, neighborPosition.y, neighborPosition.z));
 		if (!blockProperties.at(block).Transparent)
 			visible = false;
 	}
@@ -306,13 +289,7 @@ bool Chunk::IsBlockFaceVisible(const glm::ivec3& position, BlockFace face) const
 	{
 		auto& blockProperties = Resources::GetBlockProperties();
 
-		Block block;
-		Chunk* chunk = m_World->GetChunk(m_Coord + glm::ivec2(0, -1));
-		if (chunk)
-			block = chunk->GetBlock(glm::ivec3(neighborPosition.x, neighborPosition.y, ChunkSpecification::Depth - 1));
-		else
-			block = GenerateBlock(neighborPosition);
-
+		Block block = back->GetBlock(glm::ivec3(neighborPosition.x, neighborPosition.y, ChunkSpecification::Depth - 1));
 		if (!blockProperties.at(block).Transparent)
 			visible = false;
 	}
@@ -320,13 +297,7 @@ bool Chunk::IsBlockFaceVisible(const glm::ivec3& position, BlockFace face) const
 	{
 		auto& blockProperties = Resources::GetBlockProperties();
 
-		Block block;
-		Chunk* chunk = m_World->GetChunk(m_Coord + glm::ivec2(0, 1));
-		if (chunk)
-			block = chunk->GetBlock(glm::ivec3(neighborPosition.x, neighborPosition.y, 0));
-		else
-			block = GenerateBlock(neighborPosition);
-
+		Block block = front->GetBlock(glm::ivec3(neighborPosition.x, neighborPosition.y, 0));
 		if (!blockProperties.at(block).Transparent)
 			visible = false;
 	}

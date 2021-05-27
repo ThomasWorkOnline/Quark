@@ -28,7 +28,7 @@ public:
 
 	void Load(glm::ivec2 coord);
 	void Unload(glm::ivec2 coord);
-	void Rebuild(Chunk* chunk, Chunk* corner1 = nullptr, Chunk* corner2 = nullptr);
+	void Rebuild(glm::ivec2 coord);
 
 	bool Idling() const;
 
@@ -48,7 +48,7 @@ private:
 	Chunk* UniqueChunkAllocator(glm::ivec2 coord);
 	Chunk* UniqueChunkAllocator(size_t id);
 	void UniqueChunkDataGenerator(Chunk* chunk);
-	void UniqueChunkMeshGenerator(Chunk* chunk);
+	void UniqueChunkMeshGenerator(Chunk* chunk, Chunk* left, Chunk* right, Chunk* back, Chunk* front);
 
 	std::unordered_map<size_t, Chunk*> m_Chunks;
 	std::list<size_t> m_LoadingQueue;

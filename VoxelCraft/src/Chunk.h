@@ -4,8 +4,8 @@
 
 #include "Block.h"
 
-#define CHUNK_UUID(coord) *reinterpret_cast<size_t*>(&coord)
-#define CHUNK_COORD(id) *reinterpret_cast<glm::ivec2*>(&id)
+#define CHUNK_UUID(coord) *reinterpret_cast<const size_t*>(&coord)
+#define CHUNK_COORD(id) *reinterpret_cast<const glm::ivec2*>(&id)
 
 struct ChunkSpecification
 {
@@ -26,6 +26,9 @@ public:
 
 	const Quark::Ref<Quark::VertexArray>& GetVertexArray() const { return m_VertexArray; }
 
+	void Save() const;
+
+	bool IsEdited() const { return m_Edited.load(); }
 	bool IsPushed() const { return m_Pushed.load(); }
 
 	const World& GetWorld() const { return *m_World; }
@@ -50,7 +53,7 @@ public:
 
 private:
 	void GenerateWorld();
-	void GenerateMesh();
+	void GenerateMesh(Chunk* left, Chunk* right, Chunk* back, Chunk* front, bool ignoreNullNeighbors = false);
 	void PushData();
 
 	glm::ivec3 GetBlockPositionInWorld(const glm::ivec3& position) const;
@@ -58,7 +61,7 @@ private:
 	void GenerateFaceVertices(const glm::ivec3& position, Block type, BlockFace face);
 	void GenerateFaceIndices();
 
-	bool IsBlockFaceVisible(const glm::ivec3& position, BlockFace face) const;
+	bool IsBlockFaceVisible(const glm::ivec3& position, BlockFace face, Chunk* left, Chunk* right, Chunk* back, Chunk* front, bool ignoreNullNeighbors) const;
 	bool IsBlockOpaque(const glm::ivec3& position) const;
 
 	static Block GenerateBlock(const glm::ivec3& position);
@@ -70,6 +73,7 @@ private:
 	Quark::Ref<Quark::IndexBuffer> m_IndexBuffer;
 
 	std::atomic_bool m_Pushed = false;
+	std::atomic_bool m_Edited = false;
 	std::atomic<Status> m_Status = Status::Allocated;
 
 	glm::ivec2 m_Coord;

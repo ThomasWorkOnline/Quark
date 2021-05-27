@@ -10,16 +10,6 @@
 class VoxelCraft : public Quark::Application
 {
 public:
-	/*Quark::Ref<Quark::Shader> m_Shader;
-	Quark::BufferLayout m_Layout = {
-		{ Quark::ShaderDataType::Float3, "a_Position" },
-		{ Quark::ShaderDataType::Float3, "a_Normal"   },
-		{ Quark::ShaderDataType::Float2, "a_TexCoord" }
-	};
-	Quark::Mesh m_Mesh = { m_Layout, "assets/models/arrow.obj" };
-
-	Quark::Transform3DComponent m_Transform;*/
-
 	void OnCreate() override
 	{
 		QK_TIME_SCOPE_DEBUG(VoxelCraft::OnCreate);
@@ -27,11 +17,6 @@ public:
 		GetWindow().Select();
 		GetWindow().SetVSync(true);
 		GetWindow().SetFullScreen(false);
-
-		//m_Shader = Quark::Shader::Create("assets/shaders/default.glsl");
-
-		//m_Transform.Scale = { 0.2f, 0.1f, 0.1f };
-		//m_Transform.Position = { 0.0f, 65.0f, 0.0f };
 	}
 
 	void OnDestroy() override
@@ -43,15 +28,6 @@ public:
 	{
 		m_World.OnUpdate(elapsedTime);
 		m_Controller.OnUpdate(elapsedTime);
-
-		/*Quark::Renderer::BeginScene(m_World.GetPlayer().GetCamera().Camera.GetMatrix(),
-			m_World.GetPlayer().GetTransform());
-
-		m_Transform.Orientation = glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-
-		Quark::Renderer::Submit(m_Shader, m_Mesh.GetVertexArray(), m_Transform);
-
-		Quark::Renderer::EndScene();*/
 	}
 
 	void OnEvent(Quark::Event& e) override

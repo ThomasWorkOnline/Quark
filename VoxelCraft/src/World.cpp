@@ -101,9 +101,9 @@ void World::OnEvent(Quark::Event& e)
 	dispatcher.Dispatch<Quark::MouseButtonPressedEvent>(ATTACH_EVENT_FN(World::OnMouseButtonPressed));
 }
 
-void World::OnChunkModified(Chunk* chunk, Chunk* corner1, Chunk* corner2)
+void World::OnChunkModified(glm::ivec2 coord)
 {
-	m_Loader->Rebuild(chunk, corner1, corner2);
+	m_Loader->Rebuild(coord);
 }
 
 bool World::OnKeyPressed(Quark::KeyPressedEvent& e)
@@ -126,6 +126,23 @@ bool World::OnKeyPressed(Quark::KeyPressedEvent& e)
 	{
 		auto coord = GetChunkCoord(m_Player.GetPosition());
 		m_Loader->Unload(coord);
+		break;
+	}
+	case Quark::KeyCode::Z:
+	{
+		auto coord = GetChunkCoord(m_Player.GetPosition());
+		m_Loader->Load(coord);
+		break;
+	}
+	case Quark::KeyCode::S:
+	{
+		if (Quark::Input::IsKeyPressed(Quark::KeyCode::LeftControl))
+		{
+			auto coord = GetChunkCoord(m_Player.GetPosition());
+			Chunk* chunk = GetChunk(coord);
+			chunk->Save();
+		}
+		break;
 	}
 	}
 
@@ -161,7 +178,7 @@ void World::ReplaceBlock(const glm::ivec3& position, Block type)
 	glm::ivec3 blockPosition = position - glm::ivec3(chunkPosition.x * ChunkSpecification::Width, 0, chunkPosition.y * ChunkSpecification::Depth);
 
 	Chunk* chunk = GetChunk(chunkPosition);
-	if (chunk)
+	if (chunk && chunk->GetStatus() == Chunk::Status::Loaded)
 	{
 		Block oldBlock = chunk->GetBlock(blockPosition);
 		if (oldBlock != type)

@@ -15,10 +15,29 @@ static bool s_Stopping = false;
 
 static std::recursive_mutex s_Mutex;
 
+// Debug
+static Quark::Ref<Quark::Shader> s_Shader;
+static Quark::BufferLayout s_Layout = {
+	{ Quark::ShaderDataType::Float3, "a_Position"  },
+	{ Quark::ShaderDataType::Float3, "a_Normal"  },
+	{ Quark::ShaderDataType::Float2, "a_TexCoord" }
+};
+static Quark::Mesh s_Mesh;
+
+static Quark::Transform3DComponent s_Transform;
+
 ChunkLoader::ChunkLoader(World* world)
 	: m_World(world)
 {
 	s_Worker = std::thread(&ChunkLoader::FlushQueue, this);
+
+	s_Shader = Quark::Shader::Create("assets/shaders/default3D.glsl");
+
+	s_Mesh = { s_Layout, "assets/models/arrow.obj" };
+
+	s_Transform.Position = { 0.0f, 65.0f, 0.0f };
+	s_Transform.Scale = { 0.2f, 0.1f, 0.1f };
+	s_Transform.Orientation = glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 ChunkLoader::~ChunkLoader()
@@ -42,7 +61,7 @@ ChunkLoader::~ChunkLoader()
 
 	QK_ASSERT(m_Stats.ChunksAllocated == m_Stats.ChunksFreed, "Memory leak detected!" << m_Stats.ChunksAllocated - m_Stats.ChunksFreed << " chunks could not be deleted.");
 
-	std::cout << "Batch summary:\n" << std::dec <<
+	std::cout << "Batch summary:\n" <<
 		"Allocated: " << m_Stats.ChunksAllocated << '\n' <<
 		"Freed: " << m_Stats.ChunksFreed << '\n' <<
 		"World Gen: " << m_Stats.ChunksWorldGen << '\n' <<
@@ -57,6 +76,21 @@ void ChunkLoader::OnUpdate(float elapsedTime)
 			&& !chunk.second->IsPushed())
 		{
 			chunk.second->PushData();
+		}
+
+		if (chunk.second->GetStatus() == Chunk::Status::WorldGenerated)
+		{
+			auto& coord = chunk.second->GetCoord();
+			s_Transform.Position = { coord.x * (int32_t)ChunkSpecification::Width + 8, 64, coord.y * (int32_t)ChunkSpecification::Depth + 8 };
+
+			Quark::Renderer::BeginScene(m_World->GetPlayer().GetCamera().Camera.GetMatrix(),
+			m_World->GetPlayer().GetTransform());
+
+			s_Transform.Orientation = glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+			Quark::Renderer::Submit(s_Shader, s_Mesh.GetVertexArray(), s_Transform);
+
+			Quark::Renderer::EndScene();
 		}
 	}
 }
@@ -110,30 +144,28 @@ void ChunkLoader::Unload(glm::ivec2 coord)
 	{
 		delete chunk;
 		m_Stats.ChunksFreed++;
+
+		std::cout << "Deleted: " << coord << std::endl;
 	}
 }
 
-void ChunkLoader::Rebuild(Chunk* chunk, Chunk* corner1, Chunk* corner2)
+void ChunkLoader::Rebuild(glm::ivec2 coord)
 {
 	// Has to have context of next chunks in order to generate meshes properly
 	// At most 3 chunks can regenerate when an action triggers a chunk update
+	Chunk* chunk	= GetChunk(coord);
+	Chunk* left		= UniqueChunkAllocator(coord + glm::ivec2(-1,  0));
+	Chunk* right	= UniqueChunkAllocator(coord + glm::ivec2( 1,  0));
+	Chunk* back		= UniqueChunkAllocator(coord + glm::ivec2( 0, -1));
+	Chunk* front	= UniqueChunkAllocator(coord + glm::ivec2( 0,  1));
 
-	int updated = 0;
+	UniqueChunkDataGenerator(left);
+	UniqueChunkDataGenerator(right);
+	UniqueChunkDataGenerator(back);
+	UniqueChunkDataGenerator(front);
 
-	if (chunk)
-	{
-		chunk->GenerateMesh();
-	}
-
-	if (corner1)
-	{
-		corner1->GenerateMesh();
-	}
-
-	if (corner2)
-	{
-		corner2->GenerateMesh();
-	}
+	chunk->GenerateMesh(left, right, back, front);
+	chunk->SetStatus(Chunk::Status::Loaded);
 }
 
 bool ChunkLoader::Idling() const
@@ -176,6 +208,10 @@ void ChunkLoader::FlushQueue()
 	while (true)
 	{
 		Chunk* chunk = nullptr;
+		Chunk* left = nullptr;
+		Chunk* right = nullptr;
+		Chunk* back = nullptr;
+		Chunk* front = nullptr;
 		{
 			{
 				std::unique_lock<std::mutex> cdnLock(s_ConditionMutex);
@@ -198,13 +234,27 @@ void ChunkLoader::FlushQueue()
 				m_LoadingQueue.pop_back();
 
 				chunk = UniqueChunkAllocator(id);
+
+				glm::ivec2 coord = CHUNK_COORD(id);
+				left	= UniqueChunkAllocator(coord + glm::ivec2(-1,  0));
+				right	= UniqueChunkAllocator(coord + glm::ivec2( 1,  0));
+				back	= UniqueChunkAllocator(coord + glm::ivec2( 0, -1));
+				front	= UniqueChunkAllocator(coord + glm::ivec2( 0,  1));
 			}
 		}
 
 		QK_TIME_SCOPE_DEBUG(Generating Chunk);
 
-		UniqueChunkDataGenerator(chunk);
-		UniqueChunkMeshGenerator(chunk);
+		if (chunk)
+		{
+			UniqueChunkDataGenerator(chunk);
+			UniqueChunkDataGenerator(left);
+			UniqueChunkDataGenerator(right);
+			UniqueChunkDataGenerator(back);
+			UniqueChunkDataGenerator(front);
+
+			UniqueChunkMeshGenerator(chunk, left, right, back, front);
+		}
 	}
 
 	std::cout << "Task done! Thread 0x" << std::hex << std::this_thread::get_id() << std::dec << " exited.\n";
@@ -295,7 +345,7 @@ void ChunkLoader::UniqueChunkDataGenerator(Chunk* chunk)
 /// <param name="left"></param>
 /// <param name="front"></param>
 /// <param name="back"></param>
-void ChunkLoader::UniqueChunkMeshGenerator(Chunk* chunk)
+void ChunkLoader::UniqueChunkMeshGenerator(Chunk* chunk, Chunk* left, Chunk* right, Chunk* back, Chunk* front)
 {
 	{
 		std::lock_guard<std::recursive_mutex> lock(s_Mutex);
@@ -308,7 +358,7 @@ void ChunkLoader::UniqueChunkMeshGenerator(Chunk* chunk)
 
 	if (chunk && chunk->GetStatus() == Chunk::Status::Loading)
 	{
-		chunk->GenerateMesh();
+		chunk->GenerateMesh(left, right, back, front);
 		chunk->SetStatus(Chunk::Status::Loaded);
 		m_Stats.ChunksMeshGen++;
 	}

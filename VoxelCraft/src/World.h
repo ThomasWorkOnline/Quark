@@ -20,7 +20,7 @@ public:
 	void OnUpdate(float elapsedTime);
 	void OnEvent(Quark::Event& e);
 
-	void OnChunkModified(Chunk* chunk, Chunk* corner1 = nullptr, Chunk* corner2 = nullptr);
+	void OnChunkModified(glm::ivec2 coord);
 
 	Chunk* GetChunk(const glm::ivec2& position) const;
 
