@@ -69,31 +69,16 @@ void Chunk::GenerateWorld()
 		{
 			for (uint32_t x = 0; x < ChunkSpecification::Width; x++)
 			{
-				glm::ivec3 pos = GetBlockPosition({ x, y, z });
+				// Converts to position to world space
+				glm::ivec3 pos = GetBlockPositionInWorld({ x, y, z });
 
-				float noise = rand() / static_cast<float>(RAND_MAX);
-
-				uint32_t genBedrock = static_cast<uint32_t>(1.0f + noise * 4.0f);
-
-				Block type;
-				if (y < genBedrock)
-					type = Block::Bedrock;
-				else if (y >= genBedrock && y < 58)
-					type = Block::Stone;
-				else if (y >= 58 && y < 63)
-					type = Block::Dirt;
-				else if (y >= 63 && y < 64)
-					type = Block::GrassBlock;
-				else
-					type = Block::Air;
-
-				m_Blocks[IndexAtPosition({ x, y, z })] = { type };
+				m_Blocks[IndexAtPosition({ x, y, z })] = GenerateBlock(pos);
 			}
 		}
 	}
 }
 
-void Chunk::GenerateMesh(Chunk* right, Chunk* left, Chunk* front, Chunk* back)
+void Chunk::GenerateMesh()
 {
 	m_VertexCount = 0;
 	m_IndexCount = 0;
@@ -113,10 +98,10 @@ void Chunk::GenerateMesh(Chunk* right, Chunk* left, Chunk* front, Chunk* back)
 
 				for (uint8_t f = 0; f < 6; f++)
 				{
-					if (!IsBlockFaceVisible({ x, y, z }, (BlockFace)f, right, left, front, back))
+					if (!IsBlockFaceVisible({ x, y, z }, static_cast<BlockFace>(f)))
 						continue;
 
-					GenerateFaceVertices({ x, y, z}, block, (BlockFace)f);
+					GenerateFaceVertices({ x, y, z}, block, static_cast<BlockFace>(f));
 				}
 			}
 		}
@@ -146,6 +131,27 @@ void Chunk::PushData()
 
 	m_IndexBuffer = Quark::IndexBuffer::Create(m_Indices.data(), m_Indices.size());
 	m_VertexArray->SetIndexBuffer(m_IndexBuffer);
+}
+
+Block Chunk::GenerateBlock(const glm::ivec3& position)
+{
+	float noise = rand() / static_cast<float>(RAND_MAX);
+
+	uint32_t genBedrock = static_cast<uint32_t>(1.0f + noise * 4.0f);
+
+	Block type;
+	if (position.y < genBedrock)
+		type = Block::Bedrock;
+	else if (position.y >= genBedrock && position.y < 58)
+		type = Block::Stone;
+	else if (position.y >= 58 && position.y < 63)
+		type = Block::Dirt;
+	else if (position.y >= 63 && position.y < 64)
+		type = Block::GrassBlock;
+	else
+		type = Block::Air;
+
+	return type;
 }
 
 void Chunk::GenerateFaceVertices(const glm::ivec3& position, Block type, BlockFace face)
@@ -188,7 +194,7 @@ Block Chunk::GetBlock(const glm::ivec3& position) const
 	return Block::None;
 }
 
-glm::ivec3 Chunk::GetBlockPosition(const glm::ivec3& position) const
+glm::ivec3 Chunk::GetBlockPositionInWorld(const glm::ivec3& position) const
 {
 	return { position.x + m_Coord.x * ChunkSpecification::Width, position.y, position.z + m_Coord.y * ChunkSpecification::Depth };
 }
@@ -198,100 +204,131 @@ void Chunk::ReplaceBlock(const glm::ivec3& position, Block type)
 	int32_t index = IndexAtPosition(position);
 	if (index != - 1)
 	{
-		m_Blocks[index] = { type };
+		m_Blocks[index] = type;
 
-		m_World->OnChunkModified(this);
+		Chunk* corner1 = nullptr;
+		Chunk* corner2 = nullptr;
 
 		if (position.x == 0)
 		{
-			Chunk* chunk = m_World->GetChunk(m_Coord + glm::ivec2(-1, 0));
-			if (chunk)
-			{
-				m_World->OnChunkModified(chunk);
-			}
+			corner1 = m_World->GetChunk(m_Coord + glm::ivec2(-1, 0));
 		}
-
-		if (position.x == ChunkSpecification::Width - 1)
+		else if (position.x == ChunkSpecification::Width - 1)
 		{
-			Chunk* chunk = m_World->GetChunk(m_Coord + glm::ivec2(1, 0));
-			if (chunk)
-			{
-				m_World->OnChunkModified(chunk);
-			}
+			corner1 = m_World->GetChunk(m_Coord + glm::ivec2(1, 0));
 		}
 
 		if (position.z == 0)
 		{
-			Chunk* chunk = m_World->GetChunk(m_Coord + glm::ivec2(0, -1));
-			if (chunk)
-			{
-				m_World->OnChunkModified(chunk);
-			}
+			corner2 = m_World->GetChunk(m_Coord + glm::ivec2(0, -1));
+		}
+		else if (position.z == ChunkSpecification::Depth - 1)
+		{
+			corner2 = m_World->GetChunk(m_Coord + glm::ivec2(0, 1));
 		}
 
-		if (position.z == ChunkSpecification::Depth - 1)
-		{
-			Chunk* chunk = m_World->GetChunk(m_Coord + glm::ivec2(0, 1));
-			if (chunk)
-			{
-				m_World->OnChunkModified(chunk);
-			}
-		}
+		m_World->OnChunkModified(this, corner1, corner2);
 	}
 }
 
-bool Chunk::IsBlockFaceVisible(const glm::ivec3& position, BlockFace face, Chunk* rightChunk, Chunk* leftChunk, Chunk* frontChunk, Chunk* backChunk) const
+/*bool Chunk::IsBlockFaceVisible(const glm::ivec3& position, BlockFace face) const
 {
 	glm::ivec3 neighborPosition = position + GetFaceNormal(face);
 
 	bool visible = !IsBlockOpaque(neighborPosition);
 
-	if (neighborPosition.x > ChunkSpecification::Width - 1)
-	{
-		if (rightChunk)
-		{
-			if (face == BlockFace::Right)
-			{
-				if (rightChunk->IsBlockOpaque({ 0, position.y, position.z }) && position.x == ChunkSpecification::Width - 1)
-					visible = false;
-			}
-		}
-	}
-
 	if (neighborPosition.x < 0)
 	{
-		if (leftChunk)
-		{
-			if (face == BlockFace::Left)
-			{
-				if (leftChunk->IsBlockOpaque({ ChunkSpecification::Width - 1, position.y, position.z }) && position.x == 0)
-					visible = false;
-			}
-		}
+		auto& blockProperties = Resources::GetBlockProperties();
+		if (!blockProperties.at(GenerateBlock(neighborPosition)).Transparent)
+			visible = false;
 	}
-
-	if (neighborPosition.z > ChunkSpecification::Depth - 1)
+	else if (neighborPosition.x > ChunkSpecification::Width - 1)
 	{
-		if (frontChunk)
-		{
-			if (face == BlockFace::Front)
-			{
-				if (frontChunk->IsBlockOpaque({ position.x, position.y, 0 }) && position.z == ChunkSpecification::Depth - 1)
-					visible = false;
-			}
-		}
+		auto& blockProperties = Resources::GetBlockProperties();
+		if (!blockProperties.at(GenerateBlock(neighborPosition)).Transparent)
+			visible = false;
 	}
 
 	if (neighborPosition.z < 0)
 	{
-		if (backChunk)
-		{
-			if (face == BlockFace::Back)
-			{
-				if (backChunk->IsBlockOpaque({ position.x, position.y, ChunkSpecification::Depth - 1 }) && position.z == 0)
-					visible = false;
-			}
-		}
+		auto& blockProperties = Resources::GetBlockProperties();
+		if (!blockProperties.at(GenerateBlock(neighborPosition)).Transparent)
+			visible = false;
+	}
+	else if (neighborPosition.z > ChunkSpecification::Depth - 1)
+	{
+		auto& blockProperties = Resources::GetBlockProperties();
+		if (!blockProperties.at(GenerateBlock(neighborPosition)).Transparent)
+			visible = false;
+	}
+
+	return visible;
+}*/
+
+bool Chunk::IsBlockFaceVisible(const glm::ivec3& position, BlockFace face) const
+{
+	glm::ivec3 neighborPosition = position + GetFaceNormal(face);
+
+	bool visible = !IsBlockOpaque(neighborPosition);
+
+	if (neighborPosition.x < 0)
+	{
+		auto& blockProperties = Resources::GetBlockProperties();
+
+		Block block;
+
+		Chunk* chunk = m_World->GetChunk(m_Coord + glm::ivec2(-1, 0));
+		if (chunk)
+			block = chunk->GetBlock(glm::ivec3(ChunkSpecification::Width - 1, neighborPosition.y, neighborPosition.z));
+		else
+			block = GenerateBlock(neighborPosition);
+
+		if (!blockProperties.at(block).Transparent)
+			visible = false;
+	}
+	else if (neighborPosition.x > ChunkSpecification::Width - 1)
+	{
+		auto& blockProperties = Resources::GetBlockProperties();
+
+		Block block;
+		Chunk* chunk = m_World->GetChunk(m_Coord + glm::ivec2(1, 0));
+		if (chunk)
+			block = chunk->GetBlock(glm::ivec3(0, neighborPosition.y, neighborPosition.z));
+		else
+			block = GenerateBlock(neighborPosition);
+
+		if (!blockProperties.at(block).Transparent)
+			visible = false;
+	}
+
+	if (neighborPosition.z < 0)
+	{
+		auto& blockProperties = Resources::GetBlockProperties();
+
+		Block block;
+		Chunk* chunk = m_World->GetChunk(m_Coord + glm::ivec2(0, -1));
+		if (chunk)
+			block = chunk->GetBlock(glm::ivec3(neighborPosition.x, neighborPosition.y, ChunkSpecification::Depth - 1));
+		else
+			block = GenerateBlock(neighborPosition);
+
+		if (!blockProperties.at(block).Transparent)
+			visible = false;
+	}
+	else if (neighborPosition.z > ChunkSpecification::Depth - 1)
+	{
+		auto& blockProperties = Resources::GetBlockProperties();
+
+		Block block;
+		Chunk* chunk = m_World->GetChunk(m_Coord + glm::ivec2(0, 1));
+		if (chunk)
+			block = chunk->GetBlock(glm::ivec3(neighborPosition.x, neighborPosition.y, 0));
+		else
+			block = GenerateBlock(neighborPosition);
+
+		if (!blockProperties.at(block).Transparent)
+			visible = false;
 	}
 
 	return visible;

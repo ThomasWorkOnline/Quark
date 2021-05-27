@@ -78,17 +78,13 @@ void World::OnUpdate(float elapsedTime)
 {
 	m_Scene.OnUpdate(elapsedTime);
 	m_Loader->OnUpdate(elapsedTime);
-	glm::vec3 playerPos = m_Player.GetFeetPosition();
-
-	auto coord = GetChunkCoord(m_Player.GetPosition());
-	m_Loader->Load(coord);
 
 	Quark::Renderer::BeginScene(GetPlayer().GetCamera().Camera.GetMatrix(),
 		GetPlayer().GetTransform());
 
 	for (auto& chunk : m_Loader->GetChunks())
 	{
-		if (chunk.second->GetStatus() == LoadingChunk::Status::Loaded)
+		if (chunk.second->GetStatus() == Chunk::Status::Loaded)
 		{
 			ChunkRenderer::Submit(chunk.second->GetVertexArray());
 		}
@@ -105,9 +101,9 @@ void World::OnEvent(Quark::Event& e)
 	dispatcher.Dispatch<Quark::MouseButtonPressedEvent>(ATTACH_EVENT_FN(World::OnMouseButtonPressed));
 }
 
-void World::OnChunkModified(Chunk* chunk)
+void World::OnChunkModified(Chunk* chunk, Chunk* corner1, Chunk* corner2)
 {
-	m_Loader->Rebuild(chunk);
+	m_Loader->Rebuild(chunk, corner1, corner2);
 }
 
 bool World::OnKeyPressed(Quark::KeyPressedEvent& e)
@@ -126,6 +122,11 @@ bool World::OnKeyPressed(Quark::KeyPressedEvent& e)
 		ChunkRenderer::SwitchShader();
 		break;
 	}
+	case Quark::KeyCode::X:
+	{
+		auto coord = GetChunkCoord(m_Player.GetPosition());
+		m_Loader->Unload(coord);
+	}
 	}
 
 	return false;
@@ -133,14 +134,19 @@ bool World::OnKeyPressed(Quark::KeyPressedEvent& e)
 
 bool World::OnMouseButtonPressed(Quark::MouseButtonPressedEvent& e)
 {
-	switch (e.GetMouseButton())
+	if (Quark::Input::IsKeyPressed(Quark::KeyCode::LeftControl))
 	{
-	case Quark::MouseCode::ButtonLeft:
-		auto coord = GetChunkCoord(m_Player.GetPosition());
-		m_Loader->Load(coord);
-		break;
+		switch (e.GetMouseButton())
+		{
+		case Quark::MouseCode::ButtonRight:
+			
+			break;
+		case Quark::MouseCode::ButtonLeft:
+			
+			break;
+		}
 	}
-
+	
 	return false;
 }
 

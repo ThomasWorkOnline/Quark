@@ -25,7 +25,7 @@ public:
 		QK_TIME_SCOPE_DEBUG(VoxelCraft::OnCreate);
 
 		GetWindow().Select();
-		GetWindow().SetVSync(false);
+		GetWindow().SetVSync(true);
 		GetWindow().SetFullScreen(false);
 
 		//m_Shader = Quark::Shader::Create("assets/shaders/default.glsl");

@@ -7,6 +7,7 @@
 #include "Chunk.h"
 #include "Player.h"
 #include "Collision.h"
+#include <optional>
 
 typedef class ChunkLoader;
 
@@ -19,7 +20,7 @@ public:
 	void OnUpdate(float elapsedTime);
 	void OnEvent(Quark::Event& e);
 
-	void OnChunkModified(Chunk* chunk);
+	void OnChunkModified(Chunk* chunk, Chunk* corner1 = nullptr, Chunk* corner2 = nullptr);
 
 	Chunk* GetChunk(const glm::ivec2& position) const;
 

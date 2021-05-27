@@ -112,7 +112,6 @@
     <ClInclude Include="src\ChunkLoader.h" />
     <ClInclude Include="src\ChunkRenderer.h" />
     <ClInclude Include="src\Collision.h" />
-    <ClInclude Include="src\LoadingChunk.h" />
     <ClInclude Include="src\Player.h" />
     <ClInclude Include="src\PlayerController.h" />
     <ClInclude Include="src\Resources.h" />

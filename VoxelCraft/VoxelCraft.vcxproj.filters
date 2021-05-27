@@ -20,7 +20,6 @@
     <ClInclude Include="src\Block.h" />
     <ClInclude Include="src\ChunkLoader.h" />
     <ClInclude Include="src\Collision.h" />
-    <ClInclude Include="src\LoadingChunk.h" />
     <ClInclude Include="src\BlockProperties.h" />
     <ClInclude Include="src\Resources.h" />
   </ItemGroup>
