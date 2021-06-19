@@ -36,10 +36,10 @@ namespace Quark {
 		None = 0,
 
 		// Tiling formats
-		ChampToBorder,
+		ClampToBorder,
 		ClampToEdge,
 		Repeat,
 
-		Default = ChampToBorder
+		Default = ClampToBorder
 	};
 }

@@ -54,7 +54,7 @@ namespace Quark {
 	{
 		switch (format)
 		{
-		case TextureTilingFormat::ChampToBorder: return GL_CLAMP_TO_BORDER;
+		case TextureTilingFormat::ClampToBorder: return GL_CLAMP_TO_BORDER;
 		case TextureTilingFormat::ClampToEdge:   return GL_CLAMP_TO_EDGE;
 		case TextureTilingFormat::Repeat:        return GL_REPEAT;
 		}

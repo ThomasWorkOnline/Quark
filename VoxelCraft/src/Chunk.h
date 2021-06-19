@@ -21,15 +21,12 @@ class World;
 class Chunk
 {
 public:
-	Chunk(const glm::ivec2& position, World* world);
+	Chunk(const glm::ivec2& coord, World* world);
 	~Chunk();
 
 	const Quark::Ref<Quark::VertexArray>& GetVertexArray() const { return m_VertexArray; }
 
 	void Save() const;
-
-	bool IsEdited() const { return m_Edited.load(); }
-	bool IsPushed() const { return m_Pushed.load(); }
 
 	const World& GetWorld() const { return *m_World; }
 	World& GetWorld() { return *m_World; }
@@ -38,18 +35,28 @@ public:
 	Block GetBlock(const glm::ivec3& position) const;
 	void ReplaceBlock(const glm::ivec3& position, Block type);
 
-	enum class Status : int8_t
+	enum class LoadStatus : int8_t
 	{
-		Deallocating = -1,
-		Allocated,
+		Allocated = 0,
 		WorldGenerating,
 		WorldGenerated,
 		Loading,
-		Loaded
+		Loaded,
+
+		Occupied = WorldGenerating || Loading
 	};
 
-	Status GetStatus() const { return m_Status.load(); }
-	void SetStatus(Status status) { m_Status.store(status); }
+	enum class RenderStatus : int8_t
+	{
+		Invisible = 0,
+		Visible
+	};
+
+	LoadStatus GetLoadStatus() const { return m_LoadingStatus; }
+	void SetLoadStatus(LoadStatus status) { m_LoadingStatus = status; }
+
+	RenderStatus GetRenderStatus() const { return m_RenderingStatus; }
+	void SetRenderStatus(RenderStatus status) { m_RenderingStatus = status; }
 
 private:
 	void GenerateWorld();
@@ -74,7 +81,8 @@ private:
 
 	std::atomic_bool m_Pushed = false;
 	std::atomic_bool m_Edited = false;
-	std::atomic<Status> m_Status = Status::Allocated;
+	std::atomic<LoadStatus> m_LoadingStatus = LoadStatus::Allocated;
+	std::atomic<RenderStatus> m_RenderingStatus = RenderStatus::Visible;
 
 	glm::ivec2 m_Coord;
 
@@ -83,30 +91,31 @@ private:
 	std::vector<BlockVertex> m_Vertices;
 	std::vector<uint32_t> m_Indices;
 
+	Quark::Ref<std::string> m_TestString;
+
 	Block* m_Blocks = nullptr;
 	World* m_World;
 };
 
-inline std::ostream& operator<< (std::ostream& os, Chunk::Status status)
+inline std::ostream& operator<< (std::ostream& os, Chunk::LoadStatus status)
 {
 	switch (status)
 	{
-	case Chunk::Status::Allocated:
+	case Chunk::LoadStatus::Allocated:
 		os << "Allocated";
 		break;
-	case Chunk::Status::WorldGenerating:
+	case Chunk::LoadStatus::WorldGenerating:
 		os << "WorldGenerating";
 		break;
-	case Chunk::Status::WorldGenerated:
+	case Chunk::LoadStatus::WorldGenerated:
 		os << "WorldGenerated";
 		break;
-	case Chunk::Status::Loading:
+	case Chunk::LoadStatus::Loading:
 		os << "Loading";
 		break;
-	case Chunk::Status::Loaded:
+	case Chunk::LoadStatus::Loaded:
 		os << "Loaded";
 		break;
 	}
-
 	return os;
 }

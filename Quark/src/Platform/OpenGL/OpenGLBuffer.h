@@ -20,7 +20,7 @@ namespace Quark {
         virtual void SetData(const void* data, size_t size, size_t offset) override;
 
     private:
-        uint32_t m_RendererID = 0;
+        uint32_t m_RendererID;
         BufferLayout m_layout;
     };
 
@@ -39,7 +39,7 @@ namespace Quark {
         virtual uint32_t GetCount() const { return m_Count; };
 
     private:
-        uint32_t m_RendererID = 0;
+        uint32_t m_RendererID;
         uint32_t m_Count;
     };
 }

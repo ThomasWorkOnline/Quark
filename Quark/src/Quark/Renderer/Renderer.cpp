@@ -21,7 +21,7 @@ namespace Quark {
 		static const uint32_t MaxQuads = 20000;
 		static const uint32_t MaxVertices = MaxQuads * 4;
 		static const uint32_t MaxIndices = MaxQuads * 6;
-		uint32_t MaxTextureSlots;
+		uint32_t MaxTextureSlots = 0;
 
 		SpriteVertex* VertexPtr = nullptr;
 		SpriteVertex* Vertices  = nullptr;
@@ -33,7 +33,7 @@ namespace Quark {
 		Ref<IndexBuffer>  IndexBuffer;
 
 		Ref<Shader> SpriteShader;
-		Ref<Texture2D>* Textures;
+		Ref<Texture2D>* Textures = nullptr;
 		Ref<Texture2D> DefaultTexture;
 		uint32_t TextureSlotIndex = 1; // Next texture slot to be attached
 	};
@@ -238,6 +238,10 @@ namespace Quark {
 			texture->Attach();
 
 			va->Attach();
+			if (va->GetIndexBuffer())
+			{
+				va->GetIndexBuffer()->Attach();
+			}
 			RenderCommand::DrawIndexed(va);
 		}
 	}
@@ -255,6 +259,10 @@ namespace Quark {
 			s_Data.DefaultTexture->Attach(1);
 
 			va->Attach();
+			if (va->GetIndexBuffer())
+			{
+				va->GetIndexBuffer()->Attach();
+			}
 			RenderCommand::DrawIndexed(va);
 		}
 	}
@@ -272,6 +280,10 @@ namespace Quark {
 			framebuffer->AttachColorAttachment(1);
 
 			va->Attach();
+			if (va->GetIndexBuffer())
+			{
+				va->GetIndexBuffer()->Attach();
+			}
 			RenderCommand::DrawIndexed(va);
 		}
 	}

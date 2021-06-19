@@ -2,6 +2,8 @@
 
 #include <Quark.h>
 
+#include "Chunk.h"
+
 struct ChunkRendererStats
 {
 	uint32_t DrawCalls = 0;
@@ -19,7 +21,7 @@ public:
 	// Debug
 	static void SwitchShader();
 
-	static void Submit(const Quark::Ref<Quark::VertexArray>& va);
+	static void Submit(const Chunk* chunk);
 
 	static const ChunkRendererStats& GetStats() { return s_Stats; }
 

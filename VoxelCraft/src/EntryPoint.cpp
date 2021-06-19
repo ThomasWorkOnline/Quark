@@ -26,6 +26,9 @@ public:
 
 	void OnUpdate(float elapsedTime) override
 	{
+		Quark::RenderCommand::SetClearColor(Quark::EncodeSRGB(glm::vec4(0.78f, 0.90f, 0.93f, 1.0f)));
+		Quark::RenderCommand::Clear();
+
 		m_World.OnUpdate(elapsedTime);
 		m_Controller.OnUpdate(elapsedTime);
 	}

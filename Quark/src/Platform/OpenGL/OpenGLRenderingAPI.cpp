@@ -92,14 +92,16 @@ namespace Quark {
 
     void OpenGLRenderingAPI::DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount)
     {
-        uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer()->GetCount();
+        uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer() ? vertexArray->GetIndexBuffer()->GetCount() : 0;
         glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
 
     void OpenGLRenderingAPI::DrawIndexedInstanced(const Ref<VertexArray>& vertexArray, uint32_t repeatCount, uint32_t indexCount)
     {
-        uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer()->GetCount();
+        uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer() ? vertexArray->GetIndexBuffer()->GetCount() : 0;
         glDrawElementsInstanced(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr, repeatCount);
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
 
     int32_t OpenGLRenderingAPI::GetTextureSlotsCount() const

@@ -2,13 +2,12 @@
 
 #include "Chunk.h"
 #include "World.h"
+#include "LoadingArea.h"
 
 #include <list>
 #include <mutex>
 #include <thread>
 #include <tuple>
-#include <unordered_map>
-#include <queue>
 
 struct ChunkLoaderStats
 {
@@ -21,10 +20,13 @@ struct ChunkLoaderStats
 class ChunkLoader
 {
 public:
-	ChunkLoader(World* world);
+	ChunkLoader(World* world, const glm::ivec2& coord, uint32_t renderDistance);
 	~ChunkLoader();
 
 	void OnUpdate(float elapsedTime);
+
+	void SetCoord(const glm::ivec2& coord) { m_Coord = coord; }
+	const glm::ivec2& GetCoord() const { return m_Coord; }
 
 	void Load(glm::ivec2 coord);
 	void Unload(glm::ivec2 coord);
@@ -32,28 +34,30 @@ public:
 
 	bool Idling() const;
 
-	const std::unordered_map<size_t, Chunk*>& GetChunks() const;
-	Chunk* GetChunk(glm::ivec2 coord);
-	Chunk* GetChunk(size_t id);
-
 	const ChunkLoaderStats& GetStats() const { return m_Stats; }
 
-	static Quark::Scope<ChunkLoader> Create(World* world);
+	static Quark::Scope<ChunkLoader> Create(World* world, const glm::ivec2& coord, uint32_t renderDistance = 8);
 
 private:
 	void FlushQueue();
-	bool QueueContains(size_t id);
-	void RemoveFromQueue(size_t id);
 
-	Chunk* UniqueChunkAllocator(glm::ivec2 coord);
-	Chunk* UniqueChunkAllocator(size_t id);
+	void OnChunkBorderCrossed();
+
+	void LoadChunk(size_t id);
+	void UnloadChunk(size_t id);
+
 	void UniqueChunkDataGenerator(Chunk* chunk);
 	void UniqueChunkMeshGenerator(Chunk* chunk, Chunk* left, Chunk* right, Chunk* back, Chunk* front);
 
-	std::unordered_map<size_t, Chunk*> m_Chunks;
+	LoadingArea m_LoadingArea;
+	
 	std::list<size_t> m_LoadingQueue;
+	std::list<size_t> m_UnloadingQueue;
 
 	ChunkLoaderStats m_Stats;
+
+	glm::ivec2 m_Coord;
+	uint32_t m_RenderDistance;
 
 	World* m_World;
 };

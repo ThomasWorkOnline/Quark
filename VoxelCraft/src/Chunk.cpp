@@ -51,8 +51,14 @@ static int32_t IndexAtPosition(const glm::ivec3& position)
 	return position.x + ChunkSpecification::Width * position.z + ChunkSpecification::Width * ChunkSpecification::Depth * position.y;
 }
 
-Chunk::Chunk(const glm::ivec2& position, World* world)
-	: m_Coord(position), m_World(world) {}
+static const Quark::BufferLayout s_BufferLayout = {
+	{ Quark::ShaderDataType::Float3, "a_Position"  },
+	{ Quark::ShaderDataType::Float2, "a_TexCoord"  },
+	{ Quark::ShaderDataType::Float,  "a_Intensity" }
+};
+
+Chunk::Chunk(const glm::ivec2& coord, World* world)
+	: m_Coord(coord), m_World(world) {}
 
 Chunk::~Chunk()
 {
@@ -66,7 +72,7 @@ static void DumpAsBinary(std::ofstream& out, const void* data, size_t size)
 
 void Chunk::Save() const
 {
-	if (this)
+	/*if (this)
 	{
 		std::stringstream filepath;
 		filepath << CHUNK_UUID(m_Coord);
@@ -77,7 +83,7 @@ void Chunk::Save() const
 		DumpAsBinary(out, this, sizeof(Chunk));
 
 		out.close();
-	}
+	}*/
 }
 
 void Chunk::GenerateWorld()
@@ -108,6 +114,11 @@ void Chunk::GenerateMesh(Chunk* left, Chunk* right, Chunk* back, Chunk* front, b
 	m_Vertices.clear();
 	m_Indices.clear();
 
+	QK_ASSERT(left, "");
+	QK_ASSERT(right, "");
+	QK_ASSERT(back, "");
+	QK_ASSERT(front, "");
+
 	for (uint32_t y = 0; y < ChunkSpecification::Height; y++)
 	{
 		for (uint32_t z = 0; z < ChunkSpecification::Depth; z++)
@@ -135,21 +146,17 @@ void Chunk::GenerateMesh(Chunk* left, Chunk* right, Chunk* back, Chunk* front, b
 		GenerateFaceIndices();
 	}
 
-	m_Pushed.store(false);
+	m_Pushed = false;
 }
 
 void Chunk::PushData()
 {
-	m_Pushed.store(true);
+	m_Pushed = true;
 
 	m_VertexArray = Quark::VertexArray::Create();
 
 	m_VertexBuffer = Quark::VertexBuffer::Create((float*)m_Vertices.data(), m_Vertices.size() * sizeof(BlockVertex));
-	m_VertexBuffer->SetLayout({
-		{ Quark::ShaderDataType::Float3, "a_Position"  },
-		{ Quark::ShaderDataType::Float2, "a_TexCoord"  },
-		{ Quark::ShaderDataType::Float,  "a_Intensity" }
-		});
+	m_VertexBuffer->SetLayout(s_BufferLayout);
 	m_VertexArray->AddVertexBuffer(m_VertexBuffer);
 
 	m_IndexBuffer = Quark::IndexBuffer::Create(m_Indices.data(), m_Indices.size());
@@ -209,10 +216,13 @@ void Chunk::GenerateFaceIndices()
 
 Block Chunk::GetBlock(const glm::ivec3& position) const
 {
-	int32_t index = IndexAtPosition(position);
-	if (index != -1)
+	if (m_Blocks)
 	{
-		return m_Blocks[index];
+		int32_t index = IndexAtPosition(position);
+		if (index != -1)
+		{
+			return m_Blocks[index];
+		}
 	}
 	return Block::None;
 }

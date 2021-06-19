@@ -2,13 +2,34 @@
 
 #include "Resources.h"
 
+Quark::Ref<Quark::Shader> ChunkRenderer::s_ActiveShader;
+
 ChunkRendererStats ChunkRenderer::s_Stats;
 
-Quark::Ref<Quark::Shader> ChunkRenderer::s_ActiveShader;
+// Debug
+static Quark::Ref<Quark::Shader> s_Shader;
+static const Quark::BufferLayout s_Layout = {
+	{ Quark::ShaderDataType::Float3, "a_Position" },
+	{ Quark::ShaderDataType::Float3, "a_Normal"   },
+	{ Quark::ShaderDataType::Float2, "a_TexCoord" }
+};
+static Quark::Mesh s_Mesh;
+
+static Quark::Transform3DComponent s_Transform;
 
 void ChunkRenderer::Initialize()
 {
 	s_ActiveShader = Resources::GetShader();
+
+#pragma region DEBUG
+	s_Shader = Quark::Shader::Create("assets/shaders/default3D.glsl");
+
+	s_Mesh = { s_Layout, "assets/models/arrow.obj" };
+
+	s_Transform.Position = { 0.0f, 65.0f, 0.0f };
+	s_Transform.Scale = { 0.2f, 0.1f, 0.1f };
+	s_Transform.Orientation = glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+#pragma endregion
 }
 
 void ChunkRenderer::Shutdown()
@@ -28,8 +49,36 @@ void ChunkRenderer::SwitchShader()
 	}
 }
 
-void ChunkRenderer::Submit(const Quark::Ref<Quark::VertexArray>& va)
+void ChunkRenderer::Submit(const Chunk* chunk)
 {
-	Quark::Renderer::Submit(s_ActiveShader, Resources::GetTexture(), va);
-	s_Stats.DrawCalls++;
+	if (chunk && chunk->GetRenderStatus() == Chunk::RenderStatus::Visible)
+	{
+		switch (chunk->GetLoadStatus())
+		{
+		case Chunk::LoadStatus::Loaded:
+		{
+			Quark::Renderer::Submit(s_ActiveShader, Resources::GetTexture(), chunk->GetVertexArray());
+			s_Stats.DrawCalls++;
+			break;
+		}
+		case Chunk::LoadStatus::WorldGenerated:
+		{
+			auto& coord = chunk->GetCoord();
+			s_Transform.Position = { coord.x * (int32_t)ChunkSpecification::Width + 8, 64, coord.y * (int32_t)ChunkSpecification::Depth + 8 };
+			s_Transform.Orientation = glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+			Quark::Renderer::Submit(s_Shader, s_Mesh.GetVertexArray(), s_Transform);
+			break;
+		}
+		case Chunk::LoadStatus::Allocated:
+		{
+			auto& coord = chunk->GetCoord();
+			s_Transform.Position = { coord.x * (int32_t)ChunkSpecification::Width + 8, 64, coord.y * (int32_t)ChunkSpecification::Depth + 8 };
+			s_Transform.Orientation = glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+			Quark::Renderer::Submit(s_Shader, s_Mesh.GetVertexArray(), s_Transform);
+			break;
+		}
+		}
+	}
 }
