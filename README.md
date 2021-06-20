@@ -27,6 +27,5 @@ Quark::Application* Quark::CreateApplication()
 	return new SandboxGame();
 }
 ```
-The setup is complete!
 
-Feel free to use this source code as documentation.
+Feel free to explore!
