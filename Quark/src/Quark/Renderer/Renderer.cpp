@@ -238,10 +238,6 @@ namespace Quark {
 			texture->Attach();
 
 			va->Attach();
-			if (va->GetIndexBuffer())
-			{
-				va->GetIndexBuffer()->Attach();
-			}
 			RenderCommand::DrawIndexed(va);
 		}
 	}
@@ -259,10 +255,6 @@ namespace Quark {
 			s_Data.DefaultTexture->Attach(1);
 
 			va->Attach();
-			if (va->GetIndexBuffer())
-			{
-				va->GetIndexBuffer()->Attach();
-			}
 			RenderCommand::DrawIndexed(va);
 		}
 	}
@@ -280,10 +272,6 @@ namespace Quark {
 			framebuffer->AttachColorAttachment(1);
 
 			va->Attach();
-			if (va->GetIndexBuffer())
-			{
-				va->GetIndexBuffer()->Attach();
-			}
 			RenderCommand::DrawIndexed(va);
 		}
 	}

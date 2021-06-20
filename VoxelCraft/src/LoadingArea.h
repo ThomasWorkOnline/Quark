@@ -22,7 +22,6 @@ public:
 	bool InBounds(glm::ivec2 coord) const;
 
 	void Foreach(const std::function<void(glm::ivec2 coord)>& func) const;
-	void Foreach(const std::function<void(Chunk* data)>& func) const;
 	void OnUnload(const std::function<void(glm::ivec2 coord)>& func);
 
 	void Invalidate(const glm::ivec2& size, const glm::ivec2& anchor);
@@ -36,7 +35,7 @@ private:
 	LoadingAreaBounds m_AccessibleBounds; // In chunks. Only accessible, +1 chunks on each side will be allocated
 	LoadingAreaBounds m_InternalBounds;
 
-	mutable std::mutex m_ChunksToFreeMutex;
+	mutable std::mutex m_ChunksToUnloadMutex;
 	std::unordered_set<size_t> m_ChunksToUnload;
 
 	WorldMap& m_WorldPartition;

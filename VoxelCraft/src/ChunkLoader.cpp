@@ -208,7 +208,7 @@ void ChunkLoader::OnChunkBorderCrossed()
 
 void ChunkLoader::LoadChunk(size_t id)
 {
-	//QK_TIME_SCOPE_DEBUG(Chunk Load);
+	QK_TIME_SCOPE_DEBUG(ChunkLoader::LoadChunk);
 
 	glm::ivec2 coord = CHUNK_COORD(id);
 	auto chunk = m_World->m_Map.Load(id);

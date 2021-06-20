@@ -48,6 +48,9 @@ Chunk* WorldMap::Load(size_t id)
 
 void WorldMap::Unload(size_t id)
 {
+	auto data = Select(id);
+	data->Save();
+
 	Erase(id);
 }
 

@@ -7,9 +7,9 @@ struct PlayerSettings
 	float Fov = 70;
 	glm::vec3 HeadRelativeToFeet = { 0.0f, 2.0f, 0.0f };
 	glm::vec3 SpawnPoint = { 0.5f, 65.0f, 0.5f };
-	uint32_t RenderDistance = 8;
+	uint32_t RenderDistance = 4;
 	float BaseMovementSpeed = 100.0f;
-	float SprintMovementSpeed = 1000.0f;
+	float SprintMovementSpeed = 500.0f;
 	float MouseSensitivity = 0.002f;
 };
 

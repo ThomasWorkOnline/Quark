@@ -23,17 +23,9 @@ void LoadingArea::Foreach(const std::function<void(glm::ivec2 coord)>& func) con
 	}
 }
 
-void LoadingArea::Foreach(const std::function<void(Chunk* data)>& func) const
-{
-	Foreach([this, func](glm::ivec2 coord)
-		{
-			func(m_WorldPartition.Select(coord));
-		});
-}
-
 void LoadingArea::OnUnload(const std::function<void(glm::ivec2 coord)>& func)
 {
-	std::lock_guard<std::mutex> lock(m_ChunksToFreeMutex);
+	std::lock_guard<std::mutex> lock(m_ChunksToUnloadMutex);
 	for (auto e : m_ChunksToUnload)
 	{
 		func(CHUNK_COORD(e));
@@ -86,7 +78,7 @@ void LoadingArea::UnloadOutOfBounds(const LoadingAreaBounds& bounds, const Loadi
 			auto it = coords.find(CHUNK_UUID(coord));
 			if (it == coords.end())
 			{
-				std::lock_guard<std::mutex> lock(m_ChunksToFreeMutex);
+				std::lock_guard<std::mutex> lock(m_ChunksToUnloadMutex);
 				m_ChunksToUnload.insert((CHUNK_UUID(coord)));
 			}
 		}

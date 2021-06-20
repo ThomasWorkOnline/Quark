@@ -63,6 +63,7 @@ Chunk::Chunk(const glm::ivec2& coord, World* world)
 Chunk::~Chunk()
 {
 	delete[] m_Blocks;
+	delete[] m_HeightMap;
 }
 
 static void DumpAsBinary(std::ofstream& out, const void* data, size_t size)
@@ -90,6 +91,21 @@ void Chunk::GenerateWorld()
 {
 	QK_ASSERT(m_Blocks == nullptr, "Tried to allocate chunk more than once");
 
+	// Generate height map
+	m_HeightMap = new int32_t[ChunkSpecification::Width * ChunkSpecification::Depth];
+
+	for (uint32_t z = 0; z < ChunkSpecification::Depth; z++)
+	{
+		for (uint32_t x = 0; x < ChunkSpecification::Width; x++)
+		{
+			glm::ivec3 pos = GetBlockPositionInWorld({ x, 0, z });
+
+			int32_t value = static_cast<int32_t>(round(sinf((pos.x * 0.44f) + (pos.z * 0.2f)) * 3.0f));
+			m_HeightMap[z * ChunkSpecification::Depth + x] = value;
+		}
+	}
+
+	// Generate blocks
 	m_Blocks = new Block[ChunkSpecification::BlockCount];
 
 	for (uint32_t y = 0; y < ChunkSpecification::Height; y++)
@@ -98,10 +114,7 @@ void Chunk::GenerateWorld()
 		{
 			for (uint32_t x = 0; x < ChunkSpecification::Width; x++)
 			{
-				// Converts to position to world space
-				glm::ivec3 pos = GetBlockPositionInWorld({ x, y, z });
-
-				m_Blocks[IndexAtPosition({ x, y, z })] = GenerateBlock(pos);
+				m_Blocks[IndexAtPosition({ x, y, z })] = GenerateBlock({ x, y, z });
 			}
 		}
 	}
@@ -151,32 +164,44 @@ void Chunk::GenerateMesh(Chunk* left, Chunk* right, Chunk* back, Chunk* front, b
 
 void Chunk::PushData()
 {
+	if (!m_Pushed)
+	{
+		m_VertexArray = Quark::VertexArray::Create();
+
+		auto vbo = Quark::VertexBuffer::Create((float*)m_Vertices.data(), m_Vertices.size() * sizeof(BlockVertex));
+		vbo->SetLayout(s_BufferLayout);
+		m_VertexArray->AddVertexBuffer(vbo);
+
+		auto ibo = Quark::IndexBuffer::Create(m_Indices.data(), m_Indices.size());
+		m_VertexArray->SetIndexBuffer(ibo);
+	}
+
 	m_Pushed = true;
-
-	m_VertexArray = Quark::VertexArray::Create();
-
-	m_VertexBuffer = Quark::VertexBuffer::Create((float*)m_Vertices.data(), m_Vertices.size() * sizeof(BlockVertex));
-	m_VertexBuffer->SetLayout(s_BufferLayout);
-	m_VertexArray->AddVertexBuffer(m_VertexBuffer);
-
-	m_IndexBuffer = Quark::IndexBuffer::Create(m_Indices.data(), m_Indices.size());
-	m_VertexArray->SetIndexBuffer(m_IndexBuffer);
 }
 
 Block Chunk::GenerateBlock(const glm::ivec3& position)
 {
+	static constexpr uint32_t stoneHeight = 58;
+	static constexpr uint32_t dirtHeight = 63;
+	static constexpr uint32_t grassHeight = 64;
+
 	float noise = rand() / static_cast<float>(RAND_MAX);
 
+	int32_t heightSample = m_HeightMap[position.z * ChunkSpecification::Depth + position.x];
+
 	uint32_t genBedrock = static_cast<uint32_t>(1.0f + noise * 4.0f);
+	uint32_t genStone = stoneHeight + heightSample;
+	uint32_t genDirt = dirtHeight + heightSample;
+	uint32_t genGrass = grassHeight + heightSample;
 
 	Block type;
 	if (position.y < genBedrock)
 		type = Block::Bedrock;
-	else if (position.y >= genBedrock && position.y < 58)
+	else if (position.y >= genBedrock && position.y < genStone)
 		type = Block::Stone;
-	else if (position.y >= 58 && position.y < 63)
+	else if (position.y >= genStone && position.y < genDirt)
 		type = Block::Dirt;
-	else if (position.y >= 63 && position.y < 64)
+	else if (position.y >= genDirt && position.y < genGrass)
 		type = Block::GrassBlock;
 	else
 		type = Block::Air;
@@ -230,6 +255,11 @@ Block Chunk::GetBlock(const glm::ivec3& position) const
 glm::ivec3 Chunk::GetBlockPositionInWorld(const glm::ivec3& position) const
 {
 	return { position.x + m_Coord.x * ChunkSpecification::Width, position.y, position.z + m_Coord.y * ChunkSpecification::Depth };
+}
+
+glm::ivec3 Chunk::GetBlockPositionInChunk(const glm::ivec3& position) const
+{
+	return { position.x - m_Coord.x * ChunkSpecification::Width, position.y, position.z - m_Coord.y * ChunkSpecification::Depth };
 }
 
 void Chunk::ReplaceBlock(const glm::ivec3& position, Block type)

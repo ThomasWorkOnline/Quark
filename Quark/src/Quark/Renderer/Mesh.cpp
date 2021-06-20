@@ -10,7 +10,8 @@ namespace Quark {
 
 	Mesh::Mesh(const BufferLayout& layout, const std::string& filepath)
 	{
-		QK_ASSERT(LoadOBJFromFile(layout, filepath), "Could not load model at path: " << filepath);
+		bool result = LoadOBJFromFile(layout, filepath);
+		QK_ASSERT(result, "Could not load model at path: " << filepath);
 	}
 
 	void Mesh::GenerateUnitCube()
@@ -82,17 +83,17 @@ namespace Quark {
 		};
 
 		// Takes size in bytes
-		m_VertexBuffer = VertexBuffer::Create(vertexBuffer, sizeof(vertexBuffer));
-		m_VertexBuffer->SetLayout({
+		auto vbo = VertexBuffer::Create(vertexBuffer, sizeof(vertexBuffer));
+		vbo->SetLayout({
 			{ ShaderDataType::Float3, "a_Position" },
 			{ ShaderDataType::Float2, "a_TexCoord" },
 			{ ShaderDataType::Float,  "a_TexIndex" }
 		});
-		m_VertexArray->AddVertexBuffer(m_VertexBuffer);
+		m_VertexArray->AddVertexBuffer(vbo);
 
 		// Takes index count
-		m_IndexBuffer = IndexBuffer::Create(indexBuffer, sizeof(indexBuffer) / sizeof(uint32_t));
-		m_VertexArray->SetIndexBuffer(m_IndexBuffer);
+		auto ibo = IndexBuffer::Create(indexBuffer, sizeof(indexBuffer) / sizeof(uint32_t));
+		m_VertexArray->SetIndexBuffer(ibo);
 	}
 
 	void Mesh::GenerateTerrain(const BufferLayout& layout, size_t scale, uint32_t seed)
@@ -153,11 +154,12 @@ namespace Quark {
 			}
 		}
 
-		m_VertexBuffer = VertexBuffer::Create(vertexBuffer, vertexBufferCount * sizeof(float));
-		m_VertexBuffer->SetLayout(layout);
-		m_VertexArray->AddVertexBuffer(m_VertexBuffer);
-		m_IndexBuffer = IndexBuffer::Create(indexBuffer, indexBufferCount);
-		m_VertexArray->SetIndexBuffer(m_IndexBuffer);
+		auto vbo = VertexBuffer::Create(vertexBuffer, vertexBufferCount * sizeof(float));
+		vbo->SetLayout(layout);
+		m_VertexArray->AddVertexBuffer(vbo);
+
+		auto ibo = IndexBuffer::Create(indexBuffer, indexBufferCount);
+		m_VertexArray->SetIndexBuffer(ibo);
 
 		delete[] vertexBuffer;
 		delete[] indexBuffer;
@@ -363,12 +365,12 @@ namespace Quark {
 
 		in.close();
 
-		m_VertexBuffer = VertexBuffer::Create(vertexBuffer, vertexBufferCount * sizeof(float));
-		m_VertexBuffer->SetLayout(layout);
-		m_VertexArray->AddVertexBuffer(m_VertexBuffer);
+		auto vbo = VertexBuffer::Create(vertexBuffer, vertexBufferCount * sizeof(float));
+		vbo->SetLayout(layout);
+		m_VertexArray->AddVertexBuffer(vbo);
 
-		m_IndexBuffer = IndexBuffer::Create(&indexBuffer[0], (uint32_t)indexBuffer.size());
-		m_VertexArray->SetIndexBuffer(m_IndexBuffer);
+		auto ibo = IndexBuffer::Create(&indexBuffer[0], (uint32_t)indexBuffer.size());
+		m_VertexArray->SetIndexBuffer(ibo);
 
 		delete[] vertexBuffer;
 

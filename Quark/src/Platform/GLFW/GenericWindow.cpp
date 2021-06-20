@@ -227,6 +227,7 @@ namespace Quark {
 
 				// Restore last window size and position
 				glfwSetWindowMonitor(m_Window, nullptr, s_WindowedPosX, s_WindowedPosY, (int32_t)m_Data.Width, (int32_t)m_Data.Height, 0);
+				glfwSwapInterval(0); // App Vsync always off in windowed mode
 			}
 		}
 	}

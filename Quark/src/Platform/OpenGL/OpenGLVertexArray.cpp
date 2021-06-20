@@ -51,11 +51,10 @@ namespace Quark {
 
 	void OpenGLVertexArray::AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer)
 	{
+		QK_ASSERT(vertexBuffer, "Vertex Buffer is empty");
 		QK_ASSERT(vertexBuffer->GetLayout().GetElements().size() != 0, "Vertex buffer has no layout");
 
 		glBindVertexArray(m_RendererID);
-
-		QK_ASSERT(vertexBuffer != nullptr, "Vertex Buffer is empty");
 		vertexBuffer->Attach();
 
 		const auto& layout = vertexBuffer->GetLayout();
@@ -121,9 +120,9 @@ namespace Quark {
 
 	void OpenGLVertexArray::SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer)
 	{
-		glBindVertexArray(m_RendererID);
-
 		QK_ASSERT(indexBuffer != nullptr, "Index Buffer is empty");
+
+		glBindVertexArray(m_RendererID);
 		indexBuffer->Attach();
 
 		m_IndexBuffer = indexBuffer;

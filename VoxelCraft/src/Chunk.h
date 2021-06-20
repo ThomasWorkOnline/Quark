@@ -43,20 +43,11 @@ public:
 		Loading,
 		Loaded,
 
-		Occupied = WorldGenerating || Loading
-	};
-
-	enum class RenderStatus : int8_t
-	{
-		Invisible = 0,
-		Visible
+		Occupied = WorldGenerating | Loading
 	};
 
 	LoadStatus GetLoadStatus() const { return m_LoadingStatus; }
 	void SetLoadStatus(LoadStatus status) { m_LoadingStatus = status; }
-
-	RenderStatus GetRenderStatus() const { return m_RenderingStatus; }
-	void SetRenderStatus(RenderStatus status) { m_RenderingStatus = status; }
 
 private:
 	void GenerateWorld();
@@ -64,6 +55,7 @@ private:
 	void PushData();
 
 	glm::ivec3 GetBlockPositionInWorld(const glm::ivec3& position) const;
+	glm::ivec3 GetBlockPositionInChunk(const glm::ivec3& position) const;
 
 	void GenerateFaceVertices(const glm::ivec3& position, Block type, BlockFace face);
 	void GenerateFaceIndices();
@@ -71,18 +63,15 @@ private:
 	bool IsBlockFaceVisible(const glm::ivec3& position, BlockFace face, Chunk* left, Chunk* right, Chunk* back, Chunk* front, bool ignoreNullNeighbors) const;
 	bool IsBlockOpaque(const glm::ivec3& position) const;
 
-	static Block GenerateBlock(const glm::ivec3& position);
+	Block GenerateBlock(const glm::ivec3& position);
 
 	friend class ChunkLoader;
 
 	Quark::Ref<Quark::VertexArray> m_VertexArray;
-	Quark::Ref<Quark::VertexBuffer> m_VertexBuffer;
-	Quark::Ref<Quark::IndexBuffer> m_IndexBuffer;
 
 	std::atomic_bool m_Pushed = false;
 	std::atomic_bool m_Edited = false;
 	std::atomic<LoadStatus> m_LoadingStatus = LoadStatus::Allocated;
-	std::atomic<RenderStatus> m_RenderingStatus = RenderStatus::Visible;
 
 	glm::ivec2 m_Coord;
 
@@ -91,9 +80,8 @@ private:
 	std::vector<BlockVertex> m_Vertices;
 	std::vector<uint32_t> m_Indices;
 
-	Quark::Ref<std::string> m_TestString;
-
 	Block* m_Blocks = nullptr;
+	int32_t* m_HeightMap = nullptr;
 	World* m_World;
 };
 
