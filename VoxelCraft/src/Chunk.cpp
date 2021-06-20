@@ -120,7 +120,7 @@ void Chunk::GenerateWorld()
 	}
 }
 
-void Chunk::GenerateMesh(Chunk* left, Chunk* right, Chunk* back, Chunk* front, bool ignoreNullNeighbors)
+void Chunk::GenerateMesh(Chunk* left, Chunk* right, Chunk* back, Chunk* front)
 {
 	m_VertexCount = 0;
 	m_IndexCount = 0;
@@ -145,7 +145,7 @@ void Chunk::GenerateMesh(Chunk* left, Chunk* right, Chunk* back, Chunk* front, b
 
 				for (uint8_t f = 0; f < 6; f++)
 				{
-					if (!IsBlockFaceVisible({ x, y, z }, static_cast<BlockFace>(f), left, right, back, front, ignoreNullNeighbors))
+					if (!IsBlockFaceVisible({ x, y, z }, static_cast<BlockFace>(f), left, right, back, front))
 						continue;
 
 					GenerateFaceVertices({ x, y, z}, block, static_cast<BlockFace>(f));
@@ -293,11 +293,15 @@ void Chunk::ReplaceBlock(const glm::ivec3& position, Block type)
 	}
 }
 
-bool Chunk::IsBlockFaceVisible(const glm::ivec3& position, BlockFace face, Chunk* left, Chunk* right, Chunk* back, Chunk* front, bool ignoreNullNeighbors) const
+bool Chunk::IsBlockFaceVisible(const glm::ivec3& position, BlockFace face, Chunk* left, Chunk* right, Chunk* back, Chunk* front) const
 {
 	glm::ivec3 neighborPosition = position + GetFaceNormal(face);
 
 	bool visible = !IsBlockOpaque(neighborPosition);
+	
+	// No further checks, face is culled
+	if (!visible)
+		return false;
 
 	if (neighborPosition.x < 0)
 	{
@@ -306,15 +310,6 @@ bool Chunk::IsBlockFaceVisible(const glm::ivec3& position, BlockFace face, Chunk
 		Block block = left->GetBlock(glm::ivec3(ChunkSpecification::Width - 1, neighborPosition.y, neighborPosition.z));;
 		if (!blockProperties.at(block).Transparent)
 			visible = false;
-
-		/*else if (!ignoreNullNeighbors)
-		{
-			QK_ASSERT(false, "");
-
-			block = GenerateBlock(neighborPosition);
-			if (!blockProperties.at(block).Transparent)
-				visible = false;
-		}*/
 	}
 	else if (neighborPosition.x > ChunkSpecification::Width - 1)
 	{

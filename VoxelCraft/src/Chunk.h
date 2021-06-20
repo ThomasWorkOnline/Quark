@@ -51,7 +51,7 @@ public:
 
 private:
 	void GenerateWorld();
-	void GenerateMesh(Chunk* left, Chunk* right, Chunk* back, Chunk* front, bool ignoreNullNeighbors = false);
+	void GenerateMesh(Chunk* left, Chunk* right, Chunk* back, Chunk* front);
 	void PushData();
 
 	glm::ivec3 GetBlockPositionInWorld(const glm::ivec3& position) const;
@@ -60,7 +60,7 @@ private:
 	void GenerateFaceVertices(const glm::ivec3& position, Block type, BlockFace face);
 	void GenerateFaceIndices();
 
-	bool IsBlockFaceVisible(const glm::ivec3& position, BlockFace face, Chunk* left, Chunk* right, Chunk* back, Chunk* front, bool ignoreNullNeighbors) const;
+	bool IsBlockFaceVisible(const glm::ivec3& position, BlockFace face, Chunk* left, Chunk* right, Chunk* back, Chunk* front) const;
 	bool IsBlockOpaque(const glm::ivec3& position) const;
 
 	Block GenerateBlock(const glm::ivec3& position);
