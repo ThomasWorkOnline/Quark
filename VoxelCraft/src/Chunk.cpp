@@ -100,7 +100,9 @@ void Chunk::GenerateWorld()
 		{
 			glm::ivec3 pos = GetBlockPositionInWorld({ x, 0, z });
 
-			int32_t value = static_cast<int32_t>(round(sinf((pos.x * 0.44f) + (pos.z * 0.2f)) * 3.0f));
+			// Important to use deterministic algorithms for anything related to world gen
+			float fValue = round(sinf(pos.x * 0.144f + pos.z * 0.021f) * 6.0f);
+			int32_t value = static_cast<int32_t>(fValue);
 			m_HeightMap[z * ChunkSpecification::Depth + x] = value;
 		}
 	}
@@ -175,7 +177,7 @@ void Chunk::PushData()
 		auto ibo = Quark::IndexBuffer::Create(m_Indices.data(), m_Indices.size());
 		m_VertexArray->SetIndexBuffer(ibo);
 	}
-
+	
 	m_Pushed = true;
 }
 
