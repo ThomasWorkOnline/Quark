@@ -14,10 +14,10 @@ static struct LoadingAreaBounds
 	glm::ivec2 Second;
 };
 
-class LoadingArea
+class WorldArea
 {
 public:
-	LoadingArea(WorldMap& map, const glm::ivec2& size, const glm::ivec2& anchor);
+	WorldArea(WorldMap& map, const glm::ivec2& size, const glm::ivec2& anchor);
 
 	bool InBounds(glm::ivec2 coord) const;
 

@@ -100,7 +100,7 @@
     <ClCompile Include="src\ChunkLoader.cpp" />
     <ClCompile Include="src\ChunkRenderer.cpp" />
     <ClCompile Include="src\EntryPoint.cpp" />
-    <ClCompile Include="src\LoadingArea.cpp" />
+    <ClCompile Include="src\WorldArea.cpp" />
     <ClCompile Include="src\Player.cpp" />
     <ClCompile Include="src\PlayerController.cpp" />
     <ClCompile Include="src\Resources.cpp" />
@@ -114,7 +114,7 @@
     <ClInclude Include="src\ChunkLoader.h" />
     <ClInclude Include="src\ChunkRenderer.h" />
     <ClInclude Include="src\Collision.h" />
-    <ClInclude Include="src\LoadingArea.h" />
+    <ClInclude Include="src\WorldArea.h" />
     <ClInclude Include="src\WorldMap.h" />
     <ClInclude Include="src\Player.h" />
     <ClInclude Include="src\PlayerController.h" />

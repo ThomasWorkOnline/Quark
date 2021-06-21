@@ -1,18 +1,18 @@
-#include "LoadingArea.h"
+#include "WorldArea.h"
 
-LoadingArea::LoadingArea(WorldMap& map, const glm::ivec2& size, const glm::ivec2& anchor)
+WorldArea::WorldArea(WorldMap& map, const glm::ivec2& size, const glm::ivec2& anchor)
 	: m_WorldPartition(map)
 {
 	Invalidate(size, anchor);
 }
 
-bool LoadingArea::InBounds(glm::ivec2 coord) const
+bool WorldArea::InBounds(glm::ivec2 coord) const
 {
 	return (coord.x >= m_AccessibleBounds.First.x && coord.x <= m_AccessibleBounds.Second.x &&
 		coord.y >= m_AccessibleBounds.First.y && coord.y <= m_AccessibleBounds.Second.y);
 }
 
-void LoadingArea::Foreach(const std::function<void(glm::ivec2 coord)>& func) const
+void WorldArea::Foreach(const std::function<void(glm::ivec2 coord)>& func) const
 {
 	for (int z = m_AccessibleBounds.First.y; z < m_AccessibleBounds.Second.y; z++)
 	{
@@ -23,7 +23,7 @@ void LoadingArea::Foreach(const std::function<void(glm::ivec2 coord)>& func) con
 	}
 }
 
-void LoadingArea::OnUnload(const std::function<void(glm::ivec2 coord)>& func)
+void WorldArea::OnUnload(const std::function<void(glm::ivec2 coord)>& func)
 {
 	std::lock_guard<std::mutex> lock(m_ChunksToUnloadMutex);
 	for (auto e : m_ChunksToUnload)
@@ -34,7 +34,7 @@ void LoadingArea::OnUnload(const std::function<void(glm::ivec2 coord)>& func)
 	m_ChunksToUnload.clear();
 }
 
-void LoadingArea::Invalidate(const glm::ivec2& size, const glm::ivec2& anchor)
+void WorldArea::Invalidate(const glm::ivec2& size, const glm::ivec2& anchor)
 {
 	static LoadingAreaBounds lastBounds = m_InternalBounds;
 
@@ -45,7 +45,7 @@ void LoadingArea::Invalidate(const glm::ivec2& size, const glm::ivec2& anchor)
 	lastBounds = m_InternalBounds;
 }
 
-void LoadingArea::LoadArea()
+void WorldArea::LoadArea()
 {
 	for (int z = m_InternalBounds.First.y; z < m_InternalBounds.Second.y; z++)
 	{
@@ -57,7 +57,7 @@ void LoadingArea::LoadArea()
 	}
 }
 
-void LoadingArea::UnloadOutOfBounds(const LoadingAreaBounds& bounds, const LoadingAreaBounds& lastBounds)
+void WorldArea::UnloadOutOfBounds(const LoadingAreaBounds& bounds, const LoadingAreaBounds& lastBounds)
 {
 	std::unordered_set<size_t> coords;
 
@@ -85,7 +85,7 @@ void LoadingArea::UnloadOutOfBounds(const LoadingAreaBounds& bounds, const Loadi
 	}
 }
 
-void LoadingArea::ComputeBounds(const glm::ivec2& size, const glm::ivec2& anchor)
+void WorldArea::ComputeBounds(const glm::ivec2& size, const glm::ivec2& anchor)
 {
 	m_AccessibleBounds.First = { anchor.x - size.x, anchor.y - size.y };
 	m_AccessibleBounds.Second = { anchor.x + size.x, anchor.y + size.y };

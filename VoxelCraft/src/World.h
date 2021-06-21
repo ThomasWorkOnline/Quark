@@ -3,8 +3,8 @@
 #include <Quark.h>
 
 #include "Chunk.h"
-#include "Player.h"
 #include "Collision.h"
+#include "Player.h"
 #include "WorldMap.h"
 
 #include <optional>

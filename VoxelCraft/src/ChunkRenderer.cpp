@@ -2,11 +2,14 @@
 
 #include "Resources.h"
 
+#define DRAW_CHUNK_ALL_STATUS 0
+
 Quark::Ref<Quark::Shader> ChunkRenderer::s_ActiveShader;
 
 ChunkRendererStats ChunkRenderer::s_Stats;
 
 // Debug
+#if DRAW_CHUNK_ALL_STATUS
 static Quark::Ref<Quark::Shader> s_Shader;
 static const Quark::BufferLayout s_Layout = {
 	{ Quark::ShaderDataType::Float3, "a_Position" },
@@ -16,12 +19,13 @@ static const Quark::BufferLayout s_Layout = {
 static Quark::Mesh s_Mesh;
 
 static Quark::Transform3DComponent s_Transform;
+#endif
 
 void ChunkRenderer::Initialize()
 {
 	s_ActiveShader = Resources::GetShader();
 
-#pragma region DEBUG
+#	if DRAW_CHUNK_ALL_STATUS
 	s_Shader = Quark::Shader::Create("assets/shaders/default3D.glsl");
 
 	s_Mesh = { s_Layout, "assets/models/arrow.obj" };
@@ -29,7 +33,7 @@ void ChunkRenderer::Initialize()
 	s_Transform.Position = { 0.0f, 65.0f, 0.0f };
 	s_Transform.Scale = { 0.4f, 0.2f, 0.2f };
 	s_Transform.Orientation = glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-#pragma endregion
+#	endif
 }
 
 void ChunkRenderer::Shutdown()
@@ -59,6 +63,7 @@ void ChunkRenderer::Submit(const Chunk* chunk)
 		s_Stats.DrawCalls++;
 		break;
 	}
+#	if DRAW_CHUNK_ALL_STATUS
 	case Chunk::LoadStatus::WorldGenerated:
 	{
 		auto& coord = chunk->GetCoord();
@@ -79,5 +84,6 @@ void ChunkRenderer::Submit(const Chunk* chunk)
 		s_Stats.DrawCalls++;
 		break;
 	}
+#	endif
 	}
 }

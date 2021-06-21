@@ -2,7 +2,7 @@
 
 #include "Chunk.h"
 #include "World.h"
-#include "LoadingArea.h"
+#include "WorldArea.h"
 
 #include <list>
 #include <mutex>
@@ -49,7 +49,7 @@ private:
 	void UniqueChunkDataGenerator(Chunk* chunk);
 	void UniqueChunkMeshGenerator(Chunk* chunk, Chunk* left, Chunk* right, Chunk* back, Chunk* front);
 
-	LoadingArea m_LoadingArea;
+	WorldArea m_LoadingArea;
 	
 	std::list<size_t> m_LoadingQueue;
 	std::list<size_t> m_UnloadingQueue;
