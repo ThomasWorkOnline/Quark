@@ -59,7 +59,7 @@ void ChunkRenderer::Submit(const Chunk* chunk)
 		s_Stats.DrawCalls++;
 		break;
 	}
-	/*case Chunk::LoadStatus::WorldGenerated:
+	case Chunk::LoadStatus::WorldGenerated:
 	{
 		auto& coord = chunk->GetCoord();
 		s_Transform.Position = { coord.x * (int32_t)ChunkSpecification::Width + 8, 64, coord.y * (int32_t)ChunkSpecification::Depth + 8 };
@@ -78,6 +78,6 @@ void ChunkRenderer::Submit(const Chunk* chunk)
 		Quark::Renderer::Submit(s_Shader, s_Mesh.GetVertexArray(), s_Transform);
 		s_Stats.DrawCalls++;
 		break;
-	}*/
+	}
 	}
 }

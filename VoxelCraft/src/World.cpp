@@ -34,6 +34,7 @@ void World::OnUpdate(float elapsedTime)
 	m_Loader->SetCoord(coord);
 
 	m_Scene.OnUpdate(elapsedTime);
+	m_Map.OnUpdate(elapsedTime);
 	m_Loader->OnUpdate(elapsedTime);
 
 	Quark::Renderer::BeginScene(m_Player.GetCamera().Camera.GetMatrix(),

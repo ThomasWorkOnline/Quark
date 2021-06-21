@@ -13,6 +13,20 @@ WorldMap::~WorldMap()
 		delete chunk.second;
 }
 
+void WorldMap::OnUpdate(float elapsedTime)
+{
+	{
+		std::lock_guard<std::mutex> lock(m_ChunksToDeleteMutex);
+		if (!m_ChunksToDelete.empty())
+		{
+			auto data = m_ChunksToDelete.front();
+			m_ChunksToDelete.pop_front();
+
+			delete data;
+		}
+	}
+}
+
 void WorldMap::Foreach(const std::function<void(Chunk* data)>& func) const
 {
 	std::lock_guard<std::recursive_mutex> lock(m_ChunksLocationsMutex);
@@ -66,5 +80,7 @@ void WorldMap::Erase(size_t id)
 		std::lock_guard<std::recursive_mutex> lock(m_ChunksLocationsMutex);
 		m_ChunksLocations.erase(id);
 	}
-	delete data;
+
+	std::lock_guard<std::mutex> lock(m_ChunksToDeleteMutex);
+	m_ChunksToDelete.push_back(data);
 }

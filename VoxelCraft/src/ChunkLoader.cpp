@@ -24,7 +24,6 @@ static bool QueueContains(const std::list<size_t>& list, size_t id)
 		if (_id == id)
 			return true;
 	}
-
 	return false;
 }
 
