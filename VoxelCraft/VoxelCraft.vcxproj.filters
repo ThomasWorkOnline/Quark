@@ -13,6 +13,7 @@
     <ClCompile Include="src\WorldArea.cpp" />
     <ClCompile Include="src\WorldMap.cpp" />
     <ClCompile Include="src\ConvertPosition.cpp" />
+    <ClCompile Include="src\Meshes.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Chunk.h" />
@@ -28,5 +29,9 @@
     <ClInclude Include="src\WorldArea.h" />
     <ClInclude Include="src\WorldMap.h" />
     <ClInclude Include="src\ConvertPosition.h" />
+    <ClInclude Include="src\MeshModel.h" />
+    <ClInclude Include="src\MeshProperties.h" />
+    <ClInclude Include="src\Vertex.h" />
+    <ClInclude Include="src\Meshes.h" />
   </ItemGroup>
 </Project>

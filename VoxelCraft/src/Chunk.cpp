@@ -2,47 +2,8 @@
 
 #include <fstream>
 
-#include "ConvertPosition.h"
 #include "World.h"
-#include "Resources.h"
-
-static constexpr glm::vec3 s_VertexPositions[24] = {
-	// front
-	{  0.0f,  0.0f,  1.0f },
-	{  1.0f,  0.0f,  1.0f },
-	{  1.0f,  1.0f,  1.0f },
-	{  0.0f,  1.0f,  1.0f },
-
-	// right
-	{  1.0f,  0.0f,  1.0f },
-	{  1.0f,  0.0f,  0.0f },
-	{  1.0f,  1.0f,  0.0f },
-	{  1.0f,  1.0f,  1.0f },
-
-	// back
-	{  1.0f,  0.0f,  0.0f },
-	{  0.0f,  0.0f,  0.0f },
-	{  0.0f,  1.0f,  0.0f },
-	{  1.0f,  1.0f,  0.0f },
-
-	// left
-	{  0.0f,  0.0f,  0.0f },
-	{  0.0f,  0.0f,  1.0f },
-	{  0.0f,  1.0f,  1.0f },
-	{  0.0f,  1.0f,  0.0f },
-
-	// top
-	{  0.0f,  1.0f,  1.0f },
-	{  1.0f,  1.0f,  1.0f },
-	{  1.0f,  1.0f,  0.0f },
-	{  0.0f,  1.0f,  0.0f },
-
-	// bottom
-	{  1.0f,  0.0f,  1.0f },
-	{  0.0f,  0.0f,  1.0f },
-	{  0.0f,  0.0f,  0.0f },
-	{  1.0f,  0.0f,  0.0f }
-};
+#include "Meshes.h"
 
 static int32_t IndexAtPosition(const glm::ivec3& position)
 {
@@ -127,7 +88,6 @@ void Chunk::BuildTerrain()
 void Chunk::BuildMesh(Chunk* left, Chunk* right, Chunk* back, Chunk* front)
 {
 	m_VertexCount = 0;
-	m_IndexCount = 0;
 	m_Vertices.clear();
 	m_Indices.clear();
 
@@ -147,20 +107,9 @@ void Chunk::BuildMesh(Chunk* left, Chunk* right, Chunk* back, Chunk* front)
 				if (block == Block::Air)
 					continue;
 
-				for (uint8_t f = 0; f < 6; f++)
-				{
-					if (!IsBlockFaceVisible({ x, y, z }, static_cast<BlockFace>(f), left, right, back, front))
-						continue;
-
-					GenerateFaceVertices({ x, y, z}, block, static_cast<BlockFace>(f));
-				}
+				GenerateBlockMesh({ x, y, z }, block, { left, right, back, front });
 			}
 		}
-	}
-
-	for (uint32_t i = 0; i < m_IndexCount; i += 6)
-	{
-		GenerateFaceIndices();
 	}
 
 	m_Pushed = false;
@@ -172,7 +121,7 @@ void Chunk::PushData()
 	{
 		m_VertexArray = Quark::VertexArray::Create();
 
-		auto vbo = Quark::VertexBuffer::Create((float*)m_Vertices.data(), m_Vertices.size() * sizeof(BlockVertex));
+		auto vbo = Quark::VertexBuffer::Create((float*)m_Vertices.data(), m_Vertices.size() * sizeof(Vertex));
 		vbo->SetLayout(s_BufferLayout);
 		m_VertexArray->AddVertexBuffer(vbo);
 
@@ -183,11 +132,12 @@ void Chunk::PushData()
 	m_Pushed = true;
 }
 
-Block Chunk::GenerateBlock(const glm::ivec3& position)
+Block Chunk::GenerateBlock(const Position3D& position)
 {
 	static constexpr uint32_t stoneHeight = 58;
 	static constexpr uint32_t dirtHeight = 63;
-	static constexpr uint32_t grassHeight = 64;
+	static constexpr uint32_t grassBlockHeight = 64;
+	static constexpr uint32_t grassHeight = 65;
 
 	float noise = rand() / static_cast<float>(RAND_MAX);
 
@@ -196,6 +146,7 @@ Block Chunk::GenerateBlock(const glm::ivec3& position)
 	uint32_t genBedrock = static_cast<uint32_t>(1.0f + noise * 4.0f);
 	uint32_t genStone = stoneHeight + heightSample;
 	uint32_t genDirt = dirtHeight + heightSample;
+	uint32_t genGrassBlock = grassBlockHeight + heightSample;
 	uint32_t genGrass = grassHeight + heightSample;
 
 	Block type;
@@ -205,45 +156,39 @@ Block Chunk::GenerateBlock(const glm::ivec3& position)
 		type = Block::Stone;
 	else if (position.y >= genStone && position.y < genDirt)
 		type = Block::Dirt;
-	else if (position.y >= genDirt && position.y < genGrass)
+	else if (position.y >= genDirt && position.y < genGrassBlock)
 		type = Block::GrassBlock;
+	else if (position.y >= genGrassBlock && position.y < genGrass)
+		type = noise < 0.01f ? Block::Poppy : Block::Air;
 	else
 		type = Block::Air;
 
 	return type;
 }
 
-void Chunk::GenerateFaceVertices(const glm::ivec3& position, Block type, BlockFace face)
+void Chunk::GenerateBlockMesh(const Position3D& position, Block type, const Neighbors& neighbors)
 {
-	auto& blockProperties = Resources::GetBlockProperties().at(type);
+	auto& blockProperties = Resources::GetBlockProperties(type);
 
-	for (uint8_t i = 0; i < 4; i++)
+	switch (blockProperties.Mesh)
 	{
-		BlockVertex v;
-		v.Position = s_VertexPositions[i + static_cast<uint8_t>(face) * 4]
-			+ glm::vec3(position.x + m_Coord.x * (float)ChunkSpecification::Width, position.y, position.z + m_Coord.y * (float)ChunkSpecification::Depth);
-		v.TexCoord = blockProperties.Faces[static_cast<uint8_t>(face)].GetCoords()[i];
-		v.Intensity = (static_cast<uint8_t>(face) + 1) / 6.0f;
+	case MeshModel::Block:
+		// Create all the faces
+		for (uint8_t f = 0; f < 6; f++)
+		{
+			if (!IsBlockFaceVisible(position, BlockFace(f), neighbors))
+				continue;
 
-		m_Vertices.push_back(v);
+			BlockMesh::CreateFace(m_Vertices, m_Indices, m_VertexCount, position.ToWorldSpace(m_Coord), blockProperties, BlockFace(f));
+		}
+		break;
+	case MeshModel::CrossSprite:
+		CrossSpriteMesh::Create(m_Vertices, m_Indices, m_VertexCount, position.ToWorldSpace(m_Coord), blockProperties);
+		break;
 	}
-
-	m_IndexCount += 6;
 }
 
-void Chunk::GenerateFaceIndices()
-{
-	m_Indices.push_back(0 + m_VertexCount);
-	m_Indices.push_back(1 + m_VertexCount);
-	m_Indices.push_back(3 + m_VertexCount);
-	m_Indices.push_back(1 + m_VertexCount);
-	m_Indices.push_back(2 + m_VertexCount);
-	m_Indices.push_back(3 + m_VertexCount);
-
-	m_VertexCount += 4;
-}
-
-Block Chunk::GetBlock(const glm::ivec3& position) const
+Block Chunk::GetBlock(const Position3D& position) const
 {
 	if (m_Blocks)
 	{
@@ -256,7 +201,7 @@ Block Chunk::GetBlock(const glm::ivec3& position) const
 	return Block::None;
 }
 
-void Chunk::ReplaceBlock(const glm::ivec3& position, Block type)
+void Chunk::ReplaceBlock(const Position3D& position, Block type)
 {
 	if (m_Blocks)
 	{
@@ -271,32 +216,32 @@ void Chunk::ReplaceBlock(const glm::ivec3& position, Block type)
 
 			if (position.x == 0)
 			{
-				auto coord = m_Coord + glm::ivec2(-1, 0);
+				auto coord = m_Coord + Position2D(-1, 0);
 				m_World->OnChunkModified(CHUNK_UUID(coord));
 			}
 			else if (position.x == ChunkSpecification::Width - 1)
 			{
-				auto coord = m_Coord + glm::ivec2(1, 0);
+				auto coord = m_Coord + Position2D(1, 0);
 				m_World->OnChunkModified(CHUNK_UUID(coord));
 			}
 
 			if (position.z == 0)
 			{
-				auto coord = m_Coord + glm::ivec2(0, -1);
+				auto coord = m_Coord + Position2D(0, -1);
 				m_World->OnChunkModified(CHUNK_UUID(coord));
 			}
 			else if (position.z == ChunkSpecification::Depth - 1)
 			{
-				auto coord = m_Coord + glm::ivec2(0, 1);
+				auto coord = m_Coord + Position2D(0, 1);
 				m_World->OnChunkModified(CHUNK_UUID(coord));
 			}
 		}
 	}
 }
 
-bool Chunk::IsBlockFaceVisible(const glm::ivec3& position, BlockFace face, Chunk* left, Chunk* right, Chunk* back, Chunk* front) const
+bool Chunk::IsBlockFaceVisible(const Position3D& position, BlockFace face, const Neighbors& neighbors) const
 {
-	glm::ivec3 neighborPosition = position + GetFaceNormal(face);
+	Position3D neighborPosition = position + GetFaceNormal(face);
 
 	bool visible = IsBlockTransparent(neighborPosition);
 	
@@ -306,48 +251,44 @@ bool Chunk::IsBlockFaceVisible(const glm::ivec3& position, BlockFace face, Chunk
 
 	if (neighborPosition.x < 0)
 	{
-		auto& blockProperties = Resources::GetBlockProperties();
 
-		Block block = left->GetBlock(glm::ivec3(ChunkSpecification::Width - 1, neighborPosition.y, neighborPosition.z));;
-		if (!blockProperties.at(block).Transparent)
+		Block block = neighbors.Left->GetBlock(glm::ivec3(ChunkSpecification::Width - 1, neighborPosition.y, neighborPosition.z));;
+		auto& blockProperties = Resources::GetBlockProperties(block);
+		if (!blockProperties.Transparent)
 			visible = false;
 	}
 	else if (neighborPosition.x > ChunkSpecification::Width - 1)
 	{
-		auto& blockProperties = Resources::GetBlockProperties();
-
-		Block block = right->GetBlock(glm::ivec3(0, neighborPosition.y, neighborPosition.z));
-		if (!blockProperties.at(block).Transparent)
+		Block block = neighbors.Right->GetBlock(glm::ivec3(0, neighborPosition.y, neighborPosition.z));
+		auto& blockProperties = Resources::GetBlockProperties(block);
+		if (!blockProperties.Transparent)
 			visible = false;
 	}
 
 	if (neighborPosition.z < 0)
 	{
-		auto& blockProperties = Resources::GetBlockProperties();
-
-		Block block = back->GetBlock(glm::ivec3(neighborPosition.x, neighborPosition.y, ChunkSpecification::Depth - 1));
-		if (!blockProperties.at(block).Transparent)
+		Block block = neighbors.Back->GetBlock(glm::ivec3(neighborPosition.x, neighborPosition.y, ChunkSpecification::Depth - 1));
+		auto& blockProperties = Resources::GetBlockProperties(block);
+		if (!blockProperties.Transparent)
 			visible = false;
 	}
 	else if (neighborPosition.z > ChunkSpecification::Depth - 1)
 	{
-		auto& blockProperties = Resources::GetBlockProperties();
-
-		Block block = front->GetBlock(glm::ivec3(neighborPosition.x, neighborPosition.y, 0));
-		if (!blockProperties.at(block).Transparent)
+		Block block = neighbors.Front->GetBlock(glm::ivec3(neighborPosition.x, neighborPosition.y, 0));
+		auto& blockProperties = Resources::GetBlockProperties(block);
+		if (!blockProperties.Transparent)
 			visible = false;
 	}
 
 	return visible;
 }
 
-bool Chunk::IsBlockTransparent(const glm::ivec3& position) const
+bool Chunk::IsBlockTransparent(const Position3D& position) const
 {
 	int32_t index = IndexAtPosition(position);
 	if (index != -1)
 	{
-		auto& blockProperties = Resources::GetBlockProperties();
-		return blockProperties.at(m_Blocks[index]).Transparent;
+		return Resources::GetBlockProperties(m_Blocks[index]).Transparent;
 	}
 	return true;
 }

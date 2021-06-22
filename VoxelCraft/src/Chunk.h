@@ -4,6 +4,7 @@
 
 #include "Block.h"
 #include "ConvertPosition.h"
+#include "Vertex.h"
 
 #define CHUNK_UUID(coord) *reinterpret_cast<const size_t*>(&coord)
 #define CHUNK_COORD(id) *reinterpret_cast<const glm::ivec2*>(&id)
@@ -22,6 +23,14 @@ class World;
 class Chunk
 {
 public:
+	struct Neighbors
+	{
+		Chunk* Left;
+		Chunk* Right;
+		Chunk* Back;
+		Chunk* Front;
+	};
+
 	Chunk(size_t id, World* world);
 	~Chunk();
 
@@ -32,8 +41,8 @@ public:
 	const Position2D& GetCoord() const { return m_Coord; }
 	const size_t GetId() const { return m_Id; }
 
-	Block GetBlock(const glm::ivec3& position) const;
-	void ReplaceBlock(const glm::ivec3& position, Block type);
+	Block GetBlock(const Position3D& position) const;
+	void ReplaceBlock(const Position3D& position, Block type);
 
 	enum class LoadStatus : int8_t
 	{
@@ -49,7 +58,6 @@ public:
 	LoadStatus GetLoadStatus() const { return m_LoadingStatus; }
 	void SetLoadStatus(LoadStatus status) { m_LoadingStatus = status; }
 
-private:
 	void BuildTerrain();
 	void BuildMesh(Chunk* left, Chunk* right, Chunk* back, Chunk* front);
 
@@ -58,16 +66,15 @@ private:
 	/// </summary>
 	void PushData();
 
-	void GenerateFaceVertices(const glm::ivec3& position, Block type, BlockFace face);
-	void GenerateFaceIndices();
+private:
+	void GenerateBlockMesh(const Position3D& position, Block type, const Neighbors& neighbors);
 
-	bool IsBlockFaceVisible(const glm::ivec3& position, BlockFace face, Chunk* left, Chunk* right, Chunk* back, Chunk* front) const;
-	bool IsBlockTransparent(const glm::ivec3& position) const;
+	bool IsBlockFaceVisible(const Position3D& position, BlockFace face, const Neighbors& neighbors) const;
+	bool IsBlockTransparent(const Position3D& position) const;
 
-	Block GenerateBlock(const glm::ivec3& position);
+	Block GenerateBlock(const Position3D& position);
 
-	friend class ChunkLoader;
-
+private:
 	Quark::Ref<Quark::VertexArray> m_VertexArray;
 
 	std::atomic_bool m_Pushed = false;
@@ -81,9 +88,8 @@ private:
 		size_t m_Id;
 	};
 
-	uint32_t m_IndexCount = 0;
 	uint32_t m_VertexCount = 0;
-	std::vector<BlockVertex> m_Vertices;
+	std::vector<Vertex> m_Vertices;
 	std::vector<uint32_t> m_Indices;
 
 	Block* m_Blocks = nullptr;

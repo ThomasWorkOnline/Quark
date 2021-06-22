@@ -103,6 +103,7 @@
     <ClCompile Include="src\ChunkRenderer.cpp" />
     <ClCompile Include="src\EntryPoint.cpp" />
     <ClCompile Include="src\ConvertPosition.cpp" />
+    <ClCompile Include="src\Meshes.cpp" />
     <ClCompile Include="src\WorldArea.cpp" />
     <ClCompile Include="src\Player.cpp" />
     <ClCompile Include="src\PlayerController.cpp" />
@@ -111,6 +112,8 @@
     <ClCompile Include="src\WorldMap.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Meshes.h" />
+    <ClInclude Include="src\Vertex.h" />
     <ClInclude Include="src\BlockProperties.h" />
     <ClInclude Include="src\Block.h" />
     <ClInclude Include="src\Chunk.h" />
@@ -118,6 +121,8 @@
     <ClInclude Include="src\ChunkRenderer.h" />
     <ClInclude Include="src\Collision.h" />
     <ClInclude Include="src\ConvertPosition.h" />
+    <ClInclude Include="src\MeshModel.h" />
+    <ClInclude Include="src\MeshProperties.h" />
     <ClInclude Include="src\WorldArea.h" />
     <ClInclude Include="src\WorldMap.h" />
     <ClInclude Include="src\Player.h" />

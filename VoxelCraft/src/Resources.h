@@ -6,15 +6,22 @@
 
 #include "Block.h"
 #include "BlockProperties.h"
+#include "MeshModel.h"
+#include "MeshProperties.h"
 
 class Resources
 {
 public:
 	static void Initialize();
 
-	static const std::unordered_map<Block, BlockProperties>& GetBlockProperties()
+	static const BlockProperties& GetBlockProperties(Block type)
 	{
-		return s_BlockProperties;
+		return s_BlockProperties.at(type);
+	}
+
+	static const MeshProperties& GetMeshProperties(MeshModel model)
+	{
+		return s_MeshModels.at(model);
 	}
 
 	static const Quark::Ref<Quark::Shader>& GetShader()
@@ -37,6 +44,7 @@ private:
 
 	// TODO: load from json
 	static std::unordered_map<Block, BlockProperties> s_BlockProperties;
+	static std::unordered_map<MeshModel, MeshProperties> s_MeshModels;
 
 	static Quark::Ref<Quark::Shader> s_Shader;
 	static Quark::Ref<Quark::Shader> s_DebugShader;

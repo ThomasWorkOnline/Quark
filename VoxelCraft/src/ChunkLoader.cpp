@@ -80,8 +80,7 @@ void ChunkLoader::OnUpdate(float elapsedTime)
 
 	m_World->m_Map.Foreach([](Chunk* data)
 		{
-			if (data && data->GetLoadStatus() == Chunk::LoadStatus::Loaded
-				&& !data->m_Pushed)
+			if (data && data->GetLoadStatus() == Chunk::LoadStatus::Loaded)
 			{
 				data->PushData();
 			}
@@ -194,7 +193,7 @@ void ChunkLoader::ProcessQueue()
 
 void ChunkLoader::LoadChunk(size_t id)
 {
-	//QK_TIME_SCOPE_DEBUG(ChunkLoader::LoadChunk);
+	QK_TIME_SCOPE_DEBUG(ChunkLoader::LoadChunk);
 
 	glm::ivec2 coord = CHUNK_COORD(id);
 	auto leftCoord   = coord + glm::ivec2(-1,  0);

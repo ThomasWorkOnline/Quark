@@ -2,7 +2,7 @@
 
 #include <Quark.h>
 
-enum class BlockFace : uint8_t
+enum class BlockFace
 {
 	Front = 0,
 	Right,
@@ -10,13 +10,6 @@ enum class BlockFace : uint8_t
 	Left,
 	Top,
 	Bottom
-};
-
-struct BlockVertex
-{
-	glm::vec3 Position;
-	glm::vec2 TexCoord;
-	float Intensity;
 };
 
 glm::ivec3 GetFaceNormal(BlockFace facing);
@@ -30,5 +23,6 @@ enum class Block : int8_t
 	Dirt,
 	GrassBlock,
 	Stone,
-	Cobblestone
+	Cobblestone,
+	Poppy
 };

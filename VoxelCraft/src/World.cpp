@@ -156,12 +156,12 @@ void World::ReplaceBlock(const Position3D& position, Block type)
 		{
 			if (oldBlock == Block::Air)
 			{
-				auto& blockProperties = Resources::GetBlockProperties().at(type);
+				auto& blockProperties = Resources::GetBlockProperties(type);
 				Quark::AudioEngine::PlaySound(blockProperties.BreakSound);
 			}
 			else
 			{
-				auto& blockProperties = Resources::GetBlockProperties().at(oldBlock);
+				auto& blockProperties = Resources::GetBlockProperties(oldBlock);
 				Quark::AudioEngine::PlaySound(blockProperties.BreakSound);
 			}
 
