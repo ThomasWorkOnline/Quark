@@ -1,11 +1,6 @@
 #include <Quark.h>
 
-#include "Chunk.h"
-#include "ChunkRenderer.h"
-#include "Player.h"
-#include "PlayerController.h"
 #include "World.h"
-#include "Resources.h"
 
 class VoxelCraft : public Quark::Application
 {
@@ -30,7 +25,8 @@ public:
 		Quark::RenderCommand::Clear();
 
 		m_World.OnUpdate(elapsedTime);
-		m_Controller.OnUpdate(elapsedTime);
+
+		CalculateAppPerformance(elapsedTime);
 	}
 
 	void OnEvent(Quark::Event& e) override
@@ -39,8 +35,10 @@ public:
 		dispatcher.Dispatch<Quark::KeyPressedEvent>(ATTACH_EVENT_FN(VoxelCraft::OnKeyPressed));
 		dispatcher.Dispatch<Quark::MouseButtonPressedEvent>(ATTACH_EVENT_FN(VoxelCraft::OnMouseButtonPressed));
 
-		m_World.OnEvent(e);
-		m_Controller.OnEvent(e);
+		if (!e.Handled)
+		{
+			m_World.OnEvent(e);
+		}
 	}
 
 	bool OnKeyPressed(Quark::KeyPressedEvent& e)
@@ -53,8 +51,6 @@ public:
 		case Quark::Key::F11:
 			GetWindow().SetFullScreen(!GetWindow().IsFullscreen());
 			break;
-		default:
-			break;
 		}
 
 		return false;
@@ -62,38 +58,36 @@ public:
 
 	bool OnMouseButtonPressed(Quark::MouseButtonPressedEvent& e)
 	{
-		Ray ray;
-		ray.Origin = m_World.GetPlayer().GetPosition();
-		ray.Direction = glm::normalize(m_World.GetPlayer().GetTransform().GetFrontVector());
-
-		auto collisionData = m_World.RayCast(ray.Origin, ray.Direction, 5.0f);
-
 		switch (e.GetMouseButton())
 		{
 		case Quark::MouseCode::ButtonLeft:
+			bool selected = GetWindow().IsSelected();
 			GetWindow().Select();
+			return !selected;
+		}
 
-			if (collisionData.Block != Block::None && collisionData.Block != Block::Air)
-			{
-				m_World.ReplaceBlock(collisionData.Impact, Block::Air);
-			}
-			break;
-		case Quark::MouseCode::ButtonRight:
-		{
-			if (collisionData.Block != Block::None && collisionData.Block != Block::Air)
-			{
-				m_World.ReplaceBlock(collisionData.Impact + (glm::vec3)GetFaceNormal(collisionData.Side), Block::Cobblestone);
-			}
-			break;
-		}
-		}
-		
 		return false;
+	}
+
+	void CalculateAppPerformance(float elapsedTime)
+	{
+		static float accumFrameTime = 0.0f;
+		static uint32_t frameCount = 0;
+
+		accumFrameTime += elapsedTime;
+		frameCount++;
+
+		if (accumFrameTime >= 1.0f)
+		{
+			std::cout << std::fixed << "Avg FPS: " << ((float)frameCount / accumFrameTime) << " | Avg Time: " << (accumFrameTime / (float)frameCount) * 1000.0f << "ms\n";
+
+			accumFrameTime = 0.0f;
+			frameCount = 0;
+		}
 	}
 
 private:
 	World m_World;
-	PlayerController m_Controller = { m_World.GetPlayer() };
 };
 
 int main()

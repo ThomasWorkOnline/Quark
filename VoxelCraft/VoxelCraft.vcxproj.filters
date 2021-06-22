@@ -12,6 +12,7 @@
     <ClCompile Include="src\Resources.cpp" />
     <ClCompile Include="src\WorldArea.cpp" />
     <ClCompile Include="src\WorldMap.cpp" />
+    <ClCompile Include="src\ConvertPosition.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Chunk.h" />
@@ -26,5 +27,6 @@
     <ClInclude Include="src\Resources.h" />
     <ClInclude Include="src\WorldArea.h" />
     <ClInclude Include="src\WorldMap.h" />
+    <ClInclude Include="src\ConvertPosition.h" />
   </ItemGroup>
 </Project>

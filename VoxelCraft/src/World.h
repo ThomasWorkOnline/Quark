@@ -4,12 +4,14 @@
 
 #include "Chunk.h"
 #include "Collision.h"
+#include "ConvertPosition.h"
 #include "Player.h"
+#include "PlayerController.h"
 #include "WorldMap.h"
 
 #include <optional>
 
-typedef class ChunkLoader;
+class ChunkLoader;
 
 class World
 {
@@ -20,28 +22,20 @@ public:
 	void OnUpdate(float elapsedTime);
 	void OnEvent(Quark::Event& e);
 
-	void OnChunkModified(glm::ivec2 coord);
-
-	const Quark::Scene& GetScene() const { return m_Scene; }
-	Quark::Scene& GetScene() { return m_Scene; }
-
-	const Player& GetPlayer() const { return m_Player; }
-	Player& GetPlayer() { return m_Player; }
-
-	CollisionData RayCast(const glm::vec3& start, const glm::vec3& direction, float length);
-
-	void ReplaceBlock(const glm::ivec3& position, Block type);
-	Block GetBlock(const glm::ivec3& position) const;
-
-	static glm::ivec2 GetChunkCoord(const glm::ivec3& position);
+	void OnChunkModified(size_t id);
 
 private:
 	bool OnKeyPressed(Quark::KeyPressedEvent& e);
 	bool OnMouseButtonPressed(Quark::MouseButtonPressedEvent& e);
 
+	// Utilities
+	CollisionData RayCast(const Position3D& start, const glm::vec3& direction, float length);
+	Block GetBlock(const Position3D& position) const;
+	void ReplaceBlock(const Position3D& position, Block type);
+
 	Quark::Scene m_Scene;
 	Player m_Player = { m_Scene };
-
+	PlayerController m_Controller = { m_Player };
 	WorldMap m_Map;
 
 	Quark::Scope<ChunkLoader> m_Loader;

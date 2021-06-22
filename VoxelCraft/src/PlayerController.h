@@ -7,7 +7,6 @@
 class PlayerController : public Quark::PerspectiveCameraController
 {
 public:
-	PlayerController() = default;
 	PlayerController(Player& player);
 
 	void OnUpdate(float elapsedTime) override;

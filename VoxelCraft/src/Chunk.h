@@ -3,6 +3,7 @@
 #include <Quark.h>
 
 #include "Block.h"
+#include "ConvertPosition.h"
 
 #define CHUNK_UUID(coord) *reinterpret_cast<const size_t*>(&coord)
 #define CHUNK_COORD(id) *reinterpret_cast<const glm::ivec2*>(&id)
@@ -21,17 +22,16 @@ class World;
 class Chunk
 {
 public:
-	Chunk(const glm::ivec2& coord, World* world);
+	Chunk(size_t id, World* world);
 	~Chunk();
 
 	const Quark::Ref<Quark::VertexArray>& GetVertexArray() const { return m_VertexArray; }
 
 	void Save() const;
 
-	const World& GetWorld() const { return *m_World; }
-	World& GetWorld() { return *m_World; }
+	const Position2D& GetCoord() const { return m_Coord; }
+	const size_t GetId() const { return m_Id; }
 
-	const glm::ivec2& GetCoord() const { return m_Coord; }
 	Block GetBlock(const glm::ivec3& position) const;
 	void ReplaceBlock(const glm::ivec3& position, Block type);
 
@@ -50,12 +50,13 @@ public:
 	void SetLoadStatus(LoadStatus status) { m_LoadingStatus = status; }
 
 private:
-	void GenerateWorld();
-	void GenerateMesh(Chunk* left, Chunk* right, Chunk* back, Chunk* front);
-	void PushData();
+	void BuildTerrain();
+	void BuildMesh(Chunk* left, Chunk* right, Chunk* back, Chunk* front);
 
-	glm::ivec3 GetBlockPositionInWorld(const glm::ivec3& position) const;
-	glm::ivec3 GetBlockPositionInChunk(const glm::ivec3& position) const;
+	/// <summary>
+	/// This function must be invoked from the main thread.
+	/// </summary>
+	void PushData();
 
 	void GenerateFaceVertices(const glm::ivec3& position, Block type, BlockFace face);
 	void GenerateFaceIndices();
@@ -73,7 +74,12 @@ private:
 	std::atomic_bool m_Edited = false;
 	std::atomic<LoadStatus> m_LoadingStatus = LoadStatus::Allocated;
 
-	glm::ivec2 m_Coord;
+	// Use CHUNK_UUID() macro to convert it to 64-bit integer form
+	// and vise-versa via CHUNK_COORD() macro.
+	union {
+		Position2D m_Coord;
+		size_t m_Id;
+	};
 
 	uint32_t m_IndexCount = 0;
 	uint32_t m_VertexCount = 0;
@@ -82,6 +88,7 @@ private:
 
 	Block* m_Blocks = nullptr;
 	int32_t* m_HeightMap = nullptr;
+
 	World* m_World;
 };
 

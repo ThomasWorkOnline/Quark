@@ -28,9 +28,9 @@ public:
 	void SetCoord(const glm::ivec2& coord) { m_Coord = coord; }
 	const glm::ivec2& GetCoord() const { return m_Coord; }
 
-	void Load(glm::ivec2 coord);
-	void Unload(glm::ivec2 coord);
-	void Rebuild(glm::ivec2 coord);
+	void Load(size_t id);
+	void Unload(size_t id);
+	void Rebuild(size_t id);
 
 	bool Idling() const;
 
@@ -39,12 +39,11 @@ public:
 	static Quark::Scope<ChunkLoader> Create(World* world, const glm::ivec2& coord, uint32_t renderDistance = 8);
 
 private:
-	void FlushQueue();
-
-	void OnChunkBorderCrossed();
-
+	void ProcessQueue();
 	void LoadChunk(size_t id);
 	void UnloadChunk(size_t id);
+
+	void OnChunkBorderCrossed();
 
 	void UniqueChunkDataGenerator(Chunk* chunk);
 	void UniqueChunkMeshGenerator(Chunk* chunk, Chunk* left, Chunk* right, Chunk* back, Chunk* front);

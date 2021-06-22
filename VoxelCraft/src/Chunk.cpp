@@ -2,6 +2,7 @@
 
 #include <fstream>
 
+#include "ConvertPosition.h"
 #include "World.h"
 #include "Resources.h"
 
@@ -57,8 +58,8 @@ static const Quark::BufferLayout s_BufferLayout = {
 	{ Quark::ShaderDataType::Float,  "a_Intensity" }
 };
 
-Chunk::Chunk(const glm::ivec2& coord, World* world)
-	: m_Coord(coord), m_World(world) {}
+Chunk::Chunk(size_t id, World* world)
+	: m_Id(id), m_World(world) {}
 
 Chunk::~Chunk()
 {
@@ -87,9 +88,9 @@ void Chunk::Save() const
 	}*/
 }
 
-void Chunk::GenerateWorld()
+void Chunk::BuildTerrain()
 {
-	QK_ASSERT(m_Blocks == nullptr, "Tried to allocate chunk more than once");
+	QK_ASSERT(m_Blocks == nullptr, "Tried to allocate blocks more than once");
 
 	// Generate height map
 	m_HeightMap = new int32_t[ChunkSpecification::Width * ChunkSpecification::Depth];
@@ -98,10 +99,11 @@ void Chunk::GenerateWorld()
 	{
 		for (uint32_t x = 0; x < ChunkSpecification::Width; x++)
 		{
-			glm::ivec3 pos = GetBlockPositionInWorld({ x, 0, z });
+			Position2D pos(x, z);
+			auto position = pos.ToWorldSpace(m_Coord);
 
 			// Important to use deterministic algorithms for anything related to world gen
-			float fValue = round(sinf(pos.x * 0.144f + pos.z * 0.021f) * 6.0f);
+			float fValue = round(sinf(position.x * 0.144f + position.y * 0.021f) * 6.0f);
 			int32_t value = static_cast<int32_t>(fValue);
 			m_HeightMap[z * ChunkSpecification::Depth + x] = value;
 		}
@@ -122,7 +124,7 @@ void Chunk::GenerateWorld()
 	}
 }
 
-void Chunk::GenerateMesh(Chunk* left, Chunk* right, Chunk* back, Chunk* front)
+void Chunk::BuildMesh(Chunk* left, Chunk* right, Chunk* back, Chunk* front)
 {
 	m_VertexCount = 0;
 	m_IndexCount = 0;
@@ -254,43 +256,40 @@ Block Chunk::GetBlock(const glm::ivec3& position) const
 	return Block::None;
 }
 
-glm::ivec3 Chunk::GetBlockPositionInWorld(const glm::ivec3& position) const
-{
-	return { position.x + m_Coord.x * ChunkSpecification::Width, position.y, position.z + m_Coord.y * ChunkSpecification::Depth };
-}
-
-glm::ivec3 Chunk::GetBlockPositionInChunk(const glm::ivec3& position) const
-{
-	return { position.x - m_Coord.x * ChunkSpecification::Width, position.y, position.z - m_Coord.y * ChunkSpecification::Depth };
-}
-
 void Chunk::ReplaceBlock(const glm::ivec3& position, Block type)
 {
-	int32_t index = IndexAtPosition(position);
-	if (index != - 1)
+	if (m_Blocks)
 	{
-		m_Edited.store(true);
-
-		m_Blocks[index] = type;
-
-		m_World->OnChunkModified(m_Coord);
-
-		if (position.x == 0)
+		int32_t index = IndexAtPosition(position);
+		if (index != -1)
 		{
-			m_World->OnChunkModified(m_Coord + glm::ivec2(-1, 0));
-		}
-		else if (position.x == ChunkSpecification::Width - 1)
-		{
-			m_World->OnChunkModified(m_Coord + glm::ivec2(1, 0));
-		}
+			m_Edited = true;
 
-		if (position.z == 0)
-		{
-			m_World->OnChunkModified(m_Coord + glm::ivec2(0, -1));
-		}
-		else if (position.z == ChunkSpecification::Depth - 1)
-		{
-			m_World->OnChunkModified(m_Coord + glm::ivec2(0, 1));
+			m_Blocks[index] = type;
+
+			m_World->OnChunkModified(m_Id);
+
+			if (position.x == 0)
+			{
+				auto coord = m_Coord + glm::ivec2(-1, 0);
+				m_World->OnChunkModified(CHUNK_UUID(coord));
+			}
+			else if (position.x == ChunkSpecification::Width - 1)
+			{
+				auto coord = m_Coord + glm::ivec2(1, 0);
+				m_World->OnChunkModified(CHUNK_UUID(coord));
+			}
+
+			if (position.z == 0)
+			{
+				auto coord = m_Coord + glm::ivec2(0, -1);
+				m_World->OnChunkModified(CHUNK_UUID(coord));
+			}
+			else if (position.z == ChunkSpecification::Depth - 1)
+			{
+				auto coord = m_Coord + glm::ivec2(0, 1);
+				m_World->OnChunkModified(CHUNK_UUID(coord));
+			}
 		}
 	}
 }

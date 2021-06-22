@@ -1,10 +1,7 @@
 #include "WorldMap.h"
 
 WorldMap::WorldMap(World* world)
-	: m_World(world)
-{
-
-}
+	: m_World(world) {}
 
 WorldMap::~WorldMap()
 {
@@ -17,13 +14,20 @@ void WorldMap::OnUpdate(float elapsedTime)
 {
 	{
 		std::lock_guard<std::mutex> lock(m_ChunksToDeleteMutex);
-		if (!m_ChunksToDelete.empty())
+		for (auto data : m_ChunksToDelete)
 		{
-			auto data = m_ChunksToDelete.front();
-			m_ChunksToDelete.pop_front();
-
 			delete data;
 		}
+		m_ChunksToDelete.clear();
+	}
+}
+
+void WorldMap::Foreach(const std::function<void(size_t id)>& func) const
+{
+	std::lock_guard<std::recursive_mutex> lock(m_ChunksLocationsMutex);
+	for (auto& e : m_ChunksLocations)
+	{
+		func(e.first);
 	}
 }
 
@@ -52,10 +56,12 @@ Chunk* WorldMap::Load(size_t id)
 {
 	if (!Contains(id))
 	{
-		auto data = new Chunk(CHUNK_COORD(id), m_World);
+		auto data = new Chunk(id, m_World);
 
 		std::lock_guard<std::recursive_mutex> lock(m_ChunksLocationsMutex);
 		m_ChunksLocations.insert({ id, data });
+
+		return data;
 	}
 	return Select(id);
 }

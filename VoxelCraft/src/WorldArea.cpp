@@ -6,29 +6,31 @@ WorldArea::WorldArea(WorldMap& map, const glm::ivec2& size, const glm::ivec2& an
 	Invalidate(size, anchor);
 }
 
-bool WorldArea::InBounds(glm::ivec2 coord) const
+bool WorldArea::InBounds(size_t id) const
 {
+	const auto& coord = CHUNK_COORD(id);
 	return (coord.x >= m_AccessibleBounds.First.x && coord.x <= m_AccessibleBounds.Second.x &&
 		coord.y >= m_AccessibleBounds.First.y && coord.y <= m_AccessibleBounds.Second.y);
 }
 
-void WorldArea::Foreach(const std::function<void(glm::ivec2 coord)>& func) const
+void WorldArea::Foreach(const std::function<void(size_t id)>& func) const
 {
 	for (int z = m_AccessibleBounds.First.y; z < m_AccessibleBounds.Second.y; z++)
 	{
 		for (int x = m_AccessibleBounds.First.x; x < m_AccessibleBounds.Second.x; x++)
 		{
-			func({ x, z });
+			glm::ivec2 coord(x, z);
+			func(CHUNK_UUID(coord));
 		}
 	}
 }
 
-void WorldArea::OnUnload(const std::function<void(glm::ivec2 coord)>& func)
+void WorldArea::OnUnload(const std::function<void(size_t id)>& func)
 {
 	std::lock_guard<std::mutex> lock(m_ChunksToUnloadMutex);
 	for (auto e : m_ChunksToUnload)
 	{
-		func(CHUNK_COORD(e));
+		func(e);
 	}
 
 	m_ChunksToUnload.clear();
@@ -36,11 +38,11 @@ void WorldArea::OnUnload(const std::function<void(glm::ivec2 coord)>& func)
 
 void WorldArea::Invalidate(const glm::ivec2& size, const glm::ivec2& anchor)
 {
-	static LoadingAreaBounds lastBounds = m_InternalBounds;
+	static WorldAreaBounds lastBounds = m_InternalBounds;
 
 	ComputeBounds(size, anchor);
 	LoadArea();
-	UnloadOutOfBounds(m_InternalBounds, lastBounds);
+	UpdateOutOfBounds(m_InternalBounds, lastBounds);
 
 	lastBounds = m_InternalBounds;
 }
@@ -57,7 +59,7 @@ void WorldArea::LoadArea()
 	}
 }
 
-void WorldArea::UnloadOutOfBounds(const LoadingAreaBounds& bounds, const LoadingAreaBounds& lastBounds)
+void WorldArea::UpdateOutOfBounds(const WorldAreaBounds& bounds, const WorldAreaBounds& lastBounds)
 {
 	std::unordered_set<size_t> coords;
 

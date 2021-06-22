@@ -16,5 +16,7 @@ glm::ivec3 GetFaceNormal(BlockFace facing)
 		return { 0, 1, 0 };
 	case BlockFace::Bottom:
 		return { 0, -1, 0 };
+	default:
+		return {};
 	}
 }

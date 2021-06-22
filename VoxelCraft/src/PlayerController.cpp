@@ -18,7 +18,7 @@ void PlayerController::OnUpdate(float elapsedTime)
 		auto& camera = m_CameraEntity.GetComponent<Quark::PerspectiveCameraComponent>().Camera;
 
 		// Boost key
-		if (Quark::Input::IsKeyPressed(Quark::Key::LeftControl))
+		if (Quark::Input::IsKeyPressed(Quark::Key::LeftShift))
 		{
 			m_MovementSpeed = m_Player.GetSettings().SprintMovementSpeed;
 		}
@@ -61,7 +61,7 @@ void PlayerController::OnUpdate(float elapsedTime)
 			physics.Velocity.y += elapsedTime * m_MovementSpeed;
 		}
 
-		if (Quark::Input::IsKeyPressed(Quark::Key::LeftShift))
+		if (Quark::Input::IsKeyPressed(Quark::Key::LeftControl))
 		{
 			physics.Velocity.y -= elapsedTime * m_MovementSpeed;
 		}
