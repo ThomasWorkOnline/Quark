@@ -298,7 +298,7 @@ bool Chunk::IsBlockFaceVisible(const glm::ivec3& position, BlockFace face, Chunk
 {
 	glm::ivec3 neighborPosition = position + GetFaceNormal(face);
 
-	bool visible = !IsBlockOpaque(neighborPosition);
+	bool visible = IsBlockTransparent(neighborPosition);
 	
 	// No further checks, face is culled
 	if (!visible)
@@ -341,13 +341,13 @@ bool Chunk::IsBlockFaceVisible(const glm::ivec3& position, BlockFace face, Chunk
 	return visible;
 }
 
-bool Chunk::IsBlockOpaque(const glm::ivec3& position) const
+bool Chunk::IsBlockTransparent(const glm::ivec3& position) const
 {
 	int32_t index = IndexAtPosition(position);
 	if (index != -1)
 	{
 		auto& blockProperties = Resources::GetBlockProperties();
-		return !blockProperties.at(m_Blocks[index]).Transparent;
+		return blockProperties.at(m_Blocks[index]).Transparent;
 	}
-	return false;
+	return true;
 }

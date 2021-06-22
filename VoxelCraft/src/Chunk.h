@@ -62,7 +62,7 @@ private:
 	void GenerateFaceIndices();
 
 	bool IsBlockFaceVisible(const glm::ivec3& position, BlockFace face, Chunk* left, Chunk* right, Chunk* back, Chunk* front) const;
-	bool IsBlockOpaque(const glm::ivec3& position) const;
+	bool IsBlockTransparent(const glm::ivec3& position) const;
 
 	Block GenerateBlock(const glm::ivec3& position);
 

@@ -109,7 +109,7 @@ bool World::OnMouseButtonPressed(Quark::MouseButtonPressedEvent& e)
 }
 
 // TODO: implement a proper raycast
-CollisionData World::RayCast(const Position3D& start, const glm::vec3& direction, float length)
+CollisionData World::RayCast(const glm::vec3& start, const glm::vec3& direction, float length)
 {
 	CollisionData data;
 	data.Block = Block::None;
@@ -118,7 +118,7 @@ CollisionData World::RayCast(const Position3D& start, const glm::vec3& direction
 
 	for (float i = 0; i < length; i += 0.01f)
 	{
-		glm::ivec3 position = glm::floor((glm::vec3)start + normDir * i);
+		glm::ivec3 position = glm::floor(start + normDir * i);
 		Block block = GetBlock(position);
 		if (block != Block::None && block != Block::Air)
 		{

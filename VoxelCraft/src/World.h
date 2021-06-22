@@ -29,7 +29,7 @@ private:
 	bool OnMouseButtonPressed(Quark::MouseButtonPressedEvent& e);
 
 	// Utilities
-	CollisionData RayCast(const Position3D& start, const glm::vec3& direction, float length);
+	CollisionData RayCast(const glm::vec3& start, const glm::vec3& direction, float length);
 	Block GetBlock(const Position3D& position) const;
 	void ReplaceBlock(const Position3D& position, Block type);
 
