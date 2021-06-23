@@ -153,7 +153,7 @@ Block Chunk::GenerateBlock(const Position3D& position)
 	else if (position.y >= genDirt && position.y < genGrassBlock)
 		type = Block::GrassBlock;
 	else if (position.y >= genGrassBlock && position.y < genGrass)
-		type = noise < 0.01f ? Block::Poppy : Block::Air;
+		type = noise < 0.01f ? Block::Poppy : noise > 0.9f ? Block::Grass : Block::Air;
 	else
 		type = Block::Air;
 

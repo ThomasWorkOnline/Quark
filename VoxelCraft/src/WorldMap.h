@@ -33,7 +33,7 @@ private:
 	/// <summary>
 	/// The deletion must be done on the main thread.
 	/// Different Graphics Drivers might crash or ignore the call to glDelete<...>(),
-	/// resulting in undefined behaviour. In most cases, a memory leak could occur.
+	/// resulting in undefined behaviour. In most cases, a memory leak would occur.
 	/// </summary>
 	mutable std::mutex m_ChunksToDeleteMutex;
 	std::list<Chunk*> m_ChunksToDelete;

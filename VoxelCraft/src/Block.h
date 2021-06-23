@@ -24,5 +24,6 @@ enum class Block : int8_t
 	GrassBlock,
 	Stone,
 	Cobblestone,
-	Poppy
+	Poppy,
+	Grass
 };

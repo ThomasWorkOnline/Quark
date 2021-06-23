@@ -184,6 +184,8 @@ void ChunkLoader::ProcessQueue()
 
 					lock.unlock();
 
+					m_LoadingQueue.remove(id);
+
 					UnloadChunk(id);
 				}
 			}
