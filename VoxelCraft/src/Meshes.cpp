@@ -8,8 +8,7 @@ void BlockMesh::CreateFace(std::vector<Vertex>& outVertices, std::vector<uint32_
 	for (uint8_t i = 0; i < 4; i++)
 	{
 		Vertex v = {
-			meshProperties.VertexPositions[i + static_cast<uint8_t>(face) * 4]
-			+ static_cast<glm::vec3>(position),
+			meshProperties.VertexPositions[i + static_cast<uint8_t>(face) * 4] + position,
 			props.Faces[static_cast<uint8_t>(face)].GetCoords()[i],
 			(static_cast<uint8_t>(face) + 1) / 6.0f
 		};
@@ -36,7 +35,7 @@ void CrossSpriteMesh::Create(std::vector<Vertex>& outVertices, std::vector<uint3
 		for (uint8_t i = 0; i < 4; i++)
 		{
 			Vertex v = {
-				meshProperties.VertexPositions[x * 4 + i] + static_cast<glm::vec3>(position),
+				meshProperties.VertexPositions[x * 4 + i] + position,
 				props.Faces[0].GetCoords()[i],
 				1.0f
 			};

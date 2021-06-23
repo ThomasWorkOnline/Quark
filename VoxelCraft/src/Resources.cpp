@@ -1,10 +1,23 @@
 #include "Resources.h"
 
-Quark::Ref<Quark::Shader> Resources::s_Shader;
-Quark::Ref<Quark::Shader> Resources::s_DebugShader;
-Quark::Ref<Quark::Texture2D> Resources::s_Texture;
 std::unordered_map<Block, BlockProperties> Resources::s_BlockProperties;
 std::unordered_map<MeshModel, MeshProperties> Resources::s_MeshModels;
+
+Quark::Ref<Quark::VertexArray> Resources::s_CrosshairVertexArray;
+
+Quark::ShaderLibrary Resources::s_ShaderLibrary;
+
+Quark::Ref<Quark::Texture2D> Resources::s_Texture;
+
+const Quark::BufferLayout Resources::s_BufferLayout = {
+	{ Quark::ShaderDataType::Float3, "a_Position"  },
+	{ Quark::ShaderDataType::Float2, "a_TexCoord"  },
+	{ Quark::ShaderDataType::Float,  "a_Intensity" }
+};
+
+const Quark::BufferLayout Resources::s_CrosshairBufferLayout = {
+	{ Quark::ShaderDataType::Float3, "a_Position"  }
+};
 
 static constexpr glm::vec3 s_BlockVertexPositions[24] = {
 	// front
@@ -69,10 +82,40 @@ static constexpr glm::vec3 s_CrossSpriteVertexPositions[16] = {
 	{  0.85f,  1.00f,  0.85f }
 };
 
+static constexpr glm::vec3 s_CrosshairVertexPositions[12] = {
+	// horizontal bottom right
+	{ -0.015f, -0.002f,  0.0f },
+	{  0.015f, -0.002f,  0.0f },
+	{  0.015f,  0.002f,  0.0f },
+		  
+	// horizontal top left
+	{  0.015f,  0.002f,  0.0f },
+	{ -0.015f,  0.002f,  0.0f },
+	{ -0.015f, -0.002f,  0.0f },
+
+	// horizontal bottom right
+	{ -0.002f, -0.015f,  0.0f },
+	{  0.002f,  0.015f,  0.0f },
+	{ -0.002f,  0.015f,  0.0f },
+
+	// horizontal top left
+	{  0.002f,  0.015f,  0.0f },
+	{ -0.002f, -0.015f,  0.0f },
+	{  0.002f, -0.015f,  0.0f }
+};
+static constexpr uint32_t s_CrosshairIndices[12] = {
+	0, 2, 1,
+	3, 5, 4,
+	6, 8, 7,
+	9, 11, 10
+};
+
 void Resources::Initialize()
 {
-	s_Shader = Quark::Shader::Create("assets/shaders/default.glsl");
-	s_DebugShader = Quark::Shader::Create("assets/shaders/debugMesh.glsl");
+	s_ShaderLibrary.Load("default", "assets/shaders/default.glsl");
+	s_ShaderLibrary.Load("crosshair", "assets/shaders/crosshair.glsl");
+	s_ShaderLibrary.Load("debugMesh", "assets/shaders/debugMesh.glsl");
+
 	s_Texture = Quark::Texture2D::Create("assets/textures/sprite_sheet.png");
 
 	s_BlockProperties = {
@@ -90,4 +133,13 @@ void Resources::Initialize()
 		{ MeshModel::Block,			{ s_BlockVertexPositions } },
 		{ MeshModel::CrossSprite,	{ s_CrossSpriteVertexPositions } }
 	};
+
+	s_CrosshairVertexArray = Quark::VertexArray::Create();
+
+	auto vbo = Quark::VertexBuffer::Create((float*)s_CrosshairVertexPositions, sizeof(s_CrosshairVertexPositions));
+	vbo->SetLayout(s_CrosshairBufferLayout);
+	s_CrosshairVertexArray->AddVertexBuffer(vbo);
+
+	auto ibo = Quark::IndexBuffer::Create((uint32_t*)s_CrosshairIndices, sizeof(s_CrosshairIndices) / sizeof(uint32_t));
+	s_CrosshairVertexArray->SetIndexBuffer(ibo);
 }

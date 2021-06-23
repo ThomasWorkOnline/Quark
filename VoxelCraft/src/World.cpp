@@ -4,8 +4,8 @@
 #include <chrono>
 
 #include "ChunkLoader.h"
-#include "ChunkRenderer.h"
 #include "ConvertPosition.h"
+#include "GameRenderer.h"
 #include "Resources.h"
 
 static uint32_t s_ChunksExpected = 0;
@@ -15,15 +15,12 @@ World::World()
 {
 	QK_TIME_SCOPE_DEBUG(World::World);
 
-	Resources::Initialize();
-	ChunkRenderer::Initialize();
-
-	m_Loader = ChunkLoader::Create(this, { 0, 0 }, m_Player.GetSettings().RenderDistance);
+	m_Loader = ChunkLoader::Create(this, ((Position3D)m_Player.GetSettings().SpawnPoint).ToChunkCoord(), m_Player.GetSettings().RenderDistance);
 }
 
 World::~World()
 {
-	ChunkRenderer::Shutdown();
+	
 }
 
 void World::OnUpdate(float elapsedTime)
@@ -41,10 +38,13 @@ void World::OnUpdate(float elapsedTime)
 
 	m_Map.Foreach([](const Chunk* data)
 		{
-			ChunkRenderer::Submit(data);
+			GameRenderer::SubmitChunk(data);
 		});
 
 	Quark::Renderer::EndScene();
+
+	const auto& window = Quark::Application::Get().GetWindow();
+	GameRenderer::DrawUI(window.GetWidth(), window.GetHeight());
 }
 
 void World::OnEvent(Quark::Event& e)
@@ -74,7 +74,7 @@ bool World::OnKeyPressed(Quark::KeyPressedEvent& e)
 		std::cout << ChunkSpecification::BlockCount * m_Loader->GetStats().ChunksWorldGen << " blocks generated!\n";
 		break;
 	case Quark::KeyCode::F1:
-		ChunkRenderer::SwitchShader();
+		GameRenderer::SwitchShader();
 		break;
 	}
 

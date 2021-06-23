@@ -44,21 +44,21 @@ namespace Quark {
 		Add(shader->GetName(), shader);
 	}
 
-	Ref<Shader> ShaderLibrary::Load(const std::string& filepath)
+	const Ref<Shader>& ShaderLibrary::Load(const std::string& filepath)
 	{
 		auto shader = Shader::Create(filepath);
 		Add(shader);
 		return shader;
 	}
 
-	Ref<Shader> ShaderLibrary::Load(const std::string& name, const std::string& filepath)
+	const Ref<Shader>& ShaderLibrary::Load(const std::string& name, const std::string& filepath)
 	{
 		auto shader = Shader::Create(filepath);
 		Add(name, shader);
 		return shader;
 	}
 
-	Ref<Shader> ShaderLibrary::Get(const std::string& name)
+	const Ref<Shader>& ShaderLibrary::Get(const std::string& name)
 	{
 		if (!Exists(name))
 			QK_FATAL("Shader not found!");

@@ -1,12 +1,12 @@
-#include "ChunkRenderer.h"
+#include "GameRenderer.h"
 
 #include "Resources.h"
 
 #define DRAW_CHUNK_ALL_STATUS 0
 
-Quark::Ref<Quark::Shader> ChunkRenderer::s_ActiveShader;
+Quark::Ref<Quark::Shader> GameRenderer::s_ActiveShader;
 
-ChunkRendererStats ChunkRenderer::s_Stats;
+GameRendererStats GameRenderer::s_Stats;
 
 // Debug
 #if DRAW_CHUNK_ALL_STATUS
@@ -21,9 +21,9 @@ static Quark::Mesh s_Mesh;
 static Quark::Transform3DComponent s_Transform;
 #endif
 
-void ChunkRenderer::Initialize()
+void GameRenderer::Initialize()
 {
-	s_ActiveShader = Resources::GetShader();
+	s_ActiveShader = Resources::GetShader("default");
 
 #	if DRAW_CHUNK_ALL_STATUS
 	s_Shader = Quark::Shader::Create("assets/shaders/default3D.glsl");
@@ -36,24 +36,24 @@ void ChunkRenderer::Initialize()
 #	endif
 }
 
-void ChunkRenderer::Shutdown()
+void GameRenderer::Shutdown()
 {
 
 }
 
-void ChunkRenderer::SwitchShader()
+void GameRenderer::SwitchShader()
 {
 	if (s_ActiveShader->GetName() == "default")
 	{
-		s_ActiveShader = Resources::GetDebugShader();
+		s_ActiveShader = Resources::GetShader("debugMesh");
 	}
 	else
 	{
-		s_ActiveShader = Resources::GetShader();
+		s_ActiveShader = Resources::GetShader("default");
 	}
 }
 
-void ChunkRenderer::Submit(const Chunk* chunk)
+void GameRenderer::SubmitChunk(const Chunk* chunk)
 {
 	switch (chunk->GetLoadStatus())
 	{
@@ -86,4 +86,18 @@ void ChunkRenderer::Submit(const Chunk* chunk)
 	}
 #	endif
 	}
+}
+
+void GameRenderer::DrawUI(uint32_t width, uint32_t height)
+{
+	// Draw UI
+	auto& shader = Resources::GetShader("crosshair");
+
+	shader->Attach();
+	shader->SetFloat4("u_Color", glm::vec4(1.0f, 1.0f, 1.0f, 0.5f));
+
+	float aspectRatio = static_cast<float>(width) / height;
+	Quark::Renderer::BeginScene(glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, aspectRatio, 1.0f)), glm::mat4(1.0f));
+	Quark::Renderer::Submit(shader, Resources::GetCrosshairVertexArray());
+	Quark::Renderer::EndScene();
 }

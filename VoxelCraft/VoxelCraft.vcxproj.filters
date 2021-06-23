@@ -5,7 +5,7 @@
     <ClCompile Include="src\Chunk.cpp" />
     <ClCompile Include="src\World.cpp" />
     <ClCompile Include="src\Player.cpp" />
-    <ClCompile Include="src\ChunkRenderer.cpp" />
+    <ClCompile Include="src\GameRenderer.cpp" />
     <ClCompile Include="src\PlayerController.cpp" />
     <ClCompile Include="src\ChunkLoader.cpp" />
     <ClCompile Include="src\Block.cpp" />
@@ -19,7 +19,7 @@
     <ClInclude Include="src\Chunk.h" />
     <ClInclude Include="src\World.h" />
     <ClInclude Include="src\Player.h" />
-    <ClInclude Include="src\ChunkRenderer.h" />
+    <ClInclude Include="src\GameRenderer.h" />
     <ClInclude Include="src\PlayerController.h" />
     <ClInclude Include="src\Block.h" />
     <ClInclude Include="src\ChunkLoader.h" />
@@ -33,5 +33,8 @@
     <ClInclude Include="src\MeshProperties.h" />
     <ClInclude Include="src\Vertex.h" />
     <ClInclude Include="src\Meshes.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\shaders\crosshair.glsl" />
   </ItemGroup>
 </Project>

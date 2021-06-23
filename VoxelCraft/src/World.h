@@ -22,6 +22,8 @@ public:
 	void OnUpdate(float elapsedTime);
 	void OnEvent(Quark::Event& e);
 
+	Player& GetPlayer() { return m_Player; }
+
 	void OnChunkModified(size_t id);
 
 private:

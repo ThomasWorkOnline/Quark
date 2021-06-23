@@ -1,6 +1,8 @@
 #include <Quark.h>
 
 #include "World.h"
+#include "Resources.h"
+#include "GameRenderer.h"
 
 class VoxelCraft : public Quark::Application
 {
@@ -12,11 +14,14 @@ public:
 		GetWindow().Select();
 		GetWindow().SetVSync(true);
 		GetWindow().SetFullScreen(false);
+
+		Resources::Initialize();
+		GameRenderer::Initialize();
 	}
 
 	void OnDestroy() override
 	{
-		
+		GameRenderer::Shutdown();
 	}
 
 	void OnUpdate(float elapsedTime) override
@@ -34,6 +39,7 @@ public:
 		Quark::EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<Quark::KeyPressedEvent>(ATTACH_EVENT_FN(VoxelCraft::OnKeyPressed));
 		dispatcher.Dispatch<Quark::MouseButtonPressedEvent>(ATTACH_EVENT_FN(VoxelCraft::OnMouseButtonPressed));
+		dispatcher.Dispatch<Quark::WindowResizedEvent>(ATTACH_EVENT_FN(VoxelCraft::OnWindowResized));
 
 		if (!e.Handled)
 		{
@@ -66,6 +72,11 @@ public:
 			return !selected;
 		}
 
+		return false;
+	}
+
+	bool OnWindowResized(Quark::WindowResizedEvent& e)
+	{
 		return false;
 	}
 

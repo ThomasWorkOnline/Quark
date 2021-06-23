@@ -13,12 +13,6 @@ static int32_t IndexAtPosition(const glm::ivec3& position)
 	return position.x + ChunkSpecification::Width * position.z + ChunkSpecification::Width * ChunkSpecification::Depth * position.y;
 }
 
-static const Quark::BufferLayout s_BufferLayout = {
-	{ Quark::ShaderDataType::Float3, "a_Position"  },
-	{ Quark::ShaderDataType::Float2, "a_TexCoord"  },
-	{ Quark::ShaderDataType::Float,  "a_Intensity" }
-};
-
 Chunk::Chunk(size_t id, World* world)
 	: m_Id(id), m_World(world) {}
 
@@ -122,7 +116,7 @@ void Chunk::PushData()
 		m_VertexArray = Quark::VertexArray::Create();
 
 		auto vbo = Quark::VertexBuffer::Create((float*)m_Vertices.data(), m_Vertices.size() * sizeof(Vertex));
-		vbo->SetLayout(s_BufferLayout);
+		vbo->SetLayout(Resources::GetBufferLayout());
 		m_VertexArray->AddVertexBuffer(vbo);
 
 		auto ibo = Quark::IndexBuffer::Create(m_Indices.data(), m_Indices.size());
