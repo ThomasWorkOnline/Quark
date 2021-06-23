@@ -25,6 +25,7 @@ public:
 
 	const PlayerSettings& GetSettings() const { return m_Settings; }
 	const glm::vec3& GetPosition() const { return GetTransform().Position; }
+	glm::ivec3 GetIntegerPosition() const { return glm::floor(GetPosition()); }
 	glm::vec3 GetHeadPosition() { return GetTransform().Position + m_Settings.HeadRelativeToFeet; }
 
 	const Quark::Transform3DComponent& GetTransform() const { return m_Entity.GetComponent<Quark::Transform3DComponent>(); }

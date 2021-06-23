@@ -135,7 +135,7 @@ Block Chunk::GenerateBlock(const Position3D& position)
 
 	float noise = rand() / static_cast<float>(RAND_MAX);
 
-	int32_t heightSample = m_HeightMap[position.z * ChunkSpecification::Depth + position.x];
+	int32_t heightSample = m_HeightMap[(size_t)(position.z * ChunkSpecification::Depth + position.x)];
 
 	uint32_t genBedrock = static_cast<uint32_t>(1.0f + noise * 4.0f);
 	uint32_t genStone = stoneHeight + heightSample;

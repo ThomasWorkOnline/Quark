@@ -14,9 +14,9 @@ static uint32_t s_ChunksExpected = 0;
 
 World::World()
 {
-	s_Instance = this;
-
 	QK_TIME_SCOPE_DEBUG(World::World);
+
+	s_Instance = this;
 
 	m_Loader = ChunkLoader::Create(((Position3D)m_Player.GetSettings().SpawnPoint).ToChunkCoord(), m_Player.GetSettings().RenderDistance);
 }
@@ -74,10 +74,11 @@ void World::OnChunkModified(size_t id)
 
 bool World::IsPlayerTouchingGround(const Player& player)
 {
-	const glm::ivec3 blockPos = glm::floor(player.GetPosition() - 0.1f);
-	auto block = GetBlock(blockPos);
+	const glm::ivec3 blockUnderFeetPos = player.GetIntegerPosition() - glm::ivec3(0, 1, 0);
+	auto blockUnderFeet = GetBlock(blockUnderFeetPos);
+	std::cout << (uint32_t)blockUnderFeet << std::endl;
 
-	auto& props = Resources::GetBlockProperties(block);
+	auto& props = Resources::GetBlockProperties(blockUnderFeet);
 
 	return props.CollisionEnabled;
 }
@@ -200,16 +201,16 @@ void World::ProcessPlayerCollision()
 {
 	static const auto& hitbox = Resources::GetPlayerHitbox();
 	const auto& playerPos = m_Player.GetPosition();
+	const glm::vec3 blockInFeetPos = m_Player.GetIntegerPosition();
 
-	const glm::ivec3 blockPos = glm::floor(playerPos - 0.1f);
-	auto block = GetBlock(blockPos);
+	auto block = GetBlock(blockInFeetPos);
 	auto& props = Resources::GetBlockProperties(block);
 
 	// Collide with block underneath
 	if (props.CollisionEnabled)
 	{
 		auto& meshProps = Resources::GetMeshProperties(props.Mesh);
-		auto& blockHitbox = meshProps.Hitbox.Move(blockPos).GetBounds();
+		auto& blockHitbox = meshProps.Hitbox.Move(blockInFeetPos).GetBounds();
 
 		auto data = hitbox.Move(playerPos).Collide(glm::vec3(playerPos.x, blockHitbox.Y.Max, playerPos.z));
 
@@ -217,7 +218,7 @@ void World::ProcessPlayerCollision()
 		{
 			auto& collision = data.value();
 
-			m_Player.GetTransform().Position += ((glm::vec3)collision.Impact) - playerPos;
+			m_Player.GetTransform().Position += collision.Impact - playerPos;
 		}
 	}
 }
