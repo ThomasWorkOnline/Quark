@@ -30,13 +30,20 @@ namespace Quark {
 		}
 
 		template<typename T>
-		bool HasComponent()
+		bool HasComponent() const
 		{
 			return m_Scene->m_Registry.has<T>(m_Entity);
 		}
 
 		template<typename T>
 		T& GetComponent()
+		{
+			QK_ASSERT(HasComponent<T>(), "Entity does not have component!");
+			return m_Scene->m_Registry.get<T>(m_Entity);
+		}
+
+		template<typename T>
+		const T& GetComponent() const
 		{
 			QK_ASSERT(HasComponent<T>(), "Entity does not have component!");
 			return m_Scene->m_Registry.get<T>(m_Entity);

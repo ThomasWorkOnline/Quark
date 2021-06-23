@@ -14,10 +14,8 @@ enum class BlockFace
 
 glm::ivec3 GetFaceNormal(BlockFace facing);
 
-enum class Block : int8_t
+enum class Block : uint8_t
 {
-	None = -1,
-
 	Air = 0,
 	Bedrock,
 	Dirt,

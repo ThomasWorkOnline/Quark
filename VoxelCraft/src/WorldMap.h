@@ -10,7 +10,7 @@
 class WorldMap
 {
 public:
-	WorldMap(World* world);
+	WorldMap();
 	~WorldMap();
 
 	void OnUpdate(float elapsedTime);
@@ -37,6 +37,4 @@ private:
 	/// </summary>
 	mutable std::mutex m_ChunksToDeleteMutex;
 	std::list<Chunk*> m_ChunksToDelete;
-
-	World* m_World;
 };

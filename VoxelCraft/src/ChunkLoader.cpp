@@ -1,8 +1,10 @@
 #include "ChunkLoader.h"
 
-Quark::Scope<ChunkLoader> ChunkLoader::Create(World* world, const glm::ivec2& coord, uint32_t renderDistance)
+#include "World.h"
+
+Quark::Scope<ChunkLoader> ChunkLoader::Create(const glm::ivec2& coord, uint32_t renderDistance)
 {
-	return Quark::CreateScope<ChunkLoader>(world, coord, renderDistance);
+	return Quark::CreateScope<ChunkLoader>(coord, renderDistance);
 }
 
 static const int32_t s_QueueLimit = 10000;
@@ -32,11 +34,10 @@ static bool QueueContains(const std::list<size_t>& list, glm::ivec2 coord)
 	return QueueContains(list, CHUNK_UUID(coord));
 }
 
-ChunkLoader::ChunkLoader(World* world, const glm::ivec2& coord, uint32_t renderDistance)
-	: m_LoadingArea(world->m_Map, { renderDistance, renderDistance }, coord),
+ChunkLoader::ChunkLoader(const glm::ivec2& coord, uint32_t renderDistance)
+	: m_LoadingArea(World::Get().GetMap(), { renderDistance, renderDistance }, coord),
 	m_Coord(coord),
-	m_RenderDistance(renderDistance),
-	m_World(world)
+	m_RenderDistance(renderDistance)
 {
 	m_LoadingArea.Foreach([this](size_t id)
 		{
@@ -78,7 +79,7 @@ void ChunkLoader::OnUpdate(float elapsedTime)
 	}
 	lastCoord = m_Coord;
 
-	m_World->m_Map.Foreach([](Chunk* data)
+	World::Get().GetMap().Foreach([](Chunk* data)
 		{
 			if (data && data->GetLoadStatus() == Chunk::LoadStatus::Loaded)
 			{
@@ -93,7 +94,7 @@ void ChunkLoader::Load(size_t id)
 
 	if (m_LoadingQueue.size() < s_QueueLimit)
 	{
-		Chunk* chunk = m_World->m_Map.Select(id);
+		const Chunk* chunk = World::Get().GetMap().Select(id);
 		if ((!chunk || chunk->GetLoadStatus() == Chunk::LoadStatus::Allocated || chunk->GetLoadStatus() == Chunk::LoadStatus::WorldGenerated) && !QueueContains(m_LoadingQueue, id))
 		{
 			m_LoadingQueue.push_back(id);
@@ -112,7 +113,7 @@ void ChunkLoader::Unload(size_t id)
 {
 	std::lock_guard<std::recursive_mutex> lock(s_Mutex);
 
-	Chunk* chunk = m_World->m_Map.Select(id);
+	const Chunk* chunk = World::Get().GetMap().Select(id);
 	if (chunk && !QueueContains(m_UnloadingQueue, id))
 	{
 		m_UnloadingQueue.push_back(id);
@@ -128,7 +129,7 @@ void ChunkLoader::Unload(size_t id)
 
 void ChunkLoader::Rebuild(size_t id)
 {
-	auto chunk = m_World->m_Map.Select(id);
+	auto chunk = World::Get().GetMap().Select(id);
 	chunk->SetLoadStatus(Chunk::LoadStatus::WorldGenerated);
 	LoadChunk(id);
 }
@@ -151,6 +152,7 @@ void ChunkLoader::ProcessQueue()
 				std::unique_lock<std::recursive_mutex> lock(s_Mutex);
 				if (m_LoadingQueue.empty() && m_UnloadingQueue.empty())
 				{
+					std::lock_guard<std::mutex> cdnLock(s_ConditionMutex);
 					s_Paused = true;
 				}
 			}
@@ -203,13 +205,14 @@ void ChunkLoader::LoadChunk(size_t id)
 	auto leftCoord   = coord + glm::ivec2(-1,  0);
 	auto rightCoord  = coord + glm::ivec2( 1,  0);
 	auto backCoord   = coord + glm::ivec2( 0, -1);
-	auto frontCoord  = coord + glm::ivec2( 0, 1);
+	auto frontCoord  = coord + glm::ivec2( 0,  1);
 
-	auto chunk = m_World->m_Map.Load(id);
-	auto left  = m_World->m_Map.Load(CHUNK_UUID(leftCoord));
-	auto right = m_World->m_Map.Load(CHUNK_UUID(rightCoord));
-	auto back  = m_World->m_Map.Load(CHUNK_UUID(backCoord));
-	auto front = m_World->m_Map.Load(CHUNK_UUID(frontCoord));
+	auto& map = World::Get().GetMap();
+	auto chunk = map.Load(id);
+	auto left  = map.Load(CHUNK_UUID(leftCoord));
+	auto right = map.Load(CHUNK_UUID(rightCoord));
+	auto back  = map.Load(CHUNK_UUID(backCoord));
+	auto front = map.Load(CHUNK_UUID(frontCoord));
 
 	UniqueChunkDataGenerator(chunk);
 	UniqueChunkDataGenerator(left);
@@ -222,7 +225,7 @@ void ChunkLoader::LoadChunk(size_t id)
 
 void ChunkLoader::UnloadChunk(size_t id)
 {
-	m_World->m_Map.Unload(id);
+	World::Get().GetMap().Unload(id);
 }
 
 void ChunkLoader::OnChunkBorderCrossed()

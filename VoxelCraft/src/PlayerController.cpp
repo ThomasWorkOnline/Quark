@@ -6,7 +6,7 @@ PlayerController::PlayerController(Player& player)
 	m_CameraEntity = player;
 
 	auto& physics = m_CameraEntity.GetComponent<Quark::PhysicsComponent>();
-	physics.Friction = 6.0f;
+	physics.Friction = 4.0f;
 }
 
 void PlayerController::OnUpdate(float elapsedTime)
@@ -17,14 +17,64 @@ void PlayerController::OnUpdate(float elapsedTime)
 		auto& physics = m_CameraEntity.GetComponent<Quark::PhysicsComponent>();
 		auto& camera = m_CameraEntity.GetComponent<Quark::PerspectiveCameraComponent>().Camera;
 
-		// Boost key
-		if (Quark::Input::IsKeyPressed(Quark::Key::LeftShift))
+		switch (m_PlayerState)
 		{
-			m_MovementSpeed = m_Player.GetSettings().SprintMovementSpeed;
-		}
-		else
-		{
-			m_MovementSpeed = m_Player.GetSettings().BaseMovementSpeed;
+		case PlayerState::Walking:
+
+			/// //////////////////////////////////////////////////////
+			/// WALKING
+			///
+
+			// Boost key
+			if (Quark::Input::IsKeyPressed(Quark::Key::LeftShift))
+			{
+				m_MovementSpeed = m_Player.GetSettings().SprintMovementSpeed;
+			}
+			else
+			{
+				m_MovementSpeed = m_Player.GetSettings().BaseMovementSpeed;
+			}
+
+			// Jump
+			if (Quark::Input::IsKeyPressed(Quark::Key::Space))
+			{
+				if (m_Player.IsTouchingGround())
+				{
+					physics.Velocity.y = 12.0f;
+				}
+			}
+
+			// Gravity
+			physics.Velocity.y -= 30.0f * elapsedTime;
+
+			break;
+		case PlayerState::Flying:
+
+			/// //////////////////////////////////////////////////////
+			/// FLYING
+			///
+
+			// Boost key
+			if (Quark::Input::IsKeyPressed(Quark::Key::LeftShift))
+			{
+				m_MovementSpeed = m_Player.GetSettings().BoostFlyingMovementSpeed;
+			}
+			else
+			{
+				m_MovementSpeed = m_Player.GetSettings().FlyingMovementSpeed;
+			}
+
+			// Up / down
+			if (Quark::Input::IsKeyPressed(Quark::Key::Space))
+			{
+				physics.Velocity.y += elapsedTime * m_MovementSpeed;
+			}
+
+			if (Quark::Input::IsKeyPressed(Quark::Key::LeftControl))
+			{
+				physics.Velocity.y -= elapsedTime * m_MovementSpeed;
+			}
+			break;
 		}
 
 		// Controls
@@ -54,16 +104,6 @@ void PlayerController::OnUpdate(float elapsedTime)
 			glm::vec3 right = { transform.GetRightVector().x, 0.0f, transform.GetRightVector().z };
 			right = glm::normalize(right);
 			physics.Velocity -= right * elapsedTime * m_MovementSpeed;
-		}
-
-		if (Quark::Input::IsKeyPressed(Quark::Key::Space))
-		{
-			physics.Velocity.y += elapsedTime * m_MovementSpeed;
-		}
-
-		if (Quark::Input::IsKeyPressed(Quark::Key::LeftControl))
-		{
-			physics.Velocity.y -= elapsedTime * m_MovementSpeed;
 		}
 
 		camera.OnUpdate();

@@ -8,14 +8,17 @@
 #include "GameRenderer.h"
 #include "Resources.h"
 
+World* World::s_Instance = nullptr;
+
 static uint32_t s_ChunksExpected = 0;
 
 World::World()
-	: m_Map(this)
 {
+	s_Instance = this;
+
 	QK_TIME_SCOPE_DEBUG(World::World);
 
-	m_Loader = ChunkLoader::Create(this, ((Position3D)m_Player.GetSettings().SpawnPoint).ToChunkCoord(), m_Player.GetSettings().RenderDistance);
+	m_Loader = ChunkLoader::Create(((Position3D)m_Player.GetSettings().SpawnPoint).ToChunkCoord(), m_Player.GetSettings().RenderDistance);
 }
 
 World::~World()
@@ -28,13 +31,20 @@ void World::OnUpdate(float elapsedTime)
 	Position3D playerPos = m_Player.GetPosition();
 	m_Loader->SetCoord(playerPos.ToChunkCoord());
 
+	// Physics
 	m_Scene.OnUpdate(elapsedTime);
+
+	ProcessPlayerCollision();
+
+	// Controls
 	m_Controller.OnUpdate(elapsedTime);
+
+	// Environment
 	m_Map.OnUpdate(elapsedTime);
 	m_Loader->OnUpdate(elapsedTime);
 
 	Quark::Renderer::BeginScene(m_Player.GetCamera().Camera.GetMatrix(),
-		m_Player.GetTransform());
+		m_Player.GetCameraTransform());
 
 	m_Map.Foreach([](const Chunk* data)
 		{
@@ -62,6 +72,16 @@ void World::OnChunkModified(size_t id)
 	m_Loader->Rebuild(id); // TODO: move, not related to this loader
 }
 
+bool World::IsPlayerTouchingGround(const Player& player)
+{
+	const glm::ivec3 blockPos = glm::floor(player.GetPosition() - 0.1f);
+	auto block = GetBlock(blockPos);
+
+	auto& props = Resources::GetBlockProperties(block);
+
+	return props.CollisionEnabled;
+}
+
 bool World::OnKeyPressed(Quark::KeyPressedEvent& e)
 {
 	switch (e.GetKeyCode())
@@ -84,48 +104,50 @@ bool World::OnKeyPressed(Quark::KeyPressedEvent& e)
 bool World::OnMouseButtonPressed(Quark::MouseButtonPressedEvent& e)
 {
 	Ray ray;
-	ray.Origin = m_Player.GetPosition();
+	ray.Origin = m_Player.GetHeadPosition();
 	ray.Direction = glm::normalize(m_Player.GetTransform().GetFrontVector());
 
-	auto collisionData = RayCast(ray.Origin, ray.Direction, 5.0f);
-
-	switch (e.GetMouseButton())
+	auto data = RayCast(ray.Origin, ray.Direction, 5.0f);
+	if (data.has_value())
 	{
-	case Quark::MouseCode::ButtonLeft:
-		if (collisionData.Block != Block::None && collisionData.Block != Block::Air)
-		{
-			ReplaceBlock(collisionData.Impact, Block::Air);
-		}
-		break;
-	case Quark::MouseCode::ButtonRight:
-		if (collisionData.Block != Block::None && collisionData.Block != Block::Air)
-		{
-			auto pos = collisionData.Impact + (glm::vec3)GetFaceNormal(collisionData.Side);
-			if (GetBlock(pos) == Block::Air)
-			{
-				ReplaceBlock(pos, Block::Cobblestone);
-			}
-		}
-		break;
-	}
+		auto& collision = data.value();
 
+		switch (e.GetMouseButton())
+		{
+		case Quark::MouseCode::ButtonLeft:
+			if (collision.Block != Block::Air)
+			{
+				ReplaceBlock(collision.Impact, Block::Air);
+			}
+			break;
+		case Quark::MouseCode::ButtonRight:
+			if (collision.Block != Block::Air)
+			{
+				auto pos = collision.Impact + (glm::vec3)GetFaceNormal(collision.Side);
+				if (GetBlock(pos) == Block::Air)
+				{
+					ReplaceBlock(pos, Block::Cobblestone);
+				}
+			}
+			break;
+		}
+	}
+	
 	return false;
 }
 
 // TODO: implement a proper raycast
-CollisionData World::RayCast(const glm::vec3& start, const glm::vec3& direction, float length)
+std::optional<CollisionData> World::RayCast(const glm::vec3& start, const glm::vec3& direction, float length)
 {
-	CollisionData data;
-	data.Block = Block::None;
-
 	glm::vec3 normDir = glm::normalize(direction);
 
 	for (float i = 0; i < length; i += 0.01f)
 	{
 		glm::ivec3 position = glm::floor(start + normDir * i);
 		Block block = GetBlock(position);
-		if (block != Block::None && block != Block::Air)
+		if (block != Block::Air)
 		{
+			CollisionData data;
 			data.Block = block;
 			data.Impact = position;
 			data.Side = BlockFace::Top;
@@ -144,7 +166,7 @@ Block World::GetBlock(const Position3D& position) const
 	Chunk* chunk = m_Map.Select(CHUNK_UUID(coord));
 	if (chunk)
 		return chunk->GetBlock(blockPosition);
-	return Block::None;
+	return Block::Air;
 }
 
 void World::ReplaceBlock(const Position3D& position, Block type)
@@ -172,6 +194,37 @@ void World::ReplaceBlock(const Position3D& position, Block type)
 			chunk->ReplaceBlock(blockPosition, type);
 		}
 	}
+}
+
+void World::ProcessPlayerCollision()
+{
+	static const auto& hitbox = Resources::GetPlayerHitbox();
+	const auto& playerPos = m_Player.GetPosition();
+
+	const glm::ivec3 blockPos = glm::floor(playerPos - 0.1f);
+	auto block = GetBlock(blockPos);
+	auto& props = Resources::GetBlockProperties(block);
+
+	// Collide with block underneath
+	if (props.CollisionEnabled)
+	{
+		auto& meshProps = Resources::GetMeshProperties(props.Mesh);
+		auto& blockHitbox = meshProps.Hitbox.Move(blockPos).GetBounds();
+
+		auto data = hitbox.Move(playerPos).Collide(glm::vec3(playerPos.x, blockHitbox.Y.Max, playerPos.z));
+
+		if (data.has_value())
+		{
+			auto& collision = data.value();
+
+			m_Player.GetTransform().Position += ((glm::vec3)collision.Impact) - playerPos;
+		}
+	}
+}
+
+Quark::Scope<World> World::Create()
+{
+	return Quark::CreateScope<World>();
 }
 
 /*void World::LoadAroundPlayer()

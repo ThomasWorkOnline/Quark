@@ -1,7 +1,8 @@
 #include "Meshes.h"
 
-void BlockMesh::CreateFace(std::vector<Vertex>& outVertices, std::vector<uint32_t>& outIndices, uint32_t& outVertexCount,
-	const glm::vec3& position, const BlockProperties& props, BlockFace face)
+#define OUT_PARAMETERS std::vector<Vertex>& outVertices, std::vector<uint32_t>& outIndices, uint32_t& outVertexCount
+
+void BlockMesh::CreateFace(OUT_PARAMETERS, const glm::vec3& position, const BlockProperties& props, BlockFace face)
 {
 	static auto& meshProperties = Resources::GetMeshProperties(MeshModel::Block);
 
@@ -25,8 +26,7 @@ void BlockMesh::CreateFace(std::vector<Vertex>& outVertices, std::vector<uint32_
 	outVertexCount += 4;
 }
 
-void CrossSpriteMesh::Create(std::vector<Vertex>& outVertices, std::vector<uint32_t>& outIndices, uint32_t& outVertexCount,
-	const glm::vec3& position, const BlockProperties& props)
+void CrossSpriteMesh::Create(OUT_PARAMETERS, const glm::vec3& position, const BlockProperties& props)
 {
 	static auto& meshProperties = Resources::GetMeshProperties(MeshModel::CrossSprite);
 

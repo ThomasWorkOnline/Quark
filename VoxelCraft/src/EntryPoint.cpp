@@ -17,6 +17,8 @@ public:
 
 		Resources::Initialize();
 		GameRenderer::Initialize();
+
+		m_World = World::Create();
 	}
 
 	void OnDestroy() override
@@ -29,7 +31,7 @@ public:
 		Quark::RenderCommand::SetClearColor(Quark::EncodeSRGB(glm::vec4(0.78f, 0.90f, 0.93f, 1.0f)));
 		Quark::RenderCommand::Clear();
 
-		m_World.OnUpdate(elapsedTime);
+		m_World->OnUpdate(elapsedTime);
 
 		CalculateAppPerformance(elapsedTime);
 	}
@@ -43,7 +45,7 @@ public:
 
 		if (!e.Handled)
 		{
-			m_World.OnEvent(e);
+			m_World->OnEvent(e);
 		}
 	}
 
@@ -96,9 +98,8 @@ public:
 			frameCount = 0;
 		}
 	}
-
 private:
-	World m_World;
+	Quark::Scope<World> m_World;
 };
 
 int main()

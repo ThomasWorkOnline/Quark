@@ -18,8 +18,6 @@ struct ChunkSpecification
 	static constexpr uint32_t BlockCount = Width * Height * Depth;
 };
 
-class World;
-
 class Chunk
 {
 public:
@@ -31,7 +29,7 @@ public:
 		Chunk* Front;
 	};
 
-	Chunk(size_t id, World* world);
+	Chunk(size_t id);
 	~Chunk();
 
 	const Quark::Ref<Quark::VertexArray>& GetVertexArray() const { return m_VertexArray; }
@@ -94,8 +92,6 @@ private:
 
 	Block* m_Blocks = nullptr;
 	int32_t* m_HeightMap = nullptr;
-
-	World* m_World;
 };
 
 inline std::ostream& operator<< (std::ostream& os, Chunk::LoadStatus status)

@@ -103,6 +103,7 @@
     <ClCompile Include="src\GameRenderer.cpp" />
     <ClCompile Include="src\EntryPoint.cpp" />
     <ClCompile Include="src\ConvertPosition.cpp" />
+    <ClCompile Include="src\Hitbox.cpp" />
     <ClCompile Include="src\Meshes.cpp" />
     <ClCompile Include="src\WorldArea.cpp" />
     <ClCompile Include="src\Player.cpp" />
@@ -112,6 +113,7 @@
     <ClCompile Include="src\WorldMap.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Hitbox.h" />
     <ClInclude Include="src\Meshes.h" />
     <ClInclude Include="src\Vertex.h" />
     <ClInclude Include="src\BlockProperties.h" />

@@ -3,6 +3,7 @@
 #include <Quark.h>
 
 #include "Chunk.h"
+#include "ChunkLoader.h"
 #include "Collision.h"
 #include "ConvertPosition.h"
 #include "Player.h"
@@ -10,8 +11,6 @@
 #include "WorldMap.h"
 
 #include <optional>
-
-class ChunkLoader;
 
 class World
 {
@@ -22,18 +21,24 @@ public:
 	void OnUpdate(float elapsedTime);
 	void OnEvent(Quark::Event& e);
 
-	Player& GetPlayer() { return m_Player; }
-
 	void OnChunkModified(size_t id);
+
+	WorldMap& GetMap() { return m_Map; }
+	Block GetBlock(const Position3D& position) const;
+
+	bool IsPlayerTouchingGround(const Player& player);
+
+	static World& Get() { return *s_Instance; }
+	static Quark::Scope<World> Create();
 
 private:
 	bool OnKeyPressed(Quark::KeyPressedEvent& e);
 	bool OnMouseButtonPressed(Quark::MouseButtonPressedEvent& e);
 
 	// Utilities
-	CollisionData RayCast(const glm::vec3& start, const glm::vec3& direction, float length);
-	Block GetBlock(const Position3D& position) const;
+	std::optional<CollisionData> RayCast(const glm::vec3& start, const glm::vec3& direction, float length);
 	void ReplaceBlock(const Position3D& position, Block type);
+	void ProcessPlayerCollision();
 
 	Quark::Scene m_Scene;
 	Player m_Player = { m_Scene };
@@ -42,5 +47,5 @@ private:
 
 	Quark::Scope<ChunkLoader> m_Loader;
 
-	friend class ChunkLoader;
+	static World* s_Instance;
 };

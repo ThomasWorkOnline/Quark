@@ -110,6 +110,26 @@ static constexpr uint32_t s_CrosshairIndices[12] = {
 	9, 11, 10
 };
 
+static constexpr AABounds s_BlockBounds = {
+	{ 0.0f, 1.0f },
+	{ 0.0f, 1.0f },
+	{ 0.0f, 1.0f }
+};
+static constexpr AABounds s_CrossSpriteBounds = {
+	{ 0.15f, 0.85f },
+	{ 0.00f, 1.00f },
+	{ 0.15f, 0.85f }
+};
+static constexpr AABounds s_PlayerBounds = {
+	{ -0.40f, 0.40f },
+	{  0.00f, 1.85f },
+	{ -0.40f, 0.40f }
+};
+
+const HitBox Resources::s_PlayerHitbox = {
+	s_PlayerBounds
+};
+
 void Resources::Initialize()
 {
 	s_ShaderLibrary.Load("default", "assets/shaders/default.glsl");
@@ -119,7 +139,7 @@ void Resources::Initialize()
 	s_Texture = Quark::Texture2D::Create("assets/textures/sprite_sheet.png");
 
 	s_BlockProperties = {
-		{ Block::Air,			BlockProperties::CreateBlock({ s_Texture, { 0, 0 }, SubTextureSize }, true, "") },
+		{ Block::Air,			BlockProperties::Air() },
 		{ Block::Bedrock,		BlockProperties::CreateBlock({ s_Texture, { 0, 0 }, SubTextureSize }, false, "assets/sounds/break_stone.mp3") },
 		{ Block::Dirt,			BlockProperties::CreateBlock({ s_Texture, { 1, 0 }, SubTextureSize }, false, "assets/sounds/break_dirt.mp3") },
 		{ Block::GrassBlock,	BlockProperties::CreateBlock({ s_Texture, { 2, 0 }, SubTextureSize }, { s_Texture, { 1, 0 }, SubTextureSize }, { s_Texture, { 2, 1 }, SubTextureSize }, false, "assets/sounds/break_grass.mp3") },
@@ -131,8 +151,8 @@ void Resources::Initialize()
 	};
 
 	s_MeshModels = {
-		{ MeshModel::Block,			{ s_BlockVertexPositions } },
-		{ MeshModel::CrossSprite,	{ s_CrossSpriteVertexPositions } }
+		{ MeshModel::Block,			MeshProperties::Create(s_BlockVertexPositions, { s_BlockBounds }) },
+		{ MeshModel::CrossSprite,	MeshProperties::Create(s_CrossSpriteVertexPositions, { s_CrossSpriteBounds }) }
 	};
 
 	s_CrosshairVertexArray = Quark::VertexArray::Create();

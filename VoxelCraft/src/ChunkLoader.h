@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Chunk.h"
-#include "World.h"
 #include "WorldArea.h"
 
 #include <list>
@@ -20,7 +19,7 @@ struct ChunkLoaderStats
 class ChunkLoader
 {
 public:
-	ChunkLoader(World* world, const glm::ivec2& coord, uint32_t renderDistance);
+	ChunkLoader(const glm::ivec2& coord, uint32_t renderDistance);
 	~ChunkLoader();
 
 	void OnUpdate(float elapsedTime);
@@ -36,7 +35,7 @@ public:
 
 	const ChunkLoaderStats& GetStats() const { return m_Stats; }
 
-	static Quark::Scope<ChunkLoader> Create(World* world, const glm::ivec2& coord, uint32_t renderDistance = 8);
+	static Quark::Scope<ChunkLoader> Create(const glm::ivec2& coord, uint32_t renderDistance = 8);
 
 private:
 	void ProcessQueue();
@@ -57,6 +56,4 @@ private:
 
 	glm::ivec2 m_Coord;
 	uint32_t m_RenderDistance;
-
-	World* m_World;
 };

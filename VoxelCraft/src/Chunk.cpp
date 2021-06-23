@@ -13,8 +13,8 @@ static int32_t IndexAtPosition(const glm::ivec3& position)
 	return position.x + ChunkSpecification::Width * position.z + ChunkSpecification::Width * ChunkSpecification::Depth * position.y;
 }
 
-Chunk::Chunk(size_t id, World* world)
-	: m_Id(id), m_World(world) {}
+Chunk::Chunk(size_t id)
+	: m_Id(id) {}
 
 Chunk::~Chunk()
 {
@@ -192,7 +192,7 @@ Block Chunk::GetBlock(const Position3D& position) const
 			return m_Blocks[index];
 		}
 	}
-	return Block::None;
+	return Block::Air;
 }
 
 void Chunk::ReplaceBlock(const Position3D& position, Block type)
@@ -206,28 +206,28 @@ void Chunk::ReplaceBlock(const Position3D& position, Block type)
 
 			m_Blocks[index] = type;
 
-			m_World->OnChunkModified(m_Id);
+			World::Get().OnChunkModified(m_Id);
 
 			if (position.x == 0)
 			{
 				auto coord = m_Coord + Position2D(-1, 0);
-				m_World->OnChunkModified(CHUNK_UUID(coord));
+				World::Get().OnChunkModified(CHUNK_UUID(coord));
 			}
 			else if (position.x == ChunkSpecification::Width - 1)
 			{
 				auto coord = m_Coord + Position2D(1, 0);
-				m_World->OnChunkModified(CHUNK_UUID(coord));
+				World::Get().OnChunkModified(CHUNK_UUID(coord));
 			}
 
 			if (position.z == 0)
 			{
 				auto coord = m_Coord + Position2D(0, -1);
-				m_World->OnChunkModified(CHUNK_UUID(coord));
+				World::Get().OnChunkModified(CHUNK_UUID(coord));
 			}
 			else if (position.z == ChunkSpecification::Depth - 1)
 			{
 				auto coord = m_Coord + Position2D(0, 1);
-				m_World->OnChunkModified(CHUNK_UUID(coord));
+				World::Get().OnChunkModified(CHUNK_UUID(coord));
 			}
 		}
 	}

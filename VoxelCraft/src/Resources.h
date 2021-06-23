@@ -44,6 +44,11 @@ public:
 		return s_BufferLayout;
 	}
 
+	static const HitBox& GetPlayerHitbox()
+	{
+		return s_PlayerHitbox;
+	}
+
 private:
 	static constexpr glm::ivec2 SubTextureSize = { 16, 16 };
 
@@ -59,4 +64,6 @@ private:
 
 	static const Quark::BufferLayout s_BufferLayout;
 	static const Quark::BufferLayout s_CrosshairBufferLayout;
+
+	static const HitBox s_PlayerHitbox;
 };

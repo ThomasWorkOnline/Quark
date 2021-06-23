@@ -14,6 +14,7 @@
     <ClCompile Include="src\WorldMap.cpp" />
     <ClCompile Include="src\ConvertPosition.cpp" />
     <ClCompile Include="src\Meshes.cpp" />
+    <ClCompile Include="src\Hitbox.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Chunk.h" />
@@ -33,6 +34,7 @@
     <ClInclude Include="src\MeshProperties.h" />
     <ClInclude Include="src\Vertex.h" />
     <ClInclude Include="src\Meshes.h" />
+    <ClInclude Include="src\Hitbox.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\crosshair.glsl" />
