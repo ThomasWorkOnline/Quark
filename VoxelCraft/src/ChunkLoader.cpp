@@ -148,13 +148,16 @@ void ChunkLoader::ProcessQueue()
 	{
 		{
 			{
-				std::unique_lock<std::mutex> cdnLock(s_ConditionMutex);
-
+				std::unique_lock<std::recursive_mutex> lock(s_Mutex);
 				if (m_LoadingQueue.empty() && m_UnloadingQueue.empty())
 				{
+					std::unique_lock<std::mutex> cdnLock(s_ConditionMutex);
 					s_Paused = true;
 				}
+			}
 
+			{
+				std::unique_lock<std::mutex> cdnLock(s_ConditionMutex);
 				s_ConditionVariable.wait(cdnLock, []() { return !s_Paused; });
 
 				if (s_Stopping) break;
