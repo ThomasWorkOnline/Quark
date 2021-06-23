@@ -23,10 +23,11 @@ public:
 
 	void OnChunkModified(size_t id);
 
+	const WorldMap& GetMap() const { return m_Map; }
 	WorldMap& GetMap() { return m_Map; }
 	Block GetBlock(const Position3D& position) const;
 
-	bool IsPlayerTouchingGround(const Player& player);
+	bool IsPlayerTouchingGround(const Player& player) const;
 
 	static World& Get() { return *s_Instance; }
 	static Quark::Scope<World> Create();
@@ -36,7 +37,7 @@ private:
 	bool OnMouseButtonPressed(Quark::MouseButtonPressedEvent& e);
 
 	// Utilities
-	std::optional<CollisionData> RayCast(const glm::vec3& start, const glm::vec3& direction, float length);
+	std::optional<CollisionData> RayCast(const glm::vec3& start, const glm::vec3& direction, float length) const;
 	void ReplaceBlock(const Position3D& position, Block type);
 	void ProcessPlayerCollision();
 

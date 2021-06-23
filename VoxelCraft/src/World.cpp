@@ -72,11 +72,12 @@ void World::OnChunkModified(size_t id)
 	m_Loader->Rebuild(id); // TODO: move, not related to this loader
 }
 
-bool World::IsPlayerTouchingGround(const Player& player)
+bool World::IsPlayerTouchingGround(const Player& player) const
 {
-	const glm::ivec3 blockUnderFeetPos = player.GetIntegerPosition() - glm::ivec3(0, 1, 0);
+	static constexpr float detectionTreshold = 0.01f;
+
+	const glm::ivec3 blockUnderFeetPos = glm::floor(player.GetPosition() - glm::vec3(0.0f, detectionTreshold, 0.0f));
 	auto blockUnderFeet = GetBlock(blockUnderFeetPos);
-	std::cout << (uint32_t)blockUnderFeet << std::endl;
 
 	auto& props = Resources::GetBlockProperties(blockUnderFeet);
 
@@ -138,7 +139,7 @@ bool World::OnMouseButtonPressed(Quark::MouseButtonPressedEvent& e)
 }
 
 // TODO: implement a proper raycast
-std::optional<CollisionData> World::RayCast(const glm::vec3& start, const glm::vec3& direction, float length)
+std::optional<CollisionData> World::RayCast(const glm::vec3& start, const glm::vec3& direction, float length) const
 {
 	glm::vec3 normDir = glm::normalize(direction);
 
@@ -201,7 +202,7 @@ void World::ProcessPlayerCollision()
 {
 	static const auto& hitbox = Resources::GetPlayerHitbox();
 	const auto& playerPos = m_Player.GetPosition();
-	const glm::vec3 blockInFeetPos = m_Player.GetIntegerPosition();
+	const glm::vec3 blockInFeetPos = glm::floor(playerPos);
 
 	auto block = GetBlock(blockInFeetPos);
 	auto& props = Resources::GetBlockProperties(block);

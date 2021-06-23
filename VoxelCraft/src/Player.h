@@ -8,12 +8,12 @@ struct PlayerSettings
 {
 	float Fov = 70;
 	glm::vec3 HeadRelativeToFeet = { 0.0f, 1.75f, 0.0f };
-	glm::vec3 SpawnPoint = { 0.5f, 65.0f, 0.5f };
+	glm::vec3 SpawnPoint = { 0.5f, 80.0f, 0.5f };
 	uint32_t RenderDistance = 12;
 	float FlyingMovementSpeed = 50.0f;
 	float BoostFlyingMovementSpeed = 120.0f;
-	float BaseMovementSpeed = 20.0f;
-	float SprintMovementSpeed = 50.0f;
+	float BaseMovementSpeed = 15.0f;
+	float SprintMovementSpeed = 20.0f;
 	float MouseSensitivity = 0.002f;
 };
 
@@ -25,7 +25,6 @@ public:
 
 	const PlayerSettings& GetSettings() const { return m_Settings; }
 	const glm::vec3& GetPosition() const { return GetTransform().Position; }
-	glm::ivec3 GetIntegerPosition() const { return glm::floor(GetPosition()); }
 	glm::vec3 GetHeadPosition() { return GetTransform().Position + m_Settings.HeadRelativeToFeet; }
 
 	const Quark::Transform3DComponent& GetTransform() const { return m_Entity.GetComponent<Quark::Transform3DComponent>(); }
