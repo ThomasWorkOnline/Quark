@@ -91,13 +91,14 @@ void GameRenderer::SubmitChunk(const Chunk* chunk)
 void GameRenderer::DrawUI(uint32_t width, uint32_t height)
 {
 	// Draw UI
-	auto& shader = Resources::GetShader("crosshair");
+	static const auto& shader = Resources::GetShader("crosshair");
+
+	float aspectRatio = static_cast<float>(width) / height;
+	Quark::Renderer::BeginScene(glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, aspectRatio, 1.0f)), glm::mat4(1.0f));
 
 	shader->Attach();
 	shader->SetFloat4("u_Color", glm::vec4(1.0f, 1.0f, 1.0f, 0.5f));
 
-	float aspectRatio = static_cast<float>(width) / height;
-	Quark::Renderer::BeginScene(glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, aspectRatio, 1.0f)), glm::mat4(1.0f));
 	Quark::Renderer::Submit(shader, Resources::GetCrosshairVertexArray());
 	Quark::Renderer::EndScene();
 }
