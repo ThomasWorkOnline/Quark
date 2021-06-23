@@ -100,7 +100,11 @@ bool World::OnMouseButtonPressed(Quark::MouseButtonPressedEvent& e)
 	case Quark::MouseCode::ButtonRight:
 		if (collisionData.Block != Block::None && collisionData.Block != Block::Air)
 		{
-			ReplaceBlock(collisionData.Impact + (glm::vec3)GetFaceNormal(collisionData.Side), Block::Cobblestone);
+			auto pos = collisionData.Impact + (glm::vec3)GetFaceNormal(collisionData.Side);
+			if (GetBlock(pos) == Block::Air)
+			{
+				ReplaceBlock(pos, Block::Cobblestone);
+			}
 		}
 		break;
 	}
