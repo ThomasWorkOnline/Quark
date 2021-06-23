@@ -11,6 +11,11 @@ namespace Quark {
 		QK_TIME_SCOPE_DEBUG(AudioEngine::Initialize);
 
 		s_Engine = irrklang::createIrrKlangDevice();
+
+		if (!s_Engine)
+		{
+			QK_CORE_ERROR("Could not initialize the audio device!");
+		}
 	}
 
 	void AudioEngine::Dispose()

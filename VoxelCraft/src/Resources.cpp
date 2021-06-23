@@ -84,24 +84,24 @@ static constexpr glm::vec3 s_CrossSpriteVertexPositions[16] = {
 
 static constexpr glm::vec3 s_CrosshairVertexPositions[12] = {
 	// horizontal bottom right
-	{ -0.015f, -0.002f,  0.0f },
-	{  0.015f, -0.002f,  0.0f },
-	{  0.015f,  0.002f,  0.0f },
+	{ -0.015f, -0.002f,  -1.0f },
+	{  0.015f, -0.002f,  -1.0f },
+	{  0.015f,  0.002f,  -1.0f },
 		  
 	// horizontal top left
-	{  0.015f,  0.002f,  0.0f },
-	{ -0.015f,  0.002f,  0.0f },
-	{ -0.015f, -0.002f,  0.0f },
+	{  0.015f,  0.002f,  -1.0f },
+	{ -0.015f,  0.002f,  -1.0f },
+	{ -0.015f, -0.002f,  -1.0f },
 
 	// horizontal bottom right
-	{ -0.002f, -0.015f,  0.0f },
-	{  0.002f,  0.015f,  0.0f },
-	{ -0.002f,  0.015f,  0.0f },
+	{ -0.002f, -0.015f,  -1.0f },
+	{  0.002f,  0.015f,  -1.0f },
+	{ -0.002f,  0.015f,  -1.0f },
 
 	// horizontal top left
-	{  0.002f,  0.015f,  0.0f },
-	{ -0.002f, -0.015f,  0.0f },
-	{  0.002f, -0.015f,  0.0f }
+	{  0.002f,  0.015f,  -1.0f },
+	{ -0.002f, -0.015f,  -1.0f },
+	{  0.002f, -0.015f,  -1.0f }
 };
 static constexpr uint32_t s_CrosshairIndices[12] = {
 	0, 2, 1,

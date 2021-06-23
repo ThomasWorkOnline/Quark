@@ -38,12 +38,12 @@ ChunkLoader::ChunkLoader(World* world, const glm::ivec2& coord, uint32_t renderD
 	m_RenderDistance(renderDistance),
 	m_World(world)
 {
-	s_Worker = std::thread(&ChunkLoader::ProcessQueue, this);
-
 	m_LoadingArea.Foreach([this](size_t id)
 		{
 			Load(id);
 		});
+
+	s_Worker = std::thread(&ChunkLoader::ProcessQueue, this);
 }
 
 ChunkLoader::~ChunkLoader()
@@ -151,7 +151,6 @@ void ChunkLoader::ProcessQueue()
 				std::unique_lock<std::recursive_mutex> lock(s_Mutex);
 				if (m_LoadingQueue.empty() && m_UnloadingQueue.empty())
 				{
-					std::unique_lock<std::mutex> cdnLock(s_ConditionMutex);
 					s_Paused = true;
 				}
 			}
