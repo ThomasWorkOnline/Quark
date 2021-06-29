@@ -43,52 +43,53 @@ void PlayerController::OnUpdate(float elapsedTime)
 			{
 				if (m_Player.IsTouchingGround())
 				{
-					physics.Velocity.y = 12.0f;
+					physics.Velocity.y = 10.0f;
 				}
 			}
 
-			glm::vec3 front = glm::normalize(glm::vec3(transform.GetFrontVector().x, 0.0f, transform.GetFrontVector().z));
-			glm::vec3 back = -glm::normalize(glm::vec3(transform.GetFrontVector().x, 0.0f, transform.GetFrontVector().z));
-			glm::vec3 right = glm::normalize(glm::vec3(transform.GetRightVector().x, 0.0f, transform.GetRightVector().z));
-			glm::vec3 left = -glm::normalize(glm::vec3(transform.GetRightVector().x, 0.0f, transform.GetRightVector().z));
-
-
 			{
 				// Controls
-				bool walking = false;
+				bool w = false;
+				bool a = false;
+				bool s = false;
+				bool d = false;
+
+				glm::vec3 front = glm::normalize(glm::vec3(transform.GetFrontVector().x, 0.0f, transform.GetFrontVector().z));
+				glm::vec3 right = glm::normalize(glm::vec3(transform.GetRightVector().x, 0.0f, transform.GetRightVector().z));
+
 				if (Quark::Input::IsKeyPressed(Quark::Key::W))
 				{
-					walking = true;
+					w = true;
 					physics.Velocity += front * m_MovementSpeed * elapsedTime;
 				}
 
 				if (Quark::Input::IsKeyPressed(Quark::Key::S))
 				{
-					walking = true;
-					physics.Velocity += back * m_MovementSpeed * elapsedTime;
+					a = true;
+					physics.Velocity += -front * m_MovementSpeed * elapsedTime;
 				}
 
 				if (Quark::Input::IsKeyPressed(Quark::Key::D))
 				{
-					walking = true;
+					s = true;
 					physics.Velocity += right * m_MovementSpeed * elapsedTime;
 				}
 
 				if (Quark::Input::IsKeyPressed(Quark::Key::A))
 				{
-					walking = true;
-					physics.Velocity += left * m_MovementSpeed * elapsedTime;
+					d = true;
+					physics.Velocity += -right * m_MovementSpeed * elapsedTime;
 				}
+
+				bool walking = w || a || s || d;
 
 				if (walking)
 				{
-					if (glm::length(physics.Velocity) >= m_MovementSpeed)
-					{
-						physics.Velocity /= 1.1f;
-					}
+					
 				}
 				else
 				{
+					// Ground friction if applicable
 					if (m_Player.IsTouchingGround())
 					{
 						physics.Velocity.x -= physics.Velocity.x * s_GroundFriction * elapsedTime;
@@ -98,7 +99,10 @@ void PlayerController::OnUpdate(float elapsedTime)
 			}
 
 			// Gravity
-			physics.Velocity.y -= 30.0f * elapsedTime;
+			if (m_GravityEnabled && !m_Player.IsTouchingGround())
+			{
+				physics.Velocity.y -= 30.0f * elapsedTime;
+			}
 
 			break;
 		case PlayerState::Flying:

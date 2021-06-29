@@ -16,12 +16,24 @@ public:
 
 	static const BlockProperties& GetBlockProperties(Block type)
 	{
-		return s_BlockProperties.at(type);
+		auto it = s_BlockProperties.find(type);
+		if (it != s_BlockProperties.end())
+		{
+			return it->second;
+		}
+
+		QK_FATAL("Block type supplied does not exist");
 	}
 
 	static const MeshProperties& GetMeshProperties(MeshModel model)
 	{
-		return s_MeshModels.at(model);
+		auto it = s_MeshModels.find(model);
+		if (it != s_MeshModels.end())
+		{
+			return it->second;
+		}
+
+		QK_FATAL("Mesh model supplied does not exist");
 	}
 
 	static const Quark::Ref<Quark::Shader>& GetShader(const std::string& name)

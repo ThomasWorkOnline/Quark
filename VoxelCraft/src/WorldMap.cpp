@@ -56,11 +56,11 @@ Chunk* WorldMap::Select(size_t id) const
 
 Chunk* WorldMap::Load(size_t id)
 {
+	std::lock_guard<std::recursive_mutex> lock(m_ChunksLocationsMutex);
 	if (!Contains(id))
 	{
 		auto data = new Chunk(id);
 
-		std::lock_guard<std::recursive_mutex> lock(m_ChunksLocationsMutex);
 		m_ChunksLocations.insert({ id, data });
 
 		return data;

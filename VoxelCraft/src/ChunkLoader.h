@@ -38,7 +38,10 @@ public:
 	static Quark::Scope<ChunkLoader> Create(const glm::ivec2& coord, uint32_t renderDistance = 8);
 
 private:
-	void ProcessQueue();
+	void ProcessQueues();
+	void ProcessLoading();
+	void ProcessUnloading();
+
 	void LoadChunk(size_t id);
 	void UnloadChunk(size_t id);
 

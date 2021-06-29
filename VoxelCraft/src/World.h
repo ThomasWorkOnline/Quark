@@ -21,6 +21,7 @@ public:
 	void OnUpdate(float elapsedTime);
 	void OnEvent(Quark::Event& e);
 
+	void OnChunkLoaded(size_t id);
 	void OnChunkModified(size_t id);
 
 	const WorldMap& GetMap() const { return m_Map; }

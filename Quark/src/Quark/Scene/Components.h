@@ -15,7 +15,7 @@ namespace Quark {
 		glm::quat Orientation;
 
 		Transform3DComponent(const Transform3DComponent& other)
-			: Position(other.Position), Scale(other.Scale), Orientation(other.Orientation) {}
+			: Position(other.Position), Scale(other.Scale), Orientation(other.Orientation), m_Transform(1.0f) {}
 
 		Transform3DComponent()
 			: Position(0.0f), Scale(1.0f), Orientation(glm::angleAxis(0.0f, glm::vec3(0.0f, 0.0f, 1.0f))), m_Transform(1.0f) { }

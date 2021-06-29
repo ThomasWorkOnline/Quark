@@ -9,17 +9,16 @@ Quark::Scope<ChunkLoader> ChunkLoader::Create(const glm::ivec2& coord, uint32_t 
 
 static const int32_t s_QueueLimit = 10000;
 
-static std::thread s_Worker;
+static std::vector<std::thread> s_ThreadPool;
 static std::condition_variable s_ConditionVariable;
 static std::mutex s_ConditionMutex;
-static bool s_Paused = true;
+static std::recursive_mutex s_QueueMutex;
 static bool s_Stopping = false;
 
-static std::recursive_mutex s_Mutex;
 
 static bool QueueContains(const std::list<size_t>& list, size_t id)
 {
-	std::lock_guard<std::recursive_mutex> lock(s_Mutex);
+	std::lock_guard<std::recursive_mutex> lock(s_QueueMutex);
 
 	for (size_t _id : list)
 	{
@@ -44,21 +43,22 @@ ChunkLoader::ChunkLoader(const glm::ivec2& coord, uint32_t renderDistance)
 			Load(id);
 		});
 
-	s_Worker = std::thread(&ChunkLoader::ProcessQueue, this);
+	s_ThreadPool.emplace_back(&ChunkLoader::ProcessQueues, this);
+
+	std::cout << "Platform supports: " << std::thread::hardware_concurrency() << " threads.\n";
 }
 
 ChunkLoader::~ChunkLoader()
 {
 	{
 		std::lock_guard<std::mutex> cdnLock(s_ConditionMutex);
-
-		s_Paused = false;
 		s_Stopping = true;
 	}
 	
 	s_ConditionVariable.notify_all();
 
-	s_Worker.join();
+	for (auto& thread : s_ThreadPool)
+		thread.join();
 
 	QK_ASSERT(m_Stats.ChunksAllocated == m_Stats.ChunksFreed, "Memory leak detected!" << m_Stats.ChunksAllocated - m_Stats.ChunksFreed << " chunks could not be deleted.");
 
@@ -90,7 +90,7 @@ void ChunkLoader::OnUpdate(float elapsedTime)
 
 void ChunkLoader::Load(size_t id)
 {
-	std::lock_guard<std::recursive_mutex> lock(s_Mutex);
+	std::lock_guard<std::recursive_mutex> lock(s_QueueMutex);
 
 	if (m_LoadingQueue.size() < s_QueueLimit)
 	{
@@ -98,12 +98,6 @@ void ChunkLoader::Load(size_t id)
 		if ((!chunk || chunk->GetLoadStatus() == Chunk::LoadStatus::Allocated || chunk->GetLoadStatus() == Chunk::LoadStatus::WorldGenerated) && !QueueContains(m_LoadingQueue, id))
 		{
 			m_LoadingQueue.push_back(id);
-
-			std::unique_lock<std::mutex> cdnLock(s_ConditionMutex);
-
-			s_Paused = false;
-			cdnLock.unlock();
-
 			s_ConditionVariable.notify_one();
 		}
 	}
@@ -111,37 +105,59 @@ void ChunkLoader::Load(size_t id)
 
 void ChunkLoader::Unload(size_t id)
 {
-	std::lock_guard<std::recursive_mutex> lock(s_Mutex);
+	std::lock_guard<std::recursive_mutex> lock(s_QueueMutex);
 
 	const Chunk* chunk = World::Get().GetMap().Select(id);
 	if (chunk && !QueueContains(m_UnloadingQueue, id))
 	{
 		m_UnloadingQueue.push_back(id);
-
-		std::unique_lock<std::mutex> cdnLock(s_ConditionMutex);
-
-		s_Paused = false;
-		cdnLock.unlock();
-
 		s_ConditionVariable.notify_one();
 	}
 }
 
 void ChunkLoader::Rebuild(size_t id)
 {
-	auto chunk = World::Get().GetMap().Select(id);
+	Chunk* chunk = World::Get().GetMap().Select(id);
 	chunk->SetLoadStatus(Chunk::LoadStatus::WorldGenerated);
 	LoadChunk(id);
 }
 
 bool ChunkLoader::Idling() const
 {
-	std::lock_guard<std::mutex> cdnLock(s_ConditionMutex);
-
-	return s_Paused;
+	std::lock_guard<std::recursive_mutex> lock(s_QueueMutex);
+	return m_LoadingQueue.empty() && m_UnloadingQueue.empty();
 }
 
-void ChunkLoader::ProcessQueue()
+void ChunkLoader::ProcessLoading()
+{
+	std::unique_lock<std::recursive_mutex> lock(s_QueueMutex);
+	if (!m_LoadingQueue.empty())
+	{
+		size_t id = m_LoadingQueue.front();
+		m_LoadingQueue.pop_front();
+
+		lock.unlock();
+
+		LoadChunk(id);
+	}
+}
+
+void ChunkLoader::ProcessUnloading()
+{
+	std::unique_lock<std::recursive_mutex> lock(s_QueueMutex);
+	if (!m_UnloadingQueue.empty())
+	{
+		size_t id = m_UnloadingQueue.front();
+		m_UnloadingQueue.pop_front();
+		m_LoadingQueue.remove(id);
+
+		lock.unlock();
+
+		UnloadChunk(id);
+	}
+}
+
+void ChunkLoader::ProcessQueues()
 {
 	using namespace std::literals::chrono_literals;
 
@@ -149,48 +165,14 @@ void ChunkLoader::ProcessQueue()
 	{
 		{
 			{
-				std::unique_lock<std::recursive_mutex> lock(s_Mutex);
-				if (m_LoadingQueue.empty() && m_UnloadingQueue.empty())
-				{
-					std::lock_guard<std::mutex> cdnLock(s_ConditionMutex);
-					s_Paused = true;
-				}
-			}
-
-			{
-				std::unique_lock<std::mutex> cdnLock(s_ConditionMutex);
-				s_ConditionVariable.wait(cdnLock, []() { return !s_Paused; });
+				std::unique_lock<std::mutex> lock(s_ConditionMutex);
+				s_ConditionVariable.wait(lock, [this]() { return !m_LoadingQueue.empty() || !m_UnloadingQueue.empty() || s_Stopping; });
 
 				if (s_Stopping) break;
 			}
 
-			{
-				std::unique_lock<std::recursive_mutex> lock(s_Mutex);
-				if (!m_LoadingQueue.empty())
-				{
-					size_t id = m_LoadingQueue.front();
-					m_LoadingQueue.pop_front();
-
-					lock.unlock();
-
-					LoadChunk(id);
-				}
-			}
-			
-			{
-				std::unique_lock<std::recursive_mutex> lock(s_Mutex);
-				if (!m_UnloadingQueue.empty())
-				{
-					size_t id = m_UnloadingQueue.front();
-					m_UnloadingQueue.pop_front();
-
-					lock.unlock();
-
-					m_LoadingQueue.remove(id);
-
-					UnloadChunk(id);
-				}
-			}
+			ProcessLoading();
+			ProcessUnloading();
 		}
 	}
 
@@ -244,7 +226,7 @@ void ChunkLoader::OnChunkBorderCrossed()
 void ChunkLoader::UniqueChunkDataGenerator(Chunk* chunk)
 {
 	{
-		std::lock_guard<std::recursive_mutex> lock(s_Mutex);
+		std::lock_guard<std::recursive_mutex> lock(s_QueueMutex);
 
 		if (chunk && chunk->GetLoadStatus() == Chunk::LoadStatus::Allocated)
 		{
@@ -263,7 +245,7 @@ void ChunkLoader::UniqueChunkDataGenerator(Chunk* chunk)
 void ChunkLoader::UniqueChunkMeshGenerator(Chunk* chunk, Chunk* left, Chunk* right, Chunk* back, Chunk* front)
 {
 	{
-		std::lock_guard<std::recursive_mutex> lock(s_Mutex);
+		std::lock_guard<std::recursive_mutex> lock(s_QueueMutex);
 
 		if (chunk && chunk->GetLoadStatus() == Chunk::LoadStatus::WorldGenerated)
 		{
@@ -276,5 +258,7 @@ void ChunkLoader::UniqueChunkMeshGenerator(Chunk* chunk, Chunk* left, Chunk* rig
 		chunk->BuildMesh(left, right, back, front);
 		chunk->SetLoadStatus(Chunk::LoadStatus::Loaded);
 		m_Stats.ChunksMeshGen++;
+
+		World::Get().OnChunkLoaded(chunk->GetId());
 	}
 }

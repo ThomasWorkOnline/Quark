@@ -19,12 +19,14 @@ public:
 	void OnEvent(Quark::Event& e) override;
 
 	void SetPlayerState(PlayerState state) { m_PlayerState = state; }
+	void SetGravityEnabled(bool enabled) { m_GravityEnabled = enabled; }
 
 private:
 	bool OnMouseMoved(Quark::MouseMovedEvent& e);
 	bool OnWindowResized(Quark::WindowResizedEvent& e);
 
-	PlayerState m_PlayerState = PlayerState::Walking;
+	std::atomic_bool m_GravityEnabled = false;
+	std::atomic<PlayerState> m_PlayerState = PlayerState::Walking;
 
 	Player& m_Player;
 };

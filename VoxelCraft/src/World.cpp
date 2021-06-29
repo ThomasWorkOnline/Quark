@@ -67,6 +67,15 @@ void World::OnEvent(Quark::Event& e)
 	m_Controller.OnEvent(e);
 }
 
+void World::OnChunkLoaded(size_t id)
+{
+	// Player feels gravity when chunk is loaded
+	if (((Position3D)m_Player.GetPosition()).ToChunkCoord() == m_Map.Select(id)->GetCoord())
+	{
+		m_Controller.SetGravityEnabled(true);
+	}
+}
+
 void World::OnChunkModified(size_t id)
 {
 	m_Loader->Rebuild(id); // TODO: move, not related to this loader
@@ -75,7 +84,6 @@ void World::OnChunkModified(size_t id)
 bool World::IsPlayerTouchingGround(const Player& player) const
 {
 	static constexpr float detectionTreshold = 0.01f;
-
 	const glm::ivec3 blockUnderFeetPos = glm::floor(player.GetPosition() - glm::vec3(0.0f, detectionTreshold, 0.0f));
 	auto blockUnderFeet = GetBlock(blockUnderFeetPos);
 
@@ -166,7 +174,7 @@ Block World::GetBlock(const Position3D& position) const
 	glm::ivec3 blockPosition = position - glm::ivec3(coord.x * (int32_t)ChunkSpecification::Width, 0, coord.y * (int32_t)ChunkSpecification::Depth);
 
 	Chunk* chunk = m_Map.Select(CHUNK_UUID(coord));
-	if (chunk)
+	if (chunk && chunk->GetLoadStatus() >= Chunk::LoadStatus::WorldGenerated)
 		return chunk->GetBlock(blockPosition);
 	return Block::Air;
 }
@@ -200,18 +208,19 @@ void World::ReplaceBlock(const Position3D& position, Block type)
 
 void World::ProcessPlayerCollision()
 {
-	static const auto& hitbox = Resources::GetPlayerHitbox();
+	static constexpr float detectionTreshold = 0.01f;
 	const auto& playerPos = m_Player.GetPosition();
-	const glm::vec3 blockInFeetPos = glm::floor(playerPos);
+	const glm::ivec3 blockUnderFeetPos = glm::floor(playerPos - glm::vec3(0.0f, detectionTreshold, 0.0f));
 
-	auto block = GetBlock(blockInFeetPos);
+	auto block = GetBlock(blockUnderFeetPos);
 	auto& props = Resources::GetBlockProperties(block);
 
 	// Collide with block underneath
 	if (props.CollisionEnabled)
 	{
+		static const auto& hitbox = Resources::GetPlayerHitbox();
 		auto& meshProps = Resources::GetMeshProperties(props.Mesh);
-		auto& blockHitbox = meshProps.Hitbox.Move(blockInFeetPos).GetBounds();
+		auto& blockHitbox = meshProps.Hitbox.Move(blockUnderFeetPos).GetBounds();
 
 		auto data = hitbox.Move(playerPos).Collide(glm::vec3(playerPos.x, blockHitbox.Y.Max, playerPos.z));
 
