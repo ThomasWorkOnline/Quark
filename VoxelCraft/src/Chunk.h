@@ -18,17 +18,19 @@ struct ChunkSpecification
 	static constexpr uint32_t BlockCount = Width * Height * Depth;
 };
 
+class Chunk;
+
+struct ChunkNeighbors
+{
+	Chunk* Left;
+	Chunk* Right;
+	Chunk* Back;
+	Chunk* Front;
+};
+
 class Chunk
 {
 public:
-	struct Neighbors
-	{
-		Chunk* Left;
-		Chunk* Right;
-		Chunk* Back;
-		Chunk* Front;
-	};
-
 	Chunk(size_t id);
 	~Chunk();
 
@@ -64,12 +66,9 @@ public:
 	/// </summary>
 	void PushData();
 
-private:
-	void GenerateBlockMesh(const Position3D& position, Block type, const Neighbors& neighbors);
-
-	bool IsBlockFaceVisible(const Position3D& position, BlockFace face, const Neighbors& neighbors) const;
+	bool IsBlockFaceVisible(const Position3D& position, BlockFace face, const ChunkNeighbors& neighbors) const;
 	bool IsBlockTransparent(const Position3D& position) const;
-
+private:
 	Block GenerateBlock(const Position3D& position);
 
 private:
@@ -79,8 +78,6 @@ private:
 	std::atomic_bool m_Edited = false;
 	std::atomic<LoadStatus> m_LoadingStatus = LoadStatus::Allocated;
 
-	// Use CHUNK_UUID() macro to convert it to 64-bit integer form
-	// and vise-versa via CHUNK_COORD() macro.
 	union {
 		Position2D m_Coord;
 		size_t m_Id;

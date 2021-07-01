@@ -12798,7 +12798,7 @@ public:
         steal_fn = other.steal_fn;
     }
 
-    meta_storage(meta_storage &&other)
+    meta_storage(meta_storage &&other) noexcept
         : meta_storage{}
     {
         swap(*this, other);

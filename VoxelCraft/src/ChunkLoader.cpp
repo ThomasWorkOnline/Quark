@@ -9,12 +9,13 @@ Quark::Scope<ChunkLoader> ChunkLoader::Create(const glm::ivec2& coord, uint32_t 
 
 static const int32_t s_QueueLimit = 10000;
 
+//static const uint32_t s_ThreadPoolSize = std::thread::hardware_concurrency();
+static const uint32_t s_ThreadPoolSize = 1;
 static std::vector<std::thread> s_ThreadPool;
 static std::condition_variable s_ConditionVariable;
 static std::mutex s_ConditionMutex;
 static std::recursive_mutex s_QueueMutex;
 static bool s_Stopping = false;
-
 
 static bool QueueContains(const std::list<size_t>& list, size_t id)
 {
@@ -43,7 +44,8 @@ ChunkLoader::ChunkLoader(const glm::ivec2& coord, uint32_t renderDistance)
 			Load(id);
 		});
 
-	s_ThreadPool.emplace_back(&ChunkLoader::ProcessQueues, this);
+	for (uint32_t i = 0; i < s_ThreadPoolSize; i++)
+		s_ThreadPool.emplace_back(&ChunkLoader::ProcessQueues, this);
 
 	std::cout << "Platform supports: " << std::thread::hardware_concurrency() << " threads.\n";
 }
@@ -168,6 +170,8 @@ void ChunkLoader::ProcessQueues()
 				std::unique_lock<std::mutex> lock(s_ConditionMutex);
 				s_ConditionVariable.wait(lock, [this]() { return !m_LoadingQueue.empty() || !m_UnloadingQueue.empty() || s_Stopping; });
 
+				std::cout << "Thread " << std::this_thread::get_id() << " woke up\n";
+
 				if (s_Stopping) break;
 			}
 
@@ -225,16 +229,19 @@ void ChunkLoader::OnChunkBorderCrossed()
 
 void ChunkLoader::UniqueChunkDataGenerator(Chunk* chunk)
 {
+	bool access = false; // Thread safe, function scope access flag
+
 	{
 		std::lock_guard<std::recursive_mutex> lock(s_QueueMutex);
 
 		if (chunk && chunk->GetLoadStatus() == Chunk::LoadStatus::Allocated)
 		{
+			access = true;
 			chunk->SetLoadStatus(Chunk::LoadStatus::WorldGenerating);
 		}
 	}
 
-	if (chunk && chunk->GetLoadStatus() == Chunk::LoadStatus::WorldGenerating)
+	if (access)
 	{
 		chunk->BuildTerrain();
 		chunk->SetLoadStatus(Chunk::LoadStatus::WorldGenerated);
@@ -244,16 +251,19 @@ void ChunkLoader::UniqueChunkDataGenerator(Chunk* chunk)
 
 void ChunkLoader::UniqueChunkMeshGenerator(Chunk* chunk, Chunk* left, Chunk* right, Chunk* back, Chunk* front)
 {
+	bool access = false;
+
 	{
 		std::lock_guard<std::recursive_mutex> lock(s_QueueMutex);
 
 		if (chunk && chunk->GetLoadStatus() == Chunk::LoadStatus::WorldGenerated)
 		{
+			access = true;
 			chunk->SetLoadStatus(Chunk::LoadStatus::Loading);
 		}
 	}
 
-	if (chunk && chunk->GetLoadStatus() == Chunk::LoadStatus::Loading)
+	if (access)
 	{
 		chunk->BuildMesh(left, right, back, front);
 		chunk->SetLoadStatus(Chunk::LoadStatus::Loaded);

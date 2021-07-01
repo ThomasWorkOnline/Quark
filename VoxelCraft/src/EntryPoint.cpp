@@ -9,6 +9,8 @@ class VoxelCraft : public Quark::Application
 public:
 	void OnCreate() override
 	{
+		QK_ASSERT(sizeof(size_t) == sizeof(glm::ivec2), "size_t and glm::ivec2 must both be the same size");
+
 		QK_TIME_SCOPE_DEBUG(VoxelCraft::OnCreate);
 
 		GetWindow().Select();

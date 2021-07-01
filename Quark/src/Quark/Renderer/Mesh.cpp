@@ -118,15 +118,16 @@ namespace Quark {
 			{
 				size_t pos = strideCount * (y * size + x);
 
-				static const float centerOffset = scale * 0.5f;
+				float centerOffset = scale * 0.5f;
 
 				// Normal
 				glm::vec3 line1(glm::vec3(x, 0.0f, y + 1) - glm::vec3(x, 0.0f, y)); // bottom
 				glm::vec3 line2(glm::vec3(x + 1, 0.0f, y) - glm::vec3(x, 0.0f, y)); // right
 				glm::vec3 normal = glm::normalize(glm::cross(line1, line2));
 
+				static constexpr float height = 0.0f;
 				vertexBuffer[pos + 0] = (float)x - centerOffset;
-				vertexBuffer[pos + 1] = 0.0f; // rand() / (float)RAND_MAX;
+				vertexBuffer[pos + 1] = height; // rand() / (float)RAND_MAX;
 				vertexBuffer[pos + 2] = (float)y - centerOffset;
 				vertexBuffer[pos + 3] = (float)x;
 				vertexBuffer[pos + 4] = (float)y;
@@ -158,7 +159,7 @@ namespace Quark {
 		vbo->SetLayout(layout);
 		m_VertexArray->AddVertexBuffer(vbo);
 
-		auto ibo = IndexBuffer::Create(indexBuffer, indexBufferCount);
+		auto ibo = IndexBuffer::Create(indexBuffer, (uint32_t)indexBufferCount);
 		m_VertexArray->SetIndexBuffer(ibo);
 
 		delete[] vertexBuffer;

@@ -90,18 +90,19 @@ void Chunk::BuildMesh(Chunk* left, Chunk* right, Chunk* back, Chunk* front)
 	QK_ASSERT(back, "");
 	QK_ASSERT(front, "");
 
-	for (uint32_t y = 0; y < ChunkSpecification::Height; y++)
+	glm::ivec3 pos;
+	for (pos.y = 0; pos.y < ChunkSpecification::Height; pos.y++)
 	{
-		for (uint32_t z = 0; z < ChunkSpecification::Depth; z++)
+		for (pos.z = 0; pos.z < ChunkSpecification::Depth; pos.z++)
 		{
-			for (uint32_t x = 0; x < ChunkSpecification::Width; x++)
+			for (pos.x = 0; pos.x < ChunkSpecification::Width; pos.x++)
 			{
-				Block block = GetBlock({ x, y, z });
+				Block block = GetBlock(pos);
 
 				if (block == Block::Air)
 					continue;
 
-				GenerateBlockMesh({ x, y, z }, block, { left, right, back, front });
+				MeshGenerator::Create({ m_Vertices, m_Indices, m_VertexCount }, pos, block, this, { left, right, back, front });
 			}
 		}
 	}
@@ -135,7 +136,7 @@ Block Chunk::GenerateBlock(const Position3D& position)
 
 	float noise = rand() / static_cast<float>(RAND_MAX);
 
-	int32_t heightSample = m_HeightMap[(size_t)(position.z * ChunkSpecification::Depth + position.x)];
+	int32_t heightSample = m_HeightMap[position.z * (int32_t)ChunkSpecification::Depth + position.x];
 
 	uint32_t genBedrock = static_cast<uint32_t>(1.0f + noise * 4.0f);
 	uint32_t genStone = stoneHeight + heightSample;
@@ -158,28 +159,6 @@ Block Chunk::GenerateBlock(const Position3D& position)
 		type = Block::Air;
 
 	return type;
-}
-
-void Chunk::GenerateBlockMesh(const Position3D& position, Block type, const Neighbors& neighbors)
-{
-	auto& blockProperties = Resources::GetBlockProperties(type);
-
-	switch (blockProperties.Mesh)
-	{
-	case MeshModel::Block:
-		// Create all the faces
-		for (uint8_t f = 0; f < 6; f++)
-		{
-			if (!IsBlockFaceVisible(position, BlockFace(f), neighbors))
-				continue;
-
-			BlockMesh::CreateFace(m_Vertices, m_Indices, m_VertexCount, position.ToWorldSpace(m_Coord), blockProperties, BlockFace(f));
-		}
-		break;
-	case MeshModel::CrossSprite:
-		CrossSpriteMesh::Create(m_Vertices, m_Indices, m_VertexCount, position.ToWorldSpace(m_Coord), blockProperties);
-		break;
-	}
 }
 
 Block Chunk::GetBlock(const Position3D& position) const
@@ -233,7 +212,7 @@ void Chunk::ReplaceBlock(const Position3D& position, Block type)
 	}
 }
 
-bool Chunk::IsBlockFaceVisible(const Position3D& position, BlockFace face, const Neighbors& neighbors) const
+bool Chunk::IsBlockFaceVisible(const Position3D& position, BlockFace face, const ChunkNeighbors& neighbors) const
 {
 	Position3D neighborPosition = position + GetFaceNormal(face);
 
@@ -245,8 +224,7 @@ bool Chunk::IsBlockFaceVisible(const Position3D& position, BlockFace face, const
 
 	if (neighborPosition.x < 0)
 	{
-
-		Block block = neighbors.Left->GetBlock(glm::ivec3(ChunkSpecification::Width - 1, neighborPosition.y, neighborPosition.z));;
+		Block block = neighbors.Left->GetBlock(glm::ivec3(ChunkSpecification::Width - 1, neighborPosition.y, neighborPosition.z));
 		auto& blockProperties = Resources::GetBlockProperties(block);
 		if (!blockProperties.Transparent)
 			visible = false;
