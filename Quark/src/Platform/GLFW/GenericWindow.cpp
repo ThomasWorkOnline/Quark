@@ -40,7 +40,7 @@ namespace Quark {
 
 		if (s_WindowCount == 0)
 		{
-			if (!glfwInit())
+			if (glfwInit() != GLFW_TRUE)
 				QK_FATAL("Could not init GLFW");
 			QK_CORE_TRACE("Initialized GLFW successfully!");
 

@@ -45,9 +45,9 @@
 #include "../Tools/LogUtils.h"
 #include "../Debug/Monitoring.h"
 
-#define QK_FATAL(...) { QK_CORE_ERROR(__VA_ARGS__); QK_DEBUGBREAK(); }
+#define QK_FATAL(...) do { QK_CORE_ERROR(__VA_ARGS__); QK_DEBUGBREAK(); } while (false)
 
-#define QK_ASSERT(x, ...) { if(!(x)) { QK_CORE_ERROR(__VA_ARGS__); QK_DEBUGBREAK(); } }
+#define QK_ASSERT(x, ...) do { if(!(x)) { QK_CORE_ERROR(__VA_ARGS__); QK_DEBUGBREAK(); } } while (false)
 
 #define ATTACH_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
 
