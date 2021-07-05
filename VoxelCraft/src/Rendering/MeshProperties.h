@@ -2,7 +2,7 @@
 
 #include <Quark.h>
 
-#include "Hitbox.h"
+#include "../Game/Hitbox.h"
 
 struct MeshProperties
 {

@@ -2,9 +2,9 @@
 
 #include <Quark.h>
 
-#include "Block.h"
-#include "ConvertPosition.h"
-#include "Vertex.h"
+#include "../Blocks/Block.h"
+#include "../Utils/ConvertPosition.h"
+#include "../Rendering/Vertex.h"
 
 #define CHUNK_UUID(coord) *reinterpret_cast<const size_t*>(&coord)
 #define CHUNK_COORD(id) *reinterpret_cast<const glm::ivec2*>(&id)
@@ -18,6 +18,7 @@ struct ChunkSpecification
 	static constexpr uint32_t BlockCount = Width * Height * Depth;
 };
 
+class World;
 class Chunk;
 
 struct ChunkNeighbors
@@ -31,7 +32,7 @@ struct ChunkNeighbors
 class Chunk
 {
 public:
-	Chunk(size_t id);
+	Chunk(World& world, size_t id);
 	~Chunk();
 
 	const Quark::Ref<Quark::VertexArray>& GetVertexArray() const { return m_VertexArray; }
@@ -89,6 +90,8 @@ private:
 
 	Block* m_Blocks = nullptr;
 	int32_t* m_HeightMap = nullptr;
+
+	World& m_World;
 };
 
 inline std::ostream& operator<< (std::ostream& os, Chunk::LoadStatus status)

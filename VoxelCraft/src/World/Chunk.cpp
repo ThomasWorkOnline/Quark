@@ -3,7 +3,8 @@
 #include <fstream>
 
 #include "World.h"
-#include "Meshes.h"
+#include "../Game/Resources.h"
+#include "../Rendering/Meshes.h"
 
 static int32_t IndexAtPosition(const glm::ivec3& position)
 {
@@ -13,8 +14,8 @@ static int32_t IndexAtPosition(const glm::ivec3& position)
 	return position.x + ChunkSpecification::Width * position.z + ChunkSpecification::Width * ChunkSpecification::Depth * position.y;
 }
 
-Chunk::Chunk(size_t id)
-	: m_Id(id) {}
+Chunk::Chunk(World& world, size_t id)
+	: m_World(world), m_Id(id) {}
 
 Chunk::~Chunk()
 {
@@ -185,28 +186,28 @@ void Chunk::ReplaceBlock(const Position3D& position, Block type)
 
 			m_Blocks[index] = type;
 
-			World::Get().OnChunkModified(m_Id);
+			m_World.OnChunkModified(m_Id);
 
 			if (position.x == 0)
 			{
 				auto coord = m_Coord + Position2D(-1, 0);
-				World::Get().OnChunkModified(CHUNK_UUID(coord));
+				m_World.OnChunkModified(CHUNK_UUID(coord));
 			}
 			else if (position.x == ChunkSpecification::Width - 1)
 			{
 				auto coord = m_Coord + Position2D(1, 0);
-				World::Get().OnChunkModified(CHUNK_UUID(coord));
+				m_World.OnChunkModified(CHUNK_UUID(coord));
 			}
 
 			if (position.z == 0)
 			{
 				auto coord = m_Coord + Position2D(0, -1);
-				World::Get().OnChunkModified(CHUNK_UUID(coord));
+				m_World.OnChunkModified(CHUNK_UUID(coord));
 			}
 			else if (position.z == ChunkSpecification::Depth - 1)
 			{
 				auto coord = m_Coord + Position2D(0, 1);
-				World::Get().OnChunkModified(CHUNK_UUID(coord));
+				m_World.OnChunkModified(CHUNK_UUID(coord));
 			}
 		}
 	}

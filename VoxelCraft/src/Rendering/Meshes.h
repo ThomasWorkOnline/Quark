@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Vertex.h"
-#include "Chunk.h"
-#include "Resources.h"
+#include "../Game/Resources.h"
+#include "../World/Chunk.h"
 
 struct MeshOutputParameters
 {

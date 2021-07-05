@@ -2,7 +2,12 @@
 
 #include <Quark.h>
 
-#include "Block.h"
+#include "../Blocks/Block.h"
+
+struct AABBCollisionResult
+{
+	glm::vec3 Overlap;
+};
 
 struct CollisionData
 {

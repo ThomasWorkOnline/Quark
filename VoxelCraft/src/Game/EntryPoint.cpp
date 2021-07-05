@@ -35,7 +35,7 @@ public:
 
 		m_World->OnUpdate(elapsedTime);
 
-		CalculateAppPerformance(elapsedTime);
+		//CalculateAppPerformance(elapsedTime);
 	}
 
 	void OnEvent(Quark::Event& e) override

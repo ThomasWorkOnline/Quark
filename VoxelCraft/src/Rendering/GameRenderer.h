@@ -2,7 +2,7 @@
 
 #include <Quark.h>
 
-#include "Chunk.h"
+#include "../World/Chunk.h"
 
 struct GameRendererStats
 {

@@ -1,6 +1,6 @@
 #include "PlayerController.h"
 
-static constexpr float s_AirFriction = 0.1f;
+static constexpr float s_AirFriction = 4.0f;
 static constexpr float s_GroundFriction = 8.0f;
 
 PlayerController::PlayerController(Player& player)
@@ -119,6 +119,32 @@ void PlayerController::OnUpdate(float elapsedTime)
 			else
 			{
 				m_MovementSpeed = m_Player.GetSettings().FlyingMovementSpeed;
+			}
+
+			{
+				// Controls
+				glm::vec3 front = glm::normalize(glm::vec3(transform.GetFrontVector().x, 0.0f, transform.GetFrontVector().z));
+				glm::vec3 right = glm::normalize(glm::vec3(transform.GetRightVector().x, 0.0f, transform.GetRightVector().z));
+
+				if (Quark::Input::IsKeyPressed(Quark::Key::W))
+				{
+					physics.Velocity += front * m_MovementSpeed * elapsedTime;
+				}
+
+				if (Quark::Input::IsKeyPressed(Quark::Key::S))
+				{
+					physics.Velocity += -front * m_MovementSpeed * elapsedTime;
+				}
+
+				if (Quark::Input::IsKeyPressed(Quark::Key::D))
+				{
+					physics.Velocity += right * m_MovementSpeed * elapsedTime;
+				}
+
+				if (Quark::Input::IsKeyPressed(Quark::Key::A))
+				{
+					physics.Velocity += -right * m_MovementSpeed * elapsedTime;
+				}
 			}
 
 			// Up / down

@@ -7,10 +7,12 @@
 #include <mutex>
 #include <unordered_map>
 
+class World;
+
 class WorldMap
 {
 public:
-	WorldMap();
+	WorldMap(World& world);
 	~WorldMap();
 
 	void OnUpdate(float elapsedTime);
@@ -37,4 +39,6 @@ private:
 	/// </summary>
 	mutable std::mutex m_ChunksToDeleteMutex;
 	std::list<Chunk*> m_ChunksToDelete;
+
+	World& m_World;
 };

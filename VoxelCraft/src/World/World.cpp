@@ -4,11 +4,9 @@
 #include <chrono>
 
 #include "ChunkLoader.h"
-#include "ConvertPosition.h"
-#include "GameRenderer.h"
-#include "Resources.h"
-
-World* World::s_Instance = nullptr;
+#include "../Game/Resources.h"
+#include "../Rendering/GameRenderer.h"
+#include "../Utils/ConvertPosition.h"
 
 static uint32_t s_ChunksExpected = 0;
 
@@ -16,9 +14,7 @@ World::World()
 {
 	QK_TIME_SCOPE_DEBUG(World::World);
 
-	s_Instance = this;
-
-	m_Loader = ChunkLoader::Create(((Position3D)m_Player.GetSettings().SpawnPoint).ToChunkCoord(), m_Player.GetSettings().RenderDistance);
+	m_Loader = ChunkLoader::Create(*this, ((Position3D)m_Player.GetSettings().SpawnPoint).ToChunkCoord(), m_Player.GetSettings().RenderDistance);
 }
 
 World::~World()
@@ -90,6 +86,11 @@ bool World::IsPlayerTouchingGround(const Player& player) const
 	auto& props = Resources::GetBlockProperties(blockUnderFeet);
 
 	return props.CollisionEnabled;
+}
+
+Quark::Scope<World> World::Create()
+{
+	return Quark::CreateScope<World>();
 }
 
 bool World::OnKeyPressed(Quark::KeyPressedEvent& e)
@@ -213,29 +214,25 @@ void World::ProcessPlayerCollision()
 	const glm::ivec3 blockUnderFeetPos = glm::floor(playerPos - glm::vec3(0.0f, detectionTreshold, 0.0f));
 
 	auto block = GetBlock(blockUnderFeetPos);
-	auto& props = Resources::GetBlockProperties(block);
+	const auto& props = Resources::GetBlockProperties(block);
 
 	// Collide with block underneath
 	if (props.CollisionEnabled)
 	{
-		static const auto& hitbox = Resources::GetPlayerHitbox();
-		auto& meshProps = Resources::GetMeshProperties(props.Mesh);
-		auto& blockHitbox = meshProps.Hitbox.Move(blockUnderFeetPos).GetBounds();
+		const auto& meshProps = Resources::GetMeshProperties(props.Mesh);
+		const auto& blockBounds = meshProps.Hitbox.MoveTo(blockUnderFeetPos).GetBounds();
 
-		auto data = hitbox.Move(playerPos).Collide(glm::vec3(playerPos.x, blockHitbox.Y.Max, playerPos.z));
+		auto data = m_Player.GetHitbox().CollideWith(blockBounds);
+		//auto data = m_Player.GetHitbox().CollideWith(glm::vec3(playerPos.x, blockBounds.Y.Max, playerPos.z));
 
 		if (data.has_value())
 		{
 			auto& collision = data.value();
 
-			m_Player.GetTransform().Position += collision.Impact - playerPos;
+			m_Player.GetTransform().Position.y = blockBounds.Y.Max;
+			m_Player.GetPhysics().Velocity.y = 0.f;
 		}
 	}
-}
-
-Quark::Scope<World> World::Create()
-{
-	return Quark::CreateScope<World>();
 }
 
 /*void World::LoadAroundPlayer()

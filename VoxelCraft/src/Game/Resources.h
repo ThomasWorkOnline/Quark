@@ -4,10 +4,10 @@
 
 #include <unordered_map>
 
-#include "Block.h"
-#include "BlockProperties.h"
-#include "MeshModel.h"
-#include "MeshProperties.h"
+#include "../Blocks/Block.h"
+#include "../Blocks/BlockProperties.h"
+#include "../Rendering/MeshModel.h"
+#include "../Rendering/MeshProperties.h"
 
 class Resources
 {

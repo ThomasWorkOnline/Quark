@@ -4,11 +4,11 @@
 
 #include "Chunk.h"
 #include "ChunkLoader.h"
-#include "Collision.h"
-#include "ConvertPosition.h"
-#include "Player.h"
-#include "PlayerController.h"
 #include "WorldMap.h"
+#include "../Game/Collision.h"
+#include "../Game/Player.h"
+#include "../Game/PlayerController.h"
+#include "../Utils/ConvertPosition.h"
 
 #include <optional>
 
@@ -30,7 +30,6 @@ public:
 
 	bool IsPlayerTouchingGround(const Player& player) const;
 
-	static World& Get() { return *s_Instance; }
 	static Quark::Scope<World> Create();
 
 private:
@@ -43,11 +42,9 @@ private:
 	void ProcessPlayerCollision();
 
 	Quark::Scene m_Scene;
-	Player m_Player = { m_Scene };
+	Player m_Player = { *this, m_Scene };
 	PlayerController m_Controller = { m_Player };
-	WorldMap m_Map;
+	WorldMap m_Map = { *this };
 
 	Quark::Scope<ChunkLoader> m_Loader;
-
-	static World* s_Instance;
 };

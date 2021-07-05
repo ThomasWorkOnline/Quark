@@ -2,7 +2,7 @@
 
 #include <Quark.h>
 
-#include "MeshModel.h"
+#include "../Rendering/MeshModel.h"
 
 struct BlockProperties
 {

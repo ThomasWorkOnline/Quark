@@ -1,6 +1,9 @@
 #include "WorldMap.h"
 
-WorldMap::WorldMap()
+#include "World.h"
+
+WorldMap::WorldMap(World& world)
+	: m_World(world)
 {
 
 }
@@ -59,7 +62,7 @@ Chunk* WorldMap::Load(size_t id)
 	std::lock_guard<std::recursive_mutex> lock(m_ChunksLocationsMutex);
 	if (!Contains(id))
 	{
-		auto data = new Chunk(id);
+		auto data = new Chunk(m_World, id);
 
 		m_ChunksLocations.insert({ id, data });
 

@@ -16,10 +16,12 @@ struct ChunkLoaderStats
 	uint32_t ChunksMeshGen = 0;
 };
 
+class World;
+
 class ChunkLoader
 {
 public:
-	ChunkLoader(const glm::ivec2& coord, uint32_t renderDistance);
+	ChunkLoader(World& world, const glm::ivec2& coord, uint32_t renderDistance);
 	~ChunkLoader();
 
 	void OnUpdate(float elapsedTime);
@@ -35,7 +37,7 @@ public:
 
 	const ChunkLoaderStats& GetStats() const { return m_Stats; }
 
-	static Quark::Scope<ChunkLoader> Create(const glm::ivec2& coord, uint32_t renderDistance = 8);
+	static Quark::Scope<ChunkLoader> Create(World& world, const glm::ivec2& coord, uint32_t renderDistance = 8);
 
 private:
 	void ProcessQueues();
@@ -50,6 +52,7 @@ private:
 	void UniqueChunkDataGenerator(Chunk* chunk);
 	void UniqueChunkMeshGenerator(Chunk* chunk, Chunk* left, Chunk* right, Chunk* back, Chunk* front);
 
+	World& m_World;
 	WorldArea m_LoadingArea;
 	
 	std::list<size_t> m_LoadingQueue;

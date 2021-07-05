@@ -1,9 +1,10 @@
 #include "Player.h"
 
-#include "World.h"
+#include "Resources.h"
+#include "../World/World.h"
 
-Player::Player(Quark::Scene& scene, const PlayerSettings& settings)
-	: m_Scene(scene), m_Settings(settings)
+Player::Player(World& world, Quark::Scene& scene, const PlayerSettings& settings)
+	: m_Scene(scene), m_Settings(settings), m_World(world)
 {
 	Initialize();
 }
@@ -15,14 +16,19 @@ Player::~Player()
 
 Quark::Transform3DComponent Player::GetCameraTransform() const
 {
-	auto transform = Quark::Transform3DComponent(GetTransform());
+	auto transform = GetTransform();
 	transform.Position += m_Settings.HeadRelativeToFeet;
 	return transform;
 }
 
+const HitBox& Player::GetHitbox() const
+{
+	return Resources::GetPlayerHitbox().MoveTo(GetPosition());
+}
+
 bool Player::IsTouchingGround() const
 {
-	return World::Get().IsPlayerTouchingGround(*this);
+	return m_World.IsPlayerTouchingGround(*this);
 }
 
 void Player::Initialize()

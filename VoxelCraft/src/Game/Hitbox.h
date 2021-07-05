@@ -6,7 +6,7 @@
 
 #include <optional>
 
-struct AxisBounds
+struct Range
 {
 	float Min;
 	float Max;
@@ -14,9 +14,9 @@ struct AxisBounds
 
 struct AABounds
 {
-	AxisBounds X;
-	AxisBounds Y;
-	AxisBounds Z;
+	Range X;
+	Range Y;
+	Range Z;
 };
 
 class HitBox
@@ -27,9 +27,10 @@ public:
 
 	const AABounds& GetBounds() const { return m_Bounds; }
 
-	std::optional<CollisionData> Collide(const glm::vec3& point) const;
+	std::optional<CollisionData> CollideWith(const glm::vec3& point) const;
+	std::optional<AABBCollisionResult> CollideWith(const HitBox& other) const;
 
-	HitBox Move(const glm::vec3& position) const;
+	HitBox MoveTo(const glm::vec3& position) const;
 
 private:
 	AABounds m_Bounds;

@@ -17,10 +17,12 @@ struct PlayerSettings
 	float MouseSensitivity = 0.002f;
 };
 
+class World;
+
 class Player
 {
 public:
-	Player(Quark::Scene& scene, const PlayerSettings& settings = {});
+	Player(World& world, Quark::Scene& scene, const PlayerSettings& settings = {});
 	~Player();
 
 	const PlayerSettings& GetSettings() const { return m_Settings; }
@@ -35,6 +37,7 @@ public:
 	Quark::PhysicsComponent& GetPhysics() { return m_Entity.GetComponent<Quark::PhysicsComponent>(); }
 
 	const Quark::PerspectiveCameraComponent& GetCamera() const { return m_Entity.GetComponent<Quark::PerspectiveCameraComponent>(); }
+	const HitBox& GetHitbox() const;
 
 	bool IsTouchingGround() const;
 
@@ -46,4 +49,6 @@ private:
 	Quark::Scene& m_Scene;
 	Quark::Entity m_Entity;
 	PlayerSettings m_Settings;
+
+	World& m_World;
 };

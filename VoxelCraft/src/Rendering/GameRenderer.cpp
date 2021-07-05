@@ -1,6 +1,6 @@
 #include "GameRenderer.h"
 
-#include "Resources.h"
+#include "../Game/Resources.h"
 
 #define DRAW_CHUNK_ALL_STATUS 0
 

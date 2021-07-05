@@ -1,6 +1,6 @@
 #include "ConvertPosition.h"
 
-#include "Chunk.h"
+#include "../World/Chunk.h"
 
 glm::ivec3 Position3D::ToWorldSpace(const glm::ivec2& coord) const
 {
