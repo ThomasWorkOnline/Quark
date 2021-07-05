@@ -30,7 +30,6 @@ public:
 	const glm::ivec2& GetCoord() const { return m_Coord; }
 
 	void Load(size_t id);
-	void Unload(size_t id);
 	void Rebuild(size_t id);
 
 	bool Idling() const;
