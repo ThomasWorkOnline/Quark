@@ -45,7 +45,7 @@ ChunkLoader::ChunkLoader(World& world, const glm::ivec2& coord, uint32_t renderD
 		});
 
 	for (uint32_t i = 0; i < s_ThreadPoolSize; i++)
-		s_ThreadPool.emplace_back(&ChunkLoader::ProcessQueues, this);
+		s_ThreadPool.emplace_back(&ChunkLoader::StartWork, this);
 
 	std::cout << "Platform supports: " << std::thread::hardware_concurrency() << " threads.\n";
 }
@@ -105,18 +105,6 @@ void ChunkLoader::Load(size_t id)
 	}
 }
 
-void ChunkLoader::Unload(size_t id)
-{
-	std::lock_guard<std::recursive_mutex> lock(s_QueueMutex);
-
-	const Chunk* chunk = m_World.GetMap().Select(id);
-	if (chunk && !QueueContains(m_UnloadingQueue, id))
-	{
-		m_UnloadingQueue.push_back(id);
-		s_ConditionVariable.notify_one();
-	}
-}
-
 void ChunkLoader::Rebuild(size_t id)
 {
 	Chunk* chunk = m_World.GetMap().Select(id);
@@ -127,7 +115,7 @@ void ChunkLoader::Rebuild(size_t id)
 bool ChunkLoader::Idling() const
 {
 	std::lock_guard<std::recursive_mutex> lock(s_QueueMutex);
-	return m_LoadingQueue.empty() && m_UnloadingQueue.empty();
+	return m_LoadingQueue.empty();
 }
 
 void ChunkLoader::ProcessLoading()
@@ -144,22 +132,7 @@ void ChunkLoader::ProcessLoading()
 	}
 }
 
-void ChunkLoader::ProcessUnloading()
-{
-	std::unique_lock<std::recursive_mutex> lock(s_QueueMutex);
-	if (!m_UnloadingQueue.empty())
-	{
-		size_t id = m_UnloadingQueue.front();
-		m_UnloadingQueue.pop_front();
-		m_LoadingQueue.remove(id);
-
-		lock.unlock();
-
-		UnloadChunk(id);
-	}
-}
-
-void ChunkLoader::ProcessQueues()
+void ChunkLoader::StartWork()
 {
 	using namespace std::literals::chrono_literals;
 
@@ -168,13 +141,12 @@ void ChunkLoader::ProcessQueues()
 		{
 			{
 				std::unique_lock<std::mutex> lock(s_ConditionMutex);
-				s_ConditionVariable.wait(lock, [this]() { return !m_LoadingQueue.empty() || !m_UnloadingQueue.empty() || s_Stopping; });
+				s_ConditionVariable.wait(lock, [this]() { return !m_LoadingQueue.empty() || s_Stopping; });
 
 				if (s_Stopping) break;
 			}
 
 			ProcessLoading();
-			ProcessUnloading();
 		}
 	}
 
@@ -218,10 +190,6 @@ void ChunkLoader::OnChunkBorderCrossed()
 	m_LoadingArea.Foreach([this](size_t id)
 		{
 			Load(id);
-		});
-	m_LoadingArea.OnUnload([this](size_t id)
-		{
-			Unload(id);
 		});
 }
 

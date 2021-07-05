@@ -25,17 +25,6 @@ void WorldArea::Foreach(const std::function<void(size_t id)>& func) const
 	}
 }
 
-void WorldArea::OnUnload(const std::function<void(size_t id)>& func)
-{
-	std::lock_guard<std::mutex> lock(m_ChunksToUnloadMutex);
-	for (auto e : m_ChunksToUnload)
-	{
-		func(e);
-	}
-
-	m_ChunksToUnload.clear();
-}
-
 void WorldArea::Invalidate(const glm::ivec2& size, const glm::ivec2& anchor)
 {
 	static WorldAreaBounds lastBounds = m_InternalBounds;
@@ -80,8 +69,7 @@ void WorldArea::UpdateOutOfBounds(const WorldAreaBounds& bounds, const WorldArea
 			auto it = coords.find(CHUNK_UUID(coord));
 			if (it == coords.end())
 			{
-				std::lock_guard<std::mutex> lock(m_ChunksToUnloadMutex);
-				m_ChunksToUnload.insert((CHUNK_UUID(coord)));
+				m_WorldPartition.Unload(CHUNK_UUID(coord));
 			}
 		}
 	}
