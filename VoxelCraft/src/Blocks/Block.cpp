@@ -1,5 +1,7 @@
 #include "Block.h"
 
+#include "../Game/Resources.h"
+
 glm::ivec3 GetFaceNormal(BlockFace facing)
 {
 	switch (facing)
@@ -19,4 +21,9 @@ glm::ivec3 GetFaceNormal(BlockFace facing)
 	default:
 		return {};
 	}
+}
+
+const BlockProperties& Block::GetProperties() const
+{
+	return Resources::GetBlockProperties(*this);
 }

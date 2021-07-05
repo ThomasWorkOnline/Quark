@@ -81,9 +81,7 @@ bool World::IsPlayerTouchingGround(const Player& player) const
 {
 	static constexpr float detectionTreshold = 0.01f;
 	const glm::ivec3 blockUnderFeetPos = glm::floor(player.GetPosition() - glm::vec3(0.0f, detectionTreshold, 0.0f));
-	auto blockUnderFeet = GetBlock(blockUnderFeetPos);
-
-	auto& props = Resources::GetBlockProperties(blockUnderFeet);
+	auto& props = GetBlock(blockUnderFeetPos).GetProperties();
 
 	return props.CollisionEnabled;
 }
@@ -126,18 +124,18 @@ bool World::OnMouseButtonPressed(Quark::MouseButtonPressedEvent& e)
 		switch (e.GetMouseButton())
 		{
 		case Quark::MouseCode::ButtonLeft:
-			if (collision.Block != Block::Air)
+			if (collision.Block != Block::ID::Air)
 			{
-				ReplaceBlock(collision.Impact, Block::Air);
+				ReplaceBlock(collision.Impact, Block::ID::Air);
 			}
 			break;
 		case Quark::MouseCode::ButtonRight:
-			if (collision.Block != Block::Air)
+			if (collision.Block != Block::ID::Air)
 			{
 				auto pos = collision.Impact + (glm::vec3)GetFaceNormal(collision.Side);
-				if (GetBlock(pos) == Block::Air)
+				if (GetBlock(pos) == Block::ID::Air)
 				{
-					ReplaceBlock(pos, Block::Cobblestone);
+					ReplaceBlock(pos, Block::ID::Cobblestone);
 				}
 			}
 			break;
@@ -156,7 +154,7 @@ std::optional<CollisionData> World::RayCast(const glm::vec3& start, const glm::v
 	{
 		glm::ivec3 position = glm::floor(start + normDir * i);
 		Block block = GetBlock(position);
-		if (block != Block::Air)
+		if (block != Block::ID::Air)
 		{
 			CollisionData data;
 			data.Block = block;
@@ -177,7 +175,7 @@ Block World::GetBlock(const Position3D& position) const
 	Chunk* chunk = m_Map.Select(CHUNK_UUID(coord));
 	if (chunk && chunk->GetLoadStatus() >= Chunk::LoadStatus::WorldGenerated)
 		return chunk->GetBlock(blockPosition);
-	return Block::Air;
+	return Block::ID::Air;
 }
 
 void World::ReplaceBlock(const Position3D& position, Block type)
@@ -191,14 +189,14 @@ void World::ReplaceBlock(const Position3D& position, Block type)
 		Block oldBlock = chunk->GetBlock(blockPosition);
 		if (oldBlock != type)
 		{
-			if (oldBlock == Block::Air)
+			if (oldBlock == Block::ID::Air)
 			{
-				auto& blockProperties = Resources::GetBlockProperties(type);
+				auto& blockProperties = type.GetProperties();
 				Quark::AudioEngine::PlaySound(blockProperties.BreakSound);
 			}
 			else
 			{
-				auto& blockProperties = Resources::GetBlockProperties(oldBlock);
+				auto& blockProperties = oldBlock.GetProperties();
 				Quark::AudioEngine::PlaySound(blockProperties.BreakSound);
 			}
 
@@ -213,8 +211,7 @@ void World::ProcessPlayerCollision()
 	const auto& playerPos = m_Player.GetPosition();
 	const glm::ivec3 blockUnderFeetPos = glm::floor(playerPos - glm::vec3(0.0f, detectionTreshold, 0.0f));
 
-	auto block = GetBlock(blockUnderFeetPos);
-	const auto& props = Resources::GetBlockProperties(block);
+	const auto& props = GetBlock(blockUnderFeetPos).GetProperties();
 
 	// Collide with block underneath
 	if (props.CollisionEnabled)

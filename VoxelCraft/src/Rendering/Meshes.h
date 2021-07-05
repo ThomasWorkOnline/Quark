@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Vertex.h"
-#include "../Game/Resources.h"
 #include "../World/Chunk.h"
+
+class BlockProperties;
 
 struct MeshOutputParameters
 {

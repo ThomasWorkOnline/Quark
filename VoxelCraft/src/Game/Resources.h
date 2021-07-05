@@ -16,7 +16,7 @@ public:
 
 	static const BlockProperties& GetBlockProperties(Block type)
 	{
-		auto it = s_BlockProperties.find(type);
+		auto it = s_BlockProperties.find(type.GetId());
 		if (it != s_BlockProperties.end())
 		{
 			return it->second;
@@ -65,7 +65,7 @@ private:
 	static constexpr glm::ivec2 SubTextureSize = { 16, 16 };
 
 	// TODO: load from json
-	static std::unordered_map<Block, BlockProperties> s_BlockProperties;
+	static std::unordered_map<Block::ID, BlockProperties> s_BlockProperties;
 	static std::unordered_map<MeshModel, MeshProperties> s_MeshModels;
 
 	static Quark::Ref<Quark::VertexArray> s_CrosshairVertexArray;

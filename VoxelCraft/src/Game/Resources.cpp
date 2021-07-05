@@ -1,6 +1,6 @@
 #include "Resources.h"
 
-std::unordered_map<Block, BlockProperties> Resources::s_BlockProperties;
+std::unordered_map<Block::ID, BlockProperties> Resources::s_BlockProperties;
 std::unordered_map<MeshModel, MeshProperties> Resources::s_MeshModels;
 
 Quark::Ref<Quark::VertexArray> Resources::s_CrosshairVertexArray;
@@ -139,15 +139,15 @@ void Resources::Initialize()
 	s_Texture = Quark::Texture2D::Create("assets/textures/sprite_sheet.png");
 
 	s_BlockProperties = {
-		{ Block::Air,			BlockProperties::Air() },
-		{ Block::Bedrock,		BlockProperties::CreateBlock({ s_Texture, { 0, 0 }, SubTextureSize }, false, "assets/sounds/break_stone.mp3") },
-		{ Block::Dirt,			BlockProperties::CreateBlock({ s_Texture, { 1, 0 }, SubTextureSize }, false, "assets/sounds/break_dirt.mp3") },
-		{ Block::GrassBlock,	BlockProperties::CreateBlock({ s_Texture, { 2, 0 }, SubTextureSize }, { s_Texture, { 1, 0 }, SubTextureSize }, { s_Texture, { 2, 1 }, SubTextureSize }, false, "assets/sounds/break_grass.mp3") },
-		{ Block::Stone,			BlockProperties::CreateBlock({ s_Texture, { 0, 1 }, SubTextureSize }, false, "assets/sounds/break_stone.mp3") },
-		{ Block::Cobblestone,	BlockProperties::CreateBlock({ s_Texture, { 1, 1 }, SubTextureSize }, false, "assets/sounds/break_stone.mp3") },
+		{ Block::ID::Air,			BlockProperties::Air() },
+		{ Block::ID::Bedrock,		BlockProperties::CreateBlock({ s_Texture, { 0, 0 }, SubTextureSize }, false, "assets/sounds/break_stone.mp3") },
+		{ Block::ID::Dirt,			BlockProperties::CreateBlock({ s_Texture, { 1, 0 }, SubTextureSize }, false, "assets/sounds/break_dirt.mp3") },
+		{ Block::ID::GrassBlock,	BlockProperties::CreateBlock({ s_Texture, { 2, 0 }, SubTextureSize }, { s_Texture, { 1, 0 }, SubTextureSize }, { s_Texture, { 2, 1 }, SubTextureSize }, false, "assets/sounds/break_grass.mp3") },
+		{ Block::ID::Stone,			BlockProperties::CreateBlock({ s_Texture, { 0, 1 }, SubTextureSize }, false, "assets/sounds/break_stone.mp3") },
+		{ Block::ID::Cobblestone,	BlockProperties::CreateBlock({ s_Texture, { 1, 1 }, SubTextureSize }, false, "assets/sounds/break_stone.mp3") },
 
-		{ Block::Poppy,			BlockProperties::CreateSprite({ s_Texture, { 0, 2 }, SubTextureSize }, "assets/sounds/break_grass.mp3") },
-		{ Block::Grass,			BlockProperties::CreateSprite({ s_Texture, { 1, 2 }, SubTextureSize }, "assets/sounds/break_grass.mp3") }
+		{ Block::ID::Poppy,			BlockProperties::CreateSprite({ s_Texture, { 0, 2 }, SubTextureSize }, "assets/sounds/break_grass.mp3") },
+		{ Block::ID::Grass,			BlockProperties::CreateSprite({ s_Texture, { 1, 2 }, SubTextureSize }, "assets/sounds/break_grass.mp3") }
 	};
 
 	s_MeshModels = {

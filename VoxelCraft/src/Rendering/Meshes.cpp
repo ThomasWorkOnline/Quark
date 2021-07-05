@@ -1,8 +1,10 @@
 #include "Meshes.h"
 
+#include "../Game/Resources.h"
+
 void MeshGenerator::Create(const MeshOutputParameters& out, const Position3D& position, Block type, const Chunk* center, const ChunkNeighbors& neighbors)
 {
-	auto& blockProperties = Resources::GetBlockProperties(type);
+	auto& blockProperties = type.GetProperties();
 
 	switch (blockProperties.Mesh)
 	{

@@ -100,7 +100,7 @@ void Chunk::BuildMesh(Chunk* left, Chunk* right, Chunk* back, Chunk* front)
 			{
 				Block block = GetBlock(pos);
 
-				if (block == Block::Air)
+				if (block == Block::ID::Air)
 					continue;
 
 				MeshGenerator::Create({ m_Vertices, m_Indices, m_VertexCount }, pos, block, this, { left, right, back, front });
@@ -147,17 +147,17 @@ Block Chunk::GenerateBlock(const Position3D& position)
 
 	Block type;
 	if (position.y < genBedrock)
-		type = Block::Bedrock;
+		type = Block::ID::Bedrock;
 	else if (position.y >= genBedrock && position.y < genStone)
-		type = Block::Stone;
+		type = Block::ID::Stone;
 	else if (position.y >= genStone && position.y < genDirt)
-		type = Block::Dirt;
+		type = Block::ID::Dirt;
 	else if (position.y >= genDirt && position.y < genGrassBlock)
-		type = Block::GrassBlock;
+		type = Block::ID::GrassBlock;
 	else if (position.y >= genGrassBlock && position.y < genGrass)
-		type = noise < 0.01f ? Block::Poppy : noise > 0.9f ? Block::Grass : Block::Air;
+		type = noise < 0.01f ? Block::ID::Poppy : noise > 0.9f ? Block::ID::Grass : Block::ID::Air;
 	else
-		type = Block::Air;
+		type = Block::ID::Air;
 
 	return type;
 }
@@ -172,7 +172,7 @@ Block Chunk::GetBlock(const Position3D& position) const
 			return m_Blocks[index];
 		}
 	}
-	return Block::Air;
+	return Block::ID::Air;
 }
 
 void Chunk::ReplaceBlock(const Position3D& position, Block type)
