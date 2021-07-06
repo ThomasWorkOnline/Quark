@@ -26,7 +26,7 @@ private:
 	bool OnWindowResized(Quark::WindowResizedEvent& e);
 
 	std::atomic_bool m_GravityEnabled = false;
-	std::atomic<PlayerState> m_PlayerState = PlayerState::Flying;
+	std::atomic<PlayerState> m_PlayerState = PlayerState::Walking;
 
 	Player& m_Player;
 };

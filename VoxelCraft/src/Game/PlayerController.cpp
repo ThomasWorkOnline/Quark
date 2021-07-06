@@ -1,15 +1,32 @@
 #include "PlayerController.h"
 
-static constexpr float s_AirFriction = 4.0f;
-static constexpr float s_GroundFriction = 8.0f;
+static constexpr float s_AirFriction = 1.0f;
+static constexpr float s_GroundFriction = 10.0f;
+
+static glm::vec3 s_ForwardAcceleration;
+
+static glm::vec3 s_ForwardVelocity;
+
+static struct ControlKeys
+{
+	ControlKeys()
+		: W(false), A(false), S(false), D(false) {}
+
+	ControlKeys& operator= (const ControlKeys& other)
+	{
+		W = other.W; A = other.A; S = other.S; D = other.D;
+		return *this;
+	}
+
+	bool Walking() const { return W || A || S || D; }
+
+	bool W, A, S, D;
+};
 
 PlayerController::PlayerController(Player& player)
 	: m_Player(player)
 {
 	m_CameraEntity = player;
-
-	auto& physics = m_CameraEntity.GetComponent<Quark::PhysicsComponent>();
-	physics.Friction = s_AirFriction;
 }
 
 void PlayerController::OnUpdate(float elapsedTime)
@@ -49,53 +66,78 @@ void PlayerController::OnUpdate(float elapsedTime)
 
 			{
 				// Controls
-				bool w = false;
-				bool a = false;
-				bool s = false;
-				bool d = false;
+				ControlKeys keys;
+				static ControlKeys lastKeys;
+
+				keys.W = Quark::Input::IsKeyPressed(Quark::Key::W);
+				keys.A = Quark::Input::IsKeyPressed(Quark::Key::A);
+				keys.S = Quark::Input::IsKeyPressed(Quark::Key::S);
+				keys.D = Quark::Input::IsKeyPressed(Quark::Key::D);
 
 				glm::vec3 front = glm::normalize(glm::vec3(transform.GetFrontVector().x, 0.0f, transform.GetFrontVector().z));
 				glm::vec3 right = glm::normalize(glm::vec3(transform.GetRightVector().x, 0.0f, transform.GetRightVector().z));
 
-				if (Quark::Input::IsKeyPressed(Quark::Key::W))
+				if (keys.W)
 				{
-					w = true;
-					physics.Velocity += front * m_MovementSpeed * elapsedTime;
-				}
+					s_ForwardAcceleration = front * m_MovementSpeed;
+					s_ForwardVelocity = s_ForwardAcceleration * elapsedTime;
 
-				if (Quark::Input::IsKeyPressed(Quark::Key::S))
-				{
-					a = true;
-					physics.Velocity += -front * m_MovementSpeed * elapsedTime;
-				}
-
-				if (Quark::Input::IsKeyPressed(Quark::Key::D))
-				{
-					s = true;
-					physics.Velocity += right * m_MovementSpeed * elapsedTime;
-				}
-
-				if (Quark::Input::IsKeyPressed(Quark::Key::A))
-				{
-					d = true;
-					physics.Velocity += -right * m_MovementSpeed * elapsedTime;
-				}
-
-				bool walking = w || a || s || d;
-
-				if (walking)
-				{
-					
+					physics.Velocity += s_ForwardVelocity;
 				}
 				else
 				{
-					// Ground friction if applicable
+					if (lastKeys.W != keys.W)
+					{
+						s_ForwardAcceleration = glm::vec3(0.f);
+						std::cout << "I stopped walking forwards.\n";
+					}
+
 					if (m_Player.IsTouchingGround())
 					{
-						physics.Velocity.x -= physics.Velocity.x * s_GroundFriction * elapsedTime;
-						physics.Velocity.z -= physics.Velocity.z * s_GroundFriction * elapsedTime;
+						physics.Velocity -= physics.Velocity * s_GroundFriction * elapsedTime;
 					}
 				}
+
+				if (keys.S)
+				{
+					physics.Velocity += -front * m_MovementSpeed * elapsedTime;
+				}
+				else
+				{
+					if (lastKeys.S != keys.S)
+					{
+						std::cout << "I stopped walking backwards.\n";
+					}
+				}
+
+				if (keys.D)
+				{
+					physics.Velocity += right * m_MovementSpeed * elapsedTime;
+				}
+				else
+				{
+					if (lastKeys.D != keys.D)
+					{
+						std::cout << "I stopped walking right.\n";
+					}
+				}
+
+				if (keys.A)
+				{
+					physics.Velocity += -right * m_MovementSpeed * elapsedTime;
+				}
+				else
+				{
+					if (lastKeys.A != keys.A)
+					{
+						std::cout << "I stopped walking left.\n";
+					}
+				}
+
+				// Air friction
+				physics.Velocity -= physics.Velocity * s_AirFriction * elapsedTime;
+
+				lastKeys = keys;
 			}
 
 			// Gravity

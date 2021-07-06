@@ -1,8 +1,8 @@
 #include <Quark.h>
 
-#include "World.h"
+#include "../World/World.h"
+#include "../Rendering/GameRenderer.h"
 #include "Resources.h"
-#include "GameRenderer.h"
 
 class VoxelCraft : public Quark::Application
 {
@@ -14,7 +14,7 @@ public:
 		QK_TIME_SCOPE_DEBUG(VoxelCraft::OnCreate);
 
 		GetWindow().Select();
-		GetWindow().SetVSync(true);
+		GetWindow().SetVSync(false);
 		GetWindow().SetFullScreen(false);
 
 		Resources::Initialize();

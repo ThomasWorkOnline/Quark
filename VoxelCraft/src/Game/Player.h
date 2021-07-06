@@ -9,7 +9,7 @@ struct PlayerSettings
 	float Fov = 70;
 	glm::vec3 HeadRelativeToFeet = { 0.0f, 1.75f, 0.0f };
 	glm::vec3 SpawnPoint = { 0.5f, 80.0f, 0.5f };
-	uint32_t RenderDistance = 12;
+	uint32_t RenderDistance = 1;
 	float FlyingMovementSpeed = 50.0f;
 	float BoostFlyingMovementSpeed = 120.0f;
 	float BaseMovementSpeed = 15.0f;
