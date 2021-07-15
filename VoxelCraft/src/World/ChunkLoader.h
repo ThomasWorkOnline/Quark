@@ -8,55 +8,58 @@
 #include <thread>
 #include <tuple>
 
-struct ChunkLoaderStats
-{
-	uint32_t ChunksAllocated = 0;
-	uint32_t ChunksFreed = 0;
-	uint32_t ChunksWorldGen = 0;
-	uint32_t ChunksMeshGen = 0;
-};
+namespace VoxelCraft {
 
-class World;
+	struct ChunkLoaderStats
+	{
+		uint32_t ChunksAllocated = 0;
+		uint32_t ChunksFreed = 0;
+		uint32_t ChunksWorldGen = 0;
+		uint32_t ChunksMeshGen = 0;
+	};
 
-class ChunkLoader
-{
-public:
-	ChunkLoader(World& world, const glm::ivec2& coord, uint32_t renderDistance);
-	~ChunkLoader();
+	class World;
 
-	void OnUpdate(float elapsedTime);
+	class ChunkLoader
+	{
+	public:
+		ChunkLoader(World& world, const glm::ivec2& coord, uint32_t renderDistance);
+		~ChunkLoader();
 
-	void SetCoord(const glm::ivec2& coord) { m_Coord = coord; }
-	const glm::ivec2& GetCoord() const { return m_Coord; }
+		void OnUpdate(float elapsedTime);
 
-	void Load(size_t id);
-	void Rebuild(size_t id);
+		void SetCoord(const glm::ivec2& coord) { m_Coord = coord; }
+		const glm::ivec2& GetCoord() const { return m_Coord; }
 
-	bool Idling() const;
+		void Load(size_t id);
+		void Rebuild(size_t id);
 
-	const ChunkLoaderStats& GetStats() const { return m_Stats; }
+		bool Idling() const;
 
-	static Quark::Scope<ChunkLoader> Create(World& world, const glm::ivec2& coord, uint32_t renderDistance = 8);
+		const ChunkLoaderStats& GetStats() const { return m_Stats; }
 
-private:
-	void StartWork();
-	void ProcessLoading();
+		static Quark::Scope<ChunkLoader> Create(World& world, const glm::ivec2& coord, uint32_t renderDistance = 8);
 
-	void LoadChunk(size_t id);
-	void UnloadChunk(size_t id);
+	private:
+		void StartWork();
+		void ProcessLoading();
 
-	void OnChunkBorderCrossed();
+		void LoadChunk(size_t id);
+		void UnloadChunk(size_t id);
 
-	void UniqueChunkDataGenerator(Chunk* chunk);
-	void UniqueChunkMeshGenerator(Chunk* chunk, Chunk* left, Chunk* right, Chunk* back, Chunk* front);
+		void OnChunkBorderCrossed();
 
-	World& m_World;
-	WorldArea m_LoadingArea;
-	
-	std::list<size_t> m_LoadingQueue;
+		void UniqueChunkDataGenerator(Chunk* chunk);
+		void UniqueChunkMeshGenerator(Chunk* chunk, Chunk* left, Chunk* right, Chunk* back, Chunk* front);
 
-	ChunkLoaderStats m_Stats;
+		World& m_World;
+		WorldArea m_LoadingArea;
 
-	glm::ivec2 m_Coord;
-	uint32_t m_RenderDistance;
-};
+		std::list<size_t> m_LoadingQueue;
+
+		ChunkLoaderStats m_Stats;
+
+		glm::ivec2 m_Coord;
+		uint32_t m_RenderDistance;
+	};
+}

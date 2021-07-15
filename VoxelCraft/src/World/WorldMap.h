@@ -7,38 +7,41 @@
 #include <mutex>
 #include <unordered_map>
 
-class World;
+namespace VoxelCraft {
 
-class WorldMap
-{
-public:
-	WorldMap(World& world);
-	~WorldMap();
+	class World;
 
-	void OnUpdate(float elapsedTime);
+	class WorldMap
+	{
+	public:
+		WorldMap(World& world);
+		~WorldMap();
 
-	void Foreach(const std::function<void(size_t id)>& func) const;
-	void Foreach(const std::function<void(Chunk* data)>& func) const;
+		void OnUpdate(float elapsedTime);
 
-	Chunk* Select(size_t id) const;
-	Chunk* Load(size_t id);
-	void Unload(size_t id);
-	bool Contains(size_t id) const;
+		void Foreach(const std::function<void(size_t id)>& func) const;
+		void Foreach(const std::function<void(Chunk* data)>& func) const;
 
-private:
-	void Erase(size_t id);
+		Chunk* Select(size_t id) const;
+		Chunk* Load(size_t id);
+		void Unload(size_t id);
+		bool Contains(size_t id) const;
 
-private:
-	mutable std::recursive_mutex m_ChunksLocationsMutex;
-	std::unordered_map<size_t, Chunk*> m_ChunksLocations;
+	private:
+		void Erase(size_t id);
 
-	/// <summary>
-	/// The deletion must be done on the main thread.
-	/// Different Graphics Drivers might crash or ignore the call to glDelete<...>(),
-	/// resulting in undefined behaviour. In most cases, a memory leak would occur.
-	/// </summary>
-	mutable std::mutex m_ChunksToDeleteMutex;
-	std::list<Chunk*> m_ChunksToDelete;
+	private:
+		mutable std::recursive_mutex m_ChunksLocationsMutex;
+		std::unordered_map<size_t, Chunk*> m_ChunksLocations;
 
-	World& m_World;
-};
+		/// <summary>
+		/// The deletion must be done on the main thread.
+		/// Different Graphics Drivers might crash or ignore the call to glDelete<...>(),
+		/// resulting in undefined behaviour. In most cases, a memory leak would occur.
+		/// </summary>
+		mutable std::mutex m_ChunksToDeleteMutex;
+		std::list<Chunk*> m_ChunksToDelete;
+
+		World& m_World;
+	};
+}

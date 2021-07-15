@@ -2,49 +2,52 @@
 
 #include <Quark.h>
 
-class BlockProperties;
+namespace VoxelCraft {
 
-enum class BlockFace
-{
-	Front = 0,
-	Right,
-	Back,
-	Left,
-	Top,
-	Bottom
-};
-
-glm::ivec3 GetFaceNormal(BlockFace facing);
-
-class Block
-{
-public:
-	enum class ID : uint8_t
+	enum class BlockFace
 	{
-		Air = 0,
-		Bedrock,
-		Dirt,
-		GrassBlock,
-		Stone,
-		Cobblestone,
-		Poppy,
-		Grass
+		Front = 0,
+		Right,
+		Back,
+		Left,
+		Top,
+		Bottom
 	};
 
-	Block() = default;
-	Block(ID id)
-		: m_Id(id) {}
+	glm::vec3 GetFaceNormal(BlockFace facing);
 
-	const BlockProperties& GetProperties() const;
+	struct BlockProperties;
 
-	bool operator==(ID id) const { return m_Id == id; }
-	bool operator!=(ID id) const { return m_Id != id; }
+	class Block
+	{
+	public:
+		enum class ID : uint8_t
+		{
+			Air = 0,
+			Bedrock,
+			Dirt,
+			GrassBlock,
+			Stone,
+			Cobblestone,
+			Poppy,
+			Grass
+		};
 
-	bool operator==(Block other) const { return m_Id == other.m_Id; }
-	bool operator!=(Block other) const { return m_Id != other.m_Id; }
+		Block() = default;
+		Block(ID id)
+			: m_Id(id) {}
 
-	ID GetId() const { return m_Id; }
+		const BlockProperties& GetProperties() const;
 
-private:
-	ID m_Id;
-};
+		bool operator==(ID id) const { return m_Id == id; }
+		bool operator!=(ID id) const { return m_Id != id; }
+
+		bool operator==(Block other) const { return m_Id == other.m_Id; }
+		bool operator!=(Block other) const { return m_Id != other.m_Id; }
+
+		ID GetId() const { return m_Id; }
+
+	private:
+		ID m_Id;
+	};
+}

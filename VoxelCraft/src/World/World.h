@@ -5,46 +5,49 @@
 #include "Chunk.h"
 #include "ChunkLoader.h"
 #include "WorldMap.h"
+#include "../Entity/Player.h"
 #include "../Game/Collision.h"
-#include "../Game/Player.h"
 #include "../Game/PlayerController.h"
-#include "../Utils/ConvertPosition.h"
+#include "../Utils/Position.h"
 
 #include <optional>
 
-class World
-{
-public:
-	World();
-	~World();
+namespace VoxelCraft {
 
-	void OnUpdate(float elapsedTime);
-	void OnEvent(Quark::Event& e);
+	class World
+	{
+	public:
+		World();
+		~World();
 
-	void OnChunkLoaded(size_t id);
-	void OnChunkModified(size_t id);
+		void OnUpdate(float elapsedTime);
+		void OnEvent(Quark::Event& e);
 
-	const WorldMap& GetMap() const { return m_Map; }
-	WorldMap& GetMap() { return m_Map; }
-	Block GetBlock(const Position3D& position) const;
+		void OnChunkLoaded(size_t id);
+		void OnChunkModified(size_t id);
 
-	bool IsPlayerTouchingGround(const Player& player) const;
+		const WorldMap& GetMap() const { return m_Map; }
+		WorldMap& GetMap() { return m_Map; }
+		Block GetBlock(const Position3D& position) const;
 
-	static Quark::Scope<World> Create();
+		bool IsPlayerTouchingGround(const Player& player) const;
 
-private:
-	bool OnKeyPressed(Quark::KeyPressedEvent& e);
-	bool OnMouseButtonPressed(Quark::MouseButtonPressedEvent& e);
+		static Quark::Scope<World> Create();
 
-	// Utilities
-	std::optional<CollisionData> RayCast(const glm::vec3& start, const glm::vec3& direction, float length) const;
-	void ReplaceBlock(const Position3D& position, Block type);
-	void ProcessPlayerCollision();
+	private:
+		bool OnKeyPressed(Quark::KeyPressedEvent& e);
+		bool OnMouseButtonPressed(Quark::MouseButtonPressedEvent& e);
 
-	Quark::Scene m_Scene;
-	Player m_Player = { *this, m_Scene };
-	PlayerController m_Controller = { m_Player };
-	WorldMap m_Map = { *this };
+		// Utilities
+		std::optional<CollisionData> RayCast(const glm::vec3& start, const glm::vec3& direction, float length) const;
+		void ReplaceBlock(const Position3D& position, Block type);
+		void ProcessPlayerCollision();
 
-	Quark::Scope<ChunkLoader> m_Loader;
-};
+		Quark::Scene m_Scene;
+		Player m_Player = { *this, m_Scene };
+		PlayerController m_Controller = { m_Player };
+		WorldMap m_Map = { *this };
+
+		Quark::Scope<ChunkLoader> m_Loader;
+	};
+}

@@ -4,16 +4,19 @@
 
 #include "../Game/Hitbox.h"
 
-struct MeshProperties
-{
-	const glm::vec3* VertexPositions;
-	HitBox Hitbox;
+namespace VoxelCraft {
 
-	static inline MeshProperties Create(const glm::vec3* vertexPositions, const HitBox& hitbox)
+	struct MeshProperties
 	{
-		return {
-			vertexPositions,
-			hitbox
-		};
-	}
-};
+		const glm::vec3* VertexPositions;
+		HitBox Hitbox;
+
+		static inline MeshProperties Create(const glm::vec3* vertexPositions, const HitBox& hitbox)
+		{
+			return {
+				vertexPositions,
+				hitbox
+			};
+		}
+	};
+}

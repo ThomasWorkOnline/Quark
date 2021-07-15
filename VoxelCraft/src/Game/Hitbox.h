@@ -6,32 +6,35 @@
 
 #include <optional>
 
-struct Range
-{
-	float Min;
-	float Max;
-};
+namespace VoxelCraft {
 
-struct AABounds
-{
-	Range X;
-	Range Y;
-	Range Z;
-};
+	struct Range
+	{
+		float Min;
+		float Max;
+	};
 
-class HitBox
-{
-public:
-	HitBox(const AABounds& boundaries)
-		: m_Bounds(boundaries) {}
+	struct AABounds
+	{
+		Range X;
+		Range Y;
+		Range Z;
+	};
 
-	const AABounds& GetBounds() const { return m_Bounds; }
+	class HitBox
+	{
+	public:
+		HitBox(const AABounds& boundaries)
+			: m_Bounds(boundaries) {}
 
-	std::optional<CollisionData> CollideWith(const glm::vec3& point) const;
-	std::optional<AABBCollisionResult> CollideWith(const HitBox& other) const;
+		const AABounds& GetBounds() const { return m_Bounds; }
 
-	HitBox MoveTo(const glm::vec3& position) const;
+		std::optional<CollisionData> CollideWith(const glm::vec3& point) const;
+		std::optional<AABBCollisionResult> CollideWith(const HitBox& other) const;
 
-private:
-	AABounds m_Bounds;
-};
+		HitBox MoveTo(const glm::vec3& position) const;
+
+	private:
+		AABounds m_Bounds;
+	};
+}

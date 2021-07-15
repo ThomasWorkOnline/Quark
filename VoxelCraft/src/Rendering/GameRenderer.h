@@ -4,30 +4,33 @@
 
 #include "../World/Chunk.h"
 
-struct GameRendererStats
-{
-	uint32_t DrawCalls = 0;
-};
+namespace VoxelCraft {
 
-class GameRenderer
-{
-public:
-	GameRenderer() = delete;
-	GameRenderer operator= (const GameRenderer& other) = delete;
+	struct GameRendererStats
+	{
+		uint32_t DrawCalls = 0;
+	};
 
-	static void Initialize();
-	static void Shutdown();
+	class GameRenderer
+	{
+	public:
+		GameRenderer() = delete;
+		GameRenderer operator= (const GameRenderer& other) = delete;
 
-	// Debug
-	static void SwitchShader();
+		static void Initialize();
+		static void Shutdown();
 
-	static void SubmitChunk(const Chunk* chunk);
-	static void DrawUI(uint32_t width, uint32_t height);
+		// Debug
+		static void SwitchShader();
 
-	static const GameRendererStats& GetStats() { return s_Stats; }
+		static void SubmitChunk(const Chunk* chunk);
+		static void DrawUI(uint32_t width, uint32_t height);
 
-private:
-	static Quark::Ref<Quark::Shader> s_ActiveShader;
+		static const GameRendererStats& GetStats() { return s_Stats; }
 
-	static GameRendererStats s_Stats;
-};
+	private:
+		static Quark::Ref<Quark::Shader> s_ActiveShader;
+
+		static GameRendererStats s_Stats;
+	};
+}

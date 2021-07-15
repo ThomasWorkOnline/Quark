@@ -5,33 +5,36 @@
 #include "Chunk.h"
 #include "WorldMap.h"
 
-struct WorldAreaBounds
-{
-	glm::ivec2 First;
-	glm::ivec2 Second;
-};
+namespace VoxelCraft {
 
-class WorldArea
-{
-public:
-	WorldArea(WorldMap& map, const glm::ivec2& size, const glm::ivec2& anchor);
+	struct WorldAreaBounds
+	{
+		glm::ivec2 First;
+		glm::ivec2 Second;
+	};
 
-	bool InBounds(size_t id) const;
+	class WorldArea
+	{
+	public:
+		WorldArea(WorldMap& map, const glm::ivec2& size, const glm::ivec2& anchor);
 
-	void Foreach(const std::function<void(size_t id)>& func) const;
+		bool InBounds(size_t id) const;
 
-	// TODO: improve, on fast movements, some chunks may stay loaded
-	// if the player skips more than 1 chunk border in less than OnUpdate() timeframe
-	void Invalidate(const glm::ivec2& size, const glm::ivec2& anchor);
+		void Foreach(const std::function<void(size_t id)>& func) const;
 
-private:
-	void LoadArea();
-	void UpdateOutOfBounds(const WorldAreaBounds& bounds, const WorldAreaBounds& lastBounds);
+		// TODO: improve, on fast movements, some chunks may stay loaded
+		// if the player skips more than 1 chunk border in less than OnUpdate() timeframe
+		void Invalidate(const glm::ivec2& size, const glm::ivec2& anchor);
 
-	void ComputeBounds(const glm::ivec2& size, const glm::ivec2& anchor);
+	private:
+		void LoadArea();
+		void UpdateOutOfBounds(const WorldAreaBounds& bounds, const WorldAreaBounds& lastBounds);
 
-	WorldAreaBounds m_AccessibleBounds; // Size in chunks. Only accessible chunks
-	WorldAreaBounds m_InternalBounds; // +1 chunks on each side will be allocated
+		void ComputeBounds(const glm::ivec2& size, const glm::ivec2& anchor);
 
-	WorldMap& m_WorldPartition;
-};
+		WorldAreaBounds m_AccessibleBounds; // Size in chunks. Only accessible chunks
+		WorldAreaBounds m_InternalBounds; // +1 chunks on each side will be allocated
+
+		WorldMap& m_WorldPartition;
+	};
+}

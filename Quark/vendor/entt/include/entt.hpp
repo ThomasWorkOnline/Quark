@@ -13597,7 +13597,7 @@ public:
      * @brief Move constructor.
      * @param other The instance to move from.
      */
-    meta_any(meta_any &&other)
+    meta_any(meta_any &&other) noexcept
         : meta_any{}
     {
         swap(*this, other);
