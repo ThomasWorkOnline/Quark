@@ -8,11 +8,8 @@
 
 namespace VoxelCraft {
 
-	static int32_t IndexAtPosition(const Position3D& position)
+	static uint32_t IndexAtPosition(const Position3D& position)
 	{
-		if (position.x < 0 || position.y < 0 || position.z < 0
-			|| position.x >= ChunkSpecification::Width || position.y >= ChunkSpecification::Height || position.z >= ChunkSpecification::Depth)
-			return -1;
 		return position.x + ChunkSpecification::Width * position.z + ChunkSpecification::Width * ChunkSpecification::Depth * position.y;
 	}
 
@@ -169,17 +166,13 @@ namespace VoxelCraft {
 
 	Block Chunk::GetBlock(const Position3D& position) const
 	{
-		int32_t index = IndexAtPosition(position);
-		if (m_Blocks && m_LoadingStatus >= LoadStatus::WorldGenerated && index != -1)
-		{
-			return m_Blocks[index];
-		}
-		return Block::ID::Air;
+		uint32_t index = IndexAtPosition(position);
+		return m_Blocks[index];
 	}
 
 	void Chunk::ReplaceBlock(const Position3D& position, Block type)
 	{
-		int32_t index = IndexAtPosition(position);
+		uint32_t index = IndexAtPosition(position);
 
 		m_Edited = true;
 
@@ -212,54 +205,46 @@ namespace VoxelCraft {
 
 	bool Chunk::IsBlockFaceVisible(const Position3D& position, BlockFace face, const ChunkNeighbors& neighbors) const
 	{
-		Position3D neighborPosition = position + GetFaceNormal(face);
+		Position3D neighborPosition = position + GetFaceNormal(face); // In chunk space
 
-		bool visible = IsBlockTransparent(neighborPosition);
-
-		// No further checks, face is culled
-		if (!visible)
-			return false;
+		if (neighborPosition.x >= 0 && neighborPosition.y >= 0 && neighborPosition.z >= 0 &&
+			neighborPosition.x < ChunkSpecification::Width && neighborPosition.y < ChunkSpecification::Height && neighborPosition.z < ChunkSpecification::Depth)
+		{
+			return IsBlockTransparent(neighborPosition);
+		}
 
 		if (neighborPosition.x < 0)
 		{
 			Block block = neighbors.Left->GetBlock(Position3D((float)ChunkSpecification::Width - 1, neighborPosition.y, neighborPosition.z));
-			auto& blockProperties = Resources::GetBlockProperties(block);
-			if (!blockProperties.Transparent)
-				visible = false;
+			if (!block.GetProperties().Transparent)
+				return false;
 		}
 		else if (neighborPosition.x > ChunkSpecification::Width - 1)
 		{
 			Block block = neighbors.Right->GetBlock(Position3D(0.f, neighborPosition.y, neighborPosition.z));
-			auto& blockProperties = Resources::GetBlockProperties(block);
-			if (!blockProperties.Transparent)
-				visible = false;
+			if (!block.GetProperties().Transparent)
+				return false;
 		}
 
 		if (neighborPosition.z < 0)
 		{
 			Block block = neighbors.Back->GetBlock(Position3D(neighborPosition.x, neighborPosition.y, (float)ChunkSpecification::Depth - 1));
-			auto& blockProperties = Resources::GetBlockProperties(block);
-			if (!blockProperties.Transparent)
-				visible = false;
+			if (!block.GetProperties().Transparent)
+				return false;
 		}
 		else if (neighborPosition.z > ChunkSpecification::Depth - 1)
 		{
 			Block block = neighbors.Front->GetBlock(Position3D(neighborPosition.x, neighborPosition.y, 0.f));
-			auto& blockProperties = Resources::GetBlockProperties(block);
-			if (!blockProperties.Transparent)
-				visible = false;
+			if (!block.GetProperties().Transparent)
+				return false;
 		}
 
-		return visible;
+		return true;
 	}
 
 	bool Chunk::IsBlockTransparent(const Position3D& position) const
 	{
-		int32_t index = IndexAtPosition(position);
-		if (index != -1)
-		{
-			return Resources::GetBlockProperties(m_Blocks[index]).Transparent;
-		}
-		return true;
+		uint32_t index = IndexAtPosition(position);
+		return m_Blocks[index].GetProperties().Transparent;
 	}
 }
