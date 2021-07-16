@@ -44,8 +44,11 @@ namespace VoxelCraft {
 		void ProcessPlayerCollision();
 
 		Quark::Scene m_Scene;
+
+		// TODO: move
 		Player m_Player = { *this, m_Scene };
 		PlayerController m_Controller = { m_Player };
+
 		WorldMap m_Map = { *this };
 
 		Quark::Scope<ChunkLoader> m_Loader;

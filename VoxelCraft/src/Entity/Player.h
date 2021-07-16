@@ -23,37 +23,29 @@ namespace VoxelCraft {
 
 	class World;
 
-	class Player
+	class Player : public Quark::Entity
 	{
 	public:
 		Player(World& world, Quark::Scene& scene, const PlayerSettings& settings = {});
 		~Player();
 
 		const PlayerSettings& GetSettings() const { return m_Settings; }
-		const Position3D& GetPosition() const { return GetTransform().Position; }
-		Position3D GetHeadPosition() { return GetTransform().Position + m_Settings.HeadRelativeToFeet; }
+		const Position3D& GetPosition() const { return GetComponent<Quark::Transform3DComponent>().Position; }
+		Position3D GetHeadPosition() { return GetPosition() + m_Settings.HeadRelativeToFeet; }
 
-		const Quark::Transform3DComponent& GetTransform() const { return m_Entity.GetComponent<Quark::Transform3DComponent>(); }
-		Quark::Transform3DComponent& GetTransform() { return m_Entity.GetComponent<Quark::Transform3DComponent>(); }
 		Quark::Transform3DComponent GetCameraTransform() const;
 
-		const Quark::PhysicsComponent& GetPhysics() const { return m_Entity.GetComponent<Quark::PhysicsComponent>(); }
-		Quark::PhysicsComponent& GetPhysics() { return m_Entity.GetComponent<Quark::PhysicsComponent>(); }
-
-		const Quark::PerspectiveCameraComponent& GetCamera() const { return m_Entity.GetComponent<Quark::PerspectiveCameraComponent>(); }
 		const HitBox& GetHitbox() const;
 
 		bool IsTouchingGround() const;
 
-		operator Quark::Entity() const { return m_Entity; }
-
 	private:
 		void Initialize();
 
-		Quark::Scene& m_Scene;
-		Quark::Entity m_Entity;
 		PlayerSettings m_Settings;
 
 		World& m_World;
+
+		Quark::Scene& m_SceneHandle;
 	};
 }

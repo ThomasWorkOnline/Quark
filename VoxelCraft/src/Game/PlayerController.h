@@ -12,24 +12,24 @@ namespace VoxelCraft {
 		Flying
 	};
 
-	class PlayerController : public Quark::PerspectiveCameraController
+	class PlayerController
 	{
 	public:
 		PlayerController(Player& player);
 
-		void OnUpdate(float elapsedTime) override;
-		void OnEvent(Quark::Event& e) override;
+		void OnUpdate(float elapsedTime);
+		void OnEvent(Quark::Event& e);
 
 		void SetPlayerState(PlayerState state) { m_PlayerState = state; }
-		void SetGravityEnabled(bool enabled) { m_GravityEnabled = enabled; }
 
 	private:
 		bool OnMouseMoved(Quark::MouseMovedEvent& e);
 		bool OnWindowResized(Quark::WindowResizedEvent& e);
 
-		std::atomic_bool m_GravityEnabled = false;
 		std::atomic<PlayerState> m_PlayerState = PlayerState::Walking;
 
 		Player& m_Player;
+
+		float m_MovementSpeed = 0.0f;
 	};
 }

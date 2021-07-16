@@ -7,15 +7,18 @@
 #include "../Game/Resources.h"
 #include "../Rendering/GameRenderer.h"
 
+#include "../Components/GravityComponent.h"
+
 namespace VoxelCraft {
 
 	static uint32_t s_ChunksExpected = 0;
+	static std::atomic_bool flagPlayerGravity;
 
 	World::World()
 	{
 		QK_TIME_SCOPE_DEBUG(World::World);
 
-		m_Loader = ChunkLoader::Create(*this, ((Position3D)m_Player.GetSettings().SpawnPoint).ToChunkCoord(), m_Player.GetSettings().RenderDistance);
+		m_Loader = ChunkLoader::Create(*this, m_Player.GetSettings().SpawnPoint.ToChunkCoord(), m_Player.GetSettings().RenderDistance);
 	}
 
 	World::~World()
@@ -28,10 +31,11 @@ namespace VoxelCraft {
 		const Position3D& playerPos = m_Player.GetPosition();
 		m_Loader->SetCoord(playerPos.ToChunkCoord());
 
-		// Physics
 		m_Scene.OnUpdate(elapsedTime);
 
 		ProcessPlayerCollision();
+
+		m_Player.GetComponent<GravityComponent>().Affected = flagPlayerGravity;
 
 		// Controls
 		m_Controller.OnUpdate(elapsedTime);
@@ -40,7 +44,7 @@ namespace VoxelCraft {
 		m_Map.OnUpdate(elapsedTime);
 		m_Loader->OnUpdate(elapsedTime);
 
-		Quark::Renderer::BeginScene(m_Player.GetCamera().Camera.GetMatrix(),
+		Quark::Renderer::BeginScene(m_Player.GetComponent<Quark::PerspectiveCameraComponent>().Camera.GetMatrix(),
 			m_Player.GetCameraTransform());
 
 		m_Map.Foreach([](const Chunk* data)
@@ -67,9 +71,9 @@ namespace VoxelCraft {
 	void World::OnChunkLoaded(size_t id)
 	{
 		// Player feels gravity when chunk is loaded
-		if (((Position3D&)m_Player.GetPosition()).ToChunkCoord() == m_Map.Select(id)->GetCoord())
+		if (m_Player.GetPosition().ToChunkCoord() == m_Map.Select(id)->GetCoord())
 		{
-			m_Controller.SetGravityEnabled(true);
+			flagPlayerGravity = true;
 		}
 	}
 
@@ -115,7 +119,7 @@ namespace VoxelCraft {
 	{
 		Ray ray;
 		ray.Origin = m_Player.GetHeadPosition();
-		ray.Direction = glm::normalize(m_Player.GetTransform().GetFrontVector());
+		ray.Direction = glm::normalize(m_Player.GetComponent<Quark::Transform3DComponent>().GetFrontVector());
 
 		auto data = RayCast(ray.Origin, ray.Direction, 5.0f);
 		if (data.has_value())
@@ -227,8 +231,8 @@ namespace VoxelCraft {
 			{
 				auto& collision = data.value();
 
-				m_Player.GetTransform().Position.y = blockBounds.Y.Max;
-				m_Player.GetPhysics().Velocity.y = 0.f;
+				m_Player.GetComponent<Quark::Transform3DComponent>().Position.y = blockBounds.Y.Max;
+				m_Player.GetComponent<Quark::PhysicsComponent>().Velocity.y = 0.f;
 			}
 		}
 	}

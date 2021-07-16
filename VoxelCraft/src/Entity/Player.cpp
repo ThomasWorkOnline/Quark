@@ -3,22 +3,25 @@
 #include "../Game/Resources.h"
 #include "../World/World.h"
 
+#include "../Components/GravityComponent.h"
+
 namespace VoxelCraft {
 
 	Player::Player(World& world, Quark::Scene& scene, const PlayerSettings& settings)
-		: m_Scene(scene), m_Settings(settings), m_World(world)
+		: Quark::Entity(scene.CreateEntity()), m_World(world), m_SceneHandle(scene), m_Settings(settings)
 	{
 		Initialize();
 	}
 
 	Player::~Player()
 	{
-		m_Scene.DeleteEntity(m_Entity);
+		m_SceneHandle.DeleteEntity(*this);
 	}
 
 	Quark::Transform3DComponent Player::GetCameraTransform() const
 	{
-		auto transform = GetTransform(); // Copy transform
+		// TODO: improve
+		auto transform = GetComponent<Quark::Transform3DComponent>(); // Copy transform
 		transform.Position += m_Settings.HeadRelativeToFeet;
 		return transform;
 	}
@@ -37,9 +40,9 @@ namespace VoxelCraft {
 	{
 		auto& window = Quark::Application::Get().GetWindow();
 
-		m_Entity = m_Scene.CreateEntity();
-		m_Entity.AddComponent<Quark::Transform3DComponent>().Position = m_Settings.SpawnPoint;
-		m_Entity.AddComponent<Quark::PhysicsComponent>();
-		m_Entity.AddComponent<Quark::PerspectiveCameraComponent>((float)window.GetWidth() / (float)window.GetHeight(), m_Settings.Fov);
+		AddComponent<Quark::Transform3DComponent>().Position = m_Settings.SpawnPoint;
+		AddComponent<Quark::PhysicsComponent>();
+		AddComponent<Quark::PerspectiveCameraComponent>((float)window.GetWidth() / (float)window.GetHeight(), m_Settings.Fov);
+		AddComponent<GravityComponent>(30.0f);
 	}
 }

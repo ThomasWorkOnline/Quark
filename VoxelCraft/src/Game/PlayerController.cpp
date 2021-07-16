@@ -1,12 +1,13 @@
 #include "PlayerController.h"
 
+#include "../Components/GravityComponent.h"
+
 namespace VoxelCraft {
 
 	static constexpr float s_AirFriction = 1.0f;
 	static constexpr float s_GroundFriction = 10.0f;
 
 	static glm::vec3 s_ForwardAcceleration;
-
 	static glm::vec3 s_ForwardVelocity;
 
 	static struct ControlKeys
@@ -26,18 +27,16 @@ namespace VoxelCraft {
 	};
 
 	PlayerController::PlayerController(Player& player)
-		: m_Player(player)
-	{
-		m_CameraEntity = player;
-	}
+		: m_Player(player) {}
 
 	void PlayerController::OnUpdate(float elapsedTime)
 	{
-		if (m_CameraEntity)
+		if (m_Player)
 		{
-			auto& transform = m_CameraEntity.GetComponent<Quark::Transform3DComponent>();
-			auto& physics = m_CameraEntity.GetComponent<Quark::PhysicsComponent>();
-			auto& camera = m_CameraEntity.GetComponent<Quark::PerspectiveCameraComponent>().Camera;
+			auto& transform = m_Player.GetComponent<Quark::Transform3DComponent>();
+			auto& physics = m_Player.GetComponent<Quark::PhysicsComponent>();
+			auto& camera = m_Player.GetComponent<Quark::PerspectiveCameraComponent>().Camera;
+			auto& gravity = m_Player.GetComponent<GravityComponent>();
 
 			switch (m_PlayerState)
 			{
@@ -91,7 +90,7 @@ namespace VoxelCraft {
 						if (lastKeys.W != keys.W)
 						{
 							s_ForwardAcceleration = glm::vec3(0.f);
-							std::cout << "I stopped walking forwards.\n";
+							std::cout << "I stopped walking farwards.\n";
 						}
 
 						if (m_Player.IsTouchingGround())
@@ -143,9 +142,9 @@ namespace VoxelCraft {
 				}
 
 				// Gravity
-				if (m_GravityEnabled && !m_Player.IsTouchingGround())
+				if (gravity.Affected && !m_Player.IsTouchingGround())
 				{
-					physics.Velocity.y -= 30.0f * elapsedTime;
+					physics.Velocity.y -= gravity.GravityConstant * elapsedTime;
 				}
 
 				break;
@@ -221,10 +220,10 @@ namespace VoxelCraft {
 
 		if (Quark::Application::Get().GetWindow().IsSelected())
 		{
-			if (m_CameraEntity)
+			if (m_Player)
 			{
-				auto& transform = m_CameraEntity.GetComponent<Quark::Transform3DComponent>();
-				auto& camera = m_CameraEntity.GetComponent<Quark::PerspectiveCameraComponent>().Camera;
+				auto& transform = m_Player.GetComponent<Quark::Transform3DComponent>();
+				auto& camera = m_Player.GetComponent<Quark::PerspectiveCameraComponent>().Camera;
 
 				static glm::quat qPitch = glm::angleAxis(0.0f, glm::vec3(1.0f, 0.0f, 0.0f));
 				static glm::quat qYaw = glm::angleAxis(0.0f, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -259,9 +258,9 @@ namespace VoxelCraft {
 
 	bool PlayerController::OnWindowResized(Quark::WindowResizedEvent& e)
 	{
-		if (m_CameraEntity)
+		if (m_Player)
 		{
-			auto& camera = m_CameraEntity.GetComponent<Quark::PerspectiveCameraComponent>().Camera;
+			auto& camera = m_Player.GetComponent<Quark::PerspectiveCameraComponent>().Camera;
 			camera.SetAspectRatio((float)e.GetWidth() / (float)e.GetHeight());
 		}
 		return false;
