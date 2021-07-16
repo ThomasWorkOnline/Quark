@@ -68,7 +68,7 @@ namespace VoxelCraft {
 		m_Controller.OnEvent(e);
 	}
 
-	void World::OnChunkLoaded(size_t id)
+	void World::OnChunkLoaded(ChunkID id)
 	{
 		// Player feels gravity when chunk is loaded
 		if (m_Player.GetPosition().ToChunkCoord() == m_Map.Select(id)->GetCoord())
@@ -77,7 +77,7 @@ namespace VoxelCraft {
 		}
 	}
 
-	void World::OnChunkModified(size_t id)
+	void World::OnChunkModified(ChunkID id)
 	{
 		m_Loader->Rebuild(id); // TODO: move, not related to this loader
 	}

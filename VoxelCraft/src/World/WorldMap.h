@@ -19,20 +19,20 @@ namespace VoxelCraft {
 
 		void OnUpdate(float elapsedTime);
 
-		void Foreach(const std::function<void(size_t id)>& func) const;
+		void Foreach(const std::function<void(ChunkID id)>& func) const;
 		void Foreach(const std::function<void(Chunk* data)>& func) const;
 
-		Chunk* Select(size_t id) const;
-		Chunk* Load(size_t id);
-		void Unload(size_t id);
-		bool Contains(size_t id) const;
+		Chunk* Select(ChunkID id) const;
+		Chunk* Load(ChunkID id);
+		void Unload(ChunkID id);
+		bool Contains(ChunkID id) const;
 
 	private:
-		void Erase(size_t id);
+		void Erase(ChunkID id);
 
 	private:
 		mutable std::recursive_mutex m_ChunksLocationsMutex;
-		std::unordered_map<size_t, Chunk*> m_ChunksLocations;
+		std::unordered_map<ChunkID, Chunk*> m_ChunksLocations;
 
 		/// <summary>
 		/// The deletion must be done on the main thread.

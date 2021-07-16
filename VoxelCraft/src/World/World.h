@@ -23,8 +23,8 @@ namespace VoxelCraft {
 		void OnUpdate(float elapsedTime);
 		void OnEvent(Quark::Event& e);
 
-		void OnChunkLoaded(size_t id);
-		void OnChunkModified(size_t id);
+		void OnChunkLoaded(ChunkID id);
+		void OnChunkModified(ChunkID id);
 
 		const WorldMap& GetMap() const { return m_Map; }
 		WorldMap& GetMap() { return m_Map; }

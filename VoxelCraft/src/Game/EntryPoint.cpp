@@ -1,5 +1,6 @@
 #include <Quark.h>
 
+#include "../World/ChunkIdentifier.h"
 #include "../World/World.h"
 #include "../Rendering/GameRenderer.h"
 #include "Resources.h"
@@ -11,7 +12,7 @@ namespace VoxelCraft {
 	public:
 		void OnCreate() override
 		{
-			QK_ASSERT(sizeof(size_t) == sizeof(glm::ivec2), "size_t and glm::ivec2 must both be the same size");
+			QK_ASSERT(sizeof(ChunkID) == sizeof(ChunkCoord), "ChunkID and ChunkCoord types must be the same exact size");
 
 			QK_TIME_SCOPE_DEBUG(VoxelCraft::OnCreate);
 

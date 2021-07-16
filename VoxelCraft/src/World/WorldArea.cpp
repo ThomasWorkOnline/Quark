@@ -2,20 +2,20 @@
 
 namespace VoxelCraft {
 
-	WorldArea::WorldArea(WorldMap& map, const glm::ivec2& size, const glm::ivec2& anchor)
+	WorldArea::WorldArea(WorldMap& map, const glm::ivec2& size, ChunkCoord anchor)
 		: m_WorldPartition(map)
 	{
 		Invalidate(size, anchor);
 	}
 
-	bool WorldArea::InBounds(size_t id) const
+	bool WorldArea::InBounds(ChunkID id) const
 	{
 		const auto& coord = CHUNK_COORD(id);
 		return (coord.x >= m_AccessibleBounds.First.x && coord.x <= m_AccessibleBounds.Second.x &&
 			coord.y >= m_AccessibleBounds.First.y && coord.y <= m_AccessibleBounds.Second.y);
 	}
 
-	void WorldArea::Foreach(const std::function<void(size_t id)>& func) const
+	void WorldArea::Foreach(const std::function<void(ChunkID id)>& func) const
 	{
 		for (int z = m_AccessibleBounds.First.y; z < m_AccessibleBounds.Second.y; z++)
 		{
@@ -27,7 +27,7 @@ namespace VoxelCraft {
 		}
 	}
 
-	void WorldArea::Invalidate(const glm::ivec2& size, const glm::ivec2& anchor)
+	void WorldArea::Invalidate(const glm::ivec2& size, ChunkCoord anchor)
 	{
 		static WorldAreaBounds lastBounds = m_InternalBounds;
 
@@ -77,7 +77,7 @@ namespace VoxelCraft {
 		}
 	}
 
-	void WorldArea::ComputeBounds(const glm::ivec2& size, const glm::ivec2& anchor)
+	void WorldArea::ComputeBounds(const glm::ivec2& size, ChunkCoord anchor)
 	{
 		m_AccessibleBounds.First = { anchor.x - size.x, anchor.y - size.y };
 		m_AccessibleBounds.Second = { anchor.x + size.x, anchor.y + size.y };

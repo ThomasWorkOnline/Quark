@@ -23,29 +23,29 @@ namespace VoxelCraft {
 	class ChunkLoader
 	{
 	public:
-		ChunkLoader(World& world, const glm::ivec2& coord, uint32_t renderDistance);
+		ChunkLoader(World& world, ChunkCoord coord, uint32_t renderDistance);
 		~ChunkLoader();
 
 		void OnUpdate(float elapsedTime);
 
-		void SetCoord(const glm::ivec2& coord) { m_Coord = coord; }
-		const glm::ivec2& GetCoord() const { return m_Coord; }
+		void SetCoord(ChunkCoord coord) { m_Coord = coord; }
+		ChunkCoord GetCoord() const { return m_Coord; }
 
-		void Load(size_t id);
-		void Rebuild(size_t id);
+		void Load(ChunkID id);
+		void Rebuild(ChunkID id);
 
 		bool Idling() const;
 
 		const ChunkLoaderStats& GetStats() const { return m_Stats; }
 
-		static Quark::Scope<ChunkLoader> Create(World& world, const glm::ivec2& coord, uint32_t renderDistance = 8);
+		static Quark::Scope<ChunkLoader> Create(World& world, ChunkCoord, uint32_t renderDistance = 8);
 
 	private:
 		void StartWork();
 		void ProcessLoading();
 
-		void LoadChunk(size_t id);
-		void UnloadChunk(size_t id);
+		void LoadChunk(ChunkID id);
+		void UnloadChunk(ChunkID id);
 
 		void OnChunkBorderCrossed();
 
@@ -55,11 +55,11 @@ namespace VoxelCraft {
 		World& m_World;
 		WorldArea m_LoadingArea;
 
-		std::list<size_t> m_LoadingQueue;
+		std::list<ChunkID> m_LoadingQueue;
 
 		ChunkLoaderStats m_Stats;
 
-		glm::ivec2 m_Coord;
+		ChunkCoord m_Coord;
 		uint32_t m_RenderDistance;
 	};
 }
