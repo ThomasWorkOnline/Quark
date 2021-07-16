@@ -17,7 +17,7 @@ namespace VoxelCraft {
 		float FlyingMovementSpeed = 50.0f;
 		float BoostFlyingMovementSpeed = 120.0f;
 		float BaseMovementSpeed = 4.f;
-		float SprintMovementSpeed = 80.f;
+		float SprintMovementSpeed = 8.f;
 		float MouseSensitivity = 0.002f;
 	};
 

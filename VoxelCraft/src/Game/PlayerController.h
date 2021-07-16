@@ -26,7 +26,7 @@ namespace VoxelCraft {
 		bool OnMouseMoved(Quark::MouseMovedEvent& e);
 		bool OnWindowResized(Quark::WindowResizedEvent& e);
 
-		std::atomic<PlayerState> m_PlayerState = PlayerState::Flying;
+		std::atomic<PlayerState> m_PlayerState = PlayerState::Walking;
 
 		Player& m_Player;
 

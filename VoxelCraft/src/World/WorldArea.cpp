@@ -33,7 +33,6 @@ namespace VoxelCraft {
 		{
 			func(id);
 		}
-		m_ChunksOutOfBounds.clear();
 	}
 
 	void WorldArea::Invalidate(const glm::ivec2& size, ChunkCoord anchor)
@@ -61,6 +60,8 @@ namespace VoxelCraft {
 
 	void WorldArea::UpdateOutOfBounds(const WorldAreaBounds& bounds, const WorldAreaBounds& lastBounds)
 	{
+		m_ChunksOutOfBounds.clear();
+
 		std::unordered_set<ChunkID> ids;
 
 		for (int z = bounds.First.y; z < bounds.Second.y; z++)
