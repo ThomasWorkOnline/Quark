@@ -107,6 +107,17 @@ namespace VoxelCraft {
 		}
 	}
 
+	void ChunkLoader::Unload(ChunkID id)
+	{
+		std::lock_guard<std::recursive_mutex> lock(s_QueueMutex);
+
+		if (!QueueContains(m_UnloadingQueue, id))
+		{
+			m_UnloadingQueue.push_back(id);
+			s_ConditionVariable.notify_one();
+		}
+	}
+
 	void ChunkLoader::Rebuild(ChunkID id)
 	{
 		Chunk* chunk = m_World.GetMap().Select(id);
@@ -117,7 +128,7 @@ namespace VoxelCraft {
 	bool ChunkLoader::Idling() const
 	{
 		std::lock_guard<std::recursive_mutex> lock(s_QueueMutex);
-		return m_LoadingQueue.empty();
+		return m_LoadingQueue.empty() && m_UnloadingQueue.empty();
 	}
 
 	void ChunkLoader::ProcessLoading()
@@ -134,6 +145,20 @@ namespace VoxelCraft {
 		}
 	}
 
+	void ChunkLoader::ProcessUnloading()
+	{
+		std::unique_lock<std::recursive_mutex> lock(s_QueueMutex);
+		if (!m_UnloadingQueue.empty())
+		{
+			ChunkID id = m_UnloadingQueue.front();
+			m_UnloadingQueue.pop_front();
+
+			lock.unlock();
+
+			UnloadChunk(id);
+		}
+	}
+
 	void ChunkLoader::StartWork()
 	{
 		using namespace std::literals::chrono_literals;
@@ -143,12 +168,13 @@ namespace VoxelCraft {
 			{
 				{
 					std::unique_lock<std::mutex> lock(s_ConditionMutex);
-					s_ConditionVariable.wait(lock, [this]() { return !m_LoadingQueue.empty() || s_Stopping; });
+					s_ConditionVariable.wait(lock, [this]() { return !m_LoadingQueue.empty() || !m_UnloadingQueue.empty() || s_Stopping; });
 
 					if (s_Stopping) break;
 				}
 
 				ProcessLoading();
+				ProcessUnloading();
 			}
 		}
 
@@ -192,6 +218,10 @@ namespace VoxelCraft {
 		m_LoadingArea.Foreach([this](ChunkID id)
 			{
 				Load(id);
+			});
+		m_LoadingArea.ForeachOutOfBounds([this](ChunkID id)
+			{
+				Unload(id);
 			});
 	}
 

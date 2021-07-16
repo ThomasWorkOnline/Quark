@@ -32,6 +32,7 @@ namespace VoxelCraft {
 		ChunkCoord GetCoord() const { return m_Coord; }
 
 		void Load(ChunkID id);
+		void Unload(ChunkID id);
 		void Rebuild(ChunkID id);
 
 		bool Idling() const;
@@ -43,6 +44,7 @@ namespace VoxelCraft {
 	private:
 		void StartWork();
 		void ProcessLoading();
+		void ProcessUnloading();
 
 		void LoadChunk(ChunkID id);
 		void UnloadChunk(ChunkID id);
@@ -56,6 +58,7 @@ namespace VoxelCraft {
 		WorldArea m_LoadingArea;
 
 		std::list<ChunkID> m_LoadingQueue;
+		std::list<ChunkID> m_UnloadingQueue;
 
 		ChunkLoaderStats m_Stats;
 

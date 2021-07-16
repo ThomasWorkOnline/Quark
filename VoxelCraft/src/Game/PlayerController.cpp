@@ -5,10 +5,16 @@
 namespace VoxelCraft {
 
 	static constexpr float s_AirFriction = 1.0f;
-	static constexpr float s_GroundFriction = 10.0f;
+	static constexpr float s_PlayerAcceleration = 15.0f;
+	static constexpr float s_PlayerMidAirAcceleration = 6.0f;
 
-	static glm::vec3 s_ForwardAcceleration;
-	static glm::vec3 s_ForwardVelocity;
+	static constexpr Quark::Key s_SprintKey		= Quark::Key::LeftControl;
+	static constexpr Quark::Key s_SneakKey		= Quark::Key::LeftShift;
+	static constexpr Quark::Key s_JumpKey		= Quark::Key::Space;
+	static constexpr Quark::Key s_ForwardKey	= Quark::Key::W;
+	static constexpr Quark::Key s_LeftKey		= Quark::Key::A;
+	static constexpr Quark::Key s_BackwardKey	= Quark::Key::S;
+	static constexpr Quark::Key s_RightKey		= Quark::Key::D;
 
 	static struct ControlKeys
 	{
@@ -38,6 +44,20 @@ namespace VoxelCraft {
 			auto& camera = m_Player.GetComponent<Quark::PerspectiveCameraComponent>().Camera;
 			auto& gravity = m_Player.GetComponent<GravityComponent>();
 
+			glm::vec3 front = glm::normalize(glm::vec3(transform.GetFrontVector().x, 0.0f, transform.GetFrontVector().z));
+			glm::vec3 right = glm::normalize(glm::vec3(transform.GetRightVector().x, 0.0f, transform.GetRightVector().z));
+
+			bool onGround = m_Player.IsTouchingGround();
+			bool sprinting = Quark::Input::IsKeyPressed(s_SprintKey);
+
+			ControlKeys keys;
+			static ControlKeys lastKeys;
+
+			keys.W = Quark::Input::IsKeyPressed(s_ForwardKey);
+			keys.A = Quark::Input::IsKeyPressed(s_LeftKey);
+			keys.S = Quark::Input::IsKeyPressed(s_BackwardKey);
+			keys.D = Quark::Input::IsKeyPressed(s_RightKey);
+
 			switch (m_PlayerState)
 			{
 			case PlayerState::Walking:
@@ -46,18 +66,8 @@ namespace VoxelCraft {
 				/// WALKING
 				///
 
-				// Boost key
-				if (Quark::Input::IsKeyPressed(Quark::Key::LeftShift))
-				{
-					m_MovementSpeed = m_Player.GetSettings().SprintMovementSpeed;
-				}
-				else
-				{
-					m_MovementSpeed = m_Player.GetSettings().BaseMovementSpeed;
-				}
-
 				// Jump
-				if (Quark::Input::IsKeyPressed(Quark::Key::Space))
+				if (Quark::Input::IsKeyPressed(s_JumpKey))
 				{
 					if (m_Player.IsTouchingGround())
 					{
@@ -67,87 +77,155 @@ namespace VoxelCraft {
 
 				{
 					// Controls
-					ControlKeys keys;
-					static ControlKeys lastKeys;
-
-					keys.W = Quark::Input::IsKeyPressed(Quark::Key::W);
-					keys.A = Quark::Input::IsKeyPressed(Quark::Key::A);
-					keys.S = Quark::Input::IsKeyPressed(Quark::Key::S);
-					keys.D = Quark::Input::IsKeyPressed(Quark::Key::D);
-
-					glm::vec3 front = glm::normalize(glm::vec3(transform.GetFrontVector().x, 0.0f, transform.GetFrontVector().z));
-					glm::vec3 right = glm::normalize(glm::vec3(transform.GetRightVector().x, 0.0f, transform.GetRightVector().z));
+					static float forwardSpeed = 0.f;
+					static float backwardSpeed = 0.f;
+					static float rightSpeed = 0.f;
+					static float leftSpeed = 0.f;
 
 					if (keys.W)
 					{
-						s_ForwardAcceleration = front * m_MovementSpeed;
-						s_ForwardVelocity = s_ForwardAcceleration * elapsedTime;
+						if (onGround)
+						{
+							// Boost key
+							if (sprinting)
+							{
+								m_MovementSpeed = m_Player.GetSettings().SprintMovementSpeed;
+							}
+							else
+							{
+								m_MovementSpeed = m_Player.GetSettings().BaseMovementSpeed;
+							}
 
-						physics.Velocity += s_ForwardVelocity;
+							forwardSpeed += s_PlayerAcceleration * elapsedTime;
+
+							if (forwardSpeed > m_MovementSpeed)
+								forwardSpeed = m_MovementSpeed;
+						}
+						else
+						{
+							forwardSpeed += s_PlayerMidAirAcceleration * elapsedTime;
+						}
 					}
 					else
 					{
-						if (lastKeys.W != keys.W)
+						if (onGround)
 						{
-							s_ForwardAcceleration = glm::vec3(0.f);
-							std::cout << "I stopped walking farwards.\n";
-						}
-
-						if (m_Player.IsTouchingGround())
-						{
-							physics.Velocity -= physics.Velocity * s_GroundFriction * elapsedTime;
+							forwardSpeed -= forwardSpeed * s_PlayerAcceleration * elapsedTime;
 						}
 					}
 
 					if (keys.S)
 					{
-						physics.Velocity += -front * m_MovementSpeed * elapsedTime;
+						if (onGround)
+						{
+							// Boost key
+							if (sprinting)
+							{
+								m_MovementSpeed = m_Player.GetSettings().SprintMovementSpeed;
+							}
+							else
+							{
+								m_MovementSpeed = m_Player.GetSettings().BaseMovementSpeed;
+							}
+
+							backwardSpeed += s_PlayerAcceleration * elapsedTime;
+
+							if (backwardSpeed > m_MovementSpeed)
+								backwardSpeed = m_MovementSpeed;
+						}
+						else
+						{
+							backwardSpeed += s_PlayerMidAirAcceleration * elapsedTime;
+						}
 					}
 					else
 					{
-						if (lastKeys.S != keys.S)
+						if (onGround)
 						{
-							std::cout << "I stopped walking backwards.\n";
+							backwardSpeed -= backwardSpeed * s_PlayerAcceleration * elapsedTime;
 						}
 					}
 
 					if (keys.D)
 					{
-						physics.Velocity += right * m_MovementSpeed * elapsedTime;
+						if (onGround)
+						{
+							// Boost key
+							if (sprinting)
+							{
+								m_MovementSpeed = m_Player.GetSettings().SprintMovementSpeed;
+							}
+							else
+							{
+								m_MovementSpeed = m_Player.GetSettings().BaseMovementSpeed;
+							}
+
+							rightSpeed += s_PlayerAcceleration * elapsedTime;
+
+							if (rightSpeed > m_MovementSpeed)
+								rightSpeed = m_MovementSpeed;
+						}
+						else
+						{
+							rightSpeed += s_PlayerMidAirAcceleration * elapsedTime;
+						}
 					}
 					else
 					{
-						if (lastKeys.D != keys.D)
+						if (onGround)
 						{
-							std::cout << "I stopped walking right.\n";
+							rightSpeed -= rightSpeed * s_PlayerAcceleration * elapsedTime;
 						}
 					}
 
 					if (keys.A)
 					{
-						physics.Velocity += -right * m_MovementSpeed * elapsedTime;
+						if (onGround)
+						{
+							// Boost key
+							if (sprinting)
+							{
+								m_MovementSpeed = m_Player.GetSettings().SprintMovementSpeed;
+							}
+							else
+							{
+								m_MovementSpeed = m_Player.GetSettings().BaseMovementSpeed;
+							}
+
+							leftSpeed += s_PlayerAcceleration * elapsedTime;
+
+							if (leftSpeed > m_MovementSpeed)
+								leftSpeed = m_MovementSpeed;
+						}
+						else
+						{
+							leftSpeed += s_PlayerMidAirAcceleration * elapsedTime;
+						}
 					}
 					else
 					{
-						if (lastKeys.A != keys.A)
+						if (onGround)
 						{
-							std::cout << "I stopped walking left.\n";
+							leftSpeed -= leftSpeed * s_PlayerAcceleration * elapsedTime;
 						}
 					}
 
-					// Air friction
-					physics.Velocity -= physics.Velocity * s_AirFriction * elapsedTime;
-
-					lastKeys = keys;
+					transform.Position += forwardSpeed * front * elapsedTime;
+					transform.Position += backwardSpeed * -front * elapsedTime;
+					transform.Position += rightSpeed * right * elapsedTime;
+					transform.Position += leftSpeed * -right * elapsedTime;
 				}
+
+				// Air friction
+				physics.Velocity -= physics.Velocity * s_AirFriction * elapsedTime;
 
 				// Gravity
 				if (gravity.Affected && !m_Player.IsTouchingGround())
 				{
 					physics.Velocity.y -= gravity.GravityConstant * elapsedTime;
 				}
-
 				break;
+
 			case PlayerState::Flying:
 
 				/// //////////////////////////////////////////////////////
@@ -155,7 +233,7 @@ namespace VoxelCraft {
 				///
 
 				// Boost key
-				if (Quark::Input::IsKeyPressed(Quark::Key::LeftShift))
+				if (Quark::Input::IsKeyPressed(s_SprintKey))
 				{
 					m_MovementSpeed = m_Player.GetSettings().BoostFlyingMovementSpeed;
 				}
@@ -166,42 +244,41 @@ namespace VoxelCraft {
 
 				{
 					// Controls
-					glm::vec3 front = glm::normalize(glm::vec3(transform.GetFrontVector().x, 0.0f, transform.GetFrontVector().z));
-					glm::vec3 right = glm::normalize(glm::vec3(transform.GetRightVector().x, 0.0f, transform.GetRightVector().z));
-
-					if (Quark::Input::IsKeyPressed(Quark::Key::W))
+					if (Quark::Input::IsKeyPressed(s_ForwardKey))
 					{
 						physics.Velocity += front * m_MovementSpeed * elapsedTime;
 					}
 
-					if (Quark::Input::IsKeyPressed(Quark::Key::S))
+					if (Quark::Input::IsKeyPressed(s_BackwardKey))
 					{
 						physics.Velocity += -front * m_MovementSpeed * elapsedTime;
 					}
 
-					if (Quark::Input::IsKeyPressed(Quark::Key::D))
+					if (Quark::Input::IsKeyPressed(s_RightKey))
 					{
 						physics.Velocity += right * m_MovementSpeed * elapsedTime;
 					}
 
-					if (Quark::Input::IsKeyPressed(Quark::Key::A))
+					if (Quark::Input::IsKeyPressed(s_LeftKey))
 					{
 						physics.Velocity += -right * m_MovementSpeed * elapsedTime;
 					}
 				}
 
 				// Up / down
-				if (Quark::Input::IsKeyPressed(Quark::Key::Space))
+				if (Quark::Input::IsKeyPressed(s_JumpKey))
 				{
 					physics.Velocity.y += elapsedTime * m_MovementSpeed;
 				}
 
-				if (Quark::Input::IsKeyPressed(Quark::Key::LeftControl))
+				if (Quark::Input::IsKeyPressed(s_SneakKey))
 				{
 					physics.Velocity.y -= elapsedTime * m_MovementSpeed;
 				}
 				break;
 			}
+
+			lastKeys = keys;
 
 			camera.OnUpdate();
 		}

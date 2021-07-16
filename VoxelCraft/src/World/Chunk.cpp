@@ -170,7 +170,11 @@ namespace VoxelCraft {
 	Block Chunk::GetBlock(const Position3D& position) const
 	{
 		int32_t index = IndexAtPosition(position);
-		return m_Blocks[index];
+		if (m_Blocks && m_LoadingStatus >= LoadStatus::WorldGenerated && index != -1)
+		{
+			return m_Blocks[index];
+		}
+		return Block::ID::Air;
 	}
 
 	void Chunk::ReplaceBlock(const Position3D& position, Block type)

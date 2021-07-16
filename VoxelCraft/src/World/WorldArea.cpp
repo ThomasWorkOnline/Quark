@@ -27,6 +27,15 @@ namespace VoxelCraft {
 		}
 	}
 
+	void WorldArea::ForeachOutOfBounds(const std::function<void(ChunkID id)>& func) const
+	{
+		for (auto id : m_ChunksOutOfBounds)
+		{
+			func(id);
+		}
+		m_ChunksOutOfBounds.clear();
+	}
+
 	void WorldArea::Invalidate(const glm::ivec2& size, ChunkCoord anchor)
 	{
 		static WorldAreaBounds lastBounds = m_InternalBounds;
@@ -52,14 +61,14 @@ namespace VoxelCraft {
 
 	void WorldArea::UpdateOutOfBounds(const WorldAreaBounds& bounds, const WorldAreaBounds& lastBounds)
 	{
-		std::unordered_set<size_t> coords;
+		std::unordered_set<ChunkID> ids;
 
 		for (int z = bounds.First.y; z < bounds.Second.y; z++)
 		{
 			for (int x = bounds.First.x; x < bounds.Second.x; x++)
 			{
 				glm::ivec2 coord(x, z);
-				coords.insert(CHUNK_UUID(coord));
+				ids.insert(CHUNK_UUID(coord));
 			}
 		}
 
@@ -68,10 +77,10 @@ namespace VoxelCraft {
 			for (int x = lastBounds.First.x; x < lastBounds.Second.x; x++)
 			{
 				glm::ivec2 coord = { x, z };
-				auto it = coords.find(CHUNK_UUID(coord));
-				if (it == coords.end())
+				auto it = ids.find(CHUNK_UUID(coord));
+				if (it == ids.end())
 				{
-					m_WorldPartition.Unload(CHUNK_UUID(coord));
+					m_ChunksOutOfBounds.push_back(CHUNK_UUID(coord));
 				}
 			}
 		}

@@ -16,7 +16,7 @@ namespace VoxelCraft {
 	struct ChunkSpecification
 	{
 		static const int32_t Width = 16;   // x
-		static const int32_t Height = 256;  // y
+		static const int32_t Height = 256; // y
 		static const int32_t Depth = 16;   // z
 
 		static constexpr uint32_t BlockCount = Width * Height * Depth;

@@ -16,8 +16,8 @@ namespace VoxelCraft {
 		uint32_t RenderDistance = 4;
 		float FlyingMovementSpeed = 50.0f;
 		float BoostFlyingMovementSpeed = 120.0f;
-		float BaseMovementSpeed = 15.0f;
-		float SprintMovementSpeed = 20.0f;
+		float BaseMovementSpeed = 4.f;
+		float SprintMovementSpeed = 80.f;
 		float MouseSensitivity = 0.002f;
 	};
 

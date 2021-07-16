@@ -5,6 +5,8 @@
 #include "Chunk.h"
 #include "WorldMap.h"
 
+#include <list>
+
 namespace VoxelCraft {
 
 	struct WorldAreaBounds
@@ -21,6 +23,7 @@ namespace VoxelCraft {
 		bool InBounds(ChunkID id) const;
 
 		void Foreach(const std::function<void(ChunkID id)>& func) const;
+		void ForeachOutOfBounds(const std::function<void(ChunkID id)>& func) const;
 
 		// TODO: improve, on fast movements, some chunks may stay loaded
 		// if the player skips more than 1 chunk border in less than OnUpdate() timeframe
@@ -34,6 +37,8 @@ namespace VoxelCraft {
 
 		WorldAreaBounds m_AccessibleBounds; // Size in chunks. Only accessible chunks
 		WorldAreaBounds m_InternalBounds; // +1 chunks on each side will be allocated
+
+		mutable std::list<ChunkID> m_ChunksOutOfBounds;
 
 		WorldMap& m_WorldPartition;
 	};
