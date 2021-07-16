@@ -14,13 +14,13 @@ namespace VoxelCraft {
 		uint32_t& VertexCount;
 	};
 
-	class MeshGenerator
+	class ChunkMesh
 	{
 	public:
-		static void Create(const MeshOutputParameters& out, const Position3D& position, Block type, const Chunk* center, const ChunkNeighbors& neighbors);
+		static void Create(const MeshOutputParameters& out, const Position3D& position, const BlockProperties& props, const Chunk* center, const ChunkNeighbors& neighbors);
 
 	private:
-		static void CreateBlockFaceMesh(const MeshOutputParameters& out, const glm::vec3& position, const BlockProperties& props, BlockFace face);
-		static void CreateCrossSpriteMesh(const MeshOutputParameters& out, const glm::vec3& position, const BlockProperties& props);
+		static void CreateBlockFaceMesh(const MeshOutputParameters& out, const Position3D& position, const BlockProperties& props, BlockFace face);
+		static void CreateCrossSpriteMesh(const MeshOutputParameters& out, const Position3D& position, const BlockProperties& props);
 	};
 }

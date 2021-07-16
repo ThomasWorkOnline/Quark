@@ -38,6 +38,8 @@ namespace VoxelCraft {
 			QK_FATAL("Mesh model supplied does not exist");
 		}
 
+		static const HitBox& GetMeshHitbox(MeshModel model);
+
 		static const Quark::Ref<Quark::Shader>& GetShader(const std::string& name)
 		{
 			return s_ShaderLibrary.Get(name);

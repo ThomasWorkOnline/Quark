@@ -24,6 +24,7 @@ namespace VoxelCraft {
 	class HitBox
 	{
 	public:
+		HitBox() = default; // No hitbox
 		HitBox(const AABounds& boundaries)
 			: m_Bounds(boundaries) {}
 

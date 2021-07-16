@@ -13,6 +13,12 @@ namespace VoxelCraft {
 		return position.x + ChunkSpecification::Width * position.z + ChunkSpecification::Width * ChunkSpecification::Depth * position.y;
 	}
 
+	static bool BoundsCheck(const Position3D& position)
+	{
+		return position.x >= 0 && position.y >= 0 && position.z >= 0 &&
+			position.x < ChunkSpecification::Width&& position.y < ChunkSpecification::Height&& position.z < ChunkSpecification::Depth;
+	}
+
 	Chunk::Chunk(World& world, ChunkID id)
 		: m_World(world), m_Id(id) {}
 
@@ -104,7 +110,7 @@ namespace VoxelCraft {
 					if (block == Block::ID::Air)
 						continue;
 
-					MeshGenerator::Create({ m_Vertices, m_Indices, m_VertexCount }, position, block, this, { left, right, back, front });
+					GenerateBlockMesh(block, position, { left, right, back, front });
 				}
 			}
 		}
@@ -164,42 +170,59 @@ namespace VoxelCraft {
 		return type;
 	}
 
+	void Chunk::GenerateBlockMesh(Block block, const Position3D& position, const ChunkNeighbors& neighbors)
+	{
+		MeshOutputParameters params = { m_Vertices, m_Indices, m_VertexCount };
+
+		auto& props = block.GetProperties();
+		auto& meshProps = Resources::GetMeshProperties(props.Mesh);
+
+		ChunkMesh::Create(params, position, props, this, neighbors);
+	}
+
 	Block Chunk::GetBlock(const Position3D& position) const
 	{
-		uint32_t index = IndexAtPosition(position);
-		return m_Blocks[index];
+		if (BoundsCheck(position))
+		{
+			uint32_t index = IndexAtPosition(position);
+			return m_Blocks[index];
+		}
+		return Block::ID::Air;
 	}
 
 	void Chunk::ReplaceBlock(const Position3D& position, Block type)
 	{
-		uint32_t index = IndexAtPosition(position);
-
-		m_Edited = true;
-
-		m_Blocks[index] = type;
-
-		m_World.OnChunkModified(m_Id);
-
-		if (position.x == 0)
+		if (BoundsCheck(position))
 		{
-			auto coord = m_Coord + ChunkCoord(-1, 0);
-			m_World.OnChunkModified(CHUNK_UUID(coord));
-		}
-		else if (position.x == ChunkSpecification::Width - 1)
-		{
-			auto coord = m_Coord + ChunkCoord(1, 0);
-			m_World.OnChunkModified(CHUNK_UUID(coord));
-		}
+			uint32_t index = IndexAtPosition(position);
 
-		if (position.z == 0)
-		{
-			auto coord = m_Coord + ChunkCoord(0, -1);
-			m_World.OnChunkModified(CHUNK_UUID(coord));
-		}
-		else if (position.z == ChunkSpecification::Depth - 1)
-		{
-			auto coord = m_Coord + ChunkCoord(0, 1);
-			m_World.OnChunkModified(CHUNK_UUID(coord));
+			m_Edited = true;
+
+			m_Blocks[index] = type;
+
+			m_World.OnChunkModified(m_Id);
+
+			if (position.x == 0)
+			{
+				auto coord = m_Coord + ChunkCoord(-1, 0);
+				m_World.OnChunkModified(CHUNK_UUID(coord));
+			}
+			else if (position.x == ChunkSpecification::Width - 1)
+			{
+				auto coord = m_Coord + ChunkCoord(1, 0);
+				m_World.OnChunkModified(CHUNK_UUID(coord));
+			}
+
+			if (position.z == 0)
+			{
+				auto coord = m_Coord + ChunkCoord(0, -1);
+				m_World.OnChunkModified(CHUNK_UUID(coord));
+			}
+			else if (position.z == ChunkSpecification::Depth - 1)
+			{
+				auto coord = m_Coord + ChunkCoord(0, 1);
+				m_World.OnChunkModified(CHUNK_UUID(coord));
+			}
 		}
 	}
 
@@ -207,8 +230,7 @@ namespace VoxelCraft {
 	{
 		Position3D neighborPosition = position + GetFaceNormal(face); // In chunk space
 
-		if (neighborPosition.x >= 0 && neighborPosition.y >= 0 && neighborPosition.z >= 0 &&
-			neighborPosition.x < ChunkSpecification::Width && neighborPosition.y < ChunkSpecification::Height && neighborPosition.z < ChunkSpecification::Depth)
+		if (BoundsCheck(neighborPosition))
 		{
 			return IsBlockTransparent(neighborPosition);
 		}

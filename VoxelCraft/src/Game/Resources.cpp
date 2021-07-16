@@ -153,8 +153,8 @@ namespace VoxelCraft {
 		};
 
 		s_MeshModels = {
-			{ MeshModel::Block,			MeshProperties::Create(s_BlockVertexPositions, { s_BlockBounds }) },
-			{ MeshModel::CrossSprite,	MeshProperties::Create(s_CrossSpriteVertexPositions, { s_CrossSpriteBounds }) }
+			{ MeshModel::Block,			MeshProperties::Create(s_BlockVertexPositions) },
+			{ MeshModel::CrossSprite,	MeshProperties::Create(s_CrossSpriteVertexPositions) }
 		};
 
 		s_CrosshairVertexArray = Quark::VertexArray::Create();
@@ -165,5 +165,16 @@ namespace VoxelCraft {
 
 		auto ibo = Quark::IndexBuffer::Create((uint32_t*)s_CrosshairIndices, sizeof(s_CrosshairIndices) / sizeof(uint32_t));
 		s_CrosshairVertexArray->SetIndexBuffer(ibo);
+	}
+
+	const HitBox& Resources::GetMeshHitbox(MeshModel model)
+	{
+		switch (model)
+		{
+		case MeshModel::Block:
+			return { s_BlockBounds };
+		case MeshModel::CrossSprite:
+			return { s_CrossSpriteBounds };
+		}
 	}
 }

@@ -72,9 +72,12 @@ namespace VoxelCraft {
 		void PushData();
 
 		bool IsBlockFaceVisible(const Position3D& position, BlockFace face, const ChunkNeighbors& neighbors) const;
-		bool IsBlockTransparent(const Position3D& position) const;
+
 	private:
 		Block GenerateBlock(const Position3D& position);
+		void GenerateBlockMesh(Block block, const Position3D& position, const ChunkNeighbors& neighbors);
+
+		bool IsBlockTransparent(const Position3D& position) const;
 
 	private:
 		Quark::Ref<Quark::VertexArray> m_VertexArray;

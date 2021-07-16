@@ -4,11 +4,9 @@
 
 namespace VoxelCraft {
 
-	void MeshGenerator::Create(const MeshOutputParameters& out, const Position3D& position, Block type, const Chunk* center, const ChunkNeighbors& neighbors)
+	void ChunkMesh::Create(const MeshOutputParameters& out, const Position3D& position, const BlockProperties& props, const Chunk* center, const ChunkNeighbors& neighbors)
 	{
-		auto& blockProperties = type.GetProperties();
-
-		switch (blockProperties.Mesh)
+		switch (props.Mesh)
 		{
 		case MeshModel::Block:
 			// Create all the faces
@@ -17,16 +15,16 @@ namespace VoxelCraft {
 				if (!center->IsBlockFaceVisible(position, BlockFace(f), neighbors))
 					continue;
 
-				MeshGenerator::CreateBlockFaceMesh(out, position.ToWorldSpace(center->GetCoord()), blockProperties, BlockFace(f));
+				ChunkMesh::CreateBlockFaceMesh(out, position.ToWorldSpace(center->GetCoord()), props, BlockFace(f));
 			}
 			break;
 		case MeshModel::CrossSprite:
-			MeshGenerator::CreateCrossSpriteMesh(out, position.ToWorldSpace(center->GetCoord()), blockProperties);
+			ChunkMesh::CreateCrossSpriteMesh(out, position.ToWorldSpace(center->GetCoord()), props);
 			break;
 		}
 	}
 
-	void MeshGenerator::CreateBlockFaceMesh(const MeshOutputParameters& out, const glm::vec3& position, const BlockProperties& props, BlockFace face)
+	void ChunkMesh::CreateBlockFaceMesh(const MeshOutputParameters& out, const Position3D& position, const BlockProperties& props, BlockFace face)
 	{
 		static auto& meshProperties = Resources::GetMeshProperties(MeshModel::Block);
 
@@ -50,7 +48,7 @@ namespace VoxelCraft {
 		out.VertexCount += 4;
 	}
 
-	void MeshGenerator::CreateCrossSpriteMesh(const MeshOutputParameters& out, const glm::vec3& position, const BlockProperties& props)
+	void ChunkMesh::CreateCrossSpriteMesh(const MeshOutputParameters& out, const Position3D& position, const BlockProperties& props)
 	{
 		static auto& meshProperties = Resources::GetMeshProperties(MeshModel::CrossSprite);
 

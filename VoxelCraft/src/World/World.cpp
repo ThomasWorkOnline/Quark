@@ -221,8 +221,7 @@ namespace VoxelCraft {
 		// Collide with block underneath
 		if (props.CollisionEnabled)
 		{
-			const auto& meshProps = Resources::GetMeshProperties(props.Mesh);
-			const auto& blockBounds = meshProps.Hitbox.MoveTo(blockUnderFeetPos).GetBounds();
+			const auto& blockBounds = props.Hitbox.MoveTo(blockUnderFeetPos).GetBounds();
 
 			auto data = m_Player.GetHitbox().CollideWith(blockBounds);
 			//auto data = m_Player.GetHitbox().CollideWith(glm::vec3(playerPos.x, blockBounds.Y.Max, playerPos.z));
