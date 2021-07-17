@@ -28,7 +28,7 @@ namespace VoxelCraft {
 
 	const HitBox& Player::GetHitbox() const
 	{
-		return Resources::GetPlayerHitbox().MoveTo(GetPosition());
+		return Resources::GetEntityHitbox(EntityModel::Player).MoveTo(GetPosition());
 	}
 
 	bool Player::IsTouchingGround() const

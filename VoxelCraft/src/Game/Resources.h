@@ -4,9 +4,9 @@
 
 #include <unordered_map>
 
+#include "Models.h"
 #include "../Blocks/Block.h"
 #include "../Blocks/BlockProperties.h"
-#include "../Rendering/MeshModel.h"
 #include "../Rendering/MeshProperties.h"
 
 namespace VoxelCraft {
@@ -27,18 +27,38 @@ namespace VoxelCraft {
 			QK_FATAL("Block type supplied does not exist");
 		}
 
-		static const MeshProperties& GetMeshProperties(MeshModel model)
+		static const MeshProperties& GetMeshProperties(BlockModel model)
 		{
-			auto it = s_MeshModels.find(model);
-			if (it != s_MeshModels.end())
+			auto it = s_MeshProperties.find(model);
+			if (it != s_MeshProperties.end())
 			{
 				return it->second;
 			}
 
-			QK_FATAL("Mesh model supplied does not exist");
+			QK_FATAL("Block model supplied does not exist");
 		}
 
-		static const HitBox& GetMeshHitbox(MeshModel model);
+		static const HitBox& GetBlockHitbox(BlockModel model)
+		{
+			auto it = s_BlockHitboxes.find(model);
+			if (it != s_BlockHitboxes.end())
+			{
+				return it->second;
+			}
+
+			QK_FATAL("Block model supplied does not exist");
+		}
+
+		static const HitBox& GetEntityHitbox(EntityModel model)
+		{
+			auto it = s_EntityHitboxes.find(model);
+			if (it != s_EntityHitboxes.end())
+			{
+				return it->second;
+			}
+
+			QK_FATAL("Entity model supplied does not exist");
+		}
 
 		static const Quark::Ref<Quark::Shader>& GetShader(const std::string& name)
 		{
@@ -60,17 +80,14 @@ namespace VoxelCraft {
 			return s_BufferLayout;
 		}
 
-		static const HitBox& GetPlayerHitbox()
-		{
-			return s_PlayerHitbox;
-		}
-
 	private:
 		static constexpr glm::ivec2 SubTextureSize = { 16, 16 };
 
 		// TODO: load from json
 		static std::unordered_map<Block::ID, BlockProperties> s_BlockProperties;
-		static std::unordered_map<MeshModel, MeshProperties> s_MeshModels;
+		static std::unordered_map<BlockModel, MeshProperties> s_MeshProperties;
+		static std::unordered_map<BlockModel, HitBox> s_BlockHitboxes;
+		static std::unordered_map<EntityModel, HitBox> s_EntityHitboxes;
 
 		static Quark::Ref<Quark::VertexArray> s_CrosshairVertexArray;
 
@@ -80,7 +97,5 @@ namespace VoxelCraft {
 
 		static const Quark::BufferLayout s_BufferLayout;
 		static const Quark::BufferLayout s_CrosshairBufferLayout;
-
-		static const HitBox s_PlayerHitbox;
 	};
 }

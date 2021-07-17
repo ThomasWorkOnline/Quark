@@ -2,7 +2,7 @@
 
 #include <Quark.h>
 
-#include "../Rendering/MeshModel.h"
+#include "../Game/Models.h"
 #include "../Game/Hitbox.h"
 
 namespace VoxelCraft {
@@ -13,10 +13,10 @@ namespace VoxelCraft {
 		bool Transparent;
 		bool CollisionEnabled;
 		const char* BreakSound;
-		MeshModel Mesh;
+		BlockModel Mesh;
 		HitBox Hitbox;
 
-		BlockProperties(const std::initializer_list<Quark::SubTexture2D>& textures, bool transparent, bool collisionEnabled, const char* breakSound, MeshModel meshModel, const HitBox& hitbox)
+		BlockProperties(const std::initializer_list<Quark::SubTexture2D>& textures, bool transparent, bool collisionEnabled, const char* breakSound, BlockModel meshModel, const HitBox& hitbox)
 			: Faces(textures), Transparent(transparent), CollisionEnabled(collisionEnabled), BreakSound(breakSound), Mesh(meshModel), Hitbox(hitbox) {}
 
 		static BlockProperties Air();

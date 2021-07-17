@@ -52,7 +52,7 @@ namespace VoxelCraft {
 
 		switch (props.Mesh)
 		{
-		case MeshModel::Block:
+		case BlockModel::Block:
 			// Create all the faces
 			for (uint8_t f = 0; f < 6; f++)
 			{
@@ -62,7 +62,7 @@ namespace VoxelCraft {
 				ChunkMesh::CreateBlockFaceMesh(position.ToWorldSpace(chunk->GetCoord()), props, BlockFace(f));
 			}
 			break;
-		case MeshModel::CrossSprite:
+		case BlockModel::CrossSprite:
 			ChunkMesh::CreateCrossSpriteMesh(position.ToWorldSpace(chunk->GetCoord()), props);
 			break;
 		}
@@ -70,7 +70,7 @@ namespace VoxelCraft {
 
 	void ChunkMesh::CreateBlockFaceMesh(const Position3D& position, const BlockProperties& props, BlockFace face)
 	{
-		static auto& meshProperties = Resources::GetMeshProperties(MeshModel::Block);
+		static auto& meshProperties = Resources::GetMeshProperties(BlockModel::Block);
 
 		for (uint8_t i = 0; i < 4; i++)
 		{
@@ -94,7 +94,7 @@ namespace VoxelCraft {
 
 	void ChunkMesh::CreateCrossSpriteMesh(const Position3D& position, const BlockProperties& props)
 	{
-		static auto& meshProperties = Resources::GetMeshProperties(MeshModel::CrossSprite);
+		static auto& meshProperties = Resources::GetMeshProperties(BlockModel::CrossSprite);
 
 		for (uint8_t x = 0; x < 4; x++)
 		{

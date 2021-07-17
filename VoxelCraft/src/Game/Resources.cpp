@@ -3,7 +3,9 @@
 namespace VoxelCraft {
 
 	std::unordered_map<Block::ID, BlockProperties> Resources::s_BlockProperties;
-	std::unordered_map<MeshModel, MeshProperties> Resources::s_MeshModels;
+	std::unordered_map<BlockModel, MeshProperties> Resources::s_MeshProperties;
+	std::unordered_map<BlockModel, HitBox> Resources::s_BlockHitboxes;
+	std::unordered_map<EntityModel, HitBox> Resources::s_EntityHitboxes;
 
 	Quark::Ref<Quark::VertexArray> Resources::s_CrosshairVertexArray;
 
@@ -153,10 +155,6 @@ namespace VoxelCraft {
 		{ -0.40f, 0.40f }
 	};
 
-	const HitBox Resources::s_PlayerHitbox = {
-		s_PlayerBounds
-	};
-
 	void Resources::Initialize()
 	{
 		s_ShaderLibrary.Load("default", "assets/shaders/default.glsl");
@@ -164,6 +162,20 @@ namespace VoxelCraft {
 		s_ShaderLibrary.Load("debugMesh", "assets/shaders/debugMesh.glsl");
 
 		s_Texture = Quark::Texture2D::Create("assets/textures/sprite_sheet.png");
+
+		s_BlockHitboxes = {
+			{ BlockModel::Block,		s_BlockBounds },
+			{ BlockModel::CrossSprite,	s_CrossSpriteBounds }
+		};
+
+		s_EntityHitboxes = {
+			{ EntityModel::Player,		s_PlayerBounds }
+		};
+
+		s_MeshProperties = {
+			{ BlockModel::Block,		MeshProperties::Create(s_BlockVertexPositions) },
+			{ BlockModel::CrossSprite,	MeshProperties::Create(s_CrossSpriteVertexPositions) }
+		};
 
 		s_BlockProperties = {
 			{ Block::ID::Air,			BlockProperties::Air() },
@@ -177,11 +189,6 @@ namespace VoxelCraft {
 			{ Block::ID::Grass,			BlockProperties::CreateSprite({ s_Texture, { 1, 2 }, SubTextureSize }, "assets/sounds/break_grass.mp3") }
 		};
 
-		s_MeshModels = {
-			{ MeshModel::Block,			MeshProperties::Create(s_BlockVertexPositions) },
-			{ MeshModel::CrossSprite,	MeshProperties::Create(s_CrossSpriteVertexPositions) }
-		};
-
 		s_CrosshairVertexArray = Quark::VertexArray::Create();
 
 		auto vbo = Quark::VertexBuffer::Create((float*)s_CrosshairVertexPositions, sizeof(s_CrosshairVertexPositions));
@@ -190,16 +197,5 @@ namespace VoxelCraft {
 
 		auto ibo = Quark::IndexBuffer::Create((uint32_t*)s_CrosshairIndices, sizeof(s_CrosshairIndices) / sizeof(uint32_t));
 		s_CrosshairVertexArray->SetIndexBuffer(ibo);
-	}
-
-	const HitBox& Resources::GetMeshHitbox(MeshModel model)
-	{
-		switch (model)
-		{
-		case MeshModel::Block:
-			return { s_BlockBounds };
-		case MeshModel::CrossSprite:
-			return { s_CrossSpriteBounds };
-		}
 	}
 }

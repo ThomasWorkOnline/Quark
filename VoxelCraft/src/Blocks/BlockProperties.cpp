@@ -11,7 +11,7 @@ namespace VoxelCraft {
 			true,
 			false,
 			nullptr,
-			MeshModel::Block,
+			BlockModel::Block,
 			{}
 		};
 	}
@@ -23,8 +23,8 @@ namespace VoxelCraft {
 			transparent,
 			true,
 			breakSound,
-			MeshModel::Block,
-			Resources::GetMeshHitbox(MeshModel::Block)
+			BlockModel::Block,
+			Resources::GetBlockHitbox(BlockModel::Block)
 		};
 	}
 
@@ -35,8 +35,8 @@ namespace VoxelCraft {
 			transparent,
 			true,
 			breakSound,
-			MeshModel::Block,
-			Resources::GetMeshHitbox(MeshModel::Block)
+			BlockModel::Block,
+			Resources::GetBlockHitbox(BlockModel::Block)
 		};
 	}
 
@@ -47,8 +47,8 @@ namespace VoxelCraft {
 			true,
 			false,
 			breakSound,
-			MeshModel::CrossSprite,
-			Resources::GetMeshHitbox(MeshModel::CrossSprite)
+			BlockModel::CrossSprite,
+			Resources::GetBlockHitbox(BlockModel::CrossSprite)
 		};
 	}
 }

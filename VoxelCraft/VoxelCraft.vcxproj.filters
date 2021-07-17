@@ -31,7 +31,7 @@
     <ClInclude Include="src\World\WorldArea.h" />
     <ClInclude Include="src\World\WorldMap.h" />
     <ClInclude Include="src\Utils\Position.h" />
-    <ClInclude Include="src\Rendering\MeshModel.h" />
+    <ClInclude Include="src\Game\Models.h" />
     <ClInclude Include="src\Rendering\MeshProperties.h" />
     <ClInclude Include="src\Rendering\Vertex.h" />
     <ClInclude Include="src\Rendering\ChunkMesh.h" />
