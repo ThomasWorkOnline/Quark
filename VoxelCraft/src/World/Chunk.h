@@ -27,10 +27,14 @@ namespace VoxelCraft {
 
 	struct ChunkNeighbors
 	{
-		Chunk* West;
-		Chunk* East;
-		Chunk* South;
-		Chunk* North;
+		// Order is important
+		ChunkNeighbors(const Chunk* north, const Chunk* south, const Chunk* west, const Chunk* east)
+			: North(north), South(south), West(west), East(east) {}
+
+		const Chunk* North;
+		const Chunk* South;
+		const Chunk* West;
+		const Chunk* East;
 	};
 
 	class Chunk
@@ -64,7 +68,7 @@ namespace VoxelCraft {
 		void SetLoadStatus(LoadStatus status) { m_LoadingStatus = status; }
 
 		void BuildTerrain();
-		void BuildMesh(Chunk* left, Chunk* right, Chunk* back, Chunk* front);
+		void BuildMesh(const ChunkNeighbors& neighbors);
 
 		/// <summary>
 		/// This function must be invoked from the main thread.

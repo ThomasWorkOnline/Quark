@@ -180,26 +180,20 @@ namespace VoxelCraft {
 	{
 		QK_TIME_SCOPE_DEBUG(ChunkLoader::LoadChunk);
 
-		ChunkCoord coord		= CHUNK_COORD(id);
-		ChunkCoord westCoord	= coord.West();
-		ChunkCoord eastCoord	= coord.East();
-		ChunkCoord southCoord	= coord.South();
-		ChunkCoord northCoord	= coord.North();
-
 		auto& map = m_World.GetMap();
 		auto chunk	= map.Load(id);
-		auto left	= map.Load(westCoord.ToID());
-		auto right	= map.Load(eastCoord.ToID());
-		auto back	= map.Load(southCoord.ToID());
-		auto front	= map.Load(northCoord.ToID());
+		auto north	= map.Load(id.Coord.North());
+		auto south	= map.Load(id.Coord.South());
+		auto west	= map.Load(id.Coord.West());
+		auto east	= map.Load(id.Coord.East());
 
 		UniqueChunkDataGenerator(chunk);
-		UniqueChunkDataGenerator(left);
-		UniqueChunkDataGenerator(right);
-		UniqueChunkDataGenerator(back);
-		UniqueChunkDataGenerator(front);
+		UniqueChunkDataGenerator(north);
+		UniqueChunkDataGenerator(south);
+		UniqueChunkDataGenerator(west);
+		UniqueChunkDataGenerator(east);
 
-		UniqueChunkMeshGenerator(chunk, left, right, back, front);
+		UniqueChunkMeshGenerator(chunk, { north, south, west, east });
 	}
 
 	void ChunkLoader::UnloadChunk(ChunkIdentifier id)
@@ -242,7 +236,7 @@ namespace VoxelCraft {
 		}
 	}
 
-	void ChunkLoader::UniqueChunkMeshGenerator(Chunk* chunk, Chunk* left, Chunk* right, Chunk* back, Chunk* front)
+	void ChunkLoader::UniqueChunkMeshGenerator(Chunk* chunk, const ChunkNeighbors& neighbors)
 	{
 		bool access = false;
 
@@ -258,7 +252,7 @@ namespace VoxelCraft {
 
 		if (access)
 		{
-			chunk->BuildMesh(left, right, back, front);
+			chunk->BuildMesh(neighbors);
 			chunk->SetLoadStatus(Chunk::LoadStatus::Loaded);
 			m_Stats.ChunksMeshGen++;
 

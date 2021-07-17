@@ -52,7 +52,7 @@ namespace VoxelCraft {
 		void OnChunkBorderCrossed();
 
 		void UniqueChunkDataGenerator(Chunk* chunk);
-		void UniqueChunkMeshGenerator(Chunk* chunk, Chunk* left, Chunk* right, Chunk* back, Chunk* front);
+		void UniqueChunkMeshGenerator(Chunk* chunk, const ChunkNeighbors& neighbors);
 
 		World& m_World;
 		WorldArea m_LoadingArea;

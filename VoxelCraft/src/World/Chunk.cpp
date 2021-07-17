@@ -64,8 +64,8 @@ namespace VoxelCraft {
 				auto position = heightIndex.ToWorldSpace(m_Id.Coord);
 
 				// Use deterministic algorithms for anything related to world gen
-				float fValue = round(sinf(position.x * 0.144f + position.y * 0.021f) * 6.0f);
-				int32_t value = static_cast<int32_t>(fValue);
+				float fValue = sinf(position.x * 0.144f + position.y * 0.021f) * 6.f;
+				int32_t value = static_cast<int32_t>(round(fValue));
 				uint32_t index = heightIndex.y * ChunkSpecification::Depth + heightIndex.x;
 				m_HeightMap[index] = value;
 			}
@@ -87,9 +87,9 @@ namespace VoxelCraft {
 		}
 	}
 
-	void Chunk::BuildMesh(Chunk* left, Chunk* right, Chunk* back, Chunk* front)
+	void Chunk::BuildMesh(const ChunkNeighbors& neighbors)
 	{
-		m_Mesh.Create(this, { left, right, back, front });
+		m_Mesh.Create(this, neighbors);
 		m_Pushed = false;
 	}
 
