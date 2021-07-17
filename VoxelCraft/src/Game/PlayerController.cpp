@@ -15,6 +15,7 @@ namespace VoxelCraft {
 	static constexpr Quark::Key s_LeftKey		= Quark::Key::A;
 	static constexpr Quark::Key s_BackwardKey	= Quark::Key::S;
 	static constexpr Quark::Key s_RightKey		= Quark::Key::D;
+	static constexpr Quark::Key s_ZoomKey		= Quark::Key::C;
 
 	static struct ControlKeys
 	{
@@ -57,6 +58,16 @@ namespace VoxelCraft {
 			keys.A = Quark::Input::IsKeyPressed(s_LeftKey);
 			keys.S = Quark::Input::IsKeyPressed(s_BackwardKey);
 			keys.D = Quark::Input::IsKeyPressed(s_RightKey);
+
+			// Zoom
+			if (Quark::Input::IsKeyPressed(s_ZoomKey))
+			{
+				camera.SetFov(20.f);
+			}
+			else
+			{
+				camera.SetFov(m_Player.GetSettings().Fov);
+			}
 
 			switch (m_PlayerState)
 			{
@@ -289,6 +300,7 @@ namespace VoxelCraft {
 		Quark::EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<Quark::WindowResizedEvent>(ATTACH_EVENT_FN(PlayerController::OnWindowResized));
 		dispatcher.Dispatch<Quark::MouseMovedEvent>(ATTACH_EVENT_FN(PlayerController::OnMouseMoved));
+		dispatcher.Dispatch<Quark::KeyPressedEvent>(ATTACH_EVENT_FN(PlayerController::OnKeyPressed));
 	}
 
 	bool PlayerController::OnMouseMoved(Quark::MouseMovedEvent& e)
@@ -339,6 +351,15 @@ namespace VoxelCraft {
 		{
 			auto& camera = m_Player.GetComponent<Quark::PerspectiveCameraComponent>().Camera;
 			camera.SetAspectRatio((float)e.GetWidth() / (float)e.GetHeight());
+		}
+		return false;
+	}
+
+	bool PlayerController::OnKeyPressed(Quark::KeyPressedEvent& e)
+	{
+		switch (e.GetKeyCode())
+		{
+
 		}
 		return false;
 	}

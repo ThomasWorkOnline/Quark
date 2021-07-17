@@ -158,7 +158,7 @@ namespace VoxelCraft {
 
 			m_Blocks[index] = type;
 
-			m_World.OnChunkModified(m_Id.ID);
+			m_World.OnChunkModified(m_Id);
 
 			if (position.x == 0)
 			{
