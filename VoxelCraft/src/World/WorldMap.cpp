@@ -26,7 +26,7 @@ namespace VoxelCraft {
 		}
 	}
 
-	void WorldMap::Foreach(const std::function<void(ChunkID id)>& func) const
+	void WorldMap::Foreach(const std::function<void(ChunkIdentifier id)>& func) const
 	{
 		std::lock_guard<std::recursive_mutex> lock(m_ChunksLocationsMutex);
 		for (auto& e : m_ChunksLocations)
@@ -44,10 +44,10 @@ namespace VoxelCraft {
 		}
 	}
 
-	Chunk* WorldMap::Select(ChunkID id) const
+	Chunk* WorldMap::Select(ChunkIdentifier id) const
 	{
 		std::lock_guard<std::recursive_mutex> lock(m_ChunksLocationsMutex);
-		auto it = m_ChunksLocations.find(id);
+		auto it = m_ChunksLocations.find(id.ID);
 
 		if (it != m_ChunksLocations.end())
 		{
@@ -56,21 +56,21 @@ namespace VoxelCraft {
 		return nullptr;
 	}
 
-	Chunk* WorldMap::Load(ChunkID id)
+	Chunk* WorldMap::Load(ChunkIdentifier id)
 	{
 		std::lock_guard<std::recursive_mutex> lock(m_ChunksLocationsMutex);
 		if (!Contains(id))
 		{
 			auto data = new Chunk(m_World, id);
 
-			m_ChunksLocations.insert({ id, data });
+			m_ChunksLocations.insert({ id.ID, data });
 
 			return data;
 		}
 		return Select(id);
 	}
 
-	void WorldMap::Unload(ChunkID id)
+	void WorldMap::Unload(ChunkIdentifier id)
 	{
 		auto data = Select(id);
 		data->Save();
@@ -78,17 +78,17 @@ namespace VoxelCraft {
 		Erase(id);
 	}
 
-	bool WorldMap::Contains(ChunkID id) const
+	bool WorldMap::Contains(ChunkIdentifier id) const
 	{
 		return Select(id);
 	}
 
-	void WorldMap::Erase(ChunkID id)
+	void WorldMap::Erase(ChunkIdentifier id)
 	{
 		auto data = Select(id);
 		{
 			std::lock_guard<std::recursive_mutex> lock(m_ChunksLocationsMutex);
-			m_ChunksLocations.erase(id);
+			m_ChunksLocations.erase(id.ID);
 		}
 
 		std::lock_guard<std::mutex> lock(m_ChunksToDeleteMutex);

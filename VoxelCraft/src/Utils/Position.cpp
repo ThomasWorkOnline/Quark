@@ -16,7 +16,7 @@ namespace VoxelCraft {
 
 	ChunkCoord Position3D::ToChunkCoord() const
 	{
-		return { std::floor(x / (float)ChunkSpecification::Width), std::floor(z / (float)ChunkSpecification::Depth) };
+		return { (int32_t)std::floor(x / (float)ChunkSpecification::Width), (int32_t)std::floor(z / (float)ChunkSpecification::Depth) };
 	}
 
 	Position2D Position2D::ToWorldSpace(const ChunkCoord& coord) const
@@ -31,6 +31,6 @@ namespace VoxelCraft {
 
 	ChunkCoord Position2D::ToChunkCoord() const
 	{
-		return { std::floor(x / (float)ChunkSpecification::Width), std::floor(y / (float)ChunkSpecification::Depth) };
+		return { (int32_t)std::floor(x / (float)ChunkSpecification::Width), (int32_t)std::floor(y / (float)ChunkSpecification::Depth) };
 	}
 }

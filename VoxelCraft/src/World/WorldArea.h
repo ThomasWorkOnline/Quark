@@ -20,10 +20,10 @@ namespace VoxelCraft {
 	public:
 		WorldArea(WorldMap& map, const glm::ivec2& size, ChunkCoord anchor);
 
-		bool InBounds(ChunkID id) const;
+		bool InBounds(ChunkIdentifier id) const;
 
-		void Foreach(const std::function<void(ChunkID id)>& func) const;
-		void ForeachOutOfBounds(const std::function<void(ChunkID id)>& func) const;
+		void Foreach(const std::function<void(ChunkIdentifier id)>& func) const;
+		void ForeachOutOfBounds(const std::function<void(ChunkIdentifier id)>& func) const;
 
 		// TODO: improve, on fast movements, some chunks may stay loaded
 		// if the player skips more than 1 chunk border in less than OnUpdate() timeframe
@@ -38,7 +38,7 @@ namespace VoxelCraft {
 		WorldAreaBounds m_AccessibleBounds; // Size in chunks. Only accessible chunks
 		WorldAreaBounds m_InternalBounds; // +1 chunks on each side will be allocated
 
-		mutable std::list<ChunkID> m_ChunksOutOfBounds;
+		mutable std::list<ChunkIdentifier> m_ChunksOutOfBounds;
 
 		WorldMap& m_WorldPartition;
 	};

@@ -19,11 +19,11 @@ namespace VoxelCraft {
 	static std::recursive_mutex s_QueueMutex;
 	static bool s_Stopping = false;
 
-	static bool QueueContains(const std::list<ChunkID>& list, ChunkID id)
+	static bool QueueContains(const std::list<ChunkIdentifier>& list, ChunkIdentifier id)
 	{
 		std::lock_guard<std::recursive_mutex> lock(s_QueueMutex);
 
-		for (ChunkID _id : list)
+		for (ChunkIdentifier _id : list)
 		{
 			if (_id == id)
 				return true;
@@ -31,17 +31,12 @@ namespace VoxelCraft {
 		return false;
 	}
 
-	static bool QueueContains(const std::list<ChunkID>& list, ChunkCoord coord)
-	{
-		return QueueContains(list, CHUNK_UUID(coord));
-	}
-
 	ChunkLoader::ChunkLoader(World& world, ChunkCoord coord, uint32_t renderDistance)
 		: m_World(world), m_LoadingArea(m_World.GetMap(), { renderDistance, renderDistance }, coord),
 		m_Coord(coord),
 		m_RenderDistance(renderDistance)
 	{
-		m_LoadingArea.Foreach([this](ChunkID id)
+		m_LoadingArea.Foreach([this](ChunkIdentifier id)
 			{
 				Load(id);
 			});
@@ -87,12 +82,12 @@ namespace VoxelCraft {
 			{
 				if (data && data->GetLoadStatus() == Chunk::LoadStatus::Loaded)
 				{
-					data->PushData();
+					data->UploadMesh();
 				}
 			});
 	}
 
-	void ChunkLoader::Load(ChunkID id)
+	void ChunkLoader::Load(ChunkIdentifier id)
 	{
 		std::lock_guard<std::recursive_mutex> lock(s_QueueMutex);
 
@@ -107,7 +102,7 @@ namespace VoxelCraft {
 		}
 	}
 
-	void ChunkLoader::Unload(ChunkID id)
+	void ChunkLoader::Unload(ChunkIdentifier id)
 	{
 		std::lock_guard<std::recursive_mutex> lock(s_QueueMutex);
 
@@ -118,7 +113,7 @@ namespace VoxelCraft {
 		}
 	}
 
-	void ChunkLoader::Rebuild(ChunkID id)
+	void ChunkLoader::Rebuild(ChunkIdentifier id)
 	{
 		Chunk* chunk = m_World.GetMap().Select(id);
 		chunk->SetLoadStatus(Chunk::LoadStatus::WorldGenerated);
@@ -136,7 +131,7 @@ namespace VoxelCraft {
 		std::unique_lock<std::recursive_mutex> lock(s_QueueMutex);
 		if (!m_LoadingQueue.empty())
 		{
-			ChunkID id = m_LoadingQueue.front();
+			ChunkIdentifier id = m_LoadingQueue.front();
 			m_LoadingQueue.pop_front();
 
 			lock.unlock();
@@ -150,7 +145,7 @@ namespace VoxelCraft {
 		std::unique_lock<std::recursive_mutex> lock(s_QueueMutex);
 		if (!m_UnloadingQueue.empty())
 		{
-			ChunkID id = m_UnloadingQueue.front();
+			ChunkIdentifier id = m_UnloadingQueue.front();
 			m_UnloadingQueue.pop_front();
 
 			lock.unlock();
@@ -181,22 +176,22 @@ namespace VoxelCraft {
 		std::cout << "Task done! Thread 0x" << std::hex << std::this_thread::get_id() << std::dec << " exited.\n";
 	}
 
-	void ChunkLoader::LoadChunk(ChunkID id)
+	void ChunkLoader::LoadChunk(ChunkIdentifier id)
 	{
 		QK_TIME_SCOPE_DEBUG(ChunkLoader::LoadChunk);
 
-		ChunkCoord coord = CHUNK_COORD(id);
-		auto leftCoord  = coord + ChunkCoord(-1,  0);
-		auto rightCoord = coord + ChunkCoord( 1,  0);
-		auto backCoord  = coord + ChunkCoord( 0, -1);
-		auto frontCoord = coord + ChunkCoord( 0,  1);
+		ChunkCoord coord		= CHUNK_COORD(id);
+		ChunkCoord westCoord	= coord.West();
+		ChunkCoord eastCoord	= coord.East();
+		ChunkCoord southCoord	= coord.South();
+		ChunkCoord northCoord	= coord.North();
 
 		auto& map = m_World.GetMap();
-		auto chunk = map.Load(id);
-		auto left = map.Load(CHUNK_UUID(leftCoord));
-		auto right = map.Load(CHUNK_UUID(rightCoord));
-		auto back = map.Load(CHUNK_UUID(backCoord));
-		auto front = map.Load(CHUNK_UUID(frontCoord));
+		auto chunk	= map.Load(id);
+		auto left	= map.Load(westCoord.ToID());
+		auto right	= map.Load(eastCoord.ToID());
+		auto back	= map.Load(southCoord.ToID());
+		auto front	= map.Load(northCoord.ToID());
 
 		UniqueChunkDataGenerator(chunk);
 		UniqueChunkDataGenerator(left);
@@ -207,7 +202,7 @@ namespace VoxelCraft {
 		UniqueChunkMeshGenerator(chunk, left, right, back, front);
 	}
 
-	void ChunkLoader::UnloadChunk(ChunkID id)
+	void ChunkLoader::UnloadChunk(ChunkIdentifier id)
 	{
 		m_World.GetMap().Unload(id);
 	}
@@ -215,11 +210,11 @@ namespace VoxelCraft {
 	void ChunkLoader::OnChunkBorderCrossed()
 	{
 		m_LoadingArea.Invalidate({ m_RenderDistance, m_RenderDistance }, m_Coord);
-		m_LoadingArea.Foreach([this](ChunkID id)
+		m_LoadingArea.Foreach([this](ChunkIdentifier id)
 			{
 				Load(id);
 			});
-		m_LoadingArea.ForeachOutOfBounds([this](ChunkID id)
+		m_LoadingArea.ForeachOutOfBounds([this](ChunkIdentifier id)
 			{
 				Unload(id);
 			});
@@ -267,7 +262,7 @@ namespace VoxelCraft {
 			chunk->SetLoadStatus(Chunk::LoadStatus::Loaded);
 			m_Stats.ChunksMeshGen++;
 
-			m_World.OnChunkLoaded(chunk->GetId());
+			m_World.OnChunkLoaded(chunk->GetID());
 		}
 	}
 }

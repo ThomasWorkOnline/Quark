@@ -2,7 +2,7 @@
 
 #include "../World/ChunkIdentifier.h"
 #include "../World/World.h"
-#include "../Rendering/GameRenderer.h"
+#include "../Rendering/Renderer.h"
 #include "Resources.h"
 
 namespace VoxelCraft {
@@ -12,8 +12,6 @@ namespace VoxelCraft {
 	public:
 		void OnCreate() override
 		{
-			QK_ASSERT(sizeof(ChunkID) == sizeof(ChunkCoord), "ChunkID and ChunkCoord types must be the same exact size");
-
 			QK_TIME_SCOPE_DEBUG(VoxelCraft::OnCreate);
 
 			GetWindow().Select();
@@ -21,14 +19,14 @@ namespace VoxelCraft {
 			GetWindow().SetFullScreen(false);
 
 			Resources::Initialize();
-			GameRenderer::Initialize();
+			Renderer::Initialize();
 
 			m_World = World::Create();
 		}
 
 		void OnDestroy() override
 		{
-			GameRenderer::Shutdown();
+			Renderer::Shutdown();
 		}
 
 		void OnUpdate(float elapsedTime) override
@@ -63,6 +61,9 @@ namespace VoxelCraft {
 				break;
 			case Quark::Key::F11:
 				GetWindow().SetFullScreen(!GetWindow().IsFullscreen());
+				break;
+			case Quark::KeyCode::F1:
+				Renderer::SwitchShader();
 				break;
 			}
 

@@ -1,4 +1,4 @@
-#include "GameRenderer.h"
+#include "Renderer.h"
 
 #include "../Game/Resources.h"
 
@@ -6,9 +6,9 @@ namespace VoxelCraft {
 
 #define DRAW_CHUNK_ALL_STATUS 0
 
-	Quark::Ref<Quark::Shader> GameRenderer::s_ActiveShader;
+	Quark::Ref<Quark::Shader> Renderer::s_ActiveShader;
 
-	GameRendererStats GameRenderer::s_Stats;
+	RendererStats Renderer::s_Stats;
 
 	// Debug
 #if DRAW_CHUNK_ALL_STATUS
@@ -23,7 +23,7 @@ namespace VoxelCraft {
 	static Quark::Transform3DComponent s_Transform;
 #endif
 
-	void GameRenderer::Initialize()
+	void Renderer::Initialize()
 	{
 		s_ActiveShader = Resources::GetShader("default");
 
@@ -38,12 +38,12 @@ namespace VoxelCraft {
 #	endif
 	}
 
-	void GameRenderer::Shutdown()
+	void Renderer::Shutdown()
 	{
 
 	}
 
-	void GameRenderer::SwitchShader()
+	void Renderer::SwitchShader()
 	{
 		if (s_ActiveShader->GetName() == "default")
 		{
@@ -55,13 +55,13 @@ namespace VoxelCraft {
 		}
 	}
 
-	void GameRenderer::SubmitChunk(const Chunk* chunk)
+	void Renderer::SubmitChunk(const Chunk* chunk)
 	{
 		switch (chunk->GetLoadStatus())
 		{
 		case Chunk::LoadStatus::Loaded:
 		{
-			Quark::Renderer::Submit(s_ActiveShader, Resources::GetTexture(), chunk->GetVertexArray());
+			Quark::Renderer::Submit(s_ActiveShader, Resources::GetTexture(), chunk->GetMesh().GetVertexArray());
 			s_Stats.DrawCalls++;
 			break;
 		}
@@ -90,7 +90,7 @@ namespace VoxelCraft {
 		}
 	}
 
-	void GameRenderer::DrawUI(uint32_t width, uint32_t height)
+	void Renderer::DrawUI(uint32_t width, uint32_t height)
 	{
 		// Draw UI
 		static const auto& shader = Resources::GetShader("crosshair");

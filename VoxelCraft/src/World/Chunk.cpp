@@ -4,7 +4,7 @@
 
 #include "World.h"
 #include "../Game/Resources.h"
-#include "../Rendering/Meshes.h"
+#include "../Rendering/ChunkMesh.h"
 
 namespace VoxelCraft {
 
@@ -16,10 +16,10 @@ namespace VoxelCraft {
 	static bool BoundsCheck(const Position3D& position)
 	{
 		return position.x >= 0 && position.y >= 0 && position.z >= 0 &&
-			position.x < ChunkSpecification::Width&& position.y < ChunkSpecification::Height&& position.z < ChunkSpecification::Depth;
+			position.x < ChunkSpecification::Width && position.y < ChunkSpecification::Height && position.z < ChunkSpecification::Depth;
 	}
 
-	Chunk::Chunk(World& world, ChunkID id)
+	Chunk::Chunk(World& world, ChunkIdentifier id)
 		: m_World(world), m_Id(id) {}
 
 	Chunk::~Chunk()
@@ -61,7 +61,7 @@ namespace VoxelCraft {
 		{
 			for (heightIndex.x = 0; heightIndex.x < ChunkSpecification::Width; heightIndex.x++)
 			{
-				auto position = heightIndex.ToWorldSpace(m_Coord);
+				auto position = heightIndex.ToWorldSpace(m_Id.Coord);
 
 				// Use deterministic algorithms for anything related to world gen
 				float fValue = round(sinf(position.x * 0.144f + position.y * 0.021f) * 6.0f);
@@ -89,47 +89,15 @@ namespace VoxelCraft {
 
 	void Chunk::BuildMesh(Chunk* left, Chunk* right, Chunk* back, Chunk* front)
 	{
-		m_VertexCount = 0;
-		m_Vertices.clear();
-		m_Indices.clear();
-
-		QK_ASSERT(left, "");
-		QK_ASSERT(right, "");
-		QK_ASSERT(back, "");
-		QK_ASSERT(front, "");
-
-		Position3D position;
-		for (position.y = 0; position.y < ChunkSpecification::Height; position.y++)
-		{
-			for (position.z = 0; position.z < ChunkSpecification::Depth; position.z++)
-			{
-				for (position.x = 0; position.x < ChunkSpecification::Width; position.x++)
-				{
-					Block block = GetBlock(position);
-
-					if (block == Block::ID::Air)
-						continue;
-
-					GenerateBlockMesh(block, position, { left, right, back, front });
-				}
-			}
-		}
-
+		m_Mesh.Create(this, { left, right, back, front });
 		m_Pushed = false;
 	}
 
-	void Chunk::PushData()
+	void Chunk::UploadMesh()
 	{
 		if (!m_Pushed)
 		{
-			m_VertexArray = Quark::VertexArray::Create();
-
-			auto vbo = Quark::VertexBuffer::Create((float*)m_Vertices.data(), m_Vertices.size() * sizeof(Vertex));
-			vbo->SetLayout(Resources::GetBufferLayout());
-			m_VertexArray->AddVertexBuffer(vbo);
-
-			auto ibo = Quark::IndexBuffer::Create(m_Indices.data(), m_Indices.size());
-			m_VertexArray->SetIndexBuffer(ibo);
+			m_Mesh.Upload();
 		}
 
 		m_Pushed = true;
@@ -170,16 +138,6 @@ namespace VoxelCraft {
 		return type;
 	}
 
-	void Chunk::GenerateBlockMesh(Block block, const Position3D& position, const ChunkNeighbors& neighbors)
-	{
-		MeshOutputParameters params = { m_Vertices, m_Indices, m_VertexCount };
-
-		auto& props = block.GetProperties();
-		auto& meshProps = Resources::GetMeshProperties(props.Mesh);
-
-		ChunkMesh::Create(params, position, props, this, neighbors);
-	}
-
 	Block Chunk::GetBlock(const Position3D& position) const
 	{
 		if (BoundsCheck(position))
@@ -200,28 +158,28 @@ namespace VoxelCraft {
 
 			m_Blocks[index] = type;
 
-			m_World.OnChunkModified(m_Id);
+			m_World.OnChunkModified(m_Id.ID);
 
 			if (position.x == 0)
 			{
-				auto coord = m_Coord + ChunkCoord(-1, 0);
-				m_World.OnChunkModified(CHUNK_UUID(coord));
+				auto west = m_Id.Coord.West();
+				m_World.OnChunkModified(west);
 			}
 			else if (position.x == ChunkSpecification::Width - 1)
 			{
-				auto coord = m_Coord + ChunkCoord(1, 0);
-				m_World.OnChunkModified(CHUNK_UUID(coord));
+				auto east = m_Id.Coord.East();
+				m_World.OnChunkModified(east);
 			}
 
 			if (position.z == 0)
 			{
-				auto coord = m_Coord + ChunkCoord(0, -1);
-				m_World.OnChunkModified(CHUNK_UUID(coord));
+				auto south = m_Id.Coord.South();
+				m_World.OnChunkModified(south);
 			}
 			else if (position.z == ChunkSpecification::Depth - 1)
 			{
-				auto coord = m_Coord + ChunkCoord(0, 1);
-				m_World.OnChunkModified(CHUNK_UUID(coord));
+				auto north = m_Id.Coord.North();
+				m_World.OnChunkModified(north);
 			}
 		}
 	}
@@ -237,26 +195,26 @@ namespace VoxelCraft {
 
 		if (neighborPosition.x < 0)
 		{
-			Block block = neighbors.Left->GetBlock(Position3D((float)ChunkSpecification::Width - 1, neighborPosition.y, neighborPosition.z));
+			Block block = neighbors.West->GetBlock(Position3D((float)ChunkSpecification::Width - 1, neighborPosition.y, neighborPosition.z));
 			if (!block.GetProperties().Transparent)
 				return false;
 		}
 		else if (neighborPosition.x > ChunkSpecification::Width - 1)
 		{
-			Block block = neighbors.Right->GetBlock(Position3D(0.f, neighborPosition.y, neighborPosition.z));
+			Block block = neighbors.East->GetBlock(Position3D(0.f, neighborPosition.y, neighborPosition.z));
 			if (!block.GetProperties().Transparent)
 				return false;
 		}
 
 		if (neighborPosition.z < 0)
 		{
-			Block block = neighbors.Back->GetBlock(Position3D(neighborPosition.x, neighborPosition.y, (float)ChunkSpecification::Depth - 1));
+			Block block = neighbors.South->GetBlock(Position3D(neighborPosition.x, neighborPosition.y, (float)ChunkSpecification::Depth - 1));
 			if (!block.GetProperties().Transparent)
 				return false;
 		}
 		else if (neighborPosition.z > ChunkSpecification::Depth - 1)
 		{
-			Block block = neighbors.Front->GetBlock(Position3D(neighborPosition.x, neighborPosition.y, 0.f));
+			Block block = neighbors.North->GetBlock(Position3D(neighborPosition.x, neighborPosition.y, 0.f));
 			if (!block.GetProperties().Transparent)
 				return false;
 		}

@@ -60,6 +60,31 @@ namespace VoxelCraft {
 	};
 	static constexpr glm::vec3 s_CrossSpriteVertexPositions[16] = {
 		// first
+		{  0.f,  0.00f,  1.f },
+		{  1.f,  0.00f,  0.f },
+		{  1.f,  1.00f,  0.f },
+		{  0.f,  1.00f,  1.f },
+
+		// first back
+		{  1.f,  0.00f,  0.f },
+		{  0.f,  0.00f,  1.f },
+		{  0.f,  1.00f,  1.f },
+		{  1.f,  1.00f,  0.f },
+
+		// second
+		{  0.f,  0.00f,  0.f },
+		{  1.f,  0.00f,  1.f },
+		{  1.f,  1.00f,  1.f },
+		{  0.f,  1.00f,  0.f },
+
+		// second back
+		{  1.f,  0.00f,  1.f },
+		{  0.f,  0.00f,  0.f },
+		{  0.f,  1.00f,  0.f },
+		{  1.f,  1.00f,  1.f }
+	};
+	static constexpr glm::vec3 s_CrossSpriteVertexPositionsAlt[16] = {
+		// first
 		{  0.15f,  0.00f,  0.85f },
 		{  0.85f,  0.00f,  0.15f },
 		{  0.85f,  1.00f,  0.15f },

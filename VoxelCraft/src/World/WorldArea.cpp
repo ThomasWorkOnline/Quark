@@ -8,26 +8,26 @@ namespace VoxelCraft {
 		Invalidate(size, anchor);
 	}
 
-	bool WorldArea::InBounds(ChunkID id) const
+	bool WorldArea::InBounds(ChunkIdentifier id) const
 	{
 		const auto& coord = CHUNK_COORD(id);
 		return (coord.x >= m_AccessibleBounds.First.x && coord.x <= m_AccessibleBounds.Second.x &&
 			coord.y >= m_AccessibleBounds.First.y && coord.y <= m_AccessibleBounds.Second.y);
 	}
 
-	void WorldArea::Foreach(const std::function<void(ChunkID id)>& func) const
+	void WorldArea::Foreach(const std::function<void(ChunkIdentifier id)>& func) const
 	{
 		for (int z = m_AccessibleBounds.First.y; z < m_AccessibleBounds.Second.y; z++)
 		{
 			for (int x = m_AccessibleBounds.First.x; x < m_AccessibleBounds.Second.x; x++)
 			{
-				glm::ivec2 coord(x, z);
-				func(CHUNK_UUID(coord));
+				ChunkCoord coord(x, z);
+				func(coord.ToID());
 			}
 		}
 	}
 
-	void WorldArea::ForeachOutOfBounds(const std::function<void(ChunkID id)>& func) const
+	void WorldArea::ForeachOutOfBounds(const std::function<void(ChunkIdentifier id)>& func) const
 	{
 		for (auto id : m_ChunksOutOfBounds)
 		{
@@ -52,8 +52,8 @@ namespace VoxelCraft {
 		{
 			for (int x = m_InternalBounds.First.x; x < m_InternalBounds.Second.x; x++)
 			{
-				glm::ivec2 coord(x, z);
-				m_WorldPartition.Load(CHUNK_UUID(coord));
+				ChunkCoord coord(x, z);
+				m_WorldPartition.Load(coord.ToID());
 			}
 		}
 	}
@@ -68,8 +68,8 @@ namespace VoxelCraft {
 		{
 			for (int x = bounds.First.x; x < bounds.Second.x; x++)
 			{
-				glm::ivec2 coord(x, z);
-				ids.insert(CHUNK_UUID(coord));
+				ChunkCoord coord(x, z);
+				ids.insert(coord.ToID());
 			}
 		}
 
@@ -77,11 +77,11 @@ namespace VoxelCraft {
 		{
 			for (int x = lastBounds.First.x; x < lastBounds.Second.x; x++)
 			{
-				glm::ivec2 coord = { x, z };
-				auto it = ids.find(CHUNK_UUID(coord));
+				ChunkCoord coord = { x, z };
+				auto it = ids.find(coord.ToID());
 				if (it == ids.end())
 				{
-					m_ChunksOutOfBounds.push_back(CHUNK_UUID(coord));
+					m_ChunksOutOfBounds.push_back(coord.ToID());
 				}
 			}
 		}

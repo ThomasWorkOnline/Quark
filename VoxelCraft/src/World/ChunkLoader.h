@@ -31,9 +31,9 @@ namespace VoxelCraft {
 		void SetCoord(ChunkCoord coord) { m_Coord = coord; }
 		ChunkCoord GetCoord() const { return m_Coord; }
 
-		void Load(ChunkID id);
-		void Unload(ChunkID id);
-		void Rebuild(ChunkID id);
+		void Load(ChunkIdentifier id);
+		void Unload(ChunkIdentifier id);
+		void Rebuild(ChunkIdentifier id);
 
 		bool Idling() const;
 
@@ -46,8 +46,8 @@ namespace VoxelCraft {
 		void ProcessLoading();
 		void ProcessUnloading();
 
-		void LoadChunk(ChunkID id);
-		void UnloadChunk(ChunkID id);
+		void LoadChunk(ChunkIdentifier id);
+		void UnloadChunk(ChunkIdentifier id);
 
 		void OnChunkBorderCrossed();
 
@@ -57,8 +57,8 @@ namespace VoxelCraft {
 		World& m_World;
 		WorldArea m_LoadingArea;
 
-		std::list<ChunkID> m_LoadingQueue;
-		std::list<ChunkID> m_UnloadingQueue;
+		std::list<ChunkIdentifier> m_LoadingQueue;
+		std::list<ChunkIdentifier> m_UnloadingQueue;
 
 		ChunkLoaderStats m_Stats;
 

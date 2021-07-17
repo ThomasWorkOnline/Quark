@@ -19,16 +19,16 @@ namespace VoxelCraft {
 
 		void OnUpdate(float elapsedTime);
 
-		void Foreach(const std::function<void(ChunkID id)>& func) const;
+		void Foreach(const std::function<void(ChunkIdentifier id)>& func) const;
 		void Foreach(const std::function<void(Chunk* data)>& func) const;
 
-		Chunk* Select(ChunkID id) const;
-		Chunk* Load(ChunkID id);
-		void Unload(ChunkID id);
-		bool Contains(ChunkID id) const;
+		Chunk* Select(ChunkIdentifier id) const;
+		Chunk* Load(ChunkIdentifier id);
+		void Unload(ChunkIdentifier id);
+		bool Contains(ChunkIdentifier id) const;
 
 	private:
-		void Erase(ChunkID id);
+		void Erase(ChunkIdentifier id);
 
 	private:
 		mutable std::recursive_mutex m_ChunksLocationsMutex;

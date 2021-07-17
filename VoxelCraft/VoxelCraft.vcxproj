@@ -101,11 +101,11 @@
     <ClCompile Include="src\Blocks\BlockProperties.cpp" />
     <ClCompile Include="src\World\Chunk.cpp" />
     <ClCompile Include="src\World\ChunkLoader.cpp" />
-    <ClCompile Include="src\Rendering\GameRenderer.cpp" />
+    <ClCompile Include="src\Rendering\Renderer.cpp" />
     <ClCompile Include="src\Game\EntryPoint.cpp" />
     <ClCompile Include="src\Utils\Position.cpp" />
     <ClCompile Include="src\Game\Hitbox.cpp" />
-    <ClCompile Include="src\Rendering\Meshes.cpp" />
+    <ClCompile Include="src\Rendering\ChunkMesh.cpp" />
     <ClCompile Include="src\World\WorldArea.cpp" />
     <ClCompile Include="src\Entity\Player.cpp" />
     <ClCompile Include="src\Game\PlayerController.cpp" />
@@ -116,14 +116,14 @@
   <ItemGroup>
     <ClInclude Include="src\Components\GravityComponent.h" />
     <ClInclude Include="src\Game\Hitbox.h" />
-    <ClInclude Include="src\Rendering\Meshes.h" />
+    <ClInclude Include="src\Rendering\ChunkMesh.h" />
     <ClInclude Include="src\Rendering\Vertex.h" />
     <ClInclude Include="src\Blocks\BlockProperties.h" />
     <ClInclude Include="src\Blocks\Block.h" />
     <ClInclude Include="src\World\Chunk.h" />
     <ClInclude Include="src\World\ChunkIdentifier.h" />
     <ClInclude Include="src\World\ChunkLoader.h" />
-    <ClInclude Include="src\Rendering\GameRenderer.h" />
+    <ClInclude Include="src\Rendering\Renderer.h" />
     <ClInclude Include="src\Game\Collision.h" />
     <ClInclude Include="src\Utils\Position.h" />
     <ClInclude Include="src\Rendering\MeshModel.h" />

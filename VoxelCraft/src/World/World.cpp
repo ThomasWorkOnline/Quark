@@ -5,7 +5,7 @@
 
 #include "ChunkLoader.h"
 #include "../Game/Resources.h"
-#include "../Rendering/GameRenderer.h"
+#include "../Rendering/Renderer.h"
 
 #include "../Components/GravityComponent.h"
 
@@ -49,13 +49,13 @@ namespace VoxelCraft {
 
 		m_Map.Foreach([](const Chunk* data)
 			{
-				GameRenderer::SubmitChunk(data);
+				Renderer::SubmitChunk(data);
 			});
 
 		Quark::Renderer::EndScene();
 
 		const auto& window = Quark::Application::Get().GetWindow();
-		GameRenderer::DrawUI(window.GetWidth(), window.GetHeight());
+		Renderer::DrawUI(window.GetWidth(), window.GetHeight());
 	}
 
 	void World::OnEvent(Quark::Event& e)
@@ -68,7 +68,7 @@ namespace VoxelCraft {
 		m_Controller.OnEvent(e);
 	}
 
-	void World::OnChunkLoaded(ChunkID id)
+	void World::OnChunkLoaded(ChunkIdentifier id)
 	{
 		// Player feels gravity when chunk is loaded
 		if (m_Player.GetPosition().ToChunkCoord() == m_Map.Select(id)->GetCoord())
@@ -77,7 +77,7 @@ namespace VoxelCraft {
 		}
 	}
 
-	void World::OnChunkModified(ChunkID id)
+	void World::OnChunkModified(ChunkIdentifier id)
 	{
 		m_Loader->Rebuild(id); // TODO: move, not related to this loader
 	}
@@ -106,9 +106,6 @@ namespace VoxelCraft {
 			std::cout << "chunks terrain expected: " << s_ChunksExpected << '\n';
 			std::cout << "Idling: " << (m_Loader->Idling() ? "true" : "false") << '\n';
 			std::cout << ChunkSpecification::BlockCount * m_Loader->GetStats().ChunksWorldGen << " blocks generated!\n";
-			break;
-		case Quark::KeyCode::F1:
-			GameRenderer::SwitchShader();
 			break;
 		}
 
@@ -177,7 +174,7 @@ namespace VoxelCraft {
 		ChunkCoord coord = position.ToChunkCoord();
 		Position3D blockPosition = position.ToChunkSpace(coord);
 
-		const Chunk* chunk = m_Map.Select(CHUNK_UUID(coord));
+		const Chunk* chunk = m_Map.Select(coord.ToID());
 		if (chunk && chunk->GetLoadStatus() >= Chunk::LoadStatus::WorldGenerated)
 			return chunk->GetBlock(blockPosition);
 		return Block::ID::Air;
@@ -188,7 +185,7 @@ namespace VoxelCraft {
 		ChunkCoord coord = position.ToChunkCoord();
 		Position3D blockPosition = position.ToChunkSpace(coord);
 
-		Chunk* chunk = m_Map.Select(CHUNK_UUID(coord));
+		Chunk* chunk = m_Map.Select(coord.ToID());
 		if (chunk && chunk->GetLoadStatus() == Chunk::LoadStatus::Loaded)
 		{
 			Block oldBlock = chunk->GetBlock(blockPosition);
