@@ -1,19 +1,19 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
-// 1. #include <Entropy.h>                                                                   //
-// 2. Create a sub class that inherits from Entropy::Application                             //
-// 3. Call Entropy::CreateApplication() returns your class instance                          //
+// 1. #include <Quark.h>                                                                     //
+// 2. Create a sub class that inherits from Quark::Application                               //
+// 3. Call Quark::CreateApplication() returns your class instance                            //
 // 4. Implement OnUpdate() and OnCreate() pure virtual methods                               //
 // You're set!                                                                               //
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-#include <Entropy.h>
+#include <Quark.h>
 
 class SandboxGame : public Quark::Application
 {
 public:
 	void OnCreate() override
 	{
-		//QK_TIME_SCOPE_DEBUG(SandboxApp::OnCreate);
+		QK_TIME_SCOPE_DEBUG(SandboxApp::OnCreate);
 
 		auto& window = GetWindow();
 		Quark::BufferLayout layout = {
@@ -24,13 +24,13 @@ public:
 
 		{
 			m_CameraEntity.AddComponent<Quark::Transform3DComponent>().Position = { 0.0f, 0.0f, 0.0f };
-			m_CameraEntity.AddComponent<Quark::PhysicsComponent>();
+			m_CameraEntity.AddComponent<Quark::PhysicsComponent>().Friction = 4.f;
 			m_CameraEntity.AddComponent<Quark::PerspectiveCameraComponent>((float)window.GetWidth() / (float)window.GetHeight(), 50.0f);
 		}
 
 		{
 			m_OrthoCameraEntity.AddComponent<Quark::Transform3DComponent>();
-			m_OrthoCameraEntity.AddComponent<Quark::PhysicsComponent>();
+			m_OrthoCameraEntity.AddComponent<Quark::PhysicsComponent>().Friction = 4.f;
 			m_OrthoCameraEntity.AddComponent<Quark::OrthographicCameraComponent>((float)window.GetWidth() / (float)window.GetHeight(), 8.0f);
 		}
 
@@ -84,7 +84,7 @@ public:
 
 		{
 			auto& position = m_LightEntity.GetComponent<Quark::Transform3DComponent>().Position;
-			static const float speed = 10.0f;
+			static constexpr float speed = 10.0f;
 			if (Quark::Input::IsKeyPressed(Quark::KeyCode::RightShift))
 			{
 				if (Quark::Input::IsKeyPressed(Quark::KeyCode::Up))
@@ -178,7 +178,7 @@ public:
 			shader->SetInt("u_Cubemap", 0);
 		}
 
-		m_ModelEntity.GetComponent<Quark::Transform3DComponent>().Rotate(elapsedTime * 8.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+		m_ModelEntity.GetComponent<Quark::Transform3DComponent>().Rotate(elapsedTime * glm::radians(8.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
 		{
 			m_SelectedShader->SetFloat("u_Material.metalness", 0.0f);
@@ -254,7 +254,7 @@ public:
 				for (int x = 0; x < scale; x++)
 				{	
 					trans.Position = { y - scale * 0.5f, x - scale * 0.5f, 0.0f };
-					//Entropy::Renderer::SubmitSprite({ x * 0.01f, y * 0.01f, 0.0f, 1.0f }, trans);
+					//Quark::Renderer::SubmitSprite({ x * 0.01f, y * 0.01f, 0.0f, 1.0f }, trans);
 					Quark::Renderer::SubmitSprite(m_Cobblestone, trans);
 				}
 			}
@@ -280,8 +280,6 @@ public:
 
 	void OnEvent(Quark::Event& e) override
 	{
-		//QK_TIME_SCOPE_DEBUG(SandboxApp::OnEvent);
-
 		Quark::EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<Quark::MouseButtonPressedEvent>(ATTACH_EVENT_FN(SandboxGame::OnMouseButtonPressed));
 		dispatcher.Dispatch<Quark::KeyPressedEvent>(ATTACH_EVENT_FN(SandboxGame::OnKeyPressed));

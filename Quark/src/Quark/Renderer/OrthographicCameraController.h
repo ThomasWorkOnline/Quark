@@ -48,7 +48,7 @@ namespace Quark {
 		/// <summary>
 		/// Members can be altered.
 		/// </summary>
-		float m_RollSensitivity = 32.0f;
+		float m_RollSensitivity = 1.0f;
 		float m_MovementSpeed = 12.0f;
 		float m_MouseSensitivity = 0.002f;
 		float m_MouseScrollSensitivity = 1.0f;

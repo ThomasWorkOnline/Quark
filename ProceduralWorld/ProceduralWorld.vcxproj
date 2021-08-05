@@ -60,7 +60,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Entropy\src;$(SolutionDir)Entropy\vendor\entt\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Quark\src;$(SolutionDir)Quark\vendor\entt\include;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -76,7 +76,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Entropy\src;$(SolutionDir)Entropy\vendor\entt\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Quark\src;$(SolutionDir)Quark\vendor\entt\include;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -91,6 +91,9 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Entropy\Entropy.vcxproj">
+      <Project>{287f7095-d792-4da0-8a69-855cf2e81033}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Quark\Quark.vcxproj">
       <Project>{287f7095-d792-4da0-8a69-855cf2e81033}</Project>
     </ProjectReference>
   </ItemGroup>

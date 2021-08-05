@@ -54,7 +54,7 @@ namespace Quark {
 		float Friction;
 
 		PhysicsComponent()
-			: Velocity(0.0f), Friction(4.0f) { }
+			: Velocity(0.0f), Friction(0.0f) { }
 
 		PhysicsComponent(glm::vec3 initVelocity, float coeffFriction)
 			: Velocity(initVelocity), Friction(coeffFriction) { }
