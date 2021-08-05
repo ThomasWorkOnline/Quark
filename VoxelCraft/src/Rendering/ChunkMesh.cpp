@@ -25,7 +25,7 @@ namespace VoxelCraft {
 				{
 					Block block = chunk->GetBlock(position);
 
-					if (block == Block::ID::Air)
+					if (block == BlockID::Air)
 						continue;
 
 					CreateBlockMesh(block, position, chunk, neighbors);

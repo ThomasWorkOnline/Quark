@@ -2,7 +2,7 @@
 
 namespace VoxelCraft {
 
-	std::unordered_map<Block::ID, BlockProperties> Resources::s_BlockProperties;
+	std::unordered_map<BlockID, BlockProperties> Resources::s_BlockProperties;
 	std::unordered_map<BlockModel, MeshProperties> Resources::s_MeshProperties;
 	std::unordered_map<BlockModel, HitBox> Resources::s_BlockHitboxes;
 	std::unordered_map<EntityModel, HitBox> Resources::s_EntityHitboxes;
@@ -178,15 +178,15 @@ namespace VoxelCraft {
 		};
 
 		s_BlockProperties = {
-			{ Block::ID::Air,			BlockProperties::Air() },
-			{ Block::ID::Bedrock,		BlockProperties::CreateBlock({ s_Texture, { 0, 0 }, SubTextureSize }, false, "assets/sounds/break_stone.mp3") },
-			{ Block::ID::Dirt,			BlockProperties::CreateBlock({ s_Texture, { 1, 0 }, SubTextureSize }, false, "assets/sounds/break_dirt.mp3") },
-			{ Block::ID::GrassBlock,	BlockProperties::CreateBlock({ s_Texture, { 2, 0 }, SubTextureSize }, { s_Texture, { 1, 0 }, SubTextureSize }, { s_Texture, { 2, 1 }, SubTextureSize }, false, "assets/sounds/break_grass.mp3") },
-			{ Block::ID::Stone,			BlockProperties::CreateBlock({ s_Texture, { 0, 1 }, SubTextureSize }, false, "assets/sounds/break_stone.mp3") },
-			{ Block::ID::Cobblestone,	BlockProperties::CreateBlock({ s_Texture, { 1, 1 }, SubTextureSize }, false, "assets/sounds/break_stone.mp3") },
+			{ BlockID::Air,				BlockProperties::Air() },
+			{ BlockID::Bedrock,			BlockProperties::CreateBlock({ s_Texture, { 0, 0 }, SubTextureSize }, false, "assets/sounds/break_stone.mp3") },
+			{ BlockID::Dirt,			BlockProperties::CreateBlock({ s_Texture, { 1, 0 }, SubTextureSize }, false, "assets/sounds/break_dirt.mp3") },
+			{ BlockID::GrassBlock,		BlockProperties::CreateBlock({ s_Texture, { 2, 0 }, SubTextureSize }, { s_Texture, { 1, 0 }, SubTextureSize }, { s_Texture, { 2, 1 }, SubTextureSize }, false, "assets/sounds/break_grass.mp3") },
+			{ BlockID::Stone,			BlockProperties::CreateBlock({ s_Texture, { 0, 1 }, SubTextureSize }, false, "assets/sounds/break_stone.mp3") },
+			{ BlockID::Cobblestone,		BlockProperties::CreateBlock({ s_Texture, { 1, 1 }, SubTextureSize }, false, "assets/sounds/break_stone.mp3") },
 
-			{ Block::ID::Poppy,			BlockProperties::CreateSprite({ s_Texture, { 0, 2 }, SubTextureSize }, "assets/sounds/break_grass.mp3") },
-			{ Block::ID::Grass,			BlockProperties::CreateSprite({ s_Texture, { 1, 2 }, SubTextureSize }, "assets/sounds/break_grass.mp3") }
+			{ BlockID::Poppy,			BlockProperties::CreateSprite({ s_Texture, { 0, 2 }, SubTextureSize }, "assets/sounds/break_grass.mp3") },
+			{ BlockID::Grass,			BlockProperties::CreateSprite({ s_Texture, { 1, 2 }, SubTextureSize }, "assets/sounds/break_grass.mp3") }
 		};
 
 		s_CrosshairVertexArray = Quark::VertexArray::Create();

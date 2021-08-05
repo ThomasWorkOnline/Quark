@@ -18,7 +18,7 @@ namespace VoxelCraft {
 
 		static const BlockProperties& GetBlockProperties(Block type)
 		{
-			auto it = s_BlockProperties.find(type.GetId());
+			auto it = s_BlockProperties.find(type.ID);
 			if (it != s_BlockProperties.end())
 			{
 				return it->second;
@@ -84,7 +84,7 @@ namespace VoxelCraft {
 		static constexpr glm::ivec2 SubTextureSize = { 16, 16 };
 
 		// TODO: load from json
-		static std::unordered_map<Block::ID, BlockProperties> s_BlockProperties;
+		static std::unordered_map<BlockID, BlockProperties> s_BlockProperties;
 		static std::unordered_map<BlockModel, MeshProperties> s_MeshProperties;
 		static std::unordered_map<BlockModel, HitBox> s_BlockHitboxes;
 		static std::unordered_map<EntityModel, HitBox> s_EntityHitboxes;

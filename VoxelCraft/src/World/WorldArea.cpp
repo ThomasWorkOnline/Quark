@@ -10,7 +10,7 @@ namespace VoxelCraft {
 
 	bool WorldArea::InBounds(ChunkIdentifier id) const
 	{
-		const auto& coord = CHUNK_COORD(id);
+		const auto& coord = id.Coord;
 		return (coord.x >= m_AccessibleBounds.First.x && coord.x <= m_AccessibleBounds.Second.x &&
 			coord.y >= m_AccessibleBounds.First.y && coord.y <= m_AccessibleBounds.Second.y);
 	}

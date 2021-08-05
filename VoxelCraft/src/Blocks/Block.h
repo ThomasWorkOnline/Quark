@@ -20,36 +20,29 @@ namespace VoxelCraft {
 
 	struct BlockProperties;
 
-	class Block
+	enum BlockID : uint8_t
 	{
-	public:
-		enum class ID : uint8_t
-		{
-			Air = 0,
-			Bedrock,
-			Dirt,
-			GrassBlock,
-			Stone,
-			Cobblestone,
-			Poppy,
-			Grass
-		};
+		Air = 0,
+		Bedrock,
+		Dirt,
+		GrassBlock,
+		Stone,
+		Cobblestone,
+		Poppy,
+		Grass
+	};
+
+	struct Block
+	{
+		BlockID ID;
 
 		Block() = default;
-		Block(ID id)
-			: m_Id(id) {}
+		Block(BlockID id)
+			: ID(id) {}
 
 		const BlockProperties& GetProperties() const;
 
-		bool operator==(ID id) const { return m_Id == id; }
-		bool operator!=(ID id) const { return m_Id != id; }
-
-		bool operator==(Block other) const { return m_Id == other.m_Id; }
-		bool operator!=(Block other) const { return m_Id != other.m_Id; }
-
-		ID GetId() const { return m_Id; }
-
-	private:
-		ID m_Id;
+		bool operator==(Block other) const { return ID == other.ID; }
+		bool operator!=(Block other) const { return ID != other.ID; }
 	};
 }

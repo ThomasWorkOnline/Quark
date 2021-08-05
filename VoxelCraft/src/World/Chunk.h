@@ -9,9 +9,11 @@
 #include "../Rendering/ChunkMesh.h"
 #include "../Rendering/Vertex.h"
 
-namespace VoxelCraft {
+// TODO: when creating sub-chunks, sum-up or bitwise or all sub-chunks block id;
+// if the resulting number is 0, sub-chunk is filled with air. No need to generate mesh.
+// This should speed up the world gen for normal terrain generations.
 
-#define CHUNK_COORD(id) *reinterpret_cast<const ChunkCoord*>(&id)
+namespace VoxelCraft {
 
 	struct ChunkSpecification
 	{

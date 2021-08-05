@@ -28,6 +28,6 @@ namespace VoxelCraft {
 
 	const BlockProperties& Block::GetProperties() const
 	{
-		return Resources::GetBlockProperties(m_Id);
+		return Resources::GetBlockProperties(ID);
 	}
 }

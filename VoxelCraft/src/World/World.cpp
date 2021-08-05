@@ -138,18 +138,18 @@ namespace VoxelCraft {
 			switch (e.GetMouseButton())
 			{
 			case Quark::MouseCode::ButtonLeft:
-				if (collision.Block != Block::ID::Air)
+				if (collision.Block != BlockID::Air)
 				{
-					ReplaceBlock(collision.Impact, Block::ID::Air);
+					ReplaceBlock(collision.Impact, BlockID::Air);
 				}
 				break;
 			case Quark::MouseCode::ButtonRight:
-				if (collision.Block != Block::ID::Air)
+				if (collision.Block != BlockID::Air)
 				{
 					auto pos = collision.Impact + (Position3D)GetFaceNormal(collision.Side);
-					if (GetBlock(pos) == Block::ID::Air)
+					if (GetBlock(pos) == BlockID::Air)
 					{
-						ReplaceBlock(pos, Block::ID::Cobblestone);
+						ReplaceBlock(pos, BlockID::Cobblestone);
 					}
 				}
 				break;
@@ -168,7 +168,7 @@ namespace VoxelCraft {
 		{
 			glm::ivec3 position = glm::floor(start + normDir * i);
 			Block block = GetBlock(position);
-			if (block != Block::ID::Air)
+			if (block != BlockID::Air)
 			{
 				CollisionData data;
 				data.Block = block;
@@ -189,7 +189,7 @@ namespace VoxelCraft {
 		const Chunk* chunk = m_Map.Select(ChunkIdentifier(coord));
 		if (chunk && chunk->GetLoadStatus() >= Chunk::LoadStatus::WorldGenerated)
 			return chunk->GetBlock(blockPosition);
-		return Block::ID::Air;
+		return BlockID::Air;
 	}
 
 	void World::ReplaceBlock(const IntPosition3D& position, Block type)
@@ -205,7 +205,7 @@ namespace VoxelCraft {
 			{
 				if (chunk->ReplaceBlock(blockPosition, type))
 				{
-					if (oldBlock == Block::ID::Air)
+					if (oldBlock == BlockID::Air)
 					{
 						auto& blockProperties = type.GetProperties();
 						Quark::AudioEngine::PlaySound(blockProperties.BreakSound);

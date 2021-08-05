@@ -1,12 +1,17 @@
 #include "Chunk.h"
 
 #include <fstream>
+#include <random>
 
 #include "World.h"
 #include "../Game/Resources.h"
 #include "../Rendering/ChunkMesh.h"
 
 namespace VoxelCraft {
+
+	static BlockID s_CombinedTypes = BlockID::Air;
+
+	static std::mt19937 s_Random;
 
 	static uint32_t IndexAtPosition(const IntPosition3D& position)
 	{
@@ -75,6 +80,9 @@ namespace VoxelCraft {
 		// Generate blocks
 		m_Blocks = new Block[ChunkSpecification::BlockCount];
 
+		auto wsPosition = IntPosition2D(m_Id.Coord).ToWorldSpace(m_Id.Coord);
+		s_Random.seed(wsPosition.x | wsPosition.y);
+
 		IntPosition3D position;
 		for (position.y = 0; position.y < ChunkSpecification::Height; position.y++)
 		{
@@ -111,7 +119,7 @@ namespace VoxelCraft {
 		static constexpr uint32_t grassBlockHeight = 64;
 		static constexpr uint32_t grassHeight = 65;
 
-		float noise = rand() / static_cast<float>(RAND_MAX);
+		double noise = s_Random() / static_cast<double>(std::numeric_limits<unsigned int>::max());
 
 		uint32_t index = position.z * ChunkSpecification::Depth + position.x;
 		int32_t heightSample = m_HeightMap[index];
@@ -124,17 +132,20 @@ namespace VoxelCraft {
 
 		Block type;
 		if (position.y < genBedrock)
-			type = Block::ID::Bedrock;
+			type = BlockID::Bedrock;
 		else if (position.y >= genBedrock && position.y < genStone)
-			type = Block::ID::Stone;
+			type = BlockID::Stone;
 		else if (position.y >= genStone && position.y < genDirt)
-			type = Block::ID::Dirt;
+			type = BlockID::Dirt;
 		else if (position.y >= genDirt && position.y < genGrassBlock)
-			type = Block::ID::GrassBlock;
+			type = BlockID::GrassBlock;
 		else if (position.y >= genGrassBlock && position.y < genGrass)
-			type = noise < 0.01f ? Block::ID::Poppy : noise > 0.9f ? Block::ID::Grass : Block::ID::Air;
+			type = noise < 0.01f ? BlockID::Poppy : noise > 0.9f ? BlockID::Grass : BlockID::Air;
 		else
-			type = Block::ID::Air;
+			type = BlockID::Air;
+
+		// Append type
+		s_CombinedTypes = (BlockID)(s_CombinedTypes | type.ID);
 
 		return type;
 	}
@@ -146,7 +157,7 @@ namespace VoxelCraft {
 			uint32_t index = IndexAtPosition(position);
 			return m_Blocks[index];
 		}
-		return Block::ID::Air;
+		return BlockID::Air;
 	}
 
 	bool Chunk::ReplaceBlock(const IntPosition3D& position, Block type)
