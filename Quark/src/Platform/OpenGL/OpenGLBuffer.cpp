@@ -11,7 +11,7 @@ namespace Quark {
         glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
     }
 
-    OpenGLVertexBuffer::OpenGLVertexBuffer(float* vertices, size_t size)
+    OpenGLVertexBuffer::OpenGLVertexBuffer(const void* vertices, size_t size)
     {
         glGenBuffers(1, &m_RendererID);
         glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);

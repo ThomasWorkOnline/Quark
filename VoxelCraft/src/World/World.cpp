@@ -44,8 +44,12 @@ namespace VoxelCraft {
 		m_Map.OnUpdate(elapsedTime);
 		m_Loader->OnUpdate(elapsedTime);
 
-		Quark::Renderer::BeginScene(m_Player.GetComponent<Quark::PerspectiveCameraComponent>().Camera.GetMatrix(),
-			m_Player.GetCameraTransform());
+		// Rendering
+		Quark::Renderer::BeginScene(m_Player.GetComponent<Quark::PerspectiveCameraComponent>().Camera.GetProjection(), m_Player.GetCameraTransformNoPosition());
+		
+		static const auto& shader = Resources::GetShader("default");
+		shader->Attach();
+		shader->SetDouble3("u_Position", -m_Player.GetHeadPosition());
 
 		m_Map.Foreach([](const Chunk* data)
 			{
@@ -85,7 +89,7 @@ namespace VoxelCraft {
 	bool World::IsPlayerTouchingGround(const Player& player) const
 	{
 		static constexpr float detectionTreshold = 0.01f;
-		const glm::ivec3 blockUnderFeetPos = glm::floor(player.GetPosition() - glm::vec3(0.0f, detectionTreshold, 0.0f));
+		const glm::ivec3 blockUnderFeetPos = glm::floor(player.GetPosition() - Position3D(0.0f, detectionTreshold, 0.0f));
 		auto& props = GetBlock(blockUnderFeetPos).GetProperties();
 
 		return props.CollisionEnabled;
@@ -134,7 +138,7 @@ namespace VoxelCraft {
 			case Quark::MouseCode::ButtonRight:
 				if (collision.Block != Block::ID::Air)
 				{
-					auto pos = collision.Impact + (glm::vec3)GetFaceNormal(collision.Side);
+					auto pos = collision.Impact + GetFaceNormal(collision.Side);
 					if (GetBlock(pos) == Block::ID::Air)
 					{
 						ReplaceBlock(pos, Block::ID::Cobblestone);
@@ -148,11 +152,11 @@ namespace VoxelCraft {
 	}
 
 	// TODO: implement a proper raycast
-	std::optional<CollisionData> World::RayCast(const glm::vec3& start, const glm::vec3& direction, float length) const
+	std::optional<CollisionData> World::RayCast(const Position3D& start, const glm::vec3& direction, float length) const
 	{
-		glm::vec3 normDir = glm::normalize(direction);
+		glm::dvec3 normDir = glm::normalize(direction);
 
-		for (float i = 0; i < length; i += 0.01f)
+		for (double i = 0; i < length; i += 0.01)
 		{
 			glm::ivec3 position = glm::floor(start + normDir * i);
 			Block block = GetBlock(position);

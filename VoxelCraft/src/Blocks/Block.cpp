@@ -4,7 +4,7 @@
 
 namespace VoxelCraft {
 
-	glm::vec3 GetFaceNormal(BlockFace facing)
+	Position3D GetFaceNormal(BlockFace facing)
 	{
 		switch (facing)
 		{

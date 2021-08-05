@@ -39,7 +39,7 @@ namespace VoxelCraft {
 		bool OnMouseButtonPressed(Quark::MouseButtonPressedEvent& e);
 
 		// Utilities
-		std::optional<CollisionData> RayCast(const glm::vec3& start, const glm::vec3& direction, float length) const;
+		std::optional<CollisionData> RayCast(const Position3D& start, const glm::vec3& direction, float length) const;
 		void ReplaceBlock(const Position3D& position, Block type);
 		void ProcessPlayerCollision();
 

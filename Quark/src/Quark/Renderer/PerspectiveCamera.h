@@ -9,7 +9,7 @@ namespace Quark {
 	public:
 		PerspectiveCamera(float aspectRatio, float fov);
 
-		const glm::mat4& GetMatrix() const { return m_Projection; }
+		const glm::mat4& GetProjection() const { return m_Projection; }
 
 		float GetFov() const { return m_Fov; }
 		void SetFov(float fov) { m_Fov = fov; m_RequiresUpdate = true; }

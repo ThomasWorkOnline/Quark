@@ -3,6 +3,7 @@
 #include <Quark.h>
 
 #include "../Blocks/Block.h"
+#include "../Utils/Position.h"
 
 namespace VoxelCraft {
 
@@ -13,14 +14,14 @@ namespace VoxelCraft {
 
 	struct CollisionData
 	{
-		glm::vec3 Impact;
+		Position3D Impact;
 		BlockFace Side;
 		Block Block;
 	};
 
 	struct Ray
 	{
-		glm::vec3 Origin;
+		Position3D Origin;
 		glm::vec3 Direction;
 	};
 }

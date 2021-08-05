@@ -177,7 +177,7 @@ namespace Quark {
 	void Renderer::BeginScene(const glm::mat4& cameraProjection, const Transform3DComponent& cameraTransform)
 	{
 		glm::mat4 rotate = glm::toMat4(cameraTransform.Orientation);
-		glm::mat4 view = glm::translate(rotate, -cameraTransform.Position);
+		glm::mat4 view = glm::translate(rotate, (glm::vec3)-cameraTransform.Position);
 		
 		BeginScene(cameraProjection, view);
 	}

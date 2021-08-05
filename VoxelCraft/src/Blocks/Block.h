@@ -2,6 +2,8 @@
 
 #include <Quark.h>
 
+#include "../Utils/Position.h"
+
 namespace VoxelCraft {
 
 	enum class BlockFace
@@ -14,7 +16,7 @@ namespace VoxelCraft {
 		Bottom
 	};
 
-	glm::vec3 GetFaceNormal(BlockFace facing);
+	Position3D GetFaceNormal(BlockFace facing);
 
 	struct BlockProperties;
 

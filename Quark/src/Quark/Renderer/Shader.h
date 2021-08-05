@@ -22,6 +22,10 @@ namespace Quark {
 		virtual void SetFloat2(const std::string& name, const glm::vec2& value) = 0;
 		virtual void SetFloat3(const std::string& name, const glm::vec3& value) = 0;
 		virtual void SetFloat4(const std::string& name, const glm::vec4& value) = 0;
+		virtual void SetDouble(const std::string& name, double value) = 0;
+		virtual void SetDouble2(const std::string& name, const glm::dvec2& value) = 0;
+		virtual void SetDouble3(const std::string& name, const glm::dvec3& value) = 0;
+		virtual void SetDouble4(const std::string& name, const glm::dvec4& value) = 0;
 		virtual void SetFloatArray(const std::string& name, float* values, uint32_t count) = 0;
 		virtual void SetMat4(const std::string& name, const glm::mat4& value) = 0;
 

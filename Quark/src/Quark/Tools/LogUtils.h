@@ -22,6 +22,25 @@ inline std::ostream& operator<<(std::ostream& os, const glm::vec4& vec)
 }
 
 
+inline std::ostream& operator<<(std::ostream& os, const glm::dvec2& vec)
+{
+	os << std::fixed;
+	return os << "[ x:" << vec.x << ", y:" << vec.y << " ]";
+}
+
+inline std::ostream& operator<<(std::ostream& os, const glm::dvec3& vec)
+{
+	os << std::fixed;
+	return os << "[ x:" << vec.x << ", y:" << vec.y << ", z:" << vec.z << " ]";
+}
+
+inline std::ostream& operator<<(std::ostream& os, const glm::dvec4& vec)
+{
+	os << std::fixed;
+	return os << "[ x:" << vec.x << ", y:" << vec.y << ", z:" << vec.z << ", w:" << vec.w << " ]";
+}
+
+
 inline std::ostream& operator<<(std::ostream& os, const glm::ivec2& vec)
 {
 	os << std::fixed;

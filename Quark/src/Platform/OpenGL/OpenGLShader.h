@@ -25,6 +25,11 @@ namespace Quark {
 		virtual void SetFloat4(const std::string& name, const glm::vec4& value) override;
 		virtual void SetFloatArray(const std::string& name, float* values, uint32_t count) override;
 
+		virtual void SetDouble(const std::string& name, double value) override;
+		virtual void SetDouble2(const std::string& name, const glm::dvec2& value) override;
+		virtual void SetDouble3(const std::string& name, const glm::dvec3& value) override;
+		virtual void SetDouble4(const std::string& name, const glm::dvec4& value) override;
+
 		virtual void SetMat4(const std::string& name, const glm::mat4& value) override;
 
 		virtual bool operator==(const Resource& other) const override
@@ -40,6 +45,11 @@ namespace Quark {
 		void UploadUniformFloat3(const std::string& name, const glm::vec3& value);
 		void UploadUniformFloat4(const std::string& name, const glm::vec4& value);
 		void UploadUniformFloatArray(const std::string& name, float* values, uint32_t count);
+
+		void UploadUniformDouble(const std::string& name, double value);
+		void UploadUniformDouble2(const std::string& name, const glm::dvec2& value);
+		void UploadUniformDouble3(const std::string& name, const glm::dvec3& value);
+		void UploadUniformDouble4(const std::string& name, const glm::dvec4& value);
 
 		void UploadUniformMat3(const std::string& name, const glm::mat3& matrix);
 		void UploadUniformMat4(const std::string& name, const glm::mat4& matrix);

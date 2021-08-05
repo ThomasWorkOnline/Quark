@@ -7,7 +7,7 @@
 
 namespace Quark {
 
-    Ref<VertexBuffer> VertexBuffer::Create(float* vertices, size_t size)
+    Ref<VertexBuffer> VertexBuffer::Create(const void* vertices, size_t size)
     {
         switch(RenderingAPI::GetAPI())
         {

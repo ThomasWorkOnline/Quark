@@ -18,12 +18,15 @@ namespace VoxelCraft {
 		m_SceneHandle.DeleteEntity(*this);
 	}
 
-	Quark::Transform3DComponent Player::GetCameraTransform() const
+	Quark::Transform3DComponent Player::GetCameraTransformNoPosition() const
 	{
-		// TODO: improve
-		auto transform = GetComponent<Quark::Transform3DComponent>(); // Copy transform
-		transform.Position += m_Settings.HeadRelativeToFeet;
-		return transform;
+		const auto& transform = GetComponent<Quark::Transform3DComponent>();
+
+		return {
+			{ 0.f, 0.f, 0.f },
+			transform.Scale,
+			transform.Orientation
+		};
 	}
 
 	const HitBox& Player::GetHitbox() const

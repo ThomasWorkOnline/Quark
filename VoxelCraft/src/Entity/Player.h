@@ -11,8 +11,8 @@ namespace VoxelCraft {
 	struct PlayerSettings
 	{
 		float Fov = 70;
-		glm::vec3 HeadRelativeToFeet = { 0.0f, 1.75f, 0.0f };
-		Position3D SpawnPoint = { 0.5f, 80.0f, 0.5f };
+		glm::dvec3 HeadRelativeToFeet = { 0.0f, 1.75f, 0.0f };
+		Position3D SpawnPoint = { 0.5, 80.0, 0.5 + 16000000.0 };
 		uint32_t RenderDistance = 8;
 		float FlyingMovementSpeed = 50.0f;
 		float BoostFlyingMovementSpeed = 120.0f;
@@ -33,7 +33,7 @@ namespace VoxelCraft {
 		const Position3D& GetPosition() const { return GetComponent<Quark::Transform3DComponent>().Position; }
 		Position3D GetHeadPosition() { return GetPosition() + m_Settings.HeadRelativeToFeet; }
 
-		Quark::Transform3DComponent GetCameraTransform() const;
+		Quark::Transform3DComponent GetCameraTransformNoPosition() const;
 
 		const HitBox& GetHitbox() const;
 

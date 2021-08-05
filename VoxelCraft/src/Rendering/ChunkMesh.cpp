@@ -38,7 +38,7 @@ namespace VoxelCraft {
 	{
 		m_VertexArray = Quark::VertexArray::Create();
 
-		auto vbo = Quark::VertexBuffer::Create((float*)m_Vertices.data(), m_Vertices.size() * sizeof(Vertex));
+		auto vbo = Quark::VertexBuffer::Create(m_Vertices.data(), m_Vertices.size() * sizeof(Vertex));
 		vbo->SetLayout(Resources::GetBufferLayout());
 		m_VertexArray->AddVertexBuffer(vbo);
 
@@ -70,16 +70,15 @@ namespace VoxelCraft {
 
 	void ChunkMesh::CreateBlockFaceMesh(const Position3D& position, const BlockProperties& props, BlockFace face)
 	{
-		static auto& meshProperties = Resources::GetMeshProperties(BlockModel::Block);
+		static const auto& meshProperties = Resources::GetMeshProperties(BlockModel::Block);
 
 		for (uint8_t i = 0; i < 4; i++)
 		{
-			Vertex v = {
-				meshProperties.VertexPositions[i + static_cast<uint8_t>(face) * 4] + position,
+			m_Vertices.emplace_back(
+				meshProperties.VertexPositions[i + static_cast<uint8_t>(face) * 4] + position, // Integer
 				props.Faces[static_cast<uint8_t>(face)].GetCoords()[i],
 				(static_cast<uint8_t>(face) + 1) / 6.0f
-			};
-			m_Vertices.push_back(v);
+			);
 		}
 
 		m_Indices.push_back(0 + m_VertexCount);
@@ -94,18 +93,17 @@ namespace VoxelCraft {
 
 	void ChunkMesh::CreateCrossSpriteMesh(const Position3D& position, const BlockProperties& props)
 	{
-		static auto& meshProperties = Resources::GetMeshProperties(BlockModel::CrossSprite);
+		static const auto& meshProperties = Resources::GetMeshProperties(BlockModel::CrossSprite);
 
 		for (uint8_t x = 0; x < 4; x++)
 		{
 			for (uint8_t i = 0; i < 4; i++)
 			{
-				Vertex v = {
-					meshProperties.VertexPositions[x * 4 + i] + position,
+				m_Vertices.emplace_back(
+					meshProperties.VertexPositions[x * 4 + i] + position, // Integer
 					props.Faces[0].GetCoords()[i],
 					1.0f
-				};
-				m_Vertices.push_back(v);
+				);
 			}
 
 			m_Indices.push_back(0 + m_VertexCount);

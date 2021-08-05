@@ -11,17 +11,21 @@ namespace Quark {
 	{
 		switch (type)
 		{
-		case ShaderDataType::Float:    return GL_FLOAT;
-		case ShaderDataType::Float2:   return GL_FLOAT;
-		case ShaderDataType::Float3:   return GL_FLOAT;
-		case ShaderDataType::Float4:   return GL_FLOAT;
-		case ShaderDataType::Mat3:     return GL_FLOAT;
-		case ShaderDataType::Mat4:     return GL_FLOAT;
-		case ShaderDataType::Int:      return GL_INT;
-		case ShaderDataType::Int2:     return GL_INT;
-		case ShaderDataType::Int3:     return GL_INT;
-		case ShaderDataType::Int4:     return GL_INT;
-		case ShaderDataType::Bool:     return GL_BOOL;
+		case ShaderDataType::Float:		return GL_FLOAT;
+		case ShaderDataType::Float2:	return GL_FLOAT;
+		case ShaderDataType::Float3:	return GL_FLOAT;
+		case ShaderDataType::Float4:	return GL_FLOAT;
+		case ShaderDataType::Double:	return GL_DOUBLE;
+		case ShaderDataType::Double2:	return GL_DOUBLE;
+		case ShaderDataType::Double3:	return GL_DOUBLE;
+		case ShaderDataType::Double4:	return GL_DOUBLE;
+		case ShaderDataType::Mat3:		return GL_FLOAT;
+		case ShaderDataType::Mat4:		return GL_FLOAT;
+		case ShaderDataType::Int:		return GL_INT;
+		case ShaderDataType::Int2:		return GL_INT;
+		case ShaderDataType::Int3:		return GL_INT;
+		case ShaderDataType::Int4:		return GL_INT;
+		case ShaderDataType::Bool:		return GL_BOOL;
 		}
 
 		QK_FATAL("Unknown ShaderDataType");
@@ -66,6 +70,10 @@ namespace Quark {
 			case ShaderDataType::Float2:
 			case ShaderDataType::Float3:
 			case ShaderDataType::Float4:
+			case ShaderDataType::Double:
+			case ShaderDataType::Double2:
+			case ShaderDataType::Double3:
+			case ShaderDataType::Double4:
 			{
 				glEnableVertexAttribArray(m_VertexBufferIndex);
 				glVertexAttribPointer(m_VertexBufferIndex,

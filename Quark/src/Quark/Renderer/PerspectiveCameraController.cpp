@@ -13,7 +13,7 @@
 
 namespace Quark {
 
-	static float s_ZoomSpeed = 0.0f;
+	static double s_ZoomSpeed = 0.0f;
 
 	PerspectiveCameraController::PerspectiveCameraController(Entity& camera)
 		: m_CameraEntity(camera) { }
@@ -27,8 +27,8 @@ namespace Quark {
 			auto& camera = m_CameraEntity.GetComponent<PerspectiveCameraComponent>().Camera;
 
 			// Movement
-			static const float defaultMovementSpeed = m_MovementSpeed;
-			static const float defaultRollSensitivity = m_RollSensitivity;
+			static const double defaultMovementSpeed = m_MovementSpeed;
+			static const double defaultRollSensitivity = m_RollSensitivity;
 
 			// Boost key
 			if (Input::IsKeyPressed(Key::LeftControl))
@@ -45,32 +45,32 @@ namespace Quark {
 			// Controls
 			if (Input::IsKeyPressed(Key::W))
 			{
-				physics.Velocity += transform.GetFrontVector() * elapsedTime * m_MovementSpeed;
+				physics.Velocity += transform.GetFrontVector() * (double)elapsedTime * m_MovementSpeed;
 			}
 
 			if (Input::IsKeyPressed(Key::S))
 			{
-				physics.Velocity -= transform.GetFrontVector() * elapsedTime * m_MovementSpeed;
+				physics.Velocity -= transform.GetFrontVector() * (double)elapsedTime * m_MovementSpeed;
 			}
 
 			if (Input::IsKeyPressed(Key::D))
 			{
-				physics.Velocity += transform.GetRightVector() * elapsedTime * m_MovementSpeed;
+				physics.Velocity += transform.GetRightVector() * (double)elapsedTime * m_MovementSpeed;
 			}
 
 			if (Input::IsKeyPressed(Key::A))
 			{
-				physics.Velocity -= transform.GetRightVector() * elapsedTime * m_MovementSpeed;
+				physics.Velocity -= transform.GetRightVector() * (double)elapsedTime * m_MovementSpeed;
 			}
 
 			if (Input::IsKeyPressed(Key::Space))
 			{
-				physics.Velocity += transform.GetTopVector() * elapsedTime * m_MovementSpeed;
+				physics.Velocity += transform.GetTopVector() * (double)elapsedTime * m_MovementSpeed;
 			}
 
 			if (Input::IsKeyPressed(Key::LeftShift))
 			{
-				physics.Velocity -= transform.GetTopVector() * elapsedTime * m_MovementSpeed;
+				physics.Velocity -= transform.GetTopVector() * (double)elapsedTime * m_MovementSpeed;
 			}
 
 			if (Input::IsKeyPressed(Key::Q))
@@ -151,9 +151,9 @@ namespace Quark {
 				auto& transform = m_CameraEntity.GetComponent<Transform3DComponent>();
 				auto& camera = m_CameraEntity.GetComponent<PerspectiveCameraComponent>().Camera;
 
-				glm::vec2 mouseMove = { e.GetX() - lastMousePos.x, e.GetY() - lastMousePos.y };
-				glm::quat qYaw = glm::angleAxis(-mouseMove.x * m_MouseSensitivity * camera.GetFov() / 90.0f, glm::vec3(0.0f, 1.0f, 0.0f) * transform.Orientation);
-				glm::quat qPitch = glm::angleAxis(-mouseMove.y * m_MouseSensitivity * camera.GetFov() / 90.0f, glm::vec3(1.0f, 0.0f, 0.0f) * transform.Orientation);
+				glm::dvec2 mouseMove = { e.GetX() - lastMousePos.x, e.GetY() - lastMousePos.y };
+				glm::dquat qYaw = glm::angleAxis(-mouseMove.x * m_MouseSensitivity * camera.GetFov() / 90.0f, glm::dvec3(0.0f, 1.0f, 0.0f) * transform.Orientation);
+				glm::dquat qPitch = glm::angleAxis(-mouseMove.y * m_MouseSensitivity * camera.GetFov() / 90.0f, glm::dvec3(1.0f, 0.0f, 0.0f) * transform.Orientation);
 
 				transform.Rotate(qPitch * qYaw);
 			}

@@ -6,9 +6,9 @@ namespace VoxelCraft {
 
 	struct MeshProperties
 	{
-		const glm::vec3* VertexPositions;
+		const Position3D* VertexPositions;
 
-		static MeshProperties Create(const glm::vec3* vertexPositions)
+		static MeshProperties Create(const Position3D* vertexPositions)
 		{
 			return {
 				vertexPositions

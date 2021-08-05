@@ -4,9 +4,9 @@
 
 namespace VoxelCraft {
 
-	static constexpr float s_AirFriction = 1.0f;
-	static constexpr float s_PlayerAcceleration = 15.0f;
-	static constexpr float s_PlayerMidAirAcceleration = 6.0f;
+	static constexpr double s_AirFriction = 1.0f;
+	static constexpr double s_PlayerAcceleration = 15.0f;
+	static constexpr double s_PlayerMidAirAcceleration = 6.0f;
 
 	static constexpr Quark::Key s_SprintKey		= Quark::Key::LeftControl;
 	static constexpr Quark::Key s_SneakKey		= Quark::Key::LeftShift;
@@ -228,7 +228,7 @@ namespace VoxelCraft {
 				}
 
 				// Air friction
-				physics.Velocity -= physics.Velocity * s_AirFriction * elapsedTime;
+				physics.Velocity -= physics.Velocity * s_AirFriction * (double)elapsedTime;
 
 				// Gravity
 				if (gravity.Affected && !m_Player.IsTouchingGround())
