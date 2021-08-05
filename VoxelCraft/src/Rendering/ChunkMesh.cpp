@@ -36,10 +36,12 @@ namespace VoxelCraft {
 
 	void ChunkMesh::Upload()
 	{
+		static const auto& layout = Resources::GetBufferLayout();
+
 		m_VertexArray = Quark::VertexArray::Create();
 
 		auto vbo = Quark::VertexBuffer::Create(m_Vertices.data(), m_Vertices.size() * sizeof(Vertex));
-		vbo->SetLayout(Resources::GetBufferLayout());
+		vbo->SetLayout(layout);
 		m_VertexArray->AddVertexBuffer(vbo);
 
 		auto ibo = Quark::IndexBuffer::Create(m_Indices.data(), m_Indices.size());
@@ -75,7 +77,7 @@ namespace VoxelCraft {
 		for (uint8_t i = 0; i < 4; i++)
 		{
 			m_Vertices.emplace_back(
-				meshProperties.VertexPositions[i + static_cast<uint8_t>(face) * 4] + position,
+				meshProperties.VertexPositions[i + static_cast<uint8_t>(face) * 4] + (Position3D)position,
 				props.Faces[static_cast<uint8_t>(face)].GetCoords()[i],
 				(static_cast<uint8_t>(face) + 1) / 6.0f
 			);
@@ -100,7 +102,7 @@ namespace VoxelCraft {
 			for (uint8_t i = 0; i < 4; i++)
 			{
 				m_Vertices.emplace_back(
-					meshProperties.VertexPositions[x * 4 + i] + position,
+					meshProperties.VertexPositions[x * 4 + i] + (Position3D)position,
 					props.Faces[0].GetCoords()[i],
 					1.0f
 				);

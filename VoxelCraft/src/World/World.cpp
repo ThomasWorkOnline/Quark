@@ -87,6 +87,8 @@ namespace VoxelCraft {
 		{
 			flagPlayerGravity = true;
 		}
+
+		std::cout << m_Map.Count() << " chunks active\n";
 	}
 
 	void World::OnChunkModified(ChunkIdentifier id)

@@ -8,9 +8,9 @@ namespace VoxelCraft {
 
 	struct MeshProperties
 	{
-		const IntPosition3D* VertexPositions;
+		const Position3D* VertexPositions;
 
-		static MeshProperties Create(const IntPosition3D* vertexPositions)
+		static MeshProperties Create(const Position3D* vertexPositions)
 		{
 			return {
 				vertexPositions

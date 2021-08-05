@@ -3,10 +3,10 @@
 #include "Chunk.h"
 #include "WorldArea.h"
 
-#include <list>
 #include <mutex>
 #include <thread>
 #include <tuple>
+#include <set>
 
 namespace VoxelCraft {
 
@@ -57,8 +57,8 @@ namespace VoxelCraft {
 		World& m_World;
 		WorldArea m_LoadingArea;
 
-		std::list<ChunkIdentifier> m_LoadingQueue;
-		std::list<ChunkIdentifier> m_UnloadingQueue;
+		std::set<ChunkID> m_LoadingQueue;
+		std::set<ChunkID> m_UnloadingQueue;
 
 		ChunkLoaderStats m_Stats;
 

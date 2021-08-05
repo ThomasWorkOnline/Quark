@@ -23,10 +23,13 @@ namespace VoxelCraft {
 		bool InBounds(ChunkIdentifier id) const;
 
 		void Foreach(const std::function<void(ChunkIdentifier id)>& func) const;
+
+		/// <summary>
+		/// Must be invoked from the main thread.
+		/// </summary>
+		/// <param name="func">Function to call foreach chunk out of render borders</param>
 		void ForeachOutOfBounds(const std::function<void(ChunkIdentifier id)>& func) const;
 
-		// TODO: improve, on fast movements, some chunks may stay loaded
-		// if the player skips more than 1 chunk border in less than OnUpdate() timeframe
 		void Invalidate(const glm::ivec2& size, ChunkCoord anchor);
 
 	private:
@@ -38,7 +41,7 @@ namespace VoxelCraft {
 		WorldAreaBounds m_AccessibleBounds; // Size in chunks. Only accessible chunks
 		WorldAreaBounds m_InternalBounds; // +1 chunks on each side will be allocated
 
-		mutable std::list<ChunkIdentifier> m_ChunksOutOfBounds;
+		std::list<ChunkIdentifier> m_ChunksOutOfBounds;
 
 		WorldMap& m_WorldPartition;
 	};

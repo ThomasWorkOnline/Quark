@@ -35,7 +35,7 @@ namespace VoxelCraft {
 	};
 
 	PlayerController::PlayerController(Player& player)
-		: m_Player(player) {}
+		: m_Player(player), m_PlayerState(PlayerState::Flying) {}
 
 	void PlayerController::OnUpdate(float elapsedTime)
 	{

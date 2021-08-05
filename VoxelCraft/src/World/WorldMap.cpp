@@ -44,6 +44,12 @@ namespace VoxelCraft {
 		}
 	}
 
+	uint32_t WorldMap::Count() const
+	{
+		std::lock_guard<std::recursive_mutex> lock(m_ChunksLocationsMutex);
+		return m_ChunksLocations.size();
+	}
+
 	Chunk* WorldMap::Select(ChunkIdentifier id) const
 	{
 		std::lock_guard<std::recursive_mutex> lock(m_ChunksLocationsMutex);

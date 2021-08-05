@@ -58,6 +58,8 @@ namespace VoxelCraft {
 	{
 		QK_ASSERT(m_Blocks == nullptr, "Tried to allocate blocks more than once");
 
+		s_Random.seed(m_Id.Coord.x | m_Id.Coord.y);
+
 		// Generate height map
 		m_HeightMap = new int32_t[ChunkSpecification::Width * ChunkSpecification::Depth];
 
@@ -68,10 +70,12 @@ namespace VoxelCraft {
 			{
 				auto position = heightIndex.ToWorldSpace(m_Id.Coord);
 
+				double noise = s_Random() / static_cast<double>(std::numeric_limits<unsigned int>::max());
+
 				// Use deterministic algorithms for anything related to world gen
 				// We need to assure the constancy for terrain generation and world resources
 				double dValue = sin(position.x * 0.144 + position.y * 0.021) * 6.0;
-				int32_t value = static_cast<int32_t>(round(dValue));
+				int32_t value = static_cast<int32_t>(round(dValue + noise));
 				uint32_t index = heightIndex.y * ChunkSpecification::Depth + heightIndex.x;
 				m_HeightMap[index] = value;
 			}
@@ -79,9 +83,6 @@ namespace VoxelCraft {
 
 		// Generate blocks
 		m_Blocks = new Block[ChunkSpecification::BlockCount];
-
-		auto wsPosition = IntPosition2D(m_Id.Coord).ToWorldSpace(m_Id.Coord);
-		s_Random.seed(wsPosition.x | wsPosition.y);
 
 		IntPosition3D position;
 		for (position.y = 0; position.y < ChunkSpecification::Height; position.y++)

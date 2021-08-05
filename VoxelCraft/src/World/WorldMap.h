@@ -22,6 +22,8 @@ namespace VoxelCraft {
 		void Foreach(const std::function<void(ChunkIdentifier id)>& func) const;
 		void Foreach(const std::function<void(Chunk* data)>& func) const;
 
+		uint32_t Count() const;
+
 		Chunk* Select(ChunkIdentifier id) const;
 		Chunk* Load(ChunkIdentifier id);
 		void Unload(ChunkIdentifier id);

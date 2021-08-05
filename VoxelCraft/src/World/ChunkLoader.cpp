@@ -19,16 +19,12 @@ namespace VoxelCraft {
 	static std::recursive_mutex s_QueueMutex;
 	static bool s_Stopping = false;
 
-	static bool QueueContains(const std::list<ChunkIdentifier>& list, ChunkIdentifier id)
+	static bool QueueContains(const std::set<ChunkID>& set, ChunkIdentifier id)
 	{
 		std::lock_guard<std::recursive_mutex> lock(s_QueueMutex);
 
-		for (ChunkIdentifier _id : list)
-		{
-			if (_id == id)
-				return true;
-		}
-		return false;
+		auto it = set.find(id.ID);
+		return it != set.end();
 	}
 
 	ChunkLoader::ChunkLoader(World& world, ChunkCoord coord, uint32_t renderDistance)
@@ -91,12 +87,18 @@ namespace VoxelCraft {
 	{
 		std::lock_guard<std::recursive_mutex> lock(s_QueueMutex);
 
+		// If chunk is queued to be unloaded, cancel
+		if (QueueContains(m_UnloadingQueue, id))
+		{
+			m_UnloadingQueue.erase(id.ID);
+		}
+
 		if (m_LoadingQueue.size() < s_QueueLimit)
 		{
 			const Chunk* chunk = m_World.GetMap().Select(id);
-			if ((!chunk || chunk->GetLoadStatus() == Chunk::LoadStatus::Allocated || chunk->GetLoadStatus() == Chunk::LoadStatus::WorldGenerated) && !QueueContains(m_LoadingQueue, id))
+			if ((!chunk || chunk->GetLoadStatus() == Chunk::LoadStatus::Allocated || chunk->GetLoadStatus() == Chunk::LoadStatus::WorldGenerated))
 			{
-				m_LoadingQueue.push_back(id);
+				m_LoadingQueue.insert(id.ID);
 				s_ConditionVariable.notify_one();
 			}
 		}
@@ -106,9 +108,15 @@ namespace VoxelCraft {
 	{
 		std::lock_guard<std::recursive_mutex> lock(s_QueueMutex);
 
+		// If chunk is queued to be loaded, cancel
+		if (QueueContains(m_LoadingQueue, id))
+		{
+			m_LoadingQueue.erase(id.ID);
+		}
+
 		if (!QueueContains(m_UnloadingQueue, id))
 		{
-			m_UnloadingQueue.push_back(id);
+			m_UnloadingQueue.insert(id.ID);
 			s_ConditionVariable.notify_one();
 		}
 	}
@@ -131,8 +139,8 @@ namespace VoxelCraft {
 		std::unique_lock<std::recursive_mutex> lock(s_QueueMutex);
 		if (!m_LoadingQueue.empty())
 		{
-			ChunkIdentifier id = m_LoadingQueue.front();
-			m_LoadingQueue.pop_front();
+			ChunkID id = *m_LoadingQueue.cbegin();
+			m_LoadingQueue.erase(id);
 
 			lock.unlock();
 
@@ -145,8 +153,8 @@ namespace VoxelCraft {
 		std::unique_lock<std::recursive_mutex> lock(s_QueueMutex);
 		if (!m_UnloadingQueue.empty())
 		{
-			ChunkIdentifier id = m_UnloadingQueue.front();
-			m_UnloadingQueue.pop_front();
+			ChunkID id = *m_UnloadingQueue.cbegin();
+			m_UnloadingQueue.erase(id);
 
 			lock.unlock();
 

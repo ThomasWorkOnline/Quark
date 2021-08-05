@@ -60,28 +60,13 @@ namespace VoxelCraft {
 	{
 		m_ChunksOutOfBounds.clear();
 
-		std::unordered_set<ChunkID> ids;
-
-		for (int z = bounds.First.y; z < bounds.Second.y; z++)
-		{
-			for (int x = bounds.First.x; x < bounds.Second.x; x++)
+		m_WorldPartition.Foreach([this](const Chunk* chunk) {
+			const auto& id = chunk->GetID();
+			if (!InBounds(id))
 			{
-				ids.insert(ChunkIdentifier(x, z).ID);
+				m_ChunksOutOfBounds.push_back(id);
 			}
-		}
-
-		for (int z = lastBounds.First.y; z < lastBounds.Second.y; z++)
-		{
-			for (int x = lastBounds.First.x; x < lastBounds.Second.x; x++)
-			{
-				auto id = ChunkIdentifier(x, z).ID;
-				auto it = ids.find(id);
-				if (it == ids.end())
-				{
-					m_ChunksOutOfBounds.push_back(id);
-				}
-			}
-		}
+			});
 	}
 
 	void WorldArea::ComputeBounds(const glm::ivec2& size, ChunkCoord anchor)

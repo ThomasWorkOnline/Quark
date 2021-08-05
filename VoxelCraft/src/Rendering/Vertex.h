@@ -12,7 +12,7 @@ namespace VoxelCraft {
 		glm::vec2 TexCoord;
 		float Intensity;
 
-		Vertex(const IntPosition3D& position, const glm::vec2& texCoord, float intensity)
+		Vertex(const Position3D& position, const glm::vec2& texCoord, float intensity)
 			: Position(position), TexCoord(texCoord), Intensity(intensity) {}
 	};
 }

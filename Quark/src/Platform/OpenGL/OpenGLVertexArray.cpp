@@ -70,16 +70,26 @@ namespace Quark {
 			case ShaderDataType::Float2:
 			case ShaderDataType::Float3:
 			case ShaderDataType::Float4:
-			case ShaderDataType::Double:
-			case ShaderDataType::Double2:
-			case ShaderDataType::Double3:
-			case ShaderDataType::Double4:
 			{
 				glEnableVertexAttribArray(m_VertexBufferIndex);
 				glVertexAttribPointer(m_VertexBufferIndex,
 					element.GetComponentCount(),
 					ShaderDataTypeToOpenGLBaseType(element.Type),
 					element.Normalized ? GL_TRUE : GL_FALSE,
+					(GLsizei)layout.GetStride(),
+					(const void*)element.Offset);
+				m_VertexBufferIndex++;
+				break;
+			}
+			case ShaderDataType::Double:
+			case ShaderDataType::Double2:
+			case ShaderDataType::Double3:
+			case ShaderDataType::Double4:
+			{
+				glEnableVertexAttribArray(m_VertexBufferIndex);
+				glVertexAttribLPointer(m_VertexBufferIndex,
+					element.GetComponentCount(),
+					ShaderDataTypeToOpenGLBaseType(element.Type),
 					(GLsizei)layout.GetStride(),
 					(const void*)element.Offset);
 				m_VertexBufferIndex++;
