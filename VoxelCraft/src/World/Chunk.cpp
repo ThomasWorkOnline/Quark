@@ -149,36 +149,38 @@ namespace VoxelCraft {
 		return Block::ID::Air;
 	}
 
-	void Chunk::ReplaceBlock(const IntPosition3D& position, Block type)
+	bool Chunk::ReplaceBlock(const IntPosition3D& position, Block type)
 	{
-		if (BoundsCheck(position))
+		if (!BoundsCheck(position))
+			return false;
+
+		uint32_t index = IndexAtPosition(position);
+
+		m_Edited = true;
+
+		m_Blocks[index] = type;
+
+		m_World.OnChunkModified(m_Id);
+
+		if (position.x == 0)
 		{
-			uint32_t index = IndexAtPosition(position);
-
-			m_Edited = true;
-
-			m_Blocks[index] = type;
-
-			m_World.OnChunkModified(m_Id);
-
-			if (position.x == 0)
-			{
-				m_World.OnChunkModified(m_Id.West());
-			}
-			else if (position.x == ChunkSpecification::Width - 1)
-			{
-				m_World.OnChunkModified(m_Id.East());
-			}
-
-			if (position.z == 0)
-			{
-				m_World.OnChunkModified(m_Id.South());
-			}
-			else if (position.z == ChunkSpecification::Depth - 1)
-			{
-				m_World.OnChunkModified(m_Id.North());
-			}
+			m_World.OnChunkModified(m_Id.West());
 		}
+		else if (position.x == ChunkSpecification::Width - 1)
+		{
+			m_World.OnChunkModified(m_Id.East());
+		}
+
+		if (position.z == 0)
+		{
+			m_World.OnChunkModified(m_Id.South());
+		}
+		else if (position.z == ChunkSpecification::Depth - 1)
+		{
+			m_World.OnChunkModified(m_Id.North());
+		}
+
+		return true;
 	}
 
 	bool Chunk::IsBlockFaceVisible(const IntPosition3D& position, BlockFace face, const ChunkNeighbors& neighbors) const

@@ -16,7 +16,7 @@ flat out float v_Intensity;
 void main()
 {
 	// High precision vertex position
-	dvec4 position = (dmat4(u_Model) * dvec4(a_Position.xyz, 1.0)) + dvec4(u_Position.xyz, 1.0);
+	dvec4 position = (dmat4(u_Model) * dvec4(a_Position.xyz, 1.0)) + dvec4(u_Position.xyz, 0.0);
 	gl_Position = vec4(dmat4(u_Projection) * dmat4(u_View) * position);
 
 	v_TexCoord = a_TexCoord;

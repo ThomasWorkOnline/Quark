@@ -203,18 +203,19 @@ namespace VoxelCraft {
 			Block oldBlock = chunk->GetBlock(blockPosition);
 			if (oldBlock != type)
 			{
-				if (oldBlock == Block::ID::Air)
+				if (chunk->ReplaceBlock(blockPosition, type))
 				{
-					auto& blockProperties = type.GetProperties();
-					Quark::AudioEngine::PlaySound(blockProperties.BreakSound);
+					if (oldBlock == Block::ID::Air)
+					{
+						auto& blockProperties = type.GetProperties();
+						Quark::AudioEngine::PlaySound(blockProperties.BreakSound);
+					}
+					else
+					{
+						auto& blockProperties = oldBlock.GetProperties();
+						Quark::AudioEngine::PlaySound(blockProperties.BreakSound);
+					}
 				}
-				else
-				{
-					auto& blockProperties = oldBlock.GetProperties();
-					Quark::AudioEngine::PlaySound(blockProperties.BreakSound);
-				}
-
-				chunk->ReplaceBlock(blockPosition, type);
 			}
 		}
 	}

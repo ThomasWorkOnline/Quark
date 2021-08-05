@@ -49,7 +49,7 @@ namespace VoxelCraft {
 		ChunkCoord GetCoord() const { return m_Id.Coord; }
 
 		Block GetBlock(const IntPosition3D& position) const;
-		void ReplaceBlock(const IntPosition3D& position, Block type);
+		bool ReplaceBlock(const IntPosition3D& position, Block type);
 
 		const ChunkMesh& GetMesh() const { return m_Mesh; }
 
