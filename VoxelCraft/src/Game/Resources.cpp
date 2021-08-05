@@ -23,7 +23,7 @@ namespace VoxelCraft {
 		{ Quark::ShaderDataType::Float3, "a_Position"  }
 	};
 
-	static constexpr Position3D s_BlockVertexPositions[24] = {
+	static constexpr IntPosition3D s_BlockVertexPositions[24] = {
 		// front
 		{  0.0f,  0.0f,  1.0f },
 		{  1.0f,  0.0f,  1.0f },
@@ -60,7 +60,7 @@ namespace VoxelCraft {
 		{  0.0f,  0.0f,  0.0f },
 		{  1.0f,  0.0f,  0.0f }
 	};
-	static constexpr Position3D s_CrossSpriteVertexPositions[16] = {
+	static constexpr IntPosition3D s_CrossSpriteVertexPositions[16] = {
 		// first
 		{  0.f,  0.00f,  1.f },
 		{  1.f,  0.00f,  0.f },
@@ -85,7 +85,7 @@ namespace VoxelCraft {
 		{  0.f,  1.00f,  0.f },
 		{  1.f,  1.00f,  1.f }
 	};
-	static constexpr Position3D s_CrossSpriteVertexPositionsAlt[16] = {
+	static constexpr glm::vec3 s_CrossSpriteVertexPositionsAlt[16] = {
 		// first
 		{  0.15f,  0.00f,  0.85f },
 		{  0.85f,  0.00f,  0.15f },

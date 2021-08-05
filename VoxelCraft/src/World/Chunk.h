@@ -48,8 +48,8 @@ namespace VoxelCraft {
 		ChunkID GetID() const { return m_Id.ID; }
 		ChunkCoord GetCoord() const { return m_Id.Coord; }
 
-		Block GetBlock(const Position3D& position) const;
-		void ReplaceBlock(const Position3D& position, Block type);
+		Block GetBlock(const IntPosition3D& position) const;
+		void ReplaceBlock(const IntPosition3D& position, Block type);
 
 		const ChunkMesh& GetMesh() const { return m_Mesh; }
 
@@ -75,11 +75,11 @@ namespace VoxelCraft {
 		/// </summary>
 		void UploadMesh();
 
-		bool IsBlockFaceVisible(const Position3D& position, BlockFace face, const ChunkNeighbors& neighbors) const;
+		bool IsBlockFaceVisible(const IntPosition3D& position, BlockFace face, const ChunkNeighbors& neighbors) const;
 
 	private:
-		Block GenerateBlock(const Position3D& position);
-		bool IsBlockTransparent(const Position3D& position) const;
+		Block GenerateBlock(const IntPosition3D& position);
+		bool IsBlockTransparent(const IntPosition3D& position) const;
 
 	private:
 		std::atomic_bool m_Pushed = false;

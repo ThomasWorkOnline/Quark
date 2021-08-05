@@ -15,9 +15,6 @@ namespace VoxelCraft {
 		constexpr Position3D()
 			: glm::dvec3(0.f) {}
 
-		constexpr Position3D(uint32_t x, uint32_t y, uint32_t z)
-			: glm::dvec3(x, y, z) {}
-
 		constexpr Position3D(int32_t x, int32_t y, int32_t z)
 			: glm::dvec3(x, y, z) {}
 
@@ -35,6 +32,33 @@ namespace VoxelCraft {
 
 		Position3D ToWorldSpace(const ChunkCoord& coord) const;
 		Position3D ToChunkSpace(const ChunkCoord& coord) const;
+
+		ChunkCoord ToChunkCoord() const;
+	};
+
+	class IntPosition3D : public glm::ivec3
+	{
+	public:
+		constexpr IntPosition3D()
+			: glm::ivec3(0) {}
+
+		constexpr IntPosition3D(double x, double y, double z)
+		: glm::ivec3(x, y, z) {}
+
+		constexpr IntPosition3D(int32_t x, int32_t y, int32_t z)
+			: glm::ivec3(x, y, z) {}
+
+		constexpr IntPosition3D(const glm::vec3& pos)
+			: glm::ivec3(pos) {}
+
+		constexpr IntPosition3D(const glm::ivec3& pos)
+			: glm::ivec3(pos) {}
+
+		constexpr IntPosition3D(const glm::dvec3& pos)
+			: glm::ivec3(pos) {}
+
+		IntPosition3D ToWorldSpace(const ChunkCoord& coord) const;
+		IntPosition3D ToChunkSpace(const ChunkCoord& coord) const;
 
 		ChunkCoord ToChunkCoord() const;
 	};

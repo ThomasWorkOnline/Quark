@@ -2,7 +2,7 @@
 
 namespace VoxelCraft {
 
-	std::optional<CollisionData> HitBox::CollideWith(const glm::vec3& point) const
+	std::optional<CollisionData> HitBox::CollideWith(const Position3D& point) const
 	{
 		// Do AABB collision
 		bool xCollides = (point.x >= m_Bounds.X.Min && point.x <= m_Bounds.X.Max);
@@ -34,7 +34,7 @@ namespace VoxelCraft {
 		return {};
 	}
 
-	HitBox HitBox::MoveTo(const glm::vec3& position) const
+	HitBox HitBox::MoveTo(const Position3D& position) const
 	{
 		return AABounds{
 			{ m_Bounds.X.Min + position.x, m_Bounds.X.Max + position.x },

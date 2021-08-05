@@ -47,9 +47,17 @@ namespace VoxelCraft {
 		// Rendering
 		Quark::Renderer::BeginScene(m_Player.GetComponent<Quark::PerspectiveCameraComponent>().Camera.GetProjection(), m_Player.GetCameraTransformNoPosition());
 		
-		static const auto& shader = Resources::GetShader("default");
-		shader->Attach();
-		shader->SetDouble3("u_Position", -m_Player.GetHeadPosition());
+		{
+			static const auto& shader = Resources::GetShader("default");
+			shader->Attach();
+			shader->SetDouble3("u_Position", -m_Player.GetHeadPosition());
+		}
+		
+		{
+			static const auto& shader = Resources::GetShader("debugMesh");
+			shader->Attach();
+			shader->SetDouble3("u_Position", -m_Player.GetHeadPosition());
+		}
 
 		m_Map.Foreach([](const Chunk* data)
 			{
@@ -89,7 +97,7 @@ namespace VoxelCraft {
 	bool World::IsPlayerTouchingGround(const Player& player) const
 	{
 		static constexpr float detectionTreshold = 0.01f;
-		const glm::ivec3 blockUnderFeetPos = glm::floor(player.GetPosition() - Position3D(0.0f, detectionTreshold, 0.0f));
+		IntPosition3D blockUnderFeetPos = glm::floor(player.GetPosition() - Position3D(0.0f, detectionTreshold, 0.0f));
 		auto& props = GetBlock(blockUnderFeetPos).GetProperties();
 
 		return props.CollisionEnabled;
@@ -138,7 +146,7 @@ namespace VoxelCraft {
 			case Quark::MouseCode::ButtonRight:
 				if (collision.Block != Block::ID::Air)
 				{
-					auto pos = collision.Impact + GetFaceNormal(collision.Side);
+					auto pos = collision.Impact + (Position3D)GetFaceNormal(collision.Side);
 					if (GetBlock(pos) == Block::ID::Air)
 					{
 						ReplaceBlock(pos, Block::ID::Cobblestone);
@@ -173,10 +181,10 @@ namespace VoxelCraft {
 		return {};
 	}
 
-	Block World::GetBlock(const Position3D& position) const
+	Block World::GetBlock(const IntPosition3D& position) const
 	{
 		ChunkCoord coord = position.ToChunkCoord();
-		Position3D blockPosition = position.ToChunkSpace(coord);
+		IntPosition3D blockPosition = position.ToChunkSpace(coord);
 
 		const Chunk* chunk = m_Map.Select(coord.ToID());
 		if (chunk && chunk->GetLoadStatus() >= Chunk::LoadStatus::WorldGenerated)
@@ -184,10 +192,10 @@ namespace VoxelCraft {
 		return Block::ID::Air;
 	}
 
-	void World::ReplaceBlock(const Position3D& position, Block type)
+	void World::ReplaceBlock(const IntPosition3D& position, Block type)
 	{
 		ChunkCoord coord = position.ToChunkCoord();
-		Position3D blockPosition = position.ToChunkSpace(coord);
+		IntPosition3D blockPosition = position.ToChunkSpace(coord);
 
 		Chunk* chunk = m_Map.Select(coord.ToID());
 		if (chunk && chunk->GetLoadStatus() == Chunk::LoadStatus::Loaded)
@@ -215,7 +223,7 @@ namespace VoxelCraft {
 	{
 		static constexpr float detectionTreshold = 0.01f;
 		const Position3D& playerPos = m_Player.GetPosition();
-		const Position3D blockUnderFeetPos = glm::floor(playerPos - Position3D(0.0f, detectionTreshold, 0.0f));
+		const IntPosition3D blockUnderFeetPos = glm::floor(playerPos - Position3D(0.0f, detectionTreshold, 0.0f));
 
 		const auto& props = GetBlock(blockUnderFeetPos).GetProperties();
 

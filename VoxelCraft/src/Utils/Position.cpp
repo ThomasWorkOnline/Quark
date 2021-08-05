@@ -16,8 +16,25 @@ namespace VoxelCraft {
 
 	ChunkCoord Position3D::ToChunkCoord() const
 	{
-		return { (int32_t)std::floor(x / (float)ChunkSpecification::Width), (int32_t)std::floor(z / (float)ChunkSpecification::Depth) };
+		return { (int32_t)std::floor(x / (double)ChunkSpecification::Width), (int32_t)std::floor(z / (double)ChunkSpecification::Depth) };
 	}
+
+
+	IntPosition3D IntPosition3D::ToWorldSpace(const ChunkCoord& coord) const
+	{
+		return { x + coord.x * ChunkSpecification::Width, y, z + coord.y * ChunkSpecification::Depth };
+	}
+
+	IntPosition3D IntPosition3D::ToChunkSpace(const ChunkCoord& coord) const
+	{
+		return { x - coord.x * ChunkSpecification::Width, y, z - coord.y * ChunkSpecification::Depth };
+	}
+
+	ChunkCoord IntPosition3D::ToChunkCoord() const
+	{
+		return { (int32_t)std::floor(x / (double)ChunkSpecification::Width), (int32_t)std::floor(z / (double)ChunkSpecification::Depth) };
+	}
+
 
 	Position2D Position2D::ToWorldSpace(const ChunkCoord& coord) const
 	{
@@ -31,6 +48,6 @@ namespace VoxelCraft {
 
 	ChunkCoord Position2D::ToChunkCoord() const
 	{
-		return { (int32_t)std::floor(x / (float)ChunkSpecification::Width), (int32_t)std::floor(y / (float)ChunkSpecification::Depth) };
+		return { (int32_t)std::floor(x / (double)ChunkSpecification::Width), (int32_t)std::floor(y / (double)ChunkSpecification::Depth) };
 	}
 }

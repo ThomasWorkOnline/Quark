@@ -4,7 +4,7 @@
 
 namespace VoxelCraft {
 
-	Position3D GetFaceNormal(BlockFace facing)
+	IntPosition3D GetFaceNormal(BlockFace facing)
 	{
 		switch (facing)
 		{

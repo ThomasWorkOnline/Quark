@@ -8,12 +8,12 @@
 
 namespace VoxelCraft {
 
-	static uint32_t IndexAtPosition(const Position3D& position)
+	static uint32_t IndexAtPosition(const IntPosition3D& position)
 	{
 		return position.x + ChunkSpecification::Width * position.z + ChunkSpecification::Width * ChunkSpecification::Depth * position.y;
 	}
 
-	static bool BoundsCheck(const Position3D& position)
+	static bool BoundsCheck(const IntPosition3D& position)
 	{
 		return position.x >= 0 && position.y >= 0 && position.z >= 0 &&
 			position.x < ChunkSpecification::Width && position.y < ChunkSpecification::Height && position.z < ChunkSpecification::Depth;
@@ -75,7 +75,7 @@ namespace VoxelCraft {
 		// Generate blocks
 		m_Blocks = new Block[ChunkSpecification::BlockCount];
 
-		Position3D position;
+		IntPosition3D position;
 		for (position.y = 0; position.y < ChunkSpecification::Height; position.y++)
 		{
 			for (position.z = 0; position.z < ChunkSpecification::Depth; position.z++)
@@ -104,7 +104,7 @@ namespace VoxelCraft {
 		m_Pushed = true;
 	}
 
-	Block Chunk::GenerateBlock(const Position3D& position)
+	Block Chunk::GenerateBlock(const IntPosition3D& position)
 	{
 		static constexpr uint32_t stoneHeight = 58;
 		static constexpr uint32_t dirtHeight = 63;
@@ -139,7 +139,7 @@ namespace VoxelCraft {
 		return type;
 	}
 
-	Block Chunk::GetBlock(const Position3D& position) const
+	Block Chunk::GetBlock(const IntPosition3D& position) const
 	{
 		if (BoundsCheck(position))
 		{
@@ -149,7 +149,7 @@ namespace VoxelCraft {
 		return Block::ID::Air;
 	}
 
-	void Chunk::ReplaceBlock(const Position3D& position, Block type)
+	void Chunk::ReplaceBlock(const IntPosition3D& position, Block type)
 	{
 		if (BoundsCheck(position))
 		{
@@ -185,9 +185,9 @@ namespace VoxelCraft {
 		}
 	}
 
-	bool Chunk::IsBlockFaceVisible(const Position3D& position, BlockFace face, const ChunkNeighbors& neighbors) const
+	bool Chunk::IsBlockFaceVisible(const IntPosition3D& position, BlockFace face, const ChunkNeighbors& neighbors) const
 	{
-		Position3D neighborPosition = position + GetFaceNormal(face); // In chunk space
+		IntPosition3D neighborPosition = position + GetFaceNormal(face); // In chunk space
 
 		if (BoundsCheck(neighborPosition))
 		{
@@ -196,26 +196,26 @@ namespace VoxelCraft {
 
 		if (neighborPosition.x < 0)
 		{
-			Block block = neighbors.West->GetBlock(Position3D((float)ChunkSpecification::Width - 1, neighborPosition.y, neighborPosition.z));
+			Block block = neighbors.West->GetBlock({ ChunkSpecification::Width - 1, neighborPosition.y, neighborPosition.z });
 			if (!block.GetProperties().Transparent)
 				return false;
 		}
 		else if (neighborPosition.x > ChunkSpecification::Width - 1)
 		{
-			Block block = neighbors.East->GetBlock(Position3D(0.f, neighborPosition.y, neighborPosition.z));
+			Block block = neighbors.East->GetBlock({ 0, neighborPosition.y, neighborPosition.z });
 			if (!block.GetProperties().Transparent)
 				return false;
 		}
 
 		if (neighborPosition.z < 0)
 		{
-			Block block = neighbors.South->GetBlock(Position3D(neighborPosition.x, neighborPosition.y, (float)ChunkSpecification::Depth - 1));
+			Block block = neighbors.South->GetBlock({ neighborPosition.x, neighborPosition.y, ChunkSpecification::Depth - 1 });
 			if (!block.GetProperties().Transparent)
 				return false;
 		}
 		else if (neighborPosition.z > ChunkSpecification::Depth - 1)
 		{
-			Block block = neighbors.North->GetBlock(Position3D(neighborPosition.x, neighborPosition.y, 0.f));
+			Block block = neighbors.North->GetBlock({ neighborPosition.x, neighborPosition.y, 0 });
 			if (!block.GetProperties().Transparent)
 				return false;
 		}
@@ -223,7 +223,7 @@ namespace VoxelCraft {
 		return true;
 	}
 
-	bool Chunk::IsBlockTransparent(const Position3D& position) const
+	bool Chunk::IsBlockTransparent(const IntPosition3D& position) const
 	{
 		uint32_t index = IndexAtPosition(position);
 		return m_Blocks[index].GetProperties().Transparent;

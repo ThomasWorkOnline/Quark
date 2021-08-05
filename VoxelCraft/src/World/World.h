@@ -28,7 +28,7 @@ namespace VoxelCraft {
 
 		const WorldMap& GetMap() const { return m_Map; }
 		WorldMap& GetMap() { return m_Map; }
-		Block GetBlock(const Position3D& position) const;
+		Block GetBlock(const IntPosition3D& position) const;
 
 		bool IsPlayerTouchingGround(const Player& player) const;
 
@@ -40,7 +40,7 @@ namespace VoxelCraft {
 
 		// Utilities
 		std::optional<CollisionData> RayCast(const Position3D& start, const glm::vec3& direction, float length) const;
-		void ReplaceBlock(const Position3D& position, Block type);
+		void ReplaceBlock(const IntPosition3D& position, Block type);
 		void ProcessPlayerCollision();
 
 		Quark::Scene m_Scene;

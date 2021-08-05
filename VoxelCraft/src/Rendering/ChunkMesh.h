@@ -19,9 +19,9 @@ namespace VoxelCraft {
 		const Quark::Ref<Quark::VertexArray>& GetVertexArray() const { return m_VertexArray; }
 
 	private:
-		void CreateBlockMesh(Block block, const Position3D& position, const Chunk* chunk, const ChunkNeighbors& neighbors);
-		void CreateBlockFaceMesh(const Position3D& position, const BlockProperties& props, BlockFace face);
-		void CreateCrossSpriteMesh(const Position3D& position, const BlockProperties& props);
+		void CreateBlockMesh(Block block, const IntPosition3D& position, const Chunk* chunk, const ChunkNeighbors& neighbors);
+		void CreateBlockFaceMesh(const IntPosition3D& position, const BlockProperties& props, BlockFace face);
+		void CreateCrossSpriteMesh(const IntPosition3D& position, const BlockProperties& props);
 
 	private:
 		Quark::Ref<Quark::VertexArray> m_VertexArray;

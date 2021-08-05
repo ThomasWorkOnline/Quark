@@ -16,7 +16,7 @@ namespace VoxelCraft {
 		Bottom
 	};
 
-	Position3D GetFaceNormal(BlockFace facing);
+	IntPosition3D GetFaceNormal(BlockFace facing);
 
 	struct BlockProperties;
 

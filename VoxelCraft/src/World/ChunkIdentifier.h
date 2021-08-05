@@ -4,7 +4,7 @@
 
 namespace VoxelCraft {
 
-	typedef size_t ChunkID;
+	using ChunkID = size_t;
 
 	struct ChunkCoord : public glm::ivec2
 	{

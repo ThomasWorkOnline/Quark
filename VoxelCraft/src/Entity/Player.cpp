@@ -10,6 +10,8 @@ namespace VoxelCraft {
 	Player::Player(World& world, Quark::Scene& scene, const PlayerSettings& settings)
 		: Quark::Entity(scene.CreateEntity()), m_World(world), m_SceneHandle(scene), m_Settings(settings)
 	{
+		m_Settings.SpawnPoint.z += 16777215.0;
+
 		Initialize();
 	}
 

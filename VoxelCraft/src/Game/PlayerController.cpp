@@ -4,9 +4,10 @@
 
 namespace VoxelCraft {
 
-	static constexpr double s_AirFriction = 1.0f;
-	static constexpr double s_PlayerAcceleration = 15.0f;
-	static constexpr double s_PlayerMidAirAcceleration = 6.0f;
+	static constexpr double s_AirFriction = 1.0;
+	static constexpr double s_FlyingStoppingAcceleration = 4.0;
+	static constexpr double s_PlayerAcceleration = 15.0;
+	static constexpr double s_PlayerMidAirAcceleration = 6.0;
 
 	static constexpr Quark::Key s_SprintKey		= Quark::Key::LeftControl;
 	static constexpr Quark::Key s_SneakKey		= Quark::Key::LeftShift;
@@ -286,6 +287,10 @@ namespace VoxelCraft {
 				{
 					physics.Velocity.y -= elapsedTime * m_MovementSpeed;
 				}
+
+				// Stopping resistance
+				physics.Velocity -= physics.Velocity * s_FlyingStoppingAcceleration * (double)elapsedTime;
+
 				break;
 			}
 
