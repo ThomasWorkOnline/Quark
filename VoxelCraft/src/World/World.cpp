@@ -45,29 +45,11 @@ namespace VoxelCraft {
 		m_Loader->OnUpdate(elapsedTime);
 
 		// Rendering
-		Quark::Renderer::BeginScene(m_Player.GetComponent<Quark::PerspectiveCameraComponent>().Camera.GetProjection(), m_Player.GetCameraTransformNoPosition());
-		
-		{
-			static const auto& shader = Resources::GetShader("default");
-			shader->Attach();
-			shader->SetDouble3("u_Position", -m_Player.GetHeadPosition());
-		}
-		
-		{
-			static const auto& shader = Resources::GetShader("debugMesh");
-			shader->Attach();
-			shader->SetDouble3("u_Position", -m_Player.GetHeadPosition());
-		}
-
-		m_Map.Foreach([](const Chunk* data)
-			{
-				Renderer::SubmitChunk(data);
-			});
-
-		Quark::Renderer::EndScene();
+		Renderer::RenderMap(m_Map, m_Player.GetComponent<Quark::PerspectiveCameraComponent>().Camera.GetProjection(), m_Player.GetCameraTransformNoPosition(), m_Player.GetHeadPosition());
+		Renderer::RenderUnloadedChunks(m_Map, m_Player.GetComponent<Quark::PerspectiveCameraComponent>().Camera.GetProjection(), m_Player.GetCameraTransformNoPosition(), m_Player.GetHeadPosition());
 
 		const auto& window = Quark::Application::Get().GetWindow();
-		Renderer::DrawUI(window.GetWidth(), window.GetHeight());
+		Renderer::RenderUI(window.GetWidth(), window.GetHeight());
 	}
 
 	void World::OnEvent(Quark::Event& e)

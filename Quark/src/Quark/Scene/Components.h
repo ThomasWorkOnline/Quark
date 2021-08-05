@@ -25,10 +25,14 @@ namespace Quark {
 
 		operator glm::dmat4& ()
 		{
-			m_Transform = glm::translate(glm::dmat4(1.0f), Position)
-				* glm::toMat4(Orientation)
-				* glm::scale(glm::dmat4(1.0f), Scale);
+			UpdateMatrix();
 			return m_Transform;
+		}
+
+		operator glm::mat4& ()
+		{
+			UpdateMatrix();
+			return (glm::mat4&)m_Transform;
 		}
 
 		glm::dvec3 GetFrontVector() const { return glm::dvec3(0.0, 0.0f, 1.0f) * Orientation; }
@@ -45,6 +49,13 @@ namespace Quark {
 		Transform3DComponent& Rotate(double angle, const glm::dvec3& axis) { Rotate(glm::angleAxis(angle, glm::normalize(axis))); return *this; }
 
 	private:
+		void UpdateMatrix()
+		{
+			m_Transform = glm::translate(glm::dmat4(1.0f), Position)
+				* glm::toMat4(Orientation)
+				* glm::scale(glm::dmat4(1.0f), Scale);
+		}
+
 		glm::dmat4 m_Transform;
 	};
 

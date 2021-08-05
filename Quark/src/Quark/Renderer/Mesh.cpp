@@ -370,7 +370,7 @@ namespace Quark {
 		vbo->SetLayout(layout);
 		m_VertexArray->AddVertexBuffer(vbo);
 
-		auto ibo = IndexBuffer::Create(&indexBuffer[0], (uint32_t)indexBuffer.size());
+		auto ibo = IndexBuffer::Create(indexBuffer.data(), (uint32_t)indexBuffer.size());
 		m_VertexArray->SetIndexBuffer(ibo);
 
 		delete[] vertexBuffer;
