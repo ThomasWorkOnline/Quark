@@ -31,6 +31,8 @@ namespace VoxelCraft {
 	private:
 		static Quark::Ref<Quark::Shader> s_ActiveShader;
 
+		static void DrawCrosshair();
+
 		static RendererStats s_Stats;
 	};
 }

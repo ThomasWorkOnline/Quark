@@ -64,6 +64,7 @@ namespace VoxelCraft {
 				auto position = heightIndex.ToWorldSpace(m_Id.Coord);
 
 				// Use deterministic algorithms for anything related to world gen
+				// We need to assure the constancy for terrain generation and world resources
 				float fValue = sinf(position.x * 0.144f + position.y * 0.021f) * 6.f;
 				int32_t value = static_cast<int32_t>(round(fValue));
 				uint32_t index = heightIndex.y * ChunkSpecification::Depth + heightIndex.x;

@@ -16,7 +16,7 @@ namespace VoxelCraft {
 		BlockModel Mesh;
 		HitBox Hitbox;
 
-		BlockProperties(const std::initializer_list<Quark::SubTexture2D>& textures, bool transparent, bool collisionEnabled, const char* breakSound, BlockModel meshModel, const HitBox& hitbox)
+		BlockProperties(std::initializer_list<Quark::SubTexture2D> textures, bool transparent, bool collisionEnabled, const char* breakSound, BlockModel meshModel, const HitBox& hitbox)
 			: Faces(textures), Transparent(transparent), CollisionEnabled(collisionEnabled), BreakSound(breakSound), Mesh(meshModel), Hitbox(hitbox) {}
 
 		static BlockProperties Air();

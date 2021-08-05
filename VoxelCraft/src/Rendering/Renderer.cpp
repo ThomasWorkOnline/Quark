@@ -57,11 +57,13 @@ namespace VoxelCraft {
 
 	void Renderer::SubmitChunk(const Chunk* chunk)
 	{
+		static const auto& texture = Resources::GetTexture();
+
 		switch (chunk->GetLoadStatus())
 		{
 		case Chunk::LoadStatus::Loaded:
 		{
-			Quark::Renderer::Submit(s_ActiveShader, Resources::GetTexture(), chunk->GetMesh().GetVertexArray());
+			Quark::Renderer::Submit(s_ActiveShader, texture, chunk->GetMesh().GetVertexArray());
 			s_Stats.DrawCalls++;
 			break;
 		}
@@ -93,15 +95,22 @@ namespace VoxelCraft {
 	void Renderer::DrawUI(uint32_t width, uint32_t height)
 	{
 		// Draw UI
-		static const auto& shader = Resources::GetShader("crosshair");
-
 		float aspectRatio = static_cast<float>(width) / height;
 		Quark::Renderer::BeginScene(glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, aspectRatio, 1.0f)), glm::mat4(1.0f));
+
+		DrawCrosshair();
+
+		Quark::Renderer::EndScene();
+	}
+
+	void Renderer::DrawCrosshair()
+	{
+		static const auto& shader = Resources::GetShader("crosshair");
+		static const auto& vao = Resources::GetCrosshairVertexArray();
 
 		shader->Attach();
 		shader->SetFloat4("u_Color", glm::vec4(1.0f, 1.0f, 1.0f, 0.5f));
 
-		Quark::Renderer::Submit(shader, Resources::GetCrosshairVertexArray());
-		Quark::Renderer::EndScene();
+		Quark::Renderer::Submit(shader, vao);
 	}
 }

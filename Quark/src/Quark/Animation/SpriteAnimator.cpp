@@ -2,7 +2,7 @@
 
 namespace Quark {
 
-	SpriteAnimator::SpriteAnimator(const std::initializer_list<SubTexture2D>& textures, float animationSpeed)
+	SpriteAnimator::SpriteAnimator(std::initializer_list<SubTexture2D> textures, float animationSpeed)
 		: m_Textures(textures), m_AnimationSpeed(animationSpeed)
 	{
 	}
