@@ -38,6 +38,7 @@
     <ClInclude Include="src\Game\Hitbox.h" />
     <ClInclude Include="src\World\ChunkIdentifier.h" />
     <ClInclude Include="src\Components\GravityComponent.h" />
+    <ClInclude Include="src\World\SubChunk.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\crosshair.glsl" />

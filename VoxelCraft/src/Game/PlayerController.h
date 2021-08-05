@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Quark.h>
-
 #include "../Entity/Player.h"
 
 namespace VoxelCraft {

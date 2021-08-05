@@ -4,6 +4,11 @@
 
 namespace VoxelCraft {
 
+	const BlockProperties& Block::GetProperties() const
+	{
+		return Resources::GetBlockProperties(ID);
+	}
+
 	IntPosition3D GetFaceNormal(BlockFace facing)
 	{
 		switch (facing)
@@ -24,10 +29,5 @@ namespace VoxelCraft {
 			QK_FATAL("Could not deduce face normal");
 			return {};
 		}
-	}
-
-	const BlockProperties& Block::GetProperties() const
-	{
-		return Resources::GetBlockProperties(ID);
 	}
 }

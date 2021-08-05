@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Quark.h>
-
 #include "ChunkIdentifier.h"
 
 #include "../Blocks/Block.h"

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Quark.h>
-
 #include "../World/ChunkIdentifier.h"
 
 namespace VoxelCraft {

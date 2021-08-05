@@ -70,12 +70,12 @@ namespace VoxelCraft {
 			{
 				auto position = heightIndex.ToWorldSpace(m_Id.Coord);
 
-				double noise = s_Random() / static_cast<double>(std::numeric_limits<unsigned int>::max());
+				//double noise = s_Random() / static_cast<double>(std::numeric_limits<unsigned int>::max());
 
 				// Use deterministic algorithms for anything related to world gen
 				// We need to assure the constancy for terrain generation and world resources
 				double dValue = sin(position.x * 0.144 + position.y * 0.021) * 6.0;
-				int32_t value = static_cast<int32_t>(round(dValue + noise));
+				int32_t value = static_cast<int32_t>(round(dValue));
 				uint32_t index = heightIndex.y * ChunkSpecification::Depth + heightIndex.x;
 				m_HeightMap[index] = value;
 			}

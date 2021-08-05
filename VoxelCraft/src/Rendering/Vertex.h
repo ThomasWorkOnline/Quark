@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Quark.h>
-
 #include "../Utils/Position.h"
 
 namespace VoxelCraft {

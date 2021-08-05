@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Quark.h>
-
 #include "../Blocks/Block.h"
 #include "../Utils/Position.h"
 

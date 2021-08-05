@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Quark.h>
+
 #include "Vertex.h"
 #include "../Blocks/Block.h"
 #include "../Utils/Position.h"

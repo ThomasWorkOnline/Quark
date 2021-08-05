@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Quark.h>
-
 #include "../Utils/Position.h"
 
 namespace VoxelCraft {
@@ -15,8 +13,6 @@ namespace VoxelCraft {
 		Top,
 		Bottom
 	};
-
-	IntPosition3D GetFaceNormal(BlockFace facing);
 
 	struct BlockProperties;
 
@@ -45,4 +41,6 @@ namespace VoxelCraft {
 		bool operator==(Block other) const { return ID == other.ID; }
 		bool operator!=(Block other) const { return ID != other.ID; }
 	};
+
+	IntPosition3D GetFaceNormal(BlockFace facing);
 }

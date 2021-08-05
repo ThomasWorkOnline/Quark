@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Quark.h>
-
 #include "Chunk.h"
 
 #include <mutex>
