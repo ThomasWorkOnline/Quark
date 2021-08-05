@@ -58,6 +58,8 @@ namespace VoxelCraft {
 
 	Chunk* WorldMap::Load(ChunkIdentifier id)
 	{
+		// TODO: Check if the chunk is outside the writable areas ( -2 147 483 648 to +2 147 483 647 )
+
 		std::lock_guard<std::recursive_mutex> lock(m_ChunksLocationsMutex);
 		if (!Contains(id))
 		{

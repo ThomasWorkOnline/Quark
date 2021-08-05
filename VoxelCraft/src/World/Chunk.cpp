@@ -65,8 +65,8 @@ namespace VoxelCraft {
 
 				// Use deterministic algorithms for anything related to world gen
 				// We need to assure the constancy for terrain generation and world resources
-				float fValue = sinf(position.x * 0.144f + position.y * 0.021f) * 6.f;
-				int32_t value = static_cast<int32_t>(round(fValue));
+				double dValue = sin(position.x * 0.144 + position.y * 0.021) * 6.0;
+				int32_t value = static_cast<int32_t>(round(dValue));
 				uint32_t index = heightIndex.y * ChunkSpecification::Depth + heightIndex.x;
 				m_HeightMap[index] = value;
 			}
@@ -163,24 +163,20 @@ namespace VoxelCraft {
 
 			if (position.x == 0)
 			{
-				auto west = m_Id.Coord.West();
-				m_World.OnChunkModified(west);
+				m_World.OnChunkModified(m_Id.West());
 			}
 			else if (position.x == ChunkSpecification::Width - 1)
 			{
-				auto east = m_Id.Coord.East();
-				m_World.OnChunkModified(east);
+				m_World.OnChunkModified(m_Id.East());
 			}
 
 			if (position.z == 0)
 			{
-				auto south = m_Id.Coord.South();
-				m_World.OnChunkModified(south);
+				m_World.OnChunkModified(m_Id.South());
 			}
 			else if (position.z == ChunkSpecification::Depth - 1)
 			{
-				auto north = m_Id.Coord.North();
-				m_World.OnChunkModified(north);
+				m_World.OnChunkModified(m_Id.North());
 			}
 		}
 	}

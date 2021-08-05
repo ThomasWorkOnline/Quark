@@ -186,7 +186,7 @@ namespace VoxelCraft {
 		ChunkCoord coord = position.ToChunkCoord();
 		IntPosition3D blockPosition = position.ToChunkSpace(coord);
 
-		const Chunk* chunk = m_Map.Select(coord.ToID());
+		const Chunk* chunk = m_Map.Select(ChunkIdentifier(coord));
 		if (chunk && chunk->GetLoadStatus() >= Chunk::LoadStatus::WorldGenerated)
 			return chunk->GetBlock(blockPosition);
 		return Block::ID::Air;
@@ -197,7 +197,7 @@ namespace VoxelCraft {
 		ChunkCoord coord = position.ToChunkCoord();
 		IntPosition3D blockPosition = position.ToChunkSpace(coord);
 
-		Chunk* chunk = m_Map.Select(coord.ToID());
+		Chunk* chunk = m_Map.Select(ChunkIdentifier(coord));
 		if (chunk && chunk->GetLoadStatus() == Chunk::LoadStatus::Loaded)
 		{
 			Block oldBlock = chunk->GetBlock(blockPosition);

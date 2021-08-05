@@ -21,8 +21,7 @@ namespace VoxelCraft {
 		{
 			for (int x = m_AccessibleBounds.First.x; x < m_AccessibleBounds.Second.x; x++)
 			{
-				ChunkCoord coord(x, z);
-				func(coord.ToID());
+				func(ChunkIdentifier(x, z));
 			}
 		}
 	}
@@ -52,8 +51,7 @@ namespace VoxelCraft {
 		{
 			for (int x = m_InternalBounds.First.x; x < m_InternalBounds.Second.x; x++)
 			{
-				ChunkCoord coord(x, z);
-				m_WorldPartition.Load(coord.ToID());
+				m_WorldPartition.Load(ChunkIdentifier(x, z).ID);
 			}
 		}
 	}
@@ -68,8 +66,7 @@ namespace VoxelCraft {
 		{
 			for (int x = bounds.First.x; x < bounds.Second.x; x++)
 			{
-				ChunkCoord coord(x, z);
-				ids.insert(coord.ToID());
+				ids.insert(ChunkIdentifier(x, z).ID);
 			}
 		}
 
@@ -77,11 +74,11 @@ namespace VoxelCraft {
 		{
 			for (int x = lastBounds.First.x; x < lastBounds.Second.x; x++)
 			{
-				ChunkCoord coord = { x, z };
-				auto it = ids.find(coord.ToID());
+				auto id = ChunkIdentifier(x, z).ID;
+				auto it = ids.find(id);
 				if (it == ids.end())
 				{
-					m_ChunksOutOfBounds.push_back(coord.ToID());
+					m_ChunksOutOfBounds.push_back(id);
 				}
 			}
 		}

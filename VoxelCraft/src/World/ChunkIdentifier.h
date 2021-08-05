@@ -5,26 +5,13 @@
 namespace VoxelCraft {
 
 	using ChunkID = size_t;
-
-	struct ChunkCoord : public glm::ivec2
-	{
-		ChunkCoord(const glm::ivec2& coord)
-			: glm::ivec2(coord) {}
-
-		ChunkCoord(int32_t x, int32_t y)
-			: glm::ivec2(x, y) {}
-
-		// Coordinate system
-		ChunkCoord North() const { return *this + glm::ivec2( 0,  1); }
-		ChunkCoord South() const { return *this + glm::ivec2( 0, -1); }
-		ChunkCoord West()  const { return *this + glm::ivec2(-1,  0); }
-		ChunkCoord East()  const { return *this + glm::ivec2( 1,  0); }
-
-		ChunkID ToID() const { return *reinterpret_cast<const ChunkID*>(this); }
-	};
+	using ChunkCoord = glm::ivec2;
 
 	struct ChunkIdentifier
 	{
+		ChunkIdentifier(int32_t x, int32_t z)
+			: Coord(x, z) {}
+
 		ChunkIdentifier(glm::ivec2 coord)
 			: Coord(coord) {}
 
@@ -35,6 +22,12 @@ namespace VoxelCraft {
 			ChunkID ID;
 			ChunkCoord Coord;
 		};
+
+		// Coordinate system
+		ChunkCoord North() const { return Coord + ChunkCoord( 0,  1); }
+		ChunkCoord South() const { return Coord + ChunkCoord( 0, -1); }
+		ChunkCoord West()  const { return Coord + ChunkCoord(-1,  0); }
+		ChunkCoord East()  const { return Coord + ChunkCoord( 1,  0); }
 
 		bool operator==(ChunkIdentifier other)
 		{

@@ -50,4 +50,25 @@ namespace VoxelCraft {
 	{
 		return { (int32_t)std::floor(x / (double)ChunkSpecification::Width), (int32_t)std::floor(y / (double)ChunkSpecification::Depth) };
 	}
+
+
+	IntPosition2D IntPosition2D::ToWorldSpace(const ChunkCoord& coord) const
+	{
+		return { x + coord.x * ChunkSpecification::Width, y + coord.y * ChunkSpecification::Depth };
+	}
+
+	IntPosition2D IntPosition2D::ToChunkSpace(const ChunkCoord& coord) const
+	{
+		return { x - coord.x * ChunkSpecification::Width, y - coord.y * ChunkSpecification::Depth };
+	}
+
+	bool IntPosition2D::IsInBounds() const
+	{
+		return true;
+	}
+
+	ChunkCoord IntPosition2D::ToChunkCoord() const
+	{
+		return { (int32_t)std::floor(x / (double)ChunkSpecification::Width), (int32_t)std::floor(y / (double)ChunkSpecification::Depth) };
+	}
 }

@@ -182,10 +182,10 @@ namespace VoxelCraft {
 
 		auto& map = m_World.GetMap();
 		auto chunk	= map.Load(id);
-		auto north	= map.Load(id.Coord.North());
-		auto south	= map.Load(id.Coord.South());
-		auto west	= map.Load(id.Coord.West());
-		auto east	= map.Load(id.Coord.East());
+		auto north	= map.Load(id.North());
+		auto south	= map.Load(id.South());
+		auto west	= map.Load(id.West());
+		auto east	= map.Load(id.East());
 
 		UniqueChunkDataGenerator(chunk);
 		UniqueChunkDataGenerator(north);

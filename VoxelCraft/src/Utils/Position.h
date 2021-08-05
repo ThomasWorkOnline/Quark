@@ -13,7 +13,7 @@ namespace VoxelCraft {
 	{
 	public:
 		constexpr Position3D()
-			: glm::dvec3(0.f) {}
+			: glm::dvec3(0.0) {}
 
 		constexpr Position3D(int32_t x, int32_t y, int32_t z)
 			: glm::dvec3(x, y, z) {}
@@ -67,7 +67,10 @@ namespace VoxelCraft {
 	{
 	public:
 		constexpr Position2D()
-			: glm::dvec2(0.f) {}
+			: glm::dvec2(0.0) {}
+
+		constexpr Position2D(int32_t x, int32_t y)
+			: glm::dvec2(x, y) {}
 
 		constexpr Position2D(double x, double y)
 			: glm::dvec2(x, y) {}
@@ -83,6 +86,35 @@ namespace VoxelCraft {
 
 		Position2D ToWorldSpace(const ChunkCoord& coord) const;
 		Position2D ToChunkSpace(const ChunkCoord& coord) const;
+
+		ChunkCoord ToChunkCoord() const;
+	};
+
+	class IntPosition2D : public glm::ivec2
+	{
+	public:
+		constexpr IntPosition2D()
+			: glm::ivec2(0) {}
+
+		constexpr IntPosition2D(int32_t x, int32_t y)
+			: glm::ivec2(x, y) {}
+
+		constexpr IntPosition2D(double x, double y)
+			: glm::ivec2(x, y) {}
+
+		constexpr IntPosition2D(const glm::vec2& pos)
+			: glm::ivec2(pos) {}
+
+		constexpr IntPosition2D(const glm::ivec2& pos)
+			: glm::ivec2(pos) {}
+
+		constexpr IntPosition2D(const glm::dvec2& pos)
+			: glm::ivec2(pos) {}
+
+		IntPosition2D ToWorldSpace(const ChunkCoord& coord) const;
+		IntPosition2D ToChunkSpace(const ChunkCoord& coord) const;
+
+		bool IsInBounds() const;
 
 		ChunkCoord ToChunkCoord() const;
 	};
