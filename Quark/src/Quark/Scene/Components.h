@@ -29,12 +29,6 @@ namespace Quark {
 			return m_Transform;
 		}
 
-		operator glm::mat4& ()
-		{
-			UpdateMatrix();
-			return (glm::mat4&)m_Transform;
-		}
-
 		glm::dvec3 GetFrontVector() const { return glm::dvec3(0.0, 0.0f, 1.0f) * Orientation; }
 		glm::dvec3 GetRightVector() const { return glm::dvec3(1.0, 0.0f, 0.0f) * Orientation; }
 		glm::dvec3 GetTopVector() const { return glm::dvec3(0.0, 1.0f, 0.0f) * Orientation; }

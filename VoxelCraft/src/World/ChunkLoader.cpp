@@ -40,7 +40,7 @@ namespace VoxelCraft {
 		for (uint32_t i = 0; i < s_ThreadPoolSize; i++)
 			s_ThreadPool.emplace_back(&ChunkLoader::StartWork, this);
 
-		std::cout << "Platform supports: " << std::thread::hardware_concurrency() << " threads.\n";
+		std::cout << "Platform has: " << std::thread::hardware_concurrency() << " threads.\n";
 	}
 
 	ChunkLoader::~ChunkLoader()
@@ -54,14 +54,6 @@ namespace VoxelCraft {
 
 		for (auto& thread : s_ThreadPool)
 			thread.join();
-
-		QK_ASSERT(m_Stats.ChunksAllocated == m_Stats.ChunksFreed, "Memory leak detected!" << m_Stats.ChunksAllocated - m_Stats.ChunksFreed << " chunks could not be deleted.");
-
-		std::cout << "Batch summary:\n" <<
-			"Allocated: " << m_Stats.ChunksAllocated << '\n' <<
-			"Freed: " << m_Stats.ChunksFreed << '\n' <<
-			"World Gen: " << m_Stats.ChunksWorldGen << '\n' <<
-			"Mesh Gen: " << m_Stats.ChunksMeshGen << '\n';
 	}
 
 	void ChunkLoader::OnUpdate(float elapsedTime)
@@ -212,6 +204,7 @@ namespace VoxelCraft {
 	void ChunkLoader::OnChunkBorderCrossed()
 	{
 		m_LoadingArea.Invalidate({ m_RenderDistance, m_RenderDistance }, m_Coord);
+
 		m_LoadingArea.Foreach([this](ChunkIdentifier id)
 			{
 				Load(id);

@@ -62,11 +62,18 @@ namespace VoxelCraft {
 
 		m_WorldPartition.Foreach([this](const Chunk* chunk) {
 			const auto& id = chunk->GetID();
-			if (!InBounds(id))
+			if (!InInternalBounds(id))
 			{
 				m_ChunksOutOfBounds.push_back(id);
 			}
 			});
+	}
+
+	bool WorldArea::InInternalBounds(ChunkIdentifier id) const
+	{
+		const auto& coord = id.Coord;
+		return (coord.x >= m_InternalBounds.First.x && coord.x <= m_InternalBounds.Second.x &&
+			coord.y >= m_InternalBounds.First.y && coord.y <= m_InternalBounds.Second.y);
 	}
 
 	void WorldArea::ComputeBounds(const glm::ivec2& size, ChunkCoord anchor)

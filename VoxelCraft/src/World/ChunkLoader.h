@@ -12,8 +12,6 @@ namespace VoxelCraft {
 
 	struct ChunkLoaderStats
 	{
-		uint32_t ChunksAllocated = 0;
-		uint32_t ChunksFreed = 0;
 		uint32_t ChunksWorldGen = 0;
 		uint32_t ChunksMeshGen = 0;
 	};

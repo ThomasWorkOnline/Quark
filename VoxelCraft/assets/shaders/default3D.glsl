@@ -12,9 +12,6 @@ uniform dvec3 u_Position;
 
 void main()
 {
-	//vec4 position = vec4(a_Position, 1.0);
-	//gl_Position = u_Projection * u_View * u_Model * position;
-
 	// High precision vertex position
 	dvec4 position = (dmat4(u_Model) * dvec4(a_Position.xyz, 1.0)) + dvec4(u_Position.xyz, 0.0);
 	gl_Position = vec4(dmat4(u_Projection) * dmat4(u_View) * position);

@@ -12,7 +12,7 @@
 namespace VoxelCraft {
 
 	static uint32_t s_ChunksExpected = 0;
-	static std::atomic_bool flagPlayerGravity;
+	static std::atomic_bool s_FlagPlayerGravity;
 
 	World::World()
 	{
@@ -35,7 +35,7 @@ namespace VoxelCraft {
 
 		ProcessPlayerCollision();
 
-		m_Player.GetComponent<GravityComponent>().Affected = flagPlayerGravity;
+		m_Player.GetComponent<GravityComponent>().Affected = s_FlagPlayerGravity;
 
 		// Controls
 		m_Controller.OnUpdate(elapsedTime);
@@ -46,7 +46,6 @@ namespace VoxelCraft {
 
 		// Rendering
 		Renderer::RenderMap(m_Map, m_Player.GetComponent<Quark::PerspectiveCameraComponent>().Camera.GetProjection(), m_Player.GetCameraTransformNoPosition(), m_Player.GetHeadPosition());
-		Renderer::RenderUnloadedChunks(m_Map, m_Player.GetComponent<Quark::PerspectiveCameraComponent>().Camera.GetProjection(), m_Player.GetCameraTransformNoPosition(), m_Player.GetHeadPosition());
 
 		const auto& window = Quark::Application::Get().GetWindow();
 		Renderer::RenderUI(window.GetWidth(), window.GetHeight());
@@ -67,10 +66,8 @@ namespace VoxelCraft {
 		// Player feels gravity when chunk is loaded
 		if (m_Player.GetPosition().ToChunkCoord() == m_Map.Select(id)->GetCoord())
 		{
-			flagPlayerGravity = true;
+			s_FlagPlayerGravity = true;
 		}
-
-		std::cout << m_Map.Count() << " chunks active\n";
 	}
 
 	void World::OnChunkModified(ChunkIdentifier id)
@@ -97,11 +94,14 @@ namespace VoxelCraft {
 		switch (e.GetKeyCode())
 		{
 		case Quark::KeyCode::T:
-			std::cout << m_Loader->GetStats().ChunksWorldGen << " chunks terrain generated!\n";
-			std::cout << m_Loader->GetStats().ChunksMeshGen << " chunks meshes generated!\n";
+			std::cout << "====== WORLD SUMMARY ======\n";
+			std::cout << m_Map.Count() << " chunks active\n";
+			std::cout << m_Loader->GetStats().ChunksWorldGen << " chunks terrain generated\n";
+			std::cout << m_Loader->GetStats().ChunksMeshGen << " chunks meshes generated\n";
 			std::cout << "chunks terrain expected: " << s_ChunksExpected << '\n';
 			std::cout << "Idling: " << (m_Loader->Idling() ? "true" : "false") << '\n';
-			std::cout << ChunkSpecification::BlockCount * m_Loader->GetStats().ChunksWorldGen << " blocks generated!\n";
+			std::cout << ChunkSpecification::BlockCount * m_Loader->GetStats().ChunksWorldGen << " blocks generated\n";
+			std::cout << "===========================\n";
 			break;
 		}
 

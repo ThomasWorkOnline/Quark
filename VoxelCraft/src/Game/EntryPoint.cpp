@@ -54,6 +54,8 @@ namespace VoxelCraft {
 
 		bool OnKeyPressed(Quark::KeyPressedEvent& e)
 		{
+			static bool viewUnloadedChunks = false;
+
 			switch (e.GetKeyCode())
 			{
 			case Quark::Key::Escape:
@@ -62,8 +64,12 @@ namespace VoxelCraft {
 			case Quark::Key::F11:
 				GetWindow().SetFullScreen(!GetWindow().IsFullscreen());
 				break;
-			case Quark::KeyCode::F1:
+			case Quark::Key::F1:
 				Renderer::SwitchShader();
+				break;
+			case Quark::Key::F2:
+				viewUnloadedChunks = !viewUnloadedChunks;
+				Renderer::ViewUnloadedChunks(viewUnloadedChunks);
 				break;
 			}
 

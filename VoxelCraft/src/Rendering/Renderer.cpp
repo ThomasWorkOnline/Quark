@@ -4,15 +4,16 @@
 
 namespace VoxelCraft {
 
-#define DRAW_CHUNK_ALL_STATUS 0
+#define DRAW_CHUNK_ALL_STATUS 1
 
 	Quark::Ref<Quark::Shader> Renderer::s_ActiveShader;
 	Quark::Ref<Quark::Texture2D> Renderer::s_Texture;
+	
+	bool Renderer::s_ViewUnloadedChunks = false;
 
 	RendererStats Renderer::s_Stats;
 
 	// Debug
-#if DRAW_CHUNK_ALL_STATUS
 	static Quark::Ref<Quark::Shader> s_Shader;
 	static const Quark::BufferLayout s_Layout = {
 		{ Quark::ShaderDataType::Float3, "a_Position" },
@@ -22,22 +23,18 @@ namespace VoxelCraft {
 	static Quark::Mesh s_Mesh;
 
 	static Quark::Transform3DComponent s_Transform;
-#endif
 
 	void Renderer::Initialize()
 	{
 		s_ActiveShader = Resources::GetShader("default");
 		s_Texture = Resources::GetTexture();
 
-#	if DRAW_CHUNK_ALL_STATUS
 		s_Shader = Quark::Shader::Create("assets/shaders/default3D.glsl");
-
 		s_Mesh = { s_Layout, "assets/models/arrow.obj" };
 
 		s_Transform.Position = { 0.5f, 80.f, 0.5f };
 		s_Transform.Scale = { 0.4f, 0.2f, 0.2f };
 		s_Transform.Orientation = glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-#	endif
 	}
 
 	void Renderer::Shutdown()
@@ -59,12 +56,13 @@ namespace VoxelCraft {
 			});
 
 		Quark::Renderer::EndScene();
+
+		if (s_ViewUnloadedChunks)
+			RenderUnloadedChunks(map, cameraProjection, cameraTransformNoPosition, cameraPosition);
 	}
 
 	void Renderer::RenderUnloadedChunks(const WorldMap& map, const glm::mat4& cameraProjection, const Quark::Transform3DComponent& cameraTransformNoPosition, const Position3D& cameraPosition)
 	{
-#		if DRAW_CHUNK_ALL_STATUS
-
 		Quark::Renderer::BeginScene(cameraProjection, cameraTransformNoPosition);
 
 		s_Shader->Attach();
@@ -74,8 +72,8 @@ namespace VoxelCraft {
 			{
 				if (data->GetLoadStatus() != Chunk::LoadStatus::Loaded)
 				{
-					//const auto position = IntPosition2D(data->GetCoord()).ToWorldSpace(data->GetCoord());
-					//s_Transform.Position = { position.x + 8, 80, position.y + 8 };
+					const auto position = IntPosition2D(data->GetCoord()).ToWorldSpace(data->GetCoord());
+					s_Transform.Position = { position.x + 8, 80, position.y + 8 };
 
 					Quark::Renderer::Submit(s_Shader, s_Mesh.GetVertexArray(), s_Transform);
 					s_Stats.DrawCalls++;
@@ -83,8 +81,6 @@ namespace VoxelCraft {
 			});
 
 		Quark::Renderer::EndScene();
-
-#		endif
 	}
 
 	void Renderer::RenderUI(uint32_t width, uint32_t height)

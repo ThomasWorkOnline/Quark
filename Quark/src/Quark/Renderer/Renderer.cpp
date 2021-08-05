@@ -226,7 +226,7 @@ namespace Quark {
 		s_Stats.DrawCalls++;
 	}
 
-	void Renderer::Submit(const Ref<Shader>& shader, const Ref<Texture2D>& texture, const Ref<VertexArray>& va, const glm::mat4& transform)
+	void Renderer::Submit(const Ref<Shader>& shader, const Ref<Texture2D>& texture, const Ref<VertexArray>& va, const glm::dmat4& transform)
 	{
 		if (va)
 		{
@@ -242,7 +242,7 @@ namespace Quark {
 		}
 	}
 
-	void Renderer::Submit(const Ref<Shader>& shader, const Ref<VertexArray>& va, const glm::mat4& transform)
+	void Renderer::Submit(const Ref<Shader>& shader, const Ref<VertexArray>& va, const glm::dmat4& transform)
 	{
 		if (va)
 		{
@@ -259,7 +259,7 @@ namespace Quark {
 		}
 	}
 
-	void Renderer::Submit(const Ref<Shader>& shader, const Ref<Framebuffer>& framebuffer, const Ref<VertexArray>& va, const glm::mat4& transform)
+	void Renderer::Submit(const Ref<Shader>& shader, const Ref<Framebuffer>& framebuffer, const Ref<VertexArray>& va, const glm::dmat4& transform)
 	{
 		if (va)
 		{
