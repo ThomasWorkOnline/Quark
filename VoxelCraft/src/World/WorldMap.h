@@ -28,7 +28,7 @@ namespace VoxelCraft {
 		bool Contains(ChunkIdentifier id) const;
 
 	private:
-		void Erase(ChunkIdentifier id);
+		void Erase(Chunk* data);
 
 	private:
 		mutable std::recursive_mutex m_ChunksLocationsMutex;

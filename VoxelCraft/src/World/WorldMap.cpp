@@ -83,7 +83,7 @@ namespace VoxelCraft {
 		auto data = Select(id);
 		data->Save();
 
-		Erase(id);
+		Erase(data);
 	}
 
 	bool WorldMap::Contains(ChunkIdentifier id) const
@@ -91,12 +91,11 @@ namespace VoxelCraft {
 		return Select(id);
 	}
 
-	void WorldMap::Erase(ChunkIdentifier id)
+	void WorldMap::Erase(Chunk* data)
 	{
-		auto data = Select(id);
 		{
 			std::lock_guard<std::recursive_mutex> lock(m_ChunksLocationsMutex);
-			m_ChunksLocations.erase(id.ID);
+			m_ChunksLocations.erase(data->ID.ID);
 		}
 
 		std::lock_guard<std::mutex> lock(m_ChunksToDeleteMutex);
