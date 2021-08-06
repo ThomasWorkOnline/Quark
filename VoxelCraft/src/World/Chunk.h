@@ -1,23 +1,22 @@
 #pragma once
 
 #include "ChunkIdentifier.h"
+#include "SubChunk.h"
 
 #include "../Blocks/Block.h"
 #include "../Utils/Position.h"
-#include "../Rendering/ChunkMesh.h"
-#include "../Rendering/Vertex.h"
 
-// TODO: when creating sub-chunks, sum-up or bitwise or all sub-chunks block id;
-// if the resulting number is 0, sub-chunk is filled with air. No need to generate mesh.
-// This should speed up the world gen for normal terrain generations.
+#include <vector>
 
 namespace VoxelCraft {
 
 	struct ChunkSpecification
 	{
-		static const int32_t Width = 16;   // x
-		static const int32_t Height = 256; // y
-		static const int32_t Depth = 16;   // z
+		static constexpr int32_t SubChunksStackSize = 16;
+
+		static constexpr int32_t Width  = SubChunkSpecification::Width; // x
+		static constexpr int32_t Height = SubChunkSpecification::Height * SubChunksStackSize; // y
+		static constexpr int32_t Depth  = SubChunkSpecification::Depth; // z
 
 		static constexpr uint32_t BlockCount = Width * Height * Depth;
 	};
@@ -28,31 +27,18 @@ namespace VoxelCraft {
 	struct ChunkNeighbors
 	{
 		// Order is important
-		ChunkNeighbors(const Chunk* north, const Chunk* south, const Chunk* west, const Chunk* east)
+		ChunkNeighbors(Chunk* north, Chunk* south, Chunk* west, Chunk* east)
 			: North(north), South(south), West(west), East(east) {}
 
-		const Chunk* North;
-		const Chunk* South;
-		const Chunk* West;
-		const Chunk* East;
+		Chunk* North;
+		Chunk* South;
+		Chunk* West;
+		Chunk* East;
 	};
 
 	class Chunk
 	{
 	public:
-		Chunk(World& world, ChunkIdentifier id);
-		~Chunk();
-
-		void Save() const;
-
-		ChunkID GetID() const { return m_Id.ID; }
-		ChunkCoord GetCoord() const { return m_Id.Coord; }
-
-		Block GetBlock(const IntPosition3D& position) const;
-		bool ReplaceBlock(const IntPosition3D& position, Block type);
-
-		const ChunkMesh& GetMesh() const { return m_Mesh; }
-
 		enum class LoadStatus : int8_t
 		{
 			Allocated = 0,
@@ -64,8 +50,17 @@ namespace VoxelCraft {
 			Occupied = WorldGenerating | Loading
 		};
 
-		LoadStatus GetLoadStatus() const { return m_LoadingStatus; }
-		void SetLoadStatus(LoadStatus status) { m_LoadingStatus = status; }
+		ChunkIdentifier ID;
+		std::vector<SubChunk> SubChunks;
+		std::atomic<LoadStatus> LoadStatus = LoadStatus::Allocated;
+
+		Chunk(World& world, ChunkIdentifier id);
+		~Chunk();
+
+		void Save() const;
+
+		Block GetBlock(const IntPosition3D& position) const;
+		bool ReplaceBlock(const IntPosition3D& position, Block type);
 
 		void BuildTerrain();
 		void BuildMesh(const ChunkNeighbors& neighbors);
@@ -75,24 +70,24 @@ namespace VoxelCraft {
 		/// </summary>
 		void UploadMesh();
 
-		bool IsBlockFaceVisible(const IntPosition3D& position, BlockFace face, const ChunkNeighbors& neighbors) const;
-
 	private:
 		Block GenerateBlock(const IntPosition3D& position);
+		void RebuildSubMeshes(const IntPosition3D& position);
+
 		bool IsBlockTransparent(const IntPosition3D& position) const;
+		bool IsBlockFaceVisible(const IntPosition3D& position, BlockFace face, const ChunkNeighbors& neighbors) const;
+
+		ChunkNeighbors QueryNeighbors() const;
 
 	private:
-		std::atomic_bool m_Pushed = false;
-		std::atomic_bool m_Edited = false;
-		std::atomic<LoadStatus> m_LoadingStatus = LoadStatus::Allocated;
-
-		ChunkIdentifier m_Id;
-
-		ChunkMesh m_Mesh;
-
 		Block* m_Blocks = nullptr;
 		int32_t* m_HeightMap = nullptr;
 
 		World& m_World;
+
+		friend class SubChunk;
+		friend class ChunkMesh;
 	};
+
+	uint32_t IndexAtPosition(const IntPosition3D& position);
 }

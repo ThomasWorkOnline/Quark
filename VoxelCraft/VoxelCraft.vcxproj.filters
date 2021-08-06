@@ -16,6 +16,7 @@
     <ClCompile Include="src\Rendering\ChunkMesh.cpp" />
     <ClCompile Include="src\Game\Hitbox.cpp" />
     <ClCompile Include="src\Blocks\BlockProperties.cpp" />
+    <ClCompile Include="src\World\SubChunk.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\World\Chunk.h" />

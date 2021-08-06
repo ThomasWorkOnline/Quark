@@ -106,6 +106,7 @@
     <ClCompile Include="src\Utils\Position.cpp" />
     <ClCompile Include="src\Game\Hitbox.cpp" />
     <ClCompile Include="src\Rendering\ChunkMesh.cpp" />
+    <ClCompile Include="src\World\SubChunk.cpp" />
     <ClCompile Include="src\World\WorldArea.cpp" />
     <ClCompile Include="src\Entity\Player.cpp" />
     <ClCompile Include="src\Game\PlayerController.cpp" />

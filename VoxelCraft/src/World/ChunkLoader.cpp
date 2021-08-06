@@ -28,9 +28,9 @@ namespace VoxelCraft {
 	}
 
 	ChunkLoader::ChunkLoader(World& world, ChunkCoord coord, uint32_t renderDistance)
-		: m_World(world), m_LoadingArea(m_World.GetMap(), { renderDistance, renderDistance }, coord),
-		m_Coord(coord),
-		m_RenderDistance(renderDistance)
+		: m_World(world), m_LoadingArea(m_World.Map, { renderDistance, renderDistance }, coord),
+		Coord(coord),
+		RenderDistance(renderDistance)
 	{
 		m_LoadingArea.Foreach([this](ChunkIdentifier id)
 			{
@@ -58,17 +58,17 @@ namespace VoxelCraft {
 
 	void ChunkLoader::OnUpdate(float elapsedTime)
 	{
-		static ChunkCoord lastCoord = m_Coord;
+		static ChunkCoord lastCoord = Coord;
 
-		if (lastCoord != m_Coord)
+		if (lastCoord != Coord)
 		{
 			OnChunkBorderCrossed();
 		}
-		lastCoord = m_Coord;
+		lastCoord = Coord;
 
-		m_World.GetMap().Foreach([](Chunk* data)
+		m_World.Map.Foreach([](Chunk* data)
 			{
-				if (data && data->GetLoadStatus() == Chunk::LoadStatus::Loaded)
+				if (data && data->LoadStatus == Chunk::LoadStatus::Loaded)
 				{
 					data->UploadMesh();
 				}
@@ -87,8 +87,8 @@ namespace VoxelCraft {
 
 		if (m_LoadingQueue.size() < s_QueueLimit)
 		{
-			const Chunk* chunk = m_World.GetMap().Select(id);
-			if ((!chunk || chunk->GetLoadStatus() == Chunk::LoadStatus::Allocated || chunk->GetLoadStatus() == Chunk::LoadStatus::WorldGenerated))
+			const Chunk* chunk = m_World.Map.Select(id);
+			if ((!chunk || chunk->LoadStatus == Chunk::LoadStatus::Allocated || chunk->LoadStatus == Chunk::LoadStatus::WorldGenerated))
 			{
 				m_LoadingQueue.insert(id.ID);
 				s_ConditionVariable.notify_one();
@@ -111,13 +111,6 @@ namespace VoxelCraft {
 			m_UnloadingQueue.insert(id.ID);
 			s_ConditionVariable.notify_one();
 		}
-	}
-
-	void ChunkLoader::Rebuild(ChunkIdentifier id)
-	{
-		Chunk* chunk = m_World.GetMap().Select(id);
-		chunk->SetLoadStatus(Chunk::LoadStatus::WorldGenerated);
-		LoadChunk(id);
 	}
 
 	bool ChunkLoader::Idling() const
@@ -180,7 +173,7 @@ namespace VoxelCraft {
 	{
 		QK_TIME_SCOPE_DEBUG(ChunkLoader::LoadChunk);
 
-		auto& map = m_World.GetMap();
+		auto& map = m_World.Map;
 		auto chunk	= map.Load(id);
 		auto north	= map.Load(id.North());
 		auto south	= map.Load(id.South());
@@ -198,12 +191,12 @@ namespace VoxelCraft {
 
 	void ChunkLoader::UnloadChunk(ChunkIdentifier id)
 	{
-		m_World.GetMap().Unload(id);
+		m_World.Map.Unload(id);
 	}
 
 	void ChunkLoader::OnChunkBorderCrossed()
 	{
-		m_LoadingArea.Invalidate({ m_RenderDistance, m_RenderDistance }, m_Coord);
+		m_LoadingArea.Invalidate({ RenderDistance, RenderDistance }, Coord);
 
 		m_LoadingArea.Foreach([this](ChunkIdentifier id)
 			{
@@ -222,18 +215,18 @@ namespace VoxelCraft {
 		{
 			std::lock_guard<std::recursive_mutex> lock(s_QueueMutex);
 
-			if (chunk && chunk->GetLoadStatus() == Chunk::LoadStatus::Allocated)
+			if (chunk && chunk->LoadStatus == Chunk::LoadStatus::Allocated)
 			{
 				access = true;
-				chunk->SetLoadStatus(Chunk::LoadStatus::WorldGenerating);
+				chunk->LoadStatus = Chunk::LoadStatus::WorldGenerating;
 			}
 		}
 
 		if (access)
 		{
 			chunk->BuildTerrain();
-			chunk->SetLoadStatus(Chunk::LoadStatus::WorldGenerated);
-			m_Stats.ChunksWorldGen++;
+			chunk->LoadStatus = Chunk::LoadStatus::WorldGenerated;
+			Stats.ChunksWorldGen++;
 		}
 	}
 
@@ -244,20 +237,20 @@ namespace VoxelCraft {
 		{
 			std::lock_guard<std::recursive_mutex> lock(s_QueueMutex);
 
-			if (chunk && chunk->GetLoadStatus() == Chunk::LoadStatus::WorldGenerated)
+			if (chunk && chunk->LoadStatus == Chunk::LoadStatus::WorldGenerated)
 			{
 				access = true;
-				chunk->SetLoadStatus(Chunk::LoadStatus::Loading);
+				chunk->LoadStatus = Chunk::LoadStatus::Loading;
 			}
 		}
 
 		if (access)
 		{
 			chunk->BuildMesh(neighbors);
-			chunk->SetLoadStatus(Chunk::LoadStatus::Loaded);
-			m_Stats.ChunksMeshGen++;
+			chunk->LoadStatus = Chunk::LoadStatus::Loaded;
+			Stats.ChunksMeshGen++;
 
-			m_World.OnChunkLoaded(chunk->GetID());
+			m_World.OnChunkLoaded(chunk->ID);
 		}
 	}
 }

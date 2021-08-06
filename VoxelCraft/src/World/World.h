@@ -17,6 +17,8 @@ namespace VoxelCraft {
 	class World
 	{
 	public:
+		WorldMap Map = { *this };
+
 		World();
 		~World();
 
@@ -24,10 +26,7 @@ namespace VoxelCraft {
 		void OnEvent(Quark::Event& e);
 
 		void OnChunkLoaded(ChunkIdentifier id);
-		void OnChunkModified(ChunkIdentifier id);
 
-		const WorldMap& GetMap() const { return m_Map; }
-		WorldMap& GetMap() { return m_Map; }
 		Block GetBlock(const IntPosition3D& position) const;
 
 		bool IsPlayerTouchingGround(const Player& player) const;
@@ -43,13 +42,12 @@ namespace VoxelCraft {
 		void ReplaceBlock(const IntPosition3D& position, Block type);
 		void ProcessPlayerCollision();
 
+	private:
 		Quark::Scene m_Scene;
 
 		// TODO: move
 		Player m_Player = { *this, m_Scene };
 		PlayerController m_Controller = { m_Player };
-
-		WorldMap m_Map = { *this };
 
 		Quark::Scope<ChunkLoader> m_Loader;
 	};

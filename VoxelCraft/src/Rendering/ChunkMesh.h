@@ -8,26 +8,30 @@
 
 namespace VoxelCraft {
 
-	class Chunk;
+	class SubChunk;
 	class ChunkNeighbors;
 	class BlockProperties;
 
 	class ChunkMesh
 	{
 	public:
-		void Create(const Chunk* chunk, const ChunkNeighbors& neighbors);
+		void Create(const SubChunk& subChunk, const ChunkNeighbors& neighbors);
 		void Upload();
+
+		bool Uploaded() const { return m_Uploaded; }
+		bool HasData() const { return m_VertexCount; }
 
 		const Quark::Ref<Quark::VertexArray>& GetVertexArray() const { return m_VertexArray; }
 
 	private:
-		void CreateBlockMesh(Block block, const IntPosition3D& position, const Chunk* chunk, const ChunkNeighbors& neighbors);
+		void CreateBlockMesh(Block block, const IntPosition3D& position, const SubChunk& subChunk, const ChunkNeighbors& neighbors);
 		void CreateBlockFaceMesh(const IntPosition3D& position, const BlockProperties& props, BlockFace face);
 		void CreateCrossSpriteMesh(const IntPosition3D& position, const BlockProperties& props);
 
 	private:
 		Quark::Ref<Quark::VertexArray> m_VertexArray;
 
+		bool m_Uploaded = true;
 		uint32_t m_VertexCount = 0;
 		std::vector<Vertex> m_Vertices;
 		std::vector<uint32_t> m_Indices;

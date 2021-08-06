@@ -9,14 +9,7 @@
 
 namespace VoxelCraft {
 
-	static BlockID s_CombinedTypes = BlockID::Air;
-
 	static std::mt19937 s_Random;
-
-	static uint32_t IndexAtPosition(const IntPosition3D& position)
-	{
-		return position.x + ChunkSpecification::Width * position.z + ChunkSpecification::Width * ChunkSpecification::Depth * position.y;
-	}
 
 	static bool BoundsCheck(const IntPosition3D& position)
 	{
@@ -25,7 +18,15 @@ namespace VoxelCraft {
 	}
 
 	Chunk::Chunk(World& world, ChunkIdentifier id)
-		: m_World(world), m_Id(id) {}
+		: ID(id), m_World(world)
+	{
+		SubChunks.reserve(ChunkSpecification::SubChunksStackSize);
+
+		for (int32_t i = 0; i < ChunkSpecification::SubChunksStackSize; i++)
+		{
+			SubChunks.emplace_back(this, i);
+		}
+	}
 
 	Chunk::~Chunk()
 	{
@@ -40,25 +41,14 @@ namespace VoxelCraft {
 
 	void Chunk::Save() const
 	{
-		/*if (this)
-		{
-			std::stringstream filepath;
-			filepath << CHUNK_UUID(m_Coord);
-			filepath << ".dat";
-
-			std::ofstream out(filepath.str(), std::ios::out | std::ios::binary);
-
-			DumpAsBinary(out, this, sizeof(Chunk));
-
-			out.close();
-		}*/
+		
 	}
 
 	void Chunk::BuildTerrain()
 	{
 		QK_ASSERT(m_Blocks == nullptr, "Tried to allocate blocks more than once");
 
-		s_Random.seed(m_Id.Coord.x | m_Id.Coord.y);
+		s_Random.seed(ID.Coord.x | ID.Coord.y);
 
 		// Generate height map
 		m_HeightMap = new int32_t[ChunkSpecification::Width * ChunkSpecification::Depth];
@@ -68,7 +58,7 @@ namespace VoxelCraft {
 		{
 			for (heightIndex.x = 0; heightIndex.x < ChunkSpecification::Width; heightIndex.x++)
 			{
-				auto position = heightIndex.ToWorldSpace(m_Id.Coord);
+				auto position = heightIndex.ToWorldSpace(ID.Coord);
 
 				//double noise = s_Random() / static_cast<double>(std::numeric_limits<unsigned int>::max());
 
@@ -84,33 +74,29 @@ namespace VoxelCraft {
 		// Generate blocks
 		m_Blocks = new Block[ChunkSpecification::BlockCount];
 
-		IntPosition3D position;
-		for (position.y = 0; position.y < ChunkSpecification::Height; position.y++)
+		for (auto& subChunk : SubChunks)
 		{
-			for (position.z = 0; position.z < ChunkSpecification::Depth; position.z++)
-			{
-				for (position.x = 0; position.x < ChunkSpecification::Width; position.x++)
-				{
-					m_Blocks[IndexAtPosition(position)] = GenerateBlock(position);
-				}
-			}
+			subChunk.BuildTerrain();
 		}
 	}
 
 	void Chunk::BuildMesh(const ChunkNeighbors& neighbors)
 	{
-		m_Mesh.Create(this, neighbors);
-		m_Pushed = false;
+		for (auto& subChunk : SubChunks)
+		{
+			subChunk.Mesh.Create(subChunk, neighbors);
+		}
 	}
 
 	void Chunk::UploadMesh()
 	{
-		if (!m_Pushed)
+		for (auto& subChunk : SubChunks)
 		{
-			m_Mesh.Upload();
-		}
+			auto& mesh = subChunk.Mesh;
 
-		m_Pushed = true;
+			if (!mesh.Uploaded() && mesh.HasData())
+				mesh.Upload();
+		}
 	}
 
 	Block Chunk::GenerateBlock(const IntPosition3D& position)
@@ -145,10 +131,61 @@ namespace VoxelCraft {
 		else
 			type = BlockID::Air;
 
-		// Append type
-		s_CombinedTypes = (BlockID)(s_CombinedTypes | type.ID);
-
 		return type;
+	}
+
+	void Chunk::RebuildSubMeshes(const IntPosition3D& position)
+	{
+		uint32_t subChunkStackIndex = position.y / SubChunkSpecification::Height;
+
+		SubChunk& center = SubChunks[subChunkStackIndex];
+		Position3D pos = center.GetPositionFromParentChunk(position);
+
+		ChunkNeighbors neighbors = QueryNeighbors();
+		center.RebuildMesh(neighbors);
+
+		if (pos.x == 0)
+		{
+			auto west = neighbors.West;
+			SubChunk& subEast = west->SubChunks[subChunkStackIndex];
+			subEast.RebuildMesh(west->QueryNeighbors());
+		}
+		else if (pos.x == SubChunkSpecification::Width - 1)
+		{
+			const auto east = neighbors.East;
+			SubChunk& subWest = east->SubChunks[subChunkStackIndex];
+			subWest.RebuildMesh(east->QueryNeighbors());
+		}
+
+		if (pos.y == 0)
+		{
+			if (subChunkStackIndex > 0)
+			{
+				SubChunk& bottom = SubChunks[subChunkStackIndex - 1];
+				bottom.RebuildMesh(neighbors);
+			}
+		}
+		else if (pos.y == SubChunkSpecification::Height - 1)
+		{
+			if (subChunkStackIndex < ChunkSpecification::SubChunksStackSize - 1)
+			{
+				SubChunk& top = SubChunks[subChunkStackIndex + 1];
+				top.RebuildMesh(neighbors);
+			}
+		}
+
+		if (pos.z == 0)
+		{
+			const auto south = neighbors.South;
+			SubChunk& subSouth = south->SubChunks[subChunkStackIndex];
+			subSouth.RebuildMesh(south->QueryNeighbors());
+		}
+		else if (pos.z == SubChunkSpecification::Depth - 1)
+		{
+			const auto north = neighbors.North;
+			SubChunk& subNorth = north->SubChunks[subChunkStackIndex];
+			subNorth.RebuildMesh(north->QueryNeighbors());
+		}
 	}
 
 	Block Chunk::GetBlock(const IntPosition3D& position) const
@@ -167,30 +204,9 @@ namespace VoxelCraft {
 			return false;
 
 		uint32_t index = IndexAtPosition(position);
-
-		m_Edited = true;
-
 		m_Blocks[index] = type;
 
-		m_World.OnChunkModified(m_Id);
-
-		if (position.x == 0)
-		{
-			m_World.OnChunkModified(m_Id.West());
-		}
-		else if (position.x == ChunkSpecification::Width - 1)
-		{
-			m_World.OnChunkModified(m_Id.East());
-		}
-
-		if (position.z == 0)
-		{
-			m_World.OnChunkModified(m_Id.South());
-		}
-		else if (position.z == ChunkSpecification::Depth - 1)
-		{
-			m_World.OnChunkModified(m_Id.North());
-		}
+		RebuildSubMeshes(position);
 
 		return true;
 	}
@@ -233,9 +249,24 @@ namespace VoxelCraft {
 		return true;
 	}
 
+	ChunkNeighbors Chunk::QueryNeighbors() const
+	{
+		return {
+			m_World.Map.Select(ID.North()),
+			m_World.Map.Select(ID.South()),
+			m_World.Map.Select(ID.West()),
+			m_World.Map.Select(ID.East())
+		};
+	}
+
 	bool Chunk::IsBlockTransparent(const IntPosition3D& position) const
 	{
 		uint32_t index = IndexAtPosition(position);
 		return m_Blocks[index].GetProperties().Transparent;
+	}
+
+	uint32_t IndexAtPosition(const IntPosition3D& position)
+	{
+		return position.x + ChunkSpecification::Width * position.z + ChunkSpecification::Width * ChunkSpecification::Depth * position.y;
 	}
 }

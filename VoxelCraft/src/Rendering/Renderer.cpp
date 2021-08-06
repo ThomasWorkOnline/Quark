@@ -51,7 +51,7 @@ namespace VoxelCraft {
 
 		map.Foreach([](const Chunk* data)
 			{
-				if (data->GetLoadStatus() == Chunk::LoadStatus::Loaded)
+				if (data->LoadStatus == Chunk::LoadStatus::Loaded)
 					Renderer::RenderChunk(data);
 			});
 
@@ -70,9 +70,9 @@ namespace VoxelCraft {
 
 		map.Foreach([](const Chunk* data)
 			{
-				if (data->GetLoadStatus() != Chunk::LoadStatus::Loaded)
+				if (data->LoadStatus != Chunk::LoadStatus::Loaded)
 				{
-					const auto position = IntPosition2D(data->GetCoord()).ToWorldSpace(data->GetCoord());
+					const auto position = IntPosition2D(data->ID.Coord).ToWorldSpace(data->ID.Coord);
 					s_Transform.Position = { position.x + 8, 80, position.y + 8 };
 
 					Quark::Renderer::Submit(s_Shader, s_Mesh.GetVertexArray(), s_Transform);
@@ -108,8 +108,11 @@ namespace VoxelCraft {
 
 	void Renderer::RenderChunk(const Chunk* chunk)
 	{
-		Quark::Renderer::Submit(s_ActiveShader, s_Texture, chunk->GetMesh().GetVertexArray());
-		s_Stats.DrawCalls++;
+		for (auto& subChunk : chunk->SubChunks)
+		{
+			Quark::Renderer::Submit(s_ActiveShader, s_Texture, subChunk.Mesh.GetVertexArray());
+			s_Stats.DrawCalls++;
+		}
 	}
 
 	void Renderer::RenderCrosshair()

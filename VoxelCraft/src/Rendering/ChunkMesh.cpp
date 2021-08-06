@@ -5,7 +5,7 @@
 
 namespace VoxelCraft {
 
-	void ChunkMesh::Create(const Chunk* chunk, const ChunkNeighbors& neighbors)
+	void ChunkMesh::Create(const SubChunk& subChunk, const ChunkNeighbors& neighbors)
 	{
 		m_VertexCount = 0;
 		m_Vertices.clear();
@@ -16,41 +16,53 @@ namespace VoxelCraft {
 		QK_ASSERT(neighbors.West, "Chunk must be valid");
 		QK_ASSERT(neighbors.East, "Chunk must be valid");
 
+		const Chunk* chunk = subChunk.Parent;
+
 		Position3D position;
-		for (position.y = 0; position.y < ChunkSpecification::Height; position.y++)
+		for (position.y = 0; position.y < SubChunkSpecification::Height; position.y++)
 		{
-			for (position.z = 0; position.z < ChunkSpecification::Depth; position.z++)
+			for (position.z = 0; position.z < SubChunkSpecification::Depth; position.z++)
 			{
-				for (position.x = 0; position.x < ChunkSpecification::Width; position.x++)
+				for (position.x = 0; position.x < SubChunkSpecification::Width; position.x++)
 				{
-					Block block = chunk->GetBlock(position);
+					IntPosition3D parentPosition = subChunk.GetPositionInParentChunk(position);
+
+					Block block = chunk->GetBlock(parentPosition);
 
 					if (block == BlockID::Air)
 						continue;
 
-					CreateBlockMesh(block, position, chunk, neighbors);
+					CreateBlockMesh(block, parentPosition, subChunk, neighbors);
 				}
 			}
 		}
+
+		m_Uploaded = false;
 	}
 
 	void ChunkMesh::Upload()
 	{
 		static const auto& layout = Resources::GetBufferLayout();
 
-		m_VertexArray = Quark::VertexArray::Create();
+		if (!m_Uploaded)
+		{
+			m_VertexArray = Quark::VertexArray::Create();
 
-		auto vbo = Quark::VertexBuffer::Create(m_Vertices.data(), m_Vertices.size() * sizeof(Vertex));
-		vbo->SetLayout(layout);
-		m_VertexArray->AddVertexBuffer(vbo);
+			auto vbo = Quark::VertexBuffer::Create(m_Vertices.data(), m_Vertices.size() * sizeof(Vertex));
+			vbo->SetLayout(layout);
+			m_VertexArray->AddVertexBuffer(vbo);
 
-		auto ibo = Quark::IndexBuffer::Create(m_Indices.data(), m_Indices.size());
-		m_VertexArray->SetIndexBuffer(ibo);
+			auto ibo = Quark::IndexBuffer::Create(m_Indices.data(), m_Indices.size());
+			m_VertexArray->SetIndexBuffer(ibo);
+
+			m_Uploaded = true;
+		}
 	}
 
-	void ChunkMesh::CreateBlockMesh(Block block, const IntPosition3D& position, const Chunk* chunk, const ChunkNeighbors& neighbors)
+	void ChunkMesh::CreateBlockMesh(Block block, const IntPosition3D& position, const SubChunk& subChunk, const ChunkNeighbors& neighbors)
 	{
 		const auto& props = block.GetProperties();
+		const Chunk* chunk = subChunk.Parent;
 
 		switch (props.Mesh)
 		{
@@ -61,11 +73,11 @@ namespace VoxelCraft {
 				if (!chunk->IsBlockFaceVisible(position, BlockFace(f), neighbors))
 					continue;
 
-				ChunkMesh::CreateBlockFaceMesh(position.ToWorldSpace(chunk->GetCoord()), props, BlockFace(f));
+				ChunkMesh::CreateBlockFaceMesh(position.ToWorldSpace(chunk->ID.Coord), props, BlockFace(f));
 			}
 			break;
 		case BlockModel::CrossSprite:
-			ChunkMesh::CreateCrossSpriteMesh(position.ToWorldSpace(chunk->GetCoord()), props);
+			ChunkMesh::CreateCrossSpriteMesh(position.ToWorldSpace(chunk->ID.Coord), props);
 			break;
 		}
 	}

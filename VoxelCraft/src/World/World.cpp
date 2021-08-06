@@ -29,7 +29,7 @@ namespace VoxelCraft {
 	void World::OnUpdate(float elapsedTime)
 	{
 		const Position3D& playerPos = m_Player.GetPosition();
-		m_Loader->SetCoord(playerPos.ToChunkCoord());
+		m_Loader->Coord = playerPos.ToChunkCoord();
 
 		m_Scene.OnUpdate(elapsedTime);
 
@@ -41,11 +41,11 @@ namespace VoxelCraft {
 		m_Controller.OnUpdate(elapsedTime);
 
 		// Environment
-		m_Map.OnUpdate(elapsedTime);
+		Map.OnUpdate(elapsedTime);
 		m_Loader->OnUpdate(elapsedTime);
 
 		// Rendering
-		Renderer::RenderMap(m_Map, m_Player.GetComponent<Quark::PerspectiveCameraComponent>().Camera.GetProjection(), m_Player.GetCameraTransformNoPosition(), m_Player.GetHeadPosition());
+		Renderer::RenderMap(Map, m_Player.GetComponent<Quark::PerspectiveCameraComponent>().Camera.GetProjection(), m_Player.GetCameraTransformNoPosition(), m_Player.GetHeadPosition());
 
 		const auto& window = Quark::Application::Get().GetWindow();
 		Renderer::RenderUI(window.GetWidth(), window.GetHeight());
@@ -64,15 +64,10 @@ namespace VoxelCraft {
 	void World::OnChunkLoaded(ChunkIdentifier id)
 	{
 		// Player feels gravity when chunk is loaded
-		if (m_Player.GetPosition().ToChunkCoord() == m_Map.Select(id)->GetCoord())
+		if (m_Player.GetPosition().ToChunkCoord() == id.Coord)
 		{
 			s_FlagPlayerGravity = true;
 		}
-	}
-
-	void World::OnChunkModified(ChunkIdentifier id)
-	{
-		m_Loader->Rebuild(id); // TODO: move, not related to this loader
 	}
 
 	bool World::IsPlayerTouchingGround(const Player& player) const
@@ -95,12 +90,12 @@ namespace VoxelCraft {
 		{
 		case Quark::KeyCode::T:
 			std::cout << "====== WORLD SUMMARY ======\n";
-			std::cout << m_Map.Count() << " chunks active\n";
-			std::cout << m_Loader->GetStats().ChunksWorldGen << " chunks terrain generated\n";
-			std::cout << m_Loader->GetStats().ChunksMeshGen << " chunks meshes generated\n";
+			std::cout << Map.Count() << " chunks active\n";
+			std::cout << m_Loader->Stats.ChunksWorldGen << " chunks terrain generated\n";
+			std::cout << m_Loader->Stats.ChunksMeshGen << " chunks meshes generated\n";
 			std::cout << "chunks terrain expected: " << s_ChunksExpected << '\n';
 			std::cout << "Idling: " << (m_Loader->Idling() ? "true" : "false") << '\n';
-			std::cout << ChunkSpecification::BlockCount * m_Loader->GetStats().ChunksWorldGen << " blocks generated\n";
+			std::cout << ChunkSpecification::BlockCount * m_Loader->Stats.ChunksWorldGen << " blocks generated\n";
 			std::cout << "===========================\n";
 			break;
 		}
@@ -170,8 +165,8 @@ namespace VoxelCraft {
 		ChunkCoord coord = position.ToChunkCoord();
 		IntPosition3D blockPosition = position.ToChunkSpace(coord);
 
-		const Chunk* chunk = m_Map.Select(ChunkIdentifier(coord));
-		if (chunk && chunk->GetLoadStatus() >= Chunk::LoadStatus::WorldGenerated)
+		const Chunk* chunk = Map.Select(ChunkIdentifier(coord));
+		if (chunk && chunk->LoadStatus >= Chunk::LoadStatus::WorldGenerated)
 			return chunk->GetBlock(blockPosition);
 		return BlockID::Air;
 	}
@@ -181,8 +176,8 @@ namespace VoxelCraft {
 		ChunkCoord coord = position.ToChunkCoord();
 		IntPosition3D blockPosition = position.ToChunkSpace(coord);
 
-		Chunk* chunk = m_Map.Select(ChunkIdentifier(coord));
-		if (chunk && chunk->GetLoadStatus() == Chunk::LoadStatus::Loaded)
+		Chunk* chunk = Map.Select(ChunkIdentifier(coord));
+		if (chunk && chunk->LoadStatus == Chunk::LoadStatus::Loaded)
 		{
 			Block oldBlock = chunk->GetBlock(blockPosition);
 			if (oldBlock != type)

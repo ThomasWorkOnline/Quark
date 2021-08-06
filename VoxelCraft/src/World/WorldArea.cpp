@@ -61,7 +61,7 @@ namespace VoxelCraft {
 		m_ChunksOutOfBounds.clear();
 
 		m_WorldPartition.Foreach([this](const Chunk* chunk) {
-			const auto& id = chunk->GetID();
+			const auto& id = chunk->ID;
 			if (!InInternalBounds(id))
 			{
 				m_ChunksOutOfBounds.push_back(id);
