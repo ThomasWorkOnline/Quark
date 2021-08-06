@@ -8,7 +8,7 @@ namespace VoxelCraft {
 
 	Quark::Ref<Quark::Shader> Renderer::s_ActiveShader;
 	Quark::Ref<Quark::Texture2D> Renderer::s_Texture;
-	
+
 	bool Renderer::s_ViewUnloadedChunks = false;
 
 	RendererStats Renderer::s_Stats;
@@ -42,32 +42,38 @@ namespace VoxelCraft {
 
 	}
 
-	void Renderer::RenderMap(const WorldMap& map, const glm::mat4& cameraProjection, const Quark::Transform3DComponent& cameraTransformNoPosition, const Position3D& cameraPosition)
+	void Renderer::BeginScene(const glm::mat4& cameraProjection, const Quark::Transform3DComponent& cameraTransformNoPosition, const Position3D& cameraPosition)
 	{
 		Quark::Renderer::BeginScene(cameraProjection, cameraTransformNoPosition);
 
 		s_ActiveShader->Attach();
 		s_ActiveShader->SetDouble3("u_Position", -cameraPosition);
 
+		s_Shader->Attach();
+		s_Shader->SetDouble3("u_Position", -cameraPosition);
+	}
+
+	void Renderer::EndScene()
+	{
+		Quark::Renderer::EndScene();
+
+		ResetStats();
+	}
+
+	void Renderer::SubmitMap(const WorldMap& map)
+	{
 		map.Foreach([](const Chunk* data)
 			{
 				if (data->LoadStatus == Chunk::LoadStatus::Loaded)
 					Renderer::RenderChunk(data);
 			});
 
-		Quark::Renderer::EndScene();
-
 		if (s_ViewUnloadedChunks)
-			RenderUnloadedChunks(map, cameraProjection, cameraTransformNoPosition, cameraPosition);
+			RenderUnloadedChunks(map);
 	}
 
-	void Renderer::RenderUnloadedChunks(const WorldMap& map, const glm::mat4& cameraProjection, const Quark::Transform3DComponent& cameraTransformNoPosition, const Position3D& cameraPosition)
+	void Renderer::RenderUnloadedChunks(const WorldMap& map)
 	{
-		Quark::Renderer::BeginScene(cameraProjection, cameraTransformNoPosition);
-
-		s_Shader->Attach();
-		s_Shader->SetDouble3("u_Position", -cameraPosition);
-
 		map.Foreach([](const Chunk* data)
 			{
 				if (data->LoadStatus != Chunk::LoadStatus::Loaded)
@@ -79,11 +85,9 @@ namespace VoxelCraft {
 					s_Stats.DrawCalls++;
 				}
 			});
-
-		Quark::Renderer::EndScene();
 	}
 
-	void Renderer::RenderUI(uint32_t width, uint32_t height)
+	void Renderer::RenderUIScene(uint32_t width, uint32_t height)
 	{
 		// Draw UI
 		float aspectRatio = static_cast<float>(width) / height;
@@ -110,9 +114,17 @@ namespace VoxelCraft {
 	{
 		for (auto& subChunk : chunk->SubChunks)
 		{
-			Quark::Renderer::Submit(s_ActiveShader, s_Texture, subChunk.Mesh.GetVertexArray());
-			s_Stats.DrawCalls++;
+			if (!subChunk.Mesh.Empty())
+			{
+				Quark::Renderer::Submit(s_ActiveShader, s_Texture, subChunk.Mesh.GetVertexArray());
+				s_Stats.DrawCalls++;
+			}
 		}
+	}
+
+	void Renderer::ResetStats()
+	{
+		s_Stats.DrawCalls = 0;
 	}
 
 	void Renderer::RenderCrosshair()

@@ -18,6 +18,7 @@ namespace VoxelCraft {
 		void Create(const SubChunk& subChunk, const ChunkNeighbors& neighbors);
 		void Upload();
 
+		bool Empty() const { return !m_VertexCount; }
 		bool Uploaded() const { return m_Uploaded; }
 
 		const Quark::Ref<Quark::VertexArray>& GetVertexArray() const { return m_VertexArray; }

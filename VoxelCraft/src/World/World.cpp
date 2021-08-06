@@ -11,7 +11,8 @@
 
 namespace VoxelCraft {
 
-	static uint32_t s_ChunksExpected = 0;
+	static RendererStats s_RenderStatsCache;
+
 	static std::atomic_bool s_FlagPlayerGravity;
 
 	World::World()
@@ -45,10 +46,20 @@ namespace VoxelCraft {
 		m_Loader->OnUpdate(elapsedTime);
 
 		// Rendering
-		Renderer::RenderMap(Map, m_Player.GetComponent<Quark::PerspectiveCameraComponent>().Camera.GetProjection(), m_Player.GetCameraTransformNoPosition(), m_Player.GetHeadPosition());
+		{
+			Renderer::BeginScene(m_Player.GetComponent<Quark::PerspectiveCameraComponent>().Camera.GetProjection(), m_Player.GetCameraTransformNoPosition(), m_Player.GetHeadPosition());
 
-		const auto& window = Quark::Application::Get().GetWindow();
-		Renderer::RenderUI(window.GetWidth(), window.GetHeight());
+			Renderer::SubmitMap(Map);
+
+			s_RenderStatsCache = Renderer::GetStats();
+
+			Renderer::EndScene();
+		}
+
+		{
+			const auto& window = Quark::Application::Get().GetWindow();
+			Renderer::RenderUIScene(window.GetWidth(), window.GetHeight());
+		}
 	}
 
 	void World::OnEvent(Quark::Event& e)
@@ -91,11 +102,10 @@ namespace VoxelCraft {
 		case Quark::KeyCode::T:
 			std::cout << "====== WORLD SUMMARY ======\n";
 			std::cout << Map.Count() << " chunks active\n";
-			std::cout << m_Loader->Stats.ChunksWorldGen << " chunks terrain generated\n";
-			std::cout << m_Loader->Stats.ChunksMeshGen << " chunks meshes generated\n";
-			std::cout << "chunks terrain expected: " << s_ChunksExpected << '\n';
+			std::cout << m_Loader->Stats.ChunksWorldGen << " total chunks terrain generated\n";
+			std::cout << m_Loader->Stats.ChunksMeshGen << " total chunks meshes generated\n";
 			std::cout << "Idling: " << (m_Loader->Idling() ? "true" : "false") << '\n';
-			std::cout << ChunkSpecification::BlockCount * m_Loader->Stats.ChunksWorldGen << " blocks generated\n";
+			std::cout << "Draw calls:" << s_RenderStatsCache.DrawCalls << std::endl;
 			std::cout << "===========================\n";
 			break;
 		}

@@ -171,7 +171,7 @@ namespace VoxelCraft {
 
 	void ChunkLoader::LoadChunk(ChunkIdentifier id)
 	{
-		QK_TIME_SCOPE_DEBUG(ChunkLoader::LoadChunk);
+		//QK_TIME_SCOPE_DEBUG(ChunkLoader::LoadChunk);
 
 		auto& map = m_World.Map;
 		auto chunk	= map.Load(id);
