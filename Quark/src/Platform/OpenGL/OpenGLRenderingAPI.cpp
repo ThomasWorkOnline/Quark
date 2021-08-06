@@ -28,7 +28,7 @@ namespace Quark {
         glEnable(GL_MULTISAMPLE);
 
         // Experimental
-        glEnable(GL_PROGRAM_POINT_SIZE);
+        //glEnable(GL_PROGRAM_POINT_SIZE);
     }
 
     void OpenGLRenderingAPI::Clear()

@@ -112,14 +112,24 @@ namespace VoxelCraft {
 
 	void Renderer::RenderChunk(const Chunk* chunk)
 	{
-		for (auto& subChunk : chunk->SubChunks)
+		// Reverse rendering order, draw top chunks first
+		for (auto it = chunk->rbegin(); it != chunk->rend(); it++)
+		{
+			if (!it->Mesh.Empty())
+			{
+				Quark::Renderer::Submit(s_ActiveShader, s_Texture, it->Mesh.GetVertexArray());
+				s_Stats.DrawCalls++;
+			}
+		}
+
+		/*for (auto& subChunk : chunk->SubChunks)
 		{
 			if (!subChunk.Mesh.Empty())
 			{
 				Quark::Renderer::Submit(s_ActiveShader, s_Texture, subChunk.Mesh.GetVertexArray());
 				s_Stats.DrawCalls++;
 			}
-		}
+		}*/
 	}
 
 	void Renderer::ResetStats()

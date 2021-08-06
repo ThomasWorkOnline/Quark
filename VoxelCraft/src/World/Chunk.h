@@ -52,6 +52,13 @@ namespace VoxelCraft {
 
 		ChunkIdentifier ID;
 		std::vector<SubChunk> SubChunks;
+
+		std::vector<SubChunk>::const_iterator begin() const { return SubChunks.begin(); }
+		std::vector<SubChunk>::const_iterator end() const { return SubChunks.end(); }
+
+		std::vector<SubChunk>::const_reverse_iterator rbegin() const { return SubChunks.rbegin(); }
+		std::vector<SubChunk>::const_reverse_iterator rend() const { return SubChunks.rend(); }
+
 		std::atomic<LoadStatus> LoadStatus = LoadStatus::Allocated;
 
 		Chunk(World& world, ChunkIdentifier id);
