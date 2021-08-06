@@ -84,7 +84,8 @@ namespace VoxelCraft {
 	{
 		for (auto& subChunk : SubChunks)
 		{
-			subChunk.Mesh.Create(subChunk, neighbors);
+			if (subChunk.HasData())
+				subChunk.Mesh.Create(subChunk, neighbors);
 		}
 	}
 
@@ -94,7 +95,7 @@ namespace VoxelCraft {
 		{
 			auto& mesh = subChunk.Mesh;
 
-			if (!mesh.Uploaded() && mesh.HasData())
+			if (!mesh.Uploaded())
 				mesh.Upload();
 		}
 	}

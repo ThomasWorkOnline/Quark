@@ -19,7 +19,6 @@ namespace VoxelCraft {
 		void Upload();
 
 		bool Uploaded() const { return m_Uploaded; }
-		bool HasData() const { return m_VertexCount; }
 
 		const Quark::Ref<Quark::VertexArray>& GetVertexArray() const { return m_VertexArray; }
 
