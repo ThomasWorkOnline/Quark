@@ -17,6 +17,9 @@ namespace Quark {
 		virtual void Detach() const = 0;
 
 		virtual void SetInt(const std::string& name, int32_t value) = 0;
+		virtual void SetInt2(const std::string& name, const glm::ivec2& value) = 0;
+		virtual void SetInt3(const std::string& name, const glm::ivec3& value) = 0;
+		virtual void SetInt4(const std::string& name, const glm::ivec4& value) = 0;
 		virtual void SetIntArray(const std::string& name, int32_t* values, uint32_t count) = 0;
 		virtual void SetFloat(const std::string& name, float value) = 0;
 		virtual void SetFloat2(const std::string& name, const glm::vec2& value) = 0;

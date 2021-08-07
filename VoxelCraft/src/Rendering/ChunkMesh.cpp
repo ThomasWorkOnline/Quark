@@ -73,11 +73,11 @@ namespace VoxelCraft {
 				if (!chunk->IsBlockFaceVisible(position, BlockFace(f), neighbors))
 					continue;
 
-				ChunkMesh::CreateBlockFaceMesh(position.ToWorldSpace(chunk->ID.Coord), props, BlockFace(f));
+				ChunkMesh::CreateBlockFaceMesh(position, props, BlockFace(f));
 			}
 			break;
 		case BlockModel::CrossSprite:
-			ChunkMesh::CreateCrossSpriteMesh(position.ToWorldSpace(chunk->ID.Coord), props);
+			ChunkMesh::CreateCrossSpriteMesh(position, props);
 			break;
 		}
 	}
@@ -89,20 +89,13 @@ namespace VoxelCraft {
 		for (uint8_t i = 0; i < 4; i++)
 		{
 			m_Vertices.emplace_back(
-				meshProperties.VertexPositions[i + static_cast<uint8_t>(face) * 4] + (Position3D)position,
+				meshProperties.VertexPositions[i + static_cast<uint8_t>(face) * 4] + (glm::vec3)position,
 				props.Faces[static_cast<uint8_t>(face)].GetCoords()[i],
 				(static_cast<uint8_t>(face) + 1) / 6.0f
 			);
 		}
 
-		m_Indices.push_back(0 + m_VertexCount);
-		m_Indices.push_back(1 + m_VertexCount);
-		m_Indices.push_back(3 + m_VertexCount);
-		m_Indices.push_back(1 + m_VertexCount);
-		m_Indices.push_back(2 + m_VertexCount);
-		m_Indices.push_back(3 + m_VertexCount);
-
-		m_VertexCount += 4;
+		CreateQuadIndices();
 	}
 
 	void ChunkMesh::CreateCrossSpriteMesh(const IntPosition3D& position, const BlockProperties& props)
@@ -114,20 +107,25 @@ namespace VoxelCraft {
 			for (uint8_t i = 0; i < 4; i++)
 			{
 				m_Vertices.emplace_back(
-					meshProperties.VertexPositions[x * 4 + i] + (Position3D)position,
+					meshProperties.VertexPositions[x * 4 + i] + (glm::vec3)position,
 					props.Faces[0].GetCoords()[i],
 					1.0f
 				);
 			}
 
-			m_Indices.push_back(0 + m_VertexCount);
-			m_Indices.push_back(1 + m_VertexCount);
-			m_Indices.push_back(3 + m_VertexCount);
-			m_Indices.push_back(1 + m_VertexCount);
-			m_Indices.push_back(2 + m_VertexCount);
-			m_Indices.push_back(3 + m_VertexCount);
-
-			m_VertexCount += 4;
+			CreateQuadIndices();
 		}
+	}
+
+	void ChunkMesh::CreateQuadIndices()
+	{
+		m_Indices.push_back(0 + m_VertexCount);
+		m_Indices.push_back(1 + m_VertexCount);
+		m_Indices.push_back(3 + m_VertexCount);
+		m_Indices.push_back(1 + m_VertexCount);
+		m_Indices.push_back(2 + m_VertexCount);
+		m_Indices.push_back(3 + m_VertexCount);
+
+		m_VertexCount += 4;
 	}
 }

@@ -6,7 +6,7 @@ namespace VoxelCraft {
 
 	struct Vertex
 	{
-		IntPosition3D Position;
+		glm::vec3 Position;
 		glm::vec2 TexCoord;
 		float Intensity;
 

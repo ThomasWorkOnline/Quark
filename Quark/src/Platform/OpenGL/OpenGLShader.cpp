@@ -213,6 +213,21 @@ namespace Quark {
 		UploadUniformInt(name, value);
 	}
 
+	void OpenGLShader::SetInt2(const std::string& name, const glm::ivec2& value)
+	{
+		UploadUniformInt2(name, value);
+	}
+
+	void OpenGLShader::SetInt3(const std::string& name, const glm::ivec3& value)
+	{
+		UploadUniformInt3(name, value);
+	}
+
+	void OpenGLShader::SetInt4(const std::string& name, const glm::ivec4& value)
+	{
+		UploadUniformInt4(name, value);
+	}
+
 	void OpenGLShader::SetIntArray(const std::string& name, int32_t* values, uint32_t count)
 	{
 		UploadUniformIntArray(name, values, count);
@@ -272,6 +287,24 @@ namespace Quark {
 	{
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniform1i(location, value);
+	}
+
+	void OpenGLShader::UploadUniformInt2(const std::string& name, const glm::ivec2& value)
+	{
+		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		glUniform2i(location, value.x, value.y);
+	}
+
+	void OpenGLShader::UploadUniformInt3(const std::string& name, const glm::ivec3& value)
+	{
+		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		glUniform3i(location, value.x, value.y, value.z);
+	}
+
+	void OpenGLShader::UploadUniformInt4(const std::string& name, const glm::ivec4& value)
+	{
+		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		glUniform4i(location, value.x, value.y, value.z, value.w);
 	}
 
 	void OpenGLShader::UploadUniformIntArray(const std::string& name, int32_t* values, uint32_t count)

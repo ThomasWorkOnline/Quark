@@ -15,6 +15,11 @@ namespace VoxelCraft {
 	class ChunkMesh
 	{
 	public:
+		/// <summary>
+		/// Generates a sub chunk mesh in chunk space
+		/// </summary>
+		/// <param name="subChunk"></param>
+		/// <param name="neighbors"></param>
 		void Create(const SubChunk& subChunk, const ChunkNeighbors& neighbors);
 		void Upload();
 
@@ -27,6 +32,8 @@ namespace VoxelCraft {
 		void CreateBlockMesh(Block block, const IntPosition3D& position, const SubChunk& subChunk, const ChunkNeighbors& neighbors);
 		void CreateBlockFaceMesh(const IntPosition3D& position, const BlockProperties& props, BlockFace face);
 		void CreateCrossSpriteMesh(const IntPosition3D& position, const BlockProperties& props);
+
+		void CreateQuadIndices();
 
 	private:
 		Quark::Ref<Quark::VertexArray> m_VertexArray;

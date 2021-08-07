@@ -17,6 +17,9 @@ namespace Quark {
 		virtual void Detach() const;
 
 		virtual void SetInt(const std::string& name, int32_t value) override;
+		virtual void SetInt2(const std::string& name, const glm::ivec2& value) override;
+		virtual void SetInt3(const std::string& name, const glm::ivec3& value) override;
+		virtual void SetInt4(const std::string& name, const glm::ivec4& value) override;
 		virtual void SetIntArray(const std::string& name, int32_t* values, uint32_t count) override;
 
 		virtual void SetFloat(const std::string& name, float value) override;
@@ -38,6 +41,9 @@ namespace Quark {
 		}
 
 		void UploadUniformInt(const std::string& name, int32_t value);
+		void UploadUniformInt2(const std::string& name, const glm::ivec2& value);
+		void UploadUniformInt3(const std::string& name, const glm::ivec3& value);
+		void UploadUniformInt4(const std::string& name, const glm::ivec4& value);
 		void UploadUniformIntArray(const std::string& name, int32_t* values, uint32_t count);
 
 		void UploadUniformFloat(const std::string& name, float value);

@@ -47,10 +47,10 @@ namespace VoxelCraft {
 		Quark::Renderer::BeginScene(cameraProjection, cameraTransformNoPosition);
 
 		s_ActiveShader->Attach();
-		s_ActiveShader->SetDouble3("u_Position", -cameraPosition);
+		s_ActiveShader->SetDouble3("u_CameraPosition", cameraPosition);
 
 		s_Shader->Attach();
-		s_Shader->SetDouble3("u_Position", -cameraPosition);
+		s_Shader->SetDouble3("u_CameraPosition", cameraPosition);
 	}
 
 	void Renderer::EndScene()
@@ -78,7 +78,7 @@ namespace VoxelCraft {
 			{
 				if (data->LoadStatus != Chunk::LoadStatus::Loaded)
 				{
-					const auto position = IntPosition2D(data->ID.Coord).ToWorldSpace(data->ID.Coord);
+					const auto&& position = IntPosition2D(data->ID.Coord).ToWorldSpace(data->ID.Coord);
 					s_Transform.Position = { position.x + 8, 80, position.y + 8 };
 
 					Quark::Renderer::Submit(s_Shader, s_Mesh.GetVertexArray(), s_Transform);
@@ -117,19 +117,17 @@ namespace VoxelCraft {
 		{
 			if (!it->Mesh.Empty())
 			{
+				auto&& position = IntPosition2D(chunk->ID.Coord);
+				position.x *= SubChunkSpecification::Width;
+				position.y *= SubChunkSpecification::Depth;
+
+				s_ActiveShader->Attach();
+				s_ActiveShader->SetInt3("u_ModelOffset", { position.x, 0, position.y });
+
 				Quark::Renderer::Submit(s_ActiveShader, s_Texture, it->Mesh.GetVertexArray());
 				s_Stats.DrawCalls++;
 			}
 		}
-
-		/*for (auto& subChunk : chunk->SubChunks)
-		{
-			if (!subChunk.Mesh.Empty())
-			{
-				Quark::Renderer::Submit(s_ActiveShader, s_Texture, subChunk.Mesh.GetVertexArray());
-				s_Stats.DrawCalls++;
-			}
-		}*/
 	}
 
 	void Renderer::ResetStats()

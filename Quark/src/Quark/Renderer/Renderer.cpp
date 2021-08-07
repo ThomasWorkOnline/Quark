@@ -240,6 +240,10 @@ namespace Quark {
 			va->Attach();
 			RenderCommand::DrawIndexed(va);
 		}
+		else
+		{
+			QK_CORE_WARN("Vertex array nas null");
+		}
 	}
 
 	void Renderer::Submit(const Ref<Shader>& shader, const Ref<VertexArray>& va, const glm::dmat4& transform)

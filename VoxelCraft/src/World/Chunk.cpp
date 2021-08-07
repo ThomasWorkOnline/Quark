@@ -191,7 +191,7 @@ namespace VoxelCraft {
 
 	Block Chunk::GetBlock(const IntPosition3D& position) const
 	{
-		if (BoundsCheck(position))
+		if (m_Blocks && BoundsCheck(position))
 		{
 			uint32_t index = IndexAtPosition(position);
 			return m_Blocks[index];
@@ -201,7 +201,7 @@ namespace VoxelCraft {
 
 	bool Chunk::ReplaceBlock(const IntPosition3D& position, Block type)
 	{
-		if (!BoundsCheck(position))
+		if (!(m_Blocks && BoundsCheck(position)))
 			return false;
 
 		uint32_t index = IndexAtPosition(position);

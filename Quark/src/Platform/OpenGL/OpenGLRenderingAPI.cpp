@@ -25,7 +25,7 @@ namespace Quark {
         glEnable(GL_STENCIL_TEST);
 
         // Multisampling
-        glEnable(GL_MULTISAMPLE);
+        //glEnable(GL_MULTISAMPLE);
 
         // Experimental
         //glEnable(GL_PROGRAM_POINT_SIZE);

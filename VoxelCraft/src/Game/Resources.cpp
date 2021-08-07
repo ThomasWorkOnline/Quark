@@ -14,7 +14,7 @@ namespace VoxelCraft {
 	Quark::Ref<Quark::Texture2D> Resources::s_Texture;
 
 	const Quark::BufferLayout Resources::s_BufferLayout = {
-		{ Quark::ShaderDataType::Int3,    "a_Position"  },
+		{ Quark::ShaderDataType::Float3,  "a_Position"  },
 		{ Quark::ShaderDataType::Float2,  "a_TexCoord"  },
 		{ Quark::ShaderDataType::Float,   "a_Intensity" }
 	};
@@ -23,7 +23,7 @@ namespace VoxelCraft {
 		{ Quark::ShaderDataType::Float3, "a_Position"  }
 	};
 
-	static constexpr Position3D s_BlockVertexPositions[24] = {
+	static constexpr glm::vec3 s_BlockVertexPositions[24] = {
 		// front
 		{  0.0f,  0.0f,  1.0f },
 		{  1.0f,  0.0f,  1.0f },
@@ -60,7 +60,7 @@ namespace VoxelCraft {
 		{  0.0f,  0.0f,  0.0f },
 		{  1.0f,  0.0f,  0.0f }
 	};
-	static constexpr Position3D s_CrossSpriteVertexPositions[16] = {
+	static constexpr glm::vec3 s_CrossSpriteVertexPositions[16] = {
 		// first
 		{  0.f,  0.00f,  1.f },
 		{  1.f,  0.00f,  0.f },
