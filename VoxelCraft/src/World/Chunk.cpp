@@ -53,7 +53,7 @@ namespace VoxelCraft {
 		// Generate height map
 		m_HeightMap = new int32_t[ChunkSpecification::Width * ChunkSpecification::Depth];
 
-		Position2D heightIndex;
+		IntPosition2D heightIndex;
 		for (heightIndex.y = 0; heightIndex.y < ChunkSpecification::Depth; heightIndex.y++)
 		{
 			for (heightIndex.x = 0; heightIndex.x < ChunkSpecification::Width; heightIndex.x++)
@@ -66,7 +66,7 @@ namespace VoxelCraft {
 				// We need to assure the constancy for terrain generation and world resources
 				double dValue = sin(position.x * 0.144 + position.y * 0.021) * 6.0;
 				int32_t value = static_cast<int32_t>(round(dValue));
-				uint32_t index = heightIndex.y * ChunkSpecification::Depth + heightIndex.x;
+				int32_t index = heightIndex.y * ChunkSpecification::Depth + heightIndex.x;
 				m_HeightMap[index] = value;
 			}
 		}
@@ -109,14 +109,14 @@ namespace VoxelCraft {
 
 		double noise = s_Random() / static_cast<double>(std::numeric_limits<unsigned int>::max());
 
-		uint32_t index = position.z * ChunkSpecification::Depth + position.x;
+		int32_t index = position.z * ChunkSpecification::Depth + position.x;
 		int32_t heightSample = m_HeightMap[index];
 
-		uint32_t genBedrock = static_cast<uint32_t>(1.0f + noise * 4.0f);
-		uint32_t genStone = stoneHeight + heightSample;
-		uint32_t genDirt = dirtHeight + heightSample;
-		uint32_t genGrassBlock = grassBlockHeight + heightSample;
-		uint32_t genGrass = grassHeight + heightSample;
+		int32_t genBedrock = static_cast<uint32_t>(1.0f + noise * 4.0f);
+		int32_t genStone = stoneHeight + heightSample;
+		int32_t genDirt = dirtHeight + heightSample;
+		int32_t genGrassBlock = grassBlockHeight + heightSample;
+		int32_t genGrass = grassHeight + heightSample;
 
 		Block type;
 		if (position.y < genBedrock)
@@ -252,11 +252,12 @@ namespace VoxelCraft {
 
 	ChunkNeighbors Chunk::QueryNeighbors() const
 	{
+		// Force load if it doesn't exist to prevent crashes
 		return {
-			m_World.Map.Select(ID.North()),
-			m_World.Map.Select(ID.South()),
-			m_World.Map.Select(ID.West()),
-			m_World.Map.Select(ID.East())
+			m_World.Map.Load(ID.North()),
+			m_World.Map.Load(ID.South()),
+			m_World.Map.Load(ID.West()),
+			m_World.Map.Load(ID.East())
 		};
 	}
 

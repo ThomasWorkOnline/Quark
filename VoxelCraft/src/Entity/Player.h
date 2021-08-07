@@ -30,12 +30,12 @@ namespace VoxelCraft {
 		~Player();
 
 		const PlayerSettings& GetSettings() const { return m_Settings; }
-		const Position3D& GetPosition() const { return GetComponent<Quark::Transform3DComponent>().Position; }
+		Position3D GetPosition() const { return GetComponent<Quark::Transform3DComponent>().Position; }
 		Position3D GetHeadPosition() { return GetPosition() + m_Settings.HeadRelativeToFeet; }
 
 		Quark::Transform3DComponent GetCameraTransformNoPosition() const;
 
-		const HitBox& GetHitbox() const;
+		HitBox GetHitbox() const;
 
 		bool IsTouchingGround() const;
 

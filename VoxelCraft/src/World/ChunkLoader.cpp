@@ -32,6 +32,16 @@ namespace VoxelCraft {
 		Coord(coord),
 		RenderDistance(renderDistance)
 	{
+		std::cout << "Platform has: " << std::thread::hardware_concurrency() << " threads.\n";
+	}
+
+	ChunkLoader::~ChunkLoader()
+	{
+		Stop();
+	}
+
+	void ChunkLoader::Start()
+	{
 		m_LoadingArea.Foreach([this](ChunkIdentifier id)
 			{
 				Load(id);
@@ -39,11 +49,9 @@ namespace VoxelCraft {
 
 		for (uint32_t i = 0; i < s_ThreadPoolSize; i++)
 			s_ThreadPool.emplace_back(&ChunkLoader::StartWork, this);
-
-		std::cout << "Platform has: " << std::thread::hardware_concurrency() << " threads.\n";
 	}
 
-	ChunkLoader::~ChunkLoader()
+	void ChunkLoader::Stop()
 	{
 		{
 			std::lock_guard<std::mutex> cdnLock(s_ConditionMutex);

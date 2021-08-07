@@ -28,6 +28,9 @@ namespace VoxelCraft {
 		ChunkLoader(World& world, ChunkCoord coord, uint32_t renderDistance);
 		~ChunkLoader();
 
+		void Start();
+		void Stop();
+
 		void OnUpdate(float elapsedTime);
 
 		void Load(ChunkIdentifier id);

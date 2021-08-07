@@ -6,11 +6,13 @@
 #include "../Blocks/Block.h"
 #include "../Utils/Position.h"
 
+#include <atomic>
+
 namespace VoxelCraft {
 
 	class SubChunk;
-	class ChunkNeighbors;
-	class BlockProperties;
+	struct BlockProperties;
+	struct ChunkNeighbors;
 
 	class ChunkMesh
 	{
@@ -38,8 +40,8 @@ namespace VoxelCraft {
 	private:
 		Quark::Ref<Quark::VertexArray> m_VertexArray;
 
-		bool m_Uploaded = true;
 		uint32_t m_VertexCount = 0;
+		bool m_Uploaded = true;
 		std::vector<Vertex> m_Vertices;
 		std::vector<uint32_t> m_Indices;
 	};

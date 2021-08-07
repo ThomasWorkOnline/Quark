@@ -7,7 +7,6 @@
 #include "WorldMap.h"
 #include "../Entity/Player.h"
 #include "../Game/Collision.h"
-#include "../Game/PlayerController.h"
 #include "../Utils/Position.h"
 
 #include <optional>
@@ -17,10 +16,15 @@ namespace VoxelCraft {
 	class World
 	{
 	public:
+		using ChunkLoadedCallback = std::function<void(ChunkIdentifier)>;
+
 		WorldMap Map = { *this };
+		Quark::Scene Scene;
+		Quark::Scope<ChunkLoader> Loader;
 
 		World();
-		~World();
+
+		void SetChunkLoadedCallback(ChunkLoadedCallback callback) { m_ChunkLoadedCallback = callback; }
 
 		void OnUpdate(float elapsedTime);
 		void OnEvent(Quark::Event& e);
@@ -31,24 +35,13 @@ namespace VoxelCraft {
 
 		bool IsPlayerTouchingGround(const Player& player) const;
 
-		static Quark::Scope<World> Create();
-
-	private:
-		bool OnKeyPressed(Quark::KeyPressedEvent& e);
-		bool OnMouseButtonPressed(Quark::MouseButtonPressedEvent& e);
-
 		// Utilities
 		std::optional<CollisionData> RayCast(const Position3D& start, const glm::vec3& direction, float length) const;
 		void ReplaceBlock(const IntPosition3D& position, Block type);
-		void ProcessPlayerCollision();
+
+		static Quark::Scope<World> Create();
 
 	private:
-		Quark::Scene m_Scene;
-
-		// TODO: move
-		Player m_Player = { *this, m_Scene };
-		PlayerController m_Controller = { m_Player };
-
-		Quark::Scope<ChunkLoader> m_Loader;
+		ChunkLoadedCallback m_ChunkLoadedCallback;
 	};
 }

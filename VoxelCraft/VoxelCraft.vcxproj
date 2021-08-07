@@ -89,9 +89,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Entropy\Entropy.vcxproj">
-      <Project>{287f7095-d792-4da0-8a69-855cf2e81033}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\Quark\Quark.vcxproj">
       <Project>{287f7095-d792-4da0-8a69-855cf2e81033}</Project>
     </ProjectReference>

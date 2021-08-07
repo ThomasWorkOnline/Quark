@@ -24,6 +24,7 @@ namespace VoxelCraft {
 				return it->second;
 			}
 
+			std::cout << "Type was: " << (int32_t)type.ID;
 			QK_FATAL("Block type supplied does not exist");
 		}
 
