@@ -9,9 +9,14 @@ namespace VoxelCraft {
 
 	void WorldMap::OnUpdate(float elapsedTime)
 	{
+		// TODO: Future me, is it possible that the ref count here
+		// only gets decremented to 1? If so, this is undefined behaviour,
+		// since the destructor might be called from a different thread.
 		std::lock_guard<std::mutex> lock(m_ChunksToDeleteMutex);
 		for (auto& chunk : m_ChunksToDelete)
+		{
 			chunk.reset();
+		}
 	}
 
 	void WorldMap::Foreach(const std::function<void(ChunkIdentifier id)>& func) const
@@ -71,6 +76,7 @@ namespace VoxelCraft {
 
 		data->Save();
 
+		// TODO: investigate the reason why a chunk can be null
 		if (data)
 			Erase(data);
 	}

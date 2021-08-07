@@ -22,7 +22,7 @@ namespace VoxelCraft {
 		Quark::Scene Scene;
 		Quark::Scope<ChunkLoader> Loader;
 
-		World();
+		World(uint32_t renderDistance, const ChunkCoord& loaderAnchor);
 
 		void SetChunkLoadedCallback(ChunkLoadedCallback callback) { m_ChunkLoadedCallback = callback; }
 
@@ -39,7 +39,7 @@ namespace VoxelCraft {
 		std::optional<CollisionData> RayCast(const Position3D& start, const glm::vec3& direction, float length) const;
 		void ReplaceBlock(const IntPosition3D& position, Block type);
 
-		static Quark::Scope<World> Create();
+		static Quark::Scope<World> Create(uint32_t renderDistance = 8, const ChunkCoord& loaderAnchor = { 0, 0 });
 
 	private:
 		ChunkLoadedCallback m_ChunkLoadedCallback;

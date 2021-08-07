@@ -11,13 +11,13 @@ namespace VoxelCraft {
 	struct PlayerSettings
 	{
 		float Fov = 70;
-		glm::dvec3 HeadRelativeToFeet = { 0.0f, 1.625, 0.0f };
+		Position3D HeadRelativeToFeet = { 0.0f, 1.625, 0.0f };
 		Position3D SpawnPoint = { 0.5, 80.0, 0.5 };
 		uint32_t RenderDistance = 8;
 		float FlyingMovementSpeed = 50.0f;
-		float BoostFlyingMovementSpeed = 12000.0f;
+		float BoostFlyingMovementSpeed = 120.0f;
 		float BaseMovementSpeed = 4.f;
-		float SprintMovementSpeed = 800.f;
+		float SprintMovementSpeed = 8.f;
 		float MouseSensitivity = 0.002f;
 	};
 

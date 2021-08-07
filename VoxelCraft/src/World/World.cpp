@@ -9,9 +9,9 @@
 
 namespace VoxelCraft {
 
-	World::World()
+	World::World(uint32_t renderDistance, const ChunkCoord& loaderAnchor)
 	{
-		Loader = ChunkLoader::Create(*this, { 0, 0 }, 8);
+		Loader = ChunkLoader::Create(*this, loaderAnchor, renderDistance);
 	}
 
 	void World::OnUpdate(float elapsedTime)
@@ -43,9 +43,9 @@ namespace VoxelCraft {
 		return props.CollisionEnabled;
 	}
 
-	Quark::Scope<World> World::Create()
+	Quark::Scope<World> World::Create(uint32_t renderDistance, const ChunkCoord& loaderAnchor)
 	{
-		return Quark::CreateScope<World>();
+		return Quark::CreateScope<World>(renderDistance, loaderAnchor);
 	}
 
 	// TODO: implement a proper raycast

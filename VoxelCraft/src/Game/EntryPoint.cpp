@@ -230,7 +230,9 @@ namespace VoxelCraft {
 		}
 
 	private:
-		Quark::Scope<World> m_World = World::Create();
+		PlayerSettings m_PlayerSettings;
+
+		Quark::Scope<World> m_World = World::Create(m_PlayerSettings.RenderDistance);
 
 		Player m_Player = { *m_World, m_World->Scene };
 		PlayerController m_Controller = { m_Player };
