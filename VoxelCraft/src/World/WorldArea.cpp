@@ -60,8 +60,8 @@ namespace VoxelCraft {
 	{
 		m_ChunksOutOfBounds.clear();
 
-		m_WorldPartition.Foreach([this](const Chunk* chunk) {
-			const auto& id = chunk->ID;
+		m_WorldPartition.Foreach([this](const Quark::Ref<Chunk>& chunk) {
+			auto id = chunk->ID;
 			if (!InInternalBounds(id))
 			{
 				m_ChunksOutOfBounds.push_back(id);

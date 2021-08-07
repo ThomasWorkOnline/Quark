@@ -7,23 +7,11 @@ namespace VoxelCraft {
 	WorldMap::WorldMap(World& world)
 		: m_World(world) {}
 
-	WorldMap::~WorldMap()
-	{
-		std::lock_guard<std::recursive_mutex> lock(m_ChunksLocationsMutex);
-		for (auto& chunk : m_ChunksLocations)
-			delete chunk.second;
-	}
-
 	void WorldMap::OnUpdate(float elapsedTime)
 	{
-		{
-			std::lock_guard<std::mutex> lock(m_ChunksToDeleteMutex);
-			for (auto data : m_ChunksToDelete)
-			{
-				delete data;
-			}
-			m_ChunksToDelete.clear();
-		}
+		std::lock_guard<std::mutex> lock(m_ChunksToDeleteMutex);
+		for (auto& chunk : m_ChunksToDelete)
+			chunk.reset();
 	}
 
 	void WorldMap::Foreach(const std::function<void(ChunkIdentifier id)>& func) const
@@ -35,7 +23,7 @@ namespace VoxelCraft {
 		}
 	}
 
-	void WorldMap::Foreach(const std::function<void(Chunk* data)>& func) const
+	void WorldMap::Foreach(const std::function<void(const Quark::Ref<Chunk>& data)>& func) const
 	{
 		std::lock_guard<std::recursive_mutex> lock(m_ChunksLocationsMutex);
 		for (auto& e : m_ChunksLocations)
@@ -50,7 +38,7 @@ namespace VoxelCraft {
 		return m_ChunksLocations.size();
 	}
 
-	Chunk* WorldMap::Select(ChunkIdentifier id) const
+	Quark::Ref<Chunk> WorldMap::Select(ChunkIdentifier id) const
 	{
 		std::lock_guard<std::recursive_mutex> lock(m_ChunksLocationsMutex);
 		auto it = m_ChunksLocations.find(id.ID);
@@ -62,15 +50,14 @@ namespace VoxelCraft {
 		return nullptr;
 	}
 
-	Chunk* WorldMap::Load(ChunkIdentifier id)
+	Quark::Ref<Chunk> WorldMap::Load(ChunkIdentifier id)
 	{
 		// TODO: Check if the chunk is outside the writable areas ( -2 147 483 648 to +2 147 483 647 )
 
 		std::lock_guard<std::recursive_mutex> lock(m_ChunksLocationsMutex);
 		if (!Contains(id))
 		{
-			auto data = new Chunk(m_World, id);
-
+			auto data = Quark::CreateRef<Chunk>(m_World, id);
 			m_ChunksLocations.insert({ id.ID, data });
 
 			return data;
@@ -81,20 +68,24 @@ namespace VoxelCraft {
 	void WorldMap::Unload(ChunkIdentifier id)
 	{
 		auto data = Select(id);
+
 		data->Save();
 
-		Erase(data);
+		if (data)
+			Erase(data);
 	}
 
 	bool WorldMap::Contains(ChunkIdentifier id) const
 	{
-		return Select(id);
+		return Select(id) != nullptr;
 	}
 
-	void WorldMap::Erase(Chunk* data)
+	void WorldMap::Erase(const Quark::Ref<Chunk>& data)
 	{
 		{
 			std::lock_guard<std::recursive_mutex> lock(m_ChunksLocationsMutex);
+			QK_ASSERT(data, "Hmmm");
+
 			m_ChunksLocations.erase(data->ID.ID);
 		}
 

@@ -39,7 +39,7 @@ namespace VoxelCraft {
 
 		static void RenderUnloadedChunks(const WorldMap& map);
 		static void RenderCrosshair();
-		static void RenderChunk(const Chunk* chunk);
+		static void RenderChunk(const Quark::Ref<Chunk>& chunk);
 		
 		static void ResetStats();
 

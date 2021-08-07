@@ -43,11 +43,11 @@ namespace VoxelCraft {
 			Quark::RenderCommand::SetClearColor(Quark::EncodeSRGB(glm::vec4(0.78f, 0.90f, 0.93f, 1.0f)));
 			Quark::RenderCommand::Clear();
 
-			m_World->OnUpdate(elapsedTime);
-			ProcessPlayerCollision();
-
 			const Position3D& playerPos = m_Player.GetPosition();
 			m_World->Loader->Coord = playerPos.ToChunkCoord();
+
+			m_World->OnUpdate(elapsedTime);
+			ProcessPlayerCollision();
 
 			m_Player.GetComponent<GravityComponent>().Affected = s_FlagPlayerGravity;
 

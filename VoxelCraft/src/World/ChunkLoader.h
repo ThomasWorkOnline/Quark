@@ -50,8 +50,8 @@ namespace VoxelCraft {
 
 		void OnChunkBorderCrossed();
 
-		void UniqueChunkDataGenerator(Chunk* chunk);
-		void UniqueChunkMeshGenerator(Chunk* chunk, const ChunkNeighbors& neighbors);
+		void UniqueChunkDataGenerator(const Quark::Ref<Chunk>& chunk);
+		void UniqueChunkMeshGenerator(const Quark::Ref<Chunk>& chunk, const ChunkNeighbors& neighbors);
 
 	private:
 		World& m_World;

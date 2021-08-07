@@ -27,13 +27,13 @@ namespace VoxelCraft {
 	struct ChunkNeighbors
 	{
 		// Order is important
-		ChunkNeighbors(Chunk* north, Chunk* south, Chunk* west, Chunk* east)
+		ChunkNeighbors(const Quark::Ref<Chunk>& north, const Quark::Ref<Chunk>& south, const Quark::Ref<Chunk>& west, const Quark::Ref<Chunk>& east)
 			: North(north), South(south), West(west), East(east) {}
 
-		Chunk* North;
-		Chunk* South;
-		Chunk* West;
-		Chunk* East;
+		Quark::Ref<Chunk> North;
+		Quark::Ref<Chunk> South;
+		Quark::Ref<Chunk> West;
+		Quark::Ref<Chunk> East;
 	};
 
 	class Chunk
@@ -77,14 +77,14 @@ namespace VoxelCraft {
 		/// </summary>
 		void UploadMesh();
 
+		ChunkNeighbors QueryNeighbors() const;
+
 	private:
 		Block GenerateBlock(const IntPosition3D& position);
 		void RebuildSubMeshes(const IntPosition3D& position);
 
 		bool IsBlockTransparent(const IntPosition3D& position) const;
 		bool IsBlockFaceVisible(const IntPosition3D& position, BlockFace face, const ChunkNeighbors& neighbors) const;
-
-		ChunkNeighbors QueryNeighbors() const;
 
 	private:
 		Block* m_Blocks = nullptr;

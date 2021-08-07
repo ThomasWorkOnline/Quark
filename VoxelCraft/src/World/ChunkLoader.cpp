@@ -14,18 +14,15 @@ namespace VoxelCraft {
 	//static const uint32_t s_ThreadPoolSize = std::thread::hardware_concurrency();
 	static const uint32_t s_ThreadPoolSize = 1;
 	static std::vector<std::thread> s_ThreadPool;
+
 	static std::condition_variable s_ConditionVariable;
-	static std::mutex s_ConditionMutex;
-	static std::recursive_mutex s_QueueMutex;
 	static bool s_Stopping = false;
+	static std::mutex s_ConditionMutex;
 
-	static bool QueueContains(const std::set<ChunkID>& set, ChunkIdentifier id)
-	{
-		std::lock_guard<std::recursive_mutex> lock(s_QueueMutex);
-
-		auto it = set.find(id.ID);
-		return it != set.end();
-	}
+	static std::recursive_mutex s_LoadingQueueMutex;
+	static std::recursive_mutex s_UnloadingQueueMutex;
+	static std::mutex s_DataGeneratorMutex;
+	static std::mutex s_MeshGeneratorMutex;
 
 	ChunkLoader::ChunkLoader(World& world, ChunkCoord coord, uint32_t renderDistance)
 		: m_World(world), m_LoadingArea(m_World.Map, { renderDistance, renderDistance }, coord),
@@ -74,7 +71,7 @@ namespace VoxelCraft {
 		}
 		lastCoord = Coord;
 
-		m_World.Map.Foreach([](Chunk* data)
+		m_World.Map.Foreach([](const Quark::Ref<Chunk>& data)
 			{
 				if (data && data->LoadStatus == Chunk::LoadStatus::Loaded)
 				{
@@ -85,17 +82,18 @@ namespace VoxelCraft {
 
 	void ChunkLoader::Load(ChunkIdentifier id)
 	{
-		std::lock_guard<std::recursive_mutex> lock(s_QueueMutex);
-
-		// If chunk is queued to be unloaded, cancel
-		if (QueueContains(m_UnloadingQueue, id))
+		// If chunk is queued to be unloaded, cancel unloading
 		{
-			m_UnloadingQueue.erase(id.ID);
+			std::lock_guard<std::recursive_mutex> lock(s_UnloadingQueueMutex);
+			auto it = m_UnloadingQueue.find(id.ID);
+			if (it != m_UnloadingQueue.end())
+				m_UnloadingQueue.erase(id.ID);
 		}
 
+		std::lock_guard<std::recursive_mutex> lock(s_LoadingQueueMutex);
 		if (m_LoadingQueue.size() < s_QueueLimit)
 		{
-			const Chunk* chunk = m_World.Map.Select(id);
+			const auto& chunk = m_World.Map.Select(id);
 			if ((!chunk || chunk->LoadStatus == Chunk::LoadStatus::Allocated || chunk->LoadStatus == Chunk::LoadStatus::WorldGenerated))
 			{
 				m_LoadingQueue.insert(id.ID);
@@ -106,34 +104,43 @@ namespace VoxelCraft {
 
 	void ChunkLoader::Unload(ChunkIdentifier id)
 	{
-		std::lock_guard<std::recursive_mutex> lock(s_QueueMutex);
+		{
+			// If chunk is queued to be loaded, cancel loading
+			std::lock_guard<std::recursive_mutex> lock(s_LoadingQueueMutex);
+			auto it = m_LoadingQueue.find(id.ID);
+			if (it != m_LoadingQueue.end())
+			{
+				m_LoadingQueue.erase(id.ID);
+			}
+		}
 
-		// If chunk is queued to be loaded, cancel
-		if (QueueContains(m_LoadingQueue, id))
-		{
-			m_LoadingQueue.erase(id.ID);
-		}
-		else
-		{
-			m_UnloadingQueue.insert(id.ID);
-			s_ConditionVariable.notify_one();
-		}
+		std::lock_guard<std::recursive_mutex> lock(s_UnloadingQueueMutex);
+		m_UnloadingQueue.insert(id.ID);
+		s_ConditionVariable.notify_one();
 	}
 
 	bool ChunkLoader::Idling() const
 	{
-		std::lock_guard<std::recursive_mutex> lock(s_QueueMutex);
-		return m_LoadingQueue.empty() && m_UnloadingQueue.empty();
+		bool loadingDone;
+		{
+			std::lock_guard<std::recursive_mutex> lock(s_LoadingQueueMutex);
+			loadingDone = m_LoadingQueue.empty();
+		}
+		bool unloadingDone;
+		{
+			std::lock_guard<std::recursive_mutex> lock(s_UnloadingQueueMutex);
+			unloadingDone = m_UnloadingQueue.empty();
+		}
+		return loadingDone && unloadingDone;
 	}
 
 	void ChunkLoader::ProcessLoading()
 	{
-		std::unique_lock<std::recursive_mutex> lock(s_QueueMutex);
+		std::unique_lock<std::recursive_mutex> lock(s_LoadingQueueMutex);
 		if (!m_LoadingQueue.empty())
 		{
 			ChunkID id = *m_LoadingQueue.cbegin();
 			m_LoadingQueue.erase(id);
-
 			lock.unlock();
 
 			LoadChunk(id);
@@ -142,7 +149,7 @@ namespace VoxelCraft {
 
 	void ChunkLoader::ProcessUnloading()
 	{
-		std::unique_lock<std::recursive_mutex> lock(s_QueueMutex);
+		std::unique_lock<std::recursive_mutex> lock(s_UnloadingQueueMutex);
 		for (auto id : m_UnloadingQueue)
 		{
 			UnloadChunk(id);
@@ -177,20 +184,16 @@ namespace VoxelCraft {
 	{
 		//QK_TIME_SCOPE_DEBUG(ChunkLoader::LoadChunk);
 
-		auto& map = m_World.Map;
-		auto chunk	= map.Load(id);
-		auto north	= map.Load(id.North());
-		auto south	= map.Load(id.South());
-		auto west	= map.Load(id.West());
-		auto east	= map.Load(id.East());
+		auto chunk = m_World.Map.Load(id);
+		auto neighbors = chunk->QueryNeighbors();
 
 		UniqueChunkDataGenerator(chunk);
-		UniqueChunkDataGenerator(north);
-		UniqueChunkDataGenerator(south);
-		UniqueChunkDataGenerator(west);
-		UniqueChunkDataGenerator(east);
+		UniqueChunkDataGenerator(neighbors.North);
+		UniqueChunkDataGenerator(neighbors.South);
+		UniqueChunkDataGenerator(neighbors.West);
+		UniqueChunkDataGenerator(neighbors.East);
 
-		UniqueChunkMeshGenerator(chunk, { north, south, west, east });
+		UniqueChunkMeshGenerator(chunk, neighbors);
 	}
 
 	void ChunkLoader::UnloadChunk(ChunkIdentifier id)
@@ -212,13 +215,11 @@ namespace VoxelCraft {
 			});
 	}
 
-	void ChunkLoader::UniqueChunkDataGenerator(Chunk* chunk)
+	void ChunkLoader::UniqueChunkDataGenerator(const Quark::Ref<Chunk>& chunk)
 	{
 		bool access = false; // Thread safe, function scope access flag
-
 		{
-			std::lock_guard<std::recursive_mutex> lock(s_QueueMutex);
-
+			std::lock_guard<std::mutex> lock(s_DataGeneratorMutex);
 			if (chunk && chunk->LoadStatus == Chunk::LoadStatus::Allocated)
 			{
 				access = true;
@@ -234,13 +235,11 @@ namespace VoxelCraft {
 		}
 	}
 
-	void ChunkLoader::UniqueChunkMeshGenerator(Chunk* chunk, const ChunkNeighbors& neighbors)
+	void ChunkLoader::UniqueChunkMeshGenerator(const Quark::Ref<Chunk>& chunk, const ChunkNeighbors& neighbors)
 	{
 		bool access = false;
-
 		{
-			std::lock_guard<std::recursive_mutex> lock(s_QueueMutex);
-
+			std::lock_guard<std::mutex> lock(s_MeshGeneratorMutex);
 			if (chunk && chunk->LoadStatus == Chunk::LoadStatus::WorldGenerated)
 			{
 				access = true;

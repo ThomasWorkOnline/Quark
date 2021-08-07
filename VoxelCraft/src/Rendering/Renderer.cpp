@@ -62,7 +62,7 @@ namespace VoxelCraft {
 
 	void Renderer::SubmitMap(const WorldMap& map)
 	{
-		map.Foreach([](const Chunk* data)
+		map.Foreach([](const Quark::Ref<Chunk>& data)
 			{
 				if (data->LoadStatus == Chunk::LoadStatus::Loaded)
 					Renderer::RenderChunk(data);
@@ -74,7 +74,7 @@ namespace VoxelCraft {
 
 	void Renderer::RenderUnloadedChunks(const WorldMap& map)
 	{
-		map.Foreach([](const Chunk* data)
+		map.Foreach([](const Quark::Ref<Chunk>& data)
 			{
 				if (data->LoadStatus != Chunk::LoadStatus::Loaded)
 				{
@@ -113,7 +113,7 @@ namespace VoxelCraft {
 		}
 	}
 
-	void Renderer::RenderChunk(const Chunk* chunk)
+	void Renderer::RenderChunk(const Quark::Ref<Chunk>& chunk)
 	{
 		// Reverse rendering order, draw top chunks first
 		for (auto it = chunk->rbegin(); it != chunk->rend(); it++)
