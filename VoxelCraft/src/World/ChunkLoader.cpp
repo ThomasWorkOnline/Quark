@@ -113,8 +113,7 @@ namespace VoxelCraft {
 		{
 			m_LoadingQueue.erase(id.ID);
 		}
-
-		if (!QueueContains(m_UnloadingQueue, id))
+		else
 		{
 			m_UnloadingQueue.insert(id.ID);
 			s_ConditionVariable.notify_one();
@@ -144,15 +143,12 @@ namespace VoxelCraft {
 	void ChunkLoader::ProcessUnloading()
 	{
 		std::unique_lock<std::recursive_mutex> lock(s_QueueMutex);
-		if (!m_UnloadingQueue.empty())
+		for (auto id : m_UnloadingQueue)
 		{
-			ChunkID id = *m_UnloadingQueue.cbegin();
-			m_UnloadingQueue.erase(id);
-
-			lock.unlock();
-
 			UnloadChunk(id);
 		}
+
+		m_UnloadingQueue.clear();
 	}
 
 	void ChunkLoader::StartWork()

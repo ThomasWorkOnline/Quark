@@ -78,7 +78,10 @@ namespace VoxelCraft {
 			{
 				if (data->LoadStatus != Chunk::LoadStatus::Loaded)
 				{
-					const auto&& position = IntPosition2D(data->ID.Coord).ToWorldSpace(data->ID.Coord);
+					auto&& position = IntPosition2D(data->ID.Coord);
+					position.x *= SubChunkSpecification::Width;
+					position.y *= SubChunkSpecification::Depth;
+
 					s_Transform.Position = { position.x + 8, 80, position.y + 8 };
 
 					Quark::Renderer::Submit(s_Shader, s_Mesh.GetVertexArray(), s_Transform);

@@ -27,7 +27,7 @@ namespace VoxelCraft {
 					Parent->m_Blocks[IndexAtPosition(parentPosition)] = type;
 
 					// Append type
-					m_Data = (BlockID)(m_Data | type.ID);
+					m_Data |= type.ID;
 				}
 			}
 		}

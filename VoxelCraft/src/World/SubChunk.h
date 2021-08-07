@@ -36,6 +36,6 @@ namespace VoxelCraft {
 
 	private:
 		uint32_t m_StackPosition = 0;
-		BlockID m_Data = BlockID::Air;
+		uint32_t m_Data = BlockID::Air;
 	};
 }
