@@ -24,12 +24,13 @@ namespace VoxelCraft {
 	{
 		std::queue<ChunkID> queue;
 
-		std::unique_lock<std::mutex> lock(m_ChunksLocationsMutex);
-		for (auto& e : m_ChunksLocations)
 		{
-			queue.push(e.first);
+			std::lock_guard<std::mutex> lock(m_ChunksLocationsMutex);
+			for (auto& e : m_ChunksLocations)
+			{
+				queue.push(e.first);
+			}
 		}
-		lock.unlock();
 
 		while (!queue.empty())
 		{
@@ -42,13 +43,14 @@ namespace VoxelCraft {
 	{
 		std::queue<Quark::Ref<Chunk>> queue;
 
-		std::unique_lock<std::mutex> lock(m_ChunksLocationsMutex);
-		for (auto& e : m_ChunksLocations)
 		{
-			queue.push(e.second);
+			std::lock_guard<std::mutex> lock(m_ChunksLocationsMutex);
+			for (auto& e : m_ChunksLocations)
+			{
+				queue.push(e.second);
+			}
 		}
-		lock.unlock();
-
+		
 		while (!queue.empty())
 		{
 			func(queue.front());
