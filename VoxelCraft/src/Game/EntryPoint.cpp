@@ -15,9 +15,9 @@ namespace VoxelCraft {
 	class VoxelCraft : public Quark::Application
 	{
 	public:
-		void OnCreate() override
+		VoxelCraft()
 		{
-			QK_TIME_SCOPE_DEBUG(VoxelCraft::OnCreate);
+			QK_TIME_SCOPE_DEBUG(VoxelCraft::VoxelCraft);
 
 			GetWindow().Select();
 			GetWindow().SetVSync(false);
@@ -33,7 +33,7 @@ namespace VoxelCraft {
 			m_World->Loader->Start();
 		}
 
-		void OnDestroy() override
+		~VoxelCraft() override
 		{
 			Renderer::Shutdown();
 		}
