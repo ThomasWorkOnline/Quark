@@ -22,9 +22,9 @@ namespace VoxelCraft {
 		Quark::Scene Scene;
 		Quark::Scope<ChunkLoader> Loader;
 
-		static Quark::Scope<World> Create(uint32_t renderDistance = 8, const ChunkCoord& loaderAnchor = { 0, 0 });
+		static Quark::Scope<World> Create(uint32_t renderDistance = 8, ChunkCoord loaderAnchor = { 0, 0 });
 
-		World(uint32_t renderDistance, const ChunkCoord& loaderAnchor);
+		World(uint32_t renderDistance, ChunkCoord loaderAnchor);
 
 		void OnUpdate(float elapsedTime);
 		void SetChunkLoadedCallback(ChunkLoadedCallback callback) { m_ChunkLoadedCallback = callback; }

@@ -9,12 +9,12 @@
 
 namespace VoxelCraft {
 
-	Quark::Scope<World> World::Create(uint32_t renderDistance, const ChunkCoord& loaderAnchor)
+	Quark::Scope<World> World::Create(uint32_t renderDistance, ChunkCoord loaderAnchor)
 	{
 		return Quark::CreateScope<World>(renderDistance, loaderAnchor);
 	}
 
-	World::World(uint32_t renderDistance, const ChunkCoord& loaderAnchor)
+	World::World(uint32_t renderDistance, ChunkCoord loaderAnchor)
 		: Map(*this)
 	{
 		Loader = ChunkLoader::Create(*this, loaderAnchor, renderDistance);
