@@ -30,6 +30,7 @@ namespace VoxelCraft {
 		// Debug
 		static void SwitchShader();
 		static void ViewUnloadedChunks(bool enabled) { s_ViewUnloadedChunks = enabled; }
+		static void ViewSubChunksDelimiter(bool enabled) { s_ViewSubChunksDelimiter = enabled; }
 
 		static const RendererStats& GetStats() { return s_Stats; }
 
@@ -44,6 +45,7 @@ namespace VoxelCraft {
 		static void ResetStats();
 
 		static bool s_ViewUnloadedChunks;
+		static bool s_ViewSubChunksDelimiter;
 
 		static RendererStats s_Stats;
 	};

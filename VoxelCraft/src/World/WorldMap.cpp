@@ -11,9 +11,6 @@ namespace VoxelCraft {
 
 	void WorldMap::OnUpdate(float elapsedTime)
 	{
-		// TODO: Future me, is it possible that the ref count here
-		// only gets decremented to 1? If so, this is undefined behaviour,
-		// since the destructor might be called from a different thread.
 		std::lock_guard<std::mutex> lock(m_ChunksToDeleteMutex);
 		for (auto& chunk : m_ChunksToDelete)
 		{
@@ -23,36 +20,41 @@ namespace VoxelCraft {
 
 	void WorldMap::Foreach(const std::function<void(ChunkIdentifier id)>& func) const
 	{
-		std::lock_guard<std::recursive_mutex> lock(m_ChunksLocationsMutex);
+		std::unique_lock<std::mutex> lock(m_ChunksLocationsMutex);
 		for (auto& e : m_ChunksLocations)
 		{
+			lock.unlock();
 			func(e.first);
+			lock.lock();
 		}
 	}
 
 	void WorldMap::Foreach(const std::function<void(const Quark::Ref<Chunk>& data)>& func) const
 	{
-		std::lock_guard<std::recursive_mutex> lock(m_ChunksLocationsMutex);
+		std::unique_lock<std::mutex> lock(m_ChunksLocationsMutex);
 		for (auto& e : m_ChunksLocations)
 		{
+			lock.unlock();
 			func(e.second);
+			lock.lock();
 		}
 	}
 
 	size_t WorldMap::Count() const
 	{
-		std::lock_guard<std::recursive_mutex> lock(m_ChunksLocationsMutex);
+		std::lock_guard<std::mutex> lock(m_ChunksLocationsMutex);
 		return m_ChunksLocations.size();
 	}
 
 	size_t WorldMap::MaxBucketSize() const
 	{
+		std::lock_guard<std::mutex> lock(m_ChunksLocationsMutex);
 		return s_MaxBucketSize;
 	}
 
-	Quark::Ref<Chunk> WorldMap::Select(ChunkIdentifier id) const
+	Quark::Ref<Chunk> WorldMap::Get(ChunkIdentifier id) const
 	{
-		std::lock_guard<std::recursive_mutex> lock(m_ChunksLocationsMutex);
+		std::lock_guard<std::mutex> lock(m_ChunksLocationsMutex);
 		auto it = m_ChunksLocations.find(id.ID);
 
 		if (it != m_ChunksLocations.end())
@@ -66,11 +68,12 @@ namespace VoxelCraft {
 	{
 		// TODO: Check if the chunk is outside the writable areas ( -2 147 483 648 to +2 147 483 647 )
 
-		std::lock_guard<std::recursive_mutex> lock(m_ChunksLocationsMutex);
-		auto data = Select(id);
+		auto data = Get(id);
 		if (!data)
 		{
 			data = Quark::CreateRef<Chunk>(m_World, id);
+
+			std::lock_guard<std::mutex> lock(m_ChunksLocationsMutex);
 			m_ChunksLocations.emplace(id.ID, data);
 
 			size_t bucket = m_ChunksLocations.bucket(id.ID);
@@ -82,7 +85,7 @@ namespace VoxelCraft {
 
 	void WorldMap::Unload(ChunkIdentifier id)
 	{
-		auto data = Select(id);
+		auto data = Get(id);
 
 		data->Save();
 
@@ -93,15 +96,13 @@ namespace VoxelCraft {
 
 	bool WorldMap::Contains(ChunkIdentifier id) const
 	{
-		return Select(id) != nullptr;
+		return Get(id) != nullptr;
 	}
 
 	void WorldMap::Erase(const Quark::Ref<Chunk>& data)
 	{
 		{
-			std::lock_guard<std::recursive_mutex> lock(m_ChunksLocationsMutex);
-			QK_ASSERT(data, "Hmmm");
-
+			std::lock_guard<std::mutex> lock(m_ChunksLocationsMutex);
 			m_ChunksLocations.erase(data->ID.ID);
 		}
 

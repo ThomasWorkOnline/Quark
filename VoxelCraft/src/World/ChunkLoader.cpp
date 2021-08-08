@@ -74,14 +74,6 @@ namespace VoxelCraft {
 			OnChunkBorderCrossed();
 		}
 		lastCoord = Coord;
-
-		m_World.Map.Foreach([](const Quark::Ref<Chunk>& data)
-			{
-				if (data && data->LoadStatus == Chunk::LoadStatus::Loaded)
-				{
-					data->UploadMesh();
-				}
-			});
 	}
 
 	void ChunkLoader::Load(ChunkIdentifier id)
@@ -97,7 +89,7 @@ namespace VoxelCraft {
 		std::lock_guard<std::recursive_mutex> lock(s_LoadingQueueMutex);
 		if (m_LoadingQueue.size() < s_QueueLimit)
 		{
-			const auto& chunk = m_World.Map.Select(id);
+			const auto& chunk = m_World.Map.Get(id);
 			if ((!chunk || chunk->LoadStatus == Chunk::LoadStatus::Allocated || chunk->LoadStatus == Chunk::LoadStatus::WorldGenerated))
 			{
 				m_LoadingQueue.insert(id.ID);

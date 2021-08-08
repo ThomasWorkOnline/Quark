@@ -22,7 +22,7 @@ namespace VoxelCraft {
 		size_t Count() const;
 		size_t MaxBucketSize() const;
 
-		Quark::Ref<Chunk> Select(ChunkIdentifier id) const;
+		Quark::Ref<Chunk> Get(ChunkIdentifier id) const;
 		Quark::Ref<Chunk> Load(ChunkIdentifier id);
 		void Unload(ChunkIdentifier id);
 		bool Contains(ChunkIdentifier id) const;
@@ -31,7 +31,7 @@ namespace VoxelCraft {
 		void Erase(const Quark::Ref<Chunk>& data);
 
 	private:
-		mutable std::recursive_mutex m_ChunksLocationsMutex;
+		mutable std::mutex m_ChunksLocationsMutex;
 		std::unordered_map<ChunkID, Quark::Ref<Chunk>> m_ChunksLocations;
 
 		/// <summary>

@@ -58,9 +58,6 @@ namespace VoxelCraft {
 			{
 				Renderer::BeginScene(m_Player.GetComponent<Quark::PerspectiveCameraComponent>().Camera.GetProjection(), m_Player.GetCameraTransformNoPosition(), m_Player.GetHeadPosition());
 
-				// TODO: change, this will mutex lock the Map for the entire map rendering cycle
-				// causing slowdowns for accessing chunks.
-				// Higher render distances will slow down exponentially.
 				Renderer::SubmitMap(m_World->Map);
 				s_RenderStatsCache = Renderer::GetStats();
 

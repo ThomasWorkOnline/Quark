@@ -13,7 +13,7 @@ namespace VoxelCraft {
 		float Fov = 70;
 		Position3D HeadRelativeToFeet = { 0.0f, 1.625, 0.0f };
 		Position3D SpawnPoint = { 0.5, 80.0, 0.5 };
-		uint32_t RenderDistance = 8;
+		uint32_t RenderDistance = 16;
 		float FlyingMovementSpeed = 50.0f;
 		float BoostFlyingMovementSpeed = 120.0f;
 		float BaseMovementSpeed = 4.f;

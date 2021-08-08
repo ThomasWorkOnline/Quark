@@ -10,6 +10,7 @@ namespace VoxelCraft {
 	Quark::Ref<Quark::Texture2D> Renderer::s_Texture;
 
 	bool Renderer::s_ViewUnloadedChunks = false;
+	bool Renderer::s_ViewSubChunksDelimiter = false;
 
 	RendererStats Renderer::s_Stats;
 
@@ -65,7 +66,10 @@ namespace VoxelCraft {
 		map.Foreach([](const Quark::Ref<Chunk>& data)
 			{
 				if (data->LoadStatus == Chunk::LoadStatus::Loaded)
+				{
+					data->UploadMesh();
 					Renderer::RenderChunk(data);
+				}
 			});
 
 		if (s_ViewUnloadedChunks)
