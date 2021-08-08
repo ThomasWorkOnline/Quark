@@ -9,6 +9,11 @@
 
 namespace VoxelCraft {
 
+	Quark::Scope<World> World::Create(uint32_t renderDistance, const ChunkCoord& loaderAnchor)
+	{
+		return Quark::CreateScope<World>(renderDistance, loaderAnchor);
+	}
+
 	World::World(uint32_t renderDistance, const ChunkCoord& loaderAnchor)
 	{
 		Loader = ChunkLoader::Create(*this, loaderAnchor, renderDistance);
@@ -18,53 +23,6 @@ namespace VoxelCraft {
 	{
 		Scene.OnUpdate(elapsedTime);
 		Map.OnUpdate(elapsedTime);
-	}
-
-	void World::OnEvent(Quark::Event& e)
-	{
-		Quark::EventDispatcher dispatcher(e);
-	}
-
-	void World::OnChunkLoaded(ChunkIdentifier id)
-	{
-		if (m_ChunkLoadedCallback)
-			m_ChunkLoadedCallback(id);
-	}
-
-	bool World::IsPlayerTouchingGround(const Player& player) const
-	{
-		static constexpr float detectionTreshold = 0.01f;
-		IntPosition3D blockUnderFeetPos = glm::floor(player.GetPosition() - Position3D(0.0f, detectionTreshold, 0.0f));
-		auto& props = GetBlock(blockUnderFeetPos).GetProperties();
-
-		return props.CollisionEnabled;
-	}
-
-	Quark::Scope<World> World::Create(uint32_t renderDistance, const ChunkCoord& loaderAnchor)
-	{
-		return Quark::CreateScope<World>(renderDistance, loaderAnchor);
-	}
-
-	// TODO: implement a proper raycast
-	std::optional<CollisionData> World::RayCast(const Position3D& start, const glm::vec3& direction, float length) const
-	{
-		glm::dvec3 normDir = glm::normalize(direction);
-
-		for (double i = 0; i < length; i += 0.01)
-		{
-			glm::ivec3 position = glm::floor(start + normDir * i);
-			Block block = GetBlock(position);
-			if (block != BlockID::Air)
-			{
-				CollisionData data;
-				data.Block = block;
-				data.Impact = position;
-				data.Side = BlockFace::Top;
-
-				return data;
-			}
-		}
-		return {};
 	}
 
 	Block World::GetBlock(const IntPosition3D& position) const
@@ -104,5 +62,42 @@ namespace VoxelCraft {
 				}
 			}
 		}
+	}
+
+	// TODO: implement a proper raycast
+	std::optional<CollisionData> World::RayCast(const Position3D& start, const glm::vec3& direction, float length) const
+	{
+		glm::dvec3 normDir = glm::normalize(direction);
+
+		for (double i = 0; i < length; i += 0.01)
+		{
+			glm::ivec3 position = glm::floor(start + normDir * i);
+			Block block = GetBlock(position);
+			if (block != BlockID::Air)
+			{
+				CollisionData data;
+				data.Block = block;
+				data.Impact = position;
+				data.Side = BlockFace::Top;
+
+				return data;
+			}
+		}
+		return {};
+	}
+
+	bool World::IsPlayerTouchingGround(const Player& player) const
+	{
+		static constexpr float detectionTreshold = 0.01f;
+		IntPosition3D blockUnderFeetPos = glm::floor(player.GetPosition() - Position3D(0.0f, detectionTreshold, 0.0f));
+		auto& props = GetBlock(blockUnderFeetPos).GetProperties();
+
+		return props.CollisionEnabled;
+	}
+
+	void World::OnChunkLoaded(ChunkIdentifier id)
+	{
+		if (m_ChunkLoadedCallback)
+			m_ChunkLoadedCallback(id);
 	}
 }

@@ -80,7 +80,6 @@ namespace VoxelCraft {
 
 			if (!e.Handled)
 			{
-				m_World->OnEvent(e);
 				m_Controller.OnEvent(e);
 			}
 		}

@@ -22,26 +22,25 @@ namespace VoxelCraft {
 		Quark::Scene Scene;
 		Quark::Scope<ChunkLoader> Loader;
 
+		static Quark::Scope<World> Create(uint32_t renderDistance = 8, const ChunkCoord& loaderAnchor = { 0, 0 });
+
 		World(uint32_t renderDistance, const ChunkCoord& loaderAnchor);
 
+		void OnUpdate(float elapsedTime);
 		void SetChunkLoadedCallback(ChunkLoadedCallback callback) { m_ChunkLoadedCallback = callback; }
 
-		void OnUpdate(float elapsedTime);
-		void OnEvent(Quark::Event& e);
-
-		void OnChunkLoaded(ChunkIdentifier id);
-
 		Block GetBlock(const IntPosition3D& position) const;
+		void ReplaceBlock(const IntPosition3D& position, Block type);
+		std::optional<CollisionData> RayCast(const Position3D& start, const glm::vec3& direction, float length) const;
 
 		bool IsPlayerTouchingGround(const Player& player) const;
 
-		// Utilities
-		std::optional<CollisionData> RayCast(const Position3D& start, const glm::vec3& direction, float length) const;
-		void ReplaceBlock(const IntPosition3D& position, Block type);
-
-		static Quark::Scope<World> Create(uint32_t renderDistance = 8, const ChunkCoord& loaderAnchor = { 0, 0 });
+	private:
+		void OnChunkLoaded(ChunkIdentifier id);
 
 	private:
 		ChunkLoadedCallback m_ChunkLoadedCallback;
+
+		friend class ChunkLoader;
 	};
 }
