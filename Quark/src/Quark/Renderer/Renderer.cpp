@@ -228,56 +228,43 @@ namespace Quark {
 
 	void Renderer::Submit(const Ref<Shader>& shader, const Ref<Texture2D>& texture, const Ref<VertexArray>& va, const glm::dmat4& transform)
 	{
-		if (va)
-		{
-			shader->Attach();
-			shader->SetMat4("u_Projection", s_SceneData.ProjectionMatrix);
-			shader->SetMat4("u_View", s_SceneData.ViewMatrix);
-			shader->SetMat4("u_Model", transform);
+		shader->Attach();
+		shader->SetMat4("u_Projection", s_SceneData.ProjectionMatrix);
+		shader->SetMat4("u_View", s_SceneData.ViewMatrix);
+		shader->SetMat4("u_Model", transform);
 
-			texture->Attach();
+		texture->Attach();
 
-			va->Attach();
-			RenderCommand::DrawIndexed(va);
-		}
-		else
-		{
-			QK_CORE_WARN("Vertex array nas null");
-		}
+		va->Attach();
+		RenderCommand::DrawIndexed(va);
 	}
 
 	void Renderer::Submit(const Ref<Shader>& shader, const Ref<VertexArray>& va, const glm::dmat4& transform)
 	{
-		if (va)
-		{
-			shader->Attach();
-			shader->SetMat4("u_Projection", s_SceneData.ProjectionMatrix);
-			shader->SetMat4("u_View", s_SceneData.ViewMatrix);
-			shader->SetMat4("u_Model", transform);
+		shader->Attach();
+		shader->SetMat4("u_Projection", s_SceneData.ProjectionMatrix);
+		shader->SetMat4("u_View", s_SceneData.ViewMatrix);
+		shader->SetMat4("u_Model", transform);
 
-			s_Data.DefaultTexture->Attach(0);
-			s_Data.DefaultTexture->Attach(1);
+		s_Data.DefaultTexture->Attach(0);
+		s_Data.DefaultTexture->Attach(1);
 
-			va->Attach();
-			RenderCommand::DrawIndexed(va);
-		}
+		va->Attach();
+		RenderCommand::DrawIndexed(va);
 	}
 
 	void Renderer::Submit(const Ref<Shader>& shader, const Ref<Framebuffer>& framebuffer, const Ref<VertexArray>& va, const glm::dmat4& transform)
 	{
-		if (va)
-		{
-			shader->Attach();
-			shader->SetMat4("u_Projection", s_SceneData.ProjectionMatrix);
-			shader->SetMat4("u_View", s_SceneData.ViewMatrix);
-			shader->SetMat4("u_Model", transform);
+		shader->Attach();
+		shader->SetMat4("u_Projection", s_SceneData.ProjectionMatrix);
+		shader->SetMat4("u_View", s_SceneData.ViewMatrix);
+		shader->SetMat4("u_Model", transform);
 
-			framebuffer->AttachColorAttachment(0);
-			framebuffer->AttachColorAttachment(1);
+		framebuffer->AttachColorAttachment(0);
+		framebuffer->AttachColorAttachment(1);
 
-			va->Attach();
-			RenderCommand::DrawIndexed(va);
-		}
+		va->Attach();
+		RenderCommand::DrawIndexed(va);
 	}
 
 	void Renderer::SubmitSprite(const Ref<Texture2D>& texture, const glm::mat4& transform)

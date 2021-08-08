@@ -37,14 +37,14 @@ namespace VoxelCraft {
 			}
 		}
 
-		m_Uploaded = false;
+		m_RequiresUpload = true;
 	}
 
 	void ChunkMesh::Upload()
 	{
 		static const auto& layout = Resources::GetBufferLayout();
 
-		if (!m_Uploaded)
+		if (m_RequiresUpload)
 		{
 			m_VertexArray = Quark::VertexArray::Create();
 
@@ -55,7 +55,7 @@ namespace VoxelCraft {
 			auto ibo = Quark::IndexBuffer::Create(m_Indices.data(), m_Indices.size());
 			m_VertexArray->SetIndexBuffer(ibo);
 
-			m_Uploaded = true;
+			m_RequiresUpload = false;
 		}
 	}
 

@@ -32,6 +32,8 @@ namespace VoxelCraft {
 	{
 		delete[] m_Blocks;
 		delete[] m_HeightMap;
+
+		QK_ASSERT(Quark::Application::Get().GetThreadID() == std::this_thread::get_id(), "Invalid delete");
 	}
 
 	static void DumpAsBinary(std::ofstream& out, const void* data, size_t size)
@@ -95,7 +97,7 @@ namespace VoxelCraft {
 		{
 			auto& mesh = subChunk.Mesh;
 
-			if (!mesh.Uploaded())
+			if (mesh.RequiresUpload())
 				mesh.Upload();
 		}
 	}

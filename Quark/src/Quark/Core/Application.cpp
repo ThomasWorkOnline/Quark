@@ -12,12 +12,14 @@
 namespace Quark {
 
 	Application* Application::s_Instance = nullptr;
+	std::thread::id Application::s_AppMainThreadId;
 
 	Application::Application(uint32_t width, uint32_t height, const std::string& title)
 	{
 		QK_TIME_SCOPE_DEBUG(Application::Application);
 
 		s_Instance = this;
+		s_AppMainThreadId = std::this_thread::get_id();
 
 		m_Window = Window::Create(width, height, title);
 		m_Window->SetEventCallback(ATTACH_EVENT_FN(Application::OnEventInternal));

@@ -105,7 +105,7 @@ namespace VoxelCraft {
 				viewUnloadedChunks = !viewUnloadedChunks;
 				Renderer::ViewUnloadedChunks(viewUnloadedChunks);
 				break;
-			case Quark::KeyCode::T:
+			case Quark::Key::T:
 				std::cout << "====== WORLD SUMMARY ======\n";
 				std::cout << m_World->Map.Count() << " chunks active\n";
 				std::cout << m_World->Loader->Stats.ChunksWorldGen << " total chunks terrain generated\n";
@@ -113,6 +113,9 @@ namespace VoxelCraft {
 				std::cout << "Idling: " << (m_World->Loader->Idling() ? "true" : "false") << '\n';
 				std::cout << "Draw calls:" << s_RenderStatsCache.DrawCalls << '\n';
 				std::cout << "===========================\n";
+				break;
+			case Quark::Key::O:
+				m_Player.GetComponent<Quark::Transform3DComponent>().Position = { 0, 200, 0 };
 				break;
 			}
 

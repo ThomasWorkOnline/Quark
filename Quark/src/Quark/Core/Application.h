@@ -25,6 +25,8 @@ namespace Quark {
 
         static Application& Get() { return *s_Instance; };
 
+        std::thread::id GetThreadID() const { return s_AppMainThreadId; }
+
         void Stop();
 
     private:
@@ -38,6 +40,7 @@ namespace Quark {
         friend int ::main();
 
         static Application* s_Instance;
+        static std::thread::id s_AppMainThreadId;
         Scope<Window> m_Window;
 
         std::atomic<bool> m_Running = true;
