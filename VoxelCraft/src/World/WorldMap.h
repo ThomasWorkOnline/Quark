@@ -19,7 +19,8 @@ namespace VoxelCraft {
 		void Foreach(const std::function<void(ChunkIdentifier id)>& func) const;
 		void Foreach(const std::function<void(const Quark::Ref<Chunk>& data)>& func) const;
 
-		uint32_t Count() const;
+		size_t Count() const;
+		size_t MaxBucketSize() const;
 
 		Quark::Ref<Chunk> Select(ChunkIdentifier id) const;
 		Quark::Ref<Chunk> Load(ChunkIdentifier id);

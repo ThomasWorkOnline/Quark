@@ -58,6 +58,9 @@ namespace VoxelCraft {
 			{
 				Renderer::BeginScene(m_Player.GetComponent<Quark::PerspectiveCameraComponent>().Camera.GetProjection(), m_Player.GetCameraTransformNoPosition(), m_Player.GetHeadPosition());
 
+				// TODO: change, this will mutex lock the Map for the entire map rendering cycle
+				// causing slowdowns for accessing chunks.
+				// Higher render distances will slow down exponentially.
 				Renderer::SubmitMap(m_World->Map);
 				s_RenderStatsCache = Renderer::GetStats();
 
@@ -112,6 +115,7 @@ namespace VoxelCraft {
 				std::cout << m_World->Loader->Stats.ChunksMeshGen << " total chunks meshes generated\n";
 				std::cout << "Idling: " << (m_World->Loader->Idling() ? "true" : "false") << '\n';
 				std::cout << "Draw calls:" << s_RenderStatsCache.DrawCalls << '\n';
+				std::cout << "Max map bucket size: " << m_World->Map.MaxBucketSize() << '\n';
 				std::cout << "===========================\n";
 				break;
 			case Quark::Key::O:

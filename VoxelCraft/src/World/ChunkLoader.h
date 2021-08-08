@@ -31,6 +31,7 @@ namespace VoxelCraft {
 		void Start();
 		void Stop();
 
+		void OnFinish();
 		void OnUpdate(float elapsedTime);
 
 		void Load(ChunkIdentifier id);
@@ -41,7 +42,7 @@ namespace VoxelCraft {
 		static Quark::Scope<ChunkLoader> Create(World& world, ChunkCoord, uint32_t renderDistance = 8);
 
 	private:
-		void StartWork();
+		void Work();
 		void ProcessLoading();
 		void ProcessUnloading();
 

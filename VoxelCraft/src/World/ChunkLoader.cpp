@@ -9,7 +9,9 @@ namespace VoxelCraft {
 		return Quark::CreateScope<ChunkLoader>(world, coord, renderDistance);
 	}
 
-	static const int32_t s_QueueLimit = 10000;
+	static Quark::Timer s_Timer;
+
+	static constexpr int32_t s_QueueLimit = 10000;
 
 	//static const uint32_t s_ThreadPoolSize = std::thread::hardware_concurrency();
 	static const uint32_t s_ThreadPoolSize = 1;
@@ -39,13 +41,15 @@ namespace VoxelCraft {
 
 	void ChunkLoader::Start()
 	{
+		s_Timer.Start();
+
 		m_LoadingArea.Foreach([this](ChunkIdentifier id)
 			{
 				Load(id);
 			});
 
 		for (uint32_t i = 0; i < s_ThreadPoolSize; i++)
-			s_ThreadPool.emplace_back(&ChunkLoader::StartWork, this);
+			s_ThreadPool.emplace_back(&ChunkLoader::Work, this);
 	}
 
 	void ChunkLoader::Stop()
@@ -119,6 +123,12 @@ namespace VoxelCraft {
 		s_ConditionVariable.notify_one();
 	}
 
+	void ChunkLoader::OnFinish()
+	{
+		s_Timer.Stop();
+		std::cout << "Map loading took: " << s_Timer.Milliseconds() << "ms\n";
+	}
+
 	bool ChunkLoader::Idling() const
 	{
 		bool loadingDone;
@@ -158,7 +168,7 @@ namespace VoxelCraft {
 		m_UnloadingQueue.clear();
 	}
 
-	void ChunkLoader::StartWork()
+	void ChunkLoader::Work()
 	{
 		using namespace std::literals::chrono_literals;
 
@@ -167,7 +177,13 @@ namespace VoxelCraft {
 			{
 				{
 					std::unique_lock<std::mutex> lock(s_ConditionMutex);
-					s_ConditionVariable.wait(lock, [this]() { return !m_LoadingQueue.empty() || !m_UnloadingQueue.empty() || s_Stopping; });
+					s_ConditionVariable.wait(lock, [this]()
+						{
+							bool idle = Idling();
+							if (idle)
+								OnFinish();
+							return !idle || s_Stopping;
+						});
 
 					if (s_Stopping) break;
 				}

@@ -4,6 +4,8 @@
 
 namespace VoxelCraft {
 
+	static size_t s_MaxBucketSize = 0;
+
 	WorldMap::WorldMap(World& world)
 		: m_World(world) {}
 
@@ -37,10 +39,15 @@ namespace VoxelCraft {
 		}
 	}
 
-	uint32_t WorldMap::Count() const
+	size_t WorldMap::Count() const
 	{
 		std::lock_guard<std::recursive_mutex> lock(m_ChunksLocationsMutex);
 		return m_ChunksLocations.size();
+	}
+
+	size_t WorldMap::MaxBucketSize() const
+	{
+		return s_MaxBucketSize;
 	}
 
 	Quark::Ref<Chunk> WorldMap::Select(ChunkIdentifier id) const
@@ -60,14 +67,17 @@ namespace VoxelCraft {
 		// TODO: Check if the chunk is outside the writable areas ( -2 147 483 648 to +2 147 483 647 )
 
 		std::lock_guard<std::recursive_mutex> lock(m_ChunksLocationsMutex);
-		if (!Contains(id))
+		auto data = Select(id);
+		if (!data)
 		{
-			auto data = Quark::CreateRef<Chunk>(m_World, id);
-			m_ChunksLocations.insert({ id.ID, data });
+			data = Quark::CreateRef<Chunk>(m_World, id);
+			m_ChunksLocations.emplace(id.ID, data);
 
-			return data;
+			size_t bucket = m_ChunksLocations.bucket(id.ID);
+			size_t size = m_ChunksLocations.bucket_size(bucket);
+			s_MaxBucketSize = std::max(s_MaxBucketSize, size);
 		}
-		return Select(id);
+		return data;
 	}
 
 	void WorldMap::Unload(ChunkIdentifier id)

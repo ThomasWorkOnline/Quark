@@ -179,14 +179,14 @@ namespace VoxelCraft {
 
 		s_BlockProperties = {
 			{ BlockID::Air,				BlockProperties::Air() },
-			{ BlockID::Bedrock,			BlockProperties::CreateBlock({ s_Texture, { 0, 0 }, SubTextureSize }, false, "assets/sounds/break_stone.mp3") },
-			{ BlockID::Dirt,			BlockProperties::CreateBlock({ s_Texture, { 1, 0 }, SubTextureSize }, false, "assets/sounds/break_dirt.mp3") },
-			{ BlockID::GrassBlock,		BlockProperties::CreateBlock({ s_Texture, { 2, 0 }, SubTextureSize }, { s_Texture, { 1, 0 }, SubTextureSize }, { s_Texture, { 2, 1 }, SubTextureSize }, false, "assets/sounds/break_grass.mp3") },
-			{ BlockID::Stone,			BlockProperties::CreateBlock({ s_Texture, { 0, 1 }, SubTextureSize }, false, "assets/sounds/break_stone.mp3") },
-			{ BlockID::Cobblestone,		BlockProperties::CreateBlock({ s_Texture, { 1, 1 }, SubTextureSize }, false, "assets/sounds/break_stone.mp3") },
+			{ BlockID::Bedrock,			BlockProperties::CreateBlock("voxelcraft:bedrock_block", { s_Texture, {0, 0}, SubTextureSize }, false, "assets/sounds/break_stone.mp3")},
+			{ BlockID::Dirt,			BlockProperties::CreateBlock("voxelcraft:dirt_block", { s_Texture, { 1, 0 }, SubTextureSize }, false, "assets/sounds/break_dirt.mp3") },
+			{ BlockID::GrassBlock,		BlockProperties::CreateBlock("voxelcraft:grass_block", { s_Texture, { 2, 0 }, SubTextureSize }, { s_Texture, { 1, 0 }, SubTextureSize }, { s_Texture, { 2, 1 }, SubTextureSize }, false, "assets/sounds/break_grass.mp3") },
+			{ BlockID::Stone,			BlockProperties::CreateBlock("voxelcraft:stone_block", { s_Texture, { 0, 1 }, SubTextureSize }, false, "assets/sounds/break_stone.mp3") },
+			{ BlockID::Cobblestone,		BlockProperties::CreateBlock("voxelcraft:cobblestone_block", { s_Texture, { 1, 1 }, SubTextureSize }, false, "assets/sounds/break_stone.mp3") },
 
-			{ BlockID::Poppy,			BlockProperties::CreateSprite({ s_Texture, { 0, 2 }, SubTextureSize }, "assets/sounds/break_grass.mp3") },
-			{ BlockID::Grass,			BlockProperties::CreateSprite({ s_Texture, { 1, 2 }, SubTextureSize }, "assets/sounds/break_grass.mp3") }
+			{ BlockID::Poppy,			BlockProperties::CreateSprite("voxelcraft:poppy", { s_Texture, { 0, 2 }, SubTextureSize }, "assets/sounds/break_grass.mp3") },
+			{ BlockID::Grass,			BlockProperties::CreateSprite("voxelcraft:grass", { s_Texture, { 1, 2 }, SubTextureSize }, "assets/sounds/break_grass.mp3") }
 		};
 
 		s_CrosshairVertexArray = Quark::VertexArray::Create();

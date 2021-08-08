@@ -14,16 +14,27 @@
 
 namespace Quark {
 
-	class ScopeTimer
+	class Timer
+	{
+	public:
+		void Start();
+		void Stop();
+
+		double Milliseconds() const { return m_Elapsed.count() * 1000.0f; }
+
+	protected:
+		std::chrono::steady_clock::time_point m_Start;
+		std::chrono::steady_clock::time_point m_End;
+		std::chrono::duration<double> m_Elapsed{};
+	};
+
+	class ScopeTimer : public Timer
 	{
 	public:
 		ScopeTimer(const char* scope);
 		~ScopeTimer();
 
 	private:
-		std::chrono::steady_clock::time_point m_Start;
-		std::chrono::steady_clock::time_point m_End;	
-		std::chrono::duration<double> m_Elapsed = {};
 		const char* m_Scope;
 	};
 }
