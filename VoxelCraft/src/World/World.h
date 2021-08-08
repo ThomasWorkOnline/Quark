@@ -18,7 +18,7 @@ namespace VoxelCraft {
 	public:
 		using ChunkLoadedCallback = std::function<void(ChunkIdentifier)>;
 
-		WorldMap Map = { *this };
+		WorldMap Map;
 		Quark::Scene Scene;
 		Quark::Scope<ChunkLoader> Loader;
 

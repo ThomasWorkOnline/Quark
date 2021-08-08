@@ -15,6 +15,7 @@ namespace VoxelCraft {
 	}
 
 	World::World(uint32_t renderDistance, const ChunkCoord& loaderAnchor)
+		: Map(*this)
 	{
 		Loader = ChunkLoader::Create(*this, loaderAnchor, renderDistance);
 	}
