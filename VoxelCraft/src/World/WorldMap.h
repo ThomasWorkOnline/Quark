@@ -12,7 +12,7 @@ namespace VoxelCraft {
 	class WorldMap
 	{
 	public:
-		WorldMap(World& world);
+		WorldMap(World* world);
 
 		void OnUpdate(float elapsedTime);
 
@@ -42,6 +42,6 @@ namespace VoxelCraft {
 		std::mutex m_ChunksToDeleteMutex;
 		std::list<Quark::Ref<Chunk>> m_ChunksToDelete;
 
-		World& m_World;
+		World* m_World;
 	};
 }

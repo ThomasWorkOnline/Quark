@@ -8,7 +8,7 @@ namespace VoxelCraft {
 
 	static size_t s_MaxBucketSize = 0;
 
-	WorldMap::WorldMap(World& world)
+	WorldMap::WorldMap(World* world)
 		: m_World(world) {}
 
 	void WorldMap::OnUpdate(float elapsedTime)

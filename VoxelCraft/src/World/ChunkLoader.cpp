@@ -4,7 +4,7 @@
 
 namespace VoxelCraft {
 
-	Quark::Scope<ChunkLoader> ChunkLoader::Create(World& world, ChunkCoord coord, uint32_t renderDistance)
+	Quark::Scope<ChunkLoader> ChunkLoader::Create(World* world, ChunkCoord coord, uint32_t renderDistance)
 	{
 		return Quark::CreateScope<ChunkLoader>(world, coord, renderDistance);
 	}
@@ -27,8 +27,8 @@ namespace VoxelCraft {
 	static std::mutex s_DataGeneratorMutex;
 	static std::mutex s_MeshGeneratorMutex;
 
-	ChunkLoader::ChunkLoader(World& world, ChunkCoord coord, uint32_t renderDistance)
-		: m_World(world), m_LoadingArea(m_World.Map, { renderDistance, renderDistance }, coord),
+	ChunkLoader::ChunkLoader(World* world, ChunkCoord coord, uint32_t renderDistance)
+		: m_World(world), m_LoadingArea(m_World->Map, { renderDistance, renderDistance }, coord),
 		Coord(coord),
 		RenderDistance(renderDistance)
 	{
@@ -91,7 +91,7 @@ namespace VoxelCraft {
 		std::lock_guard<std::recursive_mutex> lock(s_LoadingQueueMutex);
 		if (m_LoadingQueue.size() < s_QueueLimit)
 		{
-			const auto& chunk = m_World.Map.Get(id);
+			const auto& chunk = m_World->Map.Get(id);
 			if ((!chunk || chunk->LoadStatus == Chunk::LoadStatus::Allocated || chunk->LoadStatus == Chunk::LoadStatus::WorldGenerated))
 			{
 				m_LoadingQueue.insert(id.ID);
@@ -193,7 +193,7 @@ namespace VoxelCraft {
 	{
 		//QK_TIME_SCOPE_DEBUG(ChunkLoader::LoadChunk);
 
-		auto chunk = m_World.Map.Load(id);
+		auto chunk = m_World->Map.Load(id);
 		auto neighbors = chunk->QueryNeighbors();
 
 		UniqueChunkDataGenerator(chunk);
@@ -207,7 +207,7 @@ namespace VoxelCraft {
 
 	void ChunkLoader::UnloadChunk(ChunkIdentifier id)
 	{
-		m_World.Map.Unload(id);
+		m_World->Map.Unload(id);
 	}
 
 	void ChunkLoader::OnIdle()
@@ -261,7 +261,7 @@ namespace VoxelCraft {
 			chunk->LoadStatus = Chunk::LoadStatus::Loaded;
 			Stats.ChunksMeshGen++;
 
-			m_World.OnChunkLoaded(chunk->ID);
+			m_World->OnChunkLoaded(chunk->ID);
 		}
 	}
 }

@@ -25,7 +25,7 @@ namespace VoxelCraft {
 		uint32_t RenderDistance;
 		ChunkLoaderStats Stats;
 
-		ChunkLoader(World& world, ChunkCoord coord, uint32_t renderDistance);
+		ChunkLoader(World* world, ChunkCoord coord, uint32_t renderDistance);
 		~ChunkLoader();
 
 		void Start();
@@ -38,7 +38,7 @@ namespace VoxelCraft {
 
 		bool Idling() const;
 
-		static Quark::Scope<ChunkLoader> Create(World& world, ChunkCoord, uint32_t renderDistance = 8);
+		static Quark::Scope<ChunkLoader> Create(World* world, ChunkCoord, uint32_t renderDistance = 8);
 
 	private:
 		void Work();
@@ -55,7 +55,7 @@ namespace VoxelCraft {
 		void UniqueChunkMeshGenerator(const Quark::Ref<Chunk>& chunk, const ChunkNeighbors& neighbors);
 
 	private:
-		World& m_World;
+		World* m_World;
 		WorldArea m_LoadingArea;
 
 		std::set<ChunkID> m_LoadingQueue;

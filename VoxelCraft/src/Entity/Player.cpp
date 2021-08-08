@@ -7,7 +7,7 @@
 
 namespace VoxelCraft {
 
-	Player::Player(World& world, Quark::Scene& scene, const PlayerSettings& settings)
+	Player::Player(World* world, Quark::Scene& scene, const PlayerSettings& settings)
 		: Quark::Entity(scene.CreateEntity()), m_World(world), m_SceneHandle(scene), m_Settings(settings)
 	{
 		Initialize();
@@ -36,7 +36,7 @@ namespace VoxelCraft {
 
 	bool Player::IsTouchingGround() const
 	{
-		return m_World.IsPlayerTouchingGround(*this);
+		return m_World->IsPlayerTouchingGround(*this);
 	}
 
 	void Player::Initialize()

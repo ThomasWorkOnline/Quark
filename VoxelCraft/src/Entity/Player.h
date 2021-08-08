@@ -26,7 +26,7 @@ namespace VoxelCraft {
 	class Player : public Quark::Entity
 	{
 	public:
-		Player(World& world, Quark::Scene& scene, const PlayerSettings& settings = {});
+		Player(World* world, Quark::Scene& scene, const PlayerSettings& settings = {});
 		~Player();
 
 		const PlayerSettings& GetSettings() const { return m_Settings; }
@@ -44,7 +44,7 @@ namespace VoxelCraft {
 
 		PlayerSettings m_Settings;
 
-		World& m_World;
+		World* m_World;
 
 		Quark::Scene& m_SceneHandle;
 	};

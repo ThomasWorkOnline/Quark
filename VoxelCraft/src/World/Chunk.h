@@ -61,7 +61,7 @@ namespace VoxelCraft {
 
 		std::atomic<LoadStatus> LoadStatus = LoadStatus::Allocated;
 
-		Chunk(World& world, ChunkIdentifier id);
+		Chunk(World* world, ChunkIdentifier id);
 		~Chunk();
 
 		void Save() const;
@@ -90,7 +90,7 @@ namespace VoxelCraft {
 		Block* m_Blocks = nullptr;
 		int32_t* m_HeightMap = nullptr;
 
-		World& m_World;
+		World* m_World;
 
 		friend class SubChunk;
 		friend class ChunkMesh;
