@@ -31,8 +31,7 @@ namespace VoxelCraft {
 		void Start();
 		void Stop();
 
-		void OnFinish();
-		void OnUpdate(float elapsedTime);
+		void Invalidate();
 
 		void Load(ChunkIdentifier id);
 		void Unload(ChunkIdentifier id);
@@ -49,7 +48,8 @@ namespace VoxelCraft {
 		void LoadChunk(ChunkIdentifier id);
 		void UnloadChunk(ChunkIdentifier id);
 
-		void OnChunkBorderCrossed();
+		void OnIdle();
+		void OnResume();
 
 		void UniqueChunkDataGenerator(const Quark::Ref<Chunk>& chunk);
 		void UniqueChunkMeshGenerator(const Quark::Ref<Chunk>& chunk, const ChunkNeighbors& neighbors);

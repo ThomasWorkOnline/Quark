@@ -20,7 +20,7 @@ namespace Quark {
 		void Start();
 		void Stop();
 
-		double Milliseconds() const { return m_Elapsed.count() * 1000.0f; }
+		double Milliseconds() const { return m_Elapsed.count() * 1000.0; }
 
 	protected:
 		std::chrono::steady_clock::time_point m_Start;

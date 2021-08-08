@@ -43,8 +43,7 @@ namespace VoxelCraft {
 			Quark::RenderCommand::SetClearColor(Quark::EncodeSRGB(glm::vec4(0.78f, 0.90f, 0.93f, 1.0f)));
 			Quark::RenderCommand::Clear();
 
-			const Position3D& playerPos = m_Player.GetPosition();
-			m_World->Loader->Coord = playerPos.ToChunkCoord();
+			UpdateLoader();
 
 			m_World->OnUpdate(elapsedTime);
 			ProcessPlayerCollision();
@@ -179,6 +178,20 @@ namespace VoxelCraft {
 					m_Player.GetComponent<Quark::PhysicsComponent>().Velocity.y = 0.f;
 				}
 			}
+		}
+
+		void UpdateLoader()
+		{
+			const Position3D& playerPos = m_Player.GetPosition();
+			auto& coord = m_World->Loader->Coord;
+			coord = playerPos.ToChunkCoord();
+
+			static ChunkCoord lastCoord = coord;
+			if (lastCoord != coord)
+			{
+				m_World->Loader->Invalidate();
+			}
+			lastCoord = coord;
 		}
 
 		bool PerformPlayerClick(Quark::MouseButtonPressedEvent& e)

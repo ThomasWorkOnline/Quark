@@ -10,6 +10,7 @@ namespace VoxelCraft {
 	}
 
 	static Quark::Timer s_Timer;
+	static bool s_Working = false;
 
 	static constexpr int32_t s_QueueLimit = 10000;
 
@@ -41,8 +42,6 @@ namespace VoxelCraft {
 
 	void ChunkLoader::Start()
 	{
-		s_Timer.Start();
-
 		m_LoadingArea.Foreach([this](ChunkIdentifier id)
 			{
 				Load(id);
@@ -65,15 +64,18 @@ namespace VoxelCraft {
 			thread.join();
 	}
 
-	void ChunkLoader::OnUpdate(float elapsedTime)
+	void ChunkLoader::Invalidate()
 	{
-		static ChunkCoord lastCoord = Coord;
+		m_LoadingArea.Invalidate({ RenderDistance, RenderDistance }, Coord);
 
-		if (lastCoord != Coord)
-		{
-			OnChunkBorderCrossed();
-		}
-		lastCoord = Coord;
+		m_LoadingArea.Foreach([this](ChunkIdentifier id)
+			{
+				Load(id);
+			});
+		m_LoadingArea.ForeachOutOfBounds([this](ChunkIdentifier id)
+			{
+				Unload(id);
+			});
 	}
 
 	void ChunkLoader::Load(ChunkIdentifier id)
@@ -115,12 +117,6 @@ namespace VoxelCraft {
 		s_ConditionVariable.notify_one();
 	}
 
-	void ChunkLoader::OnFinish()
-	{
-		s_Timer.Stop();
-		std::cout << "Map loading took: " << s_Timer.Milliseconds() << "ms\n";
-	}
-
 	bool ChunkLoader::Idling() const
 	{
 		bool loadingDone;
@@ -134,6 +130,39 @@ namespace VoxelCraft {
 			unloadingDone = m_UnloadingQueue.empty();
 		}
 		return loadingDone && unloadingDone;
+	}
+
+	void ChunkLoader::Work()
+	{
+		using namespace std::literals::chrono_literals;
+
+		OnResume();
+		while (!s_Stopping)
+		{
+			{
+				std::unique_lock<std::mutex> lock(s_ConditionMutex);
+				s_ConditionVariable.wait(lock, [this]()
+					{
+						bool idle = Idling();
+						if (idle)
+						{
+							OnIdle();
+						}
+						
+						return !idle || s_Stopping;
+					});
+
+				if (!s_Working)
+				{
+					OnResume();
+				}
+			}
+
+			ProcessLoading();
+			ProcessUnloading();
+		}
+
+		std::cout << "Task done! Thread 0x" << std::hex << std::this_thread::get_id() << std::dec << " exited.\n";
 	}
 
 	void ChunkLoader::ProcessLoading()
@@ -160,34 +189,6 @@ namespace VoxelCraft {
 		m_UnloadingQueue.clear();
 	}
 
-	void ChunkLoader::Work()
-	{
-		using namespace std::literals::chrono_literals;
-
-		while (true)
-		{
-			{
-				{
-					std::unique_lock<std::mutex> lock(s_ConditionMutex);
-					s_ConditionVariable.wait(lock, [this]()
-						{
-							bool idle = Idling();
-							if (idle)
-								OnFinish();
-							return !idle || s_Stopping;
-						});
-
-					if (s_Stopping) break;
-				}
-
-				ProcessLoading();
-				ProcessUnloading();
-			}
-		}
-
-		std::cout << "Task done! Thread 0x" << std::hex << std::this_thread::get_id() << std::dec << " exited.\n";
-	}
-
 	void ChunkLoader::LoadChunk(ChunkIdentifier id)
 	{
 		//QK_TIME_SCOPE_DEBUG(ChunkLoader::LoadChunk);
@@ -209,18 +210,17 @@ namespace VoxelCraft {
 		m_World.Map.Unload(id);
 	}
 
-	void ChunkLoader::OnChunkBorderCrossed()
+	void ChunkLoader::OnIdle()
 	{
-		m_LoadingArea.Invalidate({ RenderDistance, RenderDistance }, Coord);
+		s_Working = false;
+		s_Timer.Stop();
+		std::cout << "Map loading took: " << s_Timer.Milliseconds() << "ms\n";
+	}
 
-		m_LoadingArea.Foreach([this](ChunkIdentifier id)
-			{
-				Load(id);
-			});
-		m_LoadingArea.ForeachOutOfBounds([this](ChunkIdentifier id)
-			{
-				Unload(id);
-			});
+	void ChunkLoader::OnResume()
+	{
+		s_Working = true;
+		s_Timer.Start();
 	}
 
 	void ChunkLoader::UniqueChunkDataGenerator(const Quark::Ref<Chunk>& chunk)

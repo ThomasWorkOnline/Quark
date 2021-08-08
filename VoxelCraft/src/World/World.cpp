@@ -17,10 +17,7 @@ namespace VoxelCraft {
 	void World::OnUpdate(float elapsedTime)
 	{
 		Scene.OnUpdate(elapsedTime);
-
-		// Environment
 		Map.OnUpdate(elapsedTime);
-		Loader->OnUpdate(elapsedTime);
 	}
 
 	void World::OnEvent(Quark::Event& e)
