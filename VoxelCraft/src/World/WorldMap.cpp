@@ -2,6 +2,8 @@
 
 #include "World.h"
 
+#include <queue>
+
 namespace VoxelCraft {
 
 	static size_t s_MaxBucketSize = 0;
@@ -20,23 +22,37 @@ namespace VoxelCraft {
 
 	void WorldMap::Foreach(const std::function<void(ChunkIdentifier id)>& func) const
 	{
+		std::queue<ChunkID> queue;
+
 		std::unique_lock<std::mutex> lock(m_ChunksLocationsMutex);
 		for (auto& e : m_ChunksLocations)
 		{
-			lock.unlock();
-			func(e.first);
-			lock.lock();
+			queue.push(e.first);
+		}
+		lock.unlock();
+
+		while (!queue.empty())
+		{
+			func(queue.front());
+			queue.pop();
 		}
 	}
 
 	void WorldMap::Foreach(const std::function<void(const Quark::Ref<Chunk>& data)>& func) const
 	{
+		std::queue<Quark::Ref<Chunk>> queue;
+
 		std::unique_lock<std::mutex> lock(m_ChunksLocationsMutex);
 		for (auto& e : m_ChunksLocations)
 		{
-			lock.unlock();
-			func(e.second);
-			lock.lock();
+			queue.push(e.second);
+		}
+		lock.unlock();
+
+		while (!queue.empty())
+		{
+			func(queue.front());
+			queue.pop();
 		}
 	}
 
