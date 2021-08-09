@@ -43,5 +43,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\crosshair.glsl" />
+    <None Include="assets\shaders\debugChunkBorder.glsl" />
   </ItemGroup>
 </Project>

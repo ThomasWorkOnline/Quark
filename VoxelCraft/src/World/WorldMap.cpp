@@ -23,7 +23,6 @@ namespace VoxelCraft {
 	void WorldMap::Foreach(const std::function<void(ChunkIdentifier id)>& func) const
 	{
 		std::queue<ChunkID> queue;
-
 		{
 			std::lock_guard<std::mutex> lock(m_ChunksLocationsMutex);
 			for (auto& e : m_ChunksLocations)
@@ -42,7 +41,6 @@ namespace VoxelCraft {
 	void WorldMap::Foreach(const std::function<void(const Quark::Ref<Chunk>& data)>& func) const
 	{
 		std::queue<Quark::Ref<Chunk>> queue;
-
 		{
 			std::lock_guard<std::mutex> lock(m_ChunksLocationsMutex);
 			for (auto& e : m_ChunksLocations)

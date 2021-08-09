@@ -160,6 +160,7 @@ namespace VoxelCraft {
 		s_ShaderLibrary.Load("default", "assets/shaders/default.glsl");
 		s_ShaderLibrary.Load("crosshair", "assets/shaders/crosshair.glsl");
 		s_ShaderLibrary.Load("debugMesh", "assets/shaders/debugMesh.glsl");
+		s_ShaderLibrary.Load("debugChunkBorder", "assets/shaders/debugChunkBorder.glsl");
 
 		s_Texture = Quark::Texture2D::Create("assets/textures/sprite_sheet.png");
 
@@ -197,5 +198,49 @@ namespace VoxelCraft {
 
 		auto ibo = Quark::IndexBuffer::Create((uint32_t*)s_CrosshairIndices, sizeof(s_CrosshairIndices) / sizeof(uint32_t));
 		s_CrosshairVertexArray->SetIndexBuffer(ibo);
+	}
+
+	const BlockProperties& Resources::GetBlockProperties(Block type)
+	{
+		auto it = s_BlockProperties.find(type.ID);
+		if (it != s_BlockProperties.end())
+		{
+			return it->second;
+		}
+
+		QK_FATAL("Block type supplied does not exist");
+	}
+
+	const MeshProperties& Resources::GetMeshProperties(BlockModel model)
+	{
+		auto it = s_MeshProperties.find(model);
+		if (it != s_MeshProperties.end())
+		{
+			return it->second;
+		}
+
+		QK_FATAL("Block model supplied does not exist");
+	}
+
+	const HitBox& Resources::GetBlockHitbox(BlockModel model)
+	{
+		auto it = s_BlockHitboxes.find(model);
+		if (it != s_BlockHitboxes.end())
+		{
+			return it->second;
+		}
+
+		QK_FATAL("Block model supplied does not exist");
+	}
+
+	const HitBox& Resources::GetEntityHitbox(EntityModel model)
+	{
+		auto it = s_EntityHitboxes.find(model);
+		if (it != s_EntityHitboxes.end())
+		{
+			return it->second;
+		}
+
+		QK_FATAL("Entity model supplied does not exist");
 	}
 }

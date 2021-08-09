@@ -30,7 +30,7 @@ namespace VoxelCraft {
 		// Debug
 		static void SwitchShader();
 		static void ViewUnloadedChunks(bool enabled) { s_ViewUnloadedChunks = enabled; }
-		static void ViewSubChunksDelimiter(bool enabled) { s_ViewSubChunksDelimiter = enabled; }
+		static void ViewChunkBorders(bool enabled) { s_ViewChunkBorder = enabled; }
 
 		static const RendererStats& GetStats() { return s_Stats; }
 
@@ -38,14 +38,15 @@ namespace VoxelCraft {
 		static Quark::Ref<Quark::Shader> s_ActiveShader;
 		static Quark::Ref<Quark::Texture2D> s_Texture;
 
-		static void RenderUnloadedChunks(const WorldMap& map);
-		static void RenderCrosshair();
 		static void RenderChunk(const Quark::Ref<Chunk>& chunk);
+		static void RenderUnloadedChunk(const Quark::Ref<Chunk>& chunk);
+		static void RenderChunkBorder(const Quark::Ref<Chunk>& chunk);
+		static void RenderCrosshair();
 		
 		static void ResetStats();
 
 		static bool s_ViewUnloadedChunks;
-		static bool s_ViewSubChunksDelimiter;
+		static bool s_ViewChunkBorder;
 
 		static RendererStats s_Stats;
 	};

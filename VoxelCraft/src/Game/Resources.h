@@ -16,70 +16,15 @@ namespace VoxelCraft {
 	public:
 		static void Initialize();
 
-		static const BlockProperties& GetBlockProperties(Block type)
-		{
-			auto it = s_BlockProperties.find(type.ID);
-			if (it != s_BlockProperties.end())
-			{
-				return it->second;
-			}
+		static const BlockProperties& GetBlockProperties(Block type);
+		static const MeshProperties& GetMeshProperties(BlockModel model);
+		static const HitBox& GetBlockHitbox(BlockModel model);
+		static const HitBox& GetEntityHitbox(EntityModel model);
 
-			std::cout << "Type was: " << (int32_t)type.ID;
-			QK_FATAL("Block type supplied does not exist");
-		}
-
-		static const MeshProperties& GetMeshProperties(BlockModel model)
-		{
-			auto it = s_MeshProperties.find(model);
-			if (it != s_MeshProperties.end())
-			{
-				return it->second;
-			}
-
-			QK_FATAL("Block model supplied does not exist");
-		}
-
-		static const HitBox& GetBlockHitbox(BlockModel model)
-		{
-			auto it = s_BlockHitboxes.find(model);
-			if (it != s_BlockHitboxes.end())
-			{
-				return it->second;
-			}
-
-			QK_FATAL("Block model supplied does not exist");
-		}
-
-		static const HitBox& GetEntityHitbox(EntityModel model)
-		{
-			auto it = s_EntityHitboxes.find(model);
-			if (it != s_EntityHitboxes.end())
-			{
-				return it->second;
-			}
-
-			QK_FATAL("Entity model supplied does not exist");
-		}
-
-		static const Quark::Ref<Quark::Shader>& GetShader(const std::string& name)
-		{
-			return s_ShaderLibrary.Get(name);
-		}
-
-		static const Quark::Ref<Quark::Texture2D>& GetTexture()
-		{
-			return s_Texture;
-		}
-
-		static const Quark::Ref<Quark::VertexArray>& GetCrosshairVertexArray()
-		{
-			return s_CrosshairVertexArray;
-		}
-
-		static const Quark::BufferLayout& GetBufferLayout()
-		{
-			return s_BufferLayout;
-		}
+		static const Quark::Ref<Quark::Shader>& GetShader(const std::string& name) { return s_ShaderLibrary.Get(name); }
+		static const Quark::Ref<Quark::Texture2D>& GetTexture() { return s_Texture; }
+		static const Quark::Ref<Quark::VertexArray>& GetCrosshairVertexArray() { return s_CrosshairVertexArray; }
+		static const Quark::BufferLayout& GetBufferLayout() { return s_BufferLayout; }
 
 	private:
 		static constexpr glm::ivec2 SubTextureSize = { 16, 16 };

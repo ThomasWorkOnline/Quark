@@ -136,6 +136,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\crosshair.glsl" />
+    <None Include="assets\shaders\debugChunkBorder.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

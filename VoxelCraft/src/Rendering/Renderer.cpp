@@ -10,7 +10,7 @@ namespace VoxelCraft {
 	Quark::Ref<Quark::Texture2D> Renderer::s_Texture;
 
 	bool Renderer::s_ViewUnloadedChunks = false;
-	bool Renderer::s_ViewSubChunksDelimiter = false;
+	bool Renderer::s_ViewChunkBorder = false;
 
 	RendererStats Renderer::s_Stats;
 
@@ -45,6 +45,8 @@ namespace VoxelCraft {
 
 	void Renderer::BeginScene(const glm::mat4& cameraProjection, const Quark::Transform3DComponent& cameraTransformNoPosition, const Position3D& cameraPosition)
 	{
+		ResetStats();
+
 		Quark::Renderer::BeginScene(cameraProjection, cameraTransformNoPosition);
 
 		s_ActiveShader->Attach();
@@ -57,40 +59,27 @@ namespace VoxelCraft {
 	void Renderer::EndScene()
 	{
 		Quark::Renderer::EndScene();
-
-		ResetStats();
 	}
 
 	void Renderer::SubmitMap(const WorldMap& map)
 	{
 		map.Foreach([](const Quark::Ref<Chunk>& data)
 			{
-				if (data->LoadStatus == Chunk::LoadStatus::Loaded)
+				switch (data->LoadStatus)
 				{
+				case Chunk::LoadStatus::Loaded:
 					data->UploadMesh();
-					Renderer::RenderChunk(data);
+					RenderChunk(data);
+					break;
+				case Chunk::LoadStatus::Allocated:
+				case Chunk::LoadStatus::WorldGenerated:
+					if (s_ViewUnloadedChunks)
+						RenderUnloadedChunk(data);
+					break;
 				}
-			});
 
-		if (s_ViewUnloadedChunks)
-			RenderUnloadedChunks(map);
-	}
-
-	void Renderer::RenderUnloadedChunks(const WorldMap& map)
-	{
-		map.Foreach([](const Quark::Ref<Chunk>& data)
-			{
-				if (data->LoadStatus != Chunk::LoadStatus::Loaded)
-				{
-					auto&& position = IntPosition2D(data->ID.Coord);
-					position.x *= SubChunkSpecification::Width;
-					position.y *= SubChunkSpecification::Depth;
-
-					s_Transform.Position = { position.x + 8, 80, position.y + 8 };
-
-					Quark::Renderer::Submit(s_Shader, s_Mesh.GetVertexArray(), s_Transform);
-					s_Stats.DrawCalls++;
-				}
+				if (s_ViewChunkBorder)
+					RenderChunkBorder(data);
 			});
 	}
 
@@ -137,9 +126,24 @@ namespace VoxelCraft {
 		}
 	}
 
-	void Renderer::ResetStats()
+	void Renderer::RenderUnloadedChunk(const Quark::Ref<Chunk>& chunk)
 	{
-		s_Stats.DrawCalls = 0;
+		if (chunk->LoadStatus != Chunk::LoadStatus::Loaded)
+		{
+			auto&& position = IntPosition2D(chunk->ID.Coord);
+			position.x *= SubChunkSpecification::Width;
+			position.y *= SubChunkSpecification::Depth;
+
+			s_Transform.Position = { position.x + 8, 80, position.y + 8 };
+
+			Quark::Renderer::Submit(s_Shader, s_Mesh.GetVertexArray(), s_Transform);
+			s_Stats.DrawCalls++;
+		}
+	}
+
+	void Renderer::RenderChunkBorder(const Quark::Ref<Chunk>& chunk)
+	{
+		
 	}
 
 	void Renderer::RenderCrosshair()
@@ -152,5 +156,10 @@ namespace VoxelCraft {
 
 		Quark::Renderer::Submit(shader, vao);
 		s_Stats.DrawCalls++;
+	}
+
+	void Renderer::ResetStats()
+	{
+		s_Stats.DrawCalls = 0;
 	}
 }
