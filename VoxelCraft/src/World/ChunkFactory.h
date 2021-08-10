@@ -11,7 +11,7 @@ namespace VoxelCraft {
 	class ChunkFactory
 	{
 	public:
-		static void BuildTerrain(const Quark::Ref<Chunk>& data);
-		static void BuildMesh(const Quark::Ref<Chunk>& data, const ChunkNeighbors& neighbors);
+		static void BuildTerrain(Chunk* data);
+		static void BuildMesh(Chunk* data, const ChunkNeighbors& neighbors);
 	};
 }

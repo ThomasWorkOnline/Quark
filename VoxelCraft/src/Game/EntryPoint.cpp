@@ -57,7 +57,11 @@ namespace VoxelCraft {
 			{
 				Renderer::BeginScene(m_Player.GetComponent<Quark::PerspectiveCameraComponent>().Camera.GetProjection(), m_Player.GetCameraTransformNoPosition(), m_Player.GetHeadPosition());
 
-				Renderer::SubmitMap(m_World->Map);
+				m_World->Map.Foreach([this](Chunk* data)
+					{
+						Renderer::SubmitChunk(data);
+					});
+
 				s_RenderStatsCache = Renderer::GetStats();
 
 				Renderer::EndScene();
@@ -113,6 +117,9 @@ namespace VoxelCraft {
 				break;
 			case Quark::Key::O:
 				m_Player.GetComponent<Quark::Transform3DComponent>().Position = { 0, 200, 0 };
+				break;
+			case Quark::Key::I:
+				m_World->Loader.Invalidate();
 				break;
 			}
 

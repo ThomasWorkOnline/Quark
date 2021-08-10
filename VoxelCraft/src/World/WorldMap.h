@@ -23,7 +23,7 @@ namespace VoxelCraft {
 		void ProcessDeletion();
 
 		void Foreach(const std::function<void(ChunkIdentifier id)>& func) const;
-		void Foreach(const std::function<void(const Quark::Ref<Chunk>& data)>& func) const;
+		void Foreach(const std::function<void(Chunk* data)>& func) const;
 
 		size_t Count() const;
 		size_t MaxBucketSize() const;
@@ -33,12 +33,12 @@ namespace VoxelCraft {
 		/// </summary>
 		/// <param name="id"></param>
 		/// <returns>nullptr if no chunk was found.</returns>
-		Quark::Ref<Chunk> Get(ChunkIdentifier id) const;
+		Chunk* Get(ChunkIdentifier id) const;
 
 		void Load(ChunkIdentifier id);
-		void Load(const Quark::Ref<Chunk>& data);
+		void Load(Chunk* data);
 		void Unload(ChunkIdentifier id);
-		void Unload(const Quark::Ref<Chunk>& data);
+		void Unload(Chunk* data);
 
 		bool Contains(ChunkIdentifier id) const;
 
@@ -51,12 +51,12 @@ namespace VoxelCraft {
 		ChunkNeighbors GetNonNullNeighbors(ChunkIdentifier id);
 
 	private:
-		Quark::Ref<Chunk> Create(ChunkIdentifier id);
-		void Erase(const Quark::Ref<Chunk>& data);
+		Chunk* Create(ChunkIdentifier id);
+		void Erase(Chunk* data);
 
 	private:
 		mutable std::mutex m_ChunksLocationsMutex;
-		std::unordered_map<ChunkID, Quark::Ref<Chunk>> m_ChunksLocations;
+		std::unordered_map<ChunkID, Chunk*> m_ChunksLocations;
 
 		/// <summary>
 		/// The deletion must be done on the main thread.
@@ -64,7 +64,7 @@ namespace VoxelCraft {
 		/// resulting in undefined behaviour. In most cases, a memory leak would occur.
 		/// </summary>
 		std::mutex m_ChunksToDeleteMutex;
-		std::list<Quark::Ref<Chunk>> m_ChunksToDelete;
+		std::list<Chunk*> m_ChunksToDelete;
 
 		World* m_World;
 	};

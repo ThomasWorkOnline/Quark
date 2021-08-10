@@ -61,26 +61,23 @@ namespace VoxelCraft {
 		Quark::Renderer::EndScene();
 	}
 
-	void Renderer::SubmitMap(const WorldMap& map)
+	void Renderer::SubmitChunk(Chunk* data)
 	{
-		map.Foreach([](const Quark::Ref<Chunk>& data)
-			{
-				switch (data->LoadStatus)
-				{
-				case Chunk::LoadStatus::Loaded:
-					data->UploadMesh();
-					RenderChunk(data);
-					break;
-				case Chunk::LoadStatus::Allocated:
-				case Chunk::LoadStatus::WorldGenerated:
-					if (s_ViewUnloadedChunks)
-						RenderUnloadedChunk(data);
-					break;
-				}
+		switch (data->LoadStatus)
+		{
+		case Chunk::LoadStatus::Loaded:
+			data->UploadMesh();
+			RenderChunk(data);
+			break;
+		case Chunk::LoadStatus::Allocated:
+		case Chunk::LoadStatus::WorldGenerated:
+			if (s_ViewUnloadedChunks)
+				RenderUnloadedChunk(data);
+			break;
+		}
 
-				if (s_ViewChunkBorder)
-					RenderChunkBorder(data);
-			});
+		if (s_ViewChunkBorder)
+			RenderChunkBorder(data);
 	}
 
 	void Renderer::RenderUIScene(uint32_t width, uint32_t height)
@@ -106,14 +103,14 @@ namespace VoxelCraft {
 		}
 	}
 
-	void Renderer::RenderChunk(const Quark::Ref<Chunk>& chunk)
+	void Renderer::RenderChunk(const Chunk* data)
 	{
 		// Reverse rendering order, draw top chunks first
-		for (auto it = chunk->rbegin(); it != chunk->rend(); it++)
+		for (auto it = data->rbegin(); it != data->rend(); it++)
 		{
 			if (!it->Mesh.Empty())
 			{
-				auto&& position = IntPosition2D(chunk->ID.Coord);
+				auto&& position = IntPosition2D(data->ID.Coord);
 				position.x *= SubChunkSpecification::Width;
 				position.y *= SubChunkSpecification::Depth;
 
@@ -126,11 +123,11 @@ namespace VoxelCraft {
 		}
 	}
 
-	void Renderer::RenderUnloadedChunk(const Quark::Ref<Chunk>& chunk)
+	void Renderer::RenderUnloadedChunk(const Chunk* data)
 	{
-		if (chunk->LoadStatus != Chunk::LoadStatus::Loaded)
+		if (data->LoadStatus != Chunk::LoadStatus::Loaded)
 		{
-			auto&& position = IntPosition2D(chunk->ID.Coord);
+			auto&& position = IntPosition2D(data->ID.Coord);
 			position.x *= SubChunkSpecification::Width;
 			position.y *= SubChunkSpecification::Depth;
 
@@ -141,7 +138,7 @@ namespace VoxelCraft {
 		}
 	}
 
-	void Renderer::RenderChunkBorder(const Quark::Ref<Chunk>& chunk)
+	void Renderer::RenderChunkBorder(const Chunk* data)
 	{
 		
 	}

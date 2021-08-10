@@ -5,7 +5,7 @@ namespace VoxelCraft {
 	static std::mutex s_DataGeneratorMutex;
 	static std::mutex s_MeshGeneratorMutex;
 
-	void ChunkFactory::BuildTerrain(const Quark::Ref<Chunk>& data)
+	void ChunkFactory::BuildTerrain(Chunk* data)
 	{
 		bool access = false; // Thread safe, function scope access flag
 		{
@@ -24,7 +24,7 @@ namespace VoxelCraft {
 		}
 	}
 
-	void ChunkFactory::BuildMesh(const Quark::Ref<Chunk>& data, const ChunkNeighbors& neighbors)
+	void ChunkFactory::BuildMesh(Chunk* data, const ChunkNeighbors& neighbors)
 	{
 		bool access = false;
 		{

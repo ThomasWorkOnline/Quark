@@ -24,7 +24,7 @@ namespace VoxelCraft {
 		static void BeginScene(const glm::mat4& cameraProjection, const Quark::Transform3DComponent& cameraTransformNoPosition, const Position3D& cameraPosition);
 		static void EndScene();
 
-		static void SubmitMap(const WorldMap& map);
+		static void SubmitChunk(Chunk* data);
 		static void RenderUIScene(uint32_t width, uint32_t height);
 
 		// Debug
@@ -38,9 +38,9 @@ namespace VoxelCraft {
 		static Quark::Ref<Quark::Shader> s_ActiveShader;
 		static Quark::Ref<Quark::Texture2D> s_Texture;
 
-		static void RenderChunk(const Quark::Ref<Chunk>& chunk);
-		static void RenderUnloadedChunk(const Quark::Ref<Chunk>& chunk);
-		static void RenderChunkBorder(const Quark::Ref<Chunk>& chunk);
+		static void RenderChunk(const Chunk* data);
+		static void RenderUnloadedChunk(const Chunk* data);
+		static void RenderChunkBorder(const Chunk* data);
 		static void RenderCrosshair();
 		
 		static void ResetStats();

@@ -27,13 +27,13 @@ namespace VoxelCraft {
 	struct ChunkNeighbors
 	{
 		// Order is important
-		ChunkNeighbors(const Quark::Ref<Chunk>& north, const Quark::Ref<Chunk>& south, const Quark::Ref<Chunk>& west, const Quark::Ref<Chunk>& east)
+		ChunkNeighbors(Chunk* north, Chunk* south, Chunk* west, Chunk* east)
 			: North(north), South(south), West(west), East(east) {}
 
-		Quark::Ref<Chunk> North;
-		Quark::Ref<Chunk> South;
-		Quark::Ref<Chunk> West;
-		Quark::Ref<Chunk> East;
+		Chunk* North;
+		Chunk* South;
+		Chunk* West;
+		Chunk* East;
 	};
 
 	class Chunk
