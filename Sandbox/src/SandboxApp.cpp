@@ -217,7 +217,7 @@ public:
 			}
 
 			{
-				glm::dmat4 view = m_CameraEntity.GetComponent<Quark::Transform3DComponent>();
+				glm::dmat4 view = (glm::dmat3)m_CameraEntity.GetComponent<Quark::Transform3DComponent>();
 				Quark::Renderer::BeginScene(m_CameraEntity.GetComponent<Quark::PerspectiveCameraComponent>().Camera.GetProjection(), view);
 
 				Quark::RenderCommand::SetCullFace(Quark::RenderCullFace::Back);
