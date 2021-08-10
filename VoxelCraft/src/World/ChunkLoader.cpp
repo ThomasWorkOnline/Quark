@@ -1,6 +1,7 @@
 #include "ChunkLoader.h"
 
 #include "World.h"
+#include "ChunkBuilder.h"
 
 namespace VoxelCraft {
 
@@ -24,8 +25,6 @@ namespace VoxelCraft {
 
 	static std::recursive_mutex s_LoadingQueueMutex;
 	static std::recursive_mutex s_UnloadingQueueMutex;
-	static std::mutex s_DataGeneratorMutex;
-	static std::mutex s_MeshGeneratorMutex;
 
 	ChunkLoader::ChunkLoader(World* world, ChunkCoord coord, uint32_t renderDistance)
 		: m_World(world), m_LoadingArea(m_World->Map, { renderDistance, renderDistance }, coord),
@@ -148,7 +147,7 @@ namespace VoxelCraft {
 						{
 							OnIdle();
 						}
-						
+
 						return !idle || s_Stopping;
 					});
 
@@ -196,13 +195,15 @@ namespace VoxelCraft {
 		auto chunk = m_World->Map.Load(id);
 		auto neighbors = chunk->QueryNeighbors();
 
-		UniqueChunkDataGenerator(chunk);
-		UniqueChunkDataGenerator(neighbors.North);
-		UniqueChunkDataGenerator(neighbors.South);
-		UniqueChunkDataGenerator(neighbors.West);
-		UniqueChunkDataGenerator(neighbors.East);
+		ChunkBuilder::BuildTerrain(chunk);
+		ChunkBuilder::BuildTerrain(neighbors.North);
+		ChunkBuilder::BuildTerrain(neighbors.South);
+		ChunkBuilder::BuildTerrain(neighbors.West);
+		ChunkBuilder::BuildTerrain(neighbors.East);
 
-		UniqueChunkMeshGenerator(chunk, neighbors);
+		ChunkBuilder::BuildMesh(chunk, neighbors);
+
+		m_World->OnChunkLoaded(id);
 	}
 
 	void ChunkLoader::UnloadChunk(ChunkIdentifier id)
@@ -221,47 +222,5 @@ namespace VoxelCraft {
 	{
 		s_Working = true;
 		s_Timer.Start();
-	}
-
-	void ChunkLoader::UniqueChunkDataGenerator(const Quark::Ref<Chunk>& chunk)
-	{
-		bool access = false; // Thread safe, function scope access flag
-		{
-			std::lock_guard<std::mutex> lock(s_DataGeneratorMutex);
-			if (chunk && chunk->LoadStatus == Chunk::LoadStatus::Allocated)
-			{
-				access = true;
-				chunk->LoadStatus = Chunk::LoadStatus::WorldGenerating;
-			}
-		}
-
-		if (access)
-		{
-			chunk->BuildTerrain();
-			chunk->LoadStatus = Chunk::LoadStatus::WorldGenerated;
-			Stats.ChunksWorldGen++;
-		}
-	}
-
-	void ChunkLoader::UniqueChunkMeshGenerator(const Quark::Ref<Chunk>& chunk, const ChunkNeighbors& neighbors)
-	{
-		bool access = false;
-		{
-			std::lock_guard<std::mutex> lock(s_MeshGeneratorMutex);
-			if (chunk && chunk->LoadStatus == Chunk::LoadStatus::WorldGenerated)
-			{
-				access = true;
-				chunk->LoadStatus = Chunk::LoadStatus::Loading;
-			}
-		}
-
-		if (access)
-		{
-			chunk->BuildMesh(neighbors);
-			chunk->LoadStatus = Chunk::LoadStatus::Loaded;
-			Stats.ChunksMeshGen++;
-
-			m_World->OnChunkLoaded(chunk->ID);
-		}
 	}
 }

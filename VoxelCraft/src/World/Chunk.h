@@ -79,12 +79,12 @@ namespace VoxelCraft {
 
 		ChunkNeighbors QueryNeighbors() const;
 
+		bool IsBlockTransparent(const IntPosition3D& position) const;
+		bool IsBlockFaceVisible(const IntPosition3D& position, BlockFace face, const ChunkNeighbors& neighbors) const;
+
 	private:
 		Block GenerateBlock(const IntPosition3D& position);
 		void RebuildSubMeshes(const IntPosition3D& position);
-
-		bool IsBlockTransparent(const IntPosition3D& position) const;
-		bool IsBlockFaceVisible(const IntPosition3D& position, BlockFace face, const ChunkNeighbors& neighbors) const;
 
 	private:
 		Block* m_Blocks = nullptr;
@@ -93,7 +93,6 @@ namespace VoxelCraft {
 		World* m_World;
 
 		friend class SubChunk;
-		friend class ChunkMesh;
 	};
 
 	uint32_t IndexAtPosition(const IntPosition3D& position);

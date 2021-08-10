@@ -14,6 +14,7 @@ namespace VoxelCraft {
 	public:
 		WorldMap(World* world);
 
+		// TODO: change
 		void OnUpdate(float elapsedTime);
 
 		void Foreach(const std::function<void(ChunkIdentifier id)>& func) const;

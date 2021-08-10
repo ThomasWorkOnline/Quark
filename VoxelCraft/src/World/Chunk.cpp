@@ -17,6 +17,11 @@ namespace VoxelCraft {
 			position.x < ChunkSpecification::Width && position.y < ChunkSpecification::Height && position.z < ChunkSpecification::Depth;
 	}
 
+	static void DumpAsBinary(std::ofstream& out, const void* data, size_t size)
+	{
+		out.write(reinterpret_cast<const char*>(data), size);
+	}
+
 	Chunk::Chunk(World* world, ChunkIdentifier id)
 		: ID(id), m_World(world)
 	{
@@ -36,14 +41,32 @@ namespace VoxelCraft {
 		QK_ASSERT(Quark::Application::Get().GetThreadID() == std::this_thread::get_id(), "Invalid delete");
 	}
 
-	static void DumpAsBinary(std::ofstream& out, const void* data, size_t size)
-	{
-		out.write(reinterpret_cast<const char*>(data), size);
-	}
-
 	void Chunk::Save() const
 	{
 		
+	}
+
+	Block Chunk::GetBlock(const IntPosition3D& position) const
+	{
+		if (m_Blocks && BoundsCheck(position))
+		{
+			uint32_t index = IndexAtPosition(position);
+			return m_Blocks[index];
+		}
+		return BlockID::Air;
+	}
+
+	bool Chunk::ReplaceBlock(const IntPosition3D& position, Block type)
+	{
+		if (!(m_Blocks && BoundsCheck(position)))
+			return false;
+
+		uint32_t index = IndexAtPosition(position);
+		m_Blocks[index] = type;
+
+		RebuildSubMeshes(position);
+
+		return true;
 	}
 
 	void Chunk::BuildTerrain()
@@ -93,6 +116,8 @@ namespace VoxelCraft {
 
 	void Chunk::UploadMesh()
 	{
+		QK_ASSERT(Quark::Application::Get().GetThreadID() == std::this_thread::get_id(), "Invalid caller thread");
+
 		for (auto& subChunk : SubChunks)
 		{
 			auto& mesh = subChunk.Mesh;
@@ -102,6 +127,61 @@ namespace VoxelCraft {
 		}
 	}
 
+	ChunkNeighbors Chunk::QueryNeighbors() const
+	{
+		// Force load if it doesn't exist to prevent crashes
+		return {
+			m_World->Map.Load(ID.North()),
+			m_World->Map.Load(ID.South()),
+			m_World->Map.Load(ID.West()),
+			m_World->Map.Load(ID.East())
+		};
+	}
+
+	bool Chunk::IsBlockTransparent(const IntPosition3D& position) const
+	{
+		uint32_t index = IndexAtPosition(position);
+		return m_Blocks[index].GetProperties().Transparent;
+	}
+
+	bool Chunk::IsBlockFaceVisible(const IntPosition3D& position, BlockFace face, const ChunkNeighbors& neighbors) const
+	{
+		IntPosition3D neighborPosition = position + GetFaceNormal(face); // In chunk space
+
+		if (BoundsCheck(neighborPosition))
+		{
+			return IsBlockTransparent(neighborPosition);
+		}
+
+		if (neighborPosition.x < 0)
+		{
+			Block block = neighbors.West->GetBlock({ ChunkSpecification::Width - 1, neighborPosition.y, neighborPosition.z });
+			if (!block.GetProperties().Transparent)
+				return false;
+		}
+		else if (neighborPosition.x > ChunkSpecification::Width - 1)
+		{
+			Block block = neighbors.East->GetBlock({ 0, neighborPosition.y, neighborPosition.z });
+			if (!block.GetProperties().Transparent)
+				return false;
+		}
+
+		if (neighborPosition.z < 0)
+		{
+			Block block = neighbors.South->GetBlock({ neighborPosition.x, neighborPosition.y, ChunkSpecification::Depth - 1 });
+			if (!block.GetProperties().Transparent)
+				return false;
+		}
+		else if (neighborPosition.z > ChunkSpecification::Depth - 1)
+		{
+			Block block = neighbors.North->GetBlock({ neighborPosition.x, neighborPosition.y, 0 });
+			if (!block.GetProperties().Transparent)
+				return false;
+		}
+
+		return true;
+	}
+
 	Block Chunk::GenerateBlock(const IntPosition3D& position)
 	{
 		static constexpr uint32_t stoneHeight = 58;
@@ -109,7 +189,7 @@ namespace VoxelCraft {
 		static constexpr uint32_t grassBlockHeight = 64;
 		static constexpr uint32_t grassHeight = 65;
 
-		double noise = s_Random() / static_cast<double>(std::numeric_limits<unsigned int>::max());
+		float noise = s_Random() / static_cast<float>(std::numeric_limits<unsigned int>::max());
 
 		int32_t index = position.z * ChunkSpecification::Depth + position.x;
 		int32_t heightSample = m_HeightMap[index];
@@ -189,84 +269,6 @@ namespace VoxelCraft {
 			SubChunk& subNorth = north->SubChunks[subChunkStackIndex];
 			subNorth.RebuildMesh(north->QueryNeighbors());
 		}
-	}
-
-	Block Chunk::GetBlock(const IntPosition3D& position) const
-	{
-		if (m_Blocks && BoundsCheck(position))
-		{
-			uint32_t index = IndexAtPosition(position);
-			return m_Blocks[index];
-		}
-		return BlockID::Air;
-	}
-
-	bool Chunk::ReplaceBlock(const IntPosition3D& position, Block type)
-	{
-		if (!(m_Blocks && BoundsCheck(position)))
-			return false;
-
-		uint32_t index = IndexAtPosition(position);
-		m_Blocks[index] = type;
-
-		RebuildSubMeshes(position);
-
-		return true;
-	}
-
-	bool Chunk::IsBlockFaceVisible(const IntPosition3D& position, BlockFace face, const ChunkNeighbors& neighbors) const
-	{
-		IntPosition3D neighborPosition = position + GetFaceNormal(face); // In chunk space
-
-		if (BoundsCheck(neighborPosition))
-		{
-			return IsBlockTransparent(neighborPosition);
-		}
-
-		if (neighborPosition.x < 0)
-		{
-			Block block = neighbors.West->GetBlock({ ChunkSpecification::Width - 1, neighborPosition.y, neighborPosition.z });
-			if (!block.GetProperties().Transparent)
-				return false;
-		}
-		else if (neighborPosition.x > ChunkSpecification::Width - 1)
-		{
-			Block block = neighbors.East->GetBlock({ 0, neighborPosition.y, neighborPosition.z });
-			if (!block.GetProperties().Transparent)
-				return false;
-		}
-
-		if (neighborPosition.z < 0)
-		{
-			Block block = neighbors.South->GetBlock({ neighborPosition.x, neighborPosition.y, ChunkSpecification::Depth - 1 });
-			if (!block.GetProperties().Transparent)
-				return false;
-		}
-		else if (neighborPosition.z > ChunkSpecification::Depth - 1)
-		{
-			Block block = neighbors.North->GetBlock({ neighborPosition.x, neighborPosition.y, 0 });
-			if (!block.GetProperties().Transparent)
-				return false;
-		}
-
-		return true;
-	}
-
-	ChunkNeighbors Chunk::QueryNeighbors() const
-	{
-		// Force load if it doesn't exist to prevent crashes
-		return {
-			m_World->Map.Load(ID.North()),
-			m_World->Map.Load(ID.South()),
-			m_World->Map.Load(ID.West()),
-			m_World->Map.Load(ID.East())
-		};
-	}
-
-	bool Chunk::IsBlockTransparent(const IntPosition3D& position) const
-	{
-		uint32_t index = IndexAtPosition(position);
-		return m_Blocks[index].GetProperties().Transparent;
 	}
 
 	uint32_t IndexAtPosition(const IntPosition3D& position)

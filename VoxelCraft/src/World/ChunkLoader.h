@@ -10,12 +10,6 @@
 
 namespace VoxelCraft {
 
-	struct ChunkLoaderStats
-	{
-		uint32_t ChunksWorldGen = 0;
-		uint32_t ChunksMeshGen = 0;
-	};
-
 	class World;
 
 	class ChunkLoader
@@ -23,7 +17,6 @@ namespace VoxelCraft {
 	public:
 		ChunkCoord Coord;
 		uint32_t RenderDistance;
-		ChunkLoaderStats Stats;
 
 		ChunkLoader(World* world, ChunkCoord coord, uint32_t renderDistance);
 		~ChunkLoader();
@@ -50,9 +43,6 @@ namespace VoxelCraft {
 
 		void OnIdle();
 		void OnResume();
-
-		void UniqueChunkDataGenerator(const Quark::Ref<Chunk>& chunk);
-		void UniqueChunkMeshGenerator(const Quark::Ref<Chunk>& chunk, const ChunkNeighbors& neighbors);
 
 	private:
 		World* m_World;

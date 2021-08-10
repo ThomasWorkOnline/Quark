@@ -106,8 +106,6 @@ namespace VoxelCraft {
 			case Quark::Key::T:
 				std::cout << "====== WORLD SUMMARY ======\n";
 				std::cout << m_World->Map.Count() << " chunks active\n";
-				std::cout << m_World->Loader->Stats.ChunksWorldGen << " total chunks terrain generated\n";
-				std::cout << m_World->Loader->Stats.ChunksMeshGen << " total chunks meshes generated\n";
 				std::cout << "Idling: " << (m_World->Loader->Idling() ? "true" : "false") << '\n';
 				std::cout << "Draw calls:" << s_RenderStatsCache.DrawCalls << '\n';
 				std::cout << "Max map bucket size: " << m_World->Map.MaxBucketSize() << '\n';
