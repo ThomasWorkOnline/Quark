@@ -15,7 +15,12 @@ namespace VoxelCraft {
 		WorldMap(World* world);
 
 		// TODO: change
-		void OnUpdate(float elapsedTime);
+
+		/// <summary>
+		/// This function must be invoked from the main thread.
+		/// </summary>
+		/// <param name="elapsedTime"></param>
+		void ProcessDeletion();
 
 		void Foreach(const std::function<void(ChunkIdentifier id)>& func) const;
 		void Foreach(const std::function<void(const Quark::Ref<Chunk>& data)>& func) const;
@@ -23,7 +28,6 @@ namespace VoxelCraft {
 		size_t Count() const;
 		size_t MaxBucketSize() const;
 
-		// TODO: make multi-thread safe
 		/// <summary>
 		/// Gets the chunk associated with the specified identifier.
 		/// </summary>

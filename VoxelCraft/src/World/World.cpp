@@ -20,7 +20,7 @@ namespace VoxelCraft {
 	void World::OnUpdate(float elapsedTime)
 	{
 		Scene.OnUpdate(elapsedTime);
-		Map.OnUpdate(elapsedTime);
+		Map.ProcessDeletion();
 	}
 
 	Block World::GetBlock(const IntPosition3D& position) const

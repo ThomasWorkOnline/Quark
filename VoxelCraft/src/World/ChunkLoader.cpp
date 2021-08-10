@@ -143,9 +143,7 @@ namespace VoxelCraft {
 					});
 
 				if (!s_Working)
-				{
 					OnResume();
-				}
 			}
 
 			ProcessLoading();

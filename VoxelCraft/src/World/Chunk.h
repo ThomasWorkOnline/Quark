@@ -62,6 +62,10 @@ namespace VoxelCraft {
 		std::atomic<LoadStatus> LoadStatus = LoadStatus::Allocated;
 
 		Chunk(World* world, ChunkIdentifier id);
+
+		/// <summary>
+		/// Object destruction must be done on the main thread.
+		/// </summary>
 		~Chunk();
 
 		void Save() const;

@@ -12,13 +12,11 @@ namespace VoxelCraft {
 	WorldMap::WorldMap(World* world)
 		: m_World(world) {}
 
-	void WorldMap::OnUpdate(float elapsedTime)
+	void WorldMap::ProcessDeletion()
 	{
 		std::lock_guard<std::mutex> lock(m_ChunksToDeleteMutex);
 		for (auto& chunk : m_ChunksToDelete)
-		{
 			chunk.reset();
-		}
 	}
 
 	void WorldMap::Foreach(const std::function<void(ChunkIdentifier id)>& func) const

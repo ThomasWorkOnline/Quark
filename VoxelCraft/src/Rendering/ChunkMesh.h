@@ -18,7 +18,7 @@ namespace VoxelCraft {
 	{
 	public:
 		/// <summary>
-		/// Generates a sub chunk mesh in chunk space
+		/// Generates a sub chunk mesh in chunk space.
 		/// </summary>
 		/// <param name="subChunk"></param>
 		/// <param name="neighbors"></param>
