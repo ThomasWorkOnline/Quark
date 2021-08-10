@@ -21,6 +21,11 @@ namespace Quark {
 
         virtual const uint32_t GetRendererID() const override { return m_RendererID; }
 
+        virtual bool operator==(const Resource& other) const override
+        {
+            return m_RendererID == ((OpenGLVertexArray&)other).m_RendererID;
+        }
+
     private:
         uint32_t m_RendererID;
         uint32_t m_VertexBufferIndex = 0;

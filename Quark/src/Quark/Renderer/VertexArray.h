@@ -1,10 +1,11 @@
 #pragma once
 
 #include "Buffer.h"
+#include "Resource.h"
 
 namespace Quark {
 
-    class VertexArray
+    class VertexArray : public Resource
     {
     public:
         virtual ~VertexArray() = default;

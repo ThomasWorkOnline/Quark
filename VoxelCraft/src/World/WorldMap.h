@@ -23,9 +23,12 @@ namespace VoxelCraft {
 		size_t Count() const;
 		size_t MaxBucketSize() const;
 
+		// TODO: make multi-thread safe
 		Quark::Ref<Chunk> Get(ChunkIdentifier id) const;
-		Quark::Ref<Chunk> Load(ChunkIdentifier id);
-		void Unload(ChunkIdentifier id);
+		Quark::Ref<Chunk> Create(ChunkIdentifier id);
+		void Load(ChunkIdentifier id);
+		void Load(const Quark::Ref<Chunk>& data);
+		void Unload(const Quark::Ref<Chunk>& data);
 		bool Contains(ChunkIdentifier id) const;
 
 	private:

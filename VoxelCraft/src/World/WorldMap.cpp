@@ -1,6 +1,7 @@
 #include "WorldMap.h"
 
 #include "World.h"
+#include "ChunkFactory.h"
 
 #include <queue>
 
@@ -80,7 +81,7 @@ namespace VoxelCraft {
 		return nullptr;
 	}
 
-	Quark::Ref<Chunk> WorldMap::Load(ChunkIdentifier id)
+	Quark::Ref<Chunk> WorldMap::Create(ChunkIdentifier id)
 	{
 		// TODO: Check if the chunk is outside the writable areas ( -2 147 483 648 to +2 147 483 647 )
 
@@ -99,10 +100,27 @@ namespace VoxelCraft {
 		return data;
 	}
 
-	void WorldMap::Unload(ChunkIdentifier id)
+	void WorldMap::Load(ChunkIdentifier id)
 	{
-		auto data = Get(id);
+		const auto& data = Create(id);
+		Load(data);
+	}
 
+	void WorldMap::Load(const Quark::Ref<Chunk>& data)
+	{
+		const auto& neighbors = data->QueryNeighbors();
+
+		ChunkFactory::BuildTerrain(data);
+		ChunkFactory::BuildTerrain(neighbors.North);
+		ChunkFactory::BuildTerrain(neighbors.South);
+		ChunkFactory::BuildTerrain(neighbors.West);
+		ChunkFactory::BuildTerrain(neighbors.East);
+
+		ChunkFactory::BuildMesh(data, neighbors);
+	}
+
+	void WorldMap::Unload(const Quark::Ref<Chunk>& data)
+	{
 		data->Save();
 
 		// TODO: investigate the reason why a chunk can be null

@@ -2,4 +2,13 @@
 
 namespace Quark {
 
+	Resource::Resource()
+	{
+		
+	}
+
+	Resource::~Resource()
+	{
+		
+	}
 }

@@ -131,10 +131,10 @@ namespace VoxelCraft {
 	{
 		// Force load if it doesn't exist to prevent crashes
 		return {
-			m_World->Map.Load(ID.North()),
-			m_World->Map.Load(ID.South()),
-			m_World->Map.Load(ID.West()),
-			m_World->Map.Load(ID.East())
+			m_World->Map.Create(ID.North()),
+			m_World->Map.Create(ID.South()),
+			m_World->Map.Create(ID.West()),
+			m_World->Map.Create(ID.East())
 		};
 	}
 

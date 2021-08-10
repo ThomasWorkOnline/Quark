@@ -17,7 +17,7 @@
     <ClCompile Include="src\Game\Hitbox.cpp" />
     <ClCompile Include="src\Blocks\BlockProperties.cpp" />
     <ClCompile Include="src\World\SubChunk.cpp" />
-    <ClCompile Include="src\World\ChunkBuilder.cpp" />
+    <ClCompile Include="src\World\ChunkFactory.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\World\Chunk.h" />
@@ -41,7 +41,7 @@
     <ClInclude Include="src\World\ChunkIdentifier.h" />
     <ClInclude Include="src\Components\GravityComponent.h" />
     <ClInclude Include="src\World\SubChunk.h" />
-    <ClInclude Include="src\World\ChunkBuilder.h" />
+    <ClInclude Include="src\World\ChunkFactory.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\crosshair.glsl" />

@@ -51,7 +51,7 @@ namespace VoxelCraft {
 		{
 			for (int x = m_InternalBounds.First.x; x < m_InternalBounds.Second.x; x++)
 			{
-				m_WorldPartition.Load(ChunkIdentifier(x, z).ID);
+				m_WorldPartition.Create(ChunkIdentifier(x, z).ID);
 			}
 		}
 	}

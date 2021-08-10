@@ -1,7 +1,6 @@
 #include "ChunkLoader.h"
 
 #include "World.h"
-#include "ChunkBuilder.h"
 
 namespace VoxelCraft {
 
@@ -144,10 +143,7 @@ namespace VoxelCraft {
 					{
 						bool idle = Idling();
 						if (idle)
-						{
 							OnIdle();
-						}
-
 						return !idle || s_Stopping;
 					});
 
@@ -190,25 +186,14 @@ namespace VoxelCraft {
 
 	void ChunkLoader::LoadChunk(ChunkIdentifier id)
 	{
-		//QK_TIME_SCOPE_DEBUG(ChunkLoader::LoadChunk);
-
-		auto chunk = m_World->Map.Load(id);
-		auto neighbors = chunk->QueryNeighbors();
-
-		ChunkBuilder::BuildTerrain(chunk);
-		ChunkBuilder::BuildTerrain(neighbors.North);
-		ChunkBuilder::BuildTerrain(neighbors.South);
-		ChunkBuilder::BuildTerrain(neighbors.West);
-		ChunkBuilder::BuildTerrain(neighbors.East);
-
-		ChunkBuilder::BuildMesh(chunk, neighbors);
-
+		m_World->Map.Load(id);
 		m_World->OnChunkLoaded(id);
 	}
 
 	void ChunkLoader::UnloadChunk(ChunkIdentifier id)
 	{
-		m_World->Map.Unload(id);
+		const auto& data = m_World->Map.Get(id);
+		m_World->Map.Unload(data);
 	}
 
 	void ChunkLoader::OnIdle()

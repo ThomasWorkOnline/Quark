@@ -97,7 +97,7 @@
     <ClCompile Include="src\Blocks\Block.cpp" />
     <ClCompile Include="src\Blocks\BlockProperties.cpp" />
     <ClCompile Include="src\World\Chunk.cpp" />
-    <ClCompile Include="src\World\ChunkBuilder.cpp" />
+    <ClCompile Include="src\World\ChunkFactory.cpp" />
     <ClCompile Include="src\World\ChunkLoader.cpp" />
     <ClCompile Include="src\Rendering\Renderer.cpp" />
     <ClCompile Include="src\Game\EntryPoint.cpp" />
@@ -120,7 +120,7 @@
     <ClInclude Include="src\Blocks\BlockProperties.h" />
     <ClInclude Include="src\Blocks\Block.h" />
     <ClInclude Include="src\World\Chunk.h" />
-    <ClInclude Include="src\World\ChunkBuilder.h" />
+    <ClInclude Include="src\World\ChunkFactory.h" />
     <ClInclude Include="src\World\ChunkIdentifier.h" />
     <ClInclude Include="src\World\ChunkLoader.h" />
     <ClInclude Include="src\Rendering\Renderer.h" />

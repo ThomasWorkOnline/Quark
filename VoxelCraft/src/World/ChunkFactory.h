@@ -1,13 +1,14 @@
 #pragma once
 
 #include "Chunk.h"
+#include "ChunkIdentifier.h"
 
 namespace VoxelCraft {
 
 	/// <summary>
 	/// Thread safe factory object responsible for chunk generation
 	/// </summary>
-	class ChunkBuilder
+	class ChunkFactory
 	{
 	public:
 		static void BuildTerrain(const Quark::Ref<Chunk>& data);
