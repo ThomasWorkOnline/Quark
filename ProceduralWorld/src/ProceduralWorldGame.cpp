@@ -54,7 +54,7 @@ public:
 		Quark::Renderer::BeginScene(m_Camera.GetComponent<Quark::OrthographicCameraComponent>().Camera.GetMatrix(),
 			m_Camera.GetComponent<Quark::Transform3DComponent>());
 
-		Quark::Renderer::SubmitSprite(m_Texture, playerTransform);
+		Quark::Renderer::SubmitSprite(m_Texture, (glm::dmat4)playerTransform);
 
 		constexpr int32_t scale = 50;
 		static Quark::Transform3DComponent trans;
@@ -63,7 +63,7 @@ public:
 			for (int x = 0; x < scale; x++)
 			{
 				trans.Position = { y - scale * 0.5f, x - scale * 0.5f, 0.0f };
-				Quark::Renderer::SubmitSprite({ x / (float)scale, y / (float)scale, 0.0f, 1.0f }, trans);
+				Quark::Renderer::SubmitSprite({ x / (float)scale, y / (float)scale, 0.0f, 1.0f }, (glm::dmat4)trans);
 			}
 		}
 

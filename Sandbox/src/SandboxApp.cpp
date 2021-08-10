@@ -182,7 +182,7 @@ public:
 
 		{
 			m_SelectedShader->SetFloat("u_Material.metalness", 0.0f);
-			Quark::Renderer::BeginScene(m_PortalCameraEntity.GetComponent<Quark::PerspectiveCameraComponent>().Camera.GetMatrix(),
+			Quark::Renderer::BeginScene(m_PortalCameraEntity.GetComponent<Quark::PerspectiveCameraComponent>().Camera.GetProjection(),
 				m_PortalCameraEntity.GetComponent<Quark::Transform3DComponent>());
 
 			m_Framebuffer->Attach();
@@ -205,7 +205,7 @@ public:
 		{
 			{
 				auto& cameraTransform = m_CameraEntity.GetComponent<Quark::Transform3DComponent>();
-				Quark::Renderer::BeginScene(m_CameraEntity.GetComponent<Quark::PerspectiveCameraComponent>().Camera.GetMatrix(), cameraTransform);
+				Quark::Renderer::BeginScene(m_CameraEntity.GetComponent<Quark::PerspectiveCameraComponent>().Camera.GetProjection(), cameraTransform);
 
 				Quark::Renderer::SubmitSprite(m_CoinAnimator.GetTexture(), glm::mat4(1.0f));
 
@@ -217,8 +217,8 @@ public:
 			}
 
 			{
-				glm::mat4 view = (glm::mat3)m_CameraEntity.GetComponent<Quark::Transform3DComponent>();
-				Quark::Renderer::BeginScene(m_CameraEntity.GetComponent<Quark::PerspectiveCameraComponent>().Camera.GetMatrix(), view);
+				glm::dmat4 view = m_CameraEntity.GetComponent<Quark::Transform3DComponent>();
+				Quark::Renderer::BeginScene(m_CameraEntity.GetComponent<Quark::PerspectiveCameraComponent>().Camera.GetProjection(), view);
 
 				Quark::RenderCommand::SetCullFace(Quark::RenderCullFace::Back);
 				Quark::RenderCommand::SetDepthFunction(Quark::RenderDepthFunction::LessEqual);
@@ -245,7 +245,7 @@ public:
 			}
 
 			transform.Scale.x = (float)m_Maxwell->GetWidth() / (float)m_Maxwell->GetHeight();
-			Quark::Renderer::SubmitSprite(m_Maxwell, transform);
+			Quark::Renderer::SubmitSprite(m_Maxwell, (glm::dmat4)transform);
 
 			constexpr int32_t scale = 100;
 			static Quark::Transform3DComponent trans;
@@ -255,7 +255,7 @@ public:
 				{	
 					trans.Position = { y - scale * 0.5f, x - scale * 0.5f, 0.0f };
 					//Quark::Renderer::SubmitSprite({ x * 0.01f, y * 0.01f, 0.0f, 1.0f }, trans);
-					Quark::Renderer::SubmitSprite(m_Cobblestone, trans);
+					Quark::Renderer::SubmitSprite(m_Cobblestone, (glm::dmat4)trans);
 				}
 			}
 
