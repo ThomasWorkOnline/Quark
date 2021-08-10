@@ -77,8 +77,6 @@ namespace VoxelCraft {
 		/// </summary>
 		void UploadMesh();
 
-		ChunkNeighbors QueryNeighbors() const;
-
 		bool IsBlockTransparent(const IntPosition3D& position) const;
 		bool IsBlockFaceVisible(const IntPosition3D& position, BlockFace face, const ChunkNeighbors& neighbors) const;
 

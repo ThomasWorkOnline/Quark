@@ -169,7 +169,8 @@ namespace VoxelCraft {
 			m_LoadingQueue.erase(id);
 			lock.unlock();
 
-			LoadChunk(id);
+			m_World->Map.Load(id);
+			m_World->OnChunkLoaded(id);
 		}
 	}
 
@@ -178,22 +179,10 @@ namespace VoxelCraft {
 		std::unique_lock<std::recursive_mutex> lock(s_UnloadingQueueMutex);
 		for (auto id : m_UnloadingQueue)
 		{
-			UnloadChunk(id);
+			m_World->Map.Unload(id);
 		}
 
 		m_UnloadingQueue.clear();
-	}
-
-	void ChunkLoader::LoadChunk(ChunkIdentifier id)
-	{
-		m_World->Map.Load(id);
-		m_World->OnChunkLoaded(id);
-	}
-
-	void ChunkLoader::UnloadChunk(ChunkIdentifier id)
-	{
-		const auto& data = m_World->Map.Get(id);
-		m_World->Map.Unload(data);
 	}
 
 	void ChunkLoader::OnIdle()

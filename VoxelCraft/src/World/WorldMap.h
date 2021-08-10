@@ -24,14 +24,30 @@ namespace VoxelCraft {
 		size_t MaxBucketSize() const;
 
 		// TODO: make multi-thread safe
+		/// <summary>
+		/// Gets the chunk associated with the specified identifier.
+		/// </summary>
+		/// <param name="id"></param>
+		/// <returns>nullptr if no chunk was found.</returns>
 		Quark::Ref<Chunk> Get(ChunkIdentifier id) const;
-		Quark::Ref<Chunk> Create(ChunkIdentifier id);
+
 		void Load(ChunkIdentifier id);
 		void Load(const Quark::Ref<Chunk>& data);
+		void Unload(ChunkIdentifier id);
 		void Unload(const Quark::Ref<Chunk>& data);
+
 		bool Contains(ChunkIdentifier id) const;
 
+		/// <summary>
+		/// The neighbors around the chunk specified by the identifier.
+		/// If one or more neighbors are nullptr, they shall get created.
+		/// </summary>
+		/// <param name="id"></param>
+		/// <returns></returns>
+		ChunkNeighbors GetNonNullNeighbors(ChunkIdentifier id);
+
 	private:
+		Quark::Ref<Chunk> Create(ChunkIdentifier id);
 		void Erase(const Quark::Ref<Chunk>& data);
 
 	private:

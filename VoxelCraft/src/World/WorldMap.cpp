@@ -81,6 +81,55 @@ namespace VoxelCraft {
 		return nullptr;
 	}
 
+	void WorldMap::Load(ChunkIdentifier id)
+	{
+		const auto& data = Create(id);
+		Load(data);
+	}
+
+	void WorldMap::Load(const Quark::Ref<Chunk>& data)
+	{
+		const auto& neighbors = GetNonNullNeighbors(data->ID);
+
+		ChunkFactory::BuildTerrain(data);
+		ChunkFactory::BuildTerrain(neighbors.North);
+		ChunkFactory::BuildTerrain(neighbors.South);
+		ChunkFactory::BuildTerrain(neighbors.West);
+		ChunkFactory::BuildTerrain(neighbors.East);
+
+		ChunkFactory::BuildMesh(data, neighbors);
+	}
+
+	void WorldMap::Unload(ChunkIdentifier id)
+	{
+		const auto& data = Get(id);
+		Unload(data);
+	}
+
+	void WorldMap::Unload(const Quark::Ref<Chunk>& data)
+	{
+		data->Save();
+
+		// TODO: investigate the reason why a chunk can be null
+		if (data)
+			Erase(data);
+	}
+
+	bool WorldMap::Contains(ChunkIdentifier id) const
+	{
+		return Get(id) != nullptr;
+	}
+
+	ChunkNeighbors WorldMap::GetNonNullNeighbors(ChunkIdentifier id)
+	{
+		return {
+			m_World->Map.Create(id.North()),
+			m_World->Map.Create(id.South()),
+			m_World->Map.Create(id.West()),
+			m_World->Map.Create(id.East())
+		};
+	}
+
 	Quark::Ref<Chunk> WorldMap::Create(ChunkIdentifier id)
 	{
 		// TODO: Check if the chunk is outside the writable areas ( -2 147 483 648 to +2 147 483 647 )
@@ -98,39 +147,6 @@ namespace VoxelCraft {
 			s_MaxBucketSize = std::max(s_MaxBucketSize, size);
 		}
 		return data;
-	}
-
-	void WorldMap::Load(ChunkIdentifier id)
-	{
-		const auto& data = Create(id);
-		Load(data);
-	}
-
-	void WorldMap::Load(const Quark::Ref<Chunk>& data)
-	{
-		const auto& neighbors = data->QueryNeighbors();
-
-		ChunkFactory::BuildTerrain(data);
-		ChunkFactory::BuildTerrain(neighbors.North);
-		ChunkFactory::BuildTerrain(neighbors.South);
-		ChunkFactory::BuildTerrain(neighbors.West);
-		ChunkFactory::BuildTerrain(neighbors.East);
-
-		ChunkFactory::BuildMesh(data, neighbors);
-	}
-
-	void WorldMap::Unload(const Quark::Ref<Chunk>& data)
-	{
-		data->Save();
-
-		// TODO: investigate the reason why a chunk can be null
-		if (data)
-			Erase(data);
-	}
-
-	bool WorldMap::Contains(ChunkIdentifier id) const
-	{
-		return Get(id) != nullptr;
 	}
 
 	void WorldMap::Erase(const Quark::Ref<Chunk>& data)

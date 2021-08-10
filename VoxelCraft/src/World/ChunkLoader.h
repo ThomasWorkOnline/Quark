@@ -38,9 +38,6 @@ namespace VoxelCraft {
 		void ProcessLoading();
 		void ProcessUnloading();
 
-		void LoadChunk(ChunkIdentifier id);
-		void UnloadChunk(ChunkIdentifier id);
-
 		void OnIdle();
 		void OnResume();
 

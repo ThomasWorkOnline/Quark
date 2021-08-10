@@ -39,21 +39,9 @@ namespace VoxelCraft {
 		static WorldAreaBounds lastBounds = m_InternalBounds;
 
 		ComputeBounds(size, anchor);
-		LoadArea();
 		UpdateOutOfBounds(m_InternalBounds, lastBounds);
 
 		lastBounds = m_InternalBounds;
-	}
-
-	void WorldArea::LoadArea()
-	{
-		for (int z = m_InternalBounds.First.y; z < m_InternalBounds.Second.y; z++)
-		{
-			for (int x = m_InternalBounds.First.x; x < m_InternalBounds.Second.x; x++)
-			{
-				m_WorldPartition.Create(ChunkIdentifier(x, z).ID);
-			}
-		}
 	}
 
 	void WorldArea::UpdateOutOfBounds(const WorldAreaBounds& bounds, const WorldAreaBounds& lastBounds)

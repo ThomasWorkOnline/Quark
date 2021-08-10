@@ -127,17 +127,6 @@ namespace VoxelCraft {
 		}
 	}
 
-	ChunkNeighbors Chunk::QueryNeighbors() const
-	{
-		// Force load if it doesn't exist to prevent crashes
-		return {
-			m_World->Map.Create(ID.North()),
-			m_World->Map.Create(ID.South()),
-			m_World->Map.Create(ID.West()),
-			m_World->Map.Create(ID.East())
-		};
-	}
-
 	bool Chunk::IsBlockTransparent(const IntPosition3D& position) const
 	{
 		uint32_t index = IndexAtPosition(position);
@@ -224,20 +213,22 @@ namespace VoxelCraft {
 		SubChunk& center = SubChunks[subChunkStackIndex];
 		Position3D pos = center.GetPositionFromParentChunk(position);
 
-		ChunkNeighbors neighbors = QueryNeighbors();
+		ChunkNeighbors neighbors = m_World->Map.GetNonNullNeighbors(ID);
 		center.RebuildMesh(neighbors);
 
 		if (pos.x == 0)
 		{
 			auto west = neighbors.West;
 			SubChunk& subEast = west->SubChunks[subChunkStackIndex];
-			subEast.RebuildMesh(west->QueryNeighbors());
+			const auto& westNeighbors = m_World->Map.GetNonNullNeighbors(west->ID);
+			subEast.RebuildMesh(westNeighbors);
 		}
 		else if (pos.x == SubChunkSpecification::Width - 1)
 		{
 			const auto east = neighbors.East;
 			SubChunk& subWest = east->SubChunks[subChunkStackIndex];
-			subWest.RebuildMesh(east->QueryNeighbors());
+			const auto& eastNeighbors = m_World->Map.GetNonNullNeighbors(east->ID);
+			subWest.RebuildMesh(eastNeighbors);
 		}
 
 		if (pos.y == 0)
@@ -261,13 +252,15 @@ namespace VoxelCraft {
 		{
 			const auto south = neighbors.South;
 			SubChunk& subSouth = south->SubChunks[subChunkStackIndex];
-			subSouth.RebuildMesh(south->QueryNeighbors());
+			const auto& southNeighbors = m_World->Map.GetNonNullNeighbors(south->ID);
+			subSouth.RebuildMesh(southNeighbors);
 		}
 		else if (pos.z == SubChunkSpecification::Depth - 1)
 		{
 			const auto north = neighbors.North;
 			SubChunk& subNorth = north->SubChunks[subChunkStackIndex];
-			subNorth.RebuildMesh(north->QueryNeighbors());
+			const auto& northNeighbors = m_World->Map.GetNonNullNeighbors(north->ID);
+			subNorth.RebuildMesh(northNeighbors);
 		}
 	}
 

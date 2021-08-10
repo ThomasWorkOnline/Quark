@@ -31,7 +31,6 @@ namespace VoxelCraft {
 		void Invalidate(const glm::ivec2& size, ChunkCoord anchor);
 
 	private:
-		void LoadArea();
 		void UpdateOutOfBounds(const WorldAreaBounds& bounds, const WorldAreaBounds& lastBounds);
 		bool InInternalBounds(ChunkIdentifier id) const;
 
