@@ -15,10 +15,7 @@ namespace VoxelCraft {
 	}
 
 	World::World(uint32_t renderDistance, ChunkCoord loaderAnchor)
-		: Map(this)
-	{
-		Loader = ChunkLoader::Create(this, loaderAnchor, renderDistance);
-	}
+		: Map(this), Loader(this, loaderAnchor, renderDistance) {}
 
 	void World::OnUpdate(float elapsedTime)
 	{

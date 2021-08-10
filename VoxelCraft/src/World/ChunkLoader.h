@@ -31,8 +31,6 @@ namespace VoxelCraft {
 
 		bool Idling() const;
 
-		static Quark::Scope<ChunkLoader> Create(World* world, ChunkCoord, uint32_t renderDistance = 8);
-
 	private:
 		void Work();
 		void ProcessLoading();

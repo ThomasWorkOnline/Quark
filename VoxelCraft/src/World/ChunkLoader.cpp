@@ -4,11 +4,6 @@
 
 namespace VoxelCraft {
 
-	Quark::Scope<ChunkLoader> ChunkLoader::Create(World* world, ChunkCoord coord, uint32_t renderDistance)
-	{
-		return Quark::CreateScope<ChunkLoader>(world, coord, renderDistance);
-	}
-
 	static Quark::Timer s_Timer;
 	static bool s_Working = false;
 

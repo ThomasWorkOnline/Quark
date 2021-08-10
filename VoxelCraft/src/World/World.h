@@ -20,7 +20,7 @@ namespace VoxelCraft {
 
 		WorldMap Map;
 		Quark::Scene Scene;
-		Quark::Scope<ChunkLoader> Loader;
+		ChunkLoader Loader;
 
 		static Quark::Scope<World> Create(uint32_t renderDistance = 8, ChunkCoord loaderAnchor = { 0, 0 });
 

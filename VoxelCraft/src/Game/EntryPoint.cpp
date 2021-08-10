@@ -29,8 +29,8 @@ namespace VoxelCraft {
 			m_World->SetChunkLoadedCallback(ATTACH_EVENT_FN(VoxelCraft::OnWorldChunkLoaded));
 
 			const Position3D& playerPos = m_Player.GetPosition();
-			m_World->Loader->Coord = playerPos.ToChunkCoord();
-			m_World->Loader->Start();
+			m_World->Loader.Coord = playerPos.ToChunkCoord();
+			m_World->Loader.Start();
 		}
 
 		~VoxelCraft() override
@@ -106,7 +106,7 @@ namespace VoxelCraft {
 			case Quark::Key::T:
 				std::cout << "====== WORLD SUMMARY ======\n";
 				std::cout << m_World->Map.Count() << " chunks active\n";
-				std::cout << "Idling: " << (m_World->Loader->Idling() ? "true" : "false") << '\n';
+				std::cout << "Idling: " << (m_World->Loader.Idling() ? "true" : "false") << '\n';
 				std::cout << "Draw calls:" << s_RenderStatsCache.DrawCalls << '\n';
 				std::cout << "Max map bucket size: " << m_World->Map.MaxBucketSize() << '\n';
 				std::cout << "===========================\n";
@@ -180,13 +180,13 @@ namespace VoxelCraft {
 		void UpdateLoader()
 		{
 			const Position3D& playerPos = m_Player.GetPosition();
-			auto& coord = m_World->Loader->Coord;
+			auto& coord = m_World->Loader.Coord;
 			coord = playerPos.ToChunkCoord();
 
 			static ChunkCoord lastCoord = coord;
 			if (lastCoord != coord)
 			{
-				m_World->Loader->Invalidate();
+				m_World->Loader.Invalidate();
 			}
 			lastCoord = coord;
 		}
