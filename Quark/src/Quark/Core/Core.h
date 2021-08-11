@@ -36,10 +36,10 @@
 
 // Standards configuration
 #define GLM_FORCE_LEFT_HANDED
-#include "../../../vendor/glm/glm.hpp"
-#include "../../../vendor/glm/gtc/matrix_transform.hpp"
-#include "../../../vendor/glm/gtc/quaternion.hpp"
-#include "../../../vendor/glm/gtx/quaternion.hpp"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 #include "Logger.h"
 #include "../Tools/LogUtils.h"

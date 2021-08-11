@@ -61,7 +61,7 @@
       <PreprocessorDefinitions>
       </PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Quark\vendor\glew\include;$(SolutionDir)Quark\vendor\glfw\include;$(SolutionDir)Quark\vendor\entt\include;$(SolutionDir)Quark\vendor\irrKlang\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Quark\vendor;$(SolutionDir)Quark\vendor\glew\include;$(SolutionDir)Quark\vendor\glfw\include;$(SolutionDir)Quark\vendor\entt\include;$(SolutionDir)Quark\vendor\irrKlang\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -84,7 +84,7 @@
       <PreprocessorDefinitions>
       </PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Quark\vendor\glew\include;$(SolutionDir)Quark\vendor\glfw\include;$(SolutionDir)Quark\vendor\entt\include;$(SolutionDir)Quark\vendor\irrKlang\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Quark\vendor;$(SolutionDir)Quark\vendor\glew\include;$(SolutionDir)Quark\vendor\glfw\include;$(SolutionDir)Quark\vendor\entt\include;$(SolutionDir)Quark\vendor\irrKlang\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>

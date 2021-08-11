@@ -1,10 +1,10 @@
+set version=1.0
+
 set src=.
-set dest=Quark
+set dest=quark-v%version%
 
 :: Copy Quark header files
-xcopy /e %src%\src\*.h .\%dest%\include\Quark\
-:: Copy dependencies header files
-xcopy /e %src%\vendor\*.* .\%dest%\include\vendor\
+xcopy /e %src%\src\*.h .\%dest%\include\QK\
 
 :: Copy binaries
 xcopy /e %src%\bin\x64-Release\*.lib .\%dest%\lib-x64\
