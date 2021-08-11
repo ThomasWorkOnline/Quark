@@ -10,7 +10,7 @@ namespace Quark {
     class Application
     {
     public:
-        Application(uint32_t width = 1280, uint32_t height = 720, const std::string& title = "Entropy Engine");
+        Application(uint32_t width = 1280, uint32_t height = 720, const std::string& title = "Quark Engine");
         virtual ~Application();
 
         virtual void OnCreate() {}

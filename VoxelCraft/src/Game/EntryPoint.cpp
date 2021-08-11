@@ -19,6 +19,8 @@ namespace VoxelCraft {
 		{
 			QK_TIME_SCOPE_DEBUG(VoxelCraft::VoxelCraft);
 
+			Quark::RenderCommand::SetClearColor(Quark::EncodeSRGB(glm::vec4(0.78f, 0.90f, 0.93f, 1.0f)));
+
 			GetWindow().Select();
 			GetWindow().SetVSync(false);
 			GetWindow().SetFullScreen(false);
@@ -40,8 +42,6 @@ namespace VoxelCraft {
 
 		void OnUpdate(float elapsedTime) override
 		{
-			Quark::RenderCommand::SetClearColor(Quark::EncodeSRGB(glm::vec4(0.78f, 0.90f, 0.93f, 1.0f)));
-			Quark::RenderCommand::Clear();
 
 			UpdateLoader();
 

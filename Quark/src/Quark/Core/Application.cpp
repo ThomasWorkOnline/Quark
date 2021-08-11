@@ -31,6 +31,7 @@ namespace Quark {
 
 		QK_CORE_INFO(RenderCommand::GetSpecification());
 		Renderer::Initialize();
+		RenderCommand::SetClearColor(EncodeSRGB({ 0.1f, 0.1f, 0.1f, 1.0f }));
 
 		AudioEngine::Initialize();
 	}
@@ -80,7 +81,6 @@ namespace Quark {
 
 		while (m_Running)
 		{
-			RenderCommand::SetClearColor(EncodeSRGB({ 0.1f, 0.1f, 0.1f, 1.0f }));
 			RenderCommand::Clear();
 
 			AudioEngine::OnUpdate();
