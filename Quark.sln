@@ -5,8 +5,6 @@ VisualStudioVersion = 16.0.30320.27
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Quark", "Quark\Quark.vcxproj", "{287F7095-D792-4DA0-8A69-855CF2E81033}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VoxelCraft", "VoxelCraft\VoxelCraft.vcxproj", "{26877C2E-CAF4-46CC-9AEE-211A8E16E5BE}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -17,10 +15,6 @@ Global
 		{287F7095-D792-4DA0-8A69-855CF2E81033}.Debug|x64.Build.0 = Debug|x64
 		{287F7095-D792-4DA0-8A69-855CF2E81033}.Release|x64.ActiveCfg = Release|x64
 		{287F7095-D792-4DA0-8A69-855CF2E81033}.Release|x64.Build.0 = Release|x64
-		{26877C2E-CAF4-46CC-9AEE-211A8E16E5BE}.Debug|x64.ActiveCfg = Debug|x64
-		{26877C2E-CAF4-46CC-9AEE-211A8E16E5BE}.Debug|x64.Build.0 = Debug|x64
-		{26877C2E-CAF4-46CC-9AEE-211A8E16E5BE}.Release|x64.ActiveCfg = Release|x64
-		{26877C2E-CAF4-46CC-9AEE-211A8E16E5BE}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
