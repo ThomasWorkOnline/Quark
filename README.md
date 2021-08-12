@@ -16,7 +16,7 @@ Official support for Linux and macOS is on it's way!
 7. #include <QK/Quark.h>
 8. Create a class extending Quark::Application
 
-Example from Sandbox:
+Example:
 ```c++
 #include <QK/Quark.h>
 
