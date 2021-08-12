@@ -8,7 +8,7 @@ Official support for Linux and macOS is on it's way!
 # Installation & Setup
 
 1. Download and build Quark as a static lib (if using Visual Studio, simply clone the solution and build for both Debug and Release). This might take a while.
-2. Optionally, you can download the compiled libraries from the project.
+2. Optionally, you can download the compiled libraries from the project. Under `Quark/quark-v.x.x`
 3. Run the batch script inside Quark `Gen Include - Win.bat`. Make sure both configurations of the libraries are pre-compiled for the script to copy files properly.
 4. Copy the generated folder in your project.
 5. Link the appropriate libraries for your application (on Visual Studio, you will need to link the Debug and Release binaries seperately depending on your configuration).
