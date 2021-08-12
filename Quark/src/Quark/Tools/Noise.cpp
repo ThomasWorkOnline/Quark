@@ -19,6 +19,7 @@ namespace Quark {
 	{
 		// Used 1D Perlin Noise
 		for (int x = 0; x < nWidth; x++)
+		{
 			for (int y = 0; y < nHeight; y++)
 			{
 				float fNoise = 0.0f;
@@ -48,5 +49,6 @@ namespace Quark {
 				// Scale to seed range
 				fOutput[y * nWidth + x] = fNoise / fScaleAcc;
 			}
+		}
 	}
 }
