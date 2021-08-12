@@ -7,25 +7,33 @@ Official support for Linux and macOS is on it's way!
 
 # Installation & Setup
 
-1. Link quark.lib to your project.
-2. #include <Quark.h>
-3. Create a class extending Quark::Application
+1. Run the batch script inside Quark `Gen Include - Win.bat`.
+2. Copy the generated folder in your project.
+3. Link the appropriate libraries for your application (on Visual Studio, you will need to link the Debug and Release seperatly depending on your configuration).
+6. #include <QK/Quark.h>
+7. Create a class extending Quark::Application
 
 Example from Sandbox:
 ```c++
+#include <QK/Quark.h>
+
 class SandboxGame : public Quark::Application
 {
 	...
 }
 ```
-4. Implement Quark::CreateApplication() in your project.
 	
-Example from Sandbox:
+Create your class instance in main:
 ```c++
-Quark::Application* Quark::CreateApplication()
+int main()
 {
-	return new SandboxGame();
+	auto app = new Sandbox();
+	app->Run();
+	delete app;
+	
+	return 0;
 }
 ```
+`Quark::Application::Run()` is only accessible from main. Make sure to invoke it there.
 
 Feel free to explore!
