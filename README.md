@@ -39,4 +39,8 @@ int main()
 ```
 `Quark::Application::Run()` is only accessible from main. Make sure to invoke it there.
 
+# Dependencies
+glm: https://github.com/g-truc/glm
+entt: https://github.com/skypjack/entt
+
 Feel free to explore!
