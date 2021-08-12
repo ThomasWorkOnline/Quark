@@ -3,6 +3,9 @@
 bin
 bin-int
 
+# macOS files
+.DS_Store
+
 # Prerequisites
 *.d
 
