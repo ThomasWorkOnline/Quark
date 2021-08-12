@@ -7,7 +7,7 @@ set dest=quark-v%version%
 xcopy /e %src%\src\*.h .\%dest%\include\QK\
 
 :: Copy binaries
-xcopy /e %src%\bin\x64-Release\*.lib .\%dest%\lib-x64\
-xcopy /e %src%\bin\x64-Release\*.dll .\%dest%\lib-x64\
+xcopy %src%\bin\x64-Debug\*.lib .\%dest%\lib\x64-Debug\
+xcopy %src%\bin\x64-Release\*.lib .\%dest%\lib\x64-Release\
 
 pause
