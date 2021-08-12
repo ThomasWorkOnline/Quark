@@ -20,7 +20,7 @@ Example from Sandbox:
 ```c++
 #include <QK/Quark.h>
 
-class SandboxGame : public Quark::Application
+class YourGame : public Quark::Application
 {
 	...
 }
@@ -30,7 +30,7 @@ Create your class instance in main:
 ```c++
 int main()
 {
-	auto app = new Sandbox();
+	auto app = new YourGame();
 	app->Run();
 	delete app;
 	
