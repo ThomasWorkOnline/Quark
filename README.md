@@ -9,7 +9,7 @@ Official support for Linux and macOS is on it's way!
 
 1. Run the batch script inside Quark `Gen Include - Win.bat`.
 2. Copy the generated folder in your project.
-3. Link the appropriate libraries for your application (on Visual Studio, you will need to link the Debug and Release seperately depending on your configuration).
+3. Link the appropriate libraries for your application (on Visual Studio, you will need to link the Debug and Release binaries seperately depending on your configuration).
 4. Quark internally uses glm, but exposes it. You will need to install glm as a dependency to your project.
 5. Quark also uses entt (ECS). You will need to include this templated header only library.
 6. #include <QK/Quark.h>
