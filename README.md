@@ -9,7 +9,7 @@ Official support for Linux and macOS is on it's way!
 
 1. Run the batch script inside Quark `Gen Include - Win.bat`.
 2. Copy the generated folder in your project.
-3. Link the appropriate libraries for your application (on Visual Studio, you will need to link the Debug and Release seperatly depending on your configuration).
+3. Link the appropriate libraries for your application (on Visual Studio, you will need to link the Debug and Release seperately depending on your configuration).
 6. #include <QK/Quark.h>
 7. Create a class extending Quark::Application
 
