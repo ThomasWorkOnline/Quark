@@ -3,18 +3,24 @@
 #include "Core.h"
 
 #include "../Audio/AudioEngine.h"
-#include "../Tools/Colorimetry.h"
+#include "../Renderer/FontEngine.h"
 #include "../Renderer/Renderer.h"
 #include "../Renderer/RenderCommand.h"
+#include "../Tools/Colorimetry.h"
 
 #include <ctime>
 
 namespace Quark {
 
+	static bool HasFlag(ApplicationFlags flag, ApplicationFlags flags)
+	{
+		return flags & flag;
+	}
+
 	Application* Application::s_Instance = nullptr;
 	std::thread::id Application::s_AppMainThreadId;
 
-	Application::Application(uint32_t width, uint32_t height, const std::string& title)
+	Application::Application(uint32_t width, uint32_t height, const std::string& title, ApplicationFlags flags)
 	{
 		QK_TIME_SCOPE_DEBUG(Application::Application);
 
@@ -23,27 +29,28 @@ namespace Quark {
 
 		m_Window = Window::Create(width, height, title);
 		m_Window->SetEventCallback(ATTACH_EVENT_FN(Application::OnEventInternal));
-		m_Window->SetVSync(true);
 
-		std::string appendedTitle = " - ";
-		appendedTitle.append(RenderingAPI::GetName());
-		m_Window->AppendTitle(appendedTitle);
+		if (HasFlag(DisplayAPIName, flags))
+		{
+			std::string appendedTitle = " - " + std::string(RenderingAPI::GetName());
+			m_Window->AppendTitle(appendedTitle);
+		}
 
 		QK_CORE_INFO(RenderCommand::GetSpecification());
 		Renderer::Initialize();
 		RenderCommand::SetClearColor(EncodeSRGB({ 0.1f, 0.1f, 0.1f, 1.0f }));
 
 		AudioEngine::Initialize();
+		FontEngine::Initialize();
 	}
 
 	Application::~Application()
 	{
 		QK_TIME_SCOPE_DEBUG(Application::~Application);
 
-		AudioEngine::Dispose();
 		Renderer::Dispose();
-
-		QK_CORE_TRACE("Hey! Come back next time.");
+		AudioEngine::Dispose();
+		FontEngine::Dispose();
 	}
 
 	void Application::OnEventInternal(Event& e)

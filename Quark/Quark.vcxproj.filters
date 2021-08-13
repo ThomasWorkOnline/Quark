@@ -41,6 +41,7 @@
     <ClCompile Include="src\Quark\Renderer\OrthographicCameraController.cpp" />
     <ClCompile Include="src\Quark\Renderer\Resource.cpp" />
     <ClCompile Include="src\Quark\UI\Text.cpp" />
+    <ClCompile Include="src\Quark\Renderer\FontEngine.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Quark\Core\Application.h" />
@@ -102,5 +103,6 @@
     <ClInclude Include="src\Quark\Renderer\OrthographicCameraController.h" />
     <ClInclude Include="src\Quark\Renderer\Resource.h" />
     <ClInclude Include="src\Quark\UI\Text.h" />
+    <ClInclude Include="src\Quark\Renderer\FontEngine.h" />
   </ItemGroup>
 </Project>

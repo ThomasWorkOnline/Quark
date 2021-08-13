@@ -61,7 +61,7 @@
       <PreprocessorDefinitions>
       </PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Quark\vendor;$(SolutionDir)Quark\vendor\glew\include;$(SolutionDir)Quark\vendor\glfw\include;$(SolutionDir)Quark\vendor\entt\include;$(SolutionDir)Quark\vendor\irrKlang\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)$(ProjectName)\vendor;$(SolutionDir)$(ProjectName)\vendor\glew\include;$(SolutionDir)$(ProjectName)\vendor\glfw\include;$(SolutionDir)$(ProjectName)\vendor\entt\include;$(SolutionDir)$(ProjectName)\vendor\irrKlang\include;$(SolutionDir)$(ProjectName)\vendor\freetype\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -71,8 +71,8 @@
       <AdditionalDependencies>opengl32.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
-      <AdditionalDependencies>glew32s.lib;glfw3.lib;opengl32.lib;irrKlang.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>vendor\glew\lib\Release\x64;vendor\glfw\lib-vc2019\x64;vendor\irrKlang\lib\Winx64-visualStudio;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>freetype.lib;glew32s.lib;glfw3.lib;opengl32.lib;irrKlang.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)$(ProjectName)\vendor\glew\lib\Release\x64;$(SolutionDir)$(ProjectName)\vendor\glfw\lib-vc2019\x64;$(SolutionDir)$(ProjectName)\vendor\irrKlang\lib\Winx64-visualStudio;$(SolutionDir)$(ProjectName)\vendor\freetype\vs2015-2019\win64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -84,7 +84,7 @@
       <PreprocessorDefinitions>
       </PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Quark\vendor;$(SolutionDir)Quark\vendor\glew\include;$(SolutionDir)Quark\vendor\glfw\include;$(SolutionDir)Quark\vendor\entt\include;$(SolutionDir)Quark\vendor\irrKlang\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)$(ProjectName)\vendor;$(SolutionDir)$(ProjectName)\vendor\glew\include;$(SolutionDir)$(ProjectName)\vendor\glfw\include;$(SolutionDir)$(ProjectName)\vendor\entt\include;$(SolutionDir)$(ProjectName)\vendor\irrKlang\include;$(SolutionDir)$(ProjectName)\vendor\freetype\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -96,8 +96,8 @@
       <AdditionalDependencies>opengl32.lib;glew32s.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
-      <AdditionalDependencies>glew32s.lib;glfw3.lib;opengl32.lib;irrKlang.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>vendor\glew\lib\Release\x64;vendor\glfw\lib-vc2019\x64;vendor\irrKlang\lib\Winx64-visualStudio;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>freetype.lib;glew32s.lib;glfw3.lib;opengl32.lib;irrKlang.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)$(ProjectName)\vendor\glew\lib\Release\x64;$(SolutionDir)$(ProjectName)\vendor\glfw\lib-vc2019\x64;$(SolutionDir)$(ProjectName)\vendor\irrKlang\lib\Winx64-visualStudio;$(SolutionDir)$(ProjectName)\vendor\freetype\vs2015-2019\win64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -107,6 +107,7 @@
     <ClCompile Include="src\Quark\Core\Window.cpp" />
     <ClCompile Include="src\Quark\Debug\Monitoring.cpp" />
     <ClCompile Include="src\Quark\Renderer\Buffer.cpp" />
+    <ClCompile Include="src\Quark\Renderer\FontEngine.cpp" />
     <ClCompile Include="src\Quark\Renderer\OrthographicCameraController.cpp" />
     <ClCompile Include="src\Quark\Renderer\PerspectiveCameraController.cpp" />
     <ClCompile Include="src\Quark\Renderer\CubeMap.cpp" />
@@ -161,6 +162,7 @@
     <ClInclude Include="src\Quark\Renderer\CubeMap.h" />
     <ClInclude Include="src\Quark\Renderer\Environment.h" />
     <ClInclude Include="src\Quark\Renderer\EnvironmentMap.h" />
+    <ClInclude Include="src\Quark\Renderer\FontEngine.h" />
     <ClInclude Include="src\Quark\Renderer\OrthographicCamera.h" />
     <ClInclude Include="src\Quark\Renderer\OrthographicCameraController.h" />
     <ClInclude Include="src\Quark\Renderer\PerspectiveCamera.h" />

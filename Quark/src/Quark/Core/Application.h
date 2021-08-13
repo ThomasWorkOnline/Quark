@@ -1,16 +1,23 @@
 #pragma once
 
 #include "Window.h"
+#include "Core.h"
 #include "../Events/ApplicationEvent.h"
 
 extern int main();
 
 namespace Quark {
 
+    enum ApplicationFlags
+    {
+        NoFlags = 0,
+        DisplayAPIName = BIT(1)
+    };
+
     class Application
     {
     public:
-        Application(uint32_t width = 1280, uint32_t height = 720, const std::string& title = "Quark Engine");
+        Application(uint32_t width = 1280, uint32_t height = 720, const std::string& title = "Quark Engine", ApplicationFlags flags = NoFlags);
         virtual ~Application();
 
         virtual void OnCreate() {}
