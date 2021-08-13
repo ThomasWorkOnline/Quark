@@ -27,7 +27,7 @@ namespace Quark {
 			return m_NoiseEngine() / static_cast<float>(std::numeric_limits<uint32_t>::max());
 		}
 
-		static uint32_t GetDefaultSeed() { return std::mt19937::default_seed; }
+		static constexpr uint32_t GetDefaultSeed() { return std::mt19937::default_seed; }
 
 	private:
 		std::mt19937 m_NoiseEngine{};
