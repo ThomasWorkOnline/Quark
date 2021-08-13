@@ -9,8 +9,6 @@ namespace Quark {
 	// Performant and accurate pseudo-random function from seed
 	uint64_t Lehmer64(uint64_t seed);
 
-	void PerlinNoise2D(int nWidth, int nHeight, float* fSeed, int nOctaves, float fBias, float* fOutput);
-
 	class Random
 	{
 	public:
@@ -38,10 +36,7 @@ namespace Quark {
 	class PerlinNoise
 	{
 	public:
-		explicit PerlinNoise(uint32_t seed = std::default_random_engine::default_seed)
-		{
-			Reseed(seed);
-		}
+		explicit PerlinNoise(uint32_t seed = std::default_random_engine::default_seed);
 
 		void Reseed(uint32_t seed);
 
