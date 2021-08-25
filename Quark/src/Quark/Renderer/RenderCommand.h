@@ -50,6 +50,11 @@ namespace Quark {
 			s_RenderingAPI->DrawIndexedInstanced(vertexArray, repeatCount, indexCount);
 		}
 
+		static void DrawIndexedLines(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0)
+		{
+			s_RenderingAPI->DrawIndexedLines(vertexArray, indexCount);
+		}
+
 		static int32_t GetTextureSlotsCount()
 		{
 			return s_RenderingAPI->GetTextureSlotsCount();

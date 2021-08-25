@@ -104,6 +104,12 @@ namespace Quark {
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
+    void OpenGLRenderingAPI::DrawIndexedLines(const Ref<VertexArray>& vertexArray, uint32_t indexCount)
+    {
+        uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer() ? vertexArray->GetIndexBuffer()->GetCount() : 0;
+        glDrawElements(GL_LINES, count, GL_UNSIGNED_INT, nullptr);
+    }
+
     int32_t OpenGLRenderingAPI::GetTextureSlotsCount() const
     {
         int32_t textureSlots;
