@@ -100,8 +100,6 @@ namespace Quark {
 	{
 		QK_ASSERT(scale > 0, "Terrain scale cannot be smaller than 1");
 
-		m_VertexArray = VertexArray::Create();
-
 		size_t size = scale + 1;
 		size_t strideCount = layout.GetStride() / sizeof(float);
 
@@ -155,6 +153,8 @@ namespace Quark {
 			}
 		}
 
+		m_VertexArray = VertexArray::Create();
+
 		auto vbo = VertexBuffer::Create(vertexBuffer, vertexBufferCount * sizeof(float));
 		vbo->SetLayout(layout);
 		m_VertexArray->AddVertexBuffer(vbo);
@@ -166,7 +166,7 @@ namespace Quark {
 		delete[] indexBuffer;
 	}
 
-	void Tokenize(const std::string& str, const char delim, std::vector<std::string>& out)
+	static void Tokenize(const std::string& str, const char delim, std::vector<std::string>& out)
 	{
 		size_t start;
 		size_t end = 0;
@@ -179,7 +179,7 @@ namespace Quark {
 		}
 	}
 
-	void SplitIndexData(const std::string& data, uint32_t indices[])
+	static void SplitIndexData(const std::string& data, uint32_t* indices)
 	{
 		std::string sIndex = "";
 		int32_t count = 0;
@@ -222,7 +222,7 @@ namespace Quark {
 		// by default, smooth shading should always be true
 		bool smoothShaded = true;
 
-		// PHASE 1 - LOADING SECTION -------------------------------------------
+		// PHASE 1 - FILE READING
 		while (true)
 		{
 			std::getline(in, line);
@@ -263,9 +263,7 @@ namespace Quark {
 				break;
 		}
 
-		m_VertexArray = VertexArray::Create();
-
-		// PHASE 2 - COMPUTING SECTION -------------------------------------------
+		// PHASE 2 - COMPUTING
 		uint32_t strideCount = (uint32_t)layout.GetStride() / sizeof(float);
 		uint32_t vertexBufferCount = (uint32_t)positions.size() * strideCount;
 		float* vertexBuffer = new float[vertexBufferCount];
@@ -275,26 +273,26 @@ namespace Quark {
 		{
 			if (line.substr(0, 2) == "f ")
 			{
-				uint32_t vertex0[3]; // pos_ptr // tex_ptr // norm_ptr
-				uint32_t vertex1[3];
-				uint32_t vertex2[3];
+				uint32_t indices0[3]; // pos_ptr // tex_ptr // norm_ptr
+				uint32_t indices1[3];
+				uint32_t indices2[3];
 
 				// Flipping winding order for loading
 #if QK_FLIP_ON_LOAD
 #	define QK_FLIP_SIGN -
-				SplitIndexData(tokens[1], vertex0);
-				SplitIndexData(tokens[3], vertex1);
-				SplitIndexData(tokens[2], vertex2);
+				SplitIndexData(tokens[1], indices0);
+				SplitIndexData(tokens[3], indices1);
+				SplitIndexData(tokens[2], indices2);
 #else
 #	define QK_FLIP_SIGN
-				SplitIndexData(tokens[1], vertex0);
-				SplitIndexData(tokens[2], vertex1);
-				SplitIndexData(tokens[3], vertex2);
+				SplitIndexData(tokens[1], indices0);
+				SplitIndexData(tokens[2], indices1);
+				SplitIndexData(tokens[3], indices2);
 #endif
 
-				uint32_t v0 = vertex0[0] - 1; uint32_t v1 = vertex1[0] - 1; uint32_t v2 = vertex2[0] - 1;
-				uint32_t t0 = vertex0[1] - 1; uint32_t t1 = vertex1[1] - 1; uint32_t t2 = vertex2[1] - 1;
-				uint32_t n0 = vertex0[2] - 1; uint32_t n1 = vertex1[2] - 1; uint32_t n2 = vertex2[2] - 1;
+				uint32_t v0 = indices0[0] - 1; uint32_t v1 = indices1[0] - 1; uint32_t v2 = indices2[0] - 1;
+				uint32_t t0 = indices0[1] - 1; uint32_t t1 = indices1[1] - 1; uint32_t t2 = indices2[1] - 1;
+				uint32_t n0 = indices0[2] - 1; uint32_t n1 = indices1[2] - 1; uint32_t n2 = indices2[2] - 1;
 
 				if (textures.empty())
 				{
@@ -365,6 +363,8 @@ namespace Quark {
 		}
 
 		in.close();
+
+		m_VertexArray = VertexArray::Create();
 
 		auto vbo = VertexBuffer::Create(vertexBuffer, vertexBufferCount * sizeof(float));
 		vbo->SetLayout(layout);

@@ -25,8 +25,8 @@ namespace Quark {
 			for (auto entity : entities)
 			{
 				auto [transformComponent, physicsComponent] = entities.get<Transform3DComponent, PhysicsComponent>(entity);
-				physicsComponent.Velocity -= physicsComponent.Velocity * physicsComponent.Friction * (double)elapsedTime;
-				transformComponent.Position += physicsComponent.Velocity * (double)elapsedTime;
+				physicsComponent.Velocity -= physicsComponent.Velocity * physicsComponent.Friction * elapsedTime;
+				transformComponent.Position += physicsComponent.Velocity * elapsedTime;
 			}
 		}
 	}

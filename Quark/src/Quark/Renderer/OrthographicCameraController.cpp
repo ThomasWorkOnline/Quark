@@ -27,8 +27,8 @@ namespace Quark {
 			auto& camera = m_CameraEntity.GetComponent<OrthographicCameraComponent>().Camera;
 
 			// Movement
-			static const double defaultMovementSpeed = m_MovementSpeed;
-			static const double defaultRollSensitivity = m_RollSensitivity;
+			static const float defaultMovementSpeed = m_MovementSpeed;
+			static const float defaultRollSensitivity = m_RollSensitivity;
 
 			// Boost key
 			if (Input::IsKeyPressed(Key::LeftControl))
@@ -45,22 +45,22 @@ namespace Quark {
 			// Controls
 			if (Input::IsKeyPressed(Key::W))
 			{
-				physics.Velocity += transform.GetTopVector() * (double)elapsedTime * m_MovementSpeed;
+				physics.Velocity += transform.GetTopVector() * elapsedTime * m_MovementSpeed;
 			}
 
 			if (Input::IsKeyPressed(Key::S))
 			{
-				physics.Velocity -= transform.GetTopVector() * (double)elapsedTime * m_MovementSpeed;
+				physics.Velocity -= transform.GetTopVector() * elapsedTime * m_MovementSpeed;
 			}
 
 			if (Input::IsKeyPressed(Key::D))
 			{
-				physics.Velocity += transform.GetRightVector() * (double)elapsedTime * m_MovementSpeed;
+				physics.Velocity += transform.GetRightVector() * elapsedTime * m_MovementSpeed;
 			}
 
 			if (Input::IsKeyPressed(Key::A))
 			{
-				physics.Velocity -= transform.GetRightVector() * (double)elapsedTime * m_MovementSpeed;
+				physics.Velocity -= transform.GetRightVector() * elapsedTime * m_MovementSpeed;
 			}
 
 			if (Input::IsKeyPressed(Key::Q))
