@@ -70,8 +70,8 @@ namespace Quark {
 		Mesh Mesh;
 
 		MeshComponent() = default;
-		MeshComponent(const BufferLayout& layout, const std::string& filepath)
-			: Mesh(layout, filepath) { }
+		MeshComponent(const std::string& filepath)
+			: Mesh(filepath) { }
 	};
 
 	struct PerspectiveCameraComponent

@@ -30,7 +30,7 @@ namespace Quark {
 								virtual EventType GetType() const override { return GetStaticType(); }\
 								virtual const char* GetName() const override { return #type; }
 
-#define EVENT_CLASS_CATEGORY(category) virtual int32_t GetCategoryFlags() const override { return category; }
+#define EVENT_CLASS_CATEGORY(category) virtual uint32_t GetCategoryFlags() const override { return category; }
 	
 	class Event
 	{
@@ -40,7 +40,7 @@ namespace Quark {
 		// Virtual methods
 		virtual EventType GetType() const = 0;
 		virtual const char* GetName() const = 0;
-		virtual int32_t GetCategoryFlags() const = 0;
+		virtual uint32_t GetCategoryFlags() const = 0;
 		virtual std::string ToString() const { return GetName(); }
 
 		inline bool IsInCategory(EventCategory category)

@@ -12,15 +12,11 @@
 
 namespace Quark {
 
-	static bool HasFlag(ApplicationFlags flag, ApplicationFlags flags)
-	{
-		return flags & flag;
-	}
-
 	Application* Application::s_Instance = nullptr;
 	std::thread::id Application::s_AppMainThreadId;
 
-	Application::Application(uint32_t width, uint32_t height, const std::string& title, ApplicationFlags flags)
+	Application::Application(uint32_t width, uint32_t height, const std::string& title, ApplicationFlag flags)
+		: m_Flags(flags)
 	{
 		QK_TIME_SCOPE_DEBUG(Application::Application);
 
@@ -30,7 +26,7 @@ namespace Quark {
 		m_Window = Window::Create(width, height, title);
 		m_Window->SetEventCallback(ATTACH_EVENT_FN(Application::OnEventInternal));
 
-		if (HasFlag(DisplayAPIName, flags))
+		if (HasFlag(ApplicationFlag::ShowAPI))
 		{
 			std::string appendedTitle = " - " + std::string(RenderingAPI::GetName());
 			m_Window->AppendTitle(appendedTitle);
