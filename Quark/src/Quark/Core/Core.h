@@ -47,7 +47,11 @@
 
 #define QK_FATAL(...) do { QK_CORE_ERROR(__VA_ARGS__); QK_DEBUGBREAK(); } while (false)
 
-#define QK_ASSERT(x, ...) do { if(!(x)) { QK_CORE_ERROR(__VA_ARGS__); QK_DEBUGBREAK(); } } while (false)
+#ifdef QK_DEBUG
+#	define QK_ASSERT(x, ...) do { if(!(x)) { QK_CORE_ERROR(__VA_ARGS__); QK_DEBUGBREAK(); } } while (false)
+#else
+#	define QK_ASSERT(x, ...)
+#endif
 
 #define ATTACH_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
 

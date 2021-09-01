@@ -4,8 +4,6 @@
 
 #include <chrono>
 
-#define QK_FORCE_TIME_SCOPE_RELEASE
-
 #if defined(QK_DEBUG) || defined(QK_FORCE_TIME_SCOPE_RELEASE)
 #	define QK_TIME_SCOPE_DEBUG(scope) Quark::ScopeTimer scopeTimer(#scope)
 #else
