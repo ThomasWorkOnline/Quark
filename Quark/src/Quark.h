@@ -23,7 +23,7 @@
 #include "Quark/Events/KeyEvent.h"
 
 // Rendering
-#include "Quark/Renderer/FontEngine.h"
+#include "Quark/Renderer/Font.h"
 #include "Quark/Renderer/OrthographicCamera.h"
 #include "Quark/Renderer/OrthographicCameraController.h"
 #include "Quark/Renderer/PerspectiveCamera.h"

@@ -107,7 +107,7 @@
     <ClCompile Include="src\Quark\Core\Window.cpp" />
     <ClCompile Include="src\Quark\Debug\Monitoring.cpp" />
     <ClCompile Include="src\Quark\Renderer\Buffer.cpp" />
-    <ClCompile Include="src\Quark\Renderer\FontEngine.cpp" />
+    <ClCompile Include="src\Quark\Renderer\Font.cpp" />
     <ClCompile Include="src\Quark\Renderer\OrthographicCameraController.cpp" />
     <ClCompile Include="src\Quark\Renderer\PerspectiveCameraController.cpp" />
     <ClCompile Include="src\Quark\Renderer\CubeMap.cpp" />
@@ -163,7 +163,7 @@
     <ClInclude Include="src\Quark\Renderer\CubeMap.h" />
     <ClInclude Include="src\Quark\Renderer\Environment.h" />
     <ClInclude Include="src\Quark\Renderer\EnvironmentMap.h" />
-    <ClInclude Include="src\Quark\Renderer\FontEngine.h" />
+    <ClInclude Include="src\Quark\Renderer\Font.h" />
     <ClInclude Include="src\Quark\Renderer\OrthographicCamera.h" />
     <ClInclude Include="src\Quark\Renderer\OrthographicCameraController.h" />
     <ClInclude Include="src\Quark\Renderer\PerspectiveCamera.h" />

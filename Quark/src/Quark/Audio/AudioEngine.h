@@ -2,10 +2,6 @@
 
 #include "../Core/Core.h"
 
-namespace irrklang {
-	struct ISoundEngine;
-}
-
 namespace Quark {
 
 	class AudioEngine
@@ -20,8 +16,5 @@ namespace Quark {
 		static void PlaySound(const char* filepath);
 
 		static void OnUpdate();
-
-	private:
-		static irrklang::ISoundEngine* s_Engine;
 	};
 }

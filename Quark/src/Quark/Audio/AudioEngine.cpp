@@ -4,7 +4,7 @@
 
 namespace Quark {
 
-	irrklang::ISoundEngine* AudioEngine::s_Engine;
+	static irrklang::ISoundEngine* s_Engine;
 
 	void AudioEngine::Initialize()
 	{
