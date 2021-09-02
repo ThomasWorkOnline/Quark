@@ -24,7 +24,7 @@ namespace Quark {
 		std::lock_guard<std::mutex> lock(m_ResourcesMutex);
 		return !m_Resources.empty();
 	}
-;
+
 	void ResourceManager::GarbageCollectResources()
 	{
 		while (HasGarbage())

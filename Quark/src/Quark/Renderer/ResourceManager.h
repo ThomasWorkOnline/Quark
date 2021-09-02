@@ -16,6 +16,10 @@ namespace Quark {
 
 		const Ref<Resource> Get(uint32_t id) const;
 
+		/// <summary>
+		/// Must be invoked from the main thread
+		/// </summary>
+		/// <returns></returns>
 		void GarbageCollectResources();
 
 	private:
