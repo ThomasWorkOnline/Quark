@@ -5,17 +5,24 @@
 // Include all supported API's frame buffer implementations
 #include "../../Platform/OpenGL/OpenGLFramebuffer.h"
 
+#include "../Core/Application.h"
+
 namespace Quark {
 
 	Ref<Framebuffer> Framebuffer::Create(const FramebufferSpecification& spec)
 	{
+		Ref<Framebuffer> ref;
+
 		switch (RenderingAPI::GetAPI())
 		{
 		case RenderingAPI::API::OpenGL:
-			return CreateRef<OpenGLFramebuffer>(spec);
+			ref = CreateRef<OpenGLFramebuffer>(spec);
+			break;
+		case RenderingAPI::API::None:
+			QK_FATAL("Rendering API not supported");
 		}
 
-		QK_FATAL("Unknown Rendering API");
-		return nullptr;
+		Application::Get().GetResourceManager().Hold(ref);
+		return ref;
 	}
 }

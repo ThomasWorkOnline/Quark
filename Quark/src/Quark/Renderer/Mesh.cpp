@@ -89,6 +89,7 @@ namespace Quark {
 			{ ShaderDataType::Float2, "a_TexCoord" },
 			{ ShaderDataType::Float,  "a_TexIndex" }
 		});
+
 		m_VertexArray->AddVertexBuffer(vbo);
 
 		// Takes index count

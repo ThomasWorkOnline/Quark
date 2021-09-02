@@ -20,6 +20,13 @@ namespace Quark {
 
 		virtual void Resize(uint32_t width, uint32_t height) override;
 
+		virtual uint32_t GetRendererID() const override { return m_RendererID; };
+
+		virtual bool operator==(const Resource& other) const override
+		{
+			return m_RendererID == ((OpenGLFramebuffer&)other).m_RendererID;
+		}
+
 		virtual uint32_t GetColorAttachmentRendererID(uint32_t index) const override { return m_ColorAttachments[index]; }
 		virtual uint32_t GetDepthAttachmentRendererID() const override { return m_DepthAttachment; }
 

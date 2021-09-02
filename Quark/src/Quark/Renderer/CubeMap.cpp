@@ -5,17 +5,24 @@
 // Include all supported API's environment maps implementations
 #include "../../Platform/OpenGL/OpenGLCubeMap.h"
 
+#include "../Core/Application.h"
+
 namespace Quark {
 
 	Ref<CubeMap> Quark::CubeMap::Create(const std::array<std::string, 6>& filepaths)
 	{
+		Ref<CubeMap> ref;
+
 		switch (RenderingAPI::GetAPI())
 		{
 		case RenderingAPI::API::OpenGL:
-			return CreateRef<OpenGLCubeMap>(filepaths);
+			ref = CreateRef<OpenGLCubeMap>(filepaths);
+			break;
+		case RenderingAPI::API::None:
+			QK_FATAL("Rendering API not supported");
 		}
 
-		QK_FATAL("Unknown Rendering API");
-		return nullptr;
+		Application::Get().GetResourceManager().Hold(ref);
+		return ref;
 	}
 }

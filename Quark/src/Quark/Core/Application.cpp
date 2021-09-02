@@ -8,6 +8,8 @@
 #include "../Renderer/RenderCommand.h"
 #include "../Tools/Colorimetry.h"
 
+#include "../Renderer/RenderObject.h"
+
 #include <ctime>
 
 namespace Quark {
@@ -95,6 +97,8 @@ namespace Quark {
 			OnUpdate(elapsedTime.count());
 
 			m_Window->OnUpdate();
+
+			m_ResourceManager.GarbageCollectResources();
 		}
 
 		OnDestroy();

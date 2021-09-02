@@ -3,6 +3,8 @@
 #include "../Core/Core.h"
 #include "TextureFormats.h"
 
+#include "Resource.h"
+
 namespace Quark {
 
 	struct FramebufferTextureSpecification
@@ -35,7 +37,7 @@ namespace Quark {
 		bool SwapChainTarget = false;
 	};
 
-	class Framebuffer
+	class Framebuffer : public Resource
 	{
 	public:
 		virtual ~Framebuffer() = default;
@@ -47,6 +49,8 @@ namespace Quark {
 		virtual void AttachDepthAttachment(uint32_t textureSlot) = 0;
 
 		virtual void Resize(uint32_t width, uint32_t height) = 0;
+
+		virtual uint32_t GetRendererID() const = 0;
 
 		virtual uint32_t GetColorAttachmentRendererID(uint32_t index = 0) const = 0;
 		virtual uint32_t GetDepthAttachmentRendererID() const = 0;

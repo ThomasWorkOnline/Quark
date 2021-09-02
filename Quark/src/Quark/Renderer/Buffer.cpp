@@ -5,53 +5,75 @@
 // Include all supported API's buffers implementations
 #include "../../Platform/OpenGL/OpenGLBuffer.h"
 
+#include "../Core/Application.h"
+
 namespace Quark {
 
     Ref<VertexBuffer> VertexBuffer::Create(const void* vertices, size_t size)
     {
+        Ref<VertexBuffer> ref;
+
         switch(RenderingAPI::GetAPI())
         {
         case RenderingAPI::API::OpenGL:
-            return CreateRef<OpenGLVertexBuffer>(vertices, size);
+            ref = CreateRef<OpenGLVertexBuffer>(vertices, size);
+            break;
+        case RenderingAPI::API::None:
+            QK_FATAL("Rendering API not supported");
         }
 
-        QK_FATAL("Unknown Rendering API");
-        return nullptr;
+        Application::Get().GetResourceManager().Hold(ref);
+        return ref;
     }
 
     Ref<VertexBuffer> VertexBuffer::Create(size_t size)
     {
+        Ref<VertexBuffer> ref;
+
         switch(RenderingAPI::GetAPI())
         {
         case RenderingAPI::API::OpenGL:
-            return CreateRef<OpenGLVertexBuffer>(size);
+            ref = CreateRef<OpenGLVertexBuffer>(size);
+            break;
+        case RenderingAPI::API::None:
+            QK_FATAL("Rendering API not supported");
         }
 
-        QK_FATAL("Unknown Rendering API");
-        return nullptr;
+        Application::Get().GetResourceManager().Hold(ref);
+        return ref;
     }
 
     Ref<IndexBuffer> IndexBuffer::Create(uint32_t* indices, uint32_t count)
     {
+        Ref<IndexBuffer> ref;
+
         switch(RenderingAPI::GetAPI())
         {
         case RenderingAPI::API::OpenGL:
-            return CreateRef<OpenGLIndexBuffer>(indices, count);
+            ref = CreateRef<OpenGLIndexBuffer>(indices, count);
+            break;
+        case RenderingAPI::API::None:
+            QK_FATAL("Rendering API not supported");
         }
 
-        QK_FATAL("Unknown Rendering API");
-        return nullptr;
+        Application::Get().GetResourceManager().Hold(ref);
+        return ref;
     }
 
     Ref<IndexBuffer> IndexBuffer::Create(uint32_t count)
     {
+        Ref<IndexBuffer> ref;
+
         switch (RenderingAPI::GetAPI())
         {
         case RenderingAPI::API::OpenGL:
-            return CreateRef<OpenGLIndexBuffer>(count);
+            ref = CreateRef<OpenGLIndexBuffer>(count);
+            break;
+        case RenderingAPI::API::None:
+            QK_FATAL("Rendering API not supported");
         }
 
-        QK_FATAL("Unknown Rendering API");
-        return nullptr;
+        Application::Get().GetResourceManager().Hold(ref);
+        return ref;
     }
 }

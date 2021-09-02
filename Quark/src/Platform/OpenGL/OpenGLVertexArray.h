@@ -19,7 +19,7 @@ namespace Quark {
         virtual const std::vector<Ref<VertexBuffer>>& GetVertexBuffers() const override { return m_VertexBuffers; }
         virtual const Ref<IndexBuffer>& GetIndexBuffer() const override { return m_IndexBuffer; }
 
-        virtual const uint32_t GetRendererID() const override { return m_RendererID; }
+        virtual uint32_t GetRendererID() const override { return m_RendererID; }
 
         virtual bool operator==(const Resource& other) const override
         {

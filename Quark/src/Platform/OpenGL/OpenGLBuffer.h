@@ -19,6 +19,13 @@ namespace Quark {
 
         virtual void SetData(const void* data, size_t size, size_t offset) override;
 
+        virtual uint32_t GetRendererID() const override { return m_RendererID; };
+
+        virtual bool operator==(const Resource& other) const override
+        {
+            return m_RendererID == ((OpenGLVertexBuffer&)other).m_RendererID;
+        }
+
     private:
         uint32_t m_RendererID;
         BufferLayout m_layout;
@@ -37,6 +44,13 @@ namespace Quark {
         virtual void SetData(uint32_t* data, uint32_t count, size_t offset) override;
 
         virtual uint32_t GetCount() const { return m_Count; };
+
+        virtual uint32_t GetRendererID() const override { return m_RendererID; };
+
+        virtual bool operator==(const Resource& other) const override
+        {
+            return m_RendererID == ((OpenGLIndexBuffer&)other).m_RendererID;
+        }
 
     private:
         uint32_t m_RendererID;

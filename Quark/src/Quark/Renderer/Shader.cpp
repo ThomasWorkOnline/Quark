@@ -5,30 +5,42 @@
 // Include all supported API's shader implementations
 #include "../../Platform/OpenGL/OpenGLShader.h"
 
+#include "../Core/Application.h"
+
 namespace Quark {
 
 	Ref<Shader> Shader::Create(const std::string& filepath)
 	{
+		Ref<Shader> ref;
+
 		switch (RenderingAPI::GetAPI())
 		{
 		case RenderingAPI::API::OpenGL:
-			return CreateRef<OpenGLShader>(filepath);
+			ref = CreateRef<OpenGLShader>(filepath);
+			break;
+		case RenderingAPI::API::None:
+			QK_FATAL("Rendering API not supported");
 		}
 
-		QK_FATAL("Unknown Rendering API");
-		return nullptr;
+		Application::Get().GetResourceManager().Hold(ref);
+		return ref;
 	}
 
 	Ref<Shader> Shader::Create(const std::string& name, const std::string& vertexSource, const std::string& fragmentSource)
 	{
+		Ref<Shader> ref;
+
 		switch (RenderingAPI::GetAPI())
 		{
 		case RenderingAPI::API::OpenGL:
-			return CreateRef<OpenGLShader>(name, vertexSource, fragmentSource);
+			ref = CreateRef<OpenGLShader>(name, vertexSource, fragmentSource);
+			break;
+		case RenderingAPI::API::None:
+			QK_FATAL("Rendering API not supported");
 		}
 
-		QK_FATAL("Unknown Rendering API");
-		return nullptr;
+		Application::Get().GetResourceManager().Hold(ref);
+		return ref;
 	}
 
 	void ShaderLibrary::Add(const std::string& name, Ref<Shader> shader)

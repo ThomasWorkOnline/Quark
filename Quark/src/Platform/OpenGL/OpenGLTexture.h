@@ -14,12 +14,12 @@ namespace Quark {
 		virtual uint32_t GetWidth() const override { return m_Spec.Width; }
 		virtual uint32_t GetHeight() const override { return m_Spec.Height; }
 
-		virtual uint32_t GetRendererID() const override { return m_RendererID; }
-
 		virtual void SetData(void* data, uint32_t size) override;
 
 		virtual void Attach(uint32_t textureSlot = 0) const override;
 		virtual void Detach() const override;
+
+		virtual uint32_t GetRendererID() const override { return m_RendererID; }
 
 		virtual bool operator==(const Resource& other) const override
 		{

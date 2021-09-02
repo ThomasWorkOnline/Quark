@@ -2,6 +2,7 @@
 
 #include "Buffer.h"
 #include "Resource.h"
+#include "RenderObject.h"
 
 namespace Quark {
 
@@ -19,7 +20,7 @@ namespace Quark {
         virtual const std::vector<Ref<VertexBuffer>>& GetVertexBuffers() const = 0;
         virtual const Ref<IndexBuffer>& GetIndexBuffer() const = 0;
 
-        virtual const uint32_t GetRendererID() const = 0;
+        virtual uint32_t GetRendererID() const = 0;
 
         static Ref<VertexArray> Create();
     };
