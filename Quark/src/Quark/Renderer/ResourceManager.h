@@ -23,11 +23,6 @@ namespace Quark {
 		void GarbageCollectResources();
 
 	private:
-		bool HasGarbage() const;
-		void EraseResource(uint32_t id);
-		const Ref<Resource>& GetFirstResource();
-
-	private:
 		mutable std::mutex m_ResourcesMutex;
 		std::unordered_map<uint32_t, Ref<Resource>> m_Resources;
 	};

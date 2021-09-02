@@ -37,8 +37,8 @@ namespace Quark {
 		virtual void* GetNativeWindow() const override { return m_Window; }
 
 	private:
-		virtual void Init(uint32_t width, uint32_t height, const std::string& title);
-		virtual void Shutdown();
+		void Init(uint32_t width, uint32_t height, const std::string& title);
+		void Shutdown();
 
 		struct WindowData
 		{

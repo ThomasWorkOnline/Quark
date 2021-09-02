@@ -101,6 +101,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Platform\OpenGL\OpenGLFont.cpp" />
     <ClCompile Include="src\Quark\Audio\AudioEngine.cpp" />
     <ClCompile Include="src\Quark\Core\Application.cpp" />
     <ClCompile Include="src\Quark\Core\Input.cpp" />
@@ -145,6 +146,7 @@
     <ClCompile Include="src\Platform\GLFW\GenericWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Platform\OpenGL\OpenGLFont.h" />
     <ClInclude Include="src\Quark\Audio\AudioEngine.h" />
     <ClInclude Include="src\Quark\Core\Application.h" />
     <ClInclude Include="src\Quark\Core\Core.h" />
@@ -167,7 +169,6 @@
     <ClInclude Include="src\Quark\Renderer\OrthographicCamera.h" />
     <ClInclude Include="src\Quark\Renderer\OrthographicCameraController.h" />
     <ClInclude Include="src\Quark\Renderer\PerspectiveCamera.h" />
-    <ClInclude Include="src\Quark\Renderer\RenderObject.h" />
     <ClInclude Include="src\Quark\Renderer\Resource.h" />
     <ClInclude Include="src\Quark\Animation\SpriteAnimator.h" />
     <ClInclude Include="src\Quark\Renderer\ResourceManager.h" />

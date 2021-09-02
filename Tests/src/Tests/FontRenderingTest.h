@@ -1,12 +1,17 @@
 #pragma once
 
-#include <QK/Quark.h>
+#include <Quark.h>
 
-class FontRenderingTest : public Quark::Application
+using namespace Quark;
+
+class FontRenderingTest : public Application
 {
 public:
-
+	FontRenderingTest()
+	{
+		m_Font = Font::Create("Hello");
+	}
 
 private:
-
+	Ref<Font> m_Font;
 };

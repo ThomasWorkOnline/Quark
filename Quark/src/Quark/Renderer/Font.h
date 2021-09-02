@@ -2,15 +2,19 @@
 
 #include "../Core/Core.h"
 
+#include "Resource.h"
+
 #include <string>
 #include <unordered_map>
 
 namespace Quark {
 
-	class Font
+	class Font : public Resource
 	{
 	public:
 		virtual ~Font() = default;
+
+		virtual bool operator==(const Resource& other) const = 0;
 
 		static Ref<Font> Create(const std::string& filepath);
 	};
@@ -28,15 +32,5 @@ namespace Quark {
 
 	private:
 		std::unordered_map<std::string, Ref<Font>> m_Fonts;
-	};
-
-	class FontLoader
-	{
-	public:
-		FontLoader() = delete;
-		FontLoader operator= (const FontLoader& other) = delete;
-
-		static void Initialize();
-		static void Dispose();
 	};
 }

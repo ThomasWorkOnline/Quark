@@ -1,15 +1,22 @@
 #include "Font.h"
 
-#include "../Core/Core.h"
+#include "RenderingAPI.h"
 
-#include <ft2build.h>
-#include FT_FREETYPE_H
+// Include all supported API's font implementations
+#include "../../Platform/OpenGL/OpenGLFont.h"
 
 namespace Quark {
 
 	Ref<Font> Font::Create(const std::string& filepath)
 	{
-		return CreateRef<Font>();
+		switch (RenderingAPI::GetAPI())
+		{
+		case RenderingAPI::API::OpenGL:
+			return Resource::Create<OpenGLFont>(filepath);
+		case RenderingAPI::API::None:
+			QK_FATAL("Rendering API not supported");
+		}
+		return nullptr;
 	}
 
 	Ref<Font> FontLibrary::Load(const std::string& name, const std::string& filepath)
@@ -38,20 +45,5 @@ namespace Quark {
 	bool FontLibrary::Exists(const std::string& name) const
 	{
 		return m_Fonts.find(name) != m_Fonts.end();
-	}
-
-	static FT_Library s_Library;
-
-	void FontLoader::Initialize()
-	{
-		QK_TIME_SCOPE_DEBUG(FontEngine::Initialize);
-
-		FT_Error error = FT_Init_FreeType(&s_Library);
-		QK_ASSERT(error == FT_Err_Ok, "Could not initialize freetype!");
-	}
-
-	void FontLoader::Dispose()
-	{
-		delete s_Library;
 	}
 }

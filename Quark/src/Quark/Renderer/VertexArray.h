@@ -2,7 +2,6 @@
 
 #include "Buffer.h"
 #include "Resource.h"
-#include "RenderObject.h"
 
 namespace Quark {
 

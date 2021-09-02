@@ -16,8 +16,6 @@ namespace Quark {
 
 	GenericWindow::GenericWindow(uint32_t width, uint32_t height, const std::string& title)
 	{
-		QK_TIME_SCOPE_DEBUG(GenericWindow::GenericWindow);
-
 		Init(width, height, title);
 	}
 
@@ -34,6 +32,8 @@ namespace Quark {
 
 	void GenericWindow::Init(uint32_t width, uint32_t height, const std::string& title)
 	{
+		QK_TIME_SCOPE_DEBUG(GenericWindow::Init);
+
 		m_Data.Title = title;
 		m_Data.Width = width;
 		m_Data.Height = height;
@@ -161,6 +161,8 @@ namespace Quark {
 
 	void GenericWindow::Shutdown()
 	{
+		QK_TIME_SCOPE_DEBUG(GenericWindow::Shutdown);
+
 		glfwDestroyWindow(m_Window);
 		--s_WindowCount;
 

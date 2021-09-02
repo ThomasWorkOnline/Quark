@@ -43,6 +43,7 @@
     <ClCompile Include="src\Quark\Renderer\Font.cpp" />
     <ClCompile Include="src\Quark\Renderer\ResourceManager.cpp" />
     <ClCompile Include="src\Quark\Renderer\Resource.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\OpenGLFont.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Quark\Core\Application.h" />
@@ -106,6 +107,6 @@
     <ClInclude Include="src\Quark\UI\Text.h" />
     <ClInclude Include="src\Quark\Renderer\Font.h" />
     <ClInclude Include="src\Quark\Renderer\ResourceManager.h" />
-    <ClInclude Include="src\Quark\Renderer\RenderObject.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLFont.h" />
   </ItemGroup>
 </Project>

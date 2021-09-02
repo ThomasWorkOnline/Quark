@@ -1,0 +1,25 @@
+#pragma once
+
+#include "../../Quark/Renderer/Font.h"
+
+namespace Quark {
+
+	class OpenGLFont : public Font
+	{
+	public:
+		OpenGLFont(const std::string& filepath);
+		virtual ~OpenGLFont();
+
+		virtual bool operator==(const Resource& other) const override
+		{
+			return false;
+		}
+
+	private:
+		void Init();
+		void Shutdown();
+
+	private:
+
+	};
+}

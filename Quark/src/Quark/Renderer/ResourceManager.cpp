@@ -19,33 +19,16 @@ namespace Quark {
 		return nullptr;
 	}
 
-	bool ResourceManager::HasGarbage() const
-	{
-		std::lock_guard<std::mutex> lock(m_ResourcesMutex);
-		return !m_Resources.empty();
-	}
-
 	void ResourceManager::GarbageCollectResources()
 	{
-		while (HasGarbage())
+		std::lock_guard<std::mutex> lock(m_ResourcesMutex);
+		for (auto& res : m_Resources)
 		{
-			auto resource = GetFirstResource();
-			EraseResource(resource->GetID());
-
-			if (resource.use_count() == 1)
-				resource.reset();
+			if (res.second.use_count() == 1)
+			{
+				m_Resources.erase(res.second->GetID());
+				res.second.reset();
+			}
 		}
-	}
-
-	void ResourceManager::EraseResource(uint32_t id)
-	{
-		std::lock_guard<std::mutex> lock(m_ResourcesMutex);
-		m_Resources.erase(id);
-	}
-
-	const Ref<Resource>& ResourceManager::GetFirstResource()
-	{
-		std::lock_guard<std::mutex> lock(m_ResourcesMutex);
-		return (*m_Resources.begin()).second;
 	}
 }

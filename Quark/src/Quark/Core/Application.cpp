@@ -3,12 +3,9 @@
 #include "Core.h"
 
 #include "../Audio/AudioEngine.h"
-#include "../Renderer/Font.h"
 #include "../Renderer/Renderer.h"
 #include "../Renderer/RenderCommand.h"
 #include "../Tools/Colorimetry.h"
-
-#include "../Renderer/RenderObject.h"
 
 #include <ctime>
 
@@ -39,7 +36,6 @@ namespace Quark {
 		RenderCommand::SetClearColor(EncodeSRGB({ 0.1f, 0.1f, 0.1f, 1.0f }));
 
 		AudioEngine::Initialize();
-		FontLoader::Initialize();
 	}
 
 	Application::~Application()
@@ -48,7 +44,6 @@ namespace Quark {
 
 		Renderer::Dispose();
 		AudioEngine::Dispose();
-		FontLoader::Dispose();
 	}
 
 	void Application::OnEventInternal(Event& e)

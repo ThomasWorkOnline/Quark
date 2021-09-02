@@ -5,41 +5,29 @@
 // Include all supported API's textures implementations
 #include "../../Platform/OpenGL/OpenGLTexture.h"
 
-#include "../Core/Application.h"
-
 namespace Quark {
 
 	Ref<Texture2D> Texture2D::Create(const TextureSpecification& spec)
 	{
-		Ref<Texture2D> ref;
-
 		switch (RenderingAPI::GetAPI())
 		{
 		case RenderingAPI::API::OpenGL:
-			ref = CreateRef<OpenGLTexture2D>(spec);
-			break;
+			return Resource::Create<OpenGLTexture2D>(spec);
 		case RenderingAPI::API::None:
 			QK_FATAL("Rendering API not supported");
 		}
-
-		Application::Get().GetResourceManager().Hold(ref);
-		return ref;
+		return nullptr;
 	}
 
 	Ref<Texture2D> Texture2D::Create(const std::string& filepath)
 	{
-		Ref<Texture2D> ref;
-
 		switch (RenderingAPI::GetAPI())
 		{
 		case RenderingAPI::API::OpenGL:
-			ref = CreateRef<OpenGLTexture2D>(filepath);
-			break;
+			return Resource::Create<OpenGLTexture2D>(filepath);
 		case RenderingAPI::API::None:
 			QK_FATAL("Rendering API not supported");
 		}
-
-		Application::Get().GetResourceManager().Hold(ref);
-		return ref;
+		return nullptr;
 	}
 }
