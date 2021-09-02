@@ -25,10 +25,7 @@ namespace Quark {
 		for (auto& res : m_Resources)
 		{
 			if (res.second.use_count() == 1)
-			{
 				m_Resources.erase(res.second->GetID());
-				res.second.reset();
-			}
 		}
 	}
 }
