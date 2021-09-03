@@ -22,10 +22,18 @@ namespace Quark {
 	void ResourceManager::GarbageCollectResources()
 	{
 		std::lock_guard<std::mutex> lock(m_ResourcesMutex);
-		for (auto& res : m_Resources)
+
+		int32_t id = -1;
+		for (auto& resource : m_Resources)
 		{
-			if (res.second.use_count() == 1)
-				m_Resources.erase(res.second->GetID());
+			if (resource.second.use_count() == 1)
+			{
+				id = resource.second->GetID();
+				break;
+			}
 		}
+
+		if (id != -1)
+			m_Resources.erase(id);
 	}
 }

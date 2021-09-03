@@ -40,6 +40,7 @@ namespace Quark {
 
 	OpenGLVertexArray::~OpenGLVertexArray()
 	{
+		QK_CORE_INFO("Vertex array destroyed");
 		glDeleteVertexArrays(1, &m_RendererID);
 	}
 
