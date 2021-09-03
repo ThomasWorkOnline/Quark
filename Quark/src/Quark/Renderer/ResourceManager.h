@@ -4,7 +4,6 @@
 
 #include <mutex>
 #include <unordered_map>
-#include <queue>
 
 #include "Resource.h"
 

@@ -1,5 +1,7 @@
 #include "ResourceManager.h"
 
+#include <queue>
+
 namespace Quark {
 
 	void ResourceManager::Hold(const Ref<Resource>& resource)
@@ -19,21 +21,27 @@ namespace Quark {
 		return nullptr;
 	}
 
+	static std::queue<uint32_t> s_Released;
 	void ResourceManager::GarbageCollectResources()
 	{
-		std::lock_guard<std::mutex> lock(m_ResourcesMutex);
-
-		int32_t id = -1;
-		for (auto& resource : m_Resources)
 		{
-			if (resource.second.use_count() == 1)
+			std::lock_guard<std::mutex> lock(m_ResourcesMutex);
+			for (auto& resource : m_Resources)
 			{
-				id = resource.second->GetID();
-				break;
+				if (resource.second.use_count() == 1)
+				{
+					s_Released.push(resource.second->GetID());
+				}
 			}
 		}
 
-		if (id != -1)
+		while (!s_Released.empty())
+		{
+			uint32_t id = s_Released.front();
+			s_Released.pop();
+
+			std::lock_guard<std::mutex> lock(m_ResourcesMutex);
 			m_Resources.erase(id);
+		}
 	}
 }
