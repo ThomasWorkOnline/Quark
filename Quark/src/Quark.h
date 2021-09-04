@@ -33,7 +33,6 @@
 #include "Quark/Renderer/Framebuffer.h"
 #include "Quark/Renderer/Mesh.h"
 #include "Quark/Renderer/Renderer.h"
-#include "Quark/Renderer/Resource.h"
 #include "Quark/Renderer/Shader.h"
 #include "Quark/Renderer/SubTexture.h"
 #include "Quark/Renderer/Texture.h"

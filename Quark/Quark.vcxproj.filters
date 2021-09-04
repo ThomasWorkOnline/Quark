@@ -41,9 +41,8 @@
     <ClCompile Include="src\Quark\Renderer\OrthographicCameraController.cpp" />
     <ClCompile Include="src\Quark\UI\Text.cpp" />
     <ClCompile Include="src\Quark\Renderer\Font.cpp" />
-    <ClCompile Include="src\Quark\Renderer\ResourceManager.cpp" />
-    <ClCompile Include="src\Quark\Renderer\Resource.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLFont.cpp" />
+    <ClCompile Include="src\Quark\Renderer\RenderObjectManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Quark\Core\Application.h" />
@@ -103,10 +102,11 @@
     <ClInclude Include="src\Quark\Renderer\OrthographicCamera.h" />
     <ClInclude Include="src\Quark\Renderer\PerspectiveCameraController.h" />
     <ClInclude Include="src\Quark\Renderer\OrthographicCameraController.h" />
-    <ClInclude Include="src\Quark\Renderer\Resource.h" />
+    <ClInclude Include="src\Quark\Renderer\RenderObjectDeleter.h" />
     <ClInclude Include="src\Quark\UI\Text.h" />
     <ClInclude Include="src\Quark\Renderer\Font.h" />
-    <ClInclude Include="src\Quark\Renderer\ResourceManager.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLFont.h" />
+    <ClInclude Include="src\Quark\Renderer\RenderObject.h" />
+    <ClInclude Include="src\Quark\Renderer\RenderObjectManager.h" />
   </ItemGroup>
 </Project>

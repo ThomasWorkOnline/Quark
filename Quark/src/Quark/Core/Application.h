@@ -4,8 +4,6 @@
 #include "Core.h"
 #include "../Events/ApplicationEvent.h"
 
-#include "../Renderer/ResourceManager.h"
-
 extern int main();
 
 namespace Quark {
@@ -31,9 +29,6 @@ namespace Quark {
 
         const Window& GetWindow() const { return *m_Window; }
         Window& GetWindow() { return *m_Window; }
-
-        const ResourceManager& GetResourceManager() const { return m_ResourceManager; }
-        ResourceManager& GetResourceManager() { return m_ResourceManager; }
 
         const std::atomic<bool>& IsRunning() const { return m_Running; };
 
@@ -61,7 +56,5 @@ namespace Quark {
         ApplicationFlag m_Flags;
 
         std::atomic<bool> m_Running = true;
-
-        ResourceManager m_ResourceManager;
     };
 }

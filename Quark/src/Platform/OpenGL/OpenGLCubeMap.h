@@ -15,7 +15,7 @@ namespace Quark {
 
 		virtual uint32_t GetRendererID() const override { return m_RendererID; }
 
-		virtual bool operator==(const Resource& other) const override
+		virtual bool operator==(const CubeMap& other) const override
 		{
 			return m_RendererID == ((OpenGLCubeMap&)other).m_RendererID;
 		}

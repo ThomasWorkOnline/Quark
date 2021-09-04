@@ -10,9 +10,9 @@ namespace Quark {
 		OpenGLFont(const std::string& filepath);
 		virtual ~OpenGLFont();
 
-		virtual bool operator==(const Resource& other) const override
+		virtual bool operator==(const Font& other) const override
 		{
-			return false;
+			return false; // TODO: implement
 		}
 
 	private:

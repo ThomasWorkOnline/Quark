@@ -2,8 +2,6 @@
 
 #include "../Core/Core.h"
 
-#include "Resource.h"
-
 namespace Quark {
 
     enum class ShaderDataType
@@ -110,7 +108,7 @@ namespace Quark {
         size_t m_Stride = 0;
     };
 
-    class VertexBuffer : public Resource
+    class VertexBuffer
     {
     public:
         virtual ~VertexBuffer() = default;
@@ -125,11 +123,13 @@ namespace Quark {
 
         virtual uint32_t GetRendererID() const = 0;
 
+        virtual bool operator==(const VertexBuffer& other) const = 0;
+
         static Ref<VertexBuffer> Create(const void* vertices, size_t size);
         static Ref<VertexBuffer> Create(size_t size);
     };
 
-    class IndexBuffer : public Resource
+    class IndexBuffer
     {
     public:
         virtual ~IndexBuffer() = default;
@@ -142,6 +142,8 @@ namespace Quark {
         virtual uint32_t GetCount() const = 0;
 
         virtual uint32_t GetRendererID() const = 0;
+
+        virtual bool operator==(const IndexBuffer& other) const = 0;
 
         static Ref<IndexBuffer> Create(uint32_t* indices, uint32_t count);
         static Ref<IndexBuffer> Create(uint32_t count);

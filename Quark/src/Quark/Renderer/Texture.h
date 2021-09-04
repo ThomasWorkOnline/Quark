@@ -3,7 +3,6 @@
 #include "../Core/Core.h"
 
 #include "TextureFormats.h"
-#include "Resource.h"
 
 namespace Quark {
 
@@ -17,7 +16,7 @@ namespace Quark {
 		TextureTilingFormat TilingFormat = TextureTilingFormat::Default;
 	};
 
-	class Texture : public Resource
+	class Texture
 	{
 	public:
 		virtual ~Texture() = default;
@@ -26,6 +25,8 @@ namespace Quark {
 		virtual uint32_t GetHeight() const = 0;
 
 		virtual uint32_t GetRendererID() const = 0;
+
+		virtual bool operator==(const Texture& other) const = 0;
 
 		virtual void SetData(void* data, uint32_t size) = 0;
 

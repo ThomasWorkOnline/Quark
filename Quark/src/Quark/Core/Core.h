@@ -61,8 +61,8 @@
 
 namespace Quark {
 
-	template<typename T>
-	using Scope = std::unique_ptr<T>;
+	template<typename T, typename Deleter = std::default_delete<T>>
+	using Scope = std::unique_ptr<T, Deleter>;
 	template<typename T, typename ... Args>
 	constexpr Scope<T> CreateScope(Args&& ... args)
 	{
@@ -71,9 +71,9 @@ namespace Quark {
 
 	template<typename T>
 	using Ref = std::shared_ptr<T>;
-	template<typename T, typename ... Args>
+	template<typename T, typename Deleter = std::default_delete<T>, typename ... Args>
 	constexpr Ref<T> CreateRef(Args&& ... args)
 	{
-		return std::make_shared<T>(std::forward<Args>(args)...);
+		return std::shared_ptr<T>(new T(std::forward<Args>(args)...), Deleter());
 	}
 }

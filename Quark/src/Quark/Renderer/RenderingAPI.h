@@ -2,6 +2,8 @@
 
 #include "../Core/Core.h"
 
+#include "RenderObjectDeleter.h"
+
 #include "VertexArray.h"
 
 // Implementations are done in the corresponding platform

@@ -12,7 +12,7 @@ namespace Quark {
 		switch (RenderingAPI::GetAPI())
 		{
 		case RenderingAPI::API::OpenGL:
-			return Resource::Create<OpenGLFont>(filepath);
+			return CreateRef<OpenGLFont, DeferredRenderObjectDeleter>(filepath);
 		case RenderingAPI::API::None:
 			QK_FATAL("Rendering API not supported");
 		}

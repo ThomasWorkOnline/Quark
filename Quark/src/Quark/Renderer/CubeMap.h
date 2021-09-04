@@ -2,11 +2,9 @@
 
 #include "../Core/Core.h"
 
-#include "Resource.h"
-
 namespace Quark {
 
-	class CubeMap : public Resource
+	class CubeMap
 	{
 	public:
 		virtual ~CubeMap() = default;
@@ -15,6 +13,8 @@ namespace Quark {
 		virtual void Detach() const = 0;
 
 		virtual uint32_t GetRendererID() const = 0;
+
+		virtual bool operator==(const CubeMap& other) const = 0;
 
 		static Ref<CubeMap> Create(const std::array<std::string, 6>& filepaths);
 	};

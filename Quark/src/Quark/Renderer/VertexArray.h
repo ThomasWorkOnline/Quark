@@ -1,11 +1,10 @@
 #pragma once
 
 #include "Buffer.h"
-#include "Resource.h"
 
 namespace Quark {
 
-    class VertexArray : public Resource
+    class VertexArray
     {
     public:
         virtual ~VertexArray() = default;
@@ -18,6 +17,8 @@ namespace Quark {
 
         virtual const std::vector<Ref<VertexBuffer>>& GetVertexBuffers() const = 0;
         virtual const Ref<IndexBuffer>& GetIndexBuffer() const = 0;
+
+        virtual bool operator==(const VertexArray& other) const = 0;
 
         virtual uint32_t GetRendererID() const = 0;
 
