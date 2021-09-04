@@ -4,6 +4,6 @@
     <ClCompile Include="src\Main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Tests\FontRenderingTest.h" />
+    <ClInclude Include="src\Tests\DeferredDeleteTest.h" />
   </ItemGroup>
 </Project>

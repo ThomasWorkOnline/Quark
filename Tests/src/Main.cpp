@@ -1,8 +1,8 @@
-#include "Tests/FontRenderingTest.h"
+#include "Tests/DeferredDeleteTest.h"
 
 int main()
 {
-	auto test = new FontRenderingTest();
+	auto test = new DeferredDeleteTest();
 	test->Run();
 	delete test;
 
