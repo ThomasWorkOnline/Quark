@@ -2,27 +2,27 @@
 
 namespace Quark {
 
-	std::mutex DeferredObjectManager::m_DeferredObjectsMutex;
-	std::stack<DeferredObject*> DeferredObjectManager::m_DeferredObjects;
+	std::mutex DeferredObjectManager::s_DeferredObjectsMutex;
+	std::stack<DeferredObject*> DeferredObjectManager::s_DeferredObjects;
 
 	void DeferredObjectManager::ReleaseRenderObjects()
 	{
-		while (HasRenderObjects())
+		while (HasObjects())
 		{
 			DeferredObject* object = nullptr;
 			{
-				std::lock_guard<std::mutex> lock(m_DeferredObjectsMutex);
-				object = m_DeferredObjects.top();
-				m_DeferredObjects.pop();
+				std::lock_guard<std::mutex> lock(s_DeferredObjectsMutex);
+				object = s_DeferredObjects.top();
+				s_DeferredObjects.pop();
 			}
 
 			delete object;
 		}
 	}
 
-	bool DeferredObjectManager::HasRenderObjects()
+	bool DeferredObjectManager::HasObjects()
 	{
-		std::lock_guard<std::mutex> lock(m_DeferredObjectsMutex);
-		return !m_DeferredObjects.empty();
+		std::lock_guard<std::mutex> lock(s_DeferredObjectsMutex);
+		return !s_DeferredObjects.empty();
 	}
 }

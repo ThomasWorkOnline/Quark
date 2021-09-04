@@ -17,17 +17,17 @@ namespace Quark {
 			auto ptr = dynamic_cast<DeferredObject*>(object);
 			QK_ASSERT(ptr, "Object is not of polymorphic DeferredObject type.");
 
-			std::lock_guard<std::mutex> lock(m_DeferredObjectsMutex);
-			m_DeferredObjects.push(ptr);
+			std::lock_guard<std::mutex> lock(s_DeferredObjectsMutex);
+			s_DeferredObjects.push(ptr);
 		}
 
 		static void ReleaseRenderObjects();
 
 	private:
-		static bool HasRenderObjects();
+		static bool HasObjects();
 
 	private:
-		static std::mutex m_DeferredObjectsMutex;
-		static std::stack<DeferredObject*> m_DeferredObjects;
+		static std::mutex s_DeferredObjectsMutex;
+		static std::stack<DeferredObject*> s_DeferredObjects;
 	};
 }
