@@ -2,7 +2,7 @@
 
 #include "../Core/Core.h"
 
-#include "RenderObjectDeleter.h"
+#include "DeferredObjectDeleter.h"
 
 #include "VertexArray.h"
 

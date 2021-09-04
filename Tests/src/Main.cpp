@@ -6,5 +6,7 @@ int main()
 	test->Run();
 	delete test;
 
+	std::cin.get();
+
 	return 0;
 }

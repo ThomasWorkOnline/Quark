@@ -12,7 +12,7 @@ namespace Quark {
         switch(RenderingAPI::GetAPI())
         {
         case RenderingAPI::API::OpenGL:
-            return CreateRef<OpenGLVertexArray, DeferredRenderObjectDeleter>();
+            return CreateRef<OpenGLVertexArray, DeferredObjectDeleter>();
         case RenderingAPI::API::None:
             QK_FATAL("Rendering API not supported");
         }

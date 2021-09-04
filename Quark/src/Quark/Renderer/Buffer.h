@@ -1,7 +1,8 @@
 #pragma once
 
 #include "../Core/Core.h"
-#include "RenderObject.h"
+
+#include "DeferredObject.h"
 
 namespace Quark {
 
@@ -109,7 +110,7 @@ namespace Quark {
         size_t m_Stride = 0;
     };
 
-    class VertexBuffer : public RenderObject
+    class VertexBuffer : public DeferredObject
     {
     public:
         virtual ~VertexBuffer() = default;
@@ -130,7 +131,7 @@ namespace Quark {
         static Ref<VertexBuffer> Create(size_t size);
     };
 
-    class IndexBuffer : public RenderObject
+    class IndexBuffer : public DeferredObject
     {
     public:
         virtual ~IndexBuffer() = default;

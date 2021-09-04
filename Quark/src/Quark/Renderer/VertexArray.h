@@ -2,9 +2,11 @@
 
 #include "Buffer.h"
 
+#include "DeferredObject.h"
+
 namespace Quark {
 
-    class VertexArray : public RenderObject
+    class VertexArray : public DeferredObject
     {
     public:
         virtual ~VertexArray() = default;

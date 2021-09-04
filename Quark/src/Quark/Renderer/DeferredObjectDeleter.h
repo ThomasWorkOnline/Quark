@@ -1,17 +1,18 @@
 #pragma once
 
 #include "../Core/Core.h"
-#include "RenderObjectManager.h"
+#include "DeferredObjectManager.h"
+#include "DeferredObject.h"
 
 namespace Quark {
 	
-	class DeferredRenderObjectDeleter
+	class DeferredObjectDeleter
 	{
 	public:
 		template<typename T>
 		void operator()(T* object) const noexcept
 		{
-			RenderObjectManager::DeferredDelete((RenderObject*)object);
+			DeferredObjectManager::DeferredDelete(object);
 		}
 	};
 }

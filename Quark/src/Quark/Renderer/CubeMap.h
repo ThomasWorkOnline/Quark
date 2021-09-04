@@ -1,11 +1,12 @@
 #pragma once
 
 #include "../Core/Core.h"
-#include "RenderObject.h"
+
+#include "DeferredObject.h"
 
 namespace Quark {
 
-	class CubeMap : public RenderObject
+	class CubeMap : public DeferredObject
 	{
 	public:
 		virtual ~CubeMap() = default;

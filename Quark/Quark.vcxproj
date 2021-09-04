@@ -121,7 +121,7 @@
     <ClCompile Include="src\Quark\Renderer\RenderCommand.cpp" />
     <ClCompile Include="src\Quark\Renderer\Renderer.cpp" />
     <ClCompile Include="src\Quark\Renderer\RenderingAPI.cpp" />
-    <ClCompile Include="src\Quark\Renderer\RenderObjectManager.cpp" />
+    <ClCompile Include="src\Quark\Renderer\DeferredObjectManager.cpp" />
     <ClCompile Include="src\Quark\Renderer\Shader.cpp" />
     <ClCompile Include="src\Quark\Animation\SpriteAnimator.cpp" />
     <ClCompile Include="src\Quark\Renderer\SubTexture.cpp" />
@@ -168,10 +168,10 @@
     <ClInclude Include="src\Quark\Renderer\OrthographicCamera.h" />
     <ClInclude Include="src\Quark\Renderer\OrthographicCameraController.h" />
     <ClInclude Include="src\Quark\Renderer\PerspectiveCamera.h" />
-    <ClInclude Include="src\Quark\Renderer\RenderObject.h" />
-    <ClInclude Include="src\Quark\Renderer\RenderObjectDeleter.h" />
+    <ClInclude Include="src\Quark\Renderer\DeferredObject.h" />
+    <ClInclude Include="src\Quark\Renderer\DeferredObjectDeleter.h" />
     <ClInclude Include="src\Quark\Animation\SpriteAnimator.h" />
-    <ClInclude Include="src\Quark\Renderer\RenderObjectManager.h" />
+    <ClInclude Include="src\Quark\Renderer\DeferredObjectManager.h" />
     <ClInclude Include="src\Quark\Renderer\SubTexture.h" />
     <ClInclude Include="src\Quark\Renderer\TextureFormats.h" />
     <ClInclude Include="src\Quark\Scene\Components.h" />

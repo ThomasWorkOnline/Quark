@@ -5,7 +5,7 @@
 #include "../Audio/AudioEngine.h"
 #include "../Renderer/Renderer.h"
 #include "../Renderer/RenderCommand.h"
-#include "../Renderer/RenderObjectManager.h"
+#include "../Renderer/DeferredObjectManager.h"
 #include "../Tools/Colorimetry.h"
 
 #include <ctime>
@@ -45,6 +45,8 @@ namespace Quark {
 
 		Renderer::Dispose();
 		AudioEngine::Dispose();
+
+		DeferredObjectManager::ReleaseRenderObjects();
 	}
 
 	void Application::OnEventInternal(Event& e)
@@ -72,8 +74,6 @@ namespace Quark {
 	void Application::Stop()
 	{
 		m_Running = false;
-
-		RenderObjectManager::ReleaseRenderObjects();
 	}
 
 	void Application::Run()
@@ -96,7 +96,7 @@ namespace Quark {
 
 			m_Window->OnUpdate();
 
-			RenderObjectManager::ReleaseRenderObjects();
+			DeferredObjectManager::ReleaseRenderObjects();
 		}
 
 		OnDestroy();
