@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Core/Core.h"
+#include "RenderObject.h"
 
 #include "TextureFormats.h"
 
@@ -16,7 +17,7 @@ namespace Quark {
 		TextureTilingFormat TilingFormat = TextureTilingFormat::Default;
 	};
 
-	class Texture
+	class Texture : public RenderObject
 	{
 	public:
 		virtual ~Texture() = default;

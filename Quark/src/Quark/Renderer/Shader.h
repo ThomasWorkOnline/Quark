@@ -1,12 +1,13 @@
 #pragma once
 
 #include "../Core/Core.h"
+#include "RenderObject.h"
 
 #include <unordered_map>
 
 namespace Quark {
 
-	class Shader
+	class Shader : public RenderObject
 	{
 	public:
 		virtual ~Shader() = default;

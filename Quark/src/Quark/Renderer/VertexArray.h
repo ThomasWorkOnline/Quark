@@ -4,7 +4,7 @@
 
 namespace Quark {
 
-    class VertexArray
+    class VertexArray : public RenderObject
     {
     public:
         virtual ~VertexArray() = default;

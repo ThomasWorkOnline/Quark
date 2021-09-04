@@ -1,13 +1,14 @@
 #pragma once
 
 #include "../Core/Core.h"
+#include "RenderObject.h"
 
 #include <string>
 #include <unordered_map>
 
 namespace Quark {
 
-	class Font
+	class Font : public RenderObject
 	{
 	public:
 		virtual ~Font() = default;

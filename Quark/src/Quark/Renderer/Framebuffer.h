@@ -2,6 +2,7 @@
 
 #include "../Core/Core.h"
 #include "TextureFormats.h"
+#include "RenderObject.h"
 
 namespace Quark {
 
@@ -35,7 +36,7 @@ namespace Quark {
 		bool SwapChainTarget = false;
 	};
 
-	class Framebuffer
+	class Framebuffer : public RenderObject
 	{
 	public:
 		virtual ~Framebuffer() = default;
