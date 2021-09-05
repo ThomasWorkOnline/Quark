@@ -22,6 +22,7 @@ namespace Quark {
 		}
 
 		QK_FATAL("Invalid internal texture format");
+		return GL_NONE;
 	}
 
 	static GLenum GetTextureDataFormat(TextureDataFormat format)
@@ -33,6 +34,7 @@ namespace Quark {
 		}
 
 		QK_FATAL("Invalid texture color format");
+		return GL_NONE;
 	}
 
 	static GLenum GetTextureFilteringFormat(TextureFilteringFormat format)
@@ -48,6 +50,7 @@ namespace Quark {
 		}
 
 		QK_FATAL("Invalid texture filtering format");
+		return GL_NONE;
 	}
 
 	static GLenum GetTextureTilingFormat(TextureTilingFormat format)
@@ -60,6 +63,7 @@ namespace Quark {
 		}
 
 		QK_FATAL("Invalid texture tiling format");
+		return GL_NONE;
 	}
 
 	static bool IsTextureDepthFormat(TextureDataFormat format)
