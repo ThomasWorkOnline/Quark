@@ -35,7 +35,7 @@ namespace Quark {
 
 		virtual bool operator==(const Font& other) const = 0;
 
-		static Ref<Font> Create(const std::string& name, const std::string& filepath, uint32_t width = 0, uint32_t height = 48);
+		static Ref<Font> Create(const std::string& filepath, uint32_t width = 0, uint32_t height = 48);
 	};
 
 	class FontLibrary

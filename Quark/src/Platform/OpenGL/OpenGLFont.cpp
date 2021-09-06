@@ -15,7 +15,7 @@ namespace Quark {
 	static constexpr uint32_t s_ASCII_End	= 128;
 	static constexpr uint32_t s_GlyphCount = s_ASCII_End - s_ASCII_Start;
 
-	OpenGLFont::OpenGLFont(const std::string& name, const std::string& filepath, uint32_t width, uint32_t height)
+	OpenGLFont::OpenGLFont(const std::string& filepath, uint32_t width, uint32_t height)
 		: m_Width(width), m_Height(height)
 	{
 		if (s_FontCount == 0)
@@ -30,7 +30,7 @@ namespace Quark {
 		error = FT_Set_Pixel_Sizes(m_Face, width, height);
 		QK_ASSERT(error == FT_Err_Ok, "Could not set font dimensions.");
 
-		QK_CORE_TRACE("Loading " << s_GlyphCount << " glyphs using font: '" << name << "' at path: '" << filepath << "'.");
+		QK_CORE_TRACE("Loading " << s_GlyphCount << " glyphs from font at path: '" << filepath << "'.");
 
 		FT_GlyphSlot g = m_Face->glyph;
 		uint32_t w = 0;
