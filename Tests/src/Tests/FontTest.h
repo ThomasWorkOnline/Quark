@@ -38,7 +38,7 @@ public:
 		constexpr glm::vec4 color = { 1.0f, 0.0f, 0.0f, 1.0f };
 		Renderer::SubmitSprite(m_Texture, m_Transform3);
 
-		m_Transform = glm::rotate(m_Transform, elapsedTime, glm::normalize(glm::vec3(1.0f, 0.0f, 0.0f)));
+		m_Transform = glm::rotate(m_Transform, cosf(accumTime * 2.0f) * 0.001f, glm::normalize(glm::vec3(0.0f, 0.0f, 1.0f)));
 
 		Renderer::SubmitText(m_Font, m_String, m_Color, m_Transform);
 		Renderer::SubmitText(m_Font2, m_String2, m_Color2, m_Transform2);
