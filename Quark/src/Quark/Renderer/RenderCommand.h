@@ -40,6 +40,11 @@ namespace Quark {
 			s_RenderingAPI->SetDepthFunction(func);
 		}
 
+		static void DrawDirect(uint32_t offset, uint32_t count)
+		{
+			s_RenderingAPI->DrawDirect(offset, count);
+		}
+
 		static void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0)
 		{
 			s_RenderingAPI->DrawIndexed(vertexArray, indexCount);
@@ -53,6 +58,11 @@ namespace Quark {
 		static void DrawIndexedLines(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0)
 		{
 			s_RenderingAPI->DrawIndexedLines(vertexArray, indexCount);
+		}
+
+		static void BindTextureIDToSlot(uint32_t id, uint32_t slot)
+		{
+			s_RenderingAPI->BindTextureIDToSlot(id, slot);
 		}
 
 		static int32_t GetTextureSlotsCount()
