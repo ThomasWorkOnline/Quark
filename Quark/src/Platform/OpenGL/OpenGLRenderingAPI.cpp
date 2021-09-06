@@ -90,24 +90,33 @@ namespace Quark {
         glViewport(x, y, width, height);
     }
 
+    void OpenGLRenderingAPI::DrawDirect(uint32_t offset, uint32_t count)
+    {
+        glDrawArrays(GL_TRIANGLES, offset, count);
+    }
+
     void OpenGLRenderingAPI::DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount)
     {
         uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer() ? vertexArray->GetIndexBuffer()->GetCount() : 0;
         glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
-        glBindTexture(GL_TEXTURE_2D, 0);
     }
 
     void OpenGLRenderingAPI::DrawIndexedInstanced(const Ref<VertexArray>& vertexArray, uint32_t repeatCount, uint32_t indexCount)
     {
         uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer() ? vertexArray->GetIndexBuffer()->GetCount() : 0;
         glDrawElementsInstanced(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr, repeatCount);
-        glBindTexture(GL_TEXTURE_2D, 0);
     }
 
     void OpenGLRenderingAPI::DrawIndexedLines(const Ref<VertexArray>& vertexArray, uint32_t indexCount)
     {
         uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer() ? vertexArray->GetIndexBuffer()->GetCount() : 0;
         glDrawElements(GL_LINES, count, GL_UNSIGNED_INT, nullptr);
+    }
+
+    void OpenGLRenderingAPI::BindTextureIDToSlot(uint32_t id, uint32_t slot)
+    {
+        glActiveTexture(GL_TEXTURE0 + slot);
+        glBindTexture(GL_TEXTURE_2D, id);
     }
 
     int32_t OpenGLRenderingAPI::GetTextureSlotsCount() const

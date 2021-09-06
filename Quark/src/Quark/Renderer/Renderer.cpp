@@ -5,7 +5,16 @@
 
 #include "RenderingAPI.h"
 
+#include <GL/glew.h>
+
 namespace Quark {
+
+	static constexpr glm::vec4 s_SpriteVertexPositions[] = {
+		{ -0.5f, -0.5f, 0.0f, 1.0f },
+		{  0.5f, -0.5f, 0.0f, 1.0f },
+		{  0.5f,  0.5f, 0.0f, 1.0f },
+		{ -0.5f,  0.5f, 0.0f, 1.0f }
+	};
 
 	struct SpriteVertex
 	{
@@ -314,16 +323,9 @@ namespace Quark {
 			s_Data.TextureSlotIndex++;
 		}
 
-		constexpr glm::vec4 spriteVertexPositions[4] = {
-			{ -0.5f, -0.5f, 0.0f, 1.0f },
-			{  0.5f, -0.5f, 0.0f, 1.0f },
-			{  0.5f,  0.5f, 0.0f, 1.0f },
-			{ -0.5f,  0.5f, 0.0f, 1.0f }
-		};
-
 		for (uint8_t i = 0; i < 4; i++)
 		{
-			s_Data.VertexPtr->Position = transform * spriteVertexPositions[i];
+			s_Data.VertexPtr->Position = transform * s_SpriteVertexPositions[i];
 			s_Data.VertexPtr->TexCoord = texCoords[i];
 			s_Data.VertexPtr->Normal   = { 0.0f, 0.0f, 1.0f };
 			s_Data.VertexPtr->Color    = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -344,13 +346,6 @@ namespace Quark {
 			PushBatch();
 			StartBatch();
 		}
-
-		constexpr glm::vec4 spriteVertexPositions[4] = {
-			{ -0.5f, -0.5f, 0.0f, 1.0f },
-			{  0.5f, -0.5f, 0.0f, 1.0f },
-			{  0.5f,  0.5f, 0.0f, 1.0f },
-			{ -0.5f,  0.5f, 0.0f, 1.0f }
-		};
 
 #if 0
 		// Viewport culling
@@ -373,7 +368,7 @@ namespace Quark {
 
 		for (uint8_t i = 0; i < 4; i++)
 		{
-			s_Data.VertexPtr->Position = transform * spriteVertexPositions[i];
+			s_Data.VertexPtr->Position = transform * s_SpriteVertexPositions[i];
 			s_Data.VertexPtr->TexCoord = { 0.0f, 0.0f };
 			s_Data.VertexPtr->Normal   = { 0.0f, 0.0f, 1.0f };
 			s_Data.VertexPtr->Color    = color;

@@ -1,12 +1,11 @@
 #include "Tests/DeferredDeleteTest.h"
+#include "Tests/FontTest.h"
 
 int main()
 {
-	auto test = new DeferredDeleteTest();
+	auto test = new FontTest();
 	test->Run();
 	delete test;
-
-	std::cin.get();
 
 	return 0;
 }

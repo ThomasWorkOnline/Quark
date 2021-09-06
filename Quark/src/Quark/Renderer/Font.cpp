@@ -7,21 +7,21 @@
 
 namespace Quark {
 
-	Ref<Font> Font::Create(const std::string& filepath)
+	Ref<Font> Font::Create(const std::string& name, const std::string& filepath, uint32_t width, uint32_t height)
 	{
 		switch (RenderingAPI::GetAPI())
 		{
 		case RenderingAPI::API::OpenGL:
-			return CreateRef<OpenGLFont, DeferredObjectDeleter>(filepath);
+			return CreateRef<OpenGLFont, DeferredObjectDeleter>(name, filepath, width, height);
 		case RenderingAPI::API::None:
 			QK_FATAL("Rendering API not supported");
 		}
 		return nullptr;
 	}
 
-	Ref<Font> FontLibrary::Load(const std::string& name, const std::string& filepath)
+	Ref<Font> FontLibrary::Load(const std::string& name, const std::string& filepath, uint32_t width, uint32_t height)
 	{
-		Ref<Font> font = Font::Create(filepath);
+		Ref<Font> font = Font::Create(name, filepath, width, height);
 		Add(font, name);
 		return font;
 	}
