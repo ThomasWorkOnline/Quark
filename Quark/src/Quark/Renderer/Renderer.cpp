@@ -16,12 +16,20 @@ namespace Quark {
 		{ -0.5f,  0.5f, 0.0f, 1.0f }
 	};
 
+	enum class RenderMode : uint32_t
+	{
+		RenderTexture	= 0,
+		RenderFont		= 1,
+		RenderColor		= 2
+	};
+
 	struct QuadVertex
 	{
 		glm::vec3 Position;
 		glm::vec2 TexCoord;
 		glm::vec4 Color;
 		uint32_t TexIndex;
+		RenderMode Mode;
 	};
 
 	struct QuadRendererData
@@ -43,9 +51,10 @@ namespace Quark {
 		Ref<Shader> SpriteShader;
 		Ref<Shader> TextShader;
 		Ref<Texture2D>* Textures = nullptr;
-		Ref<Font>* Fonts = nullptr;
 		Ref<Texture2D> DefaultTexture;
 		uint32_t TextureSlotIndex = 1; // Next texture slot to be attached
+
+		Ref<Font>* Fonts = nullptr;
 	};
 
 	Renderer::SceneData Renderer::s_SceneData;
@@ -70,7 +79,8 @@ namespace Quark {
 				{ ShaderDataType::Float3, "a_Position" },
 				{ ShaderDataType::Float2, "a_TexCoord" },
 				{ ShaderDataType::Float4, "a_Color"    },
-				{ ShaderDataType::Float,  "a_TexIndex" }
+				{ ShaderDataType::Int,    "a_TexIndex" },
+				{ ShaderDataType::Int,    "a_Mode"     }
 			});
 		s_Data.VertexArray->AddVertexBuffer(s_Data.VertexBuffer);
 
@@ -119,6 +129,7 @@ namespace Quark {
 			layout(location = 1) in vec2 a_TexCoord;
 			layout(location = 2) in vec4 a_Color;
 			layout(location = 3) in int  a_TexIndex;
+			layout(location = 4) in int  a_Mode;
 
 			uniform mat4 u_View;
 			uniform mat4 u_Projection;
@@ -127,6 +138,7 @@ namespace Quark {
 			out vec2 v_TexCoord;
 			out vec4 v_Color;
 			flat out int v_TexIndex;
+			flat out int v_Mode;
 
 			void main()
 			{
@@ -134,10 +146,11 @@ namespace Quark {
 
 				gl_Position = u_Projection * u_View * position;
 
-				v_Position = position.xyz;
-				v_TexCoord = a_TexCoord;
-				v_Color = a_Color;
-				v_TexIndex = a_TexIndex;
+				v_Position	= position.xyz;
+				v_TexCoord	= a_TexCoord;
+				v_Color		= a_Color;
+				v_TexIndex	= a_TexIndex;
+				v_Mode		= a_Mode;
 			}
 		)";
 
@@ -150,24 +163,36 @@ namespace Quark {
 			in vec2 v_TexCoord;
 			in vec4 v_Color;
 			flat in int v_TexIndex;
+			flat in int v_Mode;
 
 			void main()
 			{
-				float texture = texture(u_Samplers[v_TexIndex], v_TexCoord).r;
-				vec4 sampled = vec4(v_Color) * texture;
-				gl_FragColor = sampled;
+				vec4 color;
 
-				/*vec4 color;
-
-				if (v_TexIndex == -1.0)
+				switch (v_Mode)
+				{
+				case 0:
+				{
+					// Texture
+					color = texture(u_Samplers[v_TexIndex], v_TexCoord);
+					break;
+				}
+				case 1:
+				{
+					// Text
+					float texture = texture(u_Samplers[v_TexIndex], v_TexCoord).r;
+					color = v_Color * texture;
+					break;
+				}
+				case 2:
+				{
+					// Color only
 					color = v_Color;
-				else
-					color = texture(u_Samplers[int(v_TexIndex)], v_TexCoord);
+					break;
+				}
+				}
 
-				if (color.a < 1)
-					discard;
-	
-				gl_FragColor = color;*/
+				gl_FragColor = color;
 			}
 		)";
 
@@ -186,6 +211,7 @@ namespace Quark {
 	{
 		delete[] s_Data.Vertices;
 		delete[] s_Data.Textures;
+		delete[] s_Data.Fonts;
 	}
 
 	void Renderer::BeginScene(const glm::mat4& cameraProjection, const Transform3DComponent& cameraTransform)
@@ -311,7 +337,7 @@ namespace Quark {
 		uint32_t textureIndex = 0;
 		for (uint32_t i = 1; i < s_Data.TextureSlotIndex; i++)
 		{
-			if (*s_Data.Textures[i] == *texture)
+			if (s_Data.Textures[i] && *s_Data.Textures[i] == *texture)
 			{
 				textureIndex = i;
 				break;
@@ -335,10 +361,11 @@ namespace Quark {
 
 		for (uint8_t i = 0; i < 4; i++)
 		{
-			s_Data.VertexPtr->Position = transform * s_SpriteVertexPositions[i];
-			s_Data.VertexPtr->TexCoord = texCoords[i];
-			s_Data.VertexPtr->Color    = { 0.0f, 0.0f, 0.0f, 1.0f };
-			s_Data.VertexPtr->TexIndex = textureIndex;
+			s_Data.VertexPtr->Position	= transform * s_SpriteVertexPositions[i];
+			s_Data.VertexPtr->TexCoord	= texCoords[i];
+			s_Data.VertexPtr->Color		= { 0.0f, 0.0f, 0.0f, 1.0f };
+			s_Data.VertexPtr->TexIndex	= textureIndex;
+			s_Data.VertexPtr->Mode		= RenderMode::RenderTexture;
 
 			s_Data.VertexPtr++;
 		}
@@ -377,10 +404,11 @@ namespace Quark {
 
 		for (uint8_t i = 0; i < 4; i++)
 		{
-			s_Data.VertexPtr->Position = transform * s_SpriteVertexPositions[i];
-			s_Data.VertexPtr->TexCoord = { 0.0f, 0.0f };
-			s_Data.VertexPtr->Color    = color;
-			s_Data.VertexPtr->TexIndex = -1;
+			s_Data.VertexPtr->Position	= transform * s_SpriteVertexPositions[i];
+			s_Data.VertexPtr->TexCoord	= { 0.0f, 0.0f };
+			s_Data.VertexPtr->Color		= color;
+			s_Data.VertexPtr->TexIndex	= -1;
+			s_Data.VertexPtr->Mode		= RenderMode::RenderColor;
 
 			s_Data.VertexPtr++;
 		}
@@ -402,7 +430,7 @@ namespace Quark {
 		uint32_t textureIndex = 0;
 		for (uint32_t i = 1; i < s_Data.TextureSlotIndex; i++)
 		{
-			if (s_Data.Fonts[i]->GetRendererID() == font->GetRendererID())
+			if (s_Data.Fonts[i] && *s_Data.Fonts[i] == *font)
 			{
 				textureIndex = i;
 				break;
@@ -451,24 +479,28 @@ namespace Quark {
 			s_Data.VertexPtr->TexCoord = { tx + ch.Size.x / width,	0.0f };
 			s_Data.VertexPtr->Color = color;
 			s_Data.VertexPtr->TexIndex = textureIndex;
+			s_Data.VertexPtr->Mode = RenderMode::RenderFont;
 			s_Data.VertexPtr++;
 
 			s_Data.VertexPtr->Position = transform * glm::vec4(xpos, -ypos, 1.0f, 1.0f);
 			s_Data.VertexPtr->TexCoord = { tx, 0.0f };
 			s_Data.VertexPtr->Color = color;
 			s_Data.VertexPtr->TexIndex = textureIndex;
+			s_Data.VertexPtr->Mode = RenderMode::RenderFont;
 			s_Data.VertexPtr++;
 
 			s_Data.VertexPtr->Position = transform * glm::vec4(xpos, -ypos - h, 1.0f, 1.0f);
 			s_Data.VertexPtr->TexCoord = { tx, ch.Size.y / height };
 			s_Data.VertexPtr->Color = color;
 			s_Data.VertexPtr->TexIndex = textureIndex;
+			s_Data.VertexPtr->Mode = RenderMode::RenderFont;
 			s_Data.VertexPtr++;
 
 			s_Data.VertexPtr->Position = transform * glm::vec4(xpos + w, -ypos - h, 1.0f, 1.0f);
 			s_Data.VertexPtr->TexCoord = { tx + ch.Size.x / width,	ch.Size.y / height };
 			s_Data.VertexPtr->Color = color;
 			s_Data.VertexPtr->TexIndex = textureIndex;
+			s_Data.VertexPtr->Mode = RenderMode::RenderFont;
 			s_Data.VertexPtr++;
 
 			s_Data.IndexCount += 6;
