@@ -25,7 +25,7 @@ namespace Quark {
         glEnable(GL_STENCIL_TEST);
 
         // Multisampling
-        //glEnable(GL_MULTISAMPLE);
+        glEnable(GL_MULTISAMPLE);
 
         // Experimental
         //glEnable(GL_PROGRAM_POINT_SIZE);
@@ -38,15 +38,22 @@ namespace Quark {
 
     void OpenGLRenderingAPI::SetCullFace(RenderCullFace face)
     {
+        // Front and back are reversed
         switch (face)
         {
-        case RenderCullFace::Front:
-            glCullFace(GL_FRONT);
+        case RenderCullFace::None:
+            glDisable(GL_CULL_FACE);
             break;
-        case RenderCullFace::Back:
+        case RenderCullFace::Front:
+            glEnable(GL_CULL_FACE);
             glCullFace(GL_BACK);
             break;
+        case RenderCullFace::Back:
+            glEnable(GL_CULL_FACE);
+            glCullFace(GL_FRONT);
+            break;
         case RenderCullFace::FrontAndBack:
+            glEnable(GL_CULL_FACE);
             glCullFace(GL_FRONT_AND_BACK);
             break;
         }

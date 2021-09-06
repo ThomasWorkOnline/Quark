@@ -165,6 +165,8 @@ namespace Quark {
 			flat in int v_TexIndex;
 			flat in int v_Mode;
 
+			out vec4 r_Color;
+
 			void main()
 			{
 				vec4 color;
@@ -192,7 +194,7 @@ namespace Quark {
 				}
 				}
 
-				gl_FragColor = color;
+				r_Color = color;
 			}
 		)";
 
@@ -475,28 +477,28 @@ namespace Quark {
 			float width = font->GetAtlasWidth();
 			float height = font->GetAtlasHeight();
 
-			s_Data.VertexPtr->Position = transform * glm::vec4(xpos + w, -ypos, 1.0f, 1.0f);
+			s_Data.VertexPtr->Position = transform * glm::vec4(xpos + w, -ypos, 0.0f, 1.0f);
 			s_Data.VertexPtr->TexCoord = { tx + ch.Size.x / width,	0.0f };
 			s_Data.VertexPtr->Color = color;
 			s_Data.VertexPtr->TexIndex = textureIndex;
 			s_Data.VertexPtr->Mode = RenderMode::RenderFont;
 			s_Data.VertexPtr++;
 
-			s_Data.VertexPtr->Position = transform * glm::vec4(xpos, -ypos, 1.0f, 1.0f);
+			s_Data.VertexPtr->Position = transform * glm::vec4(xpos, -ypos, 0.0f, 1.0f);
 			s_Data.VertexPtr->TexCoord = { tx, 0.0f };
 			s_Data.VertexPtr->Color = color;
 			s_Data.VertexPtr->TexIndex = textureIndex;
 			s_Data.VertexPtr->Mode = RenderMode::RenderFont;
 			s_Data.VertexPtr++;
 
-			s_Data.VertexPtr->Position = transform * glm::vec4(xpos, -ypos - h, 1.0f, 1.0f);
+			s_Data.VertexPtr->Position = transform * glm::vec4(xpos, -ypos - h, 0.0f, 1.0f);
 			s_Data.VertexPtr->TexCoord = { tx, ch.Size.y / height };
 			s_Data.VertexPtr->Color = color;
 			s_Data.VertexPtr->TexIndex = textureIndex;
 			s_Data.VertexPtr->Mode = RenderMode::RenderFont;
 			s_Data.VertexPtr++;
 
-			s_Data.VertexPtr->Position = transform * glm::vec4(xpos + w, -ypos - h, 1.0f, 1.0f);
+			s_Data.VertexPtr->Position = transform * glm::vec4(xpos + w, -ypos - h, 0.0f, 1.0f);
 			s_Data.VertexPtr->TexCoord = { tx + ch.Size.x / width,	ch.Size.y / height };
 			s_Data.VertexPtr->Color = color;
 			s_Data.VertexPtr->TexIndex = textureIndex;

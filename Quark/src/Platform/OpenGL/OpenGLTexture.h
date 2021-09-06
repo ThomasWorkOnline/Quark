@@ -27,6 +27,9 @@ namespace Quark {
 		}
 
 	private:
+		uint32_t GetTarget() const;
+
+	private:
 		uint32_t m_RendererID = 0;
 		TextureSpecification m_Spec;
 		std::string m_Filepath;

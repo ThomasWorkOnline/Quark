@@ -13,7 +13,6 @@ namespace Quark {
 		: m_Spec(spec)
 	{
 		glGenTextures(1, &m_RendererID);
-		glBindTexture(GL_TEXTURE_2D, m_RendererID);
 
 		m_InternalFormat = GetTextureInternalFormat(m_Spec.TextureFormat);
 		m_DataFormat = GetTextureDataFormat(m_Spec.TextureFormat);
@@ -21,10 +20,18 @@ namespace Quark {
 		bool multisampled = m_Spec.Samples > 1;
 		if (multisampled)
 		{
-			glTexStorage2DMultisample(GL_TEXTURE_2D, m_Spec.Samples, m_InternalFormat, m_Spec.Width, m_Spec.Height, GL_FALSE);
+			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_RendererID);
+			glTexStorage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Spec.Samples, m_InternalFormat, m_Spec.Width, m_Spec.Height, GL_FALSE);
+
+			glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MIN_FILTER, GetTextureFilteringFormat(m_Spec.FilteringFormat));
+			glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MAG_FILTER, GetTextureFilteringFormat(m_Spec.FilteringFormat));
+			glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_WRAP_S, GetTextureTilingFormat(m_Spec.TilingFormat));
+			glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_WRAP_T, GetTextureTilingFormat(m_Spec.TilingFormat));
 		}
 		else
 		{
+			glBindTexture(GL_TEXTURE_2D, m_RendererID);
+
 			// Immutable texture format, contents can change but not specification
 			glTexStorage2D(GL_TEXTURE_2D, 1, m_InternalFormat, m_Spec.Width, m_Spec.Height);
 
@@ -92,11 +99,19 @@ namespace Quark {
 	void OpenGLTexture2D::Attach(uint32_t textureSlot) const
 	{
 		glActiveTexture(GL_TEXTURE0 + textureSlot);
-		glBindTexture(GL_TEXTURE_2D, m_RendererID);
+		glBindTexture(GetTarget(), m_RendererID);
 	}
 
 	void OpenGLTexture2D::Detach() const
 	{
-		glBindTexture(GL_TEXTURE_2D, 0);
+		glBindTexture(GetTarget(), 0);
+	}
+
+	uint32_t OpenGLTexture2D::GetTarget() const
+	{
+		if (m_Spec.Samples == 1)
+			return GL_TEXTURE_2D;
+		else
+			return GL_TEXTURE_2D_MULTISAMPLE;
 	}
 }

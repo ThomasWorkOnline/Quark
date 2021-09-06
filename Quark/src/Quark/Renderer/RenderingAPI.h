@@ -11,9 +11,12 @@ namespace Quark {
 
     enum class RenderCullFace
     {
+        None,
         Front,
         Back,
-        FrontAndBack
+        FrontAndBack,
+
+        Default = Back
     };
 
     enum class RenderDepthFunction

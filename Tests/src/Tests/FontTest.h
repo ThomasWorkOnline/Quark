@@ -32,14 +32,13 @@ public:
 		static float accumTime = elapsedTime;
 		accumTime += elapsedTime;
 
-		Renderer::BeginScene(m_Camera.GetProjection(), glm::mat4(1.0f));
+		RenderCommand::SetCullFace(RenderCullFace::Default);
+		Renderer::BeginScene(m_Camera.GetProjection(), m_CameraView);
 
 		constexpr glm::vec4 color = { 1.0f, 0.0f, 0.0f, 1.0f };
-		//Renderer::SubmitSprite(color, m_Transform3);
-
 		Renderer::SubmitSprite(m_Texture, m_Transform3);
 
-		m_Transform = glm::rotate(m_Transform, cosf(accumTime * 2.0f) * 0.001f, glm::normalize(glm::vec3(0.0f, 0.0f, 1.0f)));
+		m_Transform = glm::rotate(m_Transform, elapsedTime, glm::normalize(glm::vec3(1.0f, 0.0f, 0.0f)));
 
 		Renderer::SubmitText(m_Font, m_String, m_Color, m_Transform);
 		Renderer::SubmitText(m_Font2, m_String2, m_Color2, m_Transform2);
@@ -68,11 +67,13 @@ private:
 	glm::vec4 m_Color2 = { 1.0f, 0.0f, 1.0f, 0.5f };
 	glm::mat4 m_Transform = glm::mat4(1.0f);
 	glm::mat4 m_Transform2 = glm::mat4(1.0f);
-	glm::mat4 m_Transform3 = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 2.0f));
+	glm::mat4 m_Transform3 = glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 1.0f)), glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 	Ref<VertexArray> m_VertexArray;
 	Ref<Shader> m_Shader;
 	Ref<Texture2D> m_Texture;
+
 	PerspectiveCamera m_Camera = { 16.0f / 9.0f, 70.0f };
+	glm::mat4 m_CameraView = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 
 	std::string m_String = "Welcome to Quark!";
 	std::string m_String2 = "20000 characters in 1 draw call!";
