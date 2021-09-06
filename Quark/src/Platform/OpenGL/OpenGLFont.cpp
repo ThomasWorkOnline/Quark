@@ -93,6 +93,17 @@ namespace Quark {
 			Shutdown();
 	}
 
+	void OpenGLFont::Attach(uint32_t textureSlot) const
+	{
+		glActiveTexture(GL_TEXTURE0 + textureSlot);
+		glBindTexture(GL_TEXTURE_2D, m_RendererID);
+	}
+
+	void OpenGLFont::Detach() const
+	{
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+
 	void OpenGLFont::Init()
 	{
 		QK_TIME_SCOPE_DEBUG(OpenGLFont::Init);

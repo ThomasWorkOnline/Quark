@@ -22,6 +22,9 @@ namespace Quark {
 	public:
 		virtual ~Font() = default;
 
+		virtual void Attach(uint32_t textureSlot = 0) const = 0;
+		virtual void Detach() const = 0;
+
 		virtual const Character& GetCharacter(uint32_t charcode) const = 0;
 		virtual uint32_t GetCharacterCount() const = 0;
 

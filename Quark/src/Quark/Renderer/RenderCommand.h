@@ -60,11 +60,6 @@ namespace Quark {
 			s_RenderingAPI->DrawIndexedLines(vertexArray, indexCount);
 		}
 
-		static void BindTextureIDToSlot(uint32_t id, uint32_t slot)
-		{
-			s_RenderingAPI->BindTextureIDToSlot(id, slot);
-		}
-
 		static int32_t GetTextureSlotsCount()
 		{
 			return s_RenderingAPI->GetTextureSlotsCount();

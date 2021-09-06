@@ -15,6 +15,9 @@ namespace Quark {
 		OpenGLFont(const std::string& name, const std::string& filepath, uint32_t width, uint32_t height);
 		virtual ~OpenGLFont();
 
+		virtual void Attach(uint32_t textureSlot = 0) const override;
+		virtual void Detach() const override;
+
 		virtual const Character& GetCharacter(uint32_t charcode) const override { return m_Characters.at(charcode); }
 		virtual uint32_t GetCharacterCount() const override { return m_Characters.size(); }
 		virtual uint32_t GetAtlasWidth() const override { return m_AtlasWidth; }
@@ -24,7 +27,7 @@ namespace Quark {
 
 		virtual bool operator==(const Font& other) const override
 		{
-			return false;
+			return m_RendererID == ((OpenGLFont&)other).m_RendererID;
 		}
 
 	private:

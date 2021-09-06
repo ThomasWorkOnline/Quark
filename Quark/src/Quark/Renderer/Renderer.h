@@ -1,9 +1,10 @@
 #pragma once
 
-#include "PerspectiveCamera.h"
-#include "OrthographicCamera.h"
+#include "Font.h"
 #include "Framebuffer.h"
 #include "Mesh.h"
+#include "OrthographicCamera.h"
+#include "PerspectiveCamera.h"
 #include "RenderCommand.h"
 #include "Shader.h"
 #include "SubTexture.h"
@@ -60,11 +61,15 @@ namespace Quark {
 		static void SubmitSprite(const SubTexture2D& subTexture, const glm::mat4& transform = glm::mat4(1.0f));
 		static void SubmitSprite(const glm::vec4& color, const glm::mat4& transform = glm::mat4(1.0f));
 
+		static void SubmitText(const Ref<Font>& font, std::string& text, const glm::vec4& color, const glm::mat4& transform = glm::mat4(1.0f));
+
 		static const RendererStats& GetStats() { return s_Stats; }
 
 	private:
 		static void StartBatch();
 		static void PushBatch();
+
+		static void SetupQuadRenderer();
 
 		struct SceneData
 		{

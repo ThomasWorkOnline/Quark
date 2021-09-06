@@ -113,12 +113,6 @@ namespace Quark {
         glDrawElements(GL_LINES, count, GL_UNSIGNED_INT, nullptr);
     }
 
-    void OpenGLRenderingAPI::BindTextureIDToSlot(uint32_t id, uint32_t slot)
-    {
-        glActiveTexture(GL_TEXTURE0 + slot);
-        glBindTexture(GL_TEXTURE_2D, id);
-    }
-
     int32_t OpenGLRenderingAPI::GetTextureSlotsCount() const
     {
         int32_t textureSlots;
