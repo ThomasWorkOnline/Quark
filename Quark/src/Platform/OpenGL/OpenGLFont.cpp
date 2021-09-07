@@ -55,7 +55,8 @@ namespace Quark {
 		glGenTextures(1, &m_RendererID);
 		glBindTexture(GL_TEXTURE_2D, m_RendererID);
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, w, h, 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, w, h, 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
+		glClearTexImage(m_RendererID, 0, GL_RED, GL_UNSIGNED_BYTE, 0);
 
 		uint32_t x = 0;
 		for (uint32_t i = s_ASCII_Start; i < s_ASCII_End; i++)
@@ -77,10 +78,10 @@ namespace Quark {
 			x += g->bitmap.width;
 		}
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 		FT_Done_Face(m_Face);
 	}

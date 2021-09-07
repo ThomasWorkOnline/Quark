@@ -14,7 +14,8 @@ namespace Quark {
 		uint32_t Samples = 1;
 
 		TextureDataFormat TextureFormat = TextureDataFormat::Default;
-		TextureFilteringFormat FilteringFormat = TextureFilteringFormat::Default;
+		TextureFilteringFormat MagFilteringFormat = TextureFilteringFormat::Default;
+		TextureFilteringFormat MinFilteringFormat = TextureFilteringFormat::LinearMipmapLinear;
 		TextureTilingFormat TilingFormat = TextureTilingFormat::Default;
 	};
 

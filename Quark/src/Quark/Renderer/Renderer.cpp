@@ -115,7 +115,7 @@ namespace Quark {
 
 		uint32_t textureColor = 0xffffffff;
 		TextureSpecification spec = { 1, 1, 1, TextureDataFormat::RGBA8,
-			TextureFilteringFormat::Nearest, TextureTilingFormat::Repeat
+			TextureFilteringFormat::Nearest, TextureFilteringFormat::Nearest, TextureTilingFormat::Repeat
 		};
 		s_Data.DefaultTexture = Texture2D::Create(spec);
 		s_Data.DefaultTexture->SetData(&textureColor, sizeof(uint32_t));
@@ -157,6 +157,8 @@ namespace Quark {
 		const char* spriteFragmentSource = R"(
 			#version 330 core
 
+			layout(location = 0) out vec4 u_FragColor;
+
 			uniform sampler2D u_Samplers[32];
 
 			in vec3 v_Position;
@@ -164,8 +166,6 @@ namespace Quark {
 			in vec4 v_Color;
 			flat in int v_TexIndex;
 			flat in int v_Mode;
-
-			out vec4 r_Color;
 
 			void main()
 			{
@@ -194,7 +194,7 @@ namespace Quark {
 				}
 				}
 
-				r_Color = color;
+				u_FragColor = color;
 			}
 		)";
 
@@ -454,7 +454,7 @@ namespace Quark {
 			s_Data.TextureSlotIndex++;
 		}
 
-		constexpr float scale = 0.001f;
+		constexpr float scale = 0.004f;
 
 		float x = 0.0f;
 		float y = 0.0f;
@@ -478,7 +478,7 @@ namespace Quark {
 			float height = font->GetAtlasHeight();
 
 			s_Data.VertexPtr->Position = transform * glm::vec4(xpos + w, -ypos, 0.0f, 1.0f);
-			s_Data.VertexPtr->TexCoord = { tx + ch.Size.x / width,	0.0f };
+			s_Data.VertexPtr->TexCoord = { (tx + ch.Size.x / width),	0.0f };
 			s_Data.VertexPtr->Color = color;
 			s_Data.VertexPtr->TexIndex = textureIndex;
 			s_Data.VertexPtr->Mode = RenderMode::RenderFont;
@@ -499,7 +499,7 @@ namespace Quark {
 			s_Data.VertexPtr++;
 
 			s_Data.VertexPtr->Position = transform * glm::vec4(xpos + w, -ypos - h, 0.0f, 1.0f);
-			s_Data.VertexPtr->TexCoord = { tx + ch.Size.x / width,	ch.Size.y / height };
+			s_Data.VertexPtr->TexCoord = { (tx + ch.Size.x / width),	ch.Size.y / height };
 			s_Data.VertexPtr->Color = color;
 			s_Data.VertexPtr->TexIndex = textureIndex;
 			s_Data.VertexPtr->Mode = RenderMode::RenderFont;
