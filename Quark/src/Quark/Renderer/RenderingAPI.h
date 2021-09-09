@@ -27,7 +27,9 @@ namespace Quark {
         Less,
         LessEqual,
         Greater,
-        GreaterEqual
+        GreaterEqual,
+
+        Default = Less
     };
 
     class RenderingAPI

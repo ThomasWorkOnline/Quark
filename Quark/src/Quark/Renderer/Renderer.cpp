@@ -106,7 +106,7 @@ namespace Quark {
 
 		// Vertices
 		s_Data.Vertices = new QuadVertex[s_Data.MaxVertices];
-		memset(s_Data.Vertices, 0, s_Data.MaxVertices);
+		memset(s_Data.Vertices, 0, s_Data.MaxVertices * sizeof(QuadVertex));
 
 		// Textures
 		s_Data.MaxTextureSlots = RenderCommand::GetTextureSlotsCount();
@@ -244,6 +244,13 @@ namespace Quark {
 	{
 		s_Data.VertexPtr = s_Data.Vertices;
 		s_Data.IndexCount = 0;
+		
+		for (uint32_t i = 0; i < s_Data.TextureSlotIndex; i++)
+		{
+			s_Data.Textures[i].reset();
+			s_Data.Fonts[i].reset();
+		}
+
 		s_Data.TextureSlotIndex = 1; // 0 is reserved
 	}
 
@@ -454,7 +461,7 @@ namespace Quark {
 			s_Data.TextureSlotIndex++;
 		}
 
-		constexpr float scale = 0.004f;
+		constexpr float scale = 0.001f;
 
 		float x = 0.0f;
 		float y = 0.0f;
@@ -477,32 +484,32 @@ namespace Quark {
 			float width = font->GetAtlasWidth();
 			float height = font->GetAtlasHeight();
 
-			s_Data.VertexPtr->Position = transform * glm::vec4(xpos + w, -ypos, 0.0f, 1.0f);
-			s_Data.VertexPtr->TexCoord = { (tx + ch.Size.x / width),	0.0f };
-			s_Data.VertexPtr->Color = color;
-			s_Data.VertexPtr->TexIndex = textureIndex;
-			s_Data.VertexPtr->Mode = RenderMode::RenderFont;
+			s_Data.VertexPtr->Position	= transform * glm::vec4(xpos + w, -ypos, 0.0f, 1.0f);
+			s_Data.VertexPtr->TexCoord	= { tx + ch.Size.x / width, 0.0f };
+			s_Data.VertexPtr->Color		= color;
+			s_Data.VertexPtr->TexIndex	= textureIndex;
+			s_Data.VertexPtr->Mode		= RenderMode::RenderFont;
 			s_Data.VertexPtr++;
 
-			s_Data.VertexPtr->Position = transform * glm::vec4(xpos, -ypos, 0.0f, 1.0f);
-			s_Data.VertexPtr->TexCoord = { tx, 0.0f };
-			s_Data.VertexPtr->Color = color;
-			s_Data.VertexPtr->TexIndex = textureIndex;
-			s_Data.VertexPtr->Mode = RenderMode::RenderFont;
+			s_Data.VertexPtr->Position	= transform * glm::vec4(xpos, -ypos, 0.0f, 1.0f);
+			s_Data.VertexPtr->TexCoord	= { tx, 0.0f };
+			s_Data.VertexPtr->Color		= color;
+			s_Data.VertexPtr->TexIndex	= textureIndex;
+			s_Data.VertexPtr->Mode		= RenderMode::RenderFont;
 			s_Data.VertexPtr++;
 
-			s_Data.VertexPtr->Position = transform * glm::vec4(xpos, -ypos - h, 0.0f, 1.0f);
-			s_Data.VertexPtr->TexCoord = { tx, ch.Size.y / height };
-			s_Data.VertexPtr->Color = color;
-			s_Data.VertexPtr->TexIndex = textureIndex;
-			s_Data.VertexPtr->Mode = RenderMode::RenderFont;
+			s_Data.VertexPtr->Position	= transform * glm::vec4(xpos, -ypos - h, 0.0f, 1.0f);
+			s_Data.VertexPtr->TexCoord	= { tx, ch.Size.y / height };
+			s_Data.VertexPtr->Color		= color;
+			s_Data.VertexPtr->TexIndex	= textureIndex;
+			s_Data.VertexPtr->Mode		= RenderMode::RenderFont;
 			s_Data.VertexPtr++;
 
-			s_Data.VertexPtr->Position = transform * glm::vec4(xpos + w, -ypos - h, 0.0f, 1.0f);
-			s_Data.VertexPtr->TexCoord = { (tx + ch.Size.x / width),	ch.Size.y / height };
-			s_Data.VertexPtr->Color = color;
-			s_Data.VertexPtr->TexIndex = textureIndex;
-			s_Data.VertexPtr->Mode = RenderMode::RenderFont;
+			s_Data.VertexPtr->Position	= transform * glm::vec4(xpos + w, -ypos - h, 0.0f, 1.0f);
+			s_Data.VertexPtr->TexCoord	= { tx + ch.Size.x / width, ch.Size.y / height };
+			s_Data.VertexPtr->Color		= color;
+			s_Data.VertexPtr->TexIndex	= textureIndex;
+			s_Data.VertexPtr->Mode		= RenderMode::RenderFont;
 			s_Data.VertexPtr++;
 
 			s_Data.IndexCount += 6;
