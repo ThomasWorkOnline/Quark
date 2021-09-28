@@ -10,6 +10,8 @@
 #include "SubTexture.h"
 #include "Texture.h"
 
+#include "../UI/Text.h"
+
 #include "../Scene/Components.h"
 #include "../Scene/Entity.h"
 #include "../Scene/Scene.h"
@@ -28,7 +30,7 @@ namespace Quark {
 		Renderer() = delete;
 		Renderer operator= (const Renderer& other) = delete;
 
-		static void Initialize();
+		static void Initialize(uint32_t width, uint32_t height);
 		static void Dispose();
 
 		static void OnWindowResize(uint32_t width, uint32_t height);
@@ -61,7 +63,8 @@ namespace Quark {
 		static void SubmitSprite(const SubTexture2D& subTexture, const glm::mat4& transform = glm::mat4(1.0f));
 		static void SubmitSprite(const glm::vec4& color, const glm::mat4& transform = glm::mat4(1.0f));
 
-		static void SubmitText(const Ref<Font>& font, std::string& text, const glm::vec4& color, const glm::mat4& transform = glm::mat4(1.0f));
+		static void SubmitText(const Text& text, const glm::mat4& transform = glm::mat4(1.0f));
+		static void SubmitText(const Ref<Font>& font, const std::string& text, const glm::vec4& color, const glm::vec2& size, const glm::vec2& origin = glm::vec2(0.0f, 0.0f), const glm::mat4& transform = glm::mat4(1.0f));
 
 		static const RendererStats& GetStats() { return s_Stats; }
 
@@ -79,5 +82,7 @@ namespace Quark {
 
 		static SceneData s_SceneData;
 		static RendererStats s_Stats;
+
+		static uint32_t s_ViewportWidth, s_ViewportHeight;
 	};
 }

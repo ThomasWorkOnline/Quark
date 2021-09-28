@@ -20,6 +20,10 @@ namespace Quark {
 
 		virtual const Character& GetCharacter(uint32_t charcode) const override { return m_Characters.at(charcode); }
 		virtual uint32_t GetCharacterCount() const override { return m_Characters.size(); }
+
+		virtual uint32_t GetPixelWidth() const override { return m_Width; }
+		virtual uint32_t GetPixelHeight() const override { return m_Height; }
+
 		virtual uint32_t GetAtlasWidth() const override { return m_AtlasWidth; }
 		virtual uint32_t GetAtlasHeight() const override { return m_AtlasHeight; }
 

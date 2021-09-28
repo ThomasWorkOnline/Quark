@@ -9,11 +9,11 @@
 
 namespace Quark {
 
-	static struct Character
+	struct Character
 	{
-		glm::vec2 Size;
-		glm::vec2 Bearing;
-		glm::vec2 Advance;
+		glm::ivec2 Size;
+		glm::ivec2 Bearing;
+		glm::ivec2 Advance;
 		float TexCoordX;
 	};
 
@@ -27,6 +27,9 @@ namespace Quark {
 
 		virtual const Character& GetCharacter(uint32_t charcode) const = 0;
 		virtual uint32_t GetCharacterCount() const = 0;
+
+		virtual uint32_t GetPixelWidth() const = 0;
+		virtual uint32_t GetPixelHeight() const = 0;
 
 		virtual uint32_t GetAtlasWidth() const = 0;
 		virtual uint32_t GetAtlasHeight() const = 0;

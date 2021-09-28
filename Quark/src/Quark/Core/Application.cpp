@@ -33,7 +33,7 @@ namespace Quark {
 		}
 
 		QK_CORE_INFO(RenderCommand::GetSpecification());
-		Renderer::Initialize();
+		Renderer::Initialize(m_Window->GetWidth(), m_Window->GetHeight());
 		RenderCommand::SetClearColor(EncodeSRGB({ 0.1f, 0.1f, 0.1f, 1.0f }));
 
 		AudioEngine::Initialize();

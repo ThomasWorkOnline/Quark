@@ -12,6 +12,8 @@ public:
 		m_Font = m_Library.Load("arial-regular", "assets/fonts/arial.ttf", 0, 128);
 		m_Font2 = m_Library.Load("agency-regular", "assets/fonts/ANTQUAI.TTF", 0, 64);
 
+		m_Text = Text("Hello this is a text!", m_Font, m_Color, 1.0f, 1.0f, HorizontalTextAlignment::Left);
+
 		m_Transform2 = glm::translate(m_Transform2, glm::vec3(-0.4f, -0.3f, 0.0f));
 
 		m_Texture = Texture2D::Create("assets/textures/sprite_sheet.png");
@@ -36,9 +38,7 @@ public:
 			RenderCommand::SetDepthFunction(RenderDepthFunction::LessEqual);
 			Renderer::BeginScene(m_Camera.GetProjection(), m_CameraView);
 
-			m_Transform = glm::rotate(m_Transform, cosf(accumTime * 2.0f) * 0.001f, glm::normalize(glm::vec3(0.0f, 0.0f, 1.0f)));
-			Renderer::SubmitText(m_Font2, m_String2, m_Color2, m_Transform2);
-			Renderer::SubmitText(m_Font, m_String, m_Color, m_Transform);
+			Renderer::SubmitText(m_Font, "Hello", glm::vec4(1.0f), glm::vec2(1.0f));
 
 			Renderer::EndScene();
 			RenderCommand::SetDepthFunction(RenderDepthFunction::Default);
@@ -62,11 +62,14 @@ private:
 
 	Ref<Font> m_Font;
 	Ref<Font> m_Font2;
+	Text m_Text;
+
 	glm::vec4 m_Color = { 1.0f, 1.0f, 0.0f, 1.0f };
 	glm::vec4 m_Color2 = { 1.0f, 0.0f, 1.0f, 0.5f };
 	glm::mat4 m_Transform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.01f));
 	glm::mat4 m_Transform2 = glm::mat4(1.0f);
 	glm::mat4 m_Transform3 = glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 1.0f)), glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
 	Ref<VertexArray> m_VertexArray;
 	Ref<Shader> m_Shader;
 	Ref<Texture2D> m_Texture;

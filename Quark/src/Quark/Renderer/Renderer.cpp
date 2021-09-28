@@ -1,6 +1,7 @@
 #include "Renderer.h"
 
 #include "../Core/Core.h"
+#include "../Core/Application.h"
 #include "../Debug/Monitoring.h"
 
 #include "RenderingAPI.h"
@@ -60,9 +61,14 @@ namespace Quark {
 	Renderer::SceneData Renderer::s_SceneData;
 	RendererStats Renderer::s_Stats;
 	static QuadRendererData s_Data;
+
+	uint32_t Renderer::s_ViewportWidth = 0;
+	uint32_t Renderer::s_ViewportHeight = 0;
 	
-	void Renderer::Initialize()
+	void Renderer::Initialize(uint32_t width, uint32_t height)
 	{
+		s_ViewportWidth = width; s_ViewportHeight = height;
+
 		QK_TIME_SCOPE_DEBUG(Renderer::Initialize);
 
 		RenderCommand::Init();
@@ -182,7 +188,7 @@ namespace Quark {
 				case 1:
 				{
 					// Text
-					float texture = texture(u_Samplers[v_TexIndex], v_TexCoord).r;
+					float texture = texture(u_Samplers[v_TexIndex], v_TexCoord, 0).r;
 					color = v_Color * texture;
 					break;
 				}
@@ -426,7 +432,12 @@ namespace Quark {
 		s_Stats.QuadsDrawn++;
 	}
 
-	void Renderer::SubmitText(const Ref<Font>& font, std::string& text, const glm::vec4& color, const glm::mat4& transform)
+	void Renderer::SubmitText(const Text& text, const glm::mat4& transform)
+	{
+		SubmitText(text.GetFont(), text.GetString(), text.GetColor(), { 1.0f, 1.0f }, text.GetOrigin(), transform);
+	}
+
+	void Renderer::SubmitText(const Ref<Font>& font, const std::string& text, const glm::vec4& color, const glm::vec2& size, const glm::vec2& origin, const glm::mat4& transform)
 	{
 		// Check if buffer is full
 		if (s_Data.IndexCount >= s_Data.MaxIndices)
@@ -463,8 +474,8 @@ namespace Quark {
 
 		constexpr float scale = 0.001f;
 
-		float x = 0.0f;
-		float y = 0.0f;
+		int32_t x = -origin.x;
+		int32_t y = -origin.y;
 		for (uint32_t i = 0; i < text.size(); i++)
 		{
 			auto& ch = font->GetCharacter(text[i]);
@@ -481,11 +492,11 @@ namespace Quark {
 			if (!w || !h)
 				continue;
 
-			float width = font->GetAtlasWidth();
-			float height = font->GetAtlasHeight();
+			float atlasWidth = font->GetAtlasWidth();
+			float atlasHeight = font->GetAtlasHeight();
 
 			s_Data.VertexPtr->Position	= transform * glm::vec4(xpos + w, -ypos, 0.0f, 1.0f);
-			s_Data.VertexPtr->TexCoord	= { tx + ch.Size.x / width, 0.0f };
+			s_Data.VertexPtr->TexCoord	= { tx + ch.Size.x / atlasWidth, 0.0f };
 			s_Data.VertexPtr->Color		= color;
 			s_Data.VertexPtr->TexIndex	= textureIndex;
 			s_Data.VertexPtr->Mode		= RenderMode::RenderFont;
@@ -499,14 +510,14 @@ namespace Quark {
 			s_Data.VertexPtr++;
 
 			s_Data.VertexPtr->Position	= transform * glm::vec4(xpos, -ypos - h, 0.0f, 1.0f);
-			s_Data.VertexPtr->TexCoord	= { tx, ch.Size.y / height };
+			s_Data.VertexPtr->TexCoord	= { tx, ch.Size.y / atlasHeight };
 			s_Data.VertexPtr->Color		= color;
 			s_Data.VertexPtr->TexIndex	= textureIndex;
 			s_Data.VertexPtr->Mode		= RenderMode::RenderFont;
 			s_Data.VertexPtr++;
 
 			s_Data.VertexPtr->Position	= transform * glm::vec4(xpos + w, -ypos - h, 0.0f, 1.0f);
-			s_Data.VertexPtr->TexCoord	= { tx + ch.Size.x / width, ch.Size.y / height };
+			s_Data.VertexPtr->TexCoord	= { tx + ch.Size.x / atlasWidth, ch.Size.y / atlasHeight };
 			s_Data.VertexPtr->Color		= color;
 			s_Data.VertexPtr->TexIndex	= textureIndex;
 			s_Data.VertexPtr->Mode		= RenderMode::RenderFont;
@@ -519,6 +530,7 @@ namespace Quark {
 
 	void Renderer::OnWindowResize(uint32_t width, uint32_t height)
 	{
+		s_ViewportWidth = width; s_ViewportHeight = height;
 		RenderCommand::SetViewport(0, 0, width, height);
 	}
 }
