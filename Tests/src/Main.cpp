@@ -1,5 +1,6 @@
 #include "Tests/DeferredDeleteTest.h"
 #include "Tests/FontTest.h"
+#include "Tests/TextureArrayTest.h"
 
 int main()
 {

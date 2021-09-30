@@ -9,7 +9,6 @@
 namespace Quark {
 
 	OpenGLCubeMap::OpenGLCubeMap(const std::array<std::string, 6>& filepaths)
-		: m_Filepaths(filepaths)
 	{
 		glGenTextures(1, &m_RendererID);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, m_RendererID);

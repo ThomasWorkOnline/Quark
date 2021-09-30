@@ -32,7 +32,6 @@ namespace Quark {
 	private:
 		uint32_t m_RendererID = 0;
 		TextureSpecification m_Spec;
-		std::string m_Filepath;
 		uint32_t m_InternalFormat, m_DataFormat;
 	};
 }

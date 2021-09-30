@@ -1,9 +1,7 @@
 #include "OpenGLTexture.h"
 #include "OpenGLTextureFormats.h"
 
-#define STB_IMAGE_STATIC
-#define STB_IMAGE_IMPLEMENTATION
-#include "../../../vendor/stb_image/stb_image.h"
+#include "../../Quark/Renderer/Image.h"
 
 #include <GL/glew.h>
 
@@ -12,10 +10,10 @@ namespace Quark {
 	OpenGLTexture2D::OpenGLTexture2D(const TextureSpecification& spec)
 		: m_Spec(spec)
 	{
-		glGenTextures(1, &m_RendererID);
-
 		m_InternalFormat = GetTextureInternalFormat(m_Spec.TextureFormat);
 		m_DataFormat = GetTextureDataFormat(m_Spec.TextureFormat);
+
+		glGenTextures(1, &m_RendererID);
 
 		bool multisampled = m_Spec.Samples > 1;
 		if (multisampled)
@@ -43,23 +41,20 @@ namespace Quark {
 	}
 
 	OpenGLTexture2D::OpenGLTexture2D(const std::string& filepath)
-		: m_Filepath(filepath)
 	{
-		int32_t width, height, channels;
-		stbi_set_flip_vertically_on_load(true);
-		stbi_uc* data = stbi_load(filepath.c_str(), &width, &height, &channels, 0);
-		QK_ASSERT(data, "Failed to load image at path: " << filepath);
+		Image image(filepath, true);
+		const ImageProperties& prop = image.GetProperties();
 
-		m_Spec.Width = width;
-		m_Spec.Height = height;
+		m_Spec.Width = prop.Width;
+		m_Spec.Height = prop.Height;
 
 		GLenum internalFormat = 0, dataFormat = 0;
-		if (channels == 4)
+		if (prop.Channels == 4)
 		{
 			internalFormat = GL_SRGB_ALPHA;
 			dataFormat = GL_RGBA;
 		}
-		else if (channels == 3)
+		else if (prop.Channels == 3)
 		{
 			internalFormat = GL_SRGB;
 			dataFormat = GL_RGB;
@@ -72,7 +67,7 @@ namespace Quark {
 		glGenTextures(1, &m_RendererID);
 		glBindTexture(GL_TEXTURE_2D, m_RendererID);
 
-		glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, dataFormat, GL_UNSIGNED_BYTE, data);
+		glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, m_Spec.Width, m_Spec.Height, 0, dataFormat, GL_UNSIGNED_BYTE, image.GetData());
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -80,8 +75,6 @@ namespace Quark {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 		glGenerateMipmap(GL_TEXTURE_2D);
-
-		stbi_image_free(data);
 	}
 
 	OpenGLTexture2D::~OpenGLTexture2D()

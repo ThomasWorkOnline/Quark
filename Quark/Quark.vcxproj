@@ -102,6 +102,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Platform\OpenGL\OpenGLFont.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\OpenGLTextureArray.cpp" />
     <ClCompile Include="src\Quark\Audio\AudioEngine.cpp" />
     <ClCompile Include="src\Quark\Core\Application.cpp" />
     <ClCompile Include="src\Quark\Core\Input.cpp" />
@@ -109,6 +110,7 @@
     <ClCompile Include="src\Quark\Debug\Monitoring.cpp" />
     <ClCompile Include="src\Quark\Renderer\Buffer.cpp" />
     <ClCompile Include="src\Quark\Renderer\Font.cpp" />
+    <ClCompile Include="src\Quark\Renderer\Image.cpp" />
     <ClCompile Include="src\Quark\Renderer\OrthographicCameraController.cpp" />
     <ClCompile Include="src\Quark\Renderer\PerspectiveCameraController.cpp" />
     <ClCompile Include="src\Quark\Renderer\CubeMap.cpp" />
@@ -126,6 +128,7 @@
     <ClCompile Include="src\Quark\Animation\SpriteAnimator.cpp" />
     <ClCompile Include="src\Quark\Renderer\SubTexture.cpp" />
     <ClCompile Include="src\Quark\Renderer\Texture.cpp" />
+    <ClCompile Include="src\Quark\Renderer\TextureArray.cpp" />
     <ClCompile Include="src\Quark\Renderer\VertexArray.cpp" />
     <ClCompile Include="src\Quark\Scene\Entity.cpp" />
     <ClCompile Include="src\Quark\Scene\Scene.cpp" />
@@ -146,6 +149,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Platform\OpenGL\OpenGLFont.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLTextureArray.h" />
     <ClInclude Include="src\Quark\Audio\AudioEngine.h" />
     <ClInclude Include="src\Quark\Core\Application.h" />
     <ClInclude Include="src\Quark\Core\Core.h" />
@@ -165,6 +169,7 @@
     <ClInclude Include="src\Quark\Renderer\Environment.h" />
     <ClInclude Include="src\Quark\Renderer\EnvironmentMap.h" />
     <ClInclude Include="src\Quark\Renderer\Font.h" />
+    <ClInclude Include="src\Quark\Renderer\Image.h" />
     <ClInclude Include="src\Quark\Renderer\OrthographicCamera.h" />
     <ClInclude Include="src\Quark\Renderer\OrthographicCameraController.h" />
     <ClInclude Include="src\Quark\Renderer\PerspectiveCamera.h" />
@@ -173,6 +178,7 @@
     <ClInclude Include="src\Quark\Animation\SpriteAnimator.h" />
     <ClInclude Include="src\Quark\Renderer\DeferredObjectManager.h" />
     <ClInclude Include="src\Quark\Renderer\SubTexture.h" />
+    <ClInclude Include="src\Quark\Renderer\TextureArray.h" />
     <ClInclude Include="src\Quark\Renderer\TextureFormats.h" />
     <ClInclude Include="src\Quark\Scene\Components.h" />
     <ClInclude Include="src\Quark\Scene\Entity.h" />

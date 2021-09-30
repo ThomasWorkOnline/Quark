@@ -4,8 +4,30 @@
 
 namespace Quark {
 
+    enum ErrorSeverity
+    {
+
+    };
+
+    static void OnError(
+        GLenum source,
+        GLenum type,
+        GLuint id,
+        GLenum severity,
+        GLsizei length,
+        const GLchar* message,
+        const void* userParam)
+    {
+        fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
+            (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
+            type, severity, message);
+    }
+
     void OpenGLRenderingAPI::Init()
     {
+        glEnable(GL_DEBUG_OUTPUT);
+        glDebugMessageCallback(OnError, 0);
+
         // Gamma correction
         glEnable(GL_FRAMEBUFFER_SRGB);
 
@@ -23,6 +45,9 @@ namespace Quark {
 
         // Stencil Testing
         glEnable(GL_STENCIL_TEST);
+
+        // Extensions
+        //glEnable(GL_TEXTURE_2D_ARRAY_EXT);
 
         // Multisampling
         //glEnable(GL_MULTISAMPLE);

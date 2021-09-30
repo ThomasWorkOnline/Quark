@@ -1,6 +1,5 @@
 #include "OpenGLShader.h"
 
-
 #include "../../Quark/Core/Core.h"
 
 #include "../../../vendor/glm/gtc/type_ptr.hpp"
@@ -28,6 +27,8 @@ namespace Quark {
 
 	OpenGLShader::OpenGLShader(const std::string& filepath)
 	{
+		QK_TIME_SCOPE_DEBUG(OpenGLShader::OpenGLShader);
+
 		std::string source = ReadFile(filepath);
 		auto shaderSources = PreProcess(source);
 		Compile(shaderSources);
@@ -43,6 +44,8 @@ namespace Quark {
 	OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc)
 		: m_Name(name)
 	{
+		QK_TIME_SCOPE_DEBUG(OpenGLShader::OpenGLShader);
+
 		std::unordered_map<GLenum, std::string> sources;
 		sources[GL_VERTEX_SHADER] = vertexSrc;
 		sources[GL_FRAGMENT_SHADER] = fragmentSrc;
@@ -122,7 +125,7 @@ namespace Quark {
 
 		GLuint program = glCreateProgram();
 		if (shaderSources.size() > SHADER_COUNT_MAX)
-			QK_FATAL("Entropy only supports 3 shaders at the moment");
+			QK_FATAL("Maximum shader count supported is 3");
 
 		GLenum glShaderIDs[SHADER_COUNT_MAX];
 		int32_t glShaderIDIndex = 0;
@@ -168,7 +171,7 @@ namespace Quark {
 
 		// Note the different functions here: glGetProgram* instead of glGetShader*.
 		GLint isLinked = 0;
-		glGetProgramiv(program, GL_LINK_STATUS, (int32_t*)&isLinked);
+		glGetProgramiv(program, GL_LINK_STATUS, &isLinked);
 		if (isLinked == GL_FALSE)
 		{
 			GLint maxLength = 0;

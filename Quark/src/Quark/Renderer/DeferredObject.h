@@ -1,7 +1,6 @@
 #pragma once
 
 namespace Quark {
-
 	class DeferredObject
 	{
 	public:

@@ -17,6 +17,14 @@ public:
 		m_Transform2 = glm::translate(m_Transform2, glm::vec3(-0.4f, -0.3f, 0.0f));
 
 		m_Texture = Texture2D::Create("assets/textures/sprite_sheet.png");
+
+		TextureArraySpecification spec;
+		spec.Width = 48;
+		spec.Height = 48;
+		spec.Layers = 1;
+		m_TextureArray = Texture2DArray::Create(spec);
+		Image image("assets/textures/sprite_sheet.png", true);
+		m_TextureArray->SetData(image.GetData(), image.Size(), 0);
 	}
 
 	void OnUpdate(float elapsedTime)
@@ -30,6 +38,7 @@ public:
 			Renderer::BeginScene(m_Camera.GetProjection(), m_CameraView);
 
 			Renderer::SubmitSprite(m_Texture, m_Transform3);
+			Renderer::SubmitSprite(m_TextureArray, m_Transform3);
 
 			Renderer::EndScene();
 		}
@@ -73,6 +82,7 @@ private:
 	Ref<VertexArray> m_VertexArray;
 	Ref<Shader> m_Shader;
 	Ref<Texture2D> m_Texture;
+	Ref<Texture2DArray> m_TextureArray;
 
 	PerspectiveCamera m_Camera = { 16.0f / 9.0f, 70.0f };
 	glm::mat4 m_CameraView = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 1.0f));

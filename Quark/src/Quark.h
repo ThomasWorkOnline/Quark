@@ -23,19 +23,21 @@
 #include "Quark/Events/KeyEvent.h"
 
 // Rendering
+#include "Quark/Renderer/CubeMap.h"
+#include "Quark/Renderer/Environment.h"
 #include "Quark/Renderer/Font.h"
+#include "Quark/Renderer/Framebuffer.h"
+#include "Quark/Renderer/Mesh.h"
 #include "Quark/Renderer/OrthographicCamera.h"
 #include "Quark/Renderer/OrthographicCameraController.h"
 #include "Quark/Renderer/PerspectiveCamera.h"
 #include "Quark/Renderer/PerspectiveCameraController.h"
-#include "Quark/Renderer/CubeMap.h"
-#include "Quark/Renderer/Environment.h"
-#include "Quark/Renderer/Framebuffer.h"
-#include "Quark/Renderer/Mesh.h"
 #include "Quark/Renderer/Renderer.h"
 #include "Quark/Renderer/Shader.h"
 #include "Quark/Renderer/SubTexture.h"
 #include "Quark/Renderer/Texture.h"
+#include "Quark/Renderer/TextureArray.h"
+#include "Quark/Renderer/Image.h"
 
 // Tools
 #include "Quark/Tools/Colorimetry.h"

@@ -43,6 +43,9 @@
     <ClCompile Include="src\Quark\Renderer\Font.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLFont.cpp" />
     <ClCompile Include="src\Quark\Renderer\DeferredObjectManager.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\OpenGLTextureArray.cpp" />
+    <ClCompile Include="src\Quark\Renderer\TextureArray.cpp" />
+    <ClCompile Include="src\Quark\Renderer\Image.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Quark\Core\Application.h" />
@@ -108,5 +111,8 @@
     <ClInclude Include="src\Platform\OpenGL\OpenGLFont.h" />
     <ClInclude Include="src\Quark\Renderer\DeferredObject.h" />
     <ClInclude Include="src\Quark\Renderer\DeferredObjectManager.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLTextureArray.h" />
+    <ClInclude Include="src\Quark\Renderer\TextureArray.h" />
+    <ClInclude Include="src\Quark\Renderer\Image.h" />
   </ItemGroup>
 </Project>
