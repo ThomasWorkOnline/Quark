@@ -4,10 +4,15 @@
 
 namespace Quark {
 
-    enum ErrorSeverity
+    static bool IsInIgnoreList(GLuint type)
     {
+        switch (type)
+        {
+        case GL_DEBUG_TYPE_OTHER:    return true; // Buffer detailed info
+        }
 
-    };
+        return false;
+    }
 
     static void OnError(
         GLenum source,
@@ -18,9 +23,16 @@ namespace Quark {
         const GLchar* message,
         const void* userParam)
     {
-        fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
-            (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
+#       ifdef QK_DEBUG // Error printing only applies to debug mode
+
+        if (IsInIgnoreList(type))
+            return;
+
+        fprintf(stderr, "OpenGL callback: %s(Type: 0x%x), [Severity: 0x%x]\n'%s'\n",
+            (type == GL_DEBUG_TYPE_ERROR ? "[OpenGL ERROR]" : ""),
             type, severity, message);
+
+#       endif
     }
 
     void OpenGLRenderingAPI::Init()
