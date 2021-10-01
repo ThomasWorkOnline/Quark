@@ -13,10 +13,8 @@ namespace Quark {
 		uint32_t Width = 0, Height = 0;
 		uint32_t Samples = 1;
 
-		TextureDataFormat TextureFormat = TextureDataFormat::Default;
-		TextureFilteringFormat MagFilteringFormat = TextureFilteringFormat::Default;
-		TextureFilteringFormat MinFilteringFormat = TextureFilteringFormat::LinearMipmapLinear;
-		TextureTilingFormat TilingFormat = TextureTilingFormat::Default;
+		TextureDataFormat DataFormat = TextureDataFormat::None;
+		TextureRenderModes RenderModes;
 	};
 
 	class Texture : public DeferredObject
@@ -41,6 +39,6 @@ namespace Quark {
 	{
 	public:
 		static Ref<Texture2D> Create(const TextureSpecification& spec);
-		static Ref<Texture2D> Create(const std::string& filepath);
+		static Ref<Texture2D> Create(const std::string& filepath, const TextureRenderModes& modes = {});
 	};
 }

@@ -16,9 +16,9 @@ namespace Quark {
 	{
 		if (type == "vertex")
 			return GL_VERTEX_SHADER;
-		if (type == "fragment" || type == "pixel")
+		else if (type == "fragment" || type == "pixel")
 			return GL_FRAGMENT_SHADER;
-		if (type == "geometry")
+		else if (type == "geometry")
 			return GL_GEOMETRY_SHADER;
 
 		QK_FATAL("Unknown shader type");
@@ -121,13 +121,12 @@ namespace Quark {
 
 	void OpenGLShader::Compile(const std::unordered_map<GLenum, std::string>& shaderSources)
 	{
-		const int32_t SHADER_COUNT_MAX = 3;
+		constexpr uint32_t maxShaders = 3;
+		QK_ASSERT(shaderSources.size() <= maxShaders, "Maximum shader count supported is 3");
 
 		GLuint program = glCreateProgram();
-		if (shaderSources.size() > SHADER_COUNT_MAX)
-			QK_FATAL("Maximum shader count supported is 3");
 
-		GLenum glShaderIDs[SHADER_COUNT_MAX];
+		GLenum glShaderIDs[maxShaders]{};
 		int32_t glShaderIDIndex = 0;
 		for (auto& kv : shaderSources)
 		{
@@ -194,10 +193,10 @@ namespace Quark {
 			return;
 		}
 
-		for (auto id : glShaderIDs)
+		for (uint32_t i = 0; i < shaderSources.size(); i++)
 		{
-			glDetachShader(program, id);
-			glDeleteShader(id);
+			glDetachShader(program, glShaderIDs[i]);
+			glDeleteShader(glShaderIDs[i]);
 		}
 	}
 

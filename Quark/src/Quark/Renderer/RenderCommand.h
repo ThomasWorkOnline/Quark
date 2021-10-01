@@ -62,7 +62,17 @@ namespace Quark {
 
 		static int32_t GetTextureSlotsCount()
 		{
-			return s_RenderingAPI->GetTextureSlotsCount();
+			return s_RenderingAPI->GetMaxTextureSlotsCount();
+		}
+
+		static int32_t GetMaxTextureSize()
+		{
+			return s_RenderingAPI->GetMaxTextureSize();
+		}
+
+		static int32_t GetMaxTextureLayers()
+		{
+			return s_RenderingAPI->GetMaxTextureLayers();
 		}
 
 		static std::string GetSpecification()

@@ -24,8 +24,6 @@ public:
 
 		Renderer::BeginScene(m_Camera.GetProjection(), m_CameraView);
 
-		Renderer::SubmitSprite(m_TextureArray);
-
 		Renderer::EndScene();
 	}
 

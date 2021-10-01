@@ -16,7 +16,7 @@ namespace Quark {
 		Default = RGBA8
 	};
 
-	enum class TextureFilteringFormat
+	enum class TextureFilteringMode
 	{
 		None = 0,
 
@@ -31,7 +31,7 @@ namespace Quark {
 		Default = Linear
 	};
 
-	enum class TextureTilingFormat
+	enum class TextureTilingMode
 	{
 		None = 0,
 
@@ -40,6 +40,13 @@ namespace Quark {
 		ClampToEdge,
 		Repeat,
 
-		Default = ClampToBorder
+		Default = ClampToEdge
+	};
+
+	struct TextureRenderModes
+	{
+		TextureFilteringMode MagFilteringMode = TextureFilteringMode::Linear;
+		TextureFilteringMode MinFilteringMode = TextureFilteringMode::LinearMipmapLinear;
+		TextureTilingMode TilingMode = TextureTilingMode::Default;
 	};
 }

@@ -10,10 +10,11 @@ namespace Quark {
 	OpenGLTexture2D::OpenGLTexture2D(const TextureSpecification& spec)
 		: m_Spec(spec)
 	{
-		m_InternalFormat = GetTextureInternalFormat(m_Spec.TextureFormat);
-		m_DataFormat = GetTextureDataFormat(m_Spec.TextureFormat);
+		m_InternalFormat = GetTextureInternalFormat(m_Spec.DataFormat);
+		m_DataFormat = GetTextureDataFormat(m_Spec.DataFormat);
 
 		glGenTextures(1, &m_RendererID);
+		glActiveTexture(GL_TEXTURE0);
 
 		bool multisampled = m_Spec.Samples > 1;
 		if (multisampled)
@@ -21,10 +22,10 @@ namespace Quark {
 			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_RendererID);
 			glTexStorage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Spec.Samples, m_InternalFormat, m_Spec.Width, m_Spec.Height, GL_FALSE);
 
-			glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MIN_FILTER, GetTextureFilteringFormat(m_Spec.MinFilteringFormat));
-			glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MAG_FILTER, GetTextureFilteringFormat(m_Spec.MagFilteringFormat));
-			glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_WRAP_S, GetTextureTilingFormat(m_Spec.TilingFormat));
-			glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_WRAP_T, GetTextureTilingFormat(m_Spec.TilingFormat));
+			glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MIN_FILTER, GetTextureFilteringMode(m_Spec.RenderModes.MinFilteringMode));
+			glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MAG_FILTER, GetTextureFilteringMode(m_Spec.RenderModes.MagFilteringMode));
+			glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_WRAP_S, GetTextureTilingMode(m_Spec.RenderModes.TilingMode));
+			glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_WRAP_T, GetTextureTilingMode(m_Spec.RenderModes.TilingMode));
 		}
 		else
 		{
@@ -33,20 +34,21 @@ namespace Quark {
 			// Immutable texture format, contents can change but not specification
 			glTexStorage2D(GL_TEXTURE_2D, 1, m_InternalFormat, m_Spec.Width, m_Spec.Height);
 
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetTextureFilteringFormat(m_Spec.MinFilteringFormat));
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GetTextureFilteringFormat(m_Spec.MagFilteringFormat));
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GetTextureTilingFormat(m_Spec.TilingFormat));
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GetTextureTilingFormat(m_Spec.TilingFormat));
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetTextureFilteringMode(m_Spec.RenderModes.MinFilteringMode));
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GetTextureFilteringMode(m_Spec.RenderModes.MagFilteringMode));
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GetTextureTilingMode(m_Spec.RenderModes.TilingMode));
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GetTextureTilingMode(m_Spec.RenderModes.TilingMode));
 		}
 	}
 
-	OpenGLTexture2D::OpenGLTexture2D(const std::string& filepath)
+	OpenGLTexture2D::OpenGLTexture2D(const std::string& filepath, const TextureRenderModes& modes)
 	{
 		Image image(filepath, true);
 		const ImageProperties& prop = image.GetProperties();
 
 		m_Spec.Width = prop.Width;
 		m_Spec.Height = prop.Height;
+		m_Spec.RenderModes = modes;
 
 		GLenum internalFormat = 0, dataFormat = 0;
 		if (prop.Channels == 4)
@@ -65,14 +67,15 @@ namespace Quark {
 		QK_ASSERT(internalFormat & dataFormat, "Image format not supported");
 
 		glGenTextures(1, &m_RendererID);
+		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, m_RendererID);
 
 		glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, m_Spec.Width, m_Spec.Height, 0, dataFormat, GL_UNSIGNED_BYTE, image.GetData());
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetTextureFilteringMode(m_Spec.RenderModes.MinFilteringMode));
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GetTextureFilteringMode(m_Spec.RenderModes.MagFilteringMode));
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GetTextureTilingMode(m_Spec.RenderModes.TilingMode));
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GetTextureTilingMode(m_Spec.RenderModes.TilingMode));
 
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
@@ -84,7 +87,8 @@ namespace Quark {
 
 	void OpenGLTexture2D::SetData(void* data, uint32_t size)
 	{
-		uint32_t bpp = m_DataFormat == GL_RGBA ? 4 : 3;
+		bool alpha = IsTextureAlphaFormat(m_Spec.DataFormat);
+		uint32_t bpp = alpha ? 4 : 3;
 		QK_ASSERT(size == m_Spec.Width * m_Spec.Height * bpp, "Data must be entire texture");
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_Spec.Width, m_Spec.Height, m_DataFormat, GL_UNSIGNED_BYTE, data);
 	}

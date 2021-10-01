@@ -9,21 +9,23 @@ class FontTest : public Application
 public:
 	FontTest()
 	{
-		m_Font = m_Library.Load("arial-regular", "assets/fonts/arial.ttf", 0, 128);
-		m_Font2 = m_Library.Load("agency-regular", "assets/fonts/ANTQUAI.TTF", 0, 64);
-
-		m_Text = Text("Hello this is a text!", m_Font, m_Color, 1.0f, 1.0f, HorizontalTextAlignment::Left);
-
-		m_Transform2 = glm::translate(m_Transform2, glm::vec3(-0.4f, -0.3f, 0.0f));
-
-		m_Texture = Texture2D::Create("assets/textures/sprite_sheet.png");
-
 		TextureArraySpecification spec;
 		spec.Width = 48;
 		spec.Height = 48;
 		spec.Layers = 1;
-		m_TextureArray = Texture2DArray::Create(spec);
+		spec.DataFormat = TextureDataFormat::RGBA8;
+		spec.RenderModes.MagFilteringMode = TextureFilteringMode::Nearest;
+
+		m_Font = m_Library.Load("arial-regular", "assets/fonts/arial.ttf", 0, 128);
+		m_Font2 = m_Library.Load("agency-regular", "assets/fonts/ANTQUAI.TTF", 0, 64);
+
+		m_Text = Text("Hello this is a text!", m_Font, m_Color, 1.0f, 1.0f, HorizontalTextAlignment::Left);
+		m_Transform2 = glm::translate(m_Transform2, glm::vec3(-0.4f, -0.3f, 0.0f));
+		m_Texture = Texture2D::Create("assets/textures/sprite_sheet.png", spec.RenderModes);
+
 		Image image("assets/textures/sprite_sheet.png", true);
+
+		m_TextureArray = Texture2DArray::Create(spec);
 		m_TextureArray->SetData(image.GetData(), image.Size(), 0);
 	}
 
@@ -34,15 +36,17 @@ public:
 		static float accumTime = elapsedTime;
 		accumTime += elapsedTime;
 
+#if 1
 		{
 			Renderer::BeginScene(m_Camera.GetProjection(), m_CameraView);
 
 			Renderer::SubmitSprite(m_Texture, m_Transform3);
-			Renderer::SubmitSprite(m_TextureArray, m_Transform3);
 
 			Renderer::EndScene();
 		}
+#endif
 
+#if 1
 		{
 			RenderCommand::SetDepthFunction(RenderDepthFunction::LessEqual);
 			Renderer::BeginScene(m_Camera.GetProjection(), m_CameraView);
@@ -52,6 +56,7 @@ public:
 			Renderer::EndScene();
 			RenderCommand::SetDepthFunction(RenderDepthFunction::Default);
 		}
+#endif
 	}
 
 	void OnEvent(Event& e)

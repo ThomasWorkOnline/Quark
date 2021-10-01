@@ -32,6 +32,8 @@ namespace Quark {
 		Renderer operator= (const Renderer& other) = delete;
 
 		static void Initialize(uint32_t width, uint32_t height);
+		static void InitializeBatchRenderer();
+
 		static void Dispose();
 
 		static void OnWindowResize(uint32_t width, uint32_t height);
@@ -59,7 +61,6 @@ namespace Quark {
 		static void Submit(const Ref<Shader>& shader, const Ref<Texture2D>& texture, const Ref<VertexArray>& va, const glm::mat4& transform = glm::mat4(1.0f));
 		static void Submit(const Ref<Shader>& shader, const Ref<Framebuffer>& framebuffer, const Ref<VertexArray>& va, const glm::mat4& transform = glm::mat4(1.0f));
 
-		static void SubmitSprite(const Ref<Texture2DArray>& texture, const glm::mat4& transform = glm::mat4(1.0f));
 		static void SubmitSprite(const Ref<Texture2D>& texture, const glm::mat4& transform = glm::mat4(1.0f));
 		static void SubmitSprite(const Ref<Texture2D>& texture, const glm::vec2* texCoords, const glm::mat4& transform = glm::mat4(1.0f));
 		static void SubmitSprite(const SubTexture2D& subTexture, const glm::mat4& transform = glm::mat4(1.0f));

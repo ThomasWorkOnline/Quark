@@ -26,15 +26,19 @@ namespace Quark {
 		m_Window = Window::Create(width, height, title);
 		m_Window->SetEventCallback(ATTACH_EVENT_FN(Application::OnEventInternal));
 
-		if (HasFlag(ApplicationFlag::ShowAPI))
+		Renderer::Initialize(m_Window->GetWidth(), m_Window->GetHeight());
+
+		QK_CORE_INFO(RenderCommand::GetSpecification());
+		RenderCommand::SetClearColor(EncodeSRGB({ 0.1f, 0.1f, 0.1f, 1.0f }));
+
+		if (HasFlag(ApplicationFlag::ShowAPIInWindowTitle))
 		{
 			std::string appendedTitle = " - " + std::string(RenderingAPI::GetName());
 			m_Window->AppendTitle(appendedTitle);
 		}
 
-		QK_CORE_INFO(RenderCommand::GetSpecification());
-		Renderer::Initialize(m_Window->GetWidth(), m_Window->GetHeight());
-		RenderCommand::SetClearColor(EncodeSRGB({ 0.1f, 0.1f, 0.1f, 1.0f }));
+		if (HasFlag(ApplicationFlag::EnableBatchRenderer))
+			Renderer::InitializeBatchRenderer();
 
 		AudioEngine::Initialize();
 	}

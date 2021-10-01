@@ -13,10 +13,8 @@ namespace Quark {
 		uint32_t Width = 0, Height = 0, Layers = 0;
 		uint32_t Samples = 1;
 
-		TextureDataFormat TextureFormat = TextureDataFormat::Default;
-		TextureFilteringFormat MagFilteringFormat = TextureFilteringFormat::Default;
-		TextureFilteringFormat MinFilteringFormat = TextureFilteringFormat::LinearMipmapLinear;
-		TextureTilingFormat TilingFormat = TextureTilingFormat::Default;
+		TextureDataFormat DataFormat = TextureDataFormat::None;
+		TextureRenderModes RenderModes;
 	};
 
 	class TextureArray : public DeferredObject

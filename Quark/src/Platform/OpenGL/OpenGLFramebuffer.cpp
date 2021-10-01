@@ -8,7 +8,7 @@ namespace Quark {
 	OpenGLFramebuffer::OpenGLFramebuffer(const FramebufferSpecification& spec)
 		: m_Spec(spec)
 	{
-		for (auto s : m_Spec.Attachments.Attachments)
+		for (const auto& s : m_Spec.Attachments.Attachments)
 		{
 			if (!IsTextureDepthFormat(s.TextureFormat))
 				m_ColorSpecs.emplace_back(s);
@@ -62,10 +62,10 @@ namespace Quark {
 					glTexImage2D(GL_TEXTURE_2D, 0, GetTextureInternalFormat(m_ColorSpecs[i].TextureFormat), m_Spec.Width, m_Spec.Height, 0,
 						GetTextureDataFormat(m_ColorSpecs[i].TextureFormat), GL_UNSIGNED_BYTE, nullptr);
 
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetTextureFilteringFormat(m_ColorSpecs[i].FilteringFormat));
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GetTextureFilteringFormat(m_ColorSpecs[i].FilteringFormat));
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GetTextureTilingFormat(m_ColorSpecs[i].TilingFormat));
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GetTextureTilingFormat(m_ColorSpecs[i].TilingFormat));
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetTextureFilteringMode(m_ColorSpecs[i].RenderModes.MinFilteringMode));
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GetTextureFilteringMode(m_ColorSpecs[i].RenderModes.MagFilteringMode));
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GetTextureTilingMode(m_ColorSpecs[i].RenderModes.TilingMode));
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GetTextureTilingMode(m_ColorSpecs[i].RenderModes.TilingMode));
 				}
 
 				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GetTextureSampleMode(multisampled), m_ColorAttachments[i], 0);
@@ -86,10 +86,10 @@ namespace Quark {
 			{
 				glTexStorage2D(GL_TEXTURE_2D, 1, GetTextureInternalFormat(m_DepthSpec.TextureFormat), m_Spec.Width, m_Spec.Height);
 
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetTextureFilteringFormat(m_DepthSpec.FilteringFormat));
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GetTextureFilteringFormat(m_DepthSpec.FilteringFormat));
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GetTextureTilingFormat(m_DepthSpec.TilingFormat));
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GetTextureTilingFormat(m_DepthSpec.TilingFormat));
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetTextureFilteringMode(m_DepthSpec.RenderModes.MinFilteringMode));
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GetTextureFilteringMode(m_DepthSpec.RenderModes.MagFilteringMode));
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GetTextureTilingMode(m_DepthSpec.RenderModes.TilingMode));
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GetTextureTilingMode(m_DepthSpec.RenderModes.TilingMode));
 			}
 
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GetTextureSampleMode(multisampled), m_DepthAttachment, 0);

@@ -145,11 +145,25 @@ namespace Quark {
         glDrawElements(GL_LINES, count, GL_UNSIGNED_INT, nullptr);
     }
 
-    int32_t OpenGLRenderingAPI::GetTextureSlotsCount() const
+    int32_t OpenGLRenderingAPI::GetMaxTextureSlotsCount() const
     {
         int32_t textureSlots;
         glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &textureSlots);
         return textureSlots;
+    }
+
+    int32_t OpenGLRenderingAPI::GetMaxTextureSize() const
+    {
+        int32_t maxTextureSize;
+        glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTextureSize);
+        return maxTextureSize;
+    }
+
+    int32_t OpenGLRenderingAPI::GetMaxTextureLayers() const
+    {
+        int32_t maxArrayTextureLayers;
+        glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &maxArrayTextureLayers);
+        return maxArrayTextureLayers;
     }
 
     std::string OpenGLRenderingAPI::GetSpecification() const
@@ -157,7 +171,7 @@ namespace Quark {
         std::stringstream ss;
         ss << "OpenGL Info:\n\n";
         ss << glGetString(GL_VENDOR) << '\n' << glGetString(GL_RENDERER) << '\n' << glGetString(GL_VERSION) << '\n';
-        ss << "Hardware texture slots available: " << GetTextureSlotsCount() << '\n';
+        ss << "Hardware texture slots available: " << GetMaxTextureSlotsCount() << '\n';
         return ss.str();
     }
 }

@@ -18,7 +18,10 @@ namespace Quark {
         virtual void DrawIndexedInstanced(const Ref<VertexArray>& vertexArray, uint32_t repeatCount, uint32_t indexCount = 0) override;
         virtual void DrawIndexedLines(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) override;
 
-        virtual int32_t GetTextureSlotsCount() const override;
+        virtual int32_t GetMaxTextureSlotsCount() const override;
+        virtual int32_t GetMaxTextureSize() const override;
+        virtual int32_t GetMaxTextureLayers() const override;
+
         virtual std::string GetSpecification() const override;
     };
 }

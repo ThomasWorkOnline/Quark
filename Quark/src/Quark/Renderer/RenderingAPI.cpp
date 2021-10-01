@@ -20,4 +20,13 @@ namespace Quark {
         QK_FATAL("Unknown Rendering API");
         return nullptr;
     }
+
+    const char* RenderingAPI::GetName()
+    {
+        switch (s_API)
+        {
+        case Quark::RenderingAPI::API::None:    return "None";
+        case Quark::RenderingAPI::API::OpenGL:  return "OpenGL";
+        }
+    }
 }

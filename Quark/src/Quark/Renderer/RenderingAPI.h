@@ -54,11 +54,14 @@ namespace Quark {
         virtual void DrawIndexedInstanced(const Ref<VertexArray>& vertexArray, uint32_t repeatCount, uint32_t indexCount = 0) = 0;
         virtual void DrawIndexedLines(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) = 0;
 
-        virtual int32_t GetTextureSlotsCount() const = 0;
+        virtual int32_t GetMaxTextureSlotsCount() const = 0;
+        virtual int32_t GetMaxTextureSize() const = 0;
+        virtual int32_t GetMaxTextureLayers() const = 0;
+
         virtual std::string GetSpecification() const = 0;
 
         static API GetAPI() { return s_API; }
-        static const char* GetName() { return s_API == API::OpenGL ? "OpenGL" : "None"; }
+        static const char* GetName();
 
         static Scope<RenderingAPI> Create();
 

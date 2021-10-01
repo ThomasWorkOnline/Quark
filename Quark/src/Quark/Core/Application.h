@@ -10,14 +10,15 @@ namespace Quark {
 
     enum class ApplicationFlag
     {
-        None = 0,
-        ShowAPI = BIT(0)
+        None                    = 0,
+        ShowAPIInWindowTitle    = BIT(0),
+        EnableBatchRenderer     = BIT(1)
     };
 
     class Application
     {
     public:
-        Application(uint32_t width = 1280, uint32_t height = 720, const std::string& title = "Quark Engine", ApplicationFlag flags = ApplicationFlag::None);
+        Application(uint32_t width = 1280, uint32_t height = 720, const std::string& title = "Quark Engine", ApplicationFlag flags = ApplicationFlag::EnableBatchRenderer);
         virtual ~Application();
 
         virtual void OnCreate() {}

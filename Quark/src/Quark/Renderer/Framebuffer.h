@@ -11,13 +11,11 @@ namespace Quark {
 	{
 		FramebufferTextureSpecification() = default;
 		FramebufferTextureSpecification(TextureDataFormat textureFormat,
-			TextureFilteringFormat filteringFormat = TextureFilteringFormat::Default,
-			TextureTilingFormat tilingFormat = TextureTilingFormat::Default)
-			: TextureFormat(textureFormat), FilteringFormat(filteringFormat), TilingFormat(tilingFormat) {}
+			TextureRenderModes modes = {})
+			: TextureFormat(textureFormat), RenderModes(modes) {}
 
-		TextureDataFormat TextureFormat = TextureDataFormat::Default;
-		TextureFilteringFormat FilteringFormat = TextureFilteringFormat::Default;
-		TextureTilingFormat TilingFormat = TextureTilingFormat::Default;
+		TextureDataFormat TextureFormat = TextureDataFormat::None;
+		TextureRenderModes RenderModes;
 	};
 
 	struct FramebufferAttachmentSpecification

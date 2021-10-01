@@ -37,32 +37,32 @@ namespace Quark {
 		return GL_NONE;
 	}
 
-	static GLenum GetTextureFilteringFormat(TextureFilteringFormat format)
+	static GLenum GetTextureFilteringMode(TextureFilteringMode mode)
 	{
-		switch (format)
+		switch (mode)
 		{
-		case TextureFilteringFormat::Nearest:				return GL_NEAREST;
-		case TextureFilteringFormat::Linear:				return GL_LINEAR;
-		case TextureFilteringFormat::NearestMipmapNearest:	return GL_NEAREST_MIPMAP_NEAREST;
-		case TextureFilteringFormat::NearestMipmapLinear:	return GL_NEAREST_MIPMAP_LINEAR;
-		case TextureFilteringFormat::LinearMipmapNearest:	return GL_LINEAR_MIPMAP_NEAREST;
-		case TextureFilteringFormat::LinearMipmapLinear:	return GL_LINEAR_MIPMAP_LINEAR;
+		case TextureFilteringMode::Nearest:					return GL_NEAREST;
+		case TextureFilteringMode::Linear:					return GL_LINEAR;
+		case TextureFilteringMode::NearestMipmapNearest:	return GL_NEAREST_MIPMAP_NEAREST;
+		case TextureFilteringMode::NearestMipmapLinear:		return GL_NEAREST_MIPMAP_LINEAR;
+		case TextureFilteringMode::LinearMipmapNearest:		return GL_LINEAR_MIPMAP_NEAREST;
+		case TextureFilteringMode::LinearMipmapLinear:		return GL_LINEAR_MIPMAP_LINEAR;
 		}
 
-		QK_FATAL("Invalid texture filtering format");
+		QK_FATAL("Invalid texture filtering mode");
 		return GL_NONE;
 	}
 
-	static GLenum GetTextureTilingFormat(TextureTilingFormat format)
+	static GLenum GetTextureTilingMode(TextureTilingMode mode)
 	{
-		switch (format)
+		switch (mode)
 		{
-		case TextureTilingFormat::ClampToBorder: return GL_CLAMP_TO_BORDER;
-		case TextureTilingFormat::ClampToEdge:   return GL_CLAMP_TO_EDGE;
-		case TextureTilingFormat::Repeat:        return GL_REPEAT;
+		case TextureTilingMode::ClampToBorder: return GL_CLAMP_TO_BORDER;
+		case TextureTilingMode::ClampToEdge:   return GL_CLAMP_TO_EDGE;
+		case TextureTilingMode::Repeat:        return GL_REPEAT;
 		}
 
-		QK_FATAL("Invalid texture tiling format");
+		QK_FATAL("Invalid texture tiling mode");
 		return GL_NONE;
 	}
 
@@ -72,6 +72,17 @@ namespace Quark {
 		{
 		case TextureDataFormat::Depth24Stencil8: return true;
 		}
+		return false;
+	}
+
+	static bool IsTextureAlphaFormat(TextureDataFormat format)
+	{
+		switch (format)
+		{
+		case TextureDataFormat::RGBA8:	return true;
+		}
+
+		QK_FATAL("Invalid texture data format");
 		return false;
 	}
 }

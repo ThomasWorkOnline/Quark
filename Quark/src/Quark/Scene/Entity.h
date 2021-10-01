@@ -49,6 +49,7 @@ namespace Quark {
 			return m_Scene->m_Registry.get<T>(m_Entity);
 		}
 
+		bool operator==(Entity other) const { return m_Entity == other; }
 		operator bool() const { return m_Entity != entt::null; }
 		operator entt::entity() const { return m_Entity; }
 
