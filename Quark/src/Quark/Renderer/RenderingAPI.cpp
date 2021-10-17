@@ -28,5 +28,8 @@ namespace Quark {
         case Quark::RenderingAPI::API::None:    return "None";
         case Quark::RenderingAPI::API::OpenGL:  return "OpenGL";
         }
+
+        QK_FATAL("Unknown Rendering API");
+        return nullptr;
     }
 }

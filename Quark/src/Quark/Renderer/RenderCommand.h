@@ -40,9 +40,9 @@ namespace Quark {
 			s_RenderingAPI->SetDepthFunction(func);
 		}
 
-		static void DrawDirect(uint32_t offset, uint32_t count)
+		static void Draw(uint32_t offset, uint32_t count)
 		{
-			s_RenderingAPI->DrawDirect(offset, count);
+			s_RenderingAPI->Draw(offset, count);
 		}
 
 		static void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0)

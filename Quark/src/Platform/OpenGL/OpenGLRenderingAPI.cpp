@@ -134,7 +134,7 @@ namespace Quark {
         glViewport(x, y, width, height);
     }
 
-    void OpenGLRenderingAPI::DrawDirect(uint32_t offset, uint32_t count)
+    void OpenGLRenderingAPI::Draw(uint32_t offset, uint32_t count)
     {
         glDrawArrays(GL_TRIANGLES, offset, count);
     }

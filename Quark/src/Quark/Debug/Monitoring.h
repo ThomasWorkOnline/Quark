@@ -23,7 +23,7 @@ namespace Quark {
 	protected:
 		std::chrono::steady_clock::time_point m_Start;
 		std::chrono::steady_clock::time_point m_End;
-		std::chrono::duration<double> m_Elapsed{};
+		std::chrono::duration<double> m_Elapsed{ 0.0 };
 	};
 
 	class ScopeTimer : public Timer

@@ -152,10 +152,16 @@ namespace Quark {
 
 		glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xPos, double yPos)
 			{
+				static double xPosLast = xPos; static double yPosLast = yPos;
+
 				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 
-				MouseMovedEvent event((float)xPos, (float)yPos);
+				float xOffset = xPos - xPosLast;
+				float yOffset = yPos - yPosLast;
+				MouseMovedEvent event((float)xPos, (float)yPos, xOffset, yOffset);
 				data.EventCallback(event);
+
+				xPosLast = xPos; yPosLast = yPos;
 			});
 	}
 
