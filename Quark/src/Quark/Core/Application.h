@@ -8,25 +8,16 @@ extern int main();
 
 namespace Quark {
 
-    enum class ApplicationFlag
-    {
-        None                    = 0,
-        ShowAPIInWindowTitle    = BIT(0),
-        EnableBatchRenderer     = BIT(1)
-    };
-
     class Application
     {
     public:
-        Application(uint32_t width = 1280, uint32_t height = 720, const std::string& title = "Quark Engine", ApplicationFlag flags = ApplicationFlag::EnableBatchRenderer);
+        Application(uint32_t width = 1280, uint32_t height = 720, const std::string& title = "Quark Engine");
         virtual ~Application();
 
         virtual void OnCreate() {}
         virtual void OnUpdate(float deltaTime) {}
         virtual void OnDestroy() {}
         virtual void OnEvent(Event& e) {}
-
-        bool HasFlag(ApplicationFlag flag) const { return (uint32_t)m_Flags & (uint32_t)flag; }
 
         const Window& GetWindow() const { return *m_Window; }
         Window& GetWindow() { return *m_Window; }
@@ -35,7 +26,7 @@ namespace Quark {
 
         static Application& Get() { return *s_Instance; };
 
-        std::thread::id GetThreadID() const { return s_AppMainThreadId; }
+        std::thread::id GetThreadID() const { return m_AppMainThreadId; }
 
         void Stop();
 
@@ -51,11 +42,9 @@ namespace Quark {
 
     private:
         static Application* s_Instance;
-        static std::thread::id s_AppMainThreadId;
         Scope<Window> m_Window;
 
-        ApplicationFlag m_Flags;
-
+        std::thread::id m_AppMainThreadId;
         std::atomic<bool> m_Running = true;
     };
 }

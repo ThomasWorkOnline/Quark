@@ -8,14 +8,14 @@ namespace Quark {
     class MouseMovedEvent : public Event
     	{
     	public:
-    		MouseMovedEvent(float x, float y, float offsetX, float offsetY)
-    			: m_MouseX(x), m_MouseY(y), m_OffsetX(offsetX), m_OffsetY(offsetY) {}
+    		MouseMovedEvent(float x, float y, float xOffset, float yOffset)
+    			: m_MouseX(x), m_MouseY(y), m_XOffset(xOffset), m_YOffset(yOffset) {}
 
     		float GetX() const { return m_MouseX; }
     		float GetY() const { return m_MouseY; }
 
-            float GetOffsetX() const { return m_OffsetX; }
-            float GetOffsetY() const { return m_OffsetY; }
+            float GetXOffset() const { return m_XOffset; }
+            float GetYOffset() const { return m_YOffset; }
 
     		std::string ToString() const override
     		{
@@ -29,7 +29,7 @@ namespace Quark {
 
     	private:
     		float m_MouseX, m_MouseY;
-            float m_OffsetX, m_OffsetY;
+            float m_XOffset, m_YOffset;
     	};
 
     	class MouseScrolledEvent : public Event

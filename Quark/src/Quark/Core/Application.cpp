@@ -13,15 +13,13 @@
 namespace Quark {
 
 	Application* Application::s_Instance = nullptr;
-	std::thread::id Application::s_AppMainThreadId;
 
-	Application::Application(uint32_t width, uint32_t height, const std::string& title, ApplicationFlag flags)
-		: m_Flags(flags)
+	Application::Application(uint32_t width, uint32_t height, const std::string& title)
 	{
 		QK_TIME_SCOPE_DEBUG(Application::Application);
 
 		s_Instance = this;
-		s_AppMainThreadId = std::this_thread::get_id();
+		m_AppMainThreadId = std::this_thread::get_id();
 
 		m_Window = Window::Create(width, height, title);
 		m_Window->SetEventCallback(ATTACH_EVENT_FN(Application::OnEventInternal));
@@ -31,14 +29,10 @@ namespace Quark {
 		QK_CORE_INFO(RenderCommand::GetSpecification());
 		RenderCommand::SetClearColor(EncodeSRGB({ 0.1f, 0.1f, 0.1f, 1.0f }));
 
-		if (HasFlag(ApplicationFlag::ShowAPIInWindowTitle))
-		{
-			std::string appendedTitle = " - " + std::string(RenderingAPI::GetName());
-			m_Window->AppendTitle(appendedTitle);
-		}
+		std::string appendedTitle = " - " + std::string(RenderingAPI::GetName());
+		m_Window->AppendTitle(appendedTitle);
 
-		if (HasFlag(ApplicationFlag::EnableBatchRenderer))
-			Renderer::InitializeBatchRenderer();
+		Renderer::InitializeBatchRenderer();
 
 		AudioEngine::Initialize();
 	}
