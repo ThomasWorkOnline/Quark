@@ -63,7 +63,7 @@ namespace Quark {
         static API GetAPI() { return s_API; }
         static const char* GetName();
 
-        static Scope<RenderingAPI> Create();
+        static Scope<RenderingAPI> Create(API api);
 
     private:
         static API s_API;

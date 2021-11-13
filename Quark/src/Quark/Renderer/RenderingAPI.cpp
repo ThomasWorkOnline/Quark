@@ -5,12 +5,13 @@
 
 namespace Quark {
 
-    // Default api is OpenGL
-    RenderingAPI::API RenderingAPI::s_API = RenderingAPI::API::OpenGL;
+    RenderingAPI::API RenderingAPI::s_API = RenderingAPI::API::None;
 
-    Scope<RenderingAPI> RenderingAPI::Create()
+    Scope<RenderingAPI> RenderingAPI::Create(API api)
     {
-        switch(RenderingAPI::GetAPI())
+        s_API = api;
+
+        switch (s_API)
         {
         case RenderingAPI::API::OpenGL:
             QK_CORE_TRACE("Created the OpenGL rendering API");

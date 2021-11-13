@@ -14,35 +14,46 @@ namespace Quark {
 
 	Application* Application::s_Instance = nullptr;
 
-	Application::Application(uint32_t width, uint32_t height, const std::string& title)
+	Application::Application(const ApplicationOptions& options)
+		: m_Options(options)
 	{
 		QK_TIME_SCOPE_DEBUG(Application::Application);
 
 		s_Instance = this;
 		m_AppMainThreadId = std::this_thread::get_id();
 
-		m_Window = Window::Create(width, height, title);
+		RenderCommand::CreateRenderingAPI(options.Api);
+
+		m_Window = Window::Create(options.Width, options.Height, options.Title);
 		m_Window->SetEventCallback(ATTACH_EVENT_FN(Application::OnEventInternal));
 
 		Renderer::Initialize(m_Window->GetWidth(), m_Window->GetHeight());
 
+		if (options.HasFlag(EnableBatchRenderer))
+			Renderer::InitializeBatchRenderer();
+
+		if (options.HasFlag(EnableAudioEngine))
+			AudioEngine::Initialize();
+
+		if (options.HasFlag(ShowApiInWindowTitle))
+		{
+			std::string appendedTitle = " - " + std::string(RenderingAPI::GetName());
+			m_Window->AppendTitle(appendedTitle);
+		}
+
+		RenderCommand::SetClearColor(EncodeSRGB({ 0.01f, 0.01f, 0.01f, 1.0f }));
 		QK_CORE_INFO(RenderCommand::GetSpecification());
-		RenderCommand::SetClearColor(EncodeSRGB({ 0.1f, 0.1f, 0.1f, 1.0f }));
-
-		std::string appendedTitle = " - " + std::string(RenderingAPI::GetName());
-		m_Window->AppendTitle(appendedTitle);
-
-		Renderer::InitializeBatchRenderer();
-
-		AudioEngine::Initialize();
 	}
 
 	Application::~Application()
 	{
 		QK_TIME_SCOPE_DEBUG(Application::~Application);
 
-		Renderer::Dispose();
-		AudioEngine::Dispose();
+		if (m_Options.HasFlag(EnableBatchRenderer))
+			Renderer::Dispose();
+
+		if (m_Options.HasFlag(EnableAudioEngine))
+			AudioEngine::Dispose();
 
 		DeferredObjectManager::ReleaseRenderObjects();
 	}
@@ -60,12 +71,14 @@ namespace Quark {
 	bool Application::OnWindowClose(WindowClosedEvent& e)
 	{
 		Stop();
-		return true;
+
+		return false;
 	}
 
 	bool Application::OnWindowResize(WindowResizedEvent& e)
 	{
-		Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
+		Renderer::OnWindowResized(e.GetWidth(), e.GetHeight());
+
 		return false;
 	}
 
@@ -76,15 +89,14 @@ namespace Quark {
 
 	void Application::Run()
 	{
-		OnCreate();
-
 		auto tStart = std::chrono::steady_clock::now();
 
 		while (m_Running)
 		{
 			RenderCommand::Clear();
 
-			AudioEngine::OnUpdate();
+			if (m_Options.HasFlag(EnableAudioEngine))
+				AudioEngine::OnUpdate();
 
 			auto tNow = std::chrono::steady_clock::now();
 			std::chrono::duration<float> elapsedTime = tNow - tStart;
@@ -96,7 +108,5 @@ namespace Quark {
 
 			DeferredObjectManager::ReleaseRenderObjects();
 		}
-
-		OnDestroy();
 	}
 }

@@ -305,8 +305,8 @@ namespace Quark {
 		shader->SetMat4("u_View", s_SceneData.ViewMatrix);
 		shader->SetMat4("u_Model", transform);
 
-		s_Data.DefaultTexture->Attach(0);
-		s_Data.DefaultTexture->Attach(1);
+		//s_Data.DefaultTexture->Attach(0);
+		//s_Data.DefaultTexture->Attach(1);
 
 		va->Attach();
 		RenderCommand::DrawIndexed(va);
@@ -527,7 +527,7 @@ namespace Quark {
 		}
 	}
 
-	void Renderer::OnWindowResize(uint32_t width, uint32_t height)
+	void Renderer::OnWindowResized(uint32_t width, uint32_t height)
 	{
 		s_ViewportWidth = width; s_ViewportHeight = height;
 		RenderCommand::SetViewport(0, 0, width, height);

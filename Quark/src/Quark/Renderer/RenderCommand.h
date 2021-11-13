@@ -9,6 +9,11 @@ namespace Quark {
 	class RenderCommand
 	{
 	public:
+		static void CreateRenderingAPI(RenderingAPI::API api)
+		{
+			s_RenderingAPI = RenderingAPI::Create(api);
+		}
+
 		static void Init()
 		{
 			s_RenderingAPI->Init();

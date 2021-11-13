@@ -1,32 +1,64 @@
 #pragma once
 
-#include "Window.h"
 #include "Core.h"
+#include "Window.h"
 #include "../Events/ApplicationEvent.h"
+#include "../Renderer/RenderingAPI.h"
 
 extern int main();
 
 namespace Quark {
 
+    enum ApplicationFlags
+    {
+        ApplicationNoFlags      = 0,
+        EnableBatchRenderer     = BIT(0),
+        EnableAudioEngine       = BIT(1),
+        ShowApiInWindowTitle    = BIT(2),
+
+        ApplicationFlagsDefault = EnableBatchRenderer | EnableAudioEngine
+    };
+
+    struct ApplicationOptions
+    {
+        uint32_t Width = 1280, Height = 720;
+        std::string Title = "Quark Engine";
+        ApplicationFlags Flags = ApplicationFlagsDefault;
+
+        RenderingAPI::API Api = RenderingAPI::API::OpenGL;
+
+        bool HasFlag(ApplicationFlags flag) const
+        {
+            return Flags & flag;
+        }
+
+        ApplicationOptions() = default;
+        ApplicationOptions(
+            uint32_t width, uint32_t height,
+            const std::string& title,
+            ApplicationFlags flags = ApplicationFlagsDefault,
+            RenderingAPI::API api = RenderingAPI::API::OpenGL
+        )
+            : Width(width), Height(height),
+            Title(title), Flags(flags), Api(api)
+        {
+        }
+    };
+
     class Application
     {
     public:
-        Application(uint32_t width = 1280, uint32_t height = 720, const std::string& title = "Quark Engine");
+        Application(const ApplicationOptions& options = ApplicationOptions());
         virtual ~Application();
 
-        virtual void OnCreate() {}
         virtual void OnUpdate(float deltaTime) {}
-        virtual void OnDestroy() {}
         virtual void OnEvent(Event& e) {}
 
         const Window& GetWindow() const { return *m_Window; }
         Window& GetWindow() { return *m_Window; }
 
-        const std::atomic<bool>& IsRunning() const { return m_Running; };
-
-        static Application& Get() { return *s_Instance; };
-
-        std::thread::id GetThreadID() const { return m_AppMainThreadId; }
+        static Application& Get() { return *s_Instance; }
+        std::thread::id GetThreadId() const { return m_AppMainThreadId; }
 
         void Stop();
 
@@ -42,9 +74,11 @@ namespace Quark {
 
     private:
         static Application* s_Instance;
+
+        ApplicationOptions m_Options;
         Scope<Window> m_Window;
 
         std::thread::id m_AppMainThreadId;
-        std::atomic<bool> m_Running = true;
+        bool m_Running = true;
     };
 }
