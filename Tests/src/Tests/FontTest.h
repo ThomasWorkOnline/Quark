@@ -51,7 +51,8 @@ public:
 			RenderCommand::SetDepthFunction(RenderDepthFunction::LessEqual);
 			Renderer::BeginScene(m_Camera.GetProjection(), m_CameraView);
 
-			Renderer::SubmitText(m_Font, "Hello", glm::vec4(1.0f), glm::vec2(1.0f));
+			Renderer::SubmitText(m_Text, m_Transform);
+			Renderer::SubmitText(m_Font2, "Hi there!", glm::vec4(1.0f), glm::vec2(1.0f));
 
 			Renderer::EndScene();
 			RenderCommand::SetDepthFunction(RenderDepthFunction::Default);

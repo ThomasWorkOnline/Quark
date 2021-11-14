@@ -12,18 +12,14 @@ namespace Quark {
     enum ApplicationFlags
     {
         ApplicationNoFlags      = 0,
-        EnableBatchRenderer     = BIT(0),
-        EnableAudioEngine       = BIT(1),
-        ShowApiInWindowTitle    = BIT(2),
-
-        ApplicationFlagsDefault = EnableBatchRenderer | EnableAudioEngine
+        ShowApiInWindowTitle    = BIT(0)
     };
 
     struct ApplicationOptions
     {
         uint32_t Width = 1280, Height = 720;
         std::string Title = "Quark Engine";
-        ApplicationFlags Flags = ApplicationFlagsDefault;
+        ApplicationFlags Flags = ApplicationNoFlags;
 
         RenderingAPI::API Api = RenderingAPI::API::OpenGL;
 
@@ -36,7 +32,7 @@ namespace Quark {
         ApplicationOptions(
             uint32_t width, uint32_t height,
             const std::string& title,
-            ApplicationFlags flags = ApplicationFlagsDefault,
+            ApplicationFlags flags = ApplicationNoFlags,
             RenderingAPI::API api = RenderingAPI::API::OpenGL
         )
             : Width(width), Height(height),

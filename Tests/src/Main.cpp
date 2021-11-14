@@ -5,7 +5,7 @@
 
 int main()
 {
-	auto test = new Pong();
+	auto test = new FontTest();
 	test->Run();
 	delete test;
 

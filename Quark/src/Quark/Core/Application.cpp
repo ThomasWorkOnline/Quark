@@ -29,11 +29,7 @@ namespace Quark {
 
 		Renderer::Initialize(m_Window->GetWidth(), m_Window->GetHeight());
 
-		if (options.HasFlag(EnableBatchRenderer))
-			Renderer::InitializeBatchRenderer();
-
-		if (options.HasFlag(EnableAudioEngine))
-			AudioEngine::Initialize();
+		AudioEngine::Initialize();
 
 		if (options.HasFlag(ShowApiInWindowTitle))
 		{
@@ -41,7 +37,7 @@ namespace Quark {
 			m_Window->AppendTitle(appendedTitle);
 		}
 
-		RenderCommand::SetClearColor(EncodeSRGB({ 0.01f, 0.01f, 0.01f, 1.0f }));
+		RenderCommand::SetClearColor({ 0.01f, 0.01f, 0.01f, 1.0f });
 		QK_CORE_INFO(RenderCommand::GetSpecification());
 	}
 
@@ -49,11 +45,8 @@ namespace Quark {
 	{
 		QK_TIME_SCOPE_DEBUG(Application::~Application);
 
-		if (m_Options.HasFlag(EnableBatchRenderer))
-			Renderer::Dispose();
-
-		if (m_Options.HasFlag(EnableAudioEngine))
-			AudioEngine::Dispose();
+		Renderer::Dispose();
+		AudioEngine::Dispose();
 
 		DeferredObjectManager::ReleaseRenderObjects();
 	}
@@ -95,8 +88,7 @@ namespace Quark {
 		{
 			RenderCommand::Clear();
 
-			if (m_Options.HasFlag(EnableAudioEngine))
-				AudioEngine::OnUpdate();
+			AudioEngine::OnUpdate();
 
 			auto tNow = std::chrono::steady_clock::now();
 			std::chrono::duration<float> elapsedTime = tNow - tStart;

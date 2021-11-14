@@ -23,16 +23,16 @@ namespace Quark {
 	{
 		uint32_t DrawCalls;
 		uint32_t QuadsDrawn;
+		uint32_t CharactersDrawn;
 	};
 
 	class Renderer
 	{
 	public:
 		Renderer() = delete;
-		Renderer operator= (const Renderer& other) = delete;
+		Renderer operator=(const Renderer& other) = delete;
 
 		static void Initialize(uint32_t width, uint32_t height);
-		static void InitializeBatchRenderer();
 
 		static void Dispose();
 
@@ -76,6 +76,7 @@ namespace Quark {
 		static void PushBatch();
 
 		static void SetupQuadRenderer();
+		static void SetupFontRenderer();
 
 		struct SceneData
 		{

@@ -6,7 +6,7 @@ class Pong : public Quark::Application
 {
 public:
 	Pong()
-		: Quark::Application(Quark::ApplicationOptions(1280, 720, "Pong", EnableAudioEngine))
+		: Quark::Application(Quark::ApplicationOptions(1280, 720, "Pong"))
 	{
 		Quark::RenderCommand::SetClearColor({ 0.01f, 0.01f, 0.01f, 1.0f });
 
