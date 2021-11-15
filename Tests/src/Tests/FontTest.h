@@ -36,28 +36,18 @@ public:
 		static float accumTime = elapsedTime;
 		accumTime += elapsedTime;
 
-#if 1
 		{
 			Renderer::BeginScene(m_Camera.GetProjection(), m_CameraView);
 
 			Renderer::SubmitSprite(m_Texture, m_Transform3);
 
-			Renderer::EndScene();
-		}
-#endif
-
-#if 1
-		{
 			RenderCommand::SetDepthFunction(RenderDepthFunction::LessEqual);
-			Renderer::BeginScene(m_Camera.GetProjection(), m_CameraView);
-
 			Renderer::SubmitText(m_Text, m_Transform);
 			Renderer::SubmitText(m_Font2, "Hi there!", glm::vec4(1.0f), glm::vec2(1.0f));
+			RenderCommand::SetDepthFunction(RenderDepthFunction::Default);
 
 			Renderer::EndScene();
-			RenderCommand::SetDepthFunction(RenderDepthFunction::Default);
 		}
-#endif
 	}
 
 	void OnEvent(Event& e)

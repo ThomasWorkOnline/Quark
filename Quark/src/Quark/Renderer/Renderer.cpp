@@ -319,7 +319,7 @@ namespace Quark {
 			size_t size = ((uint8_t*)s_Data.QuadVertexPtr - (uint8_t*)s_Data.QuadVertices);
 			s_Data.QuadVertexBuffer->SetData(s_Data.QuadVertices, size);
 
-			for (uint32_t i = 1; i < s_Data.QuadSamplerIndex; i++)
+			for (int32_t i = 0; i < s_Data.QuadSamplerIndex; i++)
 				s_Data.Textures[i]->Attach(i);
 
 			s_Data.SpriteShader->Attach();
@@ -337,7 +337,7 @@ namespace Quark {
 			size_t size = ((uint8_t*)s_Data.FontVertexPtr - (uint8_t*)s_Data.FontVertices);
 			s_Data.FontVertexBuffer->SetData(s_Data.FontVertices, size);
 
-			for (uint32_t i = 0; i < s_Data.FontSamplerIndex; i++)
+			for (int32_t i = 0; i < s_Data.FontSamplerIndex; i++)
 				s_Data.Fonts[i]->Attach(i);
 
 			s_Data.FontShader->Attach();
