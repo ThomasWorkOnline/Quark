@@ -40,6 +40,7 @@ namespace Quark {
 
 		static Ref<Shader> Create(const std::string& filepath);
 		static Ref<Shader> Create(const std::string& name, const std::string& vertexSource, const std::string& fragmentSource);
+		static Ref<Shader> Create(const std::string& name, const std::string& vertexSource, const std::string& geometrySource, const std::string& fragmentSource);
 	};
 
 	class ShaderLibrary

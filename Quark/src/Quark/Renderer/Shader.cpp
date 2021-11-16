@@ -31,6 +31,18 @@ namespace Quark {
 		return nullptr;
 	}
 
+	Ref<Shader> Shader::Create(const std::string& name, const std::string& vertexSource, const std::string& geometrySource, const std::string& fragmentSource)
+	{
+		switch (RenderingAPI::GetAPI())
+		{
+		case RenderingAPI::API::OpenGL:
+			return CreateRef<OpenGLShader, DeferredObjectDeleter>(name, vertexSource, geometrySource, fragmentSource);
+		case RenderingAPI::API::None:
+			QK_FATAL("Rendering API not supported");
+		}
+		return nullptr;
+	}
+
 	void ShaderLibrary::Add(const std::string& name, const Ref<Shader>& shader)
 	{
 		if (!Exists(name))

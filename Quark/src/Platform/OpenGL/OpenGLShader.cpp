@@ -41,14 +41,26 @@ namespace Quark {
 		m_Name = filepath.substr(lastSlash, count);
 	}
 
-	OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc)
+	OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertexSource, const std::string& fragmentSource)
 		: m_Name(name)
 	{
 		QK_TIME_SCOPE_DEBUG(OpenGLShader::OpenGLShader);
 
 		std::unordered_map<GLenum, std::string> sources;
-		sources[GL_VERTEX_SHADER] = vertexSrc;
-		sources[GL_FRAGMENT_SHADER] = fragmentSrc;
+		sources[GL_VERTEX_SHADER] = vertexSource;
+		sources[GL_FRAGMENT_SHADER] = fragmentSource;
+		Compile(sources);
+	}
+
+	OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertexSource, const std::string& geometrySource, const std::string& fragmentSource)
+		: m_Name(name)
+	{
+		QK_TIME_SCOPE_DEBUG(OpenGLShader::OpenGLShader);
+
+		std::unordered_map<GLenum, std::string> sources;
+		sources[GL_VERTEX_SHADER] = vertexSource;
+		sources[GL_FRAGMENT_SHADER] = fragmentSource;
+		sources[GL_GEOMETRY_SHADER] = geometrySource;
 		Compile(sources);
 	}
 

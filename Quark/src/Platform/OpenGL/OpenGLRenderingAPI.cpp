@@ -58,11 +58,12 @@ namespace Quark {
         // Stencil Testing
         glEnable(GL_STENCIL_TEST);
 
+        // Filtering
+        glEnable(GL_MULTISAMPLE);
+        glEnable(GL_LINE_SMOOTH);
+
         // Extensions
         //glEnable(GL_TEXTURE_2D_ARRAY_EXT);
-
-        // Multisampling
-        //glEnable(GL_MULTISAMPLE);
 
         // Experimental
         //glEnable(GL_PROGRAM_POINT_SIZE);
@@ -141,20 +142,41 @@ namespace Quark {
 
     void OpenGLRenderingAPI::DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount)
     {
+        vertexArray->Attach();
         uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer() ? vertexArray->GetIndexBuffer()->GetCount() : 0;
         glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
     }
 
     void OpenGLRenderingAPI::DrawIndexedInstanced(const Ref<VertexArray>& vertexArray, uint32_t repeatCount, uint32_t indexCount)
     {
+        vertexArray->Attach();
         uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer() ? vertexArray->GetIndexBuffer()->GetCount() : 0;
         glDrawElementsInstanced(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr, repeatCount);
     }
 
+    void OpenGLRenderingAPI::DrawLines(const Ref<VertexArray>& vertexArray, uint32_t count)
+    {
+        vertexArray->Attach();
+        glDrawArrays(GL_LINES, 0, count);
+    }
+
     void OpenGLRenderingAPI::DrawIndexedLines(const Ref<VertexArray>& vertexArray, uint32_t indexCount)
     {
+        vertexArray->Attach();
         uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer() ? vertexArray->GetIndexBuffer()->GetCount() : 0;
         glDrawElements(GL_LINES, count, GL_UNSIGNED_INT, nullptr);
+    }
+
+    void OpenGLRenderingAPI::SetLineThickness(float thickness)
+    {
+        glLineWidth(thickness);
+    }
+
+    float OpenGLRenderingAPI::GetLineThickness() const
+    {
+        float thickness;
+        glGetFloatv(GL_LINE_WIDTH, &thickness);
+        return thickness;
     }
 
     int32_t OpenGLRenderingAPI::GetMaxTextureSlotsCount() const

@@ -60,9 +60,24 @@ namespace Quark {
 			s_RenderingAPI->DrawIndexedInstanced(vertexArray, repeatCount, indexCount);
 		}
 
+		static void DrawLines(const Ref<VertexArray>& vertexArray, uint32_t vertexCount)
+		{
+			s_RenderingAPI->DrawLines(vertexArray, vertexCount);
+		}
+
 		static void DrawIndexedLines(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0)
 		{
 			s_RenderingAPI->DrawIndexedLines(vertexArray, indexCount);
+		}
+
+		static void SetLineThickness(float thickness)
+		{
+			s_RenderingAPI->SetLineThickness(thickness);
+		}
+
+		static float GetLineThickness()
+		{
+			return s_RenderingAPI->GetLineThickness();
 		}
 
 		static int32_t GetTextureSlotsCount()

@@ -5,8 +5,6 @@
 #include "../Events/ApplicationEvent.h"
 #include "../Renderer/RenderingAPI.h"
 
-extern int main();
-
 namespace Quark {
 
     enum ApplicationFlags
@@ -56,17 +54,14 @@ namespace Quark {
         static Application& Get() { return *s_Instance; }
         std::thread::id GetThreadId() const { return m_AppMainThreadId; }
 
+        void Run();
         void Stop();
 
     private:
-        void Run();
-
         void OnEventInternal(Event& e);
         
-        bool OnWindowClose(WindowClosedEvent& e);
-		bool OnWindowResize(WindowResizedEvent& e);
-
-        friend int ::main();
+        bool OnWindowClosed(WindowClosedEvent& e);
+		bool OnWindowResized(WindowResizedEvent& e);
 
     private:
         static Application* s_Instance;

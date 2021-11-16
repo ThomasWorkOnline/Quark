@@ -28,7 +28,6 @@ namespace Quark {
 		m_Window->SetEventCallback(ATTACH_EVENT_FN(Application::OnEventInternal));
 
 		Renderer::Initialize(m_Window->GetWidth(), m_Window->GetHeight());
-
 		AudioEngine::Initialize();
 
 		if (options.HasFlag(ShowApiInWindowTitle))
@@ -54,21 +53,21 @@ namespace Quark {
 	void Application::OnEventInternal(Event& e)
 	{
 		EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<WindowClosedEvent>(ATTACH_EVENT_FN(Application::OnWindowClose));
-		dispatcher.Dispatch<WindowResizedEvent>(ATTACH_EVENT_FN(Application::OnWindowResize));
+		dispatcher.Dispatch<WindowClosedEvent>(ATTACH_EVENT_FN(Application::OnWindowClosed));
+		dispatcher.Dispatch<WindowResizedEvent>(ATTACH_EVENT_FN(Application::OnWindowResized));
 
 		// Dispatch all other not already handled events
 		if (!e.Handled) OnEvent(e);
 	}
 
-	bool Application::OnWindowClose(WindowClosedEvent& e)
+	bool Application::OnWindowClosed(WindowClosedEvent& e)
 	{
 		Stop();
 
 		return false;
 	}
 
-	bool Application::OnWindowResize(WindowResizedEvent& e)
+	bool Application::OnWindowResized(WindowResizedEvent& e)
 	{
 		Renderer::OnWindowResized(e.GetWidth(), e.GetHeight());
 

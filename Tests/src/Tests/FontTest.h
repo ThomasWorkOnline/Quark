@@ -39,12 +39,19 @@ public:
 		{
 			Renderer::BeginScene(m_Camera.GetProjection(), m_CameraView);
 
-			Renderer::SubmitSprite(m_Texture, m_Transform3);
+			constexpr glm::vec4 colorStart = { 0.0f, 1.0f, 1.0f, 1.0f };
+			constexpr glm::vec4 colorEnd = { 1.0f, 0.0f, 0.0f, 1.0f };
+
+			Renderer::DrawLine({ 0, 0, 1 }, { 1, 0.5, 1 }, colorStart, colorEnd);
+
+#if 1
+			Renderer::DrawSprite(m_Texture, m_Transform3);
 
 			RenderCommand::SetDepthFunction(RenderDepthFunction::LessEqual);
-			Renderer::SubmitText(m_Text, m_Transform);
-			Renderer::SubmitText(m_Font2, "Hi there!", glm::vec4(1.0f), glm::vec2(1.0f));
+			Renderer::DrawText(m_Text, m_Transform);
+			Renderer::DrawText(m_Font2, "Hi there!", glm::vec4(1.0f), glm::vec2(1.0f));
 			RenderCommand::SetDepthFunction(RenderDepthFunction::Default);
+#endif
 
 			Renderer::EndScene();
 		}
