@@ -322,7 +322,7 @@ namespace Quark {
 			}
 		)";
 
-		s_Data.LineShader = Shader::Create("defaultSprite", lineVertexSource, lineFragmentSource);
+		s_Data.LineShader = Shader::Create("defaultLine", lineVertexSource, lineFragmentSource);
 	}
 
 	void Renderer::Dispose()

@@ -26,7 +26,7 @@ public:
 		Image image("assets/textures/sprite_sheet.png", true);
 
 		m_TextureArray = Texture2DArray::Create(spec);
-		m_TextureArray->SetData(image.GetData(), image.Size(), 0);
+		m_TextureArray->SetData(image.Data(), image.Size(), 0);
 	}
 
 	void OnUpdate(float elapsedTime)
@@ -83,7 +83,6 @@ private:
 	glm::mat4 m_Transform3 = glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 1.0f)), glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
 	Ref<VertexArray> m_VertexArray;
-	Ref<Shader> m_Shader;
 	Ref<Texture2D> m_Texture;
 	Ref<Texture2DArray> m_TextureArray;
 

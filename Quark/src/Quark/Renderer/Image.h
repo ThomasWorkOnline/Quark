@@ -19,7 +19,7 @@ namespace Quark {
 		~Image();
 
 		const ImageProperties& GetProperties() const { return m_Spec; }
-		ImageData* GetData() const { return m_Data; }
+		ImageData* Data() const { return m_Data; }
 		size_t Size() const;
 			
 	private:

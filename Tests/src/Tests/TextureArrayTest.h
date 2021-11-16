@@ -15,7 +15,7 @@ public:
 		spec.Layers = 1;
 		m_TextureArray = Texture2DArray::Create(spec);
 		Image image("assets/textures/sprite_sheet.png", true);
-		m_TextureArray->SetData(image.GetData(), image.Size(), 0);
+		m_TextureArray->SetData(image.Data(), image.Size(), 0);
 	}
 
 	void OnUpdate(float elapsedTime)
