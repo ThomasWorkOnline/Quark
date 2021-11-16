@@ -10,7 +10,7 @@ namespace Quark {
 	class GenericWindow : public Window
 	{
 	public:
-		GenericWindow(uint32_t width, uint32_t height, const std::string& title);
+		GenericWindow(const WindowSpecification& spec);
 		virtual ~GenericWindow();
 
 		virtual void OnUpdate() override;
@@ -37,14 +37,15 @@ namespace Quark {
 		virtual void* GetNativeWindow() const override { return m_Window; }
 
 	private:
-		void Init(uint32_t width, uint32_t height, const std::string& title);
+		void Init(const WindowSpecification& spec);
 		void Shutdown();
 
 		struct WindowData
 		{
-			std::string Title = "";
-			uint32_t Width = 0, Height = 0;
-			bool VSync = true;
+			std::string Title;
+			uint32_t Width, Height;
+			uint32_t Samples;
+			bool VSync;
 
 			EventCallbackFn EventCallback;
 		};

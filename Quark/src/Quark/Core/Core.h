@@ -43,7 +43,7 @@
 
 #include "Logger.h"
 #include "../Tools/LogUtils.h"
-#include "../Debug/Monitoring.h"
+#include "../Profiling/Monitoring.h"
 
 #define QK_FATAL(...) do { QK_CORE_ERROR(__VA_ARGS__); QK_DEBUGBREAK(); } while (false)
 

@@ -24,7 +24,11 @@ namespace Quark {
 
 		RenderCommand::CreateRenderingAPI(options.Api);
 
-		m_Window = Window::Create(options.Width, options.Height, options.Title);
+		WindowSpecification spec = {
+			options.Width, options.Height, options.Title, 4
+		};
+
+		m_Window = Window::Create(spec);
 		m_Window->SetEventCallback(ATTACH_EVENT_FN(Application::OnEventInternal));
 
 		Renderer::Initialize(m_Window->GetWidth(), m_Window->GetHeight());

@@ -86,6 +86,8 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)$(ProjectName)\vendor;$(SolutionDir)$(ProjectName)\vendor\glew\include;$(SolutionDir)$(ProjectName)\vendor\glfw\include;$(SolutionDir)$(ProjectName)\vendor\entt\include;$(SolutionDir)$(ProjectName)\vendor\irrKlang\include;$(SolutionDir)$(ProjectName)\vendor\freetype\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -107,7 +109,7 @@
     <ClCompile Include="src\Quark\Core\Application.cpp" />
     <ClCompile Include="src\Quark\Core\Input.cpp" />
     <ClCompile Include="src\Quark\Core\Window.cpp" />
-    <ClCompile Include="src\Quark\Debug\Monitoring.cpp" />
+    <ClCompile Include="src\Quark\Profiling\Monitoring.cpp" />
     <ClCompile Include="src\Quark\Renderer\Buffer.cpp" />
     <ClCompile Include="src\Quark\Renderer\Font.cpp" />
     <ClCompile Include="src\Quark\Renderer\Image.cpp" />
@@ -160,7 +162,7 @@
     <ClInclude Include="src\Quark\Core\Platform.h" />
     <ClInclude Include="src\Quark\Core\Window.h" />
     <ClInclude Include="src\Quark.h" />
-    <ClInclude Include="src\Quark\Debug\Monitoring.h" />
+    <ClInclude Include="src\Quark\Profiling\Monitoring.h" />
     <ClInclude Include="src\Quark\Events\ApplicationEvent.h" />
     <ClInclude Include="src\Quark\Events\Event.h" />
     <ClInclude Include="src\Quark\Events\KeyEvent.h" />

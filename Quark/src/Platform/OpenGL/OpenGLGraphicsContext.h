@@ -2,18 +2,17 @@
 
 #include "../../Quark/Renderer/GraphicsContext.h"
 
-struct GLFWwindow;
-
 namespace Quark {
 
 	class OpenGLGraphicsContext : public GraphicsContext
 	{
 	public:
-		OpenGLGraphicsContext(GLFWwindow* windowHandle);
+		OpenGLGraphicsContext(void* windowHandle);
 
 		virtual void Init() override;
 		virtual void SwapBuffers() override;
+
 	private:
-		GLFWwindow* m_WindowHandle;
+		void* m_WindowHandle;
 	};
 }

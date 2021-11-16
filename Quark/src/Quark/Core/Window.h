@@ -9,6 +9,13 @@
 
 namespace Quark {
 
+    struct WindowSpecification
+    {
+        uint32_t Width, Height;
+        std::string Title;
+        uint32_t Samples = 1;
+    };
+
     class Window
     {
     public:
@@ -39,6 +46,6 @@ namespace Quark {
 
         virtual void* GetNativeWindow() const = 0;
 
-        static Scope<Window> Create(uint32_t width, uint32_t height, const std::string& title);
+        static Scope<Window> Create(const WindowSpecification& spec);
     };
 }

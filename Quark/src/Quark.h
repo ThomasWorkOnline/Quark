@@ -22,6 +22,9 @@
 #include "Quark/Events/MouseEvent.h"
 #include "Quark/Events/KeyEvent.h"
 
+// Profiling
+#include "Quark/Profiling/Monitoring.h"
+
 // Rendering
 #include "Quark/Renderer/CubeMap.h"
 #include "Quark/Renderer/Environment.h"

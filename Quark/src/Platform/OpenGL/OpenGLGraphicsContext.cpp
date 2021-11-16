@@ -6,19 +6,18 @@
 
 namespace Quark {
 
-	OpenGLGraphicsContext::OpenGLGraphicsContext(GLFWwindow* windowHandle)
+	OpenGLGraphicsContext::OpenGLGraphicsContext(void* windowHandle)
 		: m_WindowHandle(windowHandle)
 	{
-		if (windowHandle == nullptr)
-			QK_FATAL("Window handle is null");
+		QK_ASSERT(windowHandle, "Window handle is null");
 	}
 
 	void OpenGLGraphicsContext::Init()
 	{
 		QK_TIME_SCOPE_DEBUG(OpenGLGraphicsContext::Init);
 
-		// Need to make the context before init glew
-		glfwMakeContextCurrent(m_WindowHandle);
+		// Make the context before init glew
+		glfwMakeContextCurrent(static_cast<GLFWwindow*>(m_WindowHandle));
 
 		if (glewInit() != GLEW_OK)
 			QK_FATAL("Could not init glew");
@@ -27,6 +26,6 @@ namespace Quark {
 
 	void OpenGLGraphicsContext::SwapBuffers()
 	{
-		glfwSwapBuffers(m_WindowHandle);
+		glfwSwapBuffers(static_cast<GLFWwindow*>(m_WindowHandle));
 	}
 }

@@ -6,8 +6,8 @@
 
 namespace Quark {
 
-    Scope<Window> Window::Create(uint32_t width, uint32_t height, const std::string& title)
+    Scope<Window> Window::Create(const WindowSpecification& spec)
     {
-        return CreateScope<GenericWindow>(width, height, title);
+        return CreateScope<GenericWindow>(spec);
     }
 }

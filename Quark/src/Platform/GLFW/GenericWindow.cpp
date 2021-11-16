@@ -14,9 +14,9 @@ namespace Quark {
 		QK_FATAL(description);
 	}
 
-	GenericWindow::GenericWindow(uint32_t width, uint32_t height, const std::string& title)
+	GenericWindow::GenericWindow(const WindowSpecification& spec)
 	{
-		Init(width, height, title);
+		Init(spec);
 	}
 
 	GenericWindow::~GenericWindow()
@@ -30,13 +30,14 @@ namespace Quark {
 		glfwPollEvents();
 	}
 
-	void GenericWindow::Init(uint32_t width, uint32_t height, const std::string& title)
+	void GenericWindow::Init(const WindowSpecification& spec)
 	{
 		QK_TIME_SCOPE_DEBUG(GenericWindow::Init);
 
-		m_Data.Title = title;
-		m_Data.Width = width;
-		m_Data.Height = height;
+		m_Data.Width	= spec.Width;
+		m_Data.Height	= spec.Height;
+		m_Data.Title	= spec.Title;
+		m_Data.Samples	= spec.Samples;
 
 		if (s_WindowCount == 0)
 		{
@@ -50,14 +51,13 @@ namespace Quark {
 			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-			//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
 			// MSAA anti-aliasing
-			//glfwWindowHint(GLFW_SAMPLES, 4);
+			glfwWindowHint(GLFW_SAMPLES, m_Data.Samples);
 		}
 
 		m_Window = glfwCreateWindow((int32_t)m_Data.Width, (int32_t)m_Data.Height, m_Data.Title.c_str(), nullptr, nullptr);
-
 		++s_WindowCount;
 
 		// Creating the graphics context

@@ -1,8 +1,6 @@
 #include "Renderer.h"
 
 #include "../Core/Core.h"
-#include "../Core/Application.h"
-#include "../Debug/Monitoring.h"
 
 #include "RenderingAPI.h"
 

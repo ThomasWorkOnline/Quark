@@ -19,6 +19,9 @@ namespace Quark {
 		Entity CreateEntity();
 		void DeleteEntity(Entity entity);
 
+		const entt::registry& GetRegistryRaw() const { return m_Registry; }
+		entt::registry& GetRegistryRaw() { return m_Registry; }
+
 	private:
 		entt::registry m_Registry;
 
