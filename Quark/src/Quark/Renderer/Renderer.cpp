@@ -35,9 +35,9 @@ namespace Quark {
 
 	struct RendererData
 	{
-		static const uint32_t MaxQuads = 20000;
-		static const uint32_t MaxVertices = MaxQuads * 4;
-		static const uint32_t MaxIndices = MaxQuads * 6;
+		static constexpr uint32_t MaxQuads = 20000;
+		static constexpr uint32_t MaxVertices = MaxQuads * 4;
+		static constexpr uint32_t MaxIndices = MaxQuads * 6;
 		uint32_t MaxSamplers = 0;
 
 		QuadVertex* QuadVertexPtr = nullptr;
@@ -129,6 +129,8 @@ namespace Quark {
 		delete[] s_Data->Fonts;
 
 		delete s_Data;
+
+		RenderCommand::Dispose();
 	}
 
 	void Renderer::SetupQuadRenderer()

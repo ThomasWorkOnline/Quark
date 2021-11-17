@@ -8,6 +8,8 @@ namespace Quark {
     {
     public:
         virtual void Init() override;
+        virtual void Dispose() override;
+
         virtual void SetClearColor(const glm::vec4& rgba) override;
         virtual void Clear() override;
         virtual void SetCullFace(RenderCullFace face) override;
