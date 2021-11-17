@@ -385,6 +385,7 @@ namespace Quark {
 			s_Data.QuadShader->SetMat4("u_Projection", s_SceneData.ProjectionMatrix);
 			s_Data.QuadShader->SetMat4("u_View", s_SceneData.ViewMatrix);
 
+			s_Data.QuadVertexArray->Attach();
 			RenderCommand::DrawIndexed(s_Data.QuadVertexArray, s_Data.QuadIndexCount);
 
 			s_Stats.DrawCalls++;
@@ -402,6 +403,7 @@ namespace Quark {
 			s_Data.FontShader->SetMat4("u_Projection", s_SceneData.ProjectionMatrix);
 			s_Data.FontShader->SetMat4("u_View", s_SceneData.ViewMatrix);
 
+			s_Data.FontVertexArray->Attach();
 			RenderCommand::DrawIndexed(s_Data.FontVertexArray, s_Data.FontIndexCount);
 
 			s_Stats.DrawCalls++;
@@ -417,6 +419,7 @@ namespace Quark {
 				s_Data.LineShader->SetMat4("u_Projection", s_SceneData.ProjectionMatrix);
 				s_Data.LineShader->SetMat4("u_View", s_SceneData.ViewMatrix);
 
+				s_Data.LineVertexArray->Attach();
 				RenderCommand::DrawLines(s_Data.LineVertexArray, count);
 
 				s_Stats.DrawCalls++;
