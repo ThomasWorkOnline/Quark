@@ -16,6 +16,8 @@ namespace Quark {
 
 	void AudioEngine::Dispose()
 	{
+		QK_TIME_SCOPE_DEBUG(AudioEngine::Dispose);
+
 		s_Engine->drop();
 	}
 

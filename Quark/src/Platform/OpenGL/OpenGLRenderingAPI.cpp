@@ -1,5 +1,8 @@
 #include "OpenGLRenderingAPI.h"
 
+//#include <glad/glad.h>
+
+#define GLEW_STATIC
 #include <GL/glew.h>
 
 namespace Quark {
@@ -37,6 +40,11 @@ namespace Quark {
 
     void OpenGLRenderingAPI::Init()
     {
+        QK_TIME_SCOPE_DEBUG(OpenGLRenderingAPI::Init);
+
+        GLenum code = glewInit();
+        QK_ASSERT(code == GLEW_OK, "Something went wrong when initializing glew");
+
         glEnable(GL_DEBUG_OUTPUT);
         glDebugMessageCallback(OnError, 0);
 
@@ -60,7 +68,7 @@ namespace Quark {
 
         // Filtering
         glEnable(GL_MULTISAMPLE);
-        glEnable(GL_LINE_SMOOTH);
+        glEnable(GL_LINE_SMOOTH); // <-- NOTE: this massively slows down line rendering
 
         // Extensions
         //glEnable(GL_TEXTURE_2D_ARRAY_EXT);

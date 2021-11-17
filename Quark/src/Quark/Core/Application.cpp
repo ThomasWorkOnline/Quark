@@ -46,12 +46,15 @@ namespace Quark {
 
 	Application::~Application()
 	{
+		QK_CORE_TRACE("Initiating shutdown...");
 		QK_TIME_SCOPE_DEBUG(Application::~Application);
+
+		DeferredObjectManager::ReleaseRenderObjects();
 
 		Renderer::Dispose();
 		AudioEngine::Dispose();
 
-		DeferredObjectManager::ReleaseRenderObjects();
+		s_Instance = nullptr;
 	}
 
 	void Application::OnEventInternal(Event& e)

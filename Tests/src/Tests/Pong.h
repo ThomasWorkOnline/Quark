@@ -54,7 +54,10 @@ public:
 		dispatcher.Dispatch<Quark::KeyPressedEvent>(ATTACH_EVENT_FN(Pong::OnKeyPressed));
 		dispatcher.Dispatch<Quark::MouseButtonPressedEvent>(ATTACH_EVENT_FN(Pong::OnMouseButtonPressed));
 
-		m_Controller.OnEvent(e);
+		e.Handled = e.IsInCategory(EventCategoryInput) && !GetWindow().IsSelected();
+
+		if (!e.Handled)
+			m_Controller.OnEvent(e);
 	}
 
 private:

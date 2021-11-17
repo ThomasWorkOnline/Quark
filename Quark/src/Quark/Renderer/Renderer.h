@@ -78,6 +78,8 @@ namespace Quark {
 		static void StartBatch();
 		static void PushBatch();
 
+		static void ResetStats();
+
 		static void SetupQuadRenderer();
 		static void SetupFontRenderer();
 		static void SetupLineRenderer();

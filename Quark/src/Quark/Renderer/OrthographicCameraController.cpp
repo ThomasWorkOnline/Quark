@@ -15,8 +15,10 @@ namespace Quark {
 
 	static double s_ZoomSpeed = 0.0f;
 
-	OrthographicCameraController::OrthographicCameraController(Entity& camera)
-		: m_CameraEntity(camera) { }
+	OrthographicCameraController::OrthographicCameraController(Entity camera)
+		: m_CameraEntity(camera)
+	{
+	}
 
 	void OrthographicCameraController::OnUpdate(float elapsedTime)
 	{
@@ -26,10 +28,6 @@ namespace Quark {
 			auto& physics = m_CameraEntity.GetComponent<PhysicsComponent>();
 			auto& camera = m_CameraEntity.GetComponent<OrthographicCameraComponent>().Camera;
 
-			// Movement
-			static const float defaultMovementSpeed = m_MovementSpeed;
-			static const float defaultRollSensitivity = m_RollSensitivity;
-
 			// Boost key
 			if (Input::IsKeyPressed(Key::LeftControl))
 			{
@@ -38,8 +36,8 @@ namespace Quark {
 			}
 			else
 			{
-				m_MovementSpeed = defaultMovementSpeed;
-				m_RollSensitivity = defaultRollSensitivity;
+				m_MovementSpeed = m_DefaultMovementSpeed;
+				m_RollSensitivity = m_DefaultRollSensitivity;
 			}
 
 			// Controls
@@ -124,28 +122,21 @@ namespace Quark {
 	bool OrthographicCameraController::OnWindowResized(WindowResizedEvent& e)
 	{
 		if (m_CameraEntity)
-		{
-			m_CameraEntity.GetComponent<OrthographicCameraComponent>().Camera.SetAspectRatio((float)e.GetWidth() / (float)e.GetHeight());
-		}
+			m_CameraEntity.GetComponent<OrthographicCameraComponent>().Camera.SetAspectRatio((float)e.GetWidth() / e.GetHeight());
+
 		return false;
 	}
 
 	bool OrthographicCameraController::OnMouseMoved(MouseMovedEvent& e)
 	{
-		static glm::vec2 lastMousePos = { e.GetX(), e.GetY() };
-
-		if (Application::Get().GetWindow().IsSelected())
+		if (m_CameraEntity)
 		{
-			if (m_CameraEntity)
-			{
-				auto& transform = m_CameraEntity.GetComponent<Transform3DComponent>();
-				auto& camera = m_CameraEntity.GetComponent<OrthographicCameraComponent>().Camera;
+			auto& transform = m_CameraEntity.GetComponent<Transform3DComponent>();
+			auto& camera = m_CameraEntity.GetComponent<OrthographicCameraComponent>().Camera;
 
-				// TODO:
-			}
+			// TODO:
 		}
 
-		lastMousePos = { e.GetX(), e.GetY() };
 		return false;
 	}
 }

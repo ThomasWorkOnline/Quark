@@ -14,7 +14,7 @@ namespace Quark {
 	{
 	public:
 		PerspectiveCameraController() = default;
-		PerspectiveCameraController(Entity& camera);
+		PerspectiveCameraController(Entity camera);
 		virtual ~PerspectiveCameraController() = default;
 
 		/// <summary>
@@ -52,5 +52,9 @@ namespace Quark {
 		float m_MovementSpeed = 12.0f;
 		float m_MouseSensitivity = 0.002f;
 		float m_MouseScrollSensitivity = 1.0f;
+
+	private:
+		float m_DefaultMovementSpeed = m_MovementSpeed;
+		float m_DefaultRollSensitivity = m_RollSensitivity;
 	};
 }

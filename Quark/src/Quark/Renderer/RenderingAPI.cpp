@@ -14,7 +14,6 @@ namespace Quark {
         switch (s_API)
         {
         case RenderingAPI::API::OpenGL:
-            QK_CORE_TRACE("Created the OpenGL rendering API");
             return CreateScope<OpenGLRenderingAPI>();
         }
 

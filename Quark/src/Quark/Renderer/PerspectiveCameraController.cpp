@@ -15,8 +15,10 @@ namespace Quark {
 
 	static float s_ZoomSpeed = 0.0f;
 
-	PerspectiveCameraController::PerspectiveCameraController(Entity& camera)
-		: m_CameraEntity(camera) { }
+	PerspectiveCameraController::PerspectiveCameraController(Entity camera)
+		: m_CameraEntity(camera)
+	{
+	}
 
 	void PerspectiveCameraController::OnUpdate(float elapsedTime)
 	{
@@ -26,10 +28,6 @@ namespace Quark {
 			auto& physics = m_CameraEntity.GetComponent<PhysicsComponent>();
 			auto& camera = m_CameraEntity.GetComponent<PerspectiveCameraComponent>().Camera;
 
-			// Movement
-			static const float defaultMovementSpeed = m_MovementSpeed;
-			static const float defaultRollSensitivity = m_RollSensitivity;
-
 			// Boost key
 			if (Input::IsKeyPressed(Key::LeftControl))
 			{
@@ -38,8 +36,8 @@ namespace Quark {
 			}
 			else
 			{
-				m_MovementSpeed = defaultMovementSpeed;
-				m_RollSensitivity = defaultRollSensitivity;
+				m_MovementSpeed = m_DefaultMovementSpeed;
+				m_RollSensitivity = m_DefaultRollSensitivity;
 			}
 
 			// Controls
@@ -134,32 +132,25 @@ namespace Quark {
 	bool PerspectiveCameraController::OnWindowResized(WindowResizedEvent& e)
 	{
 		if (m_CameraEntity)
-		{
-			m_CameraEntity.GetComponent<PerspectiveCameraComponent>().Camera.SetAspectRatio((float)e.GetWidth() / (float)e.GetHeight());
-		}
+			m_CameraEntity.GetComponent<PerspectiveCameraComponent>().Camera.SetAspectRatio((float)e.GetWidth() / e.GetHeight());
+
 		return false;
 	}
 
 	bool PerspectiveCameraController::OnMouseMoved(MouseMovedEvent& e)
 	{
-		static glm::vec2 lastMousePos = { e.GetX(), e.GetY() };
-
-		if (Application::Get().GetWindow().IsSelected())
+		if (m_CameraEntity)
 		{
-			if (m_CameraEntity)
-			{
-				auto& transform = m_CameraEntity.GetComponent<Transform3DComponent>();
-				auto& camera = m_CameraEntity.GetComponent<PerspectiveCameraComponent>().Camera;
+			auto& transform = m_CameraEntity.GetComponent<Transform3DComponent>();
+			auto& camera = m_CameraEntity.GetComponent<PerspectiveCameraComponent>().Camera;
 
-				glm::vec2 mouseMove = { e.GetX() - lastMousePos.x, e.GetY() - lastMousePos.y };
-				glm::quat qYaw = glm::angleAxis(-mouseMove.x * m_MouseSensitivity * camera.GetFov() / 90.0f, glm::vec3(0.0f, 1.0f, 0.0f) * transform.Orientation);
-				glm::quat qPitch = glm::angleAxis(-mouseMove.y * m_MouseSensitivity * camera.GetFov() / 90.0f, glm::vec3(1.0f, 0.0f, 0.0f) * transform.Orientation);
+			glm::vec2 mouseMove = { e.GetXOffset(), e.GetYOffset() };
+			glm::quat qYaw = glm::angleAxis(-mouseMove.x * m_MouseSensitivity * camera.GetFov() / 90.0f, glm::vec3(0.0f, 1.0f, 0.0f) * transform.Orientation);
+			glm::quat qPitch = glm::angleAxis(-mouseMove.y * m_MouseSensitivity * camera.GetFov() / 90.0f, glm::vec3(1.0f, 0.0f, 0.0f) * transform.Orientation);
 
-				transform.Rotate(qPitch * qYaw);
-			}
+			transform.Rotate(qPitch * qYaw);
 		}
 
-		lastMousePos = { e.GetX(), e.GetY() };
 		return false;
 	}
 }

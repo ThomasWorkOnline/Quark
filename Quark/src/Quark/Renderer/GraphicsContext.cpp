@@ -12,7 +12,6 @@ namespace Quark {
 		switch (RenderingAPI::GetAPI())
 		{
 		case RenderingAPI::API::OpenGL:
-			QK_CORE_TRACE("Created OpenGL Graphics Context!");
 			return CreateScope<OpenGLGraphicsContext>(window);
 		}
 

@@ -1,7 +1,5 @@
 #include "OpenGLGraphicsContext.h"
 
-#define GLEW_STATIC
-#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 namespace Quark {
@@ -10,6 +8,15 @@ namespace Quark {
 		: m_WindowHandle(windowHandle)
 	{
 		QK_ASSERT(windowHandle, "Window handle is null");
+		QK_CORE_TRACE("Created OpenGL graphics context!");
+	}
+
+	OpenGLGraphicsContext::~OpenGLGraphicsContext()
+	{
+		QK_TIME_SCOPE_DEBUG(OpenGLGraphicsContext::~OpenGLGraphicsContext);
+
+		// Detaching the current context
+		glfwMakeContextCurrent(nullptr);
 	}
 
 	void OpenGLGraphicsContext::Init()
@@ -18,10 +25,6 @@ namespace Quark {
 
 		// Make the context before init glew
 		glfwMakeContextCurrent(static_cast<GLFWwindow*>(m_WindowHandle));
-
-		if (glewInit() != GLEW_OK)
-			QK_FATAL("Could not init glew");
-		QK_CORE_TRACE("Initialized GLEW successfully!");
 	}
 
 	void OpenGLGraphicsContext::SwapBuffers()

@@ -14,7 +14,7 @@ namespace Quark {
 	{
 	public:
 		OrthographicCameraController() = default;
-		OrthographicCameraController(Entity & camera);
+		OrthographicCameraController(Entity camera);
 		virtual ~OrthographicCameraController() = default;
 
 		/// <summary>
@@ -23,7 +23,7 @@ namespace Quark {
 		/// This method can be overriden.
 		/// </summary>
 		/// <param name="e">Event to propagate</param>
-		virtual void OnEvent(Event & e);
+		virtual void OnEvent(Event& e);
 
 		/// <summary>
 		/// Updates the logic for controlling the bound camera.
@@ -38,9 +38,9 @@ namespace Quark {
 		void DetachCamera() { m_CameraEntity = Entity(); }
 
 	protected:
-		bool OnMouseScrolled(MouseScrolledEvent & e);
-		bool OnWindowResized(WindowResizedEvent & e);
-		bool OnMouseMoved(MouseMovedEvent & e);
+		bool OnMouseScrolled(MouseScrolledEvent& e);
+		bool OnWindowResized(WindowResizedEvent& e);
+		bool OnMouseMoved(MouseMovedEvent& e);
 
 		// Has to be of generic type Entity to have access to various components
 		Entity m_CameraEntity;
@@ -52,5 +52,9 @@ namespace Quark {
 		float m_MovementSpeed = 12.0f;
 		float m_MouseSensitivity = 0.002f;
 		float m_MouseScrollSensitivity = 1.0f;
+
+	private:
+		float m_DefaultMovementSpeed = m_MovementSpeed;
+		float m_DefaultRollSensitivity = m_RollSensitivity;
 	};
 }

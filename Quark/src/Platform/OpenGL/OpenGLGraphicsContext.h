@@ -8,6 +8,7 @@ namespace Quark {
 	{
 	public:
 		OpenGLGraphicsContext(void* windowHandle);
+		~OpenGLGraphicsContext();
 
 		virtual void Init() override;
 		virtual void SwapBuffers() override;

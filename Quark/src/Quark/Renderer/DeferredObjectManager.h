@@ -14,11 +14,10 @@ namespace Quark {
 		template<typename T>
 		static void DeferredDelete(T* object)
 		{
-			auto ptr = dynamic_cast<DeferredObject*>(object);
-			QK_ASSERT(ptr, "Object is not of polymorphic DeferredObject type.");
+			QK_ASSERT(dynamic_cast<DeferredObject*>(object), "Object is not of polymorphic DeferredObject type.");
 
 			std::lock_guard<std::mutex> lock(s_DeferredObjectsMutex);
-			s_DeferredObjects.push(ptr);
+			s_DeferredObjects.push(object);
 		}
 
 		static void ReleaseRenderObjects();

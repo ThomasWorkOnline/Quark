@@ -103,6 +103,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Platform\GLFW\GLFWWindow.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLFont.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLTextureArray.cpp" />
     <ClCompile Include="src\Quark\Audio\AudioEngine.cpp" />
@@ -147,9 +148,9 @@
     <ClCompile Include="src\Platform\OpenGL\OpenGLShader.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLTexture.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLVertexArray.cpp" />
-    <ClCompile Include="src\Platform\GLFW\GenericWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Platform\GLFW\GLFWWindow.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLFont.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLTextureArray.h" />
     <ClInclude Include="src\Quark\Audio\AudioEngine.h" />
@@ -203,7 +204,6 @@
     <ClInclude Include="src\Quark\UI\Canvas.h" />
     <ClInclude Include="src\Quark\UI\Text.h" />
     <ClInclude Include="src\Quark\UI\UIElement.h" />
-    <ClInclude Include="src\Platform\GLFW\GenericWindow.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLBuffer.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLCubeMap.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLEnvironmentMap.h" />

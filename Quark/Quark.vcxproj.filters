@@ -26,7 +26,6 @@
     <ClCompile Include="src\Platform\OpenGL\OpenGLFramebuffer.cpp" />
     <ClCompile Include="src\Quark\Scene\Entity.cpp" />
     <ClCompile Include="src\Quark\Scene\Scene.cpp" />
-    <ClCompile Include="src\Platform\GLFW\GenericWindow.cpp" />
     <ClCompile Include="src\Quark\Renderer\CubeMap.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLCubeMap.cpp" />
     <ClCompile Include="src\Quark\Renderer\Environment.cpp" />
@@ -46,6 +45,7 @@
     <ClCompile Include="src\Platform\OpenGL\OpenGLTextureArray.cpp" />
     <ClCompile Include="src\Quark\Renderer\TextureArray.cpp" />
     <ClCompile Include="src\Quark\Renderer\Image.cpp" />
+    <ClCompile Include="src\Platform\GLFW\GLFWWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Quark\Core\Application.h" />
@@ -91,7 +91,6 @@
     <ClInclude Include="src\Platform\OpenGL\OpenGLTextureFormats.h" />
     <ClInclude Include="src\Quark\Renderer\TextureFormats.h" />
     <ClInclude Include="src\Platform\GLFW\WindowsWindow.h" />
-    <ClInclude Include="src\Platform\GLFW\GenericWindow.h" />
     <ClInclude Include="src\Quark\Renderer\CubeMap.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLCubeMap.h" />
     <ClInclude Include="src\Quark\Renderer\Environment.h" />
@@ -114,5 +113,6 @@
     <ClInclude Include="src\Platform\OpenGL\OpenGLTextureArray.h" />
     <ClInclude Include="src\Quark\Renderer\TextureArray.h" />
     <ClInclude Include="src\Quark\Renderer\Image.h" />
+    <ClInclude Include="src\Platform\GLFW\GLFWWindow.h" />
   </ItemGroup>
 </Project>
