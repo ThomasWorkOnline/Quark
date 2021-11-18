@@ -4,7 +4,7 @@
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
 
-#include <GL/glew.h>
+#include <glad/glad.h>
 
 namespace Quark {
 

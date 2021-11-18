@@ -3,7 +3,7 @@
 #include "../../Quark/Core/Core.h"
 #include "../../Quark/Renderer/TextureFormats.h"
 
-#include <GL/glew.h>
+#include <glad/glad.h>
 
 namespace Quark {
 

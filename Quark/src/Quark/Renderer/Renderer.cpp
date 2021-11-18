@@ -129,8 +129,6 @@ namespace Quark {
 		delete[] s_Data->Fonts;
 
 		delete s_Data;
-
-		RenderCommand::Dispose();
 	}
 
 	void Renderer::SetupQuadRenderer()

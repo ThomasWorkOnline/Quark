@@ -1,9 +1,6 @@
 #include "OpenGLRenderingAPI.h"
 
-//#include <glad/glad.h>
-
-#define GLEW_STATIC
-#include <GL/glew.h>
+#include <glad/glad.h>
 
 namespace Quark {
 
@@ -42,9 +39,6 @@ namespace Quark {
     {
         QK_TIME_SCOPE_DEBUG(OpenGLRenderingAPI::Init);
 
-        GLenum code = glewInit();
-        QK_ASSERT(code == GLEW_OK, "Something went wrong when initializing glew");
-
         glEnable(GL_DEBUG_OUTPUT);
         glDebugMessageCallback(OnError, 0);
 
@@ -75,12 +69,6 @@ namespace Quark {
 
         // Experimental
         //glEnable(GL_PROGRAM_POINT_SIZE);
-    }
-
-    void OpenGLRenderingAPI::Dispose()
-    {
-        QK_TIME_SCOPE_DEBUG(OpenGLRenderingAPI::Dispose);
-
     }
 
     void OpenGLRenderingAPI::Clear()

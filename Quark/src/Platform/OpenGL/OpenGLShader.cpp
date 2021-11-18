@@ -8,7 +8,7 @@
 #include <vector>
 #include <unordered_map>
 
-#include <GL/glew.h>
+#include <glad/glad.h>
 
 namespace Quark {
 

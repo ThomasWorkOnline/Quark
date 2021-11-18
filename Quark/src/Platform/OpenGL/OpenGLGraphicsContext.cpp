@@ -1,5 +1,6 @@
 #include "OpenGLGraphicsContext.h"
 
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 namespace Quark {
@@ -23,8 +24,11 @@ namespace Quark {
 	{
 		QK_TIME_SCOPE_DEBUG(OpenGLGraphicsContext::Init);
 
-		// Make the context before init glew
+		// Make the context before init OpenGL
 		glfwMakeContextCurrent(static_cast<GLFWwindow*>(m_WindowHandle));
+
+		int errorCode = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+		QK_ASSERT(errorCode == 1, "Failed to initialize OpenGL context");
 	}
 
 	void OpenGLGraphicsContext::SwapBuffers()

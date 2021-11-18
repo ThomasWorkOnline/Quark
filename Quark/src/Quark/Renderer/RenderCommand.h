@@ -20,12 +20,6 @@ namespace Quark {
 			QK_CORE_TRACE("Initialized the rendering API");
 		}
 
-		static void Dispose()
-		{
-			s_RenderingAPI->Dispose();
-			QK_CORE_TRACE("Disposed of rendering API");
-		}
-
 		static void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 		{
 			s_RenderingAPI->SetViewport(x, y, width, height);

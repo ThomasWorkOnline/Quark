@@ -44,7 +44,6 @@ namespace Quark {
         virtual ~RenderingAPI() = default;
 
         virtual void Init() = 0;
-        virtual void Dispose() = 0;
 
         virtual void SetClearColor(const glm::vec4& rgba) = 0;
         virtual void Clear() = 0;

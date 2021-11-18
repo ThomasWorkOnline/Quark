@@ -46,6 +46,7 @@
     <ClCompile Include="src\Quark\Renderer\TextureArray.cpp" />
     <ClCompile Include="src\Quark\Renderer\Image.cpp" />
     <ClCompile Include="src\Platform\GLFW\GLFWWindow.cpp" />
+    <ClCompile Include="vendor\glad\src\glad.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Quark\Core\Application.h" />
@@ -114,5 +115,7 @@
     <ClInclude Include="src\Quark\Renderer\TextureArray.h" />
     <ClInclude Include="src\Quark\Renderer\Image.h" />
     <ClInclude Include="src\Platform\GLFW\GLFWWindow.h" />
+    <ClInclude Include="vendor\glad\include\glad\glad.h" />
+    <ClInclude Include="vendor\glad\include\KHR\khrplatform.h" />
   </ItemGroup>
 </Project>
