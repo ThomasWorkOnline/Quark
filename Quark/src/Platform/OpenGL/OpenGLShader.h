@@ -33,17 +33,18 @@ namespace Quark {
 		virtual void SetDouble2(const std::string& name, const glm::dvec2& value) override;
 		virtual void SetDouble3(const std::string& name, const glm::dvec3& value) override;
 		virtual void SetDouble4(const std::string& name, const glm::dvec4& value) override;
+		virtual void SetDoubleArray(const std::string& name, double* values, uint32_t count) override;
 
-		virtual void SetMat4(const std::string& name, const glm::mat4& value) override;
+		virtual void SetMat3(const std::string& name, const glm::mat3& matrix) override;
+		virtual void SetMat4(const std::string& name, const glm::mat4& matrix) override;
 
 		virtual uint32_t GetRendererID() const override { return m_RendererID; }
+		virtual const std::string& GetName() const override { return m_Name; }
 
 		virtual bool operator==(const Shader& other) const override
 		{
 			return m_RendererID == ((OpenGLShader&)other).m_RendererID;
 		}
-
-		virtual const std::string& GetName() const override { return m_Name; }
 
 	private:
 		void UploadUniformInt(const std::string& name, int32_t value);
@@ -62,6 +63,7 @@ namespace Quark {
 		void UploadUniformDouble2(const std::string& name, const glm::dvec2& value);
 		void UploadUniformDouble3(const std::string& name, const glm::dvec3& value);
 		void UploadUniformDouble4(const std::string& name, const glm::dvec4& value);
+		void UploadUniformDoubleArray(const std::string& name, double* values, uint32_t count);
 
 		void UploadUniformMat3(const std::string& name, const glm::mat3& matrix);
 		void UploadUniformMat4(const std::string& name, const glm::mat4& matrix);
