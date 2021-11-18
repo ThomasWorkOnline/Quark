@@ -43,6 +43,9 @@ namespace Quark {
 			return m_RendererID == ((OpenGLShader&)other).m_RendererID;
 		}
 
+		virtual const std::string& GetName() const override { return m_Name; }
+
+	private:
 		void UploadUniformInt(const std::string& name, int32_t value);
 		void UploadUniformInt2(const std::string& name, const glm::ivec2& value);
 		void UploadUniformInt3(const std::string& name, const glm::ivec3& value);
@@ -63,7 +66,6 @@ namespace Quark {
 		void UploadUniformMat3(const std::string& name, const glm::mat3& matrix);
 		void UploadUniformMat4(const std::string& name, const glm::mat4& matrix);
 
-		virtual const std::string& GetName() const override { return m_Name; }
 	private:
 		std::string ReadFile(const std::string& filepath);
 		std::unordered_map<GLenum, std::string> PreProcess(const std::string& source);

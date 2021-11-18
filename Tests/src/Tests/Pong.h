@@ -2,31 +2,27 @@
 
 #include <Quark.h>
 
-class Pong : public Quark::Application
+using namespace Quark;
+
+class Pong : public Application
 {
 public:
 	Pong()
-		: Quark::Application(Quark::ApplicationOptions(1280, 720, "Pong"))
+		: Application(ApplicationOptions(1280, 720, "Pong"))
 	{
-		Quark::RenderCommand::SetClearColor({ 0.01f, 0.01f, 0.01f, 1.0f });
+		RenderCommand::SetClearColor({ 0.01f, 0.01f, 0.01f, 1.0f });
 
 		auto& window = GetWindow();
 		window.Select();
 		float aspectRatio = (float)window.GetWidth() / window.GetHeight();
 
-		{
-			m_Entity = m_Scene.CreateEntity();
+		m_Entity = m_Scene.CreateEntity();
+		m_Entity.AddComponent<Transform3DComponent>();
+		m_Entity.AddComponent<PhysicsComponent>().Friction = 4.0f;
+		m_Entity.AddComponent<PerspectiveCameraComponent>(aspectRatio, 70.0f);
 
-			m_Entity.AddComponent<Quark::Transform3DComponent>();
-			m_Entity.AddComponent<Quark::PhysicsComponent>().Friction = 4.0f;
-			m_Entity.AddComponent<Quark::PerspectiveCameraComponent>(aspectRatio, 70.0f);
-
-			m_Controller = { m_Entity };
-		}
-
-		{
-			m_BallTransform.Position = glm::vec3(0.0f, 0.0f, 10.0f);
-		}
+		m_Controller = { m_Entity };
+		m_BallTransform.Position = glm::vec3(0.0f, 0.0f, 10.0f);
 
 		FaceOff();
 	}
@@ -48,11 +44,11 @@ public:
 		RenderScene();
 	}
 
-	void OnEvent(Quark::Event& e) override
+	void OnEvent(Event& e) override
 	{
-		Quark::EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<Quark::KeyPressedEvent>(ATTACH_EVENT_FN(Pong::OnKeyPressed));
-		dispatcher.Dispatch<Quark::MouseButtonPressedEvent>(ATTACH_EVENT_FN(Pong::OnMouseButtonPressed));
+		EventDispatcher dispatcher(e);
+		dispatcher.Dispatch<KeyPressedEvent>(ATTACH_EVENT_FN(Pong::OnKeyPressed));
+		dispatcher.Dispatch<MouseButtonPressedEvent>(ATTACH_EVENT_FN(Pong::OnMouseButtonPressed));
 
 		e.Handled = e.IsInCategory(EventCategoryInput) && !GetWindow().IsSelected();
 
@@ -63,7 +59,7 @@ public:
 private:
 	void FaceOff()
 	{
-		Quark::Random random;
+		Random random;
 		random.Seed(time(nullptr));
 		m_CoeffX = roundf(random.Next()) * 2.0f - 1.0f;
 		m_CoeffY = roundf(random.Next()) * 2.0f - 1.0f;
@@ -89,35 +85,35 @@ private:
 		if (m_CollidesX)
 		{
 			m_CoeffX = -m_CoeffX;
-			Quark::AudioEngine::PlaySound("assets/sounds/break_dirt.mp3");
+			AudioEngine::PlaySound("assets/sounds/break_dirt.mp3");
 		}
 
 		if (m_CollidesY)
 		{
 			m_CoeffY = -m_CoeffY;
-			Quark::AudioEngine::PlaySound("assets/sounds/break_dirt.mp3");
+			AudioEngine::PlaySound("assets/sounds/break_dirt.mp3");
 		}
 	}
 
 	void RenderScene()
 	{
-		const auto& transform = m_Entity.GetComponent<Quark::Transform3DComponent>();
+		const auto& transform = m_Entity.GetComponent<Transform3DComponent>();
 
-		glm::mat4 projection = m_Entity.GetComponent<Quark::PerspectiveCameraComponent>().Camera.GetProjection();
+		glm::mat4 projection = m_Entity.GetComponent<PerspectiveCameraComponent>().Camera.GetProjection();
 		glm::mat4 rotate = glm::toMat4(transform.Orientation);
 		glm::mat4 view = glm::translate(rotate, -transform.Position);
-		Quark::Renderer::BeginScene(projection, view);
+		Renderer::BeginScene(projection, view);
 
-		Quark::Renderer::Submit(m_Shader, m_Ball.GetVertexArray(), m_BallTransform);
+		Renderer::Submit(m_Shader, m_Ball.GetVertexArray(), m_BallTransform);
 
-		Quark::Renderer::EndScene();
+		Renderer::EndScene();
 	}
 
-	bool OnMouseButtonPressed(Quark::MouseButtonPressedEvent& e)
+	bool OnMouseButtonPressed(MouseButtonPressedEvent& e)
 	{
 		switch (e.GetMouseButton())
 		{
-		case Quark::MouseCode::ButtonLeft:
+		case MouseCode::ButtonLeft:
 			GetWindow().Select();
 			break;
 		}
@@ -125,11 +121,11 @@ private:
 		return false;
 	}
 
-	bool OnKeyPressed(Quark::KeyPressedEvent& e)
+	bool OnKeyPressed(KeyPressedEvent& e)
 	{
 		switch (e.GetKeyCode())
 		{
-		case Quark::Key::Escape:
+		case Key::Escape:
 			GetWindow().Deselect();
 			break;
 		}
@@ -138,13 +134,13 @@ private:
 	}
 
 private:
-	Quark::Scene m_Scene;
-	Quark::Entity m_Entity;
-	Quark::PerspectiveCameraController m_Controller;
+	Scene m_Scene;
+	Entity m_Entity;
+	PerspectiveCameraController m_Controller;
 
-	Quark::Ref<Quark::Shader> m_Shader = Quark::Shader::Create("assets/shaders/default3D.glsl");
-	Quark::Mesh m_Ball = Quark::Mesh("assets/meshes/arrow.obj");
-	Quark::Transform3DComponent m_BallTransform = Quark::Transform3DComponent();
+	Ref<Shader> m_Shader = Shader::Create("assets/shaders/default3D.glsl");
+	Mesh m_Ball = Mesh("assets/meshes/arrow.obj");
+	Transform3DComponent m_BallTransform = Transform3DComponent();
 
 	float m_Speed = 1.0f;
 	float m_CoeffX = 0.0f, m_CoeffY = 0.0f;

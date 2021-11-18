@@ -94,16 +94,14 @@ namespace Quark {
 		{
 			RenderCommand::Clear();
 
-			AudioEngine::OnUpdate();
-
 			auto tNow = std::chrono::steady_clock::now();
 			std::chrono::duration<float> elapsedTime = tNow - tStart;
 			tStart = std::chrono::steady_clock::now();
 
 			OnUpdate(elapsedTime.count());
-
 			m_Window->OnUpdate();
 
+			AudioEngine::OnUpdate();
 			DeferredObjectManager::ReleaseRenderObjects();
 		}
 	}

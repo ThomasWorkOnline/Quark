@@ -32,7 +32,7 @@ namespace Quark {
 			if (Input::IsKeyPressed(Key::LeftControl))
 			{
 				m_MovementSpeed = 100.0f;
-				m_RollSensitivity = 100.0f;
+				m_RollSensitivity = 5.0f;
 			}
 			else
 			{
