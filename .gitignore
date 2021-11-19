@@ -3,6 +3,9 @@
 bin
 bin-int
 
+# Scripts remnants
+quark-v1.0
+
 # macOS files
 .DS_Store
 
@@ -13,10 +16,6 @@ bin-int
 *.slo
 *.lo
 *.o
-
-# Fortran module files
-*.mod
-*.smod
 
 # Executables
 *.exe
