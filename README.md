@@ -17,8 +17,8 @@ Official support for Linux and macOS is on it's way!
 <ins>**NOTE: `GenInclude_Win.bat` will only copy files, so make sure the application is compiled for your desired platform (I encourage using release builds).**</ins>
 4. Link the appropriate libraries for your application (on Visual Studio, you will need to link the Debug and Release binaries seperately depending on your configuration).
 5. Quark internally uses glm and also exposes it. You will need to install glm as a dependency to your project.
-6. Quark also uses entt (ECS). You will need to include this templated header only library as weel.
-7. #include <Quark.h>
+6. Quark also uses entt (ECS). You will need to include this templated header only library as well.
+7. `#include <Quark.h>`
 8. The following examples will guide you in learning the Quark API.
 
 Creating a Quark application:
