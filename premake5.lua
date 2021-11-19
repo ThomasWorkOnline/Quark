@@ -1,5 +1,8 @@
+-- premake5.lua for Windows only
+
 workspace "Quark"
-	architecture "x64"
+	architecture "x86_64"
+	startproject "Tests"
 
 	configurations
 	{
@@ -7,54 +10,69 @@ workspace "Quark"
 		"Release"
 	}
 
-outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}/"
+	flags
+	{
+		"MultiProcessorCompile"
+	}
+
+outputdir = "%{cfg.system}-%{cfg.buildcfg}-%{cfg.architecture}"
 
 project "Quark"
 	location "Quark"
 	kind "StaticLib"
 	language "C++"
+	cppdialect "C++17"
+	staticruntime "off"
 
-	targetdir ("bin/" .. outputdir .. "%{prj.name}")
-	objdir ("bin-int/" .. outputdir .. "%{prj.name}")
+	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
 	files
 	{
+		"%{prj.name}/vendor/glad/include/**.h",
+		"%{prj.name}/vendor/glad/**.c",
 		"%{prj.name}/src/**.h",
-		"%{prj.name}/src/**.hpp",
-		"%{prj.name}/src/**.c",
 		"%{prj.name}/src/**.cpp"
 	}
 
 	includedirs
 	{
-		"%{prj.name}/vendor", -- glm
+		"%{prj.name}/vendor", -- glm, stb_image
 		"%{prj.name}/vendor/entt/include",
 		"%{prj.name}/vendor/glad/include",
-		"%{prj.name}/vendor/glew/include",
 		"%{prj.name}/vendor/glfw/include",
 		"%{prj.name}/vendor/irrKlang/include",
 		"%{prj.name}/vendor/freetype/include"
 	}
 
-	links
+	defines
 	{
-		"Quark"
+		"_CRT_SECURE_NO_WARNINGS",
+		"GLFW_INCLUDE_NONE"
+	}
+
+	postbuildcommands
+	{
+		("{COPY} ../bin/" .. outputdir .. "/%{prj.name}/**.lib ../bin/" .. outputdir .. "/Tests"),
+		("{COPY} vendor/irrKlang/bin/winx64-visualStudio/**.dll ../bin/" .. outputdir .. "/Tests")
 	}
 
 	filter "system:windows"
-		cppdialect "C++17"
-		staticruntime "On"
 		systemversion "latest"
 
-		defines
+		links
 		{
-			"QK_PLATFORM_WINDOWS"
+			"opengl32.lib",
+			"glfw3.lib",
+			"irrKlang.lib",
+			"freetype.lib"
 		}
 
-		postbuildcommands
+		libdirs
 		{
-			("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Tests"),
-			("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Proton")
+			"%{prj.name}/vendor/glfw/lib-vc2019/x64",
+			"%{prj.name}/vendor/irrKlang/lib/Winx64-visualStudio",
+			"%{prj.name}/vendor/freetype/vs2015-2019/win64"
 		}
 
 	filter "configurations:Debug"
@@ -70,40 +88,45 @@ project "Tests"
 	location "Tests"
 	kind "ConsoleApp"
 	language "C++"
+	cppdialect "C++17"
 
-	targetdir ("bin/" .. outputdir .. "%{prj.name}")
-	objdir ("bin-int/" .. outputdir .. "%{prj.name}")
+	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
 	files
 	{
 		"%{prj.name}/src/**.h",
-		"%{prj.name}/src/**.hpp",
-		"%{prj.name}/src/**.c",
 		"%{prj.name}/src/**.cpp"
 	}
 
 	includedirs
 	{
-		"Quark/src", -- project ref
-		"%{prj.name}/vendor", -- glm
+		"Quark/src",
+		"%{prj.name}/vendor",
 		"%{prj.name}/vendor/entt/include"
 	}
 
+	libdirs
+	{
+		"bin/" .. outputdir .. "/%{prj.name}"
+	}
+
+	links
+	{
+		"Quark"
+	}
+
 	filter "system:windows"
-		cppdialect "C++17"
-		staticruntime "On"
 		systemversion "latest"
 
-		defines
+		links
 		{
-			"QK_PLATFORM_WINDOWS"
+			
 		}
 
 	filter "configurations:Debug"
-		defines "QK_DEBUG"
 		symbols "On"
 
 	filter "configurations:Release"
-		defines "QK_RELEASE"
 		symbols "On"
 		optimize "On"
