@@ -7,6 +7,8 @@ Official support for Linux and macOS is on it's way!
 
 # Installation & Setup
 
+## On Windows
+
 1. After cloning this repository, run the script `GenVisualStudioSolution_Win.bat` located in the project root.
 2. Once the script is completed, open the Visual Studio solution and hit build!
 3. After a successful build, run `GenInclude_Win.bat`. This will generate the `include` directory alongside the `lib` folder.
