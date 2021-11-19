@@ -14,14 +14,14 @@ Official support for Linux and macOS is on it's way!
 1. After cloning this repository, run the script `GenVisualStudioSolution_Win.bat` located in the project root.
 2. Once the script is completed, open the Visual Studio solution and hit build!
 3. After a successful build, run `GenInclude_Win.bat`. This will generate the `include` directory alongside the `lib` folder.<br />
-<ins>**NOTE: `GenInclude_Win.bat` will only copy files, so make sure the application is compiled for your desired platform (I encourage using release builds).**</ins>
+*NOTE: `GenInclude_Win.bat` will only copy files, so make sure the application is compiled for your desired platform (I encourage using release builds).*
 4. Link the appropriate libraries for your application (on Visual Studio, you will need to link the Debug and Release binaries seperately depending on your configuration).
 5. Quark internally uses glm and also exposes it. You will need to install glm as a dependency to your project.
 6. Quark also uses entt (ECS). You will need to include this templated header only library as well.
 7. `#include <Quark.h>`
 8. The following examples will guide you in learning the Quark API.
 
-Creating a Quark application:
+<ins>**1. Creating a Quark application:**</ins>
 ```c++
 #include <Quark.h>
 
@@ -31,7 +31,7 @@ class YourApplication : public Quark::Application
 }
 ```
 	
-Creating your class instance:
+<ins>**1. Creating your class instance:**</ins>
 ```c++
 int main()
 {
