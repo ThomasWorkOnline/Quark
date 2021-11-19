@@ -31,7 +31,7 @@ class YourApplication : public Quark::Application
 }
 ```
 	
-<ins>**1. Creating your class instance:**</ins>
+<ins>**2. Creating your class instance:**</ins>
 ```c++
 int main()
 {
@@ -40,6 +40,25 @@ int main()
 	delete app;
 	
 	return 0;
+}
+```
+
+<ins>**3. Implementing some functionality:**</ins>
+```c++
+class YourApplication : public Quark::Application
+{
+	// Automatically called each frame
+	// Delta Time is in seconds
+	void OnUpdate(float elapsedTime) override
+	{
+		...
+	}
+	
+	// More on events a bit later...
+	void OnEvent(Event& e) override
+	{
+		...
+	}
 }
 ```
 
