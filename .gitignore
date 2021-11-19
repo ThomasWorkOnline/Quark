@@ -1,13 +1,16 @@
+# Binaries
+bin
+bin-int
+
+# Premake
+!vendor/bin
+
 # Visual Studio
 **.sln
 **.vcxproj
 **.vcxproj.filters
 **.vcxproj.user
 .vs
-
-# Binaries
-bin
-bin-int
 
 # Scripts remnants
 quark-v1.0
@@ -22,8 +25,3 @@ quark-v1.0
 *.slo
 *.lo
 *.o
-
-# Executables
-*.exe
-*.out
-*.app
