@@ -12,6 +12,9 @@ bin-int
 **.vcxproj.user
 .vs
 
+# Makefile
+Makefile
+
 # Scripts remnants
 quark-v1.0
 
