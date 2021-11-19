@@ -2,42 +2,42 @@
 
 Quark is a 3D game engine in early development inspired by Hazel Game Engine.
 Designed for learning purposes.
-Currently only supports Windows. Compatibility for Mac and Linux is not guaranteed.
+Currently only builds for Windows.
 Official support for Linux and macOS is on it's way!
 
 # Installation & Setup
 
-1. Download and build Quark as a static lib (if using Visual Studio, simply clone the solution and build for both Debug and Release). This might take a while. Optionally, you can download the compiled libraries from the project under `Quark/pre-compiled libs`.
-2. Run the batch script inside Quark `Gen Include - Win.bat`. If you built it yourself, make sure both configurations of the libraries are compiled for the script to copy files properly.
-3. Copy the generated include folder and binaries in your project.
+1. After cloning this repository, run the script `GenVisualStudioSolution_Win.bat` located in the project root.
+2. Once the script is completed, open the Visual Studio solution and hit build!
+3. After a successful build, run `GenInclude_Win.bat`. This will generate the `include` directory alongside the `lib` folder.
+	NOTE: `GenInclude_Win.bat` will only copy files, so make sure the application is compiled for your desired platform (I encourage using release builds).
 4. Link the appropriate libraries for your application (on Visual Studio, you will need to link the Debug and Release binaries seperately depending on your configuration).
-5. Quark internally uses glm, but exposes it. You will need to install glm as a dependency to your project.
-6. Quark also uses entt (ECS). You will need to include this templated header only library.
-7. #include <QK/Quark.h>
-8. Create a class extending Quark::Application
+5. Quark internally uses glm and also exposes it. You will need to install glm as a dependency to your project.
+6. Quark also uses entt (ECS). You will need to include this templated header only library as weel.
+7. #include <Quark.h>
+8. The following examples will guide you in learning the Quark API.
 
-Example:
+Creating a Quark application:
 ```c++
-#include <QK/Quark.h>
+#include <Quark.h>
 
-class YourGame : public Quark::Application
+class YourApplication : public Quark::Application
 {
 	...
 }
 ```
 	
-Create your class instance in main:
+Creating your class instance:
 ```c++
 int main()
 {
-	auto app = new YourGame();
+	auto app = new YourApplication();
 	app->Run();
 	delete app;
 	
 	return 0;
 }
 ```
-`Quark::Application::Run()` is only accessible from main. Make sure to invoke it there.
 
 # Dependencies
 glm: https://github.com/g-truc/glm<br />
