@@ -12,8 +12,8 @@ Official support for Linux and macOS is on it's way!
 ## On Windows
 
 1. After cloning this repository, run the script `GenVisualStudioSolution_Win.bat` located in the project root.
-2. Once the script is completed, open the Visual Studio solution and hit build!<br />
-3. After a successful build, run `GenInclude_Win.bat`. This will generate the `include` directory alongside the `lib` folder.
+2. Once the script is completed, open the Visual Studio solution and hit build!
+3. After a successful build, run `GenInclude_Win.bat`. This will generate the `include` directory alongside the `lib` folder.<br />
 	NOTE: `GenInclude_Win.bat` will only copy files, so make sure the application is compiled for your desired platform (I encourage using release builds).
 4. Link the appropriate libraries for your application (on Visual Studio, you will need to link the Debug and Release binaries seperately depending on your configuration).
 5. Quark internally uses glm and also exposes it. You will need to install glm as a dependency to your project.
