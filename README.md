@@ -5,6 +5,8 @@ Designed for learning purposes.
 Currently only builds for Windows.
 Official support for Linux and macOS is on it's way!
 
+***
+
 # Installation & Setup
 
 ## On Windows
