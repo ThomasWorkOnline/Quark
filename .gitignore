@@ -1,5 +1,11 @@
 # Visual Studio
+**.sln
+**.vcxproj
+**.vcxproj.filters
+**.vcxproj.user
 .vs
+
+# Binaries
 bin
 bin-int
 
