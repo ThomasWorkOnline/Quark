@@ -48,6 +48,8 @@ namespace Quark {
         virtual void OnUpdate(float deltaTime) {}
         virtual void OnEvent(Event& e) {}
 
+        float GetAppRunningTime() const { return m_TotalTime; }
+
         const Window& GetWindow() const { return *m_Window; }
         Window& GetWindow() { return *m_Window; }
 
@@ -65,11 +67,12 @@ namespace Quark {
 
     private:
         static Application* s_Instance;
+        std::thread::id m_AppMainThreadId;
 
         ApplicationOptions m_Options;
         Scope<Window> m_Window;
 
-        std::thread::id m_AppMainThreadId;
+        float m_TotalTime = 0.0f;
         bool m_Running = true;
     };
 }

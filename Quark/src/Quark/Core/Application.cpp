@@ -95,10 +95,12 @@ namespace Quark {
 			RenderCommand::Clear();
 
 			auto tNow = std::chrono::steady_clock::now();
-			std::chrono::duration<float> elapsedTime = tNow - tStart;
+			float elapsedTime = std::chrono::duration<float>(tNow - tStart).count();
 			tStart = std::chrono::steady_clock::now();
 
-			OnUpdate(elapsedTime.count());
+			m_TotalTime += elapsedTime;
+			OnUpdate(elapsedTime);
+
 			m_Window->OnUpdate();
 
 			AudioEngine::OnUpdate();
