@@ -119,11 +119,6 @@ project "Tests"
 	filter "system:windows"
 		systemversion "latest"
 
-		links
-		{
-			
-		}
-
 	filter "configurations:Debug"
 		symbols "On"
 
