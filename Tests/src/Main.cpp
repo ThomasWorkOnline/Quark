@@ -2,10 +2,11 @@
 #include "Tests/FontTest.h"
 #include "Tests/TextureArrayTest.h"
 #include "Tests/Pong.h"
+#include "Tests/PBRRendering.h"
 
 int main()
 {
-	auto test = new Pong();
+	auto test = new PBRRendering();
 	test->Run();
 	delete test;
 

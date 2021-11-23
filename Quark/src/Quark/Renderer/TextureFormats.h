@@ -49,4 +49,6 @@ namespace Quark {
 		TextureFilteringMode MinFilteringMode = TextureFilteringMode::LinearMipmapLinear;
 		TextureTilingMode TilingMode = TextureTilingMode::Default;
 	};
+
+	bool IsformatUsingMips(TextureFilteringMode mode);
 }

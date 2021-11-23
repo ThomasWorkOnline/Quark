@@ -13,8 +13,6 @@
 
 namespace Quark {
 
-	static float s_ZoomSpeed = 0.0f;
-
 	PerspectiveCameraController::PerspectiveCameraController(Entity camera)
 		: m_CameraEntity(camera)
 	{
@@ -91,24 +89,24 @@ namespace Quark {
 
 			// Zooming
 			constexpr float zoomFrictionCoeff = 8.0f;
-			s_ZoomSpeed -= (s_ZoomSpeed * zoomFrictionCoeff) * elapsedTime;
+			m_ZoomSpeed -= (m_ZoomSpeed * zoomFrictionCoeff) * elapsedTime;
 
 			// Check if the fov needs to be changed
-			if (abs(s_ZoomSpeed) > 0.1f)
+			if (abs(m_ZoomSpeed) > 0.1f)
 			{
-				camera.SetFov(camera.GetFov() - s_ZoomSpeed * elapsedTime * camera.GetFov());
+				camera.SetFov(camera.GetFov() - m_ZoomSpeed * elapsedTime * camera.GetFov());
 			}
 
 			if (camera.GetFov() < 1.0f)
 			{
 				camera.SetFov(1.0f);
-				s_ZoomSpeed = 0.0f;
+				m_ZoomSpeed = 0.0f;
 			}
 
 			if (camera.GetFov() > 90.0f)
 			{
 				camera.SetFov(90.0f);
-				s_ZoomSpeed = 0.0f;
+				m_ZoomSpeed = 0.0f;
 			}
 
 			camera.OnUpdate();
@@ -125,7 +123,7 @@ namespace Quark {
 
 	bool PerspectiveCameraController::OnMouseScrolled(MouseScrolledEvent& e)
 	{
-		s_ZoomSpeed += e.GetYOffset() * m_MouseScrollSensitivity;
+		m_ZoomSpeed += e.GetYOffset() * m_MouseScrollSensitivity;
 		return false;
 	}
 

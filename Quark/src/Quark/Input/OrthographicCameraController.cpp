@@ -13,8 +13,6 @@
 
 namespace Quark {
 
-	static double s_ZoomSpeed = 0.0f;
-
 	OrthographicCameraController::OrthographicCameraController(Entity camera)
 		: m_CameraEntity(camera)
 	{
@@ -81,24 +79,24 @@ namespace Quark {
 
 			// Zooming
 			constexpr double zoomFrictionCoeff = 8.0f;
-			s_ZoomSpeed -= (s_ZoomSpeed * zoomFrictionCoeff) * elapsedTime;
+			m_ZoomSpeed -= (m_ZoomSpeed * zoomFrictionCoeff) * elapsedTime;
 
 			// Check if the fov needs to be changed
-			if (abs(s_ZoomSpeed) > 0.1f)
+			if (abs(m_ZoomSpeed) > 0.1f)
 			{
-				camera.SetZoom(camera.GetZoom() - s_ZoomSpeed * elapsedTime * camera.GetZoom());
+				camera.SetZoom(camera.GetZoom() - m_ZoomSpeed * elapsedTime * camera.GetZoom());
 			}
 
 			if (camera.GetZoom() < 1.0f)
 			{
 				camera.SetZoom(1.0f);
-				s_ZoomSpeed = 0.0f;
+				m_ZoomSpeed = 0.0f;
 			}
 
 			if (camera.GetZoom() > 1000.0f)
 			{
 				camera.SetZoom(1000.0f);
-				s_ZoomSpeed = 0.0f;
+				m_ZoomSpeed = 0.0f;
 			}
 
 			camera.OnUpdate();
@@ -115,7 +113,7 @@ namespace Quark {
 
 	bool OrthographicCameraController::OnMouseScrolled(MouseScrolledEvent& e)
 	{
-		s_ZoomSpeed += e.GetYOffset() * m_MouseScrollSensitivity;
+		m_ZoomSpeed += e.GetYOffset() * m_MouseScrollSensitivity;
 		return false;
 	}
 

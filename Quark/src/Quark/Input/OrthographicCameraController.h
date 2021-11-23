@@ -1,6 +1,6 @@
 #pragma once
 
-#include "OrthographicCamera.h"
+#include "../Renderer/OrthographicCamera.h"
 
 #include "../Events/ApplicationEvent.h"
 #include "../Events/MouseEvent.h"
@@ -54,6 +54,7 @@ namespace Quark {
 		float m_MouseScrollSensitivity = 1.0f;
 
 	private:
+		float m_ZoomSpeed = 0.0f;
 		float m_DefaultMovementSpeed = m_MovementSpeed;
 		float m_DefaultRollSensitivity = m_RollSensitivity;
 	};

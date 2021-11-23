@@ -22,6 +22,10 @@
 #include "Quark/Events/MouseEvent.h"
 #include "Quark/Events/KeyEvent.h"
 
+// Input
+#include "Quark/Input/OrthographicCameraController.h"
+#include "Quark/Input/PerspectiveCameraController.h"
+
 // Profiling
 #include "Quark/Profiling/Monitoring.h"
 
@@ -32,9 +36,7 @@
 #include "Quark/Renderer/Framebuffer.h"
 #include "Quark/Renderer/Mesh.h"
 #include "Quark/Renderer/OrthographicCamera.h"
-#include "Quark/Renderer/OrthographicCameraController.h"
 #include "Quark/Renderer/PerspectiveCamera.h"
-#include "Quark/Renderer/PerspectiveCameraController.h"
 #include "Quark/Renderer/Renderer.h"
 #include "Quark/Renderer/Shader.h"
 #include "Quark/Renderer/SubTexture.h"
