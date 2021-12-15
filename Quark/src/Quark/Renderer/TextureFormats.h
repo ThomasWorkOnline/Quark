@@ -10,10 +10,14 @@ namespace Quark {
 		RGB8,
 		RGBA8,
 
+		// sRGB formats
+		SRGB8,
+		SRGBA8,
+
 		// Depth formats
 		Depth24Stencil8,
 
-		Default = RGBA8
+		Default = SRGBA8
 	};
 
 	enum class TextureFilteringMode

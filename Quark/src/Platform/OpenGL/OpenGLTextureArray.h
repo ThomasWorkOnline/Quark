@@ -21,7 +21,7 @@ namespace Quark {
 			return m_RendererID == ((OpenGLTexture2DArray&)other).m_RendererID;
 		}
 
-		virtual void SetData(void* data, uint32_t size, uint32_t layer) override;
+		virtual void SetData(void* data, size_t size, uint32_t layer) override;
 
 		virtual void Attach(uint32_t textureSlot = 0) const override;
 		virtual void Detach() const override;

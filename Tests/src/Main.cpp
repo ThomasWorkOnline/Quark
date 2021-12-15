@@ -6,7 +6,7 @@
 
 int main()
 {
-	auto test = new PBRRendering();
+	auto test = new TextureArrayTest();
 	test->Run();
 	delete test;
 

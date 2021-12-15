@@ -32,6 +32,8 @@ namespace Quark {
             (type == GL_DEBUG_TYPE_ERROR ? "[OpenGL ERROR]" : ""),
             type, severity, message);
 
+        QK_ASSERT(false, "OpenGL error");
+
 #       endif
     }
 

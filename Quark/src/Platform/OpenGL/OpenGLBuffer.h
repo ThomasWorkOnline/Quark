@@ -35,13 +35,13 @@ namespace Quark {
     {
     public:
         OpenGLIndexBuffer(uint32_t count);
-        OpenGLIndexBuffer(uint32_t* indices, uint32_t count);
+        OpenGLIndexBuffer(const uint32_t* indices, uint32_t count);
         virtual ~OpenGLIndexBuffer();
 
         virtual void Attach() const override;
         virtual void Detach() const override;
 
-        virtual void SetData(uint32_t* data, uint32_t count, size_t offset) override;
+        virtual void SetData(const uint32_t* data, uint32_t count, size_t offset) override;
 
         virtual uint32_t GetCount() const { return m_Count; };
 

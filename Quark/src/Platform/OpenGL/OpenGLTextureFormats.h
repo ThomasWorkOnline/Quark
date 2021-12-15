@@ -18,6 +18,8 @@ namespace Quark {
 		{
 		case TextureDataFormat::RGB8:				return GL_RGB8;
 		case TextureDataFormat::RGBA8:				return GL_RGBA8;
+		case TextureDataFormat::SRGB8:				return GL_SRGB8;
+		case TextureDataFormat::SRGBA8:				return GL_SRGB8_ALPHA8;
 		case TextureDataFormat::Depth24Stencil8:	return GL_DEPTH24_STENCIL8;
 		}
 
@@ -31,6 +33,8 @@ namespace Quark {
 		{
 		case TextureDataFormat::RGB8:	return GL_RGB;
 		case TextureDataFormat::RGBA8:	return GL_RGBA;
+		case TextureDataFormat::SRGB8:	return GL_RGB;
+		case TextureDataFormat::SRGBA8:	return GL_RGBA;
 		}
 
 		QK_FATAL("Invalid texture color format");
@@ -72,6 +76,7 @@ namespace Quark {
 		{
 		case TextureDataFormat::Depth24Stencil8: return true;
 		}
+
 		return false;
 	}
 
@@ -80,9 +85,9 @@ namespace Quark {
 		switch (format)
 		{
 		case TextureDataFormat::RGBA8:	return true;
+		case TextureDataFormat::SRGBA8:	return true;
 		}
 
-		QK_FATAL("Invalid texture data format");
 		return false;
 	}
 }

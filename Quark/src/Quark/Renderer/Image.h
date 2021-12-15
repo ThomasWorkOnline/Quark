@@ -10,6 +10,7 @@ namespace Quark {
 	{
 		int32_t Width, Height, Channels;
 		std::string Filepath;
+		bool SRGB = true;
 	};
 
 	class Image

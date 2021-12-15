@@ -139,7 +139,7 @@ namespace Quark {
         virtual void Attach() const = 0;
         virtual void Detach() const = 0;
 
-        virtual void SetData(uint32_t* data, uint32_t count, size_t offset = 0) = 0;
+        virtual void SetData(const uint32_t* data, uint32_t count, size_t offset = 0) = 0;
 
         virtual uint32_t GetCount() const = 0;
 
@@ -147,7 +147,7 @@ namespace Quark {
 
         virtual bool operator==(const IndexBuffer& other) const = 0;
 
-        static Ref<IndexBuffer> Create(uint32_t* indices, uint32_t count);
+        static Ref<IndexBuffer> Create(const uint32_t* indices, uint32_t count);
         static Ref<IndexBuffer> Create(uint32_t count);
     };
 }

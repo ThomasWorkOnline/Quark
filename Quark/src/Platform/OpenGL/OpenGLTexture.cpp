@@ -60,12 +60,12 @@ namespace Quark {
 		GLenum internalFormat = 0, dataFormat = 0;
 		if (prop.Channels == 4)
 		{
-			internalFormat = GL_SRGB_ALPHA;
+			internalFormat = prop.SRGB ? GL_SRGB8_ALPHA8 : GL_RGBA8;
 			dataFormat = GL_RGBA;
 		}
 		else if (prop.Channels == 3)
 		{
-			internalFormat = GL_SRGB;
+			internalFormat = prop.SRGB ? GL_SRGB8 : GL_RGB8;
 			dataFormat = GL_RGB;
 		}
 
@@ -93,7 +93,7 @@ namespace Quark {
 		glDeleteTextures(1, &m_RendererID);
 	}
 
-	void OpenGLTexture2D::SetData(void* data, uint32_t size)
+	void OpenGLTexture2D::SetData(void* data, size_t size)
 	{
 		bool alpha = IsTextureAlphaFormat(m_Spec.DataFormat);
 		uint32_t bpp = alpha ? 4 : 3;
