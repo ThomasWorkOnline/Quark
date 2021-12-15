@@ -72,8 +72,11 @@ public:
 
 		Renderer::EndScene();
 
+		static glm::mat4 transform = glm::mat4(1.0f);
+		transform = glm::rotate(transform, elapsedTime * 0.1f, glm::vec3(1.0f, 0.0f, 0.0f));
+
 		m_Shader->Attach();
-		m_Shader->SetMat4("u_Model", glm::mat4(1.0f));
+		m_Shader->SetMat4("u_Model", transform);
 		m_Shader->SetMat4("u_View", m_CameraView);
 		m_Shader->SetMat4("u_Projection", m_Camera.GetProjection());
 		m_Shader->SetInt("u_Sampler", 0);
