@@ -10,58 +10,55 @@ namespace Quark {
 
 	struct Transform3DComponent
 	{
-		glm::vec3 Position;
-		glm::vec3 Scale;
-		glm::quat Orientation;
+		Vector3 Position;
+		Vector3 Scale;
+		Quat Orientation;
 
 		Transform3DComponent(const Transform3DComponent& other)
-			: Position(other.Position), Scale(other.Scale), Orientation(other.Orientation), m_Transform(1.0f) {}
+			: Position(other.Position), Scale(other.Scale), Orientation(other.Orientation) {}
 
 		Transform3DComponent()
-			: Position(0.0f), Scale(1.0f), Orientation(glm::angleAxis(0.0f, glm::vec3(0.0f, 0.0f, 1.0f))), m_Transform(1.0f) { }
+			: Position(0.0), Scale(1.0), Orientation(glm::angleAxis(Float(0.0), Vector3(0.0, 0.0, 1.0))) { }
 
-		Transform3DComponent(const glm::vec3& position, const glm::vec3& scale, const glm::quat& orientation)
-			: Position(position), Scale(scale), Orientation(orientation), m_Transform(1.0f) { }
+		Transform3DComponent(const Vector3& position, const Vector3& scale, const Quat& orientation)
+			: Position(position), Scale(scale), Orientation(orientation) { }
 
-		operator glm::mat4& ()
+		operator Mat4 ()
 		{
-			UpdateMatrix();
-			return m_Transform;
+			return ComputeMatrix();
 		}
 
-		glm::vec3 GetFrontVector() const { return glm::vec3(0.0, 0.0f, 1.0f) * Orientation; }
-		glm::vec3 GetRightVector() const { return glm::vec3(1.0, 0.0f, 0.0f) * Orientation; }
-		glm::vec3 GetTopVector() const { return glm::vec3(0.0, 1.0f, 0.0f) * Orientation; }
+		Vector3 GetFrontVector() const { return Vector3(0.0, 0.0, 1.0) * Orientation; }
+		Vector3 GetRightVector() const { return Vector3(1.0, 0.0, 0.0) * Orientation; }
+		Vector3 GetTopVector() const   { return Vector3(0.0, 1.0, 0.0) * Orientation; }
 
-		void SetFrontVector(const glm::vec3& direction)
+		void SetFrontVector(const Vector3& direction)
 		{
-			glm::mat4 rotation = glm::lookAt(Position, Position + direction, { 0, 1, 0 });
+			Mat4 rotation = glm::lookAt(Position, Position + direction, { 0, 1, 0 });
 			Orientation = glm::quat_cast(rotation);
 		}
 
-		Transform3DComponent& Rotate(const glm::quat& quat) { Orientation = glm::normalize(Orientation * quat); return *this; }
-		Transform3DComponent& Rotate(float angle, const glm::vec3& axis) { Rotate(glm::angleAxis(angle, glm::normalize(axis))); return *this; }
+		Transform3DComponent& Rotate(const Quat& quat) { Orientation = glm::normalize(Orientation * quat); return *this; }
+		Transform3DComponent& Rotate(Float angle, const Vector3& axis) { Rotate(glm::angleAxis(angle, glm::normalize(axis))); return *this; }
 
 	private:
-		void UpdateMatrix()
+		Mat4 ComputeMatrix()
 		{
-			m_Transform = glm::translate(glm::mat4(1.0f), Position)
+			return glm::translate(Mat4(1.0), Position)
 				* glm::toMat4(Orientation)
-				* glm::scale(glm::mat4(1.0f), Scale);
+				* glm::scale(Mat4(1.0), Scale);
 		}
-
-		glm::mat4 m_Transform;
 	};
 
 	struct PhysicsComponent
 	{
-		glm::vec3 Velocity;
-		float Friction;
+		Vector3 Velocity;
+		Float Friction;
 
 		PhysicsComponent()
-			: Velocity(0.0f), Friction(0.0f) { }
+			: Velocity(0.0), Friction(0.0) { }
 
-		PhysicsComponent(glm::vec3 initVelocity, float coeffFriction)
+		PhysicsComponent(const Vector3& initVelocity, Float coeffFriction)
 			: Velocity(initVelocity), Friction(coeffFriction) { }
 	};
 

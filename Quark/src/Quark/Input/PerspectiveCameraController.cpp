@@ -18,7 +18,7 @@ namespace Quark {
 	{
 	}
 
-	void PerspectiveCameraController::OnUpdate(float elapsedTime)
+	void PerspectiveCameraController::OnUpdate(Float elapsedTime)
 	{
 		if (m_CameraEntity)
 		{
@@ -83,12 +83,12 @@ namespace Quark {
 			{
 				physics.Velocity = { 0.0f, 0.0f, 0.0f };
 				transform.Position = { 0.0f, 0.0f, 0.0f };
-				transform.Orientation = glm::angleAxis(0.0f, glm::vec3(0.0f, 0.0f, 1.0f));
+				transform.Orientation = glm::angleAxis(Float(0.0), Vector3(0.0f, 0.0f, 1.0f));
 				QK_CORE_TRACE("Teleported to world origin");
 			}
 
 			// Zooming
-			constexpr float zoomFrictionCoeff = 8.0f;
+			constexpr Float zoomFrictionCoeff = 8.0f;
 			m_ZoomSpeed -= (m_ZoomSpeed * zoomFrictionCoeff) * elapsedTime;
 
 			// Check if the fov needs to be changed
@@ -142,9 +142,9 @@ namespace Quark {
 			auto& transform = m_CameraEntity.GetComponent<Transform3DComponent>();
 			auto& camera = m_CameraEntity.GetComponent<PerspectiveCameraComponent>().Camera;
 
-			glm::vec2 mouseMove = { e.GetXOffset(), e.GetYOffset() };
-			glm::quat qYaw = glm::angleAxis(-mouseMove.x * m_MouseSensitivity * camera.GetFov() / 90.0f, glm::vec3(0.0f, 1.0f, 0.0f) * transform.Orientation);
-			glm::quat qPitch = glm::angleAxis(-mouseMove.y * m_MouseSensitivity * camera.GetFov() / 90.0f, glm::vec3(1.0f, 0.0f, 0.0f) * transform.Orientation);
+			Vector2 mouseMove = { e.GetXOffset(), e.GetYOffset() };
+			Quat qYaw = glm::angleAxis(-mouseMove.x * m_MouseSensitivity * camera.GetFov() / 90.0f, Vector3(0.0, 1.0, 0.0) * transform.Orientation);
+			Quat qPitch = glm::angleAxis(-mouseMove.y * m_MouseSensitivity * camera.GetFov() / 90.0f, Vector3(1.0, 0.0, 0.0) * transform.Orientation);
 
 			transform.Rotate(qPitch * qYaw);
 		}

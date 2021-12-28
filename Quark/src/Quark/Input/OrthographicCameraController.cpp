@@ -18,7 +18,7 @@ namespace Quark {
 	{
 	}
 
-	void OrthographicCameraController::OnUpdate(float elapsedTime)
+	void OrthographicCameraController::OnUpdate(Float elapsedTime)
 	{
 		if (m_CameraEntity)
 		{
@@ -73,12 +73,12 @@ namespace Quark {
 			{
 				physics.Velocity = { 0.0f, 0.0f, 0.0f };
 				transform.Position = { 0.0f, 0.0f, 0.0f };
-				transform.Orientation = glm::angleAxis(0.0f, glm::vec3(0.0f, 0.0f, 1.0f));
+				transform.Orientation = glm::angleAxis(Float(0.0), Vector3(0.0, 0.0, 1.0));
 				QK_CORE_TRACE("Teleported to world origin");
 			}
 
 			// Zooming
-			constexpr double zoomFrictionCoeff = 8.0f;
+			constexpr Float zoomFrictionCoeff = 8.0f;
 			m_ZoomSpeed -= (m_ZoomSpeed * zoomFrictionCoeff) * elapsedTime;
 
 			// Check if the fov needs to be changed

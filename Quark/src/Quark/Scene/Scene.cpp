@@ -18,7 +18,7 @@ namespace Quark {
 	{
 	}
 
-	void Scene::OnUpdate(float elapsedTime)
+	void Scene::OnUpdate(Float elapsedTime)
 	{
 		{
 			auto entities = m_Registry.view<Transform3DComponent, PhysicsComponent>();
@@ -33,7 +33,7 @@ namespace Quark {
 
 	Entity Scene::CreateEntity()
 	{
-		return { m_Registry.create(), this };
+		return { m_Registry.create(), *this };
 	}
 
 	void Scene::DeleteEntity(Entity entity)

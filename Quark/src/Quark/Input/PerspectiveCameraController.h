@@ -28,7 +28,7 @@ namespace Quark {
 		/// Make sure the camera entity has all `Transform3DComponent`, `PhysicsComponent` and `PerspectiveCameraComponent` components.
 		/// </summary>
 		/// <param name="elapsedTime">Time elapsed between the last update</param>
-		void OnUpdate(float elapsedTime);
+		void OnUpdate(Float elapsedTime);
 
 		bool HasCamera() const { return m_CameraEntity; }
 		void AttachCamera(Entity camera) { m_CameraEntity = camera; }
@@ -45,14 +45,14 @@ namespace Quark {
 		/// <summary>
 		/// Members can be altered.
 		/// </summary>
-		float m_RollSensitivity = 1.0f;
-		float m_MovementSpeed = 12.0f;
-		float m_MouseSensitivity = 0.002f;
-		float m_MouseScrollSensitivity = 1.0f;
+		Float m_RollSensitivity = 1.0f;
+		Float m_MovementSpeed = 12.0f;
+		Float m_MouseSensitivity = 0.002f;
+		Float m_MouseScrollSensitivity = 1.0f;
 
 	private:
-		float m_ZoomSpeed = 0.0f;
-		float m_DefaultMovementSpeed = m_MovementSpeed;
-		float m_DefaultRollSensitivity = m_RollSensitivity;
+		Float m_ZoomSpeed = 0.0f;
+		Float m_DefaultMovementSpeed = m_MovementSpeed;
+		Float m_DefaultRollSensitivity = m_RollSensitivity;
 	};
 }

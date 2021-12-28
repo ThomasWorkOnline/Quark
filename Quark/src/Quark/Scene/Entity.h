@@ -12,7 +12,7 @@ namespace Quark {
 	{
 	public:
 		Entity() = default;
-		Entity(entt::entity entity, Scene* scene);
+		Entity(entt::entity entity, Scene& scene);
 
 		template<typename T, typename... Args>
 		T& AddComponent(Args&&... args)
