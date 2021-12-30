@@ -33,35 +33,184 @@ namespace Quark {
 		std::mt19937 m_NoiseEngine{};
 	};
 
+	template<typename T>
 	class PerlinNoise
 	{
 	public:
-		explicit PerlinNoise(uint32_t seed = std::default_random_engine::default_seed);
+		explicit PerlinNoise(uint32_t seed = std::default_random_engine::default_seed)
+		{
+			Reseed(seed);
+		}
 
-		void Reseed(uint32_t seed);
+		void Reseed(uint32_t seed)
+		{
+			for (size_t i = 0; i < 256; ++i)
+			{
+				p[i] = static_cast<uint8_t>(i);
+			}
 
-		float Noise1D(float x) const noexcept;
-		float Noise2D(float x, float y) const noexcept;
-		float Noise3D(float x, float y, float z) const noexcept;
+			std::shuffle(std::begin(p), std::begin(p) + 256, std::default_random_engine(seed));
 
-		float AccumulatedOctaveNoise1D(float x, int32_t octaves) const noexcept;
-		float AccumulatedOctaveNoise2D(float x, float y, int32_t octaves) const noexcept;
-		float AccumulatedOctaveNoise3D(float x, float y, float z, int32_t octaves) const noexcept;
+			for (size_t i = 0; i < 256; ++i)
+			{
+				p[256 + i] = p[i];
+			}
+		}
 
-		float NormalizedOctaveNoise1D(float x, int32_t octaves) const noexcept;
-		float NormalizedOctaveNoise2D(float x, float y, int32_t octaves) const noexcept;
-		float NormalizedOctaveNoise3D(float x, float y, float z, int32_t octaves) const noexcept;
+		T Noise1D(T x) const noexcept
+		{
+			return Noise3D(x, 0, 0);
+		}
 
-		float UnsignedNormalizedOctaveNoise1D(float x, int32_t octaves) const noexcept;
-		float UnsignedNormalizedOctaveNoise2D(float x, float y, int32_t octaves) const noexcept;
-		float UnsignedNormalizedOctaveNoise3D(float x, float y, float z, int32_t octaves) const noexcept;
+		T Noise2D(T x, T y) const noexcept
+		{
+			return Noise3D(x, y, 0);
+		}
+
+		T Noise3D(T x, T y, T z) const noexcept
+		{
+			const int32_t X = static_cast<int32_t>(glm::floor(x)) & 255;
+			const int32_t Y = static_cast<int32_t>(glm::floor(y)) & 255;
+			const int32_t Z = static_cast<int32_t>(glm::floor(z)) & 255;
+
+			x -= glm::floor(x);
+			y -= glm::floor(y);
+			z -= glm::floor(z);
+
+			const T u = Fade(x);
+			const T v = Fade(y);
+			const T w = Fade(z);
+
+			const int32_t A = p[X] + Y, AA = p[A] + Z, AB = p[A + 1] + Z;
+			const int32_t B = p[X + 1] + Y, BA = p[B] + Z, BB = p[B + 1] + Z;
+
+			return Lerp(w, Lerp(v, Lerp(u, Grad(p[AA], x, y, z),
+				Grad(p[BA], x - 1, y, z)),
+				Lerp(u, Grad(p[AB], x, y - 1, z),
+					Grad(p[BB], x - 1, y - 1, z))),
+				Lerp(v, Lerp(u, Grad(p[AA + 1], x, y, z - 1),
+					Grad(p[BA + 1], x - 1, y, z - 1)),
+					Lerp(u, Grad(p[AB + 1], x, y - 1, z - 1),
+						Grad(p[BB + 1], x - 1, y - 1, z - 1))));
+		}
+
+		T AccumulatedOctaveNoise1D(T x, int32_t octaves) const noexcept
+		{
+			T result = 0;
+			T amp = 1;
+
+			for (int32_t i = 0; i < octaves; ++i)
+			{
+				result += Noise1D(x) * amp;
+				x *= 2;
+				amp /= 2;
+			}
+
+			return result; // unnormalized
+		}
+
+		T AccumulatedOctaveNoise2D(T x, T y, int32_t octaves) const noexcept
+		{
+			T result = 0;
+			T amp = 1;
+
+			for (int32_t i = 0; i < octaves; ++i)
+			{
+				result += Noise2D(x, y) * amp;
+				x *= 2;
+				y *= 2;
+				amp /= 2;
+			}
+
+			return result; // unnormalized
+		}
+
+		T AccumulatedOctaveNoise3D(T x, T y, T z, int32_t octaves) const noexcept
+		{
+			T result = 0;
+			T amp = 1;
+
+			for (int32_t i = 0; i < octaves; ++i)
+			{
+				result += Noise3D(x, y, z) * amp;
+				x *= 2;
+				y *= 2;
+				z *= 2;
+				amp /= 2;
+			}
+
+			return result; // unnormalized
+		}
+
+		T NormalizedOctaveNoise1D(T x, int32_t octaves) const noexcept
+		{
+			return AccumulatedOctaveNoise1D(x, octaves)
+				/ Weight(octaves);
+		}
+
+		T NormalizedOctaveNoise2D(T x, T y, int32_t octaves) const noexcept
+		{
+			return AccumulatedOctaveNoise2D(x, y, octaves)
+				/ Weight(octaves);
+		}
+
+		T NormalizedOctaveNoise3D(T x, T y, T z, int32_t octaves) const noexcept
+		{
+			return AccumulatedOctaveNoise3D(x, y, z, octaves)
+				/ Weight(octaves);
+		}
+
+		T UnsignedNormalizedOctaveNoise1D(T x, int32_t octaves) const noexcept
+		{
+			return glm::clamp<T>(AccumulatedOctaveNoise1D(x, octaves)
+				* 0.5 + 0.5, 0, 1);
+		}
+
+		T UnsignedNormalizedOctaveNoise2D(T x, T y, int32_t octaves) const noexcept
+		{
+			return glm::clamp<T>(AccumulatedOctaveNoise2D(x, y, octaves)
+				* 0.5 + 0.5, 0, 1);
+		}
+
+		T UnsignedNormalizedOctaveNoise3D(T x, T y, T z, int32_t octaves) const noexcept
+		{
+			return glm::clamp<T>(AccumulatedOctaveNoise3D(x, y, z, octaves)
+				* 0.5 + 0.5, 0, 1);
+		}
 
 	private:
 		uint8_t p[512];
 
-		static constexpr float Fade(float t) noexcept;
-		static constexpr float Lerp(float t, float a, float b) noexcept;
-		static constexpr float Grad(uint8_t hash, float x, float y, float z) noexcept;
-		static constexpr float Weight(int32_t octaves) noexcept;
+		static constexpr T Fade(T t) noexcept
+		{
+			return t * t * t * (t * (t * 6 - 15) + 10);
+		}
+
+		static constexpr T Lerp(T t, T a, float b) noexcept
+		{
+			return a + t * (b - a);
+		}
+
+		static constexpr T Grad(uint8_t hash, T x, T y, T z) noexcept
+		{
+			const uint8_t h = hash & 15;
+			const float u = h < 8 ? x : y;
+			const float v = h < 4 ? y : h == 12 || h == 14 ? x : z;
+			return ((h & 1) == 0 ? u : -u) + ((h & 2) == 0 ? v : -v);
+		}
+
+		static constexpr T Weight(int32_t octaves) noexcept
+		{
+			T amp = 1;
+			T value = 0;
+
+			for (int32_t i = 0; i < octaves; ++i)
+			{
+				value += amp;
+				amp /= 2;
+			}
+
+			return value;
+		}
 	};
 }
