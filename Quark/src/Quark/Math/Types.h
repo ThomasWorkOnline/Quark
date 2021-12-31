@@ -8,13 +8,16 @@
 
 namespace Quark {
 
+	//////////////////////////////////////////////
+	/// <FloatingType> is used to perform physics calculation on bodies.
+	/// `QK_DOUBLE_FLOATING_POINT` will not affect rendering behavior.
+	//
+
 #ifdef QK_DOUBLE_FLOATING_POINT
-	using Float = double;
+	using FloatingType = double;
 #else
-	using Float = float;
+	using FloatingType = float;
 #endif
-	
-	using Int   = int;
 
 	/// Vector types
 	template<uint32_t L, typename T>
@@ -32,9 +35,15 @@ namespace Quark {
 	using Vector3i = Vector<3, int>;
 	using Vector4i = Vector<4, int>;
 
-	using Vector2  = Vector<2, Float>;
-	using Vector3  = Vector<3, Float>;
-	using Vector4  = Vector<4, Float>;
+#ifdef QK_DOUBLE_FLOATING_POINT
+	using Vector2  = Vector<2, double>;
+	using Vector3  = Vector<3, double>;
+	using Vector4  = Vector<4, double>;
+#else
+	using Vector2 = Vector<2, float>;
+	using Vector3 = Vector<3, float>;
+	using Vector4 = Vector<4, float>;
+#endif
 
 	/// Quaternion type
 	template<typename T>
@@ -42,7 +51,12 @@ namespace Quark {
 
 	using Quatf = Qua<float>;
 	using Quatd = Qua<double>;
-	using Quat  = Qua<Float>;
+
+#ifdef QK_DOUBLE_FLOATING_POINT
+	using Quat = Qua<double>;
+#else
+	using Quat = Qua<float>;
+#endif
 
 	/// Matrix types
 	template<uint32_t C, uint32_t R, typename T>
@@ -56,7 +70,13 @@ namespace Quark {
 	using Mat3d = Mat<3, 3, double>;
 	using Mat4d = Mat<4, 4, double>;
 
-	using Mat2  = Mat<2, 2, Float>;
-	using Mat3  = Mat<3, 3, Float>;
-	using Mat4  = Mat<4, 4, Float>;
+#ifdef QK_DOUBLE_FLOATING_POINT
+	using Mat2 = Mat<2, 2, double>;
+	using Mat3 = Mat<3, 3, double>;
+	using Mat4 = Mat<4, 4, double>;
+#else
+	using Mat2 = Mat<2, 2, float>;
+	using Mat3 = Mat<3, 3, float>;
+	using Mat4 = Mat<4, 4, float>;
+#endif
 }

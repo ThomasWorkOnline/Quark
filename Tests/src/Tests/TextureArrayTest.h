@@ -22,7 +22,7 @@ public:
 		spec.Width = 16;
 		spec.Height = 16;
 		spec.Layers = 2;
-		spec.RenderModes.MinFilteringMode = TextureFilteringMode::Nearest;
+		spec.RenderModes.MinFilteringMode = TextureFilteringMode::NearestMipmapLinear;
 		spec.RenderModes.MagFilteringMode = TextureFilteringMode::Nearest;
 
 		Image defaultTexture("assets/textures/blocks/default_texture.png", true);
@@ -31,6 +31,7 @@ public:
 		m_TextureArray = Texture2DArray::Create(spec);
 		m_TextureArray->SetData(defaultTexture.Data(), defaultTexture.Size(), 0);
 		m_TextureArray->SetData(oakLeavesTexture.Data(), oakLeavesTexture.Size(), 1);
+		m_TextureArray->GenerateMipmaps();
 
 		m_Shader = Shader::Create("assets/shaders/textureArray.glsl");
 

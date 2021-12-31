@@ -18,7 +18,7 @@ namespace Quark {
 	{
 	}
 
-	void OrthographicCameraController::OnUpdate(Float elapsedTime)
+	void OrthographicCameraController::OnUpdate(float elapsedTime)
 	{
 		if (m_CameraEntity)
 		{
@@ -41,44 +41,44 @@ namespace Quark {
 			// Controls
 			if (Input::IsKeyPressed(Key::W))
 			{
-				physics.Velocity += transform.GetTopVector() * elapsedTime * m_MovementSpeed;
+				physics.Velocity += transform.GetTopVector() * FloatingType(elapsedTime) * m_MovementSpeed;
 			}
 
 			if (Input::IsKeyPressed(Key::S))
 			{
-				physics.Velocity -= transform.GetTopVector() * elapsedTime * m_MovementSpeed;
+				physics.Velocity -= transform.GetTopVector() * FloatingType(elapsedTime) * m_MovementSpeed;
 			}
 
 			if (Input::IsKeyPressed(Key::D))
 			{
-				physics.Velocity += transform.GetRightVector() * elapsedTime * m_MovementSpeed;
+				physics.Velocity += transform.GetRightVector() * FloatingType(elapsedTime) * m_MovementSpeed;
 			}
 
 			if (Input::IsKeyPressed(Key::A))
 			{
-				physics.Velocity -= transform.GetRightVector() * elapsedTime * m_MovementSpeed;
+				physics.Velocity -= transform.GetRightVector() * FloatingType(elapsedTime) * m_MovementSpeed;
 			}
 
 			if (Input::IsKeyPressed(Key::Q))
 			{
-				transform.Rotate(elapsedTime * m_RollSensitivity, -transform.GetFrontVector());
+				transform.Rotate(FloatingType(elapsedTime) * m_RollSensitivity, -transform.GetFrontVector());
 			}
 
 			if (Input::IsKeyPressed(Key::E))
 			{
-				transform.Rotate(elapsedTime * m_RollSensitivity, transform.GetFrontVector());
+				transform.Rotate(FloatingType(elapsedTime) * m_RollSensitivity, transform.GetFrontVector());
 			}
 
 			if (Input::IsKeyPressed(Key::D0))
 			{
 				physics.Velocity = { 0.0f, 0.0f, 0.0f };
 				transform.Position = { 0.0f, 0.0f, 0.0f };
-				transform.Orientation = glm::angleAxis(Float(0.0), Vector3(0.0, 0.0, 1.0));
+				transform.Orientation = glm::angleAxis(0.0f, Vector3f(0.0f, 0.0f, 1.0f));
 				QK_CORE_TRACE("Teleported to world origin");
 			}
 
 			// Zooming
-			constexpr Float zoomFrictionCoeff = 8.0f;
+			constexpr float zoomFrictionCoeff = 8.0f;
 			m_ZoomSpeed -= (m_ZoomSpeed * zoomFrictionCoeff) * elapsedTime;
 
 			// Check if the fov needs to be changed

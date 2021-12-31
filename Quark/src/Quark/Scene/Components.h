@@ -18,12 +18,12 @@ namespace Quark {
 			: Position(other.Position), Scale(other.Scale), Orientation(other.Orientation) {}
 
 		Transform3DComponent()
-			: Position(0.0), Scale(1.0), Orientation(glm::angleAxis(Float(0.0), Vector3(0.0, 0.0, 1.0))) { }
+			: Position(0.0), Scale(1.0), Orientation(glm::angleAxis(FloatingType(0.0), Vector3(0.0f, 0.0f, 1.0f))) { }
 
 		Transform3DComponent(const Vector3& position, const Vector3& scale, const Quat& orientation)
 			: Position(position), Scale(scale), Orientation(orientation) { }
 
-		operator Mat4 ()
+		operator Mat4()
 		{
 			return ComputeMatrix();
 		}
@@ -39,10 +39,10 @@ namespace Quark {
 		}
 
 		Transform3DComponent& Rotate(const Quat& quat) { Orientation = glm::normalize(Orientation * quat); return *this; }
-		Transform3DComponent& Rotate(Float angle, const Vector3& axis) { Rotate(glm::angleAxis(angle, glm::normalize(axis))); return *this; }
+		Transform3DComponent& Rotate(FloatingType angle, const Vector3& axis) { Rotate(glm::angleAxis(angle, glm::normalize(axis))); return *this; }
 
 	private:
-		Mat4 ComputeMatrix()
+		Mat4f ComputeMatrix()
 		{
 			return glm::translate(Mat4(1.0), Position)
 				* glm::toMat4(Orientation)
@@ -53,12 +53,12 @@ namespace Quark {
 	struct PhysicsComponent
 	{
 		Vector3 Velocity;
-		Float Friction;
+		FloatingType Friction;
 
 		PhysicsComponent()
 			: Velocity(0.0), Friction(0.0) { }
 
-		PhysicsComponent(const Vector3& initVelocity, Float coeffFriction)
+		PhysicsComponent(const Vector3& initVelocity, FloatingType coeffFriction)
 			: Velocity(initVelocity), Friction(coeffFriction) { }
 	};
 

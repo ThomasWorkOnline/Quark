@@ -40,6 +40,12 @@ namespace Quark {
 		glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, layer, m_Spec.Width, m_Spec.Height, 1, m_DataFormat, GL_UNSIGNED_BYTE, data);
 	}
 
+	void OpenGLTexture2DArray::GenerateMipmaps()
+	{
+		glBindTexture(GL_TEXTURE_2D_ARRAY, m_RendererID);
+		glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+	}
+
 	void OpenGLTexture2DArray::Attach(uint32_t textureSlot) const
 	{
 		glActiveTexture(GL_TEXTURE0 + textureSlot);

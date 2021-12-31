@@ -22,6 +22,7 @@ namespace Quark {
 		}
 
 		virtual void SetData(void* data, size_t size, uint32_t layer) override;
+		virtual void GenerateMipmaps() override;
 
 		virtual void Attach(uint32_t textureSlot = 0) const override;
 		virtual void Detach() const override;

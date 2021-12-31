@@ -14,7 +14,7 @@ namespace Quark {
 		Scene();
 		~Scene();
 
-		void OnUpdate(Float elapsedTime);
+		void OnUpdate(float elapsedTime);
 
 		Entity CreateEntity();
 		void DeleteEntity(Entity entity);

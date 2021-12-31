@@ -18,16 +18,14 @@ namespace Quark {
 	{
 	}
 
-	void Scene::OnUpdate(Float elapsedTime)
+	void Scene::OnUpdate(float elapsedTime)
 	{
+		auto entities = m_Registry.view<Transform3DComponent, PhysicsComponent>();
+		for (auto entity : entities)
 		{
-			auto entities = m_Registry.view<Transform3DComponent, PhysicsComponent>();
-			for (auto entity : entities)
-			{
-				auto [transformComponent, physicsComponent] = entities.get<Transform3DComponent, PhysicsComponent>(entity);
-				physicsComponent.Velocity -= physicsComponent.Velocity * physicsComponent.Friction * elapsedTime;
-				transformComponent.Position += physicsComponent.Velocity * elapsedTime;
-			}
+			auto [transformComponent, physicsComponent] = entities.get<Transform3DComponent, PhysicsComponent>(entity);
+			physicsComponent.Velocity -= physicsComponent.Velocity * physicsComponent.Friction * FloatingType(elapsedTime);
+			transformComponent.Position += physicsComponent.Velocity * FloatingType(elapsedTime);
 		}
 	}
 

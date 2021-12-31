@@ -47,6 +47,7 @@ project "Quark"
 
 	defines
 	{
+		"QK_DOUBLE_FLOATING_POINT",
 		"_CRT_SECURE_NO_WARNINGS",
 		"GLFW_INCLUDE_NONE"
 	}
