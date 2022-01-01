@@ -2,9 +2,12 @@
 
 #include "../../Quark/Renderer/Shader.h"
 
-namespace Quark {
+#include <unordered_map>
 
-	typedef uint32_t GLenum;
+typedef uint32_t GLenum;
+typedef int32_t GLint;
+
+namespace Quark {
 
 	class OpenGLShader : public Shader
 	{
@@ -68,6 +71,8 @@ namespace Quark {
 		void UploadUniformMat3(const std::string& name, const glm::mat3& matrix);
 		void UploadUniformMat4(const std::string& name, const glm::mat4& matrix);
 
+		GLint GetUniformLocation(const std::string& name);
+
 	private:
 		std::string ReadFile(const std::string& filepath);
 		std::unordered_map<GLenum, std::string> PreProcess(const std::string& source);
@@ -75,5 +80,7 @@ namespace Quark {
 
 		uint32_t m_RendererID;
 		std::string m_Name;
+
+		std::unordered_map<std::string, GLint> m_UniformLocations;
 	};
 }
