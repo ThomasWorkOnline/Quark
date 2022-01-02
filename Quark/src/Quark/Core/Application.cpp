@@ -22,7 +22,7 @@ namespace Quark {
 		s_Instance = this;
 		m_AppMainThreadId = std::this_thread::get_id();
 
-		RenderCommand::CreateRenderingAPI(options.Api);
+		RenderingAPI::Create(options.Api);
 
 		WindowSpecification spec = {
 			options.Width, options.Height, options.Title, 4
@@ -36,7 +36,7 @@ namespace Quark {
 
 		if (options.HasFlag(ShowApiInWindowTitle))
 		{
-			std::string appendedTitle = " - " + std::string(RenderingAPI::GetName());
+			std::string appendedTitle = " - " + std::string(RenderingAPI::GetAPIName());
 			m_Window->AppendTitle(appendedTitle);
 		}
 

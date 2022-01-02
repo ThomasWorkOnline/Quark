@@ -29,6 +29,7 @@ namespace Quark {
         virtual int32_t GetMaxTextureSize() const override;
         virtual int32_t GetMaxTextureLayers() const override;
 
+        virtual const char* GetName() const override { return "OpenGL"; }
         virtual std::string GetSpecification() const override;
     };
 }

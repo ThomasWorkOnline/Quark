@@ -6,7 +6,7 @@
 
 int main()
 {
-	auto test = new TextureArrayTest();
+	auto test = new FontTest();
 	test->Run();
 	delete test;
 

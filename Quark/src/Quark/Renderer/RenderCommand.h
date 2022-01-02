@@ -9,98 +9,90 @@ namespace Quark {
 	class RenderCommand
 	{
 	public:
-		static void CreateRenderingAPI(RenderingAPI::API api)
-		{
-			s_RenderingAPI = RenderingAPI::Create(api);
-		}
-
 		static void Init()
 		{
-			s_RenderingAPI->Init();
+			RenderingApi->Init();
 			QK_CORE_TRACE("Initialized the rendering API");
 		}
 
 		static void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 		{
-			s_RenderingAPI->SetViewport(x, y, width, height);
+			RenderingApi->SetViewport(x, y, width, height);
 		}
 
 		static void SetClearColor(const glm::vec4& color)
 		{
-			s_RenderingAPI->SetClearColor(color);
+			RenderingApi->SetClearColor(color);
 		}
 
 		static void Clear()
 		{
-			s_RenderingAPI->Clear();
+			RenderingApi->Clear();
 		}
 
 		static void SetCullFace(RenderCullFace face)
 		{
-			s_RenderingAPI->SetCullFace(face);
+			RenderingApi->SetCullFace(face);
 		}
 
 		static void SetDepthFunction(RenderDepthFunction func)
 		{
-			s_RenderingAPI->SetDepthFunction(func);
+			RenderingApi->SetDepthFunction(func);
 		}
 
 		static void Draw(uint32_t offset, uint32_t count)
 		{
-			s_RenderingAPI->Draw(offset, count);
+			RenderingApi->Draw(offset, count);
 		}
 
 		static void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0)
 		{
-			s_RenderingAPI->DrawIndexed(vertexArray, indexCount);
+			RenderingApi->DrawIndexed(vertexArray, indexCount);
 		}
 		
 		static void DrawIndexedInstanced(const Ref<VertexArray>& vertexArray, uint32_t repeatCount, uint32_t indexCount = 0)
 		{
-			s_RenderingAPI->DrawIndexedInstanced(vertexArray, repeatCount, indexCount);
+			RenderingApi->DrawIndexedInstanced(vertexArray, repeatCount, indexCount);
 		}
 
 		static void DrawLines(const Ref<VertexArray>& vertexArray, uint32_t vertexCount)
 		{
-			s_RenderingAPI->DrawLines(vertexArray, vertexCount);
+			RenderingApi->DrawLines(vertexArray, vertexCount);
 		}
 
 		static void DrawIndexedLines(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0)
 		{
-			s_RenderingAPI->DrawIndexedLines(vertexArray, indexCount);
+			RenderingApi->DrawIndexedLines(vertexArray, indexCount);
 		}
 
 		static void SetLineThickness(float thickness)
 		{
-			s_RenderingAPI->SetLineThickness(thickness);
+			RenderingApi->SetLineThickness(thickness);
 		}
 
 		static float GetLineThickness()
 		{
-			return s_RenderingAPI->GetLineThickness();
+			return RenderingApi->GetLineThickness();
 		}
 
 		static int32_t GetTextureSlotsCount()
 		{
-			return s_RenderingAPI->GetMaxTextureSlotsCount();
+			return RenderingApi->GetMaxTextureSlotsCount();
 		}
 
 		static int32_t GetMaxTextureSize()
 		{
-			return s_RenderingAPI->GetMaxTextureSize();
+			return RenderingApi->GetMaxTextureSize();
 		}
 
 		static int32_t GetMaxTextureLayers()
 		{
-			return s_RenderingAPI->GetMaxTextureLayers();
+			return RenderingApi->GetMaxTextureLayers();
 		}
 
 		static std::string GetSpecification()
 		{
-			return s_RenderingAPI->GetSpecification();
+			return RenderingApi->GetSpecification();
 		}
-
-	private:
-		static Scope<RenderingAPI> s_RenderingAPI;
 	};
 }
