@@ -22,7 +22,7 @@ namespace Quark {
 		s_Instance = this;
 		m_AppMainThreadId = std::this_thread::get_id();
 
-		RenderingAPI::Create(options.Api);
+		RenderingApi = RenderingAPI::Create(options.Api);
 
 		WindowSpecification spec = {
 			options.Width, options.Height, options.Title, 4

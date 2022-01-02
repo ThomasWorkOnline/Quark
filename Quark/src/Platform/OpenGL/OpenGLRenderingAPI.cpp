@@ -203,9 +203,11 @@ namespace Quark {
     std::string OpenGLRenderingAPI::GetSpecification() const
     {
         std::stringstream ss;
-        ss << "OpenGL Info:\n\n";
-        ss << glGetString(GL_VENDOR) << '\n' << glGetString(GL_RENDERER) << '\n' << glGetString(GL_VERSION) << '\n';
-        ss << "Hardware texture slots available: " << GetMaxTextureSlotsCount() << '\n';
+        ss << "OpenGL Info:\n";
+        ss << "|\t" << glGetString(GL_VENDOR) << '\n';
+        ss << "|\t" << glGetString(GL_RENDERER) << '\n';
+        ss << "|\t" << glGetString(GL_VERSION) << '\n';
+        ss << "|\tHardware texture slots available: " << GetMaxTextureSlotsCount() << '\n';
         return ss.str();
     }
 }
