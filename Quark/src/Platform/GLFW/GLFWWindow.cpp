@@ -52,7 +52,7 @@ namespace Quark {
 			glfwWindowHint(GLFW_SAMPLES, m_Data.Samples);
 		}
 
-		m_Window = glfwCreateWindow((int32_t)m_Data.Width, (int32_t)m_Data.Height, m_Data.Title.c_str(), nullptr, nullptr);
+		m_Window = glfwCreateWindow(m_Data.Width, m_Data.Height, m_Data.Title.c_str(), nullptr, nullptr);
 		++s_WindowCount;
 
 		// Creating the graphics context
@@ -62,12 +62,26 @@ namespace Quark {
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 
 		// Init window states in user ptr
-		glfwGetCursorPos(m_Window, &m_Data.LastXPos, &m_Data.LastYPos);
+		glfwGetCursorPos(m_Window, &m_Data.CursorXpos, &m_Data.CursorYpos);
 
 		// -----------------------------------------------------------------------
 		// CALLBACKS
 		// -----------------------------------------------------------------------
-		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int32_t width, int32_t height)
+		glfwSetWindowPosCallback(m_Window, [](GLFWwindow* window, int xpos, int ypos)
+			{
+				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+
+				int32_t xOffset = xpos - data.Xpos;
+				int32_t yOffset = ypos - data.Ypos;
+
+				data.Xpos = xpos;
+				data.Ypos = ypos;
+
+				WindowMovedEvent event(xpos, ypos, xOffset, yOffset);
+				data.EventCallback(event);
+			});
+
+		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
 			{
 				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 				data.Width = width;
@@ -84,7 +98,23 @@ namespace Quark {
 				data.EventCallback(event);
 			});
 
-		glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int32_t key, int32_t scancode, int32_t action, int32_t mods)
+		glfwSetWindowFocusCallback(m_Window, [](GLFWwindow* window, int focused)
+			{
+				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+
+				if (focused)
+				{
+					WindowFocusedEvent event;
+					data.EventCallback(event);
+				}
+				else
+				{
+					WindowLostFocusEvent event;
+					data.EventCallback(event);
+				}
+			});
+
+		glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
 			{
 				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 
@@ -111,7 +141,7 @@ namespace Quark {
 				}
 			});
 
-		glfwSetCharCallback(m_Window, [](GLFWwindow* window, uint32_t keycode)
+		glfwSetCharCallback(m_Window, [](GLFWwindow* window, unsigned int keycode)
 			{
 				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 
@@ -119,7 +149,7 @@ namespace Quark {
 				data.EventCallback(event);
 			});
 
-		glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int32_t button, int32_t action, int32_t mods)
+		glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods)
 			{
 				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 
@@ -152,12 +182,14 @@ namespace Quark {
 			{
 				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 
-				double xOffset = xPos - data.LastXPos;
-				double yOffset = yPos - data.LastYPos;
+				double xOffset = xPos - data.CursorXpos;
+				double yOffset = yPos - data.CursorYpos;
+
+				data.CursorXpos = xPos;
+				data.CursorYpos = yPos;
+
 				MouseMovedEvent event((float)xPos, (float)yPos, xOffset, yOffset);
 				data.EventCallback(event);
-
-				data.LastXPos = xPos; data.LastYPos = yPos;
 			});
 	}
 
@@ -184,24 +216,19 @@ namespace Quark {
 		SetTitle(m_Data.Title + title);
 	}
 
-	void GLFWWindow::Select()
+	void GLFWWindow::Focus()
+	{
+		glfwFocusWindow(m_Window);
+	}
+
+	void GLFWWindow::DisableCursor()
 	{
 		glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	}
 
-	void GLFWWindow::Deselect()
+	void GLFWWindow::EnableCursor()
 	{
 		glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-	}
-
-	bool GLFWWindow::IsCursorDisabled() const
-	{
-		return glfwGetInputMode(m_Window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED;
-	}
-
-	bool GLFWWindow::IsCursorNormal() const
-	{
-		return glfwGetInputMode(m_Window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL;
 	}
 
 	void GLFWWindow::SetVSync(bool enabled)
@@ -212,28 +239,35 @@ namespace Quark {
 
 	void GLFWWindow::SetFullScreen(bool enabled)
 	{
-		if (enabled != IsFullscreen())
+		if (enabled)
 		{
-			if (enabled)
-			{
-				GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-				const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+			GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+			const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
-				glfwGetWindowPos(m_Window, &m_WindowedPosX, &m_WindowedPosY);
-				glfwGetWindowSize(m_Window, &m_WindowedWidth, &m_WindowedHeight);
+			glfwGetWindowPos(m_Window, &m_WindowedPosX, &m_WindowedPosY);
+			glfwGetWindowSize(m_Window, &m_WindowedWidth, &m_WindowedHeight);
 
-				// Switch to full screen
-				glfwSetWindowMonitor(m_Window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
-			}
-			else
-			{
-				m_Data.Width = m_WindowedWidth;
-				m_Data.Height = m_WindowedHeight;
-
-				// Restore last window size and position
-				glfwSetWindowMonitor(m_Window, nullptr, m_WindowedPosX, m_WindowedPosY, (int32_t)m_Data.Width, (int32_t)m_Data.Height, 0);
-			}
+			// Switch to full screen
+			glfwSetWindowMonitor(m_Window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
 		}
+		else
+		{
+			m_Data.Width = m_WindowedWidth;
+			m_Data.Height = m_WindowedHeight;
+
+			// Restore last window size and position
+			glfwSetWindowMonitor(m_Window, nullptr, m_WindowedPosX, m_WindowedPosY, (int32_t)m_Data.Width, (int32_t)m_Data.Height, 0);
+		}
+	}
+
+	bool GLFWWindow::IsFocused() const
+	{
+		return glfwGetWindowAttrib(m_Window, GLFW_FOCUSED);
+	}
+
+	bool GLFWWindow::IsCursorEnabled() const
+	{
+		return glfwGetInputMode(m_Window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL;
 	}
 
 	bool GLFWWindow::IsFullscreen() const

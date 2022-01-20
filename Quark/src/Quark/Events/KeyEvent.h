@@ -10,7 +10,8 @@ namespace Quark {
 	public:
 		KeyCode GetKeyCode() const { return m_KeyCode; }
 
-		EVENT_CLASS_CATEGORY(EventCategoryKeyboard | EventCategoryInput)
+		EVENT_CLASS_CATEGORY(EventCategoryKeyboard | EventCategoryInput);
+
 	protected:
 		KeyEvent(KeyCode keycode)
 			: m_KeyCode(keycode) {}
@@ -33,7 +34,8 @@ namespace Quark {
 			return ss.str();
 		}
 
-		EVENT_CLASS_TYPE(KeyPressed)
+		EVENT_CLASS_TYPE(KeyPressed);
+
 	private:
 		int32_t m_RepeatCount;
 	};
@@ -51,7 +53,7 @@ namespace Quark {
 			return ss.str();
 		}
 
-		EVENT_CLASS_TYPE(KeyReleased)
+		EVENT_CLASS_TYPE(KeyReleased);
 	};
 
     class KeyTypedEvent : public KeyEvent
@@ -67,6 +69,6 @@ namespace Quark {
 			return ss.str();
 		}
 
-		EVENT_CLASS_TYPE(KeyTyped)
+		EVENT_CLASS_TYPE(KeyTyped);
 	};
 }

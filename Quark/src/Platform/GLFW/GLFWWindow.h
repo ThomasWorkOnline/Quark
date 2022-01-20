@@ -13,25 +13,25 @@ namespace Quark {
 		GLFWWindow(const WindowSpecification& spec);
 		virtual ~GLFWWindow();
 
+		virtual void SetEventCallback(const EventCallbackFn& callback) override { m_Data.EventCallback = callback; }
 		virtual void OnUpdate() override;
 
 		virtual uint32_t GetWidth() const override { return m_Data.Width; }
 		virtual uint32_t GetHeight() const override { return m_Data.Height; }
-
 		virtual const std::string& GetTitle() const override { return m_Data.Title; }
+
 		virtual void SetTitle(const std::string& title) override;
 		virtual void AppendTitle(const std::string& title) override;
 
-		virtual void SetEventCallback(const EventCallbackFn& callback) override { m_Data.EventCallback = callback; }
-
-		virtual void Select() override;
-		virtual void Deselect() override;
-		virtual bool IsSelected() const override { return IsCursorDisabled(); }
-		virtual bool IsCursorDisabled() const override;
-		virtual bool IsCursorNormal() const override;
+		virtual void Focus() override;
+		virtual void DisableCursor() override;
+		virtual void EnableCursor() override;
 		virtual void SetVSync(bool enabled) override;
-		virtual bool IsVSync() const override { return m_Data.VSync; }
 		virtual void SetFullScreen(bool enabled) override;
+
+		virtual bool IsFocused() const override;
+		virtual bool IsCursorEnabled() const override;
+		virtual bool IsVSync() const override { return m_Data.VSync; }
 		virtual bool IsFullscreen() const override;
 
 		virtual void* GetNativeWindow() const override { return m_Window; }
@@ -43,11 +43,13 @@ namespace Quark {
 		struct WindowData
 		{
 			std::string Title;
-			uint32_t Width, Height;
 			uint32_t Samples;
-			bool VSync;
 
-			double LastXPos = 0, LastYPos = 0;
+			uint32_t Width, Height;
+			int32_t Xpos, Ypos;
+
+			bool VSync;
+			double CursorXpos = 0, CursorYpos = 0;
 
 			EventCallbackFn EventCallback;
 		};

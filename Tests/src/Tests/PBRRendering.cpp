@@ -2,8 +2,6 @@
 
 PBRRendering::PBRRendering()
 {
-	GetWindow().Select();
-
 	m_Player = m_Scene.CreateEntity();
 	m_Player.AddComponent<Transform3DComponent>().Position = { 0.0f, 0.0f, -2.0f };
 	m_Player.AddComponent<PhysicsComponent>().Friction = 4.0f;
@@ -51,7 +49,8 @@ bool PBRRendering::OnKeyPressed(KeyPressedEvent& e)
 	switch (e.GetKeyCode())
 	{
 	case KeyCode::Escape:
-		GetWindow().Deselect();
+		auto& window = GetWindow();
+		window.DisableCursor();
 		break;
 	}
 
@@ -60,7 +59,7 @@ bool PBRRendering::OnKeyPressed(KeyPressedEvent& e)
 
 bool PBRRendering::OnMouseMoved(MouseMovedEvent& e)
 {
-	if (!GetWindow().IsSelected())
+	if (!GetWindow().IsCursorEnabled())
 		return true;
 
 	return false;
@@ -68,7 +67,7 @@ bool PBRRendering::OnMouseMoved(MouseMovedEvent& e)
 
 bool PBRRendering::OnMouseButtonPressed(MouseButtonPressedEvent& e)
 {
-	GetWindow().Select();
+	GetWindow().EnableCursor();
 	return false;
 }
 

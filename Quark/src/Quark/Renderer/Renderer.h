@@ -23,7 +23,6 @@ namespace Quark {
 	{
 		uint32_t DrawCalls;
 		uint32_t QuadsDrawn;
-		uint32_t CharactersDrawn;
 		uint32_t LinesDrawn;
 	};
 

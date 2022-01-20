@@ -13,7 +13,6 @@ public:
 		RenderCommand::SetClearColor({ 0.01f, 0.01f, 0.01f, 1.0f });
 
 		auto& window = GetWindow();
-		window.Select();
 		float aspectRatio = (float)window.GetWidth() / window.GetHeight();
 
 		m_Entity = m_Scene.CreateEntity();
@@ -50,7 +49,7 @@ public:
 		dispatcher.Dispatch<KeyPressedEvent>(ATTACH_EVENT_FN(Pong::OnKeyPressed));
 		dispatcher.Dispatch<MouseButtonPressedEvent>(ATTACH_EVENT_FN(Pong::OnMouseButtonPressed));
 
-		e.Handled = e.IsInCategory(EventCategoryInput) && !GetWindow().IsSelected();
+		e.Handled = e.IsInCategory(EventCategoryInput) && !GetWindow().IsFocused();
 
 		if (!e.Handled)
 			m_Controller.OnEvent(e);
@@ -114,7 +113,7 @@ private:
 		switch (e.GetMouseButton())
 		{
 		case MouseCode::ButtonLeft:
-			GetWindow().Select();
+			GetWindow().DisableCursor();
 			break;
 		}
 
@@ -126,7 +125,7 @@ private:
 		switch (e.GetKeyCode())
 		{
 		case Key::Escape:
-			GetWindow().Deselect();
+			GetWindow().EnableCursor();
 			break;
 		}
 

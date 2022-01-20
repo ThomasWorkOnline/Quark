@@ -437,7 +437,6 @@ namespace Quark {
 	{
 		s_Stats.DrawCalls = 0;
 		s_Stats.QuadsDrawn = 0;
-		s_Stats.CharactersDrawn = 0;
 		s_Stats.LinesDrawn = 0;
 	}
 
@@ -652,7 +651,7 @@ namespace Quark {
 			s_Data->FontVertexPtr++;
 
 			s_Data->FontIndexCount += 6;
-			s_Stats.CharactersDrawn++;
+			s_Stats.QuadsDrawn++;
 		}
 	}
 

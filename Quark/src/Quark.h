@@ -19,8 +19,9 @@
 // Events
 #include "Quark/Events/Event.h"
 #include "Quark/Events/ApplicationEvent.h"
-#include "Quark/Events/MouseEvent.h"
 #include "Quark/Events/KeyEvent.h"
+#include "Quark/Events/MouseEvent.h"
+#include "Quark/Events/WindowEvents.h"
 
 // Input
 #include "Quark/Input/OrthographicCameraController.h"
