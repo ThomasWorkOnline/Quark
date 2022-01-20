@@ -47,10 +47,10 @@ namespace Quark {
 			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
-
-			// MSAA anti-aliasing
-			glfwWindowHint(GLFW_SAMPLES, m_Data.Samples);
 		}
+
+		// MSAA anti-aliasing
+		glfwWindowHint(GLFW_SAMPLES, m_Data.Samples);
 
 		m_Window = glfwCreateWindow(m_Data.Width, m_Data.Height, m_Data.Title.c_str(), nullptr, nullptr);
 		++s_WindowCount;
