@@ -55,33 +55,12 @@ void FontTest::OnEvent(Event& e)
 	EventDispatcher dispatcher(e);
 
 	dispatcher.Dispatch<WindowResizedEvent>(ATTACH_EVENT_FN(FontTest::OnWindowResized));
-	dispatcher.Dispatch<WindowMovedEvent>(ATTACH_EVENT_FN(FontTest::OnWindowMoved));
-	dispatcher.Dispatch<WindowFocusedEvent>(ATTACH_EVENT_FN(FontTest::OnWindowFocused));
-	dispatcher.Dispatch<WindowLostFocusEvent>(ATTACH_EVENT_FN(FontTest::OnWindowLostFocus));
 	dispatcher.Dispatch<KeyPressedEvent>(ATTACH_EVENT_FN(FontTest::OnKeyPressed));
 }
 
 bool FontTest::OnWindowResized(WindowResizedEvent& e)
 {
 	m_Camera.SetAspectRatio((float)e.GetWidth() / e.GetHeight());
-	return false;
-}
-
-bool FontTest::OnWindowMoved(WindowMovedEvent& e)
-{
-	std::cout << e.ToString() << std::endl;
-	return false;
-}
-
-bool FontTest::OnWindowFocused(WindowFocusedEvent& e)
-{
-	std::cout << e.ToString() << std::endl;
-	return false;
-}
-
-bool FontTest::OnWindowLostFocus(WindowLostFocusEvent& e)
-{
-	std::cout << e.ToString() << std::endl;
 	return false;
 }
 

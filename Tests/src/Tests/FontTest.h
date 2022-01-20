@@ -14,9 +14,6 @@ public:
 
 private:
 	bool OnWindowResized(WindowResizedEvent& e);
-	bool OnWindowMoved(WindowMovedEvent& e);
-	bool OnWindowFocused(WindowFocusedEvent& e);
-	bool OnWindowLostFocus(WindowLostFocusEvent& e);
 	bool OnKeyPressed(KeyPressedEvent& e);
 
 private:
