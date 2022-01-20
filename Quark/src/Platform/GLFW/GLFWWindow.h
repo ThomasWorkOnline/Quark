@@ -24,12 +24,18 @@ namespace Quark {
 		virtual void AppendTitle(const std::string& title) override;
 
 		virtual void Focus() override;
+		virtual void Minimize() override;
+		virtual void Maximize() override;
+		virtual void Restore() override;
+		virtual void RequestAttention() override;
 		virtual void DisableCursor() override;
 		virtual void EnableCursor() override;
 		virtual void SetVSync(bool enabled) override;
 		virtual void SetFullScreen(bool enabled) override;
 
 		virtual bool IsFocused() const override;
+		virtual bool IsMinimized() const override;
+		virtual bool IsMaximized() const override;
 		virtual bool IsCursorEnabled() const override;
 		virtual bool IsVSync() const override { return m_Data.VSync; }
 		virtual bool IsFullscreen() const override;

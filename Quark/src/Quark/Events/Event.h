@@ -9,7 +9,7 @@ namespace Quark {
 	enum class EventType
 	{
 		None = 0,
-		WindowClosed, WindowResized, WindowFocused, WindowLostFocus, WindowMoved,
+		WindowClosed, WindowResized, WindowFocused, WindowLostFocus, WindowMoved, WindowMaximized, WindowMinimized, WindowRestored,
 		AppTick, AppUpdate, AppRender,
 		KeyPressed, KeyReleased, KeyTyped,
 		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled

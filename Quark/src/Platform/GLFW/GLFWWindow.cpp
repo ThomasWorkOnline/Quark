@@ -91,6 +91,38 @@ namespace Quark {
 				data.EventCallback(event);
 			});
 
+		glfwSetWindowIconifyCallback(m_Window, [](GLFWwindow* window, int iconified)
+			{
+				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+
+				if (iconified)
+				{
+					WindowMinimizedEvent event;
+					data.EventCallback(event);
+				}
+				else
+				{
+					WindowRestoredEvent event;
+					data.EventCallback(event);
+				}
+			});
+
+		glfwSetWindowMaximizeCallback(m_Window, [](GLFWwindow* window, int maximized)
+			{
+				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+
+				if (maximized)
+				{
+					WindowMaximizedEvent event;
+					data.EventCallback(event);
+				}
+				else
+				{
+					WindowRestoredEvent event;
+					data.EventCallback(event);
+				}
+			});
+
 		glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window)
 			{
 				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
@@ -120,24 +152,24 @@ namespace Quark {
 
 				switch (action)
 				{
-				case GLFW_PRESS:
-				{
-					KeyPressedEvent event(static_cast<KeyCode>(key), 0);
-					data.EventCallback(event);
-					break;
-				}
-				case GLFW_RELEASE:
-				{
-					KeyReleasedEvent event(static_cast<KeyCode>(key));
-					data.EventCallback(event);
-					break;
-				}
-				case GLFW_REPEAT:
-				{
-					KeyPressedEvent event(static_cast<KeyCode>(key), 1);
-					data.EventCallback(event);
-					break;
-				}
+					case GLFW_PRESS:
+					{
+						KeyPressedEvent event(static_cast<KeyCode>(key), 0);
+						data.EventCallback(event);
+						break;
+					}
+					case GLFW_RELEASE:
+					{
+						KeyReleasedEvent event(static_cast<KeyCode>(key));
+						data.EventCallback(event);
+						break;
+					}
+					case GLFW_REPEAT:
+					{
+						KeyPressedEvent event(static_cast<KeyCode>(key), 1);
+						data.EventCallback(event);
+						break;
+					}
 				}
 			});
 
@@ -155,18 +187,18 @@ namespace Quark {
 
 				switch (action)
 				{
-				case GLFW_PRESS:
-				{
-					MouseButtonPressedEvent event(static_cast<MouseCode>(button));
-					data.EventCallback(event);
-					break;
-				}
-				case GLFW_RELEASE:
-				{
-					MouseButtonReleasedEvent event(static_cast<MouseCode>(button));
-					data.EventCallback(event);
-					break;
-				}
+					case GLFW_PRESS:
+					{
+						MouseButtonPressedEvent event(static_cast<MouseCode>(button));
+						data.EventCallback(event);
+						break;
+					}
+					case GLFW_RELEASE:
+					{
+						MouseButtonReleasedEvent event(static_cast<MouseCode>(button));
+						data.EventCallback(event);
+						break;
+					}
 				}
 			});
 
@@ -221,6 +253,26 @@ namespace Quark {
 		glfwFocusWindow(m_Window);
 	}
 
+	void GLFWWindow::Minimize()
+	{
+		glfwIconifyWindow(m_Window);
+	}
+
+	void GLFWWindow::Maximize()
+	{
+		glfwMaximizeWindow(m_Window);
+	}
+
+	void GLFWWindow::Restore()
+	{
+		glfwRestoreWindow(m_Window);
+	}
+
+	void GLFWWindow::RequestAttention()
+	{
+		glfwRequestWindowAttention(m_Window);
+	}
+
 	void GLFWWindow::DisableCursor()
 	{
 		glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -239,6 +291,8 @@ namespace Quark {
 
 	void GLFWWindow::SetFullScreen(bool enabled)
 	{
+		if (IsFullscreen() == enabled) return;
+
 		if (enabled)
 		{
 			GLFWmonitor* monitor = glfwGetPrimaryMonitor();
@@ -256,13 +310,23 @@ namespace Quark {
 			m_Data.Height = m_WindowedHeight;
 
 			// Restore last window size and position
-			glfwSetWindowMonitor(m_Window, nullptr, m_WindowedPosX, m_WindowedPosY, (int32_t)m_Data.Width, (int32_t)m_Data.Height, 0);
+			glfwSetWindowMonitor(m_Window, nullptr, m_WindowedPosX, m_WindowedPosY, m_Data.Width, m_Data.Height, 0);
 		}
 	}
 
 	bool GLFWWindow::IsFocused() const
 	{
 		return glfwGetWindowAttrib(m_Window, GLFW_FOCUSED);
+	}
+
+	bool GLFWWindow::IsMinimized() const
+	{
+		return glfwGetWindowAttrib(m_Window, GLFW_ICONIFIED);
+	}
+
+	bool GLFWWindow::IsMaximized() const
+	{
+		return glfwGetWindowAttrib(m_Window, GLFW_MAXIMIZED);
 	}
 
 	bool GLFWWindow::IsCursorEnabled() const

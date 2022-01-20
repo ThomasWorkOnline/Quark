@@ -65,6 +65,30 @@ namespace Quark {
 		uint32_t m_Width, m_Height;
 	};
 
+	class WindowMaximizedEvent : public WindowEvent
+	{
+	public:
+		WindowMaximizedEvent() = default;
+
+		EVENT_CLASS_TYPE(WindowMaximized);
+	};
+
+	class WindowMinimizedEvent : public WindowEvent
+	{
+	public:
+		WindowMinimizedEvent() = default;
+
+		EVENT_CLASS_TYPE(WindowMinimized);
+	};
+
+	class WindowRestoredEvent : public WindowEvent
+	{
+	public:
+		WindowRestoredEvent() = default;
+
+		EVENT_CLASS_TYPE(WindowRestored);
+	};
+
 	class WindowClosedEvent : public WindowEvent
 	{
 	public:

@@ -90,10 +90,12 @@ bool FontTest::OnKeyPressed(KeyPressedEvent& e)
 	switch (e.GetKeyCode())
 	{
 	case KeyCode::F11:
+	{
 		auto& window = GetWindow();
 		bool fullscreen = window.IsFullscreen();
 		window.SetFullScreen(!fullscreen);
 		break;
+	}
 	}
 	return false;
 }
