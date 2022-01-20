@@ -1,16 +1,16 @@
 #pragma once
 
-#include "Quark.h"
+#include <Quark.h>
 
 using namespace Quark;
 
-class FontTest : public Application
+class MainLayer : public Layer
 {
 public:
-	FontTest();
+	MainLayer();
 
-	void OnUpdate(float elapsedTime);
-	void OnEvent(Event& e);
+	virtual void OnUpdate(float elapsedTime) override;
+	virtual void OnEvent(Event& e) override;
 
 private:
 	bool OnWindowResized(WindowResizedEvent& e);

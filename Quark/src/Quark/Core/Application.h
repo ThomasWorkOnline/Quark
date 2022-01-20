@@ -1,43 +1,14 @@
 #pragma once
 
 #include "Core.h"
+#include "Layer.h"
 #include "Window.h"
+#include "AppOptions.h"
+
 #include "../Events/ApplicationEvent.h"
 #include "../Renderer/RenderingAPI.h"
 
 namespace Quark {
-
-    enum ApplicationFlags
-    {
-        ApplicationNoFlags      = 0,
-        ShowApiInWindowTitle    = BIT(0)
-    };
-
-    struct ApplicationOptions
-    {
-        uint32_t Width = 1280, Height = 720;
-        std::string Title = "Quark Engine";
-        ApplicationFlags Flags = ApplicationNoFlags;
-
-        RenderingAPI::API Api = RenderingAPI::API::OpenGL;
-
-        bool HasFlag(ApplicationFlags flag) const
-        {
-            return Flags & flag;
-        }
-
-        ApplicationOptions() = default;
-        ApplicationOptions(
-            uint32_t width, uint32_t height,
-            const std::string& title,
-            ApplicationFlags flags = ApplicationNoFlags,
-            RenderingAPI::API api = RenderingAPI::API::OpenGL
-        )
-            : Width(width), Height(height),
-            Title(title), Flags(flags), Api(api)
-        {
-        }
-    };
 
     class Application
     {
@@ -45,23 +16,21 @@ namespace Quark {
         Application(const ApplicationOptions& options = ApplicationOptions());
         virtual ~Application();
 
-        virtual void OnUpdate(float deltaTime) {}
-        virtual void OnEvent(Event& e) {}
+        void Run();
+        void Stop();
+        void OnEvent(Event& e);
+
+        void PushLayer(Layer* layer);
 
         float GetAppRunningTime() const { return m_TotalTime; }
+        std::thread::id GetThreadId() const { return m_AppMainThreadId; }
 
         const Window& GetWindow() const { return *m_Window; }
         Window& GetWindow() { return *m_Window; }
 
         static Application& Get() { return *s_Instance; }
-        std::thread::id GetThreadId() const { return m_AppMainThreadId; }
-
-        void Run();
-        void Stop();
 
     private:
-        void OnEventInternal(Event& e);
-        
         bool OnWindowClosed(WindowClosedEvent& e);
 		bool OnWindowResized(WindowResizedEvent& e);
 
@@ -71,6 +40,7 @@ namespace Quark {
 
         ApplicationOptions m_Options;
         Scope<Window> m_Window;
+        std::vector<Layer*> m_Layers;
 
         float m_TotalTime = 0.0f;
         bool m_Running = true;

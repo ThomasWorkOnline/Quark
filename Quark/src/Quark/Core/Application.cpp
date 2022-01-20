@@ -29,7 +29,7 @@ namespace Quark {
 		};
 
 		m_Window = Window::Create(spec);
-		m_Window->SetEventCallback(ATTACH_EVENT_FN(Application::OnEventInternal));
+		m_Window->SetEventCallback(ATTACH_EVENT_FN(Application::OnEvent));
 
 		Renderer::Initialize(m_Window->GetWidth(), m_Window->GetHeight());
 		AudioEngine::Initialize();
@@ -49,36 +49,17 @@ namespace Quark {
 		QK_CORE_TRACE("Initiating shutdown...");
 		QK_TIME_SCOPE_DEBUG(Application::~Application);
 
+		for (auto layer : m_Layers)
+		{
+			delete layer;
+		}
+
 		DeferredObjectManager::ReleaseRenderObjects();
 
 		Renderer::Dispose();
 		AudioEngine::Dispose();
 
 		s_Instance = nullptr;
-	}
-
-	void Application::OnEventInternal(Event& e)
-	{
-		EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<WindowClosedEvent>(ATTACH_EVENT_FN(Application::OnWindowClosed));
-		dispatcher.Dispatch<WindowResizedEvent>(ATTACH_EVENT_FN(Application::OnWindowResized));
-
-		// Dispatch all other not already handled events
-		if (!e.Handled) OnEvent(e);
-	}
-
-	bool Application::OnWindowClosed(WindowClosedEvent& e)
-	{
-		Stop();
-
-		return false;
-	}
-
-	bool Application::OnWindowResized(WindowResizedEvent& e)
-	{
-		Renderer::OnWindowResized(e.GetWidth(), e.GetHeight());
-
-		return false;
 	}
 
 	void Application::Stop()
@@ -99,12 +80,50 @@ namespace Quark {
 			tStart = std::chrono::steady_clock::now();
 
 			m_TotalTime += elapsedTime;
-			OnUpdate(elapsedTime);
+
+			for (auto layer : m_Layers)
+			{
+				layer->OnUpdate(elapsedTime);
+			}
 
 			m_Window->OnUpdate();
 
 			AudioEngine::OnUpdate();
 			DeferredObjectManager::ReleaseRenderObjects();
 		}
+	}
+
+	void Application::OnEvent(Event& e)
+	{
+		EventDispatcher dispatcher(e);
+		dispatcher.Dispatch<WindowClosedEvent>(ATTACH_EVENT_FN(Application::OnWindowClosed));
+		dispatcher.Dispatch<WindowResizedEvent>(ATTACH_EVENT_FN(Application::OnWindowResized));
+
+		// Dispatch all other not already handled events
+		for (auto it = m_Layers.rbegin(); it != m_Layers.rend(); it++)
+		{
+			if (e.Handled)
+				break;
+
+			auto layer = *it;
+			layer->OnEvent(e);
+		}
+	}
+
+	void Application::PushLayer(Layer* layer)
+	{
+		m_Layers.push_back(layer);
+	}
+
+	bool Application::OnWindowClosed(WindowClosedEvent& e)
+	{
+		Stop();
+		return false;
+	}
+
+	bool Application::OnWindowResized(WindowResizedEvent& e)
+	{
+		Renderer::OnWindowResized(e.GetWidth(), e.GetHeight());
+		return false;
 	}
 }

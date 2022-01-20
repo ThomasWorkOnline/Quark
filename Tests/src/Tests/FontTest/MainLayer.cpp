@@ -1,6 +1,6 @@
-#include "FontTest.h"
+#include "MainLayer.h"
 
-FontTest::FontTest()
+MainLayer::MainLayer()
 {
 	TextureArraySpecification spec;
 	spec.Width = 48;
@@ -22,7 +22,7 @@ FontTest::FontTest()
 	m_TextureArray->SetData(image.Data(), image.Size(), 0);
 }
 
-void FontTest::OnUpdate(float elapsedTime)
+void MainLayer::OnUpdate(float elapsedTime)
 {
 	m_Camera.OnUpdate();
 
@@ -50,27 +50,27 @@ void FontTest::OnUpdate(float elapsedTime)
 	}
 }
 
-void FontTest::OnEvent(Event& e)
+void MainLayer::OnEvent(Event& e)
 {
 	EventDispatcher dispatcher(e);
 
-	dispatcher.Dispatch<WindowResizedEvent>(ATTACH_EVENT_FN(FontTest::OnWindowResized));
-	dispatcher.Dispatch<KeyPressedEvent>(ATTACH_EVENT_FN(FontTest::OnKeyPressed));
+	dispatcher.Dispatch<WindowResizedEvent>(ATTACH_EVENT_FN(MainLayer::OnWindowResized));
+	dispatcher.Dispatch<KeyPressedEvent>(ATTACH_EVENT_FN(MainLayer::OnKeyPressed));
 }
 
-bool FontTest::OnWindowResized(WindowResizedEvent& e)
+bool MainLayer::OnWindowResized(WindowResizedEvent& e)
 {
 	m_Camera.SetAspectRatio((float)e.GetWidth() / e.GetHeight());
 	return false;
 }
 
-bool FontTest::OnKeyPressed(KeyPressedEvent& e)
+bool MainLayer::OnKeyPressed(KeyPressedEvent& e)
 {
 	switch (e.GetKeyCode())
 	{
 	case KeyCode::F11:
 	{
-		auto& window = GetWindow();
+		auto& window = Application::Get().GetWindow();
 		bool fullscreen = window.IsFullscreen();
 		window.SetFullScreen(!fullscreen);
 		break;
