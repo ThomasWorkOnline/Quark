@@ -49,10 +49,8 @@ namespace Quark {
 		QK_CORE_TRACE("Initiating shutdown...");
 		QK_TIME_SCOPE_DEBUG(Application::~Application);
 
-		for (auto layer : m_Layers)
-		{
-			delete layer;
-		}
+		for (uint32_t i = 0; i < m_Layers.size(); i++)
+			delete m_Layers[i];
 
 		DeferredObjectManager::ReleaseRenderObjects();
 
@@ -81,10 +79,8 @@ namespace Quark {
 
 			m_TotalTime += elapsedTime;
 
-			for (auto layer : m_Layers)
-			{
-				layer->OnUpdate(elapsedTime);
-			}
+			for (uint32_t i = 0; i < m_Layers.size(); i++)
+				m_Layers[i]->OnUpdate(elapsedTime);
 
 			m_Window->OnUpdate();
 
@@ -103,13 +99,12 @@ namespace Quark {
 			OnEvent(e);
 
 		// Dispatch all other not already handled events
-		for (auto it = m_Layers.rbegin(); it != m_Layers.rend(); it++)
+		for (int32_t i = m_Layers.size() - 1; i >= 0; i--)
 		{
 			if (e.Handled)
 				break;
 
-			auto layer = *it;
-			layer->OnEvent(e);
+			m_Layers[i]->OnEvent(e);
 		}
 	}
 
