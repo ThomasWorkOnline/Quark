@@ -78,6 +78,7 @@ namespace Quark {
 			tStart = std::chrono::steady_clock::now();
 
 			m_TotalTime += elapsedTime;
+			OnUpdate(elapsedTime);
 
 			for (uint32_t i = 0; i < m_Layers.size(); i++)
 				m_Layers[i]->OnUpdate(elapsedTime);
