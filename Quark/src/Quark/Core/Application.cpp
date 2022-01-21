@@ -29,7 +29,7 @@ namespace Quark {
 		};
 
 		m_Window = Window::Create(spec);
-		m_Window->SetEventCallback(ATTACH_EVENT_FN(Application::OnEvent));
+		m_Window->SetEventCallback(ATTACH_EVENT_FN(Application::OnEventInternal));
 
 		Renderer::Initialize(m_Window->GetWidth(), m_Window->GetHeight());
 		AudioEngine::Initialize();
@@ -93,11 +93,14 @@ namespace Quark {
 		}
 	}
 
-	void Application::OnEvent(Event& e)
+	void Application::OnEventInternal(Event& e)
 	{
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowClosedEvent>(ATTACH_EVENT_FN(Application::OnWindowClosed));
 		dispatcher.Dispatch<WindowResizedEvent>(ATTACH_EVENT_FN(Application::OnWindowResized));
+
+		if (!e.Handled)
+			OnEvent(e);
 
 		// Dispatch all other not already handled events
 		for (auto it = m_Layers.rbegin(); it != m_Layers.rend(); it++)
@@ -113,6 +116,14 @@ namespace Quark {
 	void Application::PushLayer(Layer* layer)
 	{
 		m_Layers.push_back(layer);
+	}
+
+	void Application::PopLayer(Layer* layer)
+	{
+		auto it = std::find(m_Layers.begin(), m_Layers.end(), layer);
+
+		if (it != m_Layers.end())
+			m_Layers.erase(it);
 	}
 
 	bool Application::OnWindowClosed(WindowClosedEvent& e)

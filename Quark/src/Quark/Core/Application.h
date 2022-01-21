@@ -15,12 +15,14 @@ namespace Quark {
     public:
         Application(const ApplicationOptions& options = ApplicationOptions());
         virtual ~Application();
+        
+        virtual void OnUpdate(float elapsedTime) {}
+        virtual void OnEvent(Event& e) {}
 
         void Run();
         void Stop();
-        void OnEvent(Event& e);
-
         void PushLayer(Layer* layer);
+        void PopLayer(Layer* layer);
 
         float GetAppRunningTime() const { return m_TotalTime; }
         std::thread::id GetThreadId() const { return m_AppMainThreadId; }
@@ -31,6 +33,8 @@ namespace Quark {
         static Application& Get() { return *s_Instance; }
 
     private:
+        void OnEventInternal(Event& e);
+
         bool OnWindowClosed(WindowClosedEvent& e);
 		bool OnWindowResized(WindowResizedEvent& e);
 
