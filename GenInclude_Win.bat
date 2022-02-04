@@ -3,7 +3,7 @@ set version=1.0
 set dest=quark-v%version%
 
 :: Copy Quark header files
-xcopy /e .\Quark\src\Quark\*.h .\%dest%\include\QK\
+xcopy /e .\Quark\src\Quark\*.h .\%dest%\include\Quark\
 xcopy .\Quark\src\Quark.h .\%dest%\include\
 
 :: Copy binaries
