@@ -3,7 +3,8 @@ set version=1.0
 set dest=quark-v%version%
 
 :: Copy Quark header files
-xcopy /e .\Quark\src\*.h .\%dest%\include\
+xcopy /e .\Quark\src\Quark\*.h .\%dest%\include\QK\
+xcopy .\Quark\src\Quark.h .\%dest%\include\
 
 :: Copy binaries
 xcopy .\bin\windows-Debug-x86_64\Quark\*.lib .\%dest%\lib\Windows-x64-Debug\
