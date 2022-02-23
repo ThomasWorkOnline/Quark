@@ -1,6 +1,7 @@
 #include "Shader.h"
 
 #include "RenderingAPI.h"
+#include "DeferredObjectDeleter.h"
 
 // Include all supported API's shader implementations
 #include "../../Platform/OpenGL/OpenGLShader.h"

@@ -6,7 +6,7 @@
 
 namespace Quark {
 
-    enum ApplicationFlags
+    enum ApplicationFlag
     {
         ApplicationNoFlags = 0,
         ShowApiInWindowTitle = BIT(0)
@@ -16,11 +16,11 @@ namespace Quark {
     {
         uint32_t Width = 1280, Height = 720;
         std::string Title = "Quark Engine";
-        ApplicationFlags Flags = ApplicationNoFlags;
+        ApplicationFlag Flags = ApplicationNoFlags;
 
         RenderingAPI::API Api = RenderingAPI::API::OpenGL;
 
-        bool HasFlag(ApplicationFlags flag) const
+        bool HasFlag(ApplicationFlag flag) const
         {
             return Flags & flag;
         }
@@ -29,7 +29,7 @@ namespace Quark {
         ApplicationOptions(
             uint32_t width, uint32_t height,
             const std::string& title,
-            ApplicationFlags flags = ApplicationNoFlags,
+            ApplicationFlag flags = ApplicationNoFlags,
             RenderingAPI::API api = RenderingAPI::API::OpenGL
         )
             : Width(width), Height(height),

@@ -80,7 +80,7 @@ namespace Quark {
 			m_TotalTime += elapsedTime;
 			OnUpdate(elapsedTime);
 
-			for (uint32_t i = 0; i < m_Layers.size(); i++)
+			for (size_t i = 0; i < m_Layers.size(); i++)
 				m_Layers[i]->OnUpdate(elapsedTime);
 
 			m_Window->OnUpdate();
@@ -100,12 +100,12 @@ namespace Quark {
 			OnEvent(e);
 
 		// Dispatch all other not already handled events
-		for (int32_t i = m_Layers.size() - 1; i >= 0; i--)
+		for (size_t i = m_Layers.size(); i > 0; i--)
 		{
 			if (e.Handled)
 				break;
 
-			m_Layers[i]->OnEvent(e);
+			m_Layers[i - 1]->OnEvent(e);
 		}
 	}
 

@@ -19,13 +19,12 @@ namespace Quark {
 		Image(const std::string& filepath, bool flipVertically = false);
 		~Image();
 
-		const ImageProperties& GetProperties() const { return m_Spec; }
+		const ImageProperties& GetProperties() const { return m_Properties; }
 		ImageData* Data() const { return m_Data; }
 		size_t Size() const;
 			
 	private:
 		ImageData* m_Data = nullptr;
-
-		ImageProperties m_Spec;
+		ImageProperties m_Properties;
 	};
 }

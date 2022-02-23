@@ -62,7 +62,7 @@ namespace Quark {
 
 		Scope<GraphicsContext> m_Context;
 		GLFWwindow* m_Window;
-		WindowData m_Data;
+		WindowData m_Data{};
 
 		int32_t m_WindowedPosX = 0, m_WindowedPosY = 0;
 		int32_t m_WindowedWidth = 0, m_WindowedHeight = 0;

@@ -41,42 +41,42 @@ namespace Quark {
 			// Controls
 			if (Input::IsKeyPressed(Key::W))
 			{
-				physics.Velocity += transform.GetFrontVector() * FloatingType(elapsedTime) * m_MovementSpeed;
+				physics.Velocity += transform.GetFrontVector() * Float(elapsedTime) * m_MovementSpeed;
 			}
 
 			if (Input::IsKeyPressed(Key::S))
 			{
-				physics.Velocity -= transform.GetFrontVector() * FloatingType(elapsedTime) * m_MovementSpeed;
+				physics.Velocity -= transform.GetFrontVector() * Float(elapsedTime) * m_MovementSpeed;
 			}
 
 			if (Input::IsKeyPressed(Key::D))
 			{
-				physics.Velocity += transform.GetRightVector() * FloatingType(elapsedTime) * m_MovementSpeed;
+				physics.Velocity += transform.GetRightVector() * Float(elapsedTime) * m_MovementSpeed;
 			}
 
 			if (Input::IsKeyPressed(Key::A))
 			{
-				physics.Velocity -= transform.GetRightVector() * FloatingType(elapsedTime) * m_MovementSpeed;
+				physics.Velocity -= transform.GetRightVector() * Float(elapsedTime) * m_MovementSpeed;
 			}
 
 			if (Input::IsKeyPressed(Key::Space))
 			{
-				physics.Velocity += transform.GetTopVector() * FloatingType(elapsedTime) * m_MovementSpeed;
+				physics.Velocity += transform.GetTopVector() * Float(elapsedTime) * m_MovementSpeed;
 			}
 
 			if (Input::IsKeyPressed(Key::LeftShift))
 			{
-				physics.Velocity -= transform.GetTopVector() * FloatingType(elapsedTime) * m_MovementSpeed;
+				physics.Velocity -= transform.GetTopVector() * Float(elapsedTime) * m_MovementSpeed;
 			}
 
 			if (Input::IsKeyPressed(Key::Q))
 			{
-				transform.Rotate(FloatingType(elapsedTime) * m_RollSensitivity, -transform.GetFrontVector());
+				transform.Rotate(Float(elapsedTime) * m_RollSensitivity, -transform.GetFrontVector());
 			}
 
 			if (Input::IsKeyPressed(Key::E))
 			{
-				transform.Rotate(FloatingType(elapsedTime) * m_RollSensitivity, transform.GetFrontVector());
+				transform.Rotate(Float(elapsedTime) * m_RollSensitivity, transform.GetFrontVector());
 			}
 
 			if (Input::IsKeyPressed(Key::D0))
@@ -88,13 +88,13 @@ namespace Quark {
 			}
 
 			// Zooming
-			constexpr FloatingType zoomFrictionCoeff = 8.0f;
-			m_ZoomSpeed -= (m_ZoomSpeed * zoomFrictionCoeff) * FloatingType(elapsedTime);
+			constexpr Float zoomFrictionCoeff = 8.0f;
+			m_ZoomSpeed -= (m_ZoomSpeed * zoomFrictionCoeff) * Float(elapsedTime);
 
 			// Check if the fov needs to be changed
 			if (abs(m_ZoomSpeed) > 0.1f)
 			{
-				camera.SetFov(camera.GetFov() - m_ZoomSpeed * FloatingType(elapsedTime) * camera.GetFov());
+				camera.SetFov(camera.GetFov() - m_ZoomSpeed * Float(elapsedTime) * camera.GetFov());
 			}
 
 			if (camera.GetFov() < 1.0f)
@@ -143,8 +143,8 @@ namespace Quark {
 			auto& camera = m_CameraEntity.GetComponent<PerspectiveCameraComponent>().Camera;
 
 			Vector2 mouseMove = { e.GetXOffset(), e.GetYOffset() };
-			Quat qYaw = glm::angleAxis(-mouseMove.x * m_MouseSensitivity * camera.GetFov() / FloatingType(90.0), Vector3(0.0f, 1.0f, 0.0f) * transform.Orientation);
-			Quat qPitch = glm::angleAxis(-mouseMove.y * m_MouseSensitivity * camera.GetFov() / FloatingType(90.0), Vector3(1.0f, 0.0f, 0.0f) * transform.Orientation);
+			Quat qYaw = glm::angleAxis(-mouseMove.x * m_MouseSensitivity * camera.GetFov() / Float(90.0), Vector3(0.0f, 1.0f, 0.0f) * transform.Orientation);
+			Quat qPitch = glm::angleAxis(-mouseMove.y * m_MouseSensitivity * camera.GetFov() / Float(90.0), Vector3(1.0f, 0.0f, 0.0f) * transform.Orientation);
 
 			transform.Rotate(qPitch * qYaw);
 		}

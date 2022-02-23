@@ -10,8 +10,8 @@ namespace Quark {
 	{
 		stbi_set_flip_vertically_on_load(flipVertically);
 
-		m_Spec.Filepath = filepath;
-		m_Data = stbi_load(filepath.c_str(), &m_Spec.Width, &m_Spec.Height, &m_Spec.Channels, 0);
+		m_Properties.Filepath = filepath;
+		m_Data = stbi_load(filepath.c_str(), &m_Properties.Width, &m_Properties.Height, &m_Properties.Channels, 0);
 		QK_ASSERT(m_Data, "Failed to load image at path: " << filepath);
 	}
 
@@ -22,6 +22,6 @@ namespace Quark {
 
 	size_t Image::Size() const
 	{
-		return m_Spec.Width * m_Spec.Height * m_Spec.Channels;
+		return m_Properties.Width * m_Properties.Height * m_Properties.Channels;
 	}
 }

@@ -1,18 +1,26 @@
 #pragma once
 
 #include "../Core/Core.h"
-#include "DeferredObjectManager.h"
+#include "../Core/Application.h"
+
 #include "DeferredObject.h"
+#include "DeferredObjectManager.h"
 
 namespace Quark {
 	
 	class DeferredObjectDeleter
 	{
 	public:
-		template<typename T>
-		void operator()(T* object) const noexcept
+		void operator()(DeferredObject* object) const noexcept
 		{
-			DeferredObjectManager::DeferredDelete(object);
+			if (std::this_thread::get_id() == Application::Get().GetThreadId())
+			{
+				delete object;
+			}
+			else
+			{
+				DeferredObjectManager::DeferredDelete(object);
+			}
 		}
 	};
 }

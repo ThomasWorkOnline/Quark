@@ -1,6 +1,7 @@
 #include "Buffer.h"
 
 #include "RenderingAPI.h"
+#include "DeferredObjectDeleter.h"
 
 // Include all supported API's buffers implementations
 #include "../../Platform/OpenGL/OpenGLBuffer.h"

@@ -10,6 +10,11 @@ namespace Quark {
 	class Random
 	{
 	public:
+		explicit Random(uint32_t seed = std::mt19937::default_seed)
+			: m_NoiseEngine(seed)
+		{
+		}
+
 		inline void Seed(uint32_t seed)
 		{
 			m_NoiseEngine.seed(seed);
@@ -28,7 +33,7 @@ namespace Quark {
 		static constexpr uint32_t GetDefaultSeed() { return std::mt19937::default_seed; }
 
 	private:
-		std::mt19937 m_NoiseEngine{};
+		std::mt19937 m_NoiseEngine;
 	};
 
 	template<typename T>

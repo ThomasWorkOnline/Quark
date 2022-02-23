@@ -220,7 +220,7 @@ namespace Quark {
 				data.CursorXpos = xPos;
 				data.CursorYpos = yPos;
 
-				MouseMovedEvent event((float)xPos, (float)yPos, xOffset, yOffset);
+				MouseMovedEvent event((float)xPos, (float)yPos, (float)xOffset, (float)yOffset);
 				data.EventCallback(event);
 			});
 	}

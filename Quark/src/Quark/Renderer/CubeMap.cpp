@@ -1,6 +1,7 @@
 #include "CubeMap.h"
 
 #include "RenderingAPI.h"
+#include "DeferredObjectDeleter.h"
 
 // Include all supported API's environment maps implementations
 #include "../../Platform/OpenGL/OpenGLCubeMap.h"

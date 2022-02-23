@@ -1,10 +1,11 @@
 #pragma once
 
 #include "../Core/Core.h"
+#include "Camera.h"
 
 namespace Quark {
 
-	class OrthographicCamera
+	class OrthographicCamera : public Camera
 	{
 	public:
 		OrthographicCamera(float aspectRatio, float zoom);
@@ -15,16 +16,14 @@ namespace Quark {
 		float GetZoom() const { return m_Zoom; }
 		void SetZoom(float value) { m_Zoom = value; m_RequiresUpdate = true; }
 
-		const glm::mat4& GetMatrix() const { return m_Projection; }
+		const glm::mat4& GetMatrix() const { return m_Matrix; }
 
 		void OnUpdate();
 
 	private:
 		void RecalculateProjection();
 
-		glm::mat4 m_Projection;
 		float m_AspectRatio;
 		float m_Zoom;
-		bool m_RequiresUpdate = false;
 	};
 }

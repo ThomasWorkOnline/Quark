@@ -18,10 +18,10 @@ namespace Quark {
 			: Position(other.Position), Scale(other.Scale), Orientation(other.Orientation) {}
 
 		Transform3DComponent()
-			: Position(0.0), Scale(1.0), Orientation(glm::angleAxis(FloatingType(0.0), Vector3(0.0f, 0.0f, 1.0f))) { }
+			: Position(0.0), Scale(1.0), Orientation(glm::angleAxis(Float(0.0), Vector3(0.0f, 0.0f, 1.0f))) {}
 
 		Transform3DComponent(const Vector3& position, const Vector3& scale, const Quat& orientation)
-			: Position(position), Scale(scale), Orientation(orientation) { }
+			: Position(position), Scale(scale), Orientation(orientation) {}
 
 		operator Mat4()
 		{
@@ -39,7 +39,7 @@ namespace Quark {
 		}
 
 		Transform3DComponent& Rotate(const Quat& quat) { Orientation = glm::normalize(Orientation * quat); return *this; }
-		Transform3DComponent& Rotate(FloatingType angle, const Vector3& axis) { Rotate(glm::angleAxis(angle, glm::normalize(axis))); return *this; }
+		Transform3DComponent& Rotate(Float angle, const Vector3& axis) { Rotate(glm::angleAxis(angle, glm::normalize(axis))); return *this; }
 
 	private:
 		Mat4f ComputeMatrix()
@@ -53,13 +53,13 @@ namespace Quark {
 	struct PhysicsComponent
 	{
 		Vector3 Velocity;
-		FloatingType Friction;
+		Float Friction;
 
 		PhysicsComponent()
 			: Velocity(0.0), Friction(0.0) { }
 
-		PhysicsComponent(const Vector3& initVelocity, FloatingType coeffFriction)
-			: Velocity(initVelocity), Friction(coeffFriction) { }
+		PhysicsComponent(const Vector3& initVelocity, Float coeffFriction)
+			: Velocity(initVelocity), Friction(coeffFriction) {}
 	};
 
 	struct MeshComponent
@@ -76,7 +76,7 @@ namespace Quark {
 		PerspectiveCamera Camera;
 
 		PerspectiveCameraComponent(float aspectRatio, float fov)
-			: Camera(aspectRatio, fov) { }
+			: Camera(aspectRatio, fov) {}
 	};
 
 	struct OrthographicCameraComponent
@@ -84,7 +84,7 @@ namespace Quark {
 		OrthographicCamera Camera;
 
 		OrthographicCameraComponent(float aspectRatio, float zoom)
-			: Camera(aspectRatio, zoom) { }
+			: Camera(aspectRatio, zoom) {}
 	};
 
 	struct TagComponent
@@ -92,6 +92,6 @@ namespace Quark {
 		std::string Name;
 
 		TagComponent(const std::string& name)
-			: Name(name) { }
+			: Name(name) {}
 	};
 }

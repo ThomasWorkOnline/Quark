@@ -1,6 +1,7 @@
 #include "Framebuffer.h"
 
 #include "RenderingAPI.h"
+#include "DeferredObjectDeleter.h"
 
 // Include all supported API's frame buffer implementations
 #include "../../Platform/OpenGL/OpenGLFramebuffer.h"

@@ -1,6 +1,7 @@
 #include "Font.h"
 
 #include "RenderingAPI.h"
+#include "DeferredObjectDeleter.h"
 
 // Include all supported API's font implementations
 #include "../../Platform/OpenGL/OpenGLFont.h"

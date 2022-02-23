@@ -1,15 +1,16 @@
 #pragma once
 
 #include "../Core/Core.h"
+#include "Camera.h"
 
 namespace Quark {
 
-	class PerspectiveCamera
+	class PerspectiveCamera : public Camera
 	{
 	public:
 		PerspectiveCamera(float aspectRatio, float fov);
 
-		const glm::mat4& GetProjection() const { return m_Projection; }
+		const glm::mat4& GetProjection() const { return m_Matrix; }
 
 		float GetFov() const { return m_Fov; }
 		void SetFov(float fov) { m_Fov = fov; m_RequiresUpdate = true; }
@@ -22,9 +23,7 @@ namespace Quark {
 	private:
 		void RecalculateProjection();
 
-		glm::mat4 m_Projection;
 		float m_AspectRatio;
 		float m_Fov;
-		bool m_RequiresUpdate = false;
 	};
 }

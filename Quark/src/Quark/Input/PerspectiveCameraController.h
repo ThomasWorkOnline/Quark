@@ -46,14 +46,14 @@ namespace Quark {
 		/// <summary>
 		/// Members can be altered.
 		/// </summary>
-		FloatingType m_RollSensitivity = 1.0;
-		FloatingType m_MovementSpeed = 12.0;
-		FloatingType m_MouseSensitivity = 0.002;
-		FloatingType m_MouseScrollSensitivity = 1.0;
+		Float m_RollSensitivity = 1.0f;
+		Float m_MovementSpeed = 12.0f;
+		Float m_MouseSensitivity = 0.002f;
+		Float m_MouseScrollSensitivity = 1.0f;
 
 	private:
-		FloatingType m_ZoomSpeed = 0.0;
-		FloatingType m_DefaultMovementSpeed = m_MovementSpeed;
-		FloatingType m_DefaultRollSensitivity = m_RollSensitivity;
+		Float m_ZoomSpeed = 0.0f;
+		Float m_DefaultMovementSpeed = m_MovementSpeed;
+		Float m_DefaultRollSensitivity = m_RollSensitivity;
 	};
 }

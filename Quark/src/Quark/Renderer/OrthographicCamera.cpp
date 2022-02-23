@@ -19,6 +19,6 @@ namespace Quark {
 
 	void OrthographicCamera::RecalculateProjection()
 	{
-		m_Projection = glm::ortho(-m_Zoom * m_AspectRatio, m_Zoom * m_AspectRatio, -m_Zoom, m_Zoom, -1.0f, 1.0f);
+		m_Matrix = glm::ortho(-m_Zoom * m_AspectRatio, m_Zoom * m_AspectRatio, -m_Zoom, m_Zoom, -1.0f, 1.0f);
 	}
 }

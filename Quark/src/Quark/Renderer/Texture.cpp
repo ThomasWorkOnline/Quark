@@ -1,6 +1,7 @@
 #include "Texture.h"
 
 #include "RenderingAPI.h"
+#include "DeferredObjectDeleter.h"
 
 // Include all supported API's texture implementations
 #include "../../Platform/OpenGL/OpenGLTexture.h"

@@ -11,15 +11,7 @@ namespace Quark {
 	class DeferredObjectManager
 	{
 	public:
-		template<typename T>
-		static void DeferredDelete(T* object)
-		{
-			QK_ASSERT(dynamic_cast<DeferredObject*>(object), "Object is not of polymorphic DeferredObject type.");
-
-			std::lock_guard<std::mutex> lock(s_DeferredObjectsMutex);
-			s_DeferredObjects.push(object);
-		}
-
+		static void DeferredDelete(DeferredObject* object);
 		static void ReleaseRenderObjects();
 
 	private:

@@ -2,8 +2,6 @@
 
 #include "../Core/Core.h"
 
-#include "DeferredObjectDeleter.h"
-
 #include "VertexArray.h"
 
 // Implementations are done in the corresponding platform
@@ -42,7 +40,6 @@ namespace Quark {
 		};
 
         virtual ~RenderingAPI() = default;
-
         virtual void Init() = 0;
 
         virtual void SetClearColor(const glm::vec4& rgba) = 0;

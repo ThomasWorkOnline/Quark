@@ -5,6 +5,12 @@ namespace Quark {
 	std::mutex DeferredObjectManager::s_DeferredObjectsMutex;
 	std::stack<DeferredObject*> DeferredObjectManager::s_DeferredObjects;
 
+	void DeferredObjectManager::DeferredDelete(DeferredObject* object)
+	{
+		std::lock_guard<std::mutex> lock(s_DeferredObjectsMutex);
+		s_DeferredObjects.push(object);
+	}
+
 	void DeferredObjectManager::ReleaseRenderObjects()
 	{
 		while (HasObjects())

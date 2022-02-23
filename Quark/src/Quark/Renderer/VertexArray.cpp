@@ -1,6 +1,7 @@
 #include "VertexArray.h"
 
 #include "RenderingAPI.h"
+#include "DeferredObjectDeleter.h"
 
 // Include all supported API's vertex arrays implementations
 #include "../../Platform/OpenGL/OpenGLVertexArray.h"
