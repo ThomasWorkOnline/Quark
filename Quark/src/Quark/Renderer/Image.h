@@ -9,14 +9,13 @@ namespace Quark {
 	struct ImageProperties
 	{
 		int32_t Width, Height, Channels;
-		std::string Filepath;
 		bool SRGB = true;
 	};
 
 	class Image
 	{
 	public:
-		Image(const std::string& filepath, bool flipVertically = false);
+		Image(std::string_view filepath, bool flipVertically = false);
 		~Image();
 
 		const ImageProperties& GetProperties() const { return m_Properties; }
@@ -25,6 +24,6 @@ namespace Quark {
 			
 	private:
 		ImageData* m_Data = nullptr;
-		ImageProperties m_Properties;
+		ImageProperties m_Properties{};
 	};
 }
