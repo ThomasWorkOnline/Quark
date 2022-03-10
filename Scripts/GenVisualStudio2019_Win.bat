@@ -1,3 +1,5 @@
-call ..\vendor\bin\premake5\premake5.exe vs2019
+pushd %~dp0\..\
+call vendor\bin\premake5\premake5.exe vs2019
+popd
 
 pause
