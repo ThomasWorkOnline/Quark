@@ -1,5 +1,3 @@
--- premake5.lua for Windows only
-
 workspace "Quark"
 	architecture "x86_64"
 	startproject "Tests"
@@ -54,7 +52,6 @@ project "Quark"
 
 	postbuildcommands
 	{
-		("{COPY} ../bin/" .. outputdir .. "/%{prj.name}/**.lib ../bin/" .. outputdir .. "/Tests"),
 		("{COPY} vendor/irrKlang/bin/winx64-visualStudio/**.dll ../bin/" .. outputdir .. "/Tests")
 	}
 
