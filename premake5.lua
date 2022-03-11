@@ -50,11 +50,6 @@ project "Quark"
 		"GLFW_INCLUDE_NONE"
 	}
 
-	postbuildcommands
-	{
-		("{COPY} vendor/irrKlang/bin/winx64-visualStudio/**.dll ../bin/" .. outputdir .. "/Tests")
-	}
-
 	filter "system:windows"
 		systemversion "latest"
 
@@ -71,6 +66,11 @@ project "Quark"
 			"%{prj.name}/vendor/glfw/lib-vc2019/x64",
 			"%{prj.name}/vendor/irrKlang/lib/Winx64-visualStudio",
 			"%{prj.name}/vendor/freetype/vs2015-2019/win64"
+		}
+
+		postbuildcommands
+		{
+			("{COPY} vendor/irrKlang/bin/winx64-visualStudio/**.dll ../bin/" .. outputdir .. "/Tests")
 		}
 
 	filter "configurations:Debug"
