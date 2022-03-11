@@ -36,7 +36,8 @@ project "Quark"
 
 	includedirs
 	{
-		"%{prj.name}/vendor", -- glm, stb_image
+		"%{prj.name}/vendor", -- stb_image
+		"%{prj.name}/vendor/glm",
 		"%{prj.name}/vendor/entt/include",
 		"%{prj.name}/vendor/freetype/include",
 		"%{prj.name}/vendor/glad/include",
@@ -102,6 +103,7 @@ project "Tests"
 	{
 		"Quark/src",
 		"Quark/vendor",
+		"Quark/vendor/glm",
 		"Quark/vendor/entt/include"
 	}
 

@@ -2,12 +2,11 @@
 
 #include "../../Quark/Core/Core.h"
 
-#include "../../../vendor/glm/gtc/type_ptr.hpp"
-
 #include <fstream>
 #include <vector>
 #include <unordered_map>
 
+#include <glm/gtc/type_ptr.hpp>
 #include <glad/glad.h>
 
 namespace Quark {
