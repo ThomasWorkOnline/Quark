@@ -7,7 +7,7 @@ xcopy /e ..\Quark\src\Quark\*.h .\%dest%\include\Quark\
 xcopy ..\Quark\src\Quark.h .\%dest%\include\
 
 :: Copy header libraries
-xcopy /e ..\Quark\vendor\entt\single_include\*.hpp .\%dest%\include\
+xcopy /e ..\Quark\vendor\entt\include\*.hpp .\%dest%\include\
 xcopy /e ..\Quark\vendor\glm\*.h .\%dest%\include\glm\
 xcopy /e ..\Quark\vendor\glm\*.hpp .\%dest%\include\glm\
 xcopy /e ..\Quark\vendor\glm\*.inl .\%dest%\include\glm\
