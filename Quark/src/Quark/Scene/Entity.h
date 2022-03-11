@@ -4,8 +4,6 @@
 
 #include "Scene.h"
 
-#include <entt.hpp>
-
 namespace Quark {
 
 	class Entity

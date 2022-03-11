@@ -29,6 +29,7 @@ project "Quark"
 	{
 		"%{prj.name}/vendor/glad/include/**.h",
 		"%{prj.name}/vendor/glad/**.c",
+
 		"%{prj.name}/src/**.h",
 		"%{prj.name}/src/**.cpp"
 	}
@@ -36,11 +37,11 @@ project "Quark"
 	includedirs
 	{
 		"%{prj.name}/vendor", -- glm, stb_image
-		"%{prj.name}/vendor/entt/include",
+		"%{prj.name}/vendor/entt/single_include",
+		"%{prj.name}/vendor/freetype/include",
 		"%{prj.name}/vendor/glad/include",
 		"%{prj.name}/vendor/glfw/include",
-		"%{prj.name}/vendor/irrKlang/include",
-		"%{prj.name}/vendor/freetype/include"
+		"%{prj.name}/vendor/irrKlang/include"
 	}
 
 	defines
@@ -55,17 +56,17 @@ project "Quark"
 
 		links
 		{
+			"freetype.lib",
 			"opengl32.lib",
 			"glfw3.lib",
-			"irrKlang.lib",
-			"freetype.lib"
+			"irrKlang.lib"
 		}
 
 		libdirs
 		{
+			"%{prj.name}/vendor/freetype/vs2015-2019/win64",
 			"%{prj.name}/vendor/glfw/lib-vc2019/x64",
-			"%{prj.name}/vendor/irrKlang/lib/Winx64-visualStudio",
-			"%{prj.name}/vendor/freetype/vs2015-2019/win64"
+			"%{prj.name}/vendor/irrKlang/lib/Winx64-visualStudio"
 		}
 
 		postbuildcommands
@@ -100,8 +101,8 @@ project "Tests"
 	includedirs
 	{
 		"Quark/src",
-		"%{prj.name}/vendor",
-		"%{prj.name}/vendor/entt/include"
+		"Quark/vendor",
+		"Quark/vendor/entt/single_include"
 	}
 
 	libdirs

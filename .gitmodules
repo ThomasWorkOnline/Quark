@@ -1,0 +1,3 @@
+[submodule "entt"]
+	path = Quark/vendor/entt
+	url = https://github.com/skypjack/entt
