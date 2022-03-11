@@ -2,7 +2,7 @@
 
 #include "../Core/Core.h"
 
-#include <entt/entt.hpp>
+#include <entt.hpp>
 
 namespace Quark {
 

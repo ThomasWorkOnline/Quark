@@ -20,11 +20,3 @@ quark-v1.0
 
 # macOS files
 .DS_Store
-
-# Prerequisites
-*.d
-
-# Compiled Object files
-*.slo
-*.lo
-*.o

@@ -37,7 +37,7 @@ project "Quark"
 	includedirs
 	{
 		"%{prj.name}/vendor", -- glm, stb_image
-		"%{prj.name}/vendor/entt/single_include",
+		"%{prj.name}/vendor/entt/include",
 		"%{prj.name}/vendor/freetype/include",
 		"%{prj.name}/vendor/glad/include",
 		"%{prj.name}/vendor/glfw/include",
@@ -46,8 +46,8 @@ project "Quark"
 
 	defines
 	{
-		"QK_DOUBLE_FLOATING_POINT",
 		"_CRT_SECURE_NO_WARNINGS",
+		"QK_DOUBLE_FLOATING_POINT",
 		"GLFW_INCLUDE_NONE"
 	}
 
@@ -102,7 +102,7 @@ project "Tests"
 	{
 		"Quark/src",
 		"Quark/vendor",
-		"Quark/vendor/entt/single_include"
+		"Quark/vendor/entt/include"
 	}
 
 	libdirs
