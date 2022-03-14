@@ -8,7 +8,7 @@
 
 namespace Quark {
 
-	Ref<Shader> Shader::Create(const std::string& filepath)
+	Ref<Shader> Shader::Create(std::string_view filepath)
 	{
 		switch (RenderingAPI::GetAPI())
 		{
@@ -20,7 +20,7 @@ namespace Quark {
 		return nullptr;
 	}
 
-	Ref<Shader> Shader::Create(const std::string& name, const std::string& vertexSource, const std::string& fragmentSource)
+	Ref<Shader> Shader::Create(const std::string& name, std::string_view vertexSource, std::string_view fragmentSource)
 	{
 		switch (RenderingAPI::GetAPI())
 		{
@@ -32,7 +32,7 @@ namespace Quark {
 		return nullptr;
 	}
 
-	Ref<Shader> Shader::Create(const std::string& name, const std::string& vertexSource, const std::string& geometrySource, const std::string& fragmentSource)
+	Ref<Shader> Shader::Create(const std::string& name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource)
 	{
 		switch (RenderingAPI::GetAPI())
 		{

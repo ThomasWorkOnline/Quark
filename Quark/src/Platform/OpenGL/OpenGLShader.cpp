@@ -11,7 +11,7 @@
 
 namespace Quark {
 
-	static GLenum ShaderTypeFromString(const std::string& type)
+	static GLenum ShaderTypeFromString(std::string_view type)
 	{
 		if (type == "vertex")
 			return GL_VERTEX_SHADER;
@@ -24,7 +24,7 @@ namespace Quark {
 		return 0;
 	}
 
-	OpenGLShader::OpenGLShader(const std::string& filepath)
+	OpenGLShader::OpenGLShader(std::string_view filepath)
 	{
 		QK_TIME_SCOPE_DEBUG(OpenGLShader::OpenGLShader);
 
@@ -40,24 +40,24 @@ namespace Quark {
 		m_Name = filepath.substr(lastSlash, count);
 	}
 
-	OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertexSource, const std::string& fragmentSource)
+	OpenGLShader::OpenGLShader(const std::string& name, std::string_view vertexSource, std::string_view fragmentSource)
 		: m_Name(name)
 	{
 		QK_TIME_SCOPE_DEBUG(OpenGLShader::OpenGLShader);
 
-		std::unordered_map<GLenum, std::string> sources;
-		sources[GL_VERTEX_SHADER] = vertexSource;
+		std::unordered_map<GLenum, std::string_view> sources;
+		sources[GL_VERTEX_SHADER]   = vertexSource;
 		sources[GL_FRAGMENT_SHADER] = fragmentSource;
 		Compile(sources);
 	}
 
-	OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertexSource, const std::string& geometrySource, const std::string& fragmentSource)
+	OpenGLShader::OpenGLShader(const std::string& name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource)
 		: m_Name(name)
 	{
 		QK_TIME_SCOPE_DEBUG(OpenGLShader::OpenGLShader);
 
-		std::unordered_map<GLenum, std::string> sources;
-		sources[GL_VERTEX_SHADER] = vertexSource;
+		std::unordered_map<GLenum, std::string_view> sources;
+		sources[GL_VERTEX_SHADER]   = vertexSource;
 		sources[GL_FRAGMENT_SHADER] = fragmentSource;
 		sources[GL_GEOMETRY_SHADER] = geometrySource;
 		Compile(sources);
@@ -68,10 +68,10 @@ namespace Quark {
 		glDeleteProgram(m_RendererID);
 	}
 
-	std::string OpenGLShader::ReadFile(const std::string& filepath)
+	std::string OpenGLShader::ReadFile(std::string_view filepath)
 	{
 		std::string result;
-		std::ifstream in(filepath, std::ios::in | std::ios::binary);
+		std::ifstream in(filepath.data(), std::ios::in | std::ios::binary);
 		if (in)
 		{
 			in.seekg(0, std::ios::end);
@@ -100,37 +100,40 @@ namespace Quark {
 		return result;
 	}
 
-	std::unordered_map<GLenum, std::string> OpenGLShader::PreProcess(const std::string& source)
+	std::unordered_map<GLenum, std::string_view> OpenGLShader::PreProcess(std::string_view source)
 	{
-		std::unordered_map<GLenum, std::string> shaderSources;
+		std::unordered_map<GLenum, std::string_view> shaderSources;
 
 		const char* typeToken = "#type";
 		size_t typeTokenLength = strlen(typeToken);
-		size_t pos = source.find(typeToken, 0); //Start of shader type declaration line
+		size_t pos = source.find(typeToken, 0); // Start of shader type declaration line
 		while (pos != std::string::npos)
 		{
-			size_t eol = source.find_first_of("\r\n", pos); //End of shader type declaration line
+			size_t eol = source.find_first_of("\r\n", pos); // End of shader type declaration line
 			if (eol == std::string::npos)
 				QK_FATAL("Syntax error in shader");
 
-			size_t begin = pos + typeTokenLength + 1; //Start of shader type name (after "#type " keyword)
-			std::string type = source.substr(begin, eol - begin);
-			if (!ShaderTypeFromString(type))
+			size_t begin = pos + typeTokenLength + 1; // Start of shader type name (after "#type " keyword)
+			std::string_view type = source.substr(begin, eol - begin);
+			GLenum shaderType = ShaderTypeFromString(type);
+			if (!shaderType)
 				QK_FATAL("Invalid shader type specified");
 
-			size_t nextLinePos = source.find_first_not_of("\r\n", eol); //Start of shader code after shader type declaration line
+			size_t nextLinePos = source.find_first_not_of("\r\n", eol); // Start of shader code after shader type declaration line
 			if (nextLinePos == std::string::npos)
 				QK_FATAL("Syntax error in shader");
 
-			pos = source.find(typeToken, nextLinePos); //Start of next shader type declaration line
+			pos = source.find(typeToken, nextLinePos); // Start of next shader type declaration line
 
-			shaderSources[ShaderTypeFromString(type)] = (pos == std::string::npos) ? source.substr(nextLinePos) : source.substr(nextLinePos, pos - nextLinePos);
+			shaderSources[shaderType] = (pos == std::string::npos)
+				? source.substr(nextLinePos)
+				: source.substr(nextLinePos, pos - nextLinePos);
 		}
 
 		return shaderSources;
 	}
 
-	void OpenGLShader::Compile(const std::unordered_map<GLenum, std::string>& shaderSources)
+	void OpenGLShader::Compile(const std::unordered_map<GLenum, std::string_view>& shaderSources)
 	{
 		constexpr uint32_t maxShaders = 3;
 		QK_ASSERT(shaderSources.size() <= maxShaders, "Maximum shader count supported is 3");
@@ -142,12 +145,13 @@ namespace Quark {
 		for (auto& kv : shaderSources)
 		{
 			GLenum type = kv.first;
-			const std::string& source = kv.second;
+			std::string_view source = kv.second;
 
 			GLuint shader = glCreateShader(type);
 
-			const GLchar* sourceCStr = source.c_str();
-			glShaderSource(shader, 1, &sourceCStr, 0);
+			const GLchar* sourceData = source.data();
+			GLint lengths[1] = { source.size() };
+			glShaderSource(shader, 1, &sourceData, lengths);
 
 			glCompileShader(shader);
 
@@ -221,202 +225,203 @@ namespace Quark {
 		glUseProgram(0);
 	}
 
-	void OpenGLShader::SetInt(const std::string& name, int32_t value)
+	void OpenGLShader::SetInt(std::string_view name, int32_t value)
 	{
 		UploadUniformInt(name, value);
 	}
 
-	void OpenGLShader::SetInt2(const std::string& name, const glm::ivec2& value)
+	void OpenGLShader::SetInt2(std::string_view name, const glm::ivec2& value)
 	{
 		UploadUniformInt2(name, value);
 	}
 
-	void OpenGLShader::SetInt3(const std::string& name, const glm::ivec3& value)
+	void OpenGLShader::SetInt3(std::string_view name, const glm::ivec3& value)
 	{
 		UploadUniformInt3(name, value);
 	}
 
-	void OpenGLShader::SetInt4(const std::string& name, const glm::ivec4& value)
+	void OpenGLShader::SetInt4(std::string_view name, const glm::ivec4& value)
 	{
 		UploadUniformInt4(name, value);
 	}
 
-	void OpenGLShader::SetIntArray(const std::string& name, int32_t* values, uint32_t count)
+	void OpenGLShader::SetIntArray(std::string_view name, int32_t* values, uint32_t count)
 	{
 		UploadUniformIntArray(name, values, count);
 	}
 
-	void OpenGLShader::SetFloat(const std::string& name, float value)
+	void OpenGLShader::SetFloat(std::string_view name, float value)
 	{
 		UploadUniformFloat(name, value);
 	}
 
-	void OpenGLShader::SetFloat2(const std::string& name, const glm::vec2& value)
+	void OpenGLShader::SetFloat2(std::string_view name, const glm::vec2& value)
 	{
 		UploadUniformFloat2(name, value);
 	}
 
-	void OpenGLShader::SetFloat3(const std::string& name, const glm::vec3& value)
+	void OpenGLShader::SetFloat3(std::string_view name, const glm::vec3& value)
 	{
 		UploadUniformFloat3(name, value);
 	}
 
-	void OpenGLShader::SetFloat4(const std::string& name, const glm::vec4& value)
+	void OpenGLShader::SetFloat4(std::string_view name, const glm::vec4& value)
 	{
 		UploadUniformFloat4(name, value);
 	}
 
-	void OpenGLShader::SetFloatArray(const std::string& name, float* values, uint32_t count)
+	void OpenGLShader::SetFloatArray(std::string_view name, float* values, uint32_t count)
 	{
 		UploadUniformFloatArray(name, values, count);
 	}
 
-	void OpenGLShader::SetDouble(const std::string& name, double value)
+	void OpenGLShader::SetDouble(std::string_view name, double value)
 	{
 		UploadUniformDouble(name, value);
 	}
 
-	void OpenGLShader::SetDouble2(const std::string& name, const glm::dvec2& value)
+	void OpenGLShader::SetDouble2(std::string_view name, const glm::dvec2& value)
 	{
 		UploadUniformDouble2(name, value);
 	}
 
-	void OpenGLShader::SetDouble3(const std::string& name, const glm::dvec3& value)
+	void OpenGLShader::SetDouble3(std::string_view name, const glm::dvec3& value)
 	{
 		UploadUniformDouble3(name, value);
 	}
 
-	void OpenGLShader::SetDouble4(const std::string& name, const glm::dvec4& value)
+	void OpenGLShader::SetDouble4(std::string_view name, const glm::dvec4& value)
 	{
 		UploadUniformDouble4(name, value);
 	}
 
-	void OpenGLShader::SetDoubleArray(const std::string& name, double* values, uint32_t count)
+	void OpenGLShader::SetDoubleArray(std::string_view name, double* values, uint32_t count)
 	{
 		UploadUniformDoubleArray(name, values, count);
 	}
 
-	void OpenGLShader::SetMat3(const std::string& name, const glm::mat3& matrix)
+	void OpenGLShader::SetMat3(std::string_view name, const glm::mat3& matrix)
 	{
 		UploadUniformMat3(name, matrix);
 	}
 
-	void OpenGLShader::SetMat4(const std::string& name, const glm::mat4& matrix)
+	void OpenGLShader::SetMat4(std::string_view name, const glm::mat4& matrix)
 	{
 		UploadUniformMat4(name, matrix);
 	}
 
-	void OpenGLShader::UploadUniformInt(const std::string& name, int32_t value)
+	void OpenGLShader::UploadUniformInt(std::string_view name, int32_t value)
 	{
 		GLint location = GetUniformLocation(name);
 		glUniform1i(location, value);
 	}
 
-	void OpenGLShader::UploadUniformInt2(const std::string& name, const glm::ivec2& value)
+	void OpenGLShader::UploadUniformInt2(std::string_view name, const glm::ivec2& value)
 	{
 		GLint location = GetUniformLocation(name);
 		glUniform2i(location, value.x, value.y);
 	}
 
-	void OpenGLShader::UploadUniformInt3(const std::string& name, const glm::ivec3& value)
+	void OpenGLShader::UploadUniformInt3(std::string_view name, const glm::ivec3& value)
 	{
 		GLint location = GetUniformLocation(name);
 		glUniform3i(location, value.x, value.y, value.z);
 	}
 
-	void OpenGLShader::UploadUniformInt4(const std::string& name, const glm::ivec4& value)
+	void OpenGLShader::UploadUniformInt4(std::string_view name, const glm::ivec4& value)
 	{
 		GLint location = GetUniformLocation(name);
 		glUniform4i(location, value.x, value.y, value.z, value.w);
 	}
 
-	void OpenGLShader::UploadUniformIntArray(const std::string& name, int32_t* values, uint32_t count)
+	void OpenGLShader::UploadUniformIntArray(std::string_view name, int32_t* values, uint32_t count)
 	{
 		GLint location = GetUniformLocation(name);
 		glUniform1iv(location, count, values);
 	}
 
-	void OpenGLShader::UploadUniformFloat(const std::string& name, float value)
+	void OpenGLShader::UploadUniformFloat(std::string_view name, float value)
 	{
 		GLint location = GetUniformLocation(name);
 		glUniform1f(location, value);
 	}
 
-	void OpenGLShader::UploadUniformFloat2(const std::string& name, const glm::vec2& value)
+	void OpenGLShader::UploadUniformFloat2(std::string_view name, const glm::vec2& value)
 	{
 		GLint location = GetUniformLocation(name);
 		glUniform2f(location, value.x, value.y);
 	}
 
-	void OpenGLShader::UploadUniformFloat3(const std::string& name, const glm::vec3& value)
+	void OpenGLShader::UploadUniformFloat3(std::string_view name, const glm::vec3& value)
 	{
 		GLint location = GetUniformLocation(name);
 		glUniform3f(location, value.x, value.y, value.z);
 	}
 
-	void OpenGLShader::UploadUniformFloat4(const std::string& name, const glm::vec4& value)
+	void OpenGLShader::UploadUniformFloat4(std::string_view name, const glm::vec4& value)
 	{
 		GLint location = GetUniformLocation(name);
 		glUniform4f(location, value.x, value.y, value.z, value.w);
 	}
 
-	void OpenGLShader::UploadUniformFloatArray(const std::string& name, float* values, uint32_t count)
+	void OpenGLShader::UploadUniformFloatArray(std::string_view name, float* values, uint32_t count)
 	{
 		GLint location = GetUniformLocation(name);
 		glUniform1fv(location, count, values);
 	}
 
-	void OpenGLShader::UploadUniformDouble(const std::string& name, double value)
+	void OpenGLShader::UploadUniformDouble(std::string_view name, double value)
 	{
 		GLint location = GetUniformLocation(name);
 		glUniform1d(location, value);
 	}
 
-	void OpenGLShader::UploadUniformDouble2(const std::string& name, const glm::dvec2& value)
+	void OpenGLShader::UploadUniformDouble2(std::string_view name, const glm::dvec2& value)
 	{
 		GLint location = GetUniformLocation(name);
 		glUniform2d(location, value.x, value.y);
 	}
 
-	void OpenGLShader::UploadUniformDouble3(const std::string& name, const glm::dvec3& value)
+	void OpenGLShader::UploadUniformDouble3(std::string_view name, const glm::dvec3& value)
 	{
 		GLint location = GetUniformLocation(name);
 		glUniform3d(location, value.x, value.y, value.z);
 	}
 
-	void OpenGLShader::UploadUniformDouble4(const std::string& name, const glm::dvec4& value)
+	void OpenGLShader::UploadUniformDouble4(std::string_view name, const glm::dvec4& value)
 	{
 		GLint location = GetUniformLocation(name);
 		glUniform4d(location, value.x, value.y, value.z, value.w);
 	}
 
-	void OpenGLShader::UploadUniformDoubleArray(const std::string& name, double* values, uint32_t count)
+	void OpenGLShader::UploadUniformDoubleArray(std::string_view name, double* values, uint32_t count)
 	{
 		GLint location = GetUniformLocation(name);
 		glUniform1dv(location, count, values);
 	}
 
-	void OpenGLShader::UploadUniformMat3(const std::string& name, const glm::mat3& matrix)
+	void OpenGLShader::UploadUniformMat3(std::string_view name, const glm::mat3& matrix)
 	{
 		GLint location = GetUniformLocation(name);
 		glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 
-	void OpenGLShader::UploadUniformMat4(const std::string& name, const glm::mat4& matrix)
+	void OpenGLShader::UploadUniformMat4(std::string_view name, const glm::mat4& matrix)
 	{
 		GLint location = GetUniformLocation(name);
 		glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 
-	GLint OpenGLShader::GetUniformLocation(const std::string& name)
+	GLint OpenGLShader::GetUniformLocation(std::string_view name)
 	{
-		auto it = m_UniformLocations.find(name);
+		auto hash = std::hash<std::string_view>()(name);
+		auto it = m_UniformLocations.find(hash);
 		if (it != m_UniformLocations.end())
 			return it->second;
 
 		// Insert uniform location into cache
-		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
-		m_UniformLocations[name] = location;
+		GLint location = glGetUniformLocation(m_RendererID, name.data());
+		m_UniformLocations[hash] = location;
 
 		return location;
 	}
