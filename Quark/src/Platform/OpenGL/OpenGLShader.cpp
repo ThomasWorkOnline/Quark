@@ -142,16 +142,13 @@ namespace Quark {
 
 		GLenum glShaderIDs[maxShaders]{};
 		int32_t glShaderIDIndex = 0;
-		for (auto& kv : shaderSources)
+		for (auto& [type, source] : shaderSources)
 		{
-			GLenum type = kv.first;
-			std::string_view source = kv.second;
-
 			GLuint shader = glCreateShader(type);
 
 			const GLchar* sourceData = source.data();
-			GLint lengths[1] = { source.size() };
-			glShaderSource(shader, 1, &sourceData, lengths);
+			GLint lengths = source.size();
+			glShaderSource(shader, 1, &sourceData, &lengths);
 
 			glCompileShader(shader);
 
