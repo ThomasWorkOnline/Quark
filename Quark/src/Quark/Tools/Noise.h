@@ -25,7 +25,7 @@ namespace Quark {
 			m_NoiseEngine.discard(offset);
 		}
 
-		inline float Next()
+		inline T Next()
 		{
 			return m_NoiseEngine() / static_cast<T>(std::numeric_limits<uint32_t>::max());
 		}
@@ -67,7 +67,7 @@ namespace Quark {
 			return t * t * t * (t * (t * 6 - 15) + 10);
 		}
 
-		static constexpr T Lerp(T t, T a, float b) noexcept
+		static constexpr T Lerp(T t, T a, T b) noexcept
 		{
 			return a + t * (b - a);
 		}
@@ -75,8 +75,8 @@ namespace Quark {
 		static constexpr T Grad(uint8_t hash, T x, T y, T z) noexcept
 		{
 			const uint8_t h = hash & 15;
-			const float u = h < 8 ? x : y;
-			const float v = h < 4 ? y : h == 12 || h == 14 ? x : z;
+			const T u = h < 8 ? x : y;
+			const T v = h < 4 ? y : h == 12 || h == 14 ? x : z;
 			return ((h & 1) == 0 ? u : -u) + ((h & 2) == 0 ? v : -v);
 		}
 
@@ -148,13 +148,13 @@ namespace Quark {
 		const int32_t B = p[X + 1] + Y, BA = p[B] + Z, BB = p[B + 1] + Z;
 
 		return Lerp(w, Lerp(v, Lerp(u, Grad(p[AA], x, y, z),
-			Grad(p[BA], x - 1, y, z)),
-			Lerp(u, Grad(p[AB], x, y - 1, z),
-				Grad(p[BB], x - 1, y - 1, z))),
-			Lerp(v, Lerp(u, Grad(p[AA + 1], x, y, z - 1),
-				Grad(p[BA + 1], x - 1, y, z - 1)),
-				Lerp(u, Grad(p[AB + 1], x, y - 1, z - 1),
-					Grad(p[BB + 1], x - 1, y - 1, z - 1))));
+			   Grad(p[BA], x - 1, y, z)),
+			   Lerp(u, Grad(p[AB], x, y - 1, z),
+			   Grad(p[BB], x - 1, y - 1, z))),
+			   Lerp(v, Lerp(u, Grad(p[AA + 1], x, y, z - 1),
+			   Grad(p[BA + 1], x - 1, y, z - 1)),
+			   Lerp(u, Grad(p[AB + 1], x, y - 1, z - 1),
+			   Grad(p[BB + 1], x - 1, y - 1, z - 1))));
 	}
 
 	template<typename T>
