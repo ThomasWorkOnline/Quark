@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../Core/Core.h"
-
 #include "DeferredObject.h"
 
 #include <unordered_map>
@@ -50,17 +49,18 @@ namespace Quark {
 	class ShaderLibrary
 	{
 	public:
-		void Add(const std::string& name, const Ref<Shader>& shader);
+		void Add(std::string_view name, const Ref<Shader>& shader);
 		void Add(const Ref<Shader>& shader);
-		Ref<Shader> Load(const std::string& filepath);
-		Ref<Shader> Load(const std::string& name, const std::string& filepath);
 
-		const Ref<Shader>& Get(const std::string& name);
+		Ref<Shader> Load(std::string_view filepath);
+		Ref<Shader> Load(std::string_view name, std::string_view filepath);
 
-		bool Exists(const std::string& name) const;
+		const Ref<Shader>& Get(std::string_view name) const;
+
+		bool Exists(std::string_view name) const;
 		size_t Size() const { return m_Shaders.size(); }
 
 	private:
-		std::unordered_map<std::string, Ref<Shader>> m_Shaders;
+		std::unordered_map<size_t, Ref<Shader>> m_Shaders;
 	};
 }

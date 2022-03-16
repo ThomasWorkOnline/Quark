@@ -2,12 +2,12 @@
 
 #include "../../Quark/Core/Core.h"
 
+#include <glm/gtc/type_ptr.hpp>
+#include <glad/glad.h>
+
 #include <fstream>
 #include <vector>
 #include <unordered_map>
-
-#include <glm/gtc/type_ptr.hpp>
-#include <glad/glad.h>
 
 namespace Quark {
 
@@ -33,7 +33,7 @@ namespace Quark {
 		Compile(shaderSources);
 
 		// Extract name from filepath
-		auto lastSlash = filepath.find_last_of("/\\");
+		auto lastSlash = filepath.find_last_of('/\\');
 		lastSlash = lastSlash == std::string::npos ? 0 : lastSlash + 1;
 		auto lastDot = filepath.rfind('.');
 		auto count = lastDot == std::string::npos ? filepath.size() - lastSlash : lastDot - lastSlash;
@@ -104,8 +104,8 @@ namespace Quark {
 	{
 		std::unordered_map<GLenum, std::string_view> shaderSources;
 
-		const char* typeToken = "#type";
-		size_t typeTokenLength = strlen(typeToken);
+		constexpr std::string_view typeToken = "#type";
+		size_t typeTokenLength = typeToken.size();
 		size_t pos = source.find(typeToken, 0); // Start of shader type declaration line
 		while (pos != std::string::npos)
 		{
