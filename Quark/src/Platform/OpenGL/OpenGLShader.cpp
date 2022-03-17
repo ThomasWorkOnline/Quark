@@ -104,7 +104,7 @@ namespace Quark {
 	{
 		std::unordered_map<GLenum, std::string_view> shaderSources;
 
-		constexpr std::string_view typeToken = "#type";
+		static constexpr std::string_view typeToken = "#type";
 		size_t typeTokenLength = typeToken.size();
 		size_t pos = source.find(typeToken, 0); // Start of shader type declaration line
 		while (pos != std::string::npos)
