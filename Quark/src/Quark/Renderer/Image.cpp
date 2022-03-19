@@ -2,7 +2,7 @@
 
 #define STB_IMAGE_STATIC
 #define STB_IMAGE_IMPLEMENTATION
-#include <stb_image/stb_image.h>
+#include <stb_image.h>
 
 namespace Quark {
 
@@ -21,6 +21,6 @@ namespace Quark {
 
 	size_t Image::Size() const
 	{
-		return m_Properties.Width * m_Properties.Height * m_Properties.Channels;
+		return (size_t)m_Properties.Width * m_Properties.Height * m_Properties.Channels;
 	}
 }
