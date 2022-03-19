@@ -53,16 +53,26 @@ class YourApplication : public Quark::Application
 		// Run your app logic and rendering here:
 		...
 	}
-	
+}
+```
+
+<ins>**4. Handling events**</ins>
+```c++
+class YourApplication : public Quark::Application
+{
 	void OnEvent(Event& e) override
 	{
+		// Create a dispatcher object with the given event reference
+		Quark::EventDispatcher dispatcher(e);
+	
 		...
 	}
 }
 ```
 
+
 # Dependencies
 glm: https://github.com/g-truc/glm<br />
-entt: https://github.com/skypjack/entt
+entt: https://github.com/skypjack/entt<br />
 
 Feel free to explore!
