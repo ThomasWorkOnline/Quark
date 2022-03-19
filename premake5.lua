@@ -46,13 +46,16 @@ project "Quark"
 		"QK_DOUBLE_FLOATING_POINT"
 	}
 
+	links {
+		"glfw3"
+	}
+
 	filter "system:windows"
 		systemversion "latest"
 
 		links {
 			"freetype.lib",
 			"opengl32.lib",
-			"glfw3.lib",
 			"irrKlang.lib"
 		}
 
@@ -66,10 +69,20 @@ project "Quark"
 			("{COPY} vendor/irrKlang/bin/winx64-visualStudio/**.dll ../bin/" .. outputdir .. "/Tests")
 		}
 
-    buildcommands {
-        "./Scripts/GenGLFWMakefile_Lin.sh",
-        "./Scripts/BuildGLFW_Lin.sh"
-    }
+	filter "system:unix"
+		links {
+
+		}
+
+		libdirs {
+			"%{prj.name}/vendor/glfw/lib-linux-x86_64"
+		}
+
+		buildcommands {
+			"./Scripts/GenGLFWMakefile_Lin.sh",
+			"./Scripts/BuildGLFW_Lin.sh",
+			("{COPY} vendor/glfw/build/src/**.a vendor/glfw/lib-linux-x86_64")
+		}
 
 	filter "configurations:Debug"
 		defines "QK_DEBUG"
