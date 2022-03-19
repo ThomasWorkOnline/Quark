@@ -46,6 +46,7 @@ int main()
 ```c++
 class YourApplication : public Quark::Application
 {
+public:
 	// Called each frame
 	// Elapsed time is in seconds
 	void OnUpdate(float elapsedTime) override
@@ -57,12 +58,18 @@ class YourApplication : public Quark::Application
 ```
 
 <ins>**4. Handling events**</ins>
+
+Events provide a way to hook into certain application events such as:
+mouse and keyboard inputs, window move, resize, minimized, maximized and much more.
+The following examples will guide you through using Quark events.
+
 ```c++
 class YourApplication : public Quark::Application
 {
-	void OnEvent(Event& e) override
+public:
+	void OnEvent(Quark::Event& e) override
 	{
-		// Create a dispatcher object with the given event reference
+		// Create an dispatcher object with the given event reference
 		Quark::EventDispatcher dispatcher(e);
 	
 		...
@@ -70,6 +77,35 @@ class YourApplication : public Quark::Application
 }
 ```
 
+Event dispatchers are used to associate an event type with a given function.
+The function given must have the following signature:
+	bool Function(EventType&);
+	
+For instance, let's write a function that handles keyboard input.
+
+```c++
+class YourApplication : public Quark::Application
+{
+public:
+	void OnEvent(Quark::Event& e) override
+	{
+		// Create an dispatcher object with the given event reference
+		Quark::EventDispatcher dispatcher(e);
+	
+		// Route all `KeyPressedEvent` to `YourApplication::OnKeyPressed`
+		dispatcher.Dispatch<Quark::KeyPressedEvent>(ATTACH_EVENT_FN(YourApplication::OnKeyPressed));
+	}
+	
+private:
+	// Our custom KeyPressedEvent handler
+	bool OnKeyPressed(KeyPressedEvent& e)
+	{
+		// Returns if the event has been handled
+		// A handled event will not be propagated to other handlers
+		return false;
+	}
+}
+```
 
 # Dependencies
 glm: https://github.com/g-truc/glm<br />
