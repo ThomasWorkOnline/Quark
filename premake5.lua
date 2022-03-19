@@ -47,9 +47,8 @@ project "Quark"
 
 	defines
 	{
-		"_CRT_SECURE_NO_WARNINGS",
-		"QK_DOUBLE_FLOATING_POINT",
-		"GLFW_INCLUDE_NONE"
+		"GLFW_INCLUDE_NONE",
+		"QK_DOUBLE_FLOATING_POINT"
 	}
 
 	filter "system:windows"

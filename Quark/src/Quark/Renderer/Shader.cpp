@@ -6,9 +6,6 @@
 // Include all supported API's shader implementations
 #include "../../Platform/OpenGL/OpenGLShader.h"
 
-#include <xhash>
-#include <filesystem>
-
 namespace Quark {
 
 	Ref<Shader> Shader::Create(std::string_view filepath)
