@@ -2,14 +2,12 @@ workspace "Quark"
 	architecture "x86_64"
 	startproject "Tests"
 
-	configurations
-	{
+	configurations {
 		"Debug",
 		"Release"
 	}
 
-	flags
-	{
+	flags {
 		"MultiProcessorCompile"
 	}
 
@@ -25,8 +23,7 @@ project "Quark"
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
-	files
-	{
+	files {
 		"%{prj.name}/vendor/glad/include/**.h",
 		"%{prj.name}/vendor/glad/**.c",
 
@@ -34,8 +31,7 @@ project "Quark"
 		"%{prj.name}/src/**.cpp"
 	}
 
-	includedirs
-	{
+	includedirs {
 		"%{prj.name}/vendor", -- stb_image
 		"%{prj.name}/vendor/glm",
 		"%{prj.name}/vendor/entt/include",
@@ -45,8 +41,7 @@ project "Quark"
 		"%{prj.name}/vendor/irrKlang/include"
 	}
 
-	defines
-	{
+	defines {
 		"GLFW_INCLUDE_NONE",
 		"QK_DOUBLE_FLOATING_POINT"
 	}
@@ -54,24 +49,27 @@ project "Quark"
 	filter "system:windows"
 		systemversion "latest"
 
-		links
-		{
+		links {
 			"freetype.lib",
 			"opengl32.lib",
 			"glfw3.lib",
 			"irrKlang.lib"
 		}
 
-		libdirs
-		{
+		libdirs {
 			"%{prj.name}/vendor/freetype/vs2015-2019/win64",
 			"%{prj.name}/vendor/glfw/lib-vc2019/x64",
 			"%{prj.name}/vendor/irrKlang/lib/Winx64-visualStudio"
 		}
 
-		postbuildcommands
-		{
+		postbuildcommands {
 			("{COPY} vendor/irrKlang/bin/winx64-visualStudio/**.dll ../bin/" .. outputdir .. "/Tests")
+		}
+
+	filter "system:unix"
+		buildcommands {
+			"./Scripts/GenGLFWMakefile_Lin.sh",
+			"make -f ./Quark/vendor/glfw/build"
 		}
 
 	filter "configurations:Debug"
@@ -92,27 +90,23 @@ project "Tests"
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
-	files
-	{
+	files {
 		"%{prj.name}/src/**.h",
 		"%{prj.name}/src/**.cpp"
 	}
 
-	includedirs
-	{
+	includedirs {
 		"Quark/src",
 		"Quark/vendor",
 		"Quark/vendor/glm",
 		"Quark/vendor/entt/include"
 	}
 
-	libdirs
-	{
+	libdirs {
 		"bin/" .. outputdir .. "/%{prj.name}"
 	}
 
-	links
-	{
+	links {
 		"Quark"
 	}
 
