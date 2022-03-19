@@ -61,7 +61,7 @@ public:
 
 Events provide a way to hook into certain application events such as:
 mouse and keyboard inputs, window move, resize, minimized, maximized and much more.
-The following examples will guide you through using Quark events.
+The following examples will guide you through using Quark events:
 
 ```c++
 class YourApplication : public Quark::Application
@@ -78,8 +78,10 @@ public:
 ```
 
 Event dispatchers are used to associate an event type with a given function.
-The function given must have the following signature:
+The function given must have the following signature:<br />
+	```c++
 	bool Function(EventType&);
+	```
 	
 For instance, let's write a function that handles keyboard input.
 
