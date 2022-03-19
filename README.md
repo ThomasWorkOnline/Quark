@@ -32,7 +32,7 @@ class YourApplication : public Quark::Application
 }
 ```
 	
-<ins>**2. Creating your class instance**</ins>
+<ins>**2. Launching your app**</ins>
 ```c++
 int main()
 {
