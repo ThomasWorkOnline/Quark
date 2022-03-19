@@ -64,11 +64,11 @@ namespace Quark {
 
 	struct MeshComponent
 	{
-		Mesh Mesh;
+		Mesh MeshInstance;
 
 		MeshComponent() = default;
 		MeshComponent(const std::string& filepath)
-			: Mesh(filepath) { }
+			: MeshInstance(filepath) { }
 	};
 
 	struct PerspectiveCameraComponent
