@@ -39,8 +39,6 @@ int main()
 	auto app = new YourApplication();
 	app->Run();
 	delete app;
-	
-	return 0;
 }
 ```
 
@@ -48,14 +46,14 @@ int main()
 ```c++
 class YourApplication : public Quark::Application
 {
-	// Automatically called each frame
-	// Delta Time is in seconds
+	// Called each frame
+	// Elapsed time is in seconds
 	void OnUpdate(float elapsedTime) override
 	{
+		// Run your app logic and rendering here:
 		...
 	}
 	
-	// More on events a bit later...
 	void OnEvent(Event& e) override
 	{
 		...
