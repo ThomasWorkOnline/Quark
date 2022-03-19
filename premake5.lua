@@ -66,11 +66,10 @@ project "Quark"
 			("{COPY} vendor/irrKlang/bin/winx64-visualStudio/**.dll ../bin/" .. outputdir .. "/Tests")
 		}
 
-	filter "system:unix"
-		buildcommands {
-			"./Scripts/GenGLFWMakefile_Lin.sh",
-			"make -f ./Quark/vendor/glfw/build"
-		}
+    buildcommands {
+        "./Scripts/GenGLFWMakefile_Lin.sh",
+        "./Scripts/BuildGLFW_Lin.sh"
+    }
 
 	filter "configurations:Debug"
 		defines "QK_DEBUG"
