@@ -102,6 +102,8 @@ private:
 	// Our custom KeyPressedEvent handler
 	bool OnKeyPressed(KeyPressedEvent& e)
 	{
+		std::cout << e.GetKeyCode() << std::endl;
+	
 		// Returns if the event has been handled
 		// A handled event will not be propagated to other handlers
 		return false;
