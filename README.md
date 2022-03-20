@@ -89,7 +89,8 @@ The function given must have the following signature:<br />
 ```c++
 bool Function(EventType&);
 ```
-	
+
+If the function you are linking to is a class member function, you'll have to use the `ATTACH_EVENT_FN` macro to pass the implicit `this` parameter as an argument.
 For instance, let's write a function that handles keyboard input.
 
 ```c++
