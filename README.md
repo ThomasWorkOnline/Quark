@@ -67,7 +67,7 @@ public:
 <ins>**4. Handling events**</ins>
 
 Events provide a way to hook into certain application actions such as:
-mouse and keyboard inputs, window move, resize, minimized, maximized and much more.
+mouse and keyboard inputs, window moved, resized, minimized, maximized and much more.
 The following examples will guide you through using Quark events:
 
 ```c++
