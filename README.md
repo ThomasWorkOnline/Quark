@@ -22,6 +22,8 @@ Official support for Linux and macOS is on it's way!
 7. `#include <Quark.h>`
 8. The following examples will guide you in learning the Quark API.
 
+## How to use
+
 <ins>**1. Creating a Quark application**</ins>
 ```c++
 #include <Quark.h>
