@@ -9,31 +9,23 @@ MainLayer::MainLayer()
 	spec.DataFormat = TextureDataFormat::RGBA8;
 	spec.RenderModes.MagFilteringMode = TextureFilteringMode::Nearest;
 
-	m_Font = m_Library.Load("arial-regular", "assets/fonts/arial.ttf", 0, 128);
+	m_Font1 = m_Library.Load("arial-regular", "assets/fonts/arial.ttf", 0, 128);
 	m_Font2 = m_Library.Load("agency-regular", "assets/fonts/ANTQUAI.TTF", 0, 64);
 
-	m_Text = Text("Some sample text!", m_Font, m_Color, 1.0f, 1.0f, HorizontalTextAlignment::Left);
+	m_Text = Text("Some sample text!", m_Font1, m_Color1, 1.0f, 1.0f, HorizontalTextAlignment::Left);
 	m_Transform2 = glm::translate(m_Transform2, glm::vec3(-0.4f, -0.3f, 0.0f));
 	m_Texture = Texture2D::Create("assets/textures/sprite_sheet.png", spec.RenderModes);
-
-	Image image("assets/textures/sprite_sheet.png", true);
-
-	m_TextureArray = Texture2DArray::Create(spec);
-	m_TextureArray->SetData(image.Data(), image.Size(), 0);
 }
 
 void MainLayer::OnUpdate(float elapsedTime)
 {
 	m_Camera.OnUpdate();
 
-	static float accumTime = elapsedTime;
-	accumTime += elapsedTime;
-
 	{
 		Renderer::BeginScene(m_Camera.GetProjection(), m_CameraView);
 
-		constexpr glm::vec4 colorStart = { 0.0f, 1.0f, 1.0f, 1.0f };
-		constexpr glm::vec4 colorEnd = { 1.0f, 0.0f, 0.0f, 1.0f };
+		static constexpr glm::vec4 colorStart = { 0.0f, 1.0f, 1.0f, 1.0f };
+		static constexpr glm::vec4 colorEnd = { 1.0f, 0.0f, 0.0f, 1.0f };
 
 		Renderer::DrawLine({ 0, 0, 1 }, { 1, 0.5, 1 }, colorStart, colorEnd);
 
@@ -41,8 +33,8 @@ void MainLayer::OnUpdate(float elapsedTime)
 		Renderer::DrawSprite(m_Texture, m_Transform3);
 
 		RenderCommand::SetDepthFunction(RenderDepthFunction::LessEqual);
-		Renderer::DrawText(m_Text, m_Transform);
-		Renderer::DrawText(m_Font2, "Hi there!", glm::vec4(1.0f), glm::vec2(1.0f));
+		Renderer::DrawText(m_Text, m_Transform1);
+		Renderer::DrawText(m_Font2, "Hi there!", m_Color2, glm::vec2(1.0f), glm::vec2(0.0f), m_Transform2);
 		RenderCommand::SetDepthFunction(RenderDepthFunction::Default);
 #endif
 
@@ -68,13 +60,13 @@ bool MainLayer::OnKeyPressed(KeyPressedEvent& e)
 {
 	switch (e.GetKeyCode())
 	{
-	case KeyCode::F11:
-	{
-		auto& window = Application::Get().GetWindow();
-		bool fullscreen = window.IsFullscreen();
-		window.SetFullScreen(!fullscreen);
-		break;
-	}
+		case KeyCode::F11:
+		{
+			auto& window = Application::Get().GetWindow();
+			bool fullscreen = window.IsFullscreen();
+			window.SetFullScreen(!fullscreen);
+			break;
+		}
 	}
 	return false;
 }

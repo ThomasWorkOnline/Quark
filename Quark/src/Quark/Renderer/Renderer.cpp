@@ -568,7 +568,7 @@ namespace Quark {
 		DrawText(text.GetFont(), text.GetString(), text.GetColor(), { 1.0f, 1.0f }, text.GetOrigin(), transform);
 	}
 
-	void Renderer::DrawText(const Ref<Font>& font, const std::string& text, const glm::vec4& color, const glm::vec2& size, const glm::vec2& origin, const glm::mat4& transform)
+	void Renderer::DrawText(const Ref<Font>& font, const std::string_view text, const glm::vec4& color, const glm::vec2& size, const glm::vec2& origin, const glm::mat4& transform)
 	{
 		// Check if buffer is full
 		if (s_Data->FontIndexCount >= s_Data->MaxIndices)
