@@ -27,13 +27,6 @@
 #	define QK_DEBUGBREAK()
 #endif
 
-// Configuration
-#if defined(_DEBUG)
-#	define QK_DEBUG
-#else
-#	define QK_RELEASE
-#endif
-
 // Standards configuration
 #include "../Math/Types.h"
 

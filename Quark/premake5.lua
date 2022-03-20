@@ -55,8 +55,10 @@ project "Quark"
 		}
 
 	filter "configurations:Debug"
+		defines "QK_DEBUG"
 		symbols "On"
 
 	filter "configurations:Release"
+		defines "QK_RELEASE"
 		symbols "On"
 		optimize "On"
