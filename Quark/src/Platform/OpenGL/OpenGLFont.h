@@ -12,7 +12,7 @@ namespace Quark {
 	class OpenGLFont : public Font
 	{
 	public:
-		OpenGLFont(const std::string& filepath, uint32_t width, uint32_t height);
+		OpenGLFont(std::string_view filepath, uint32_t width, uint32_t height);
 		virtual ~OpenGLFont();
 
 		virtual void Attach(uint32_t textureSlot = 0) const override;

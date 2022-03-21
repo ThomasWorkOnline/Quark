@@ -1,26 +1,25 @@
 #include "Font.h"
 
 #include "RenderingAPI.h"
-#include "DeferredObjectDeleter.h"
 
 // Include all supported API's font implementations
 #include "../../Platform/OpenGL/OpenGLFont.h"
 
 namespace Quark {
 
-	Ref<Font> Font::Create(const std::string& filepath, uint32_t width, uint32_t height)
+	Ref<Font> Font::Create(std::string_view filepath, uint32_t width, uint32_t height)
 	{
 		switch (RenderingAPI::GetAPI())
 		{
 		case RenderingAPI::API::OpenGL:
-			return CreateRef<OpenGLFont, DeferredObjectDeleter>(filepath, width, height);
+			return CreateRef<OpenGLFont>(filepath, width, height);
 		case RenderingAPI::API::None:
 			QK_FATAL("Rendering API not supported");
 		}
 		return nullptr;
 	}
 
-	Ref<Font> FontLibrary::Load(const std::string& name, const std::string& filepath, uint32_t width, uint32_t height)
+	Ref<Font> FontLibrary::Load(const std::string& name, std::string_view filepath, uint32_t width, uint32_t height)
 	{
 		Ref<Font> font = Font::Create(filepath, width, height);
 		Add(font, name);

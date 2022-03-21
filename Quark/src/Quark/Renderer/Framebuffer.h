@@ -3,8 +3,6 @@
 #include "../Core/Core.h"
 #include "TextureFormats.h"
 
-#include "DeferredObject.h"
-
 namespace Quark {
 
 	struct FramebufferTextureSpecification
@@ -35,7 +33,7 @@ namespace Quark {
 		bool SwapChainTarget = false;
 	};
 
-	class Framebuffer : public DeferredObject
+	class Framebuffer
 	{
 	public:
 		virtual ~Framebuffer() = default;

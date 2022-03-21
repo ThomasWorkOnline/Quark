@@ -2,8 +2,6 @@
 
 #include "../Core/Core.h"
 
-#include "DeferredObject.h"
-
 #include "TextureFormats.h"
 
 namespace Quark {
@@ -18,7 +16,7 @@ namespace Quark {
 		TextureRenderModes RenderModes;
 	};
 
-	class TextureArray : public DeferredObject
+	class TextureArray
 	{
 	public:
 		virtual ~TextureArray() = default;

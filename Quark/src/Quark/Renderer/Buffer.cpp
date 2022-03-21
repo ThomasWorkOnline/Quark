@@ -1,7 +1,6 @@
 #include "Buffer.h"
 
 #include "RenderingAPI.h"
-#include "DeferredObjectDeleter.h"
 
 // Include all supported API's buffers implementations
 #include "../../Platform/OpenGL/OpenGLBuffer.h"
@@ -13,7 +12,7 @@ namespace Quark {
         switch(RenderingAPI::GetAPI())
         {
         case RenderingAPI::API::OpenGL:
-            return CreateRef<OpenGLVertexBuffer, DeferredObjectDeleter>(vertices, size);
+            return CreateRef<OpenGLVertexBuffer>(vertices, size);
         case RenderingAPI::API::None:
             QK_FATAL("Rendering API not supported");
         }
@@ -25,7 +24,7 @@ namespace Quark {
         switch(RenderingAPI::GetAPI())
         {
         case RenderingAPI::API::OpenGL:
-            return CreateRef<OpenGLVertexBuffer, DeferredObjectDeleter>(size);
+            return CreateRef<OpenGLVertexBuffer>(size);
         case RenderingAPI::API::None:
             QK_FATAL("Rendering API not supported");
         }
@@ -37,7 +36,7 @@ namespace Quark {
         switch(RenderingAPI::GetAPI())
         {
         case RenderingAPI::API::OpenGL:
-            return CreateRef<OpenGLIndexBuffer, DeferredObjectDeleter>(indices, count);
+            return CreateRef<OpenGLIndexBuffer>(indices, count);
         case RenderingAPI::API::None:
             QK_FATAL("Rendering API not supported");
         }
@@ -49,7 +48,7 @@ namespace Quark {
         switch (RenderingAPI::GetAPI())
         {
         case RenderingAPI::API::OpenGL:
-            return CreateRef<OpenGLIndexBuffer, DeferredObjectDeleter>(count);
+            return CreateRef<OpenGLIndexBuffer>(count);
         case RenderingAPI::API::None:
             QK_FATAL("Rendering API not supported");
         }

@@ -4,8 +4,6 @@
 
 #include "TextureFormats.h"
 
-#include "DeferredObject.h"
-
 namespace Quark {
 
 	struct TextureSpecification
@@ -17,7 +15,7 @@ namespace Quark {
 		TextureRenderModes RenderModes;
 	};
 
-	class Texture : public DeferredObject
+	class Texture
 	{
 	public:
 		virtual ~Texture() = default;

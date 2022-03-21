@@ -1,7 +1,6 @@
 #include "Framebuffer.h"
 
 #include "RenderingAPI.h"
-#include "DeferredObjectDeleter.h"
 
 // Include all supported API's frame buffer implementations
 #include "../../Platform/OpenGL/OpenGLFramebuffer.h"
@@ -13,7 +12,7 @@ namespace Quark {
 		switch (RenderingAPI::GetAPI())
 		{
 		case RenderingAPI::API::OpenGL:
-			return CreateRef<OpenGLFramebuffer, DeferredObjectDeleter>(spec);
+			return CreateRef<OpenGLFramebuffer>(spec);
 		case RenderingAPI::API::None:
 			QK_FATAL("Rendering API not supported");
 		}

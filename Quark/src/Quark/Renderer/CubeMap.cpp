@@ -1,7 +1,6 @@
 #include "CubeMap.h"
 
 #include "RenderingAPI.h"
-#include "DeferredObjectDeleter.h"
 
 // Include all supported API's environment maps implementations
 #include "../../Platform/OpenGL/OpenGLCubeMap.h"
@@ -13,7 +12,7 @@ namespace Quark {
 		switch (RenderingAPI::GetAPI())
 		{
 		case RenderingAPI::API::OpenGL:
-			return CreateRef<OpenGLCubeMap, DeferredObjectDeleter>(filepaths);
+			return CreateRef<OpenGLCubeMap>(filepaths);
 		case RenderingAPI::API::None:
 			QK_FATAL("Rendering API not supported");
 		}

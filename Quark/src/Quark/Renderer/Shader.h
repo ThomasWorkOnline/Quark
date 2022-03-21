@@ -1,13 +1,12 @@
 #pragma once
 
 #include "../Core/Core.h"
-#include "DeferredObject.h"
 
 #include <unordered_map>
 
 namespace Quark {
 
-	class Shader : public DeferredObject
+	class Shader
 	{
 	public:
 		virtual ~Shader() = default;

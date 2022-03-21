@@ -1,7 +1,6 @@
 #include "TextureArray.h"
 
 #include "RenderingAPI.h"
-#include "DeferredObjectDeleter.h"
 
 // Include all supported API's texture array implementations
 #include "../../Platform/OpenGL/OpenGLTextureArray.h"
@@ -13,7 +12,7 @@ namespace Quark {
 		switch (RenderingAPI::GetAPI())
 		{
 		case RenderingAPI::API::OpenGL:
-			return CreateRef<OpenGLTexture2DArray, DeferredObjectDeleter>(spec);
+			return CreateRef<OpenGLTexture2DArray>(spec);
 		case RenderingAPI::API::None:
 			QK_FATAL("Rendering API not supported");
 		}

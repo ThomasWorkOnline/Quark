@@ -2,8 +2,6 @@
 
 #include "../Core/Core.h"
 
-#include "DeferredObject.h"
-
 namespace Quark {
 
     enum class ShaderDataType
@@ -113,7 +111,7 @@ namespace Quark {
         size_t m_Stride = 0;
     };
 
-    class VertexBuffer : public DeferredObject
+    class VertexBuffer
     {
     public:
         virtual ~VertexBuffer() = default;
@@ -134,7 +132,7 @@ namespace Quark {
         static Ref<VertexBuffer> Create(size_t size);
     };
 
-    class IndexBuffer : public DeferredObject
+    class IndexBuffer
     {
     public:
         virtual ~IndexBuffer() = default;

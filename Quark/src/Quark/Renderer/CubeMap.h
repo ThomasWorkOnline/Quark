@@ -2,11 +2,9 @@
 
 #include "../Core/Core.h"
 
-#include "DeferredObject.h"
-
 namespace Quark {
 
-	class CubeMap : public DeferredObject
+	class CubeMap
 	{
 	public:
 		virtual ~CubeMap() = default;

@@ -15,7 +15,7 @@ namespace Quark {
 	static constexpr uint32_t s_ASCII_End	= 128;
 	static constexpr uint32_t s_GlyphCount = s_ASCII_End - s_ASCII_Start;
 
-	OpenGLFont::OpenGLFont(const std::string& filepath, uint32_t width, uint32_t height)
+	OpenGLFont::OpenGLFont(std::string_view filepath, uint32_t width, uint32_t height)
 		: m_Width(width), m_Height(height)
 	{
 		if (s_FontCount == 0)
@@ -24,7 +24,7 @@ namespace Quark {
 		s_FontCount++;
 
 		FT_Error error;
-		error = FT_New_Face(s_Library, filepath.c_str(), 0, &m_Face);
+		error = FT_New_Face(s_Library, filepath.data(), 0, &m_Face);
 		QK_ASSERT(error == FT_Err_Ok, "Could not load new font face at path: '" << filepath << "'.");
 
 		error = FT_Set_Pixel_Sizes(m_Face, width, height);

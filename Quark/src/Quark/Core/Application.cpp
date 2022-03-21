@@ -5,7 +5,6 @@
 #include "../Audio/AudioEngine.h"
 #include "../Renderer/Renderer.h"
 #include "../Renderer/RenderCommand.h"
-#include "../Renderer/DeferredObjectManager.h"
 #include "../Tools/Colorimetry.h"
 
 #include <ctime>
@@ -27,8 +26,6 @@ namespace Quark {
 
 		for (uint32_t i = 0; i < m_Layers.size(); i++)
 			delete m_Layers[i];
-
-		DeferredObjectManager::ReleaseRenderObjects();
 
 		Renderer::Dispose();
 		AudioEngine::Dispose();
@@ -62,7 +59,6 @@ namespace Quark {
 			m_Window->OnUpdate();
 
 			AudioEngine::OnUpdate();
-			DeferredObjectManager::ReleaseRenderObjects();
 		}
 	}
 

@@ -1,7 +1,6 @@
 #include "Shader.h"
 
 #include "RenderingAPI.h"
-#include "DeferredObjectDeleter.h"
 
 // Include all supported API's shader implementations
 #include "../../Platform/OpenGL/OpenGLShader.h"
@@ -13,7 +12,7 @@ namespace Quark {
 		switch (RenderingAPI::GetAPI())
 		{
 		case RenderingAPI::API::OpenGL:
-			return CreateRef<OpenGLShader, DeferredObjectDeleter>(filepath);
+			return CreateRef<OpenGLShader>(filepath);
 		case RenderingAPI::API::None:
 			QK_FATAL("Rendering API not supported");
 		}
@@ -25,7 +24,7 @@ namespace Quark {
 		switch (RenderingAPI::GetAPI())
 		{
 		case RenderingAPI::API::OpenGL:
-			return CreateRef<OpenGLShader, DeferredObjectDeleter>(name, vertexSource, fragmentSource);
+			return CreateRef<OpenGLShader>(name, vertexSource, fragmentSource);
 		case RenderingAPI::API::None:
 			QK_FATAL("Rendering API not supported");
 		}
@@ -37,7 +36,7 @@ namespace Quark {
 		switch (RenderingAPI::GetAPI())
 		{
 		case RenderingAPI::API::OpenGL:
-			return CreateRef<OpenGLShader, DeferredObjectDeleter>(name, vertexSource, geometrySource, fragmentSource);
+			return CreateRef<OpenGLShader>(name, vertexSource, geometrySource, fragmentSource);
 		case RenderingAPI::API::None:
 			QK_FATAL("Rendering API not supported");
 		}

@@ -2,8 +2,6 @@
 
 #include "../Core/Core.h"
 
-#include "DeferredObject.h"
-
 #include <string>
 #include <unordered_map>
 
@@ -17,7 +15,7 @@ namespace Quark {
 		float TexCoordX;
 	};
 
-	class Font : public DeferredObject
+	class Font
 	{
 	public:
 		virtual ~Font() = default;
@@ -38,13 +36,13 @@ namespace Quark {
 
 		virtual bool operator==(const Font& other) const = 0;
 
-		static Ref<Font> Create(const std::string& filepath, uint32_t width = 0, uint32_t height = 48);
+		static Ref<Font> Create(std::string_view filepath, uint32_t width = 0, uint32_t height = 48);
 	};
 
 	class FontLibrary
 	{
 	public:
-		Ref<Font> Load(const std::string& name, const std::string& filepath, uint32_t width = 0, uint32_t height = 48);
+		Ref<Font> Load(const std::string& name, std::string_view filepath, uint32_t width = 0, uint32_t height = 48);
 		void Add(const Ref<Font>& font, const std::string& name);
 
 		const Ref<Font>& Get(const std::string& name);
