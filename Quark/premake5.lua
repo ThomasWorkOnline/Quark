@@ -59,12 +59,3 @@ project "Quark"
 		libdirs {
 			"vendor/glfw/lib-linux-x86_64"
 		}
-
-	filter "configurations:Debug"
-		defines "QK_DEBUG"
-		symbols "On"
-
-	filter "configurations:Release"
-		defines "QK_RELEASE"
-		symbols "On"
-		optimize "On"
