@@ -8,7 +8,7 @@
 
 namespace Quark {
 
-	Mesh::Mesh(const std::string& filepath)
+	Mesh::Mesh(std::string_view filepath)
 	{
 		bool result = LoadOBJFromFile(filepath);
 		QK_ASSERT(result, "Could not load model at path: " << filepath);
@@ -205,17 +205,17 @@ namespace Quark {
 		indices[count] = std::stoul(sIndex);
 	}
 
-	bool Mesh::LoadOBJFromFile(const std::string& filepath)
+	bool Mesh::LoadOBJFromFile(std::string_view filepath)
 	{
-		const Quark::BufferLayout layout = {
+		static const Quark::BufferLayout layout = {
 			{ Quark::ShaderDataType::Float3, "a_Position" },
 			{ Quark::ShaderDataType::Float2, "a_TexCoord" },
-			{ Quark::ShaderDataType::Float3, "a_Normal"   }
+			{ Quark::ShaderDataType::Float3, "a_Normal"	  }
 		};
 
 		std::ios::sync_with_stdio(false);
 
-		std::ifstream in(filepath, std::ios::in);
+		std::ifstream in(filepath.data(), std::ios::in);
 		if (!in.is_open())
 			return false;
 

@@ -20,7 +20,7 @@ namespace Quark {
 		return nullptr;
 	}
 
-	Ref<Texture2D> Texture2D::Create(const std::string& filepath, const TextureRenderModes& modes)
+	Ref<Texture2D> Texture2D::Create(std::string_view filepath, const TextureRenderModes& modes)
 	{
 		switch (RenderingAPI::GetAPI())
 		{

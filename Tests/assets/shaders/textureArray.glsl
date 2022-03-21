@@ -16,11 +16,11 @@ flat out int v_TexIndex;
 
 void main()
 {
-	gl_Position = u_Projection * u_View * u_Model * vec4(a_Position, 1.0);
-
-	v_TexCoord = a_TexCoord;
-	v_TexLayer = a_TexLayer;
-	v_TexIndex = a_TexIndex;
+    gl_Position = u_Projection * u_View * u_Model * vec4(a_Position, 1.0);
+    
+    v_TexCoord = a_TexCoord;
+    v_TexLayer = a_TexLayer;
+    v_TexIndex = a_TexIndex;
 }
 
 #type fragment
@@ -36,6 +36,6 @@ out vec4 o_Color;
 
 void main()
 {
-	vec4 texel = texture(u_Sampler, vec3(v_TexCoord, v_TexLayer));
+    vec4 texel = texture(u_Sampler, vec3(v_TexCoord, v_TexLayer));
     o_Color = texel;
 }

@@ -18,8 +18,6 @@ namespace Quark {
         std::string Title = "Quark Engine";
         ApplicationFlag Flags = ApplicationNoFlags;
 
-        RenderingAPI::API Api = RenderingAPI::API::OpenGL;
-
         bool HasFlag(ApplicationFlag flag) const
         {
             return Flags & flag;
@@ -29,11 +27,10 @@ namespace Quark {
         ApplicationOptions(
             uint32_t width, uint32_t height,
             const std::string& title,
-            ApplicationFlag flags = ApplicationNoFlags,
-            RenderingAPI::API api = RenderingAPI::API::OpenGL
+            ApplicationFlag flags = ApplicationNoFlags
         )
             : Width(width), Height(height),
-            Title(title), Flags(flags), Api(api)
+            Title(title), Flags(flags)
         {
         }
     };

@@ -33,6 +33,7 @@ namespace Quark {
         static Application& Get() { return *s_Instance; }
 
     private:
+        void Initialize();
         void OnEventInternal(Event& e);
 
         bool OnWindowClosed(WindowClosedEvent& e);
@@ -47,6 +48,6 @@ namespace Quark {
         std::vector<Layer*> m_Layers;
 
         float m_TotalTime = 0.0f;
-        bool m_Running = true;
+        bool m_Running = false;
     };
 }

@@ -32,8 +32,7 @@ namespace Quark {
 		Renderer() = delete;
 		Renderer operator=(const Renderer& other) = delete;
 
-		static void Initialize(uint32_t width, uint32_t height);
-
+		static void Initialize();
 		static void Dispose();
 
 		static void OnWindowResized(uint32_t width, uint32_t height);
@@ -74,20 +73,31 @@ namespace Quark {
 		static const RendererStats& GetStats() { return s_Stats; }
 
 	private:
-		static void StartBatch();
-		static void PushBatch();
-
-		static void ResetStats();
-
-		static void SetupQuadRenderer();
-		static void SetupFontRenderer();
-		static void SetupLineRenderer();
-
 		struct SceneData
 		{
 			glm::mat4 ProjectionMatrix;
 			glm::mat4 ViewMatrix;
 		};
+
+		struct SetupData
+		{
+			uint32_t* Indices = nullptr;
+			int32_t* Samplers = nullptr;
+
+			~SetupData()
+			{
+				delete[] Indices;
+				delete[] Samplers;
+			}
+		};
+
+		static void StartBatch();
+		static void PushBatch();
+		static void ResetStats();
+
+		static void SetupQuadRenderer(SetupData& setupData);
+		static void SetupFontRenderer(SetupData& setupData);
+		static void SetupLineRenderer();
 
 		static SceneData s_SceneData;
 		static RendererStats s_Stats;

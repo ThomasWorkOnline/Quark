@@ -16,14 +16,14 @@ out int v_TexIndex;
 
 void main()
 {
-	gl_Position = u_Projection * u_View * u_Model * vec4(a_Position, 1.0);
-
-	// Calculate the transformed normal                      w = 0!
-	//vec4 transformedModelNormal = normalize(u_Model * vec4(a_Normal, 0.0));
-
-	v_TexCoord	= a_TexCoord;
-	v_Normal	= mat3(transpose(inverse(u_Model))) * a_Normal;
-	v_TexIndex	= a_TexIndex;
+    gl_Position = u_Projection * u_View * u_Model * vec4(a_Position, 1.0);
+    
+    // Calculate the transformed normal                      w = 0!
+    //vec4 transformedModelNormal = normalize(u_Model * vec4(a_Normal, 0.0));
+    
+    v_TexCoord	= a_TexCoord;
+    v_Normal	= mat3(transpose(inverse(u_Model))) * a_Normal;
+    v_TexIndex	= a_TexIndex;
 }
 
 #type fragment
@@ -39,6 +39,6 @@ out vec4 o_Color;
 
 void main()
 {
-	vec4 color = texture(u_Samplers[0], v_TexCoord);
+    vec4 color = texture(u_Samplers[0], v_TexCoord);
     o_Color = color;
 }

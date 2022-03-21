@@ -16,11 +16,11 @@ flat out int v_TexIndex;
 
 void main()
 {
-	gl_Position = u_Projection * u_View * vec4(a_Position, 1.0);
-
-	v_TexCoord	= a_TexCoord;
-	v_Color		= a_Color;
-	v_TexIndex	= a_TexIndex;
+    gl_Position = u_Projection * u_View * vec4(a_Position, 1.0);
+    
+    v_TexCoord	= a_TexCoord;
+    v_Color		= a_Color;
+    v_TexIndex	= a_TexIndex;
 }
 
 #type fragment
@@ -34,7 +34,7 @@ uniform sampler2D u_Samplers[32];
 
 void main()
 {
-	float texture = texture(u_Samplers[v_TexIndex], v_TexCoord).r;
-	vec4 sampled = vec4(v_Color) * texture;
+    float texture = texture(u_Samplers[v_TexIndex], v_TexCoord).r;
+    vec4 sampled = vec4(v_Color) * texture;
     gl_FragColor = sampled;
 }

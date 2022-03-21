@@ -18,7 +18,7 @@ namespace Quark {
 			: Position(other.Position), Scale(other.Scale), Orientation(other.Orientation) {}
 
 		Transform3DComponent()
-			: Position(0.0), Scale(1.0), Orientation(glm::angleAxis(Float(0.0), Vector3(0.0f, 0.0f, 1.0f))) {}
+			: Position(0.0), Scale(1.0), Orientation(glm::angleAxis(0.0f, Vector3(0.0f, 0.0f, 1.0f))) {}
 
 		Transform3DComponent(const Vector3& position, const Vector3& scale, const Quat& orientation)
 			: Position(position), Scale(scale), Orientation(orientation) {}
@@ -39,7 +39,7 @@ namespace Quark {
 		}
 
 		Transform3DComponent& Rotate(const Quat& quat) { Orientation = glm::normalize(Orientation * quat); return *this; }
-		Transform3DComponent& Rotate(Float angle, const Vector3& axis) { Rotate(glm::angleAxis(angle, glm::normalize(axis))); return *this; }
+		Transform3DComponent& Rotate(float angle, const Vector3& axis) { Rotate(glm::angleAxis(angle, glm::normalize(axis))); return *this; }
 
 	private:
 		Mat4f ComputeMatrix()
@@ -53,12 +53,12 @@ namespace Quark {
 	struct PhysicsComponent
 	{
 		Vector3 Velocity;
-		Float Friction;
+		float Friction;
 
 		PhysicsComponent()
 			: Velocity(0.0), Friction(0.0) { }
 
-		PhysicsComponent(const Vector3& initVelocity, Float coeffFriction)
+		PhysicsComponent(const Vector3& initVelocity, float coeffFriction)
 			: Velocity(initVelocity), Friction(coeffFriction) {}
 	};
 
@@ -67,7 +67,7 @@ namespace Quark {
 		Mesh MeshInstance;
 
 		MeshComponent() = default;
-		MeshComponent(const std::string& filepath)
+		MeshComponent(std::string_view filepath)
 			: MeshInstance(filepath) { }
 	};
 

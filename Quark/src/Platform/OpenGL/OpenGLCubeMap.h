@@ -7,7 +7,7 @@ namespace Quark {
 	class OpenGLCubeMap : public CubeMap
 	{
 	public:
-		OpenGLCubeMap(const std::array<std::string, 6>& filepaths);
+		OpenGLCubeMap(const std::array<std::string_view, 6>& filepaths);
 		virtual ~OpenGLCubeMap();
 
 		virtual void Attach(uint32_t textureSlot = 0) const override;

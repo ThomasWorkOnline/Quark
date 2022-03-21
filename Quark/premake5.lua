@@ -1,7 +1,7 @@
 project "Quark"
 	kind "StaticLib"
 	language "C++"
-	cppdialect "C++17"
+	cppdialect "C++20"
 	staticruntime "off"
 
 	targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
@@ -18,7 +18,6 @@ project "Quark"
 	includedirs {
 		"vendor/freetype/include",
 		"vendor/glad/include",
-		"vendor/glfw/include",
 		"vendor/entt/include",
 		"vendor/glm",
 		"vendor/stb_image",
@@ -26,8 +25,7 @@ project "Quark"
 	}
 
 	defines {
-		"GLFW_INCLUDE_NONE",
-		"QK_DOUBLE_FLOATING_POINT"
+		"GLFW_INCLUDE_NONE"
 	}
 
 	links {
@@ -43,13 +41,21 @@ project "Quark"
 			"opengl32.lib"
 		}
 
+		includedirs {
+			"vendor/glfw-prebuilt-win/include"
+		}
+
 		libdirs {
 			"vendor/freetype/vs2015-2019/win64",
-			"vendor/glfw/lib-vc2019/x64",
+			"vendor/glfw-prebuilt-win/lib-vc2022",
 			"vendor/irrKlang/lib/Winx64-visualStudio"
 		}
 
 	filter "system:unix"
+		includedirs {
+			"vendor/glfw/include"
+		}
+
 		libdirs {
 			"vendor/glfw/lib-linux-x86_64"
 		}

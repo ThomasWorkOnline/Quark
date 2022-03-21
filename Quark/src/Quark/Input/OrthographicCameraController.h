@@ -40,20 +40,16 @@ namespace Quark {
 		bool OnWindowResized(WindowResizedEvent& e);
 		bool OnMouseMoved(MouseMovedEvent& e);
 
-		// Has to be of generic type Entity to have access to various components
 		Entity m_CameraEntity;
 
-		/// <summary>
-		/// Members can be altered.
-		/// </summary>
-		Float m_RollSensitivity = 1.0f;
-		Float m_MovementSpeed = 12.0f;
-		Float m_MouseSensitivity = 0.002f;
-		Float m_MouseScrollSensitivity = 1.0f;
+		float m_RollSensitivity = 1.0f;
+		float m_MovementSpeed = 12.0f;
+		float m_MouseSensitivity = 0.002f;
+		float m_MouseScrollSensitivity = 1.0f;
 
 	private:
-		Float m_ZoomSpeed = 0.0f;
-		Float m_DefaultMovementSpeed = m_MovementSpeed;
-		Float m_DefaultRollSensitivity = m_RollSensitivity;
+		float m_ZoomSpeed = 0.0f;
+		float m_DefaultMovementSpeed = m_MovementSpeed;
+		float m_DefaultRollSensitivity = m_RollSensitivity;
 	};
 }

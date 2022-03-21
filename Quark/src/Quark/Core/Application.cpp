@@ -17,31 +17,7 @@ namespace Quark {
 	Application::Application(const ApplicationOptions& options)
 		: m_Options(options)
 	{
-		QK_TIME_SCOPE_DEBUG(Application::Application);
-
-		s_Instance = this;
-		m_AppMainThreadId = std::this_thread::get_id();
-
-		RenderingApi = RenderingAPI::Create(options.Api);
-
-		WindowSpecification spec = {
-			options.Width, options.Height, options.Title, 4
-		};
-
-		m_Window = Window::Create(spec);
-		m_Window->SetEventCallback(ATTACH_EVENT_FN(Application::OnEventInternal));
-
-		Renderer::Initialize(m_Window->GetWidth(), m_Window->GetHeight());
-		AudioEngine::Initialize();
-
-		if (options.HasFlag(ShowApiInWindowTitle))
-		{
-			std::string appendedTitle = " - " + std::string(RenderingAPI::GetAPIName());
-			m_Window->AppendTitle(appendedTitle);
-		}
-
-		RenderCommand::SetClearColor({ 0.01f, 0.01f, 0.01f, 1.0f });
-		QK_CORE_INFO(RenderCommand::GetSpecification());
+		Initialize();
 	}
 
 	Application::~Application()
@@ -56,8 +32,6 @@ namespace Quark {
 
 		Renderer::Dispose();
 		AudioEngine::Dispose();
-
-		s_Instance = nullptr;
 	}
 
 	void Application::Stop()
@@ -67,6 +41,7 @@ namespace Quark {
 
 	void Application::Run()
 	{
+		m_Running = true;
 		auto tStart = std::chrono::steady_clock::now();
 
 		while (m_Running)
@@ -80,6 +55,7 @@ namespace Quark {
 			m_TotalTime += elapsedTime;
 			OnUpdate(elapsedTime);
 
+			// Don't use iterator based for loops; we might modify the layer stack in OnUpdate()
 			for (size_t i = 0; i < m_Layers.size(); i++)
 				m_Layers[i]->OnUpdate(elapsedTime);
 
@@ -87,6 +63,30 @@ namespace Quark {
 
 			AudioEngine::OnUpdate();
 			DeferredObjectManager::ReleaseRenderObjects();
+		}
+	}
+
+	void Application::Initialize()
+	{
+		QK_TIME_SCOPE_DEBUG(Application::Initialize);
+
+		s_Instance = this;
+		m_AppMainThreadId = std::this_thread::get_id();
+
+		WindowSpecification spec = {
+			m_Options.Width, m_Options.Height, m_Options.Title, 4
+		};
+
+		m_Window = Window::Create(spec);
+		m_Window->SetEventCallback(ATTACH_EVENT_FN(Application::OnEventInternal));
+
+		Renderer::Initialize();
+		AudioEngine::Initialize();
+
+		if (m_Options.HasFlag(ShowApiInWindowTitle))
+		{
+			std::string appendedTitle = " - " + std::string(RenderCommand::GetAPIName());
+			m_Window->AppendTitle(appendedTitle);
 		}
 	}
 

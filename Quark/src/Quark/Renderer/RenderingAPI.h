@@ -66,12 +66,9 @@ namespace Quark {
         virtual std::string GetSpecification() const = 0;
 
         static API GetAPI() { return s_API; }
-        static const char* GetAPIName();
         static Scope<RenderingAPI> Create(API api);
 
     private:
         static API s_API;
     };
-
-    extern Scope<RenderingAPI> RenderingApi;
 }

@@ -1,7 +1,7 @@
 project "Tests"
 	kind "ConsoleApp"
 	language "C++"
-	cppdialect "C++17"
+	cppdialect "C++20"
 	staticruntime "off"
 
 	targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
@@ -30,8 +30,10 @@ project "Tests"
 		systemversion "latest"
 
 	filter "configurations:Debug"
+		defines "QK_DEBUG"
 		symbols "On"
 
 	filter "configurations:Release"
+		defines "QK_RELEASE"
 		symbols "On"
 		optimize "On"

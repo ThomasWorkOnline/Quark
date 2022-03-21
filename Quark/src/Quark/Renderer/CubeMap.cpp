@@ -8,7 +8,7 @@
 
 namespace Quark {
 
-	Ref<CubeMap> Quark::CubeMap::Create(const std::array<std::string, 6>& filepaths)
+	Ref<CubeMap> Quark::CubeMap::Create(const std::array<std::string_view, 6>& filepaths)
 	{
 		switch (RenderingAPI::GetAPI())
 		{

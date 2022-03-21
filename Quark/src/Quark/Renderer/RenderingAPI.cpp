@@ -6,17 +6,11 @@
 namespace Quark {
 
     RenderingAPI::API RenderingAPI::s_API = RenderingAPI::API::None;
-    Scope<RenderingAPI> RenderingApi = nullptr;
-
-    const char* RenderingAPI::GetAPIName()
-    {
-        return RenderingApi->GetName();
-    }
 
     Scope<RenderingAPI> RenderingAPI::Create(API api)
     {
         s_API = api;
-        switch (s_API)
+        switch (api)
         {
         case RenderingAPI::API::OpenGL:
             return CreateScope<OpenGLRenderingAPI>();

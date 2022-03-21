@@ -48,7 +48,7 @@ namespace Quark {
 		}
 	}
 
-	OpenGLTexture2D::OpenGLTexture2D(const std::string& filepath, const TextureRenderModes& modes)
+	OpenGLTexture2D::OpenGLTexture2D(std::string_view filepath, const TextureRenderModes& modes)
 	{
 		Image image(filepath, true);
 		const ImageProperties& prop = image.GetProperties();

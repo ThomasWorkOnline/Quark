@@ -32,7 +32,6 @@
 
 // Rendering
 #include "Quark/Renderer/CubeMap.h"
-#include "Quark/Renderer/Environment.h"
 #include "Quark/Renderer/Font.h"
 #include "Quark/Renderer/Framebuffer.h"
 #include "Quark/Renderer/Mesh.h"

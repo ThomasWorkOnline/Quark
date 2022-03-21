@@ -11,48 +11,35 @@ namespace Quark {
         None = 0, Float, Float2, Float3, Float4, Double, Double2, Double3, Double4, Mat3, Mat4, Int, Int2, Int3, Int4, Bool
     };
 
-    static size_t ShaderDataTypeSize(ShaderDataType type)
+    static constexpr size_t ShaderDataTypeSize(ShaderDataType type)
     {
         switch (type)
         {
-        case ShaderDataType::Float:     return sizeof(float);
-        case ShaderDataType::Float2:    return sizeof(float) * 2;
-        case ShaderDataType::Float3:    return sizeof(float) * 3;
-        case ShaderDataType::Float4:    return sizeof(float) * 4;
-        case ShaderDataType::Double:    return sizeof(double);
-        case ShaderDataType::Double2:   return sizeof(double) * 2;
-        case ShaderDataType::Double3:   return sizeof(double) * 3;
-        case ShaderDataType::Double4:   return sizeof(double) * 4;
-        case ShaderDataType::Mat3:      return sizeof(float) * 3 * 3;
-        case ShaderDataType::Mat4:      return sizeof(float) * 4 * 4;
-        case ShaderDataType::Int:       return sizeof(int32_t);
-        case ShaderDataType::Int2:      return sizeof(int32_t) * 2;
-        case ShaderDataType::Int3:      return sizeof(int32_t) * 3;
-        case ShaderDataType::Int4:      return sizeof(int32_t) * 4;
-        case ShaderDataType::Bool:      return sizeof(bool);
+            case ShaderDataType::Float:     return sizeof(float);
+            case ShaderDataType::Float2:    return sizeof(float) * 2;
+            case ShaderDataType::Float3:    return sizeof(float) * 3;
+            case ShaderDataType::Float4:    return sizeof(float) * 4;
+            case ShaderDataType::Double:    return sizeof(double);
+            case ShaderDataType::Double2:   return sizeof(double) * 2;
+            case ShaderDataType::Double3:   return sizeof(double) * 3;
+            case ShaderDataType::Double4:   return sizeof(double) * 4;
+            case ShaderDataType::Mat3:      return sizeof(float) * 3 * 3;
+            case ShaderDataType::Mat4:      return sizeof(float) * 4 * 4;
+            case ShaderDataType::Int:       return sizeof(int32_t);
+            case ShaderDataType::Int2:      return sizeof(int32_t) * 2;
+            case ShaderDataType::Int3:      return sizeof(int32_t) * 3;
+            case ShaderDataType::Int4:      return sizeof(int32_t) * 4;
+            case ShaderDataType::Bool:      return sizeof(bool);
         }
 
         QK_FATAL("Unknown ShaderDataType");
         return 0;
     }
 
-    struct BufferElement
+    static constexpr size_t ShaderDataTypeComponentCount(ShaderDataType type)
     {
-        std::string Name;
-        ShaderDataType Type;
-        size_t Size;
-        size_t Offset;
-        bool Normalized;
-
-        BufferElement(ShaderDataType type, const std::string& name, bool normalized = false)
-            : Name(name), Type(type), Size(ShaderDataTypeSize(type)), Offset(0), Normalized(normalized)
+        switch (type)
         {
-        }
-
-        uint32_t GetComponentCount() const
-        {
-            switch (Type)
-            {
             case ShaderDataType::Float:   return 1;
             case ShaderDataType::Float2:  return 2;
             case ShaderDataType::Float3:  return 3;
@@ -68,18 +55,32 @@ namespace Quark {
             case ShaderDataType::Int3:    return 3;
             case ShaderDataType::Int4:    return 4;
             case ShaderDataType::Bool:    return 1;
-            }
-
-            QK_FATAL("Unknown ShaderDataType");
-            return 0;
         }
+
+        QK_FATAL("Unknown ShaderDataType");
+        return 0;
+    }
+
+    struct BufferElement
+    {
+        const char* Name;
+        ShaderDataType Type;
+        size_t Size;
+        size_t Offset;
+        bool Normalized;
+
+        constexpr BufferElement(ShaderDataType type, const char* name, bool normalized = false)
+            : Name(name), Type(type), Size(ShaderDataTypeSize(type)), Offset(0), Normalized(normalized)
+        {
+        }
+
+        constexpr uint32_t GetComponentCount() const { return ShaderDataTypeComponentCount(Type); }
     };
 
     class BufferLayout
     {
     public:
         BufferLayout() = default;
-
         BufferLayout(std::initializer_list<BufferElement> elements)
             : m_Elements(elements)
         {
@@ -88,11 +89,12 @@ namespace Quark {
 
         size_t GetStride() const { return m_Stride; }
         const std::vector<BufferElement>& GetElements() const { return m_Elements; }
-
+        
         std::vector<BufferElement>::iterator begin() { return m_Elements.begin(); }
         std::vector<BufferElement>::iterator end() { return m_Elements.end(); }
         std::vector<BufferElement>::const_iterator begin() const { return m_Elements.begin(); }
         std::vector<BufferElement>::const_iterator end() const { return m_Elements.end(); }
+
     private:
         void CalculateOffsetsAndStride()
         {
@@ -105,6 +107,7 @@ namespace Quark {
                 m_Stride += element.Size;
             }
         }
+
     private:
         std::vector<BufferElement> m_Elements;
         size_t m_Stride = 0;

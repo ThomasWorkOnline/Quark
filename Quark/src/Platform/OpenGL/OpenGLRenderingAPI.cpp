@@ -4,17 +4,7 @@
 
 namespace Quark {
 
-    static bool IsInIgnoreList(GLuint type)
-    {
-        switch (type)
-        {
-        case GL_DEBUG_TYPE_OTHER:    return true; // Buffer detailed info
-        }
-
-        return false;
-    }
-
-    static void OnError(
+    static void OnOpenGLMessage(
         GLenum source,
         GLenum type,
         GLuint id,
@@ -23,26 +13,28 @@ namespace Quark {
         const GLchar* message,
         const void* userParam)
     {
-#       ifdef QK_DEBUG // Error printing only applies to debug mode
-
-        if (IsInIgnoreList(type))
-            return;
-
-        fprintf(stderr, "OpenGL callback: %s(Type: 0x%x), [Severity: 0x%x]\n'%s'\n",
-            (type == GL_DEBUG_TYPE_ERROR ? "[OpenGL ERROR]" : ""),
-            type, severity, message);
-
-        QK_ASSERT(type != GL_DEBUG_TYPE_ERROR, "OpenGL error");
-
-#       endif
+        switch (severity)
+        {
+            case GL_DEBUG_SEVERITY_HIGH:         QK_FATAL(message);      return;
+            case GL_DEBUG_SEVERITY_MEDIUM:       QK_CORE_ERROR(message); return;
+            case GL_DEBUG_SEVERITY_LOW:          QK_CORE_WARN(message);  return;
+            case GL_DEBUG_SEVERITY_NOTIFICATION: QK_CORE_TRACE(message); return;
+        }
+            
+        QK_ASSERT(false, "OnOpenGLMessage had an unknown severity level");
     }
 
     void OpenGLRenderingAPI::Init()
     {
         QK_TIME_SCOPE_DEBUG(OpenGLRenderingAPI::Init);
 
+#ifdef QK_DEBUG
         glEnable(GL_DEBUG_OUTPUT);
-        glDebugMessageCallback(OnError, 0);
+        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+        glDebugMessageCallback(OnOpenGLMessage, nullptr);
+
+        glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, NULL, GL_FALSE);
+#endif
 
         // Gamma correction
         glEnable(GL_FRAMEBUFFER_SRGB);
