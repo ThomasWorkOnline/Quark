@@ -55,7 +55,7 @@ class YourApplication : public Quark::Application
 public:
 	// Called each frame
 	// Elapsed time is in seconds
-	void OnUpdate(float elapsedTime) override
+	void OnUpdate(Quark::Timestep elapsedTime) override
 	{
 		// Run your app logic and rendering here:
 		...
