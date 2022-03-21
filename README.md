@@ -43,9 +43,8 @@ I suggest you dynamically allocate your app to prevent high stack usage which ca
 ```c++
 int main()
 {
-	auto app = new YourApplication();
+	auto app = Quark::CreateScope<YourApplication>();
 	app->Run();
-	delete app;
 }
 ```
 
