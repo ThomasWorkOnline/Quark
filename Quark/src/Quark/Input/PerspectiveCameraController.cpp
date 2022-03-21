@@ -18,7 +18,7 @@ namespace Quark {
 	{
 	}
 
-	void PerspectiveCameraController::OnUpdate(float elapsedTime)
+	void PerspectiveCameraController::OnUpdate(Timestep elapsedTime)
 	{
 		if (m_CameraEntity)
 		{
@@ -41,32 +41,32 @@ namespace Quark {
 			// Controls
 			if (Input::IsKeyPressed(Key::W))
 			{
-				physics.Velocity += transform.GetFrontVector() * elapsedTime * m_MovementSpeed;
+				physics.Velocity += transform.GetFrontVector() * (Float)(elapsedTime * m_MovementSpeed);
 			}
 
 			if (Input::IsKeyPressed(Key::S))
 			{
-				physics.Velocity -= transform.GetFrontVector() * elapsedTime * m_MovementSpeed;
+				physics.Velocity -= transform.GetFrontVector() * (Float)(elapsedTime * m_MovementSpeed);
 			}
 
 			if (Input::IsKeyPressed(Key::D))
 			{
-				physics.Velocity += transform.GetRightVector() * elapsedTime * m_MovementSpeed;
+				physics.Velocity += transform.GetRightVector() * (Float)(elapsedTime * m_MovementSpeed);
 			}
 
 			if (Input::IsKeyPressed(Key::A))
 			{
-				physics.Velocity -= transform.GetRightVector() * elapsedTime * m_MovementSpeed;
+				physics.Velocity -= transform.GetRightVector() * (Float)(elapsedTime * m_MovementSpeed);
 			}
 
 			if (Input::IsKeyPressed(Key::Space))
 			{
-				physics.Velocity += transform.GetTopVector() * elapsedTime * m_MovementSpeed;
+				physics.Velocity += transform.GetTopVector() * (Float)(elapsedTime * m_MovementSpeed);
 			}
 
 			if (Input::IsKeyPressed(Key::LeftShift))
 			{
-				physics.Velocity -= transform.GetTopVector() * elapsedTime * m_MovementSpeed;
+				physics.Velocity -= transform.GetTopVector() * (Float)(elapsedTime * m_MovementSpeed);
 			}
 
 			if (Input::IsKeyPressed(Key::Q))
@@ -83,7 +83,7 @@ namespace Quark {
 			{
 				physics.Velocity = { 0.0f, 0.0f, 0.0f };
 				transform.Position = { 0.0f, 0.0f, 0.0f };
-				transform.Orientation = glm::angleAxis(0.0f, Vector3(0.0f, 0.0f, 1.0f));
+				transform.Orientation = glm::angleAxis<Float>(0.0f, Vector3(0.0f, 0.0f, 1.0f));
 				QK_CORE_TRACE("Teleported to world origin");
 			}
 
@@ -102,14 +102,11 @@ namespace Quark {
 				camera.SetFov(1.0f);
 				m_ZoomSpeed = 0.0f;
 			}
-
-			if (camera.GetFov() > 90.0f)
+			else if (camera.GetFov() > 90.0f)
 			{
 				camera.SetFov(90.0f);
 				m_ZoomSpeed = 0.0f;
 			}
-
-			camera.OnUpdate();
 		}
 	}
 

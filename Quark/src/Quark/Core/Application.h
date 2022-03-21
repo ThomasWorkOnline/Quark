@@ -1,9 +1,11 @@
 #pragma once
 
 #include "Core.h"
-#include "Layer.h"
-#include "Window.h"
+
 #include "AppOptions.h"
+#include "Layer.h"
+#include "Timestep.h"
+#include "Window.h"
 
 #include "../Events/ApplicationEvent.h"
 #include "../Renderer/RenderingAPI.h"
@@ -16,7 +18,7 @@ namespace Quark {
         Application(const ApplicationOptions& options = ApplicationOptions());
         virtual ~Application();
         
-        virtual void OnUpdate(float elapsedTime) {}
+        virtual void OnUpdate(Timestep elapsedTime) {}
         virtual void OnEvent(Event& e) {}
 
         void Run();

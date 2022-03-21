@@ -13,12 +13,10 @@ namespace Quark {
 		const glm::mat4& GetProjection() const { return m_Matrix; }
 
 		float GetFov() const { return m_Fov; }
-		void SetFov(float fov) { m_Fov = fov; m_RequiresUpdate = true; }
+		void SetFov(float fov) { m_Fov = fov; RecalculateProjection(); }
 
 		float GetAspectRatio() const { return m_AspectRatio; }
-		void SetAspectRatio(float aspectRatio) { m_AspectRatio = aspectRatio; m_RequiresUpdate = true; }
-
-		void OnUpdate();
+		void SetAspectRatio(float aspectRatio) { m_AspectRatio = aspectRatio; RecalculateProjection(); }
 
 	private:
 		void RecalculateProjection();

@@ -9,7 +9,7 @@ class Pong : public Application
 public:
 	Pong();
 
-	void OnUpdate(float elapsedTime) override;
+	void OnUpdate(Timestep elapsedTime) override;
 	void OnEvent(Event& e) override;
 
 private:

@@ -16,7 +16,7 @@ PBRRendering::PBRRendering()
 	m_Cube.GenerateUnitCube();
 }
 
-void PBRRendering::OnUpdate(float elapsedTime)
+void PBRRendering::OnUpdate(Timestep elapsedTime)
 {
 	m_Controller.OnUpdate(elapsedTime);
 	m_Scene.OnUpdate(elapsedTime);

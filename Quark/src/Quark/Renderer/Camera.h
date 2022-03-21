@@ -12,6 +12,5 @@ namespace Quark {
 
 	protected:
 		glm::mat4 m_Matrix;
-		bool m_RequiresUpdate = false;
 	};
 }

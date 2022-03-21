@@ -18,7 +18,7 @@ namespace Quark {
 	{
 	}
 
-	void OrthographicCameraController::OnUpdate(float elapsedTime)
+	void OrthographicCameraController::OnUpdate(Timestep elapsedTime)
 	{
 		if (m_CameraEntity)
 		{
@@ -41,22 +41,22 @@ namespace Quark {
 			// Controls
 			if (Input::IsKeyPressed(Key::W))
 			{
-				physics.Velocity += transform.GetTopVector() * elapsedTime * m_MovementSpeed;
+				physics.Velocity += transform.GetTopVector() * (Float)(elapsedTime * m_MovementSpeed);
 			}
 
 			if (Input::IsKeyPressed(Key::S))
 			{
-				physics.Velocity -= transform.GetTopVector() * elapsedTime * m_MovementSpeed;
+				physics.Velocity -= transform.GetTopVector() * (Float)(elapsedTime * m_MovementSpeed);
 			}
 
 			if (Input::IsKeyPressed(Key::D))
 			{
-				physics.Velocity += transform.GetRightVector() * elapsedTime * m_MovementSpeed;
+				physics.Velocity += transform.GetRightVector() * (Float)(elapsedTime * m_MovementSpeed);
 			}
 
 			if (Input::IsKeyPressed(Key::A))
 			{
-				physics.Velocity -= transform.GetRightVector() * elapsedTime * m_MovementSpeed;
+				physics.Velocity -= transform.GetRightVector() * (Float)(elapsedTime * m_MovementSpeed);
 			}
 
 			if (Input::IsKeyPressed(Key::Q))
@@ -73,7 +73,7 @@ namespace Quark {
 			{
 				physics.Velocity = { 0.0f, 0.0f, 0.0f };
 				transform.Position = { 0.0f, 0.0f, 0.0f };
-				transform.Orientation = glm::angleAxis(0.0f, Vector3f(0.0f, 0.0f, 1.0f));
+				transform.Orientation = glm::angleAxis<Float>(0.0f, Vector3(0.0f, 0.0f, 1.0f));
 				QK_CORE_TRACE("Teleported to world origin");
 			}
 
@@ -92,14 +92,11 @@ namespace Quark {
 				camera.SetZoom(1.0f);
 				m_ZoomSpeed = 0.0f;
 			}
-
-			if (camera.GetZoom() > 1000.0f)
+			else if (camera.GetZoom() > 1000.0f)
 			{
 				camera.SetZoom(1000.0f);
 				m_ZoomSpeed = 0.0f;
 			}
-
-			camera.OnUpdate();
 		}
 	}
 

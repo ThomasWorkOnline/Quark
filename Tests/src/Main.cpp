@@ -1,7 +1,7 @@
-#include "FontTest/FontTest.h"
+#include "Tests/TextureArrayTest.h"
 
 int main()
 {
-	auto test = Quark::CreateScope<FontTest>();
+	auto test = Quark::CreateScope<TextureArrayTest>();
 	test->Run();
 }

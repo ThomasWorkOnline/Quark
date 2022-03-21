@@ -11,14 +11,12 @@ namespace Quark {
 		OrthographicCamera(float aspectRatio, float zoom);
 
 		float GetAspectRatio() const { return m_AspectRatio; }
-		void SetAspectRatio(float aspectRatio) { m_AspectRatio = aspectRatio; m_RequiresUpdate = true; }
+		void SetAspectRatio(float aspectRatio) { m_AspectRatio = aspectRatio; RecalculateProjection(); }
 
 		float GetZoom() const { return m_Zoom; }
-		void SetZoom(float value) { m_Zoom = value; m_RequiresUpdate = true; }
+		void SetZoom(float value) { m_Zoom = value; RecalculateProjection(); }
 
 		const glm::mat4& GetMatrix() const { return m_Matrix; }
-
-		void OnUpdate();
 
 	private:
 		void RecalculateProjection();

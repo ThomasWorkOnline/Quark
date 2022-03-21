@@ -29,7 +29,7 @@ namespace Quark {
 		/// Make sure the camera entity has all `Transform3DComponent`, `PhysicsComponent` and `PerspectiveCameraComponent` components.
 		/// </summary>
 		/// <param name="elapsedTime">Time elapsed between the last update</param>
-		void OnUpdate(float elapsedTime);
+		void OnUpdate(Timestep elapsedTime);
 
 		bool HasCamera() const { return m_CameraEntity; }
 		void AttachCamera(Entity camera) { m_CameraEntity = camera; }

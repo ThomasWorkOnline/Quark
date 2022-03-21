@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Core/Core.h"
+#include "../Core/Timestep.h"
 
 #include <entt.hpp>
 
@@ -14,7 +15,7 @@ namespace Quark {
 		Scene();
 		~Scene();
 
-		void OnUpdate(float elapsedTime);
+		void OnUpdate(Timestep elapsedTime);
 
 		Entity CreateEntity();
 		void DeleteEntity(Entity entity);

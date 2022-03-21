@@ -19,27 +19,23 @@ MainLayer::MainLayer()
 
 void MainLayer::OnUpdate(float elapsedTime)
 {
-	m_Camera.OnUpdate();
+	Renderer::BeginScene(m_Camera.GetProjection(), m_CameraView);
 
-	{
-		Renderer::BeginScene(m_Camera.GetProjection(), m_CameraView);
+	static constexpr glm::vec4 colorStart = { 0.0f, 1.0f, 1.0f, 1.0f };
+	static constexpr glm::vec4 colorEnd = { 1.0f, 0.0f, 0.0f, 1.0f };
 
-		static constexpr glm::vec4 colorStart = { 0.0f, 1.0f, 1.0f, 1.0f };
-		static constexpr glm::vec4 colorEnd = { 1.0f, 0.0f, 0.0f, 1.0f };
-
-		Renderer::DrawLine({ 0, 0, 1 }, { 1, 0.5, 1 }, colorStart, colorEnd);
+	Renderer::DrawLine({ 0, 0, 1 }, { 1, 0.5, 1 }, colorStart, colorEnd);
 
 #if 1
-		Renderer::DrawSprite(m_Texture, m_Transform3);
+	Renderer::DrawSprite(m_Texture, m_Transform3);
 
-		RenderCommand::SetDepthFunction(RenderDepthFunction::LessEqual);
-		Renderer::DrawText(m_Text, m_Transform1);
-		Renderer::DrawText(m_Font2, "Hi there!", m_Color2, glm::vec2(1.0f), glm::vec2(0.0f), m_Transform2);
-		RenderCommand::SetDepthFunction(RenderDepthFunction::Default);
+	RenderCommand::SetDepthFunction(RenderDepthFunction::LessEqual);
+	Renderer::DrawText(m_Text, m_Transform1);
+	Renderer::DrawText(m_Font2, "Hi there!", m_Color2, glm::vec2(1.0f), glm::vec2(0.0f), m_Transform2);
+	RenderCommand::SetDepthFunction(RenderDepthFunction::Default);
 #endif
 
-		Renderer::EndScene();
-	}
+	Renderer::EndScene();
 }
 
 void MainLayer::OnEvent(Event& e)

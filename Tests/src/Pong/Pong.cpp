@@ -24,7 +24,7 @@ Pong::Pong()
 	FaceOff();
 }
 
-void Pong::OnUpdate(float elapsedTime)
+void Pong::OnUpdate(Timestep elapsedTime)
 {
 	m_Controller.OnUpdate(elapsedTime);
 	m_Scene.OnUpdate(elapsedTime);
@@ -39,7 +39,7 @@ void Pong::OnUpdate(float elapsedTime)
 
 	glm::mat4 projection = m_Entity.GetComponent<PerspectiveCameraComponent>().Camera.GetProjection();
 	glm::mat4 rotate = glm::toMat4(transform.Orientation);
-	glm::mat4 view = glm::translate(rotate, -transform.Position);
+	glm::mat4 view = glm::translate(rotate, (glm::vec3)-transform.Position);
 
 	Renderer::BeginScene(projection, view);
 	Renderer::Submit(m_Shader, m_Ball.GetVertexArray(), m_BallTransform);

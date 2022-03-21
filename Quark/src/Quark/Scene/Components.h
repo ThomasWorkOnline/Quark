@@ -18,47 +18,43 @@ namespace Quark {
 			: Position(other.Position), Scale(other.Scale), Orientation(other.Orientation) {}
 
 		Transform3DComponent()
-			: Position(0.0), Scale(1.0), Orientation(glm::angleAxis(0.0f, Vector3(0.0f, 0.0f, 1.0f))) {}
+			: Position(0.0), Scale(1.0), Orientation(glm::angleAxis<Float>(0.0f, Vector3(0.0f, 0.0f, 1.0f))) {}
 
 		Transform3DComponent(const Vector3& position, const Vector3& scale, const Quat& orientation)
 			: Position(position), Scale(scale), Orientation(orientation) {}
 
-		operator Mat4()
-		{
-			return ComputeMatrix();
-		}
+		// Conversion operators
+		operator Mat4f() { return ComputeMatrix(); }
+		operator Mat4d() { return ComputeMatrix(); }
 
-		Vector3 GetFrontVector() const { return Vector3(0.0, 0.0, 1.0) * Orientation; }
-		Vector3 GetRightVector() const { return Vector3(1.0, 0.0, 0.0) * Orientation; }
-		Vector3 GetTopVector() const   { return Vector3(0.0, 1.0, 0.0) * Orientation; }
+		Vector3 GetFrontVector() const { return Vector3(0.0f, 0.0f, 1.0f) * Orientation; }
+		Vector3 GetRightVector() const { return Vector3(1.0f, 0.0f, 0.0f) * Orientation; }
+		Vector3 GetTopVector()   const { return Vector3(0.0f, 1.0f, 0.0f) * Orientation; }
 
 		void SetFrontVector(const Vector3& direction)
 		{
-			Mat4 rotation = glm::lookAt(Position, Position + direction, { 0, 1, 0 });
+			Mat4 rotation = glm::lookAt(Position, Position + direction, { 0.f, 1.f, 0.f });
 			Orientation = glm::quat_cast(rotation);
 		}
 
 		Transform3DComponent& Rotate(const Quat& quat) { Orientation = glm::normalize(Orientation * quat); return *this; }
-		Transform3DComponent& Rotate(float angle, const Vector3& axis) { Rotate(glm::angleAxis(angle, glm::normalize(axis))); return *this; }
+		Transform3DComponent& Rotate(float angle, const Vector3& axis) { Rotate(glm::angleAxis<Float>(angle, glm::normalize(axis))); return *this; }
 
 	private:
-		Mat4f ComputeMatrix()
+		Mat4 ComputeMatrix()
 		{
-			return glm::translate(Mat4(1.0), Position)
+			return glm::translate(Mat4(1.0f), Position)
 				* glm::toMat4(Orientation)
-				* glm::scale(Mat4(1.0), Scale);
+				* glm::scale(Mat4(1.0f), Scale);
 		}
 	};
 
 	struct PhysicsComponent
 	{
 		Vector3 Velocity;
-		float Friction;
+		Float Friction;
 
-		PhysicsComponent()
-			: Velocity(0.0), Friction(0.0) { }
-
-		PhysicsComponent(const Vector3& initVelocity, float coeffFriction)
+		PhysicsComponent(const Vector3& initVelocity = Vector3(0.f), Float coeffFriction = 0.f)
 			: Velocity(initVelocity), Friction(coeffFriction) {}
 	};
 

@@ -34,17 +34,16 @@ public:
 		m_TextureArray->GenerateMipmaps();
 
 		m_Shader = Shader::Create("assets/shaders/textureArray.glsl");
-
 		m_VertexArray = VertexArray::Create();
 
-		constexpr Vertex vertices[] = {
+		static constexpr Vertex vertices[] = {
 			{ { 0.0f, 0.0f, 1.0f },  { 0.0f, 0.0f }, 0, 0 },
 			{ { 1.0f, 0.0f, 1.0f },  { 1.0f, 0.0f }, 0, 0 },
 			{ { 1.0f, 1.0f, 1.0f },  { 1.0f, 1.0f }, 1, 0 },
 			{ { 0.0f, 1.0f, 1.0f },  { 0.0f, 1.0f }, 0, 0 }
 		};
 
-		constexpr uint32_t indices[] = {
+		static constexpr uint32_t indices[] = {
 			0, 3, 2,
 			0, 2, 1
 		};
@@ -62,13 +61,11 @@ public:
 		m_VertexArray->SetIndexBuffer(m_IndexBuffer);
 	}
 
-	void OnUpdate(float elapsedTime)
+	void OnUpdate(Timestep elapsedTime)
 	{
-		m_Camera.OnUpdate();
-
 		Renderer::BeginScene(m_Camera.GetProjection(), m_CameraView);
 
-		constexpr glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
+		static constexpr glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
 		Renderer::DrawLine(glm::vec3(-1, -1, 0), glm::vec3(1, 1, 0), color, color);
 
 		Renderer::EndScene();
@@ -83,7 +80,6 @@ public:
 		m_Shader->SetInt("u_Sampler", 0);
 
 		m_TextureArray->Attach();
-		
 		m_VertexArray->Attach();
 		RenderCommand::DrawIndexed(m_VertexArray);
 	}

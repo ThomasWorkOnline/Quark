@@ -9,7 +9,7 @@ class PBRRendering : public Application
 public:
 	PBRRendering();
 
-	void OnUpdate(float elapsedTime) override;
+	void OnUpdate(Timestep elapsedTime) override;
 	void OnEvent(Event& e) override;
 
 private:

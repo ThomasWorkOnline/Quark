@@ -8,6 +8,16 @@
 
 namespace Quark {
 
+/*
+	#define `QK_64BIT_PRECISION` to enable double-precision physics calculations.
+	This will have no effect on rendering.
+*/
+#ifdef QK_64BIT_PRECISION
+	using Float = double;
+#else
+	using Float = float;
+#endif
+
 	/// Vector types
 	template<uint32_t L, typename T>
 	using Vector   = glm::vec<L, T>;
@@ -24,9 +34,9 @@ namespace Quark {
 	using Vector3i = Vector<3, int>;
 	using Vector4i = Vector<4, int>;
 
-	using Vector2  = Vector<2, float>;
-	using Vector3  = Vector<3, float>;
-	using Vector4  = Vector<4, float>;
+	using Vector2  = Vector<2, Float>;
+	using Vector3  = Vector<3, Float>;
+	using Vector4  = Vector<4, Float>;
 
 	/// Quaternion type
 	template<typename T>
@@ -35,7 +45,7 @@ namespace Quark {
 	using Quatf = Qua<float>;
 	using Quatd = Qua<double>;
 
-	using Quat = Qua<float>;
+	using Quat = Qua<Float>;
 
 	/// Matrix types
 	template<uint32_t C, uint32_t R, typename T>
@@ -49,7 +59,7 @@ namespace Quark {
 	using Mat3d = Mat<3, 3, double>;
 	using Mat4d = Mat<4, 4, double>;
 
-	using Mat2 = Mat<2, 2, float>;
-	using Mat3 = Mat<3, 3, float>;
-	using Mat4 = Mat<4, 4, float>;
+	using Mat2 = Mat<2, 2, Float>;
+	using Mat3 = Mat<3, 3, Float>;
+	using Mat4 = Mat<4, 4, Float>;
 }
