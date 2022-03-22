@@ -2,10 +2,8 @@
 
 #include "Core.h"
 
-#include "../Audio/AudioEngine.h"
 #include "../Renderer/Renderer.h"
 #include "../Renderer/RenderCommand.h"
-#include "../Tools/Colorimetry.h"
 
 #include <ctime>
 
@@ -28,7 +26,6 @@ namespace Quark {
 			delete m_Layers[i];
 
 		Renderer::Dispose();
-		AudioEngine::Dispose();
 	}
 
 	void Application::Stop()
@@ -57,8 +54,6 @@ namespace Quark {
 				m_Layers[i]->OnUpdate(elapsedTime);
 
 			m_Window->OnUpdate();
-
-			AudioEngine::OnUpdate();
 		}
 	}
 
@@ -76,8 +71,9 @@ namespace Quark {
 		m_Window = Window::Create(spec);
 		m_Window->SetEventCallback(ATTACH_EVENT_FN(Application::OnEventInternal));
 
+		m_AudioDevice = AudioDevice::Create();
+
 		Renderer::Initialize();
-		AudioEngine::Initialize();
 
 		if (m_Options.HasFlag(ShowApiInWindowTitle))
 		{

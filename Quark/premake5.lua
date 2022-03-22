@@ -20,18 +20,19 @@ project "Quark"
 		"vendor/glad/include",
 		"vendor/entt/include",
 		"vendor/glm",
-		"vendor/stb_image",
-		"vendor/irrKlang/include"
+		"vendor/openal/include",
+		"vendor/stb_image"
 	}
 
 	defines {
+		"AL_LIBTYPE_STATIC",
 		"GLFW_INCLUDE_NONE"
 	}
 
 	links {
 		"freetype",
 		"glfw3",
-		"irrKlang"
+		"OpenAL32"
 	}
 
 	filter "system:windows"
@@ -48,7 +49,7 @@ project "Quark"
 		libdirs {
 			"vendor/freetype/vs2015-2019/win64",
 			"vendor/glfw-prebuilt-win/lib-vc2022",
-			"vendor/irrKlang/lib/Winx64-visualStudio"
+			"vendor/openal/libs/Win64"
 		}
 
 	filter "system:unix"

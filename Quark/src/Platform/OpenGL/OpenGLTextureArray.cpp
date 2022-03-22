@@ -12,7 +12,7 @@ namespace Quark {
 		QK_ASSERT(spec.Samples == 1, "OpenGLTexture2DArray does not yet support multisampling");
 
 		m_InternalFormat = GetTextureInternalFormat(m_Spec.DataFormat);
-		m_DataFormat = GetTextureDataFormat(m_Spec.DataFormat);
+		m_DataFormat = GetTextureFormat(m_Spec.DataFormat);
 
 		glGenTextures(1, &m_RendererID);
 		glActiveTexture(GL_TEXTURE0);

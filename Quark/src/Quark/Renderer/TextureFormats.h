@@ -2,7 +2,7 @@
 
 namespace Quark {
 
-	enum class TextureDataFormat
+	enum class TextureFormat
 	{
 		None = 0,
 
@@ -51,7 +51,7 @@ namespace Quark {
 	{
 		TextureFilteringMode MagFilteringMode = TextureFilteringMode::Linear;
 		TextureFilteringMode MinFilteringMode = TextureFilteringMode::LinearMipmapLinear;
-		TextureTilingMode TilingMode = TextureTilingMode::Default;
+		TextureTilingMode TilingMode          = TextureTilingMode::Default;
 	};
 
 	bool IsformatUsingMips(TextureFilteringMode mode);

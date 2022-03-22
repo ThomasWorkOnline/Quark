@@ -7,7 +7,7 @@
 
 namespace Quark {
 
-	static bool IsPowerOfTwo(uint32_t x)
+	static constexpr bool IsPowerOfTwo(uint32_t x)
 	{
 		return (x & (x - 1)) == 0;
 	}
@@ -16,7 +16,7 @@ namespace Quark {
 		: m_Spec(spec)
 	{
 		m_InternalFormat = GetTextureInternalFormat(m_Spec.DataFormat);
-		m_DataFormat = GetTextureDataFormat(m_Spec.DataFormat);
+		m_DataFormat = GetTextureFormat(m_Spec.DataFormat);
 
 		glGenTextures(1, &m_RendererID);
 		glActiveTexture(GL_TEXTURE0);

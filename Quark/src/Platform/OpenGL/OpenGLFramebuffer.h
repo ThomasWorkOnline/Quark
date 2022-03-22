@@ -8,9 +8,7 @@ namespace Quark {
 	{
 	public:
 		OpenGLFramebuffer(const FramebufferSpecification& spec);
-		virtual ~OpenGLFramebuffer();
-
-		void Invalidate();
+		virtual ~OpenGLFramebuffer() override;
 
 		virtual void Attach() override;
 		virtual void Detach() override;
@@ -32,6 +30,9 @@ namespace Quark {
 
 		virtual uint32_t GetWidth() const override { return m_Spec.Width; }
 		virtual uint32_t GetHeight() const override { return m_Spec.Height; }
+
+	private:
+		void Invalidate();
 
 	private:
 		uint32_t m_RendererID = 0;

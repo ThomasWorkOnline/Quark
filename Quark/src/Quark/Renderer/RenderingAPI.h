@@ -2,33 +2,10 @@
 
 #include "../Core/Core.h"
 
+#include "RenderModes.h"
 #include "VertexArray.h"
 
-// Implementations are done in the corresponding platform
 namespace Quark {
-
-    enum class RenderCullFace
-    {
-        None,
-        Front,
-        Back,
-        FrontAndBack,
-
-        Default = Back
-    };
-
-    enum class RenderDepthFunction
-    {
-        Never,
-        Always,
-        NotEqual,
-        Less,
-        LessEqual,
-        Greater,
-        GreaterEqual,
-
-        Default = Less
-    };
 
     class RenderingAPI
     {

@@ -12,7 +12,7 @@ namespace Quark {
 		SpriteAnimator() = default;
 		SpriteAnimator(std::initializer_list<SubTexture2D> textures, float animationSpeed);
 
-		void OnUpdate(float elapsedTime);
+		void OnUpdate(Timestep elapsedTime);
 
 		const SubTexture2D& GetTexture() const;
 

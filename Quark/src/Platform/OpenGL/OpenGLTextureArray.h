@@ -8,7 +8,7 @@ namespace Quark {
 	{
 	public:
 		OpenGLTexture2DArray(const TextureArraySpecification& spec);
-		virtual ~OpenGLTexture2DArray();
+		virtual ~OpenGLTexture2DArray() override;
 
 		virtual uint32_t GetWidth() const override { return m_Spec.Width; }
 		virtual uint32_t GetHeight() const override{ return m_Spec.Height; }

@@ -6,7 +6,7 @@ MainLayer::MainLayer()
 	spec.Width = 48;
 	spec.Height = 48;
 	spec.Layers = 1;
-	spec.DataFormat = TextureDataFormat::RGBA8;
+	spec.DataFormat = TextureFormat::RGBA8;
 	spec.RenderModes.MagFilteringMode = TextureFilteringMode::Nearest;
 
 	m_Font1 = m_Library.Load("arial-regular", "assets/fonts/arial.ttf", 0, 128);

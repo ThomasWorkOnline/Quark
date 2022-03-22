@@ -18,7 +18,7 @@ public:
 	TextureArrayTest()
 	{
 		TextureArraySpecification spec;
-		spec.DataFormat = TextureDataFormat::SRGBA8;
+		spec.DataFormat = TextureFormat::SRGBA8;
 		spec.Width = 16;
 		spec.Height = 16;
 		spec.Layers = 2;

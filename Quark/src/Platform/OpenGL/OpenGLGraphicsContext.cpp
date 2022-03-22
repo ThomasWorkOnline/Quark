@@ -9,7 +9,6 @@ namespace Quark {
 		: m_WindowHandle(windowHandle)
 	{
 		QK_ASSERT(windowHandle, "Window handle is null");
-		QK_CORE_TRACE("Created OpenGL graphics context!");
 	}
 
 	OpenGLGraphicsContext::~OpenGLGraphicsContext()
@@ -29,6 +28,7 @@ namespace Quark {
 
 		int errorCode = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 		QK_ASSERT(errorCode == 1, "Failed to initialize OpenGL context");
+		QK_CORE_TRACE("Created OpenGL graphics context!");
 	}
 
 	void OpenGLGraphicsContext::SwapBuffers()

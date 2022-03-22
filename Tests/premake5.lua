@@ -23,7 +23,6 @@ project "Tests"
 	}
 
 	postbuildcommands {
-		("{COPY} %{wks.location}/Quark/vendor/irrKlang/bin/winx64-visualStudio/**.dll ../bin/" .. outputdir .. "/%{prj.name}")
 	}
 
 	filter "system:windows"

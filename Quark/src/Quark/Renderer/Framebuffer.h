@@ -8,11 +8,11 @@ namespace Quark {
 	struct FramebufferTextureSpecification
 	{
 		FramebufferTextureSpecification() = default;
-		FramebufferTextureSpecification(TextureDataFormat textureFormat,
+		FramebufferTextureSpecification(TextureFormat textureFormat,
 			TextureRenderModes modes = {})
 			: TextureFormat(textureFormat), RenderModes(modes) {}
 
-		TextureDataFormat TextureFormat = TextureDataFormat::None;
+		TextureFormat TextureFormat = TextureFormat::None;
 		TextureRenderModes RenderModes;
 	};
 

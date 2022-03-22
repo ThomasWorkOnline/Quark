@@ -8,7 +8,7 @@ namespace Quark {
     {
     public:
         OpenGLVertexArray();
-        virtual ~OpenGLVertexArray();
+        virtual ~OpenGLVertexArray() override;
 
         virtual void Attach() const override;
         virtual void Detach() const override;

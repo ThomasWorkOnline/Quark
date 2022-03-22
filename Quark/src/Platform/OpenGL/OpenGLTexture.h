@@ -9,7 +9,7 @@ namespace Quark {
 	public:
 		OpenGLTexture2D(const TextureSpecification& spec);
 		OpenGLTexture2D(std::string_view filepath, const TextureRenderModes& modes);
-		virtual ~OpenGLTexture2D();
+		virtual ~OpenGLTexture2D() override;
 
 		virtual uint32_t GetWidth() const override { return m_Spec.Width; }
 		virtual uint32_t GetHeight() const override { return m_Spec.Height; }

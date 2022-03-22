@@ -16,7 +16,7 @@ namespace Quark {
 	struct IndexPack
 	{
 		uint32_t PositionIndex;
-		uint32_t TexCoordIntex;
+		uint32_t TexCoordIndex;
 		uint32_t NormalIndex;
 	};
 
@@ -187,7 +187,7 @@ namespace Quark {
 		for (auto& idx : data.FacesIndices)
 		{
 			vertexPtr->Position = data.Positions[idx.PositionIndex];
-			vertexPtr->TexCoord = data.TexCoords[idx.TexCoordIntex];
+			vertexPtr->TexCoord = data.TexCoords[idx.TexCoordIndex];
 			vertexPtr->Normal   = data.Normals[idx.NormalIndex];
 			vertexPtr++;
 		}

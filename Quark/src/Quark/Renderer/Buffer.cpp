@@ -4,6 +4,7 @@
 
 // Include all supported API's buffers implementations
 #include "../../Platform/OpenGL/OpenGLBuffer.h"
+#include "Buffer.h"
 
 namespace Quark {
 

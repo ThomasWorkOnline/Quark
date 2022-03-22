@@ -78,13 +78,13 @@ void Pong::ProcessCollisionResolution()
 	if (m_CollidesX)
 	{
 		m_CoeffX = -m_CoeffX;
-		AudioEngine::PlaySound("assets/sounds/break_dirt.mp3");
+		//AudioEngine::PlaySound("assets/sounds/break_dirt.mp3");
 	}
 
 	if (m_CollidesY)
 	{
 		m_CoeffY = -m_CoeffY;
-		AudioEngine::PlaySound("assets/sounds/break_dirt.mp3");
+		//AudioEngine::PlaySound("assets/sounds/break_dirt.mp3");
 	}
 }
 

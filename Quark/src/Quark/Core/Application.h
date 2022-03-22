@@ -4,9 +4,9 @@
 
 #include "AppOptions.h"
 #include "Layer.h"
-#include "Timestep.h"
 #include "Window.h"
 
+#include "../Audio/AudioDevice.h"
 #include "../Events/ApplicationEvent.h"
 #include "../Renderer/RenderingAPI.h"
 
@@ -47,6 +47,7 @@ namespace Quark {
 
         ApplicationOptions m_Options;
         Scope<Window> m_Window;
+        Scope<AudioDevice> m_AudioDevice;
         std::vector<Layer*> m_Layers;
 
         float m_TotalTime = 0.0f;

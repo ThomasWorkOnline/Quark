@@ -11,7 +11,7 @@ namespace Quark {
 	{
 	public:
 		GLFWWindow(const WindowSpecification& spec);
-		virtual ~GLFWWindow();
+		virtual ~GLFWWindow() override;
 
 		virtual void SetEventCallback(const EventCallbackFn& callback) override { m_Data.EventCallback = callback; }
 		virtual void OnUpdate() override;

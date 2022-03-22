@@ -9,7 +9,7 @@ namespace Quark {
     public:
         OpenGLVertexBuffer(size_t size);
         OpenGLVertexBuffer(const void* vertices, size_t size);
-        virtual ~OpenGLVertexBuffer();
+        virtual ~OpenGLVertexBuffer() override;
 
         virtual void Attach() const override;
         virtual void Detach() const override;

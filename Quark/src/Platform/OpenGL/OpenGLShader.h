@@ -15,7 +15,7 @@ namespace Quark {
 		OpenGLShader(std::string_view filepath);
 		OpenGLShader(const std::string& name, std::string_view vertexSource, std::string_view fragmentSource);
 		OpenGLShader(const std::string& name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource);
-		virtual ~OpenGLShader();
+		virtual ~OpenGLShader() override;
 
 		virtual void Attach() const;
 		virtual void Detach() const;

@@ -7,7 +7,7 @@ namespace Quark {
 	{
 	}
 
-	void SpriteAnimator::OnUpdate(float elapsedTime)
+	void SpriteAnimator::OnUpdate(Timestep elapsedTime)
 	{
 		if (!m_Paused)
 			m_AccumulatedTime += elapsedTime;

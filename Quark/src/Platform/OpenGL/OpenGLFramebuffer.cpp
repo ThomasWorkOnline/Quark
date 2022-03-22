@@ -26,6 +26,36 @@ namespace Quark {
 		glDeleteTextures(1, &m_DepthAttachment);
 	}
 
+	void OpenGLFramebuffer::Attach()
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
+	}
+
+	void OpenGLFramebuffer::Detach()
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+
+	void OpenGLFramebuffer::AttachColorAttachment(uint32_t textureSlot, uint32_t index)
+	{
+		glActiveTexture(GL_TEXTURE0 + textureSlot);
+		glBindTexture(GL_TEXTURE_2D, m_ColorAttachments[index]);
+	}
+
+	void OpenGLFramebuffer::AttachDepthAttachment(uint32_t textureSlot)
+	{
+		glActiveTexture(GL_TEXTURE0 + textureSlot);
+		glBindTexture(GL_TEXTURE_2D, m_DepthAttachment);
+	}
+
+	void OpenGLFramebuffer::Resize(uint32_t width, uint32_t height)
+	{
+		m_Spec.Width = width;
+		m_Spec.Height = height;
+
+		Invalidate();
+	}
+
 	void OpenGLFramebuffer::Invalidate()
 	{
 		if (m_RendererID)
@@ -60,7 +90,7 @@ namespace Quark {
 				else
 				{
 					glTexImage2D(GL_TEXTURE_2D, 0, GetTextureInternalFormat(m_ColorSpecs[i].TextureFormat), m_Spec.Width, m_Spec.Height, 0,
-						GetTextureDataFormat(m_ColorSpecs[i].TextureFormat), GL_UNSIGNED_BYTE, nullptr);
+						GetTextureFormat(m_ColorSpecs[i].TextureFormat), GL_UNSIGNED_BYTE, nullptr);
 
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetTextureFilteringMode(m_ColorSpecs[i].RenderModes.MinFilteringMode));
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GetTextureFilteringMode(m_ColorSpecs[i].RenderModes.MagFilteringMode));
@@ -73,7 +103,7 @@ namespace Quark {
 		}
 
 		// Depth stencil format
-		if (m_DepthSpec.TextureFormat != TextureDataFormat::None)
+		if (m_DepthSpec.TextureFormat != TextureFormat::None)
 		{
 			glGenTextures(1, &m_DepthAttachment);
 			glBindTexture(GetTextureSampleMode(multisampled), m_DepthAttachment);
@@ -109,35 +139,5 @@ namespace Quark {
 		QK_ASSERT(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE, "Framebuffer is invalid");
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	}
-
-	void OpenGLFramebuffer::Attach()
-	{
-		glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
-	}
-
-	void OpenGLFramebuffer::Detach()
-	{
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	}
-
-	void OpenGLFramebuffer::AttachColorAttachment(uint32_t textureSlot, uint32_t index)
-	{
-		glActiveTexture(GL_TEXTURE0 + textureSlot);
-		glBindTexture(GL_TEXTURE_2D, m_ColorAttachments[index]);
-	}
-
-	void OpenGLFramebuffer::AttachDepthAttachment(uint32_t textureSlot)
-	{
-		glActiveTexture(GL_TEXTURE0 + textureSlot);
-		glBindTexture(GL_TEXTURE_2D, m_DepthAttachment);
-	}
-
-	void OpenGLFramebuffer::Resize(uint32_t width, uint32_t height)
-	{
-		m_Spec.Width = width;
-		m_Spec.Height = height;
-
-		Invalidate();
 	}
 }
