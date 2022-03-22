@@ -21,6 +21,5 @@ namespace Quark {
 
 	private:
 		Ref<VertexArray> m_VertexArray = nullptr;
-		bool m_SmoothShaded = true;
 	};
 }

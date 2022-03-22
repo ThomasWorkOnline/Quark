@@ -13,29 +13,29 @@ namespace Quark {
 		glm::vec3 Normal;
 	};
 
+	struct IndexPack
+	{
+		uint32_t PositionIndex;
+		uint32_t TexCoordIntex;
+		uint32_t NormalIndex;
+	};
+
 	static const Quark::BufferLayout s_Layout = {
 		{ Quark::ShaderDataType::Float3, "a_Position" },
 		{ Quark::ShaderDataType::Float2, "a_TexCoord" },
 		{ Quark::ShaderDataType::Float3, "a_Normal"   }
 	};
 
-	Mesh::Mesh(std::string_view filepath)
+	struct OBJData
 	{
-		LoadOBJFromFile(filepath);
-	}
+		std::vector<glm::vec3> Positions;
+		std::vector<glm::vec2> TexCoords;
+		std::vector<glm::vec3> Normals;
+		std::vector<IndexPack> FacesIndices;
+		bool SmoothShaded = true;
 
-	void Mesh::GenerateUnitCube()
-	{
-		m_VertexArray = VertexArray::Create();
-
-		auto vbo = VertexBuffer::Create(Cube::Vertices, sizeof(Cube::Vertices));
-		vbo->SetLayout(s_Layout);
-
-		m_VertexArray->AddVertexBuffer(vbo);
-
-		auto ibo = IndexBuffer::Create(Cube::Indices, sizeof(Cube::Indices) / sizeof(uint32_t));
-		m_VertexArray->SetIndexBuffer(ibo);
-	}
+		size_t VertexCount() const { return FacesIndices.size(); }
+	};
 
 	template<char Delim>
 	static void Tokenize(std::string_view str, std::vector<std::string_view>& out)
@@ -71,7 +71,7 @@ namespace Quark {
 			{
 				indices[idx] = 0;
 			}
-			
+
 			begin = end + 1;
 			idx++;
 		}
@@ -83,19 +83,12 @@ namespace Quark {
 		std::from_chars(token.data(), token.data() + token.size(), value);
 	}
 
-	void Mesh::LoadOBJFromFile(std::string_view filepath)
+	static void ReadOBJData(std::string_view filepath, OBJData& data)
 	{
-		QK_SCOPE_TIMER(Mesh::LoadOBJFromFile);
-
 		const std::string fileRaw = Filesystem::ReadFile(filepath);
 
 		std::string_view file = fileRaw;
 		std::vector<std::string_view> tokens;
-
-		std::vector<glm::vec3> positions;
-		std::vector<glm::vec2> texCoords;
-		std::vector<glm::vec3> normals;
-		size_t faces = 0;
 
 		size_t pos = 0;
 		size_t eol;
@@ -111,14 +104,14 @@ namespace Quark {
 				ExtractFromToken(tokens[1], vertex.x);
 				ExtractFromToken(tokens[2], vertex.y);
 				ExtractFromToken(tokens[3], vertex.z);
-				positions.push_back(vertex);
+				data.Positions.push_back(vertex);
 			}
 			else if (line.substr(0, 2) == "vt" && tokens.size() >= 3)
 			{
 				glm::vec2 texCoord;
 				ExtractFromToken(tokens[1], texCoord.x);
 				ExtractFromToken(tokens[2], texCoord.y);
-				texCoords.push_back(texCoord);
+				data.TexCoords.push_back(texCoord);
 			}
 			else if (line.substr(0, 2) == "vn" && tokens.size() >= 4)
 			{
@@ -126,39 +119,9 @@ namespace Quark {
 				ExtractFromToken(tokens[1], normal.x);
 				ExtractFromToken(tokens[2], normal.y);
 				ExtractFromToken(tokens[3], normal.z);
-				normals.push_back(normal);
+				data.Normals.push_back(normal);
 			}
 			else if (line.substr(0, 1) == "f" && tokens.size() >= 4)
-			{
-				faces++;
-			}
-			else if (line.substr(0, 1) == "s" && tokens.size() > 2)
-			{
-				if (tokens[1].contains("off") || tokens[1].contains('0'))
-					m_SmoothShaded = false;
-			}
-		}
-
-		if (faces == 0)
-			return;
-
-		if (texCoords.empty())
-			texCoords.push_back(glm::vec2(0.0f));
-
-		if (normals.empty())
-			normals.push_back(glm::vec3(0.0f));
-
-		Vertex* baseVertices = new Vertex[faces * 3];
-		Vertex* vertexPtr = baseVertices;
-
-		pos = 0;
-		while ((eol = file.find_first_of("\r\n", pos)) != std::string::npos)
-		{
-			std::string_view line = file.substr(pos, eol - pos);
-			pos = eol + 1;
-			Tokenize<' '>(line, tokens);
-
-			if (line.substr(0, 1) == "f" && tokens.size() >= 4)
 			{
 				uint32_t indices[3]; // pos_ptr // tex_ptr // norm_ptr
 				for (size_t i = 0; i < 3; i++)
@@ -169,27 +132,79 @@ namespace Quark {
 					uint32_t t = indices[1];
 					uint32_t n = indices[2];
 
-					vertexPtr->Position = positions[v];
-					vertexPtr->TexCoord = texCoords[t];
-					vertexPtr->Normal   = normals[n];
-					vertexPtr++;
+					data.FacesIndices.emplace_back(v, t, n);
 				}
+			}
+			else if (line.substr(0, 1) == "s" && tokens.size() >= 2)
+			{
+				if (tokens[1].contains("off") || tokens[1].contains('0'))
+					data.SmoothShaded = false;
 			}
 		}
 
-		uint32_t* indices = new uint32_t[faces * 3];
-		for (uint32_t i = 0; i < faces * 3; i++)
+		if (data.Positions.empty())
+			data.Positions.push_back(glm::vec3(0.0f));
+
+		if (data.TexCoords.empty())
+			data.TexCoords.push_back(glm::vec2(0.0f));
+
+		if (data.Normals.empty())
+			data.Normals.push_back(glm::vec3(0.0f));
+	}
+
+	Mesh::Mesh(std::string_view filepath)
+	{
+		LoadOBJFromFile(filepath);
+	}
+
+	void Mesh::GenerateUnitCube()
+	{
+		m_VertexArray = VertexArray::Create();
+
+		auto vbo = VertexBuffer::Create(Cube::Vertices, sizeof(Cube::Vertices));
+		vbo->SetLayout(s_Layout);
+
+		m_VertexArray->AddVertexBuffer(vbo);
+
+		auto ibo = IndexBuffer::Create(Cube::Indices, sizeof(Cube::Indices) / sizeof(uint32_t));
+		m_VertexArray->SetIndexBuffer(ibo);
+	}
+
+	void Mesh::LoadOBJFromFile(std::string_view filepath)
+	{
+		QK_SCOPE_TIMER(Mesh::LoadOBJFromFile);
+
+		OBJData data;
+		ReadOBJData(filepath, data);
+
+		size_t vertexCount = data.VertexCount();
+		if (vertexCount == 0)
+			return;
+
+		Vertex* baseVertices = new Vertex[vertexCount];
+		Vertex* vertexPtr = baseVertices;
+
+		for (auto& idx : data.FacesIndices)
+		{
+			vertexPtr->Position = data.Positions[idx.PositionIndex];
+			vertexPtr->TexCoord = data.TexCoords[idx.TexCoordIntex];
+			vertexPtr->Normal   = data.Normals[idx.NormalIndex];
+			vertexPtr++;
+		}
+		
+		uint32_t* indices = new uint32_t[vertexCount];
+		for (uint32_t i = 0; i < vertexCount; i++)
 		{
 			indices[i] = i;
 		}
 
 		m_VertexArray = VertexArray::Create();
 
-		auto vbo = VertexBuffer::Create(baseVertices, faces * 3 * sizeof(Vertex));
+		auto vbo = VertexBuffer::Create(baseVertices, vertexCount * sizeof(Vertex));
 		vbo->SetLayout(s_Layout);
 		m_VertexArray->AddVertexBuffer(vbo);
 
-		auto ibo = IndexBuffer::Create(indices, faces * 3);
+		auto ibo = IndexBuffer::Create(indices, vertexCount);
 		m_VertexArray->SetIndexBuffer(ibo);
 
 		delete[] baseVertices;

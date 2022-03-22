@@ -17,7 +17,7 @@ Pong::Pong()
 	m_BallTransform.Position = glm::vec3(0.0f, 0.0f, 10.0f);
 
 	m_Shader = Shader::Create("assets/shaders/default3D.glsl");
-	m_Ball = Mesh("assets/meshes/nanosuit.obj");
+	m_Ball = Mesh("assets/meshes/sphere.obj");
 
 	FaceOff();
 }
