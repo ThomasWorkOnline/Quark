@@ -16,7 +16,7 @@ namespace Quark {
 	static const Quark::BufferLayout s_Layout = {
 		{ Quark::ShaderDataType::Float3, "a_Position" },
 		{ Quark::ShaderDataType::Float2, "a_TexCoord" },
-		{ Quark::ShaderDataType::Float3, "a_Normal"	  }
+		{ Quark::ShaderDataType::Float3, "a_Normal"   }
 	};
 
 	Mesh::Mesh(std::string_view filepath)
