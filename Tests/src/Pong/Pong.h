@@ -26,8 +26,8 @@ private:
 	PerspectiveCameraController m_Controller;
 
 	Ref<Shader> m_Shader;
-	Mesh m_Ball = Mesh("assets/meshes/arrow.obj");
-	Transform3DComponent m_BallTransform{};
+	Mesh m_Ball;
+	Transform3DComponent m_BallTransform;
 
 	float m_Speed = 1.0f;
 	float m_CoeffX = 0.0f, m_CoeffY = 0.0f;

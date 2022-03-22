@@ -43,10 +43,7 @@
 #endif
 
 #define ATTACH_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
-
 #define BIT(x) (1 << x)
-
-#define QK_FLIP_ON_LOAD 1
 
 namespace Quark {
 

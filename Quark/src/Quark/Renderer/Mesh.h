@@ -16,12 +16,11 @@ namespace Quark {
 		const Ref<VertexArray>& GetVertexArray() const { return m_VertexArray; }
 
 		// TODO: support sharp edges and sharp angle threshold detector
-		bool LoadOBJFromFile(std::string_view filepath);
-
+		void LoadOBJFromFile(std::string_view filepath);
 		void GenerateUnitCube();
-		void GenerateTerrain(const BufferLayout& layout, size_t scale, uint32_t seed);
 
 	private:
 		Ref<VertexArray> m_VertexArray = nullptr;
+		bool m_SmoothShaded = true;
 	};
 }

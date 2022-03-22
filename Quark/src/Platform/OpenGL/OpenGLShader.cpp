@@ -1,17 +1,17 @@
 #include "OpenGLShader.h"
 
 #include "../../Quark/Core/Core.h"
+#include "../../Quark/Filesystem/Filesystem.h"
 
 #include <glm/gtc/type_ptr.hpp>
 #include <glad/glad.h>
 
-#include <fstream>
 #include <vector>
 #include <unordered_map>
 
 namespace Quark {
 
-	static GLenum ShaderTypeFromString(std::string_view type)
+	static constexpr GLenum ShaderTypeFromString(std::string_view type)
 	{
 		if (type == "vertex")
 			return GL_VERTEX_SHADER;
@@ -26,9 +26,9 @@ namespace Quark {
 
 	OpenGLShader::OpenGLShader(std::string_view filepath)
 	{
-		QK_TIME_SCOPE_DEBUG(OpenGLShader::OpenGLShader);
+		QK_SCOPE_TIMER(OpenGLShader::OpenGLShader);
 
-		std::string source = ReadFile(filepath);
+		std::string source = Filesystem::ReadFile(filepath);
 		auto shaderSources = PreProcess(source);
 		Compile(shaderSources);
 
@@ -43,7 +43,7 @@ namespace Quark {
 	OpenGLShader::OpenGLShader(const std::string& name, std::string_view vertexSource, std::string_view fragmentSource)
 		: m_Name(name)
 	{
-		QK_TIME_SCOPE_DEBUG(OpenGLShader::OpenGLShader);
+		QK_SCOPE_TIMER(OpenGLShader::OpenGLShader);
 
 		std::unordered_map<GLenum, std::string_view> sources;
 		sources[GL_VERTEX_SHADER]   = vertexSource;
@@ -54,7 +54,7 @@ namespace Quark {
 	OpenGLShader::OpenGLShader(const std::string& name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource)
 		: m_Name(name)
 	{
-		QK_TIME_SCOPE_DEBUG(OpenGLShader::OpenGLShader);
+		QK_SCOPE_TIMER(OpenGLShader::OpenGLShader);
 
 		std::unordered_map<GLenum, std::string_view> sources;
 		sources[GL_VERTEX_SHADER]   = vertexSource;
@@ -66,38 +66,6 @@ namespace Quark {
 	OpenGLShader::~OpenGLShader()
 	{
 		glDeleteProgram(m_RendererID);
-	}
-
-	std::string OpenGLShader::ReadFile(std::string_view filepath)
-	{
-		std::string result;
-		std::ifstream in(filepath.data(), std::ios::in | std::ios::binary);
-		if (in)
-		{
-			in.seekg(0, std::ios::end);
-			size_t size = in.tellg();
-			if (size != -1)
-			{
-				result.resize(size);
-				in.seekg(0, std::ios::beg);
-				in.read(&result[0], size);
-				in.close();
-			}
-			else
-			{
-				std::stringstream ss;
-				ss << "Could not read from file '" << filepath << "'";
-				QK_FATAL(ss.str());
-			}
-		}
-		else
-		{
-			std::stringstream ss;
-			ss << "Could not open file '" << filepath << "'";
-			QK_FATAL(ss.str());
-		}
-
-		return result;
 	}
 
 	std::unordered_map<GLenum, std::string_view> OpenGLShader::PreProcess(std::string_view source)

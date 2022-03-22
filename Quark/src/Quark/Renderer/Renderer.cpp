@@ -32,8 +32,8 @@ namespace Quark {
 		static constexpr uint32_t MaxQuads = 20000;
 		static constexpr uint32_t MaxVertices = MaxQuads * 4;
 		static constexpr uint32_t MaxIndices = MaxQuads * 6;
-		uint32_t MaxSamplers = 0;
 
+		uint32_t MaxSamplers = 0;
 		QuadVertex* QuadVertexPtr = nullptr;
 		QuadVertex* QuadVertices  = nullptr;
 		uint32_t QuadIndexCount   = 0;
@@ -72,7 +72,7 @@ namespace Quark {
 	
 	void Renderer::Initialize()
 	{
-		QK_TIME_SCOPE_DEBUG(Renderer::Initialize);
+		QK_SCOPE_TIMER(Renderer::Initialize);
 
 		RenderCommand::Init();
 		RenderCommand::SetClearColor({ 0.01f, 0.01f, 0.01f, 1.0f });
@@ -83,7 +83,7 @@ namespace Quark {
 		// Samplers
 		s_Data.MaxSamplers = RenderCommand::GetTextureSlotsCount();
 		setupData.Samplers = new int32_t[s_Data.MaxSamplers];
-		for (int32_t i = 0; i < s_Data.MaxSamplers; i++)
+		for (uint32_t i = 0; i < s_Data.MaxSamplers; i++)
 			setupData.Samplers[i] = i;
 
 		// Indices
@@ -109,7 +109,7 @@ namespace Quark {
 
 	void Renderer::Dispose()
 	{
-		QK_TIME_SCOPE_DEBUG(Renderer::Dispose);
+		QK_SCOPE_TIMER(Renderer::Dispose);
 
 		delete[] s_Data.QuadVertices;
 		delete[] s_Data.Textures;
@@ -369,7 +369,7 @@ namespace Quark {
 			size_t size = ((uint8_t*)s_Data.QuadVertexPtr - (uint8_t*)s_Data.QuadVertices);
 			s_Data.QuadVertexBuffer->SetData(s_Data.QuadVertices, size);
 
-			for (int32_t i = 0; i < s_Data.QuadSamplerIndex; i++)
+			for (uint32_t i = 0; i < s_Data.QuadSamplerIndex; i++)
 				s_Data.Textures[i]->Attach(i);
 
 			s_Data.QuadShader->Attach();
@@ -387,7 +387,7 @@ namespace Quark {
 			size_t size = ((uint8_t*)s_Data.FontVertexPtr - (uint8_t*)s_Data.FontVertices);
 			s_Data.FontVertexBuffer->SetData(s_Data.FontVertices, size);
 
-			for (int32_t i = 0; i < s_Data.FontSamplerIndex; i++)
+			for (uint32_t i = 0; i < s_Data.FontSamplerIndex; i++)
 				s_Data.Fonts[i]->Attach(i);
 
 			s_Data.FontShader->Attach();
@@ -608,8 +608,8 @@ namespace Quark {
 			if (!w || !h)
 				continue;
 
-			float atlasWidth = font->GetAtlasWidth();
-			float atlasHeight = font->GetAtlasHeight();
+			float atlasWidth = (float)font->GetAtlasWidth();
+			float atlasHeight = (float)font->GetAtlasHeight();
 
 			s_Data.FontVertexPtr->Position	= transform * glm::vec4(xpos + w, -ypos, 0.0f, 1.0f);
 			s_Data.FontVertexPtr->TexCoord	= { tx + ch.Size.x / atlasWidth, 0.0f };

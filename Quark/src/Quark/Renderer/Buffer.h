@@ -34,7 +34,7 @@ namespace Quark {
         return 0;
     }
 
-    static constexpr size_t ShaderDataTypeComponentCount(ShaderDataType type)
+    static constexpr uint32_t ShaderDataTypeComponentCount(ShaderDataType type)
     {
         switch (type)
         {

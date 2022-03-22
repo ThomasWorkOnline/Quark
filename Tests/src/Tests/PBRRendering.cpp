@@ -13,6 +13,7 @@ PBRRendering::PBRRendering()
 	m_TextureModes.MagFilteringMode = TextureFilteringMode::Nearest;
 	m_Texture = Texture2D::Create("assets/textures/sprite_sheet.png", m_TextureModes);
 	m_Shader = Shader::Create("assets/shaders/default3D.glsl");
+
 	m_Cube.GenerateUnitCube();
 }
 
@@ -26,7 +27,6 @@ void PBRRendering::OnUpdate(Timestep elapsedTime)
 	Renderer::BeginScene(camera.GetProjection(), transform);
 
 	Renderer::DrawSprite(m_Texture);
-
 	Renderer::Submit(m_Shader, m_Texture, m_Cube.GetVertexArray());
 
 	Renderer::EndScene();
@@ -39,6 +39,8 @@ void PBRRendering::OnEvent(Event& e)
 	dispatcher.Dispatch<MouseMovedEvent>(ATTACH_EVENT_FN(PBRRendering::OnMouseMoved));
 	dispatcher.Dispatch<MouseButtonPressedEvent>(ATTACH_EVENT_FN(PBRRendering::OnMouseButtonPressed));
 	dispatcher.Dispatch<MouseButtonReleasedEvent>(ATTACH_EVENT_FN(PBRRendering::OnMouseButtonReleased));
+
+	e.Handled = e.IsInCategory(EventCategoryInput) && GetWindow().IsCursorEnabled();
 
 	if (!e.Handled)
 		m_Controller.OnEvent(e);
@@ -53,7 +55,6 @@ bool PBRRendering::OnKeyPressed(KeyPressedEvent& e)
 		window.DisableCursor();
 		break;
 	}
-
 	return false;
 }
 
@@ -61,7 +62,6 @@ bool PBRRendering::OnMouseMoved(MouseMovedEvent& e)
 {
 	if (!GetWindow().IsCursorEnabled())
 		return true;
-
 	return false;
 }
 

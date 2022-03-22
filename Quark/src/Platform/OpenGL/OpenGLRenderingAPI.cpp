@@ -26,7 +26,7 @@ namespace Quark {
 
     void OpenGLRenderingAPI::Init()
     {
-        QK_TIME_SCOPE_DEBUG(OpenGLRenderingAPI::Init);
+        QK_SCOPE_TIMER(OpenGLRenderingAPI::Init);
 
 #ifdef QK_DEBUG
         glEnable(GL_DEBUG_OUTPUT);

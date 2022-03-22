@@ -22,7 +22,7 @@ namespace Quark {
 	Application::~Application()
 	{
 		QK_CORE_TRACE("Initiating shutdown...");
-		QK_TIME_SCOPE_DEBUG(Application::~Application);
+		QK_SCOPE_TIMER(Application::~Application);
 
 		for (uint32_t i = 0; i < m_Layers.size(); i++)
 			delete m_Layers[i];
@@ -64,7 +64,7 @@ namespace Quark {
 
 	void Application::Initialize()
 	{
-		QK_TIME_SCOPE_DEBUG(Application::Initialize);
+		QK_SCOPE_TIMER(Application::Initialize);
 
 		s_Instance = this;
 		m_AppMainThreadId = std::this_thread::get_id();

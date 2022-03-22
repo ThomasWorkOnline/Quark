@@ -2,12 +2,11 @@
 
 #include "../Core/Core.h"
 
-#include <chrono>
-
 #if defined(QK_DEBUG) || defined(QK_FORCE_TIME_SCOPE_RELEASE)
-#	define QK_TIME_SCOPE_DEBUG(scope) Quark::ScopeTimer scopeTimer(#scope)
+#	include <chrono>
+#	define QK_SCOPE_TIMER(scope) Quark::ScopeTimer scopeTimer(#scope)
 #else
-#	define QK_TIME_SCOPE_DEBUG(scope)
+#	define QK_SCOPE_TIMER(scope)
 #endif
 
 namespace Quark {

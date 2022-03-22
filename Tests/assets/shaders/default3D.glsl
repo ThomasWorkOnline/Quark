@@ -4,7 +4,6 @@
 layout(location = 0) in vec3 a_Position;
 layout(location = 1) in vec2 a_TexCoord;
 layout(location = 2) in vec3 a_Normal;
-layout(location = 3) in int a_TexIndex;
 
 uniform mat4 u_Model;
 uniform mat4 u_View;
@@ -23,7 +22,6 @@ void main()
     
     v_TexCoord	= a_TexCoord;
     v_Normal	= mat3(transpose(inverse(u_Model))) * a_Normal;
-    v_TexIndex	= a_TexIndex;
 }
 
 #type fragment
@@ -33,12 +31,14 @@ uniform sampler2D u_Samplers[32];
 
 in vec2 v_TexCoord;
 in vec3 v_Normal;
-in int v_TexIndex;
 
 out vec4 o_Color;
+
+vec3 lightDir = normalize(vec3(1.0, 0.3, 0.5));
+float ambiant = 0.1;
 
 void main()
 {
     vec4 color = texture(u_Samplers[0], v_TexCoord);
-    o_Color = color;
+    o_Color = vec4(color.rgb * max(dot(lightDir, v_Normal), 0.0) + ambiant, color.a);
 }

@@ -16,8 +16,6 @@ namespace Quark {
 		float GetZoom() const { return m_Zoom; }
 		void SetZoom(float value) { m_Zoom = value; RecalculateProjection(); }
 
-		const glm::mat4& GetMatrix() const { return m_Matrix; }
-
 	private:
 		void RecalculateProjection();
 

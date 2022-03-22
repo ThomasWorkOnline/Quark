@@ -10,6 +10,8 @@ namespace Quark {
 		Camera(const glm::mat4& matrix = glm::mat4(1.0f))
 			: m_Matrix(matrix) {}
 
+		const glm::mat4& GetProjection() const { return m_Matrix; }
+
 	protected:
 		glm::mat4 m_Matrix;
 	};

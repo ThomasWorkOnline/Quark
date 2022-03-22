@@ -1,7 +1,5 @@
 #include "Pong.h"
 
-static void* s_InitialAddress = nullptr;
-
 Pong::Pong()
 	: Application(ApplicationOptions(1280, 720, "Pong"))
 {
@@ -19,7 +17,7 @@ Pong::Pong()
 	m_BallTransform.Position = glm::vec3(0.0f, 0.0f, 10.0f);
 
 	m_Shader = Shader::Create("assets/shaders/default3D.glsl");
-	s_InitialAddress = m_Shader.get();
+	m_Ball = Mesh("assets/meshes/nanosuit.obj");
 
 	FaceOff();
 }
@@ -52,7 +50,7 @@ void Pong::OnEvent(Event& e)
 	dispatcher.Dispatch<KeyPressedEvent>(ATTACH_EVENT_FN(Pong::OnKeyPressed));
 	dispatcher.Dispatch<MouseButtonPressedEvent>(ATTACH_EVENT_FN(Pong::OnMouseButtonPressed));
 
-	e.Handled = e.IsInCategory(EventCategoryInput) && !GetWindow().IsFocused();
+	e.Handled = e.IsInCategory(EventCategoryInput) && GetWindow().IsCursorEnabled();
 
 	if (!e.Handled)
 		m_Controller.OnEvent(e);
@@ -61,7 +59,7 @@ void Pong::OnEvent(Event& e)
 void Pong::FaceOff()
 {
 	Random<float> random;
-	random.Seed(time(nullptr));
+	random.Seed((uint32_t)time(nullptr));
 	m_CoeffX = roundf(random.Next()) * 2.0f - 1.0f;
 	m_CoeffY = roundf(random.Next()) * 2.0f - 1.0f;
 }

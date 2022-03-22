@@ -107,7 +107,7 @@ namespace Quark {
 
 	void OpenGLFont::Init()
 	{
-		QK_TIME_SCOPE_DEBUG(OpenGLFont::Init);
+		QK_SCOPE_TIMER(OpenGLFont::Init);
 
 		FT_Error error = FT_Init_FreeType(&s_Library);
 		QK_ASSERT(error == FT_Err_Ok, "Could not initialize freetype!");
@@ -115,7 +115,7 @@ namespace Quark {
 
 	void OpenGLFont::Shutdown()
 	{
-		QK_TIME_SCOPE_DEBUG(OpenGLFont::Shutdown);
+		QK_SCOPE_TIMER(OpenGLFont::Shutdown);
 
 		FT_Done_FreeType(s_Library);
 	}
