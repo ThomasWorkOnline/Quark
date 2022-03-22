@@ -160,32 +160,20 @@ namespace Quark {
 
 			if (line.substr(0, 1) == "f" && tokens.size() >= 4)
 			{
-				uint32_t indices0[3]; // pos_ptr // tex_ptr // norm_ptr
-				uint32_t indices1[3];
-				uint32_t indices2[3];
+				uint32_t indices[3]; // pos_ptr // tex_ptr // norm_ptr
+				for (size_t i = 0; i < 3; i++)
+				{
+					SplitIndexData(tokens[i + 1], indices);
 
-				SplitIndexData(tokens[1], indices0);
-				SplitIndexData(tokens[2], indices1);
-				SplitIndexData(tokens[3], indices2);
+					uint32_t v = indices[0];
+					uint32_t t = indices[1];
+					uint32_t n = indices[2];
 
-				uint32_t v0 = indices0[0]; uint32_t v1 = indices1[0]; uint32_t v2 = indices2[0];
-				uint32_t t0 = indices0[1]; uint32_t t1 = indices1[1]; uint32_t t2 = indices2[1];
-				uint32_t n0 = indices0[2]; uint32_t n1 = indices1[2]; uint32_t n2 = indices2[2];
-
-				vertexPtr->Position = positions[v0];
-				vertexPtr->TexCoord = texCoords[t0];
-				vertexPtr->Normal   = normals[n0];
-				vertexPtr++;
-
-				vertexPtr->Position = positions[v1];
-				vertexPtr->TexCoord = texCoords[t1];
-				vertexPtr->Normal   = normals[n1];
-				vertexPtr++;
-
-				vertexPtr->Position = positions[v2];
-				vertexPtr->TexCoord = texCoords[t2];
-				vertexPtr->Normal   = normals[n2];
-				vertexPtr++;
+					vertexPtr->Position = positions[v];
+					vertexPtr->TexCoord = texCoords[t];
+					vertexPtr->Normal   = normals[n];
+					vertexPtr++;
+				}
 			}
 		}
 
