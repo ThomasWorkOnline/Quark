@@ -111,7 +111,8 @@ public:
 private:
 	// Our custom KeyPressedEvent handler
 	bool OnKeyPressed(KeyPressedEvent& e)
-	{
+	{       //               ^
+		// Note that the event has been casted to the right type
 		std::cout << e.GetKeyCode() << std::endl;
 	
 		// Returns if the event has been handled
