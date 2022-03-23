@@ -30,6 +30,7 @@ Official support for Linux and macOS is on it's way!
 // Single header include
 #include <Quark.h>
 
+// Create a class extending `Quark::Application`
 class YourApplication : public Quark::Application
 {
 	...
