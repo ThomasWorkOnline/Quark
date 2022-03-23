@@ -17,7 +17,7 @@ namespace Quark {
     class Application
     {
     public:
-        Application(const ApplicationOptions& options = ApplicationOptions());
+        Application(const ApplicationOptions& options = {});
         virtual ~Application();
         
         virtual void OnUpdate(Timestep elapsedTime) {}
