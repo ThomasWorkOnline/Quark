@@ -22,6 +22,7 @@ namespace Quark {
 
 	OpenALAudioDevice::~OpenALAudioDevice()
 	{
+		m_Context.reset();
 		ALCALL(alcCloseDevice(m_Device));
 	}
 }
