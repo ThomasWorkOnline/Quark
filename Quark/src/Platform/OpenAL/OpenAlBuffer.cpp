@@ -1,5 +1,5 @@
-#include "OpenAlBuffer.h"
-#include "OpenAlAudioFormats.h"
+#include "OpenALBuffer.h"
+#include "OpenALAudioFormats.h"
 
 #include <AL/al.h>
 
