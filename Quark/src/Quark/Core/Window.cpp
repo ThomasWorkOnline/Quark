@@ -5,8 +5,8 @@
 
 namespace Quark {
 
-    Scope<Window> Window::Create(const WindowSpecification& spec)
-    {
-        return CreateScope<GLFWWindow>(spec);
-    }
+	Scope<Window> Window::Create(const WindowSpecification& spec)
+	{
+		return CreateScope<GLFWWindow>(spec);
+	}
 }

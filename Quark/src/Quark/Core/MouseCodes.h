@@ -2,7 +2,7 @@
 
 namespace Quark {
 
-    typedef enum class MouseCode : uint16_t
+	typedef enum class MouseCode : uint16_t
 	{
 		// Code from glfw3.h
 		Button0                = 0,

@@ -6,7 +6,7 @@
 
 namespace Quark {
 
-    bool Input::IsKeyPressed(KeyCode key)
+	bool Input::IsKeyPressed(KeyCode key)
 	{
 		auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
 		auto state = glfwGetKey(window, static_cast<int32_t>(key));
@@ -31,13 +31,13 @@ namespace Quark {
 
 	float Input::GetMouseX()
 	{
-		auto[x, y] = GetMousePosition();
+		auto [x, y] = GetMousePosition();
 		return x;
 	}
 
 	float Input::GetMouseY()
 	{
-		auto[x, y] = GetMousePosition();
+		auto [x, y] = GetMousePosition();
 		return y;
 	}
 }

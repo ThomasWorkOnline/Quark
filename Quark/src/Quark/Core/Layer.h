@@ -9,11 +9,7 @@ namespace Quark {
 	public:
 		virtual ~Layer() = default;
 
-	protected:
 		virtual void OnUpdate(Timestep elapsedTime) {}
 		virtual void OnEvent(Event& e) {}
-
-	private:
-		friend class Application;
 	};
 }

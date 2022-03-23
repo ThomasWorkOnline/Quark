@@ -32,5 +32,5 @@
 	// We are on Linux
 #	define QK_PLATFORM_LINUX
 #else
-	#error "Unknown platform is not supported by default"
+#error "Unknown platform is not supported by default"
 #endif
