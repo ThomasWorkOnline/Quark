@@ -5,18 +5,18 @@
 
 namespace Quark {
 
-    RenderingAPI::API RenderingAPI::s_API = RenderingAPI::API::None;
+	RenderingAPI::API RenderingAPI::s_API = RenderingAPI::API::None;
 
-    Scope<RenderingAPI> RenderingAPI::Create(API api)
-    {
-        s_API = api;
-        switch (api)
-        {
-            case RenderingAPI::API::OpenGL:
-                return CreateScope<OpenGLRenderingAPI>();
-        }
+	Scope<RenderingAPI> RenderingAPI::Create(API api)
+	{
+		s_API = api;
+		switch (api)
+		{
+			case RenderingAPI::API::OpenGL:
+				return CreateScope<OpenGLRenderingAPI>();
+		}
 
-        QK_FATAL("Unknown Rendering API");
-        return nullptr;
-    }
+		QK_FATAL("Unknown Rendering API");
+		return nullptr;
+	}
 }

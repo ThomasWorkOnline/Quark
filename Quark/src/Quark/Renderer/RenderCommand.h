@@ -48,7 +48,7 @@ namespace Quark {
 		{
 			s_RenderingApi->DrawIndexed(vertexArray, indexCount);
 		}
-		
+
 		static void DrawIndexedInstanced(const Ref<VertexArray>& vertexArray, uint32_t repeatCount, uint32_t indexCount = 0)
 		{
 			s_RenderingApi->DrawIndexedInstanced(vertexArray, repeatCount, indexCount);

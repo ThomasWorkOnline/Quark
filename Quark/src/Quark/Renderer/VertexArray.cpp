@@ -7,15 +7,15 @@
 
 namespace Quark {
 
-    Ref<VertexArray> VertexArray::Create()
-    {
-        switch(RenderingAPI::GetAPI())
-        {
-            case RenderingAPI::API::OpenGL:
-                return CreateRef<OpenGLVertexArray>();
-        }
-        
-        QK_FATAL("Rendering API not supported");
-        return nullptr;
-    }
+	Ref<VertexArray> VertexArray::Create()
+	{
+		switch (RenderingAPI::GetAPI())
+		{
+			case RenderingAPI::API::OpenGL:
+				return CreateRef<OpenGLVertexArray>();
+		}
+
+		QK_FATAL("Rendering API not supported");
+		return nullptr;
+	}
 }

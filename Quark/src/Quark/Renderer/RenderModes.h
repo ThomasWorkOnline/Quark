@@ -2,26 +2,26 @@
 
 namespace Quark {
 
-    enum class RenderCullFace
-    {
-        None,
-        Front,
-        Back,
-        FrontAndBack,
+	enum class RenderCullFace
+	{
+		None,
+		Front,
+		Back,
+		FrontAndBack,
 
-        Default = Back
-    };
+		Default = Back
+	};
 
-    enum class RenderDepthFunction
-    {
-        Never,
-        Always,
-        NotEqual,
-        Less,
-        LessEqual,
-        Greater,
-        GreaterEqual,
+	enum class RenderDepthFunction
+	{
+		Never,
+		Always,
+		NotEqual,
+		Less,
+		LessEqual,
+		Greater,
+		GreaterEqual,
 
-        Default = Less
-    };
+		Default = Less
+	};
 }

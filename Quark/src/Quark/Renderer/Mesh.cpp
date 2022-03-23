@@ -191,7 +191,7 @@ namespace Quark {
 			vertexPtr->Normal   = data.Normals[idx.NormalIndex];
 			vertexPtr++;
 		}
-		
+
 		uint32_t* indices = new uint32_t[vertexCount];
 		for (uint32_t i = 0; i < vertexCount; i++)
 		{
