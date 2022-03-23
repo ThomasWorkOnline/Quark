@@ -3,6 +3,8 @@
 #include "Quark/Core/Core.h"
 
 #include <functional>
+#include <ostream>
+#include <sstream>
 
 namespace Quark {
 
