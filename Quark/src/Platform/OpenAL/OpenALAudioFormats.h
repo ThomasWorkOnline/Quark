@@ -4,7 +4,6 @@
 #include "../../Quark/Audio/AudioFormats.h"
 
 #include <AL/al.h>
-#include <AL/alc.h>
 
 namespace Quark {
 
