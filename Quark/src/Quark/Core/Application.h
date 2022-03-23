@@ -41,7 +41,7 @@ namespace Quark {
         void OnEventInternal(Event& e);
 
         bool OnWindowClosed(WindowClosedEvent& e);
-		bool OnWindowResized(WindowResizedEvent& e);
+        bool OnWindowResized(WindowResizedEvent& e);
 
     private:
         static Application* s_Instance;
