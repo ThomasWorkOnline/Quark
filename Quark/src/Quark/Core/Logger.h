@@ -14,7 +14,7 @@
 #   define QK_TRACE(...) std::cout << "[Trace]: "               << __VA_ARGS__ << std::endl
 #   define QK_INFO(...)  std::cout << "[Info]: "                << __VA_ARGS__ << std::endl
 #   define QK_WARN(...)  std::cout << "[Warning]: "             << __VA_ARGS__ << std::endl
-#   define QK_ERROR(...) std::cerr << "[ERROR]: "		        << __VA_ARGS__ << std::endl
+#   define QK_ERROR(...) std::cerr << "[ERROR]: "               << __VA_ARGS__ << std::endl
 #else
 #   define QK_CORE_TRACE(...)                                   // Tracing disabled
 #   define QK_CORE_INFO(...)  std::cout << "[Core Info]: "      << __VA_ARGS__ << std::endl
