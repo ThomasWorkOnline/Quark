@@ -1,6 +1,6 @@
 #include "OpenALAudioContext.h"
 
-#include <AL/alc.h>
+#include "OpenALCore.h"
 
 namespace Quark {
 
@@ -14,17 +14,17 @@ namespace Quark {
 	{
 		QK_SCOPE_TIMER(OpenALAudioContext::~OpenALAudioContext);
 
-		alcMakeContextCurrent(nullptr);
-		alcDestroyContext(m_Context);
+		ALCALL(alcMakeContextCurrent(nullptr));
+		ALCALL(alcDestroyContext(m_Context));
 	}
 
 	void OpenALAudioContext::Init()
 	{
 		QK_SCOPE_TIMER(OpenALAudioContext::Init);
 
-		m_Context = alcCreateContext(static_cast<ALCdevice*>(m_DeviceHandle), nullptr);
+		m_Context = ALCALL(alcCreateContext(static_cast<ALCdevice*>(m_DeviceHandle), nullptr));
 
-		ALCboolean result = alcMakeContextCurrent(m_Context);
+		ALCboolean result = ALCALL(alcMakeContextCurrent(m_Context));
 		QK_ASSERT(result, "Failed to initialize OpenAL context");
 		QK_CORE_TRACE("Created OpenAL audio context!");
 	}
