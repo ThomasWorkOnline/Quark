@@ -87,7 +87,7 @@ public:
 ```
 
 Event dispatchers are used to associate an event type with a given function.
-The function given must have the following signature:<br />
+The event handler must have the following signature:<br />
 ```c++
 bool Function(EventType&);
 ```
