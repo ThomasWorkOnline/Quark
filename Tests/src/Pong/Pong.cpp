@@ -19,6 +19,14 @@ Pong::Pong()
 	m_Shader = Shader::Create("assets/shaders/default3D.glsl");
 	m_Ball = Mesh("assets/meshes/sphere.obj");
 
+	AudioBufferSpecification spec = {
+		AudioFormat::Mono16,
+		1024,
+		48000
+	};
+
+	m_AudioBuffer = AudioBuffer::Create(spec, nullptr);
+
 	FaceOff();
 }
 

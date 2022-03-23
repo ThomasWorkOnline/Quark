@@ -54,5 +54,16 @@ namespace Quark {
 		TextureTilingMode TilingMode          = TextureTilingMode::Default;
 	};
 
-	bool IsformatUsingMips(TextureFilteringMode mode);
+	constexpr bool IsformatUsingMips(TextureFilteringMode mode)
+	{
+		switch (mode)
+		{
+			case TextureFilteringMode::LinearMipmapLinear:
+			case TextureFilteringMode::LinearMipmapNearest:
+			case TextureFilteringMode::NearestMipmapLinear:
+			case TextureFilteringMode::NearestMipmapNearest:
+				return true;
+		}
+		return false;
+	}
 }

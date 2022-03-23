@@ -7,12 +7,12 @@
 
 namespace Quark {
 
-	static constexpr GLenum GetTextureSampleMode(bool multisampled)
+	constexpr GLenum GetTextureSampleMode(bool multisampled)
 	{
 		return multisampled ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
 	}
 
-	static constexpr GLenum GetTextureInternalFormat(TextureFormat format)
+	constexpr GLenum GetTextureInternalFormat(TextureFormat format)
 	{
 		switch (format)
 		{
@@ -27,7 +27,7 @@ namespace Quark {
 		return GL_NONE;
 	}
 
-	static constexpr GLenum GetTextureFormat(TextureFormat format)
+	constexpr GLenum GetTextureFormat(TextureFormat format)
 	{
 		switch (format)
 		{
@@ -41,7 +41,7 @@ namespace Quark {
 		return GL_NONE;
 	}
 
-	static constexpr GLenum GetTextureFilteringMode(TextureFilteringMode mode)
+	constexpr GLenum GetTextureFilteringMode(TextureFilteringMode mode)
 	{
 		switch (mode)
 		{
@@ -57,7 +57,7 @@ namespace Quark {
 		return GL_NONE;
 	}
 
-	static constexpr GLenum GetTextureTilingMode(TextureTilingMode mode)
+	constexpr GLenum GetTextureTilingMode(TextureTilingMode mode)
 	{
 		switch (mode)
 		{
@@ -70,7 +70,7 @@ namespace Quark {
 		return GL_NONE;
 	}
 
-	static constexpr bool IsTextureDepthFormat(TextureFormat format)
+	constexpr bool IsTextureDepthFormat(TextureFormat format)
 	{
 		switch (format)
 		{
@@ -79,7 +79,7 @@ namespace Quark {
 		return false;
 	}
 
-	static constexpr bool IsTextureAlphaFormat(TextureFormat format)
+	constexpr bool IsTextureAlphaFormat(TextureFormat format)
 	{
 		switch (format)
 		{

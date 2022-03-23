@@ -8,7 +8,7 @@
 
 namespace Quark {
 
-	static constexpr ALenum GetAudioFormat(AudioFormat format)
+	constexpr ALenum GetAudioFormat(AudioFormat format)
 	{
 		switch (format)
 		{

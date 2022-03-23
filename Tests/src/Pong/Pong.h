@@ -28,6 +28,7 @@ private:
 	Ref<Shader> m_Shader;
 	Mesh m_Ball;
 	Transform3DComponent m_BallTransform;
+	Ref<AudioBuffer> m_AudioBuffer;
 
 	float m_Speed = 1.0f;
 	float m_CoeffX = 0.0f, m_CoeffY = 0.0f;
