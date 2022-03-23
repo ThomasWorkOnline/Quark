@@ -1,5 +1,7 @@
 #include "GLFWWindow.h"
 
+#include "Quark/Renderer/RenderingAPI.h"
+
 #include <GLFW/glfw3.h>
 
 namespace Quark {
@@ -39,14 +41,28 @@ namespace Quark {
 		if (s_WindowCount == 0)
 		{
 			int initCode = glfwInit();
-			QK_ASSERT(initCode == GLFW_TRUE, "Could not initialize GLFW!");
+			QK_CORE_ASSERT(initCode == GLFW_TRUE, "Could not initialize GLFW!");
 
 			glfwSetErrorCallback(GLFWErrorCallback);
 
-			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+			glfwWindowHint(GLFW_REFRESH_RATE, GLFW_DONT_CARE);
+
+			if (RenderingAPI::GetAPI() == RenderingAPI::API::OpenGL)
+			{
+#ifdef QK_DEBUG
+				glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT,     GLFW_TRUE);
+#endif
+
+#if defined(QK_PLATFORM_MACOS)
+				glfwWindowHint(GLFW_OPENGL_PROFILE,           GLFW_OPENGL_CORE_PROFILE);
+				glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT,    GLFW_TRUE);
+#endif
+			}
+
+#if defined(QK_PLATFORM_MACOS)
+			glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
+			glfwWindowHint(GLFW_COCOA_GRAPHICS_SWITCHING, GLFW_TRUE);
+#endif
 		}
 
 		// MSAA anti-aliasing

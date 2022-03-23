@@ -1,7 +1,5 @@
 #include "OpenGLVertexArray.h"
 
-#include "../../Quark/Core/Core.h"
-
 #include <glad/glad.h>
 
 namespace Quark {
@@ -54,8 +52,8 @@ namespace Quark {
 
 	void OpenGLVertexArray::AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer)
 	{
-		QK_ASSERT(vertexBuffer, "Vertex Buffer is empty");
-		QK_ASSERT(vertexBuffer->GetLayout().GetElements().size() != 0, "Vertex buffer has no layout");
+		QK_CORE_ASSERT(vertexBuffer, "Vertex Buffer is empty");
+		QK_CORE_ASSERT(vertexBuffer->GetLayout().GetElements().size() != 0, "Vertex buffer has no layout");
 
 		glBindVertexArray(m_RendererID);
 		vertexBuffer->Attach();
@@ -137,7 +135,7 @@ namespace Quark {
 
 	void OpenGLVertexArray::SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer)
 	{
-		QK_ASSERT(indexBuffer != nullptr, "Index Buffer is empty");
+		QK_CORE_ASSERT(indexBuffer != nullptr, "Index Buffer is empty");
 
 		glBindVertexArray(m_RendererID);
 		indexBuffer->Attach();

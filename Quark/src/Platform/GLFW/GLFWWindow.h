@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../Quark/Core/Window.h"
-#include "../../Quark/Renderer/GraphicsContext.h"
+#include "Quark/Core/Window.h"
+#include "Quark/Renderer/GraphicsContext.h"
 
 struct GLFWwindow;
 

@@ -17,7 +17,7 @@ MainLayer::MainLayer()
 	m_Texture = Texture2D::Create("assets/textures/sprite_sheet.png", spec.RenderModes);
 }
 
-void MainLayer::OnUpdate(float elapsedTime)
+void MainLayer::OnUpdate(Timestep elapsedTime)
 {
 	Renderer::BeginScene(m_Camera.GetProjection(), m_CameraView);
 

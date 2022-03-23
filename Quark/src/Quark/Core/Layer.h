@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Events/Event.h"
+#include "Quark/Events/Event.h"
 
 namespace Quark {
 
@@ -10,7 +10,7 @@ namespace Quark {
 		virtual ~Layer() = default;
 
 	protected:
-		virtual void OnUpdate(float elapsedTime) {}
+		virtual void OnUpdate(Timestep elapsedTime) {}
 		virtual void OnEvent(Event& e) {}
 
 	private:

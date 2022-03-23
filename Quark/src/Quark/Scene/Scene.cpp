@@ -1,22 +1,9 @@
 #include "Scene.h"
 
-#include "../Core/Core.h"
-
 #include "Entity.h"
 #include "Components.h"
 
-#include "../Renderer/PerspectiveCamera.h"
-#include "../Renderer/OrthographicCamera.h"
-
 namespace Quark {
-
-	Scene::Scene()
-	{
-	}
-
-	Scene::~Scene()
-	{
-	}
 
 	void Scene::OnUpdate(Timestep elapsedTime)
 	{

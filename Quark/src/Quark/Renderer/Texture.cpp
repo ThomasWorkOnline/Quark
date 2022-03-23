@@ -3,7 +3,7 @@
 #include "RenderingAPI.h"
 
 // Include all supported API's texture implementations
-#include "../../Platform/OpenGL/OpenGLTexture.h"
+#include "Platform/OpenGL/OpenGLTexture.h"
 
 namespace Quark {
 
@@ -11,11 +11,11 @@ namespace Quark {
 	{
 		switch (RenderingAPI::GetAPI())
 		{
-		case RenderingAPI::API::OpenGL:
-			return CreateRef<OpenGLTexture2D>(spec);
-		case RenderingAPI::API::None:
-			QK_FATAL("Rendering API not supported");
+			case RenderingAPI::API::OpenGL:
+				return CreateRef<OpenGLTexture2D>(spec);
 		}
+
+		QK_FATAL("Rendering API not supported");
 		return nullptr;
 	}
 
@@ -23,11 +23,10 @@ namespace Quark {
 	{
 		switch (RenderingAPI::GetAPI())
 		{
-		case RenderingAPI::API::OpenGL:
-			return CreateRef<OpenGLTexture2D>(filepath, modes);
-		case RenderingAPI::API::None:
-			QK_FATAL("Rendering API not supported");
+			case RenderingAPI::API::OpenGL:
+				return CreateRef<OpenGLTexture2D>(filepath, modes);
 		}
+		QK_FATAL("Rendering API not supported");
 		return nullptr;
 	}
 }

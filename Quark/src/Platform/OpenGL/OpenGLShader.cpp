@@ -1,7 +1,6 @@
 #include "OpenGLShader.h"
 
-#include "../../Quark/Core/Core.h"
-#include "../../Quark/Filesystem/Filesystem.h"
+#include "Quark/Filesystem/Filesystem.h"
 
 #include <glm/gtc/type_ptr.hpp>
 #include <glad/glad.h>
@@ -104,7 +103,7 @@ namespace Quark {
 	void OpenGLShader::Compile(const std::unordered_map<GLenum, std::string_view>& shaderSources)
 	{
 		constexpr uint32_t maxShaders = 3;
-		QK_ASSERT(shaderSources.size() <= maxShaders, "Maximum shader count supported is 3");
+		QK_CORE_ASSERT(shaderSources.size() <= maxShaders, "Maximum shader count supported is 3");
 
 		GLuint program = glCreateProgram();
 

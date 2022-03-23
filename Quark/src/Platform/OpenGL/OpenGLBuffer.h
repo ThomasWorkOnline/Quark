@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Quark/Renderer/Buffer.h"
+#include "Quark/Renderer/Buffer.h"
 
 namespace Quark {
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Quark/Audio/AudioContext.h"
+#include "Quark/Audio/AudioContext.h"
 
 typedef struct ALCcontext ALCcontext;
 

@@ -25,10 +25,10 @@ namespace Quark {
 
 		FT_Error error;
 		error = FT_New_Face(s_Library, filepath.data(), 0, &m_Face);
-		QK_ASSERT(error == FT_Err_Ok, "Could not load new font face at path: '" << filepath << "'.");
+		QK_CORE_ASSERT(error == FT_Err_Ok, "Could not load new font face at path: '" << filepath << "'.");
 
 		error = FT_Set_Pixel_Sizes(m_Face, width, height);
-		QK_ASSERT(error == FT_Err_Ok, "Could not set font dimensions.");
+		QK_CORE_ASSERT(error == FT_Err_Ok, "Could not set font dimensions.");
 
 		QK_CORE_TRACE("Loading " << s_GlyphCount << " glyphs from font at path: '" << filepath << "'.");
 
@@ -110,7 +110,7 @@ namespace Quark {
 		QK_SCOPE_TIMER(OpenGLFont::Init);
 
 		FT_Error error = FT_Init_FreeType(&s_Library);
-		QK_ASSERT(error == FT_Err_Ok, "Could not initialize freetype!");
+		QK_CORE_ASSERT(error == FT_Err_Ok, "Could not initialize freetype!");
 	}
 
 	void OpenGLFont::Shutdown()

@@ -127,7 +127,7 @@ namespace Quark {
 
 		if (m_ColorAttachments.size() > 1)
 		{
-			QK_ASSERT(m_ColorAttachments.size() <= 4, "Framebuffer contains too many color attachments (maximum is 4)");
+			QK_CORE_ASSERT(m_ColorAttachments.size() <= 4, "Framebuffer contains too many color attachments (maximum is 4)");
 			GLenum buffers[4] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
 			glDrawBuffers(m_ColorAttachments.size(), buffers);
 		}
@@ -136,7 +136,7 @@ namespace Quark {
 			glDrawBuffer(GL_NONE);
 		}
 
-		QK_ASSERT(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE, "Framebuffer is invalid");
+		QK_CORE_ASSERT(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE, "Framebuffer is invalid");
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}

@@ -3,7 +3,7 @@
 #include "RenderingAPI.h"
 
 // Include all supported API's vertex arrays implementations
-#include "../../Platform/OpenGL/OpenGLVertexArray.h"
+#include "Platform/OpenGL/OpenGLVertexArray.h"
 
 namespace Quark {
 
@@ -11,11 +11,11 @@ namespace Quark {
     {
         switch(RenderingAPI::GetAPI())
         {
-        case RenderingAPI::API::OpenGL:
-            return CreateRef<OpenGLVertexArray>();
-        case RenderingAPI::API::None:
-            QK_FATAL("Rendering API not supported");
+            case RenderingAPI::API::OpenGL:
+                return CreateRef<OpenGLVertexArray>();
         }
+        
+        QK_FATAL("Rendering API not supported");
         return nullptr;
     }
 }

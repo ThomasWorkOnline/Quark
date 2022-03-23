@@ -57,8 +57,8 @@ void Pong::OnUpdate(Timestep elapsedTime)
 void Pong::OnEvent(Event& e)
 {
 	EventDispatcher dispatcher(e);
-	dispatcher.Dispatch<KeyPressedEvent>(ATTACH_EVENT_FN(Pong::OnKeyPressed));
-	dispatcher.Dispatch<MouseButtonPressedEvent>(ATTACH_EVENT_FN(Pong::OnMouseButtonPressed));
+	dispatcher.Dispatch<KeyPressedEvent>(ATTACH_EVENT_FN(OnKeyPressed));
+	dispatcher.Dispatch<MouseButtonPressedEvent>(ATTACH_EVENT_FN(OnMouseButtonPressed));
 
 	e.Handled = e.IsInCategory(EventCategoryInput) && GetWindow().IsCursorEnabled();
 
@@ -70,8 +70,8 @@ void Pong::FaceOff()
 {
 	Random<float> random;
 	random.Seed((uint32_t)time(nullptr));
-	m_CoeffX = roundf(random.Next()) * 2.0f - 1.0f;
-	m_CoeffY = roundf(random.Next()) * 2.0f - 1.0f;
+	m_CoeffX = glm::round(random.Next()) * 2.0f - 1.0f;
+	m_CoeffY = glm::round(random.Next()) * 2.0f - 1.0f;
 }
 
 void Pong::ProcessCollision()

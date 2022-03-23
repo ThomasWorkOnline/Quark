@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Quark/Renderer/Framebuffer.h"
+#include "Quark/Renderer/Framebuffer.h"
 
 namespace Quark {
 

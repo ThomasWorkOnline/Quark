@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../Quark/Audio/AudioDevice.h"
-#include "../../Quark/Audio/AudioContext.h"
+#include "Quark/Audio/AudioDevice.h"
+#include "Quark/Audio/AudioContext.h"
 
 typedef struct ALCdevice ALCdevice;
 

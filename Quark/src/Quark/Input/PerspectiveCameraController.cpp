@@ -1,15 +1,15 @@
 #include "PerspectiveCameraController.h"
 
-#include "../Core/Core.h"
-#include "../Core/Input.h"
-#include "../Core/KeyCodes.h"
-#include "../Core/Application.h"
+#include "Quark/Core/Core.h"
+#include "Quark/Core/Input.h"
+#include "Quark/Core/KeyCodes.h"
+#include "Quark/Core/Application.h"
 
-#include "../Tools/EasingCurves.h"
+#include "Quark/Scene/Scene.h"
+#include "Quark/Scene/Entity.h"
+#include "Quark/Scene/Components.h"
 
-#include "../Scene/Scene.h"
-#include "../Scene/Entity.h"
-#include "../Scene/Components.h"
+#include "Quark/Tools/EasingCurves.h"
 
 namespace Quark {
 

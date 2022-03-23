@@ -1,6 +1,6 @@
 #include "AudioBuffer.h"
 
-#include "../../Platform/OpenAL/OpenALBuffer.h"
+#include "Platform/OpenAL/OpenALBuffer.h"
 
 namespace Quark {
 

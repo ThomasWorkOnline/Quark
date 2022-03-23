@@ -1,8 +1,7 @@
 #pragma once
 
-#include "../Core/Core.h"
-
-#include "../Renderer/SubTexture.h"
+#include "Quark/Core/Core.h"
+#include "Quark/Renderer/SubTexture.h"
 
 namespace Quark {
 

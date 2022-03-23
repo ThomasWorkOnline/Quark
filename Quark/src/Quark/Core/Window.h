@@ -1,12 +1,11 @@
 #pragma once
 
-#include "../Core/Core.h"
-#include "../Core/Input.h"
-
-#include "../Events/ApplicationEvent.h"
-#include "../Events/KeyEvent.h"
-#include "../Events/MouseEvent.h"
-#include "../Events/WindowEvents.h"
+#include "Quark/Core/Core.h"
+#include "Quark/Core/Input.h"
+#include "Quark/Events/ApplicationEvent.h"
+#include "Quark/Events/KeyEvent.h"
+#include "Quark/Events/MouseEvent.h"
+#include "Quark/Events/WindowEvents.h"
 
 namespace Quark {
 

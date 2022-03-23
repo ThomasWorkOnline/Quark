@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../Quark/Core/Core.h"
-#include "../../Quark/Audio/AudioFormats.h"
+#include "Quark/Core/Core.h"
+#include "Quark/Audio/AudioFormats.h"
 
 #include <AL/al.h>
 

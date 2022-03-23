@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Quark/Audio/AudioBuffer.h"
+#include "Quark/Audio/AudioBuffer.h"
 
 namespace Quark {
 

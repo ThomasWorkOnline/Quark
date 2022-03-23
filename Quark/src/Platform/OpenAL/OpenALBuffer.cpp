@@ -11,7 +11,7 @@ namespace Quark {
 		ALCALL(alGenBuffers(1, &m_BufferID));
 		ALCALL(alBufferData(m_BufferID, GetAudioFormat(spec.Format), data, spec.Size, spec.Frequency));
 
-		QK_ASSERT(alIsBuffer(m_BufferID), "Audio buffer is invalid");
+		QK_CORE_ASSERT(alIsBuffer(m_BufferID), "Audio buffer is invalid");
 	}
 
 	OpenALAudioBuffer::~OpenALAudioBuffer()

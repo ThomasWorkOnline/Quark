@@ -1,13 +1,12 @@
 #pragma once
 
-#include "../Renderer/PerspectiveCamera.h"
+#include "Quark/Events/ApplicationEvent.h"
+#include "Quark/Events/MouseEvent.h"
+#include "Quark/Events/KeyEvent.h"
+#include "Quark/Events/WindowEvents.h"
 
-#include "../Events/ApplicationEvent.h"
-#include "../Events/MouseEvent.h"
-#include "../Events/KeyEvent.h"
-#include "../Events/WindowEvents.h"
-
-#include "../Scene/Entity.h"
+#include "Quark/Renderer/PerspectiveCamera.h"
+#include "Quark/Scene/Entity.h"
 
 namespace Quark {
 

@@ -16,6 +16,7 @@ project "Quark"
 	}
 
 	includedirs {
+		"src",
 		"vendor/freetype/include",
 		"vendor/glad/include",
 		"vendor/entt/include",

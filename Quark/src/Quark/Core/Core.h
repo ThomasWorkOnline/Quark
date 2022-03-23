@@ -1,49 +1,12 @@
 #pragma once
 
-#include <array>
-#include <cstring>
-#include <cmath>
-#include <fstream>
-#include <functional>
-#include <future>
-#include <iostream>
-#include <memory>
-#include <sstream>
-#include <string>
-#include <vector>
-
 // Platform detection
 #include "Platform.h"
 
-// Debugbreak
-#if defined(QK_PLATFORM_WINDOWS)
-#	define QK_DEBUGBREAK() __debugbreak()
-#elif defined(QK_PLATFORM_LINUX)
-#	include <signal.h>
-#	define QK_DEBUGBREAK() raise(SIGTRAP)
-#elif defined(QK_PLATFORM_APPLE)
-#	define QK_DEBUGBREAK() abort()
-#else
-#	define QK_DEBUGBREAK()
-#endif
+#include <functional>
+#include <memory>
 
-// Standards configuration
-#include "../Math/Types.h"
-
-#include "Logger.h"
-#include "Timestep.h"
-#include "../Tools/LogUtils.h"
-#include "../Profiling/Monitoring.h"
-
-#define QK_FATAL(...) do { QK_CORE_ERROR(__VA_ARGS__); QK_DEBUGBREAK(); } while (false)
-
-#ifdef QK_DEBUG
-#	define QK_ASSERT(x, ...) do { if(!(x)) { QK_CORE_ERROR(__VA_ARGS__); QK_DEBUGBREAK(); } } while (false)
-#else
-#	define QK_ASSERT(x, ...)
-#endif
-
-#define ATTACH_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
+#define ATTACH_EVENT_FN(fn) [&](auto&&... args) -> decltype(auto) { return fn(std::forward<decltype(args)>(args)...); }
 #define BIT(x) (1 << x)
 
 namespace Quark {
@@ -70,3 +33,12 @@ namespace Quark {
 		return std::shared_ptr<T>(new T(std::forward<Args>(args)...), Deleter());
 	}
 }
+
+// GLM standards configuration
+#include "Quark/Math/Types.h"
+
+#include "Logger.h"
+#include "Assertions.h"
+#include "Timestep.h"
+
+#include "Quark/Profiling/Profiling.h"

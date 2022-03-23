@@ -1,5 +1,12 @@
 #pragma once
 
+#include "Quark/Core/Core.h"
+#include "Quark/UI/Text.h"
+
+#include "Quark/Scene/Components.h"
+#include "Quark/Scene/Entity.h"
+#include "Quark/Scene/Scene.h"
+
 #include "Font.h"
 #include "Framebuffer.h"
 #include "Mesh.h"
@@ -10,12 +17,6 @@
 #include "SubTexture.h"
 #include "Texture.h"
 #include "TextureArray.h"
-
-#include "../UI/Text.h"
-
-#include "../Scene/Components.h"
-#include "../Scene/Entity.h"
-#include "../Scene/Scene.h"
 
 namespace Quark {
 

@@ -1,7 +1,7 @@
 #include "RenderingAPI.h"
 
 // Include all supported APIs here
-#include "../../Platform/OpenGL/OpenGLRenderingAPI.h"
+#include "Platform/OpenGL/OpenGLRenderingAPI.h"
 
 namespace Quark {
 
@@ -12,8 +12,8 @@ namespace Quark {
         s_API = api;
         switch (api)
         {
-        case RenderingAPI::API::OpenGL:
-            return CreateScope<OpenGLRenderingAPI>();
+            case RenderingAPI::API::OpenGL:
+                return CreateScope<OpenGLRenderingAPI>();
         }
 
         QK_FATAL("Unknown Rendering API");

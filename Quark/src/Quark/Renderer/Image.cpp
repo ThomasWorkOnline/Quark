@@ -11,7 +11,7 @@ namespace Quark {
 		stbi_set_flip_vertically_on_load(flipVertically);
 
 		m_Data = stbi_load(filepath.data(), &m_Properties.Width, &m_Properties.Height, &m_Properties.Channels, 0);
-		QK_ASSERT(m_Data, "Failed to load image at path: " << filepath);
+		QK_CORE_ASSERT(m_Data, "Failed to load image at path: " << filepath);
 	}
 
 	Image::~Image()

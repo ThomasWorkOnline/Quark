@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Quark/Renderer/VertexArray.h"
+#include "Quark/Renderer/VertexArray.h"
 
 namespace Quark {
 

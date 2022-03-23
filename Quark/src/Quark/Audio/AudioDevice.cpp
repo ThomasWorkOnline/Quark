@@ -1,6 +1,6 @@
 #include "AudioDevice.h"
 
-#include "../../Platform/OpenAL/OpenALAudioDevice.h"
+#include "Platform/OpenAL/OpenALAudioDevice.h"
 
 namespace Quark {
 

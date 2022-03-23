@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Quark/Renderer/CubeMap.h"
+#include "Quark/Renderer/CubeMap.h"
 
 namespace Quark {
 

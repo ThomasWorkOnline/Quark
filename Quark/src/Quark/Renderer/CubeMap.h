@@ -1,6 +1,8 @@
 #pragma once
 
-#include "../Core/Core.h"
+#include "Quark/Core/Core.h"
+
+#include <array>
 
 namespace Quark {
 

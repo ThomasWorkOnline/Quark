@@ -1,13 +1,18 @@
 #pragma once
 
-#include "../Core/Core.h"
+#include "Quark/Core/Core.h"
 
-#if defined(QK_DEBUG) || defined(QK_FORCE_TIME_SCOPE_RELEASE)
-#	include <chrono>
+#ifdef QK_DEBUG
+#	define QK_ENABLE_PROFILING
+#endif
+
+#ifdef QK_ENABLE_PROFILING
 #	define QK_SCOPE_TIMER(scope) Quark::ScopeTimer scopeTimer(#scope)
 #else
 #	define QK_SCOPE_TIMER(scope)
 #endif
+
+#include <chrono>
 
 namespace Quark {
 

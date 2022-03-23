@@ -1,8 +1,7 @@
 #pragma once
 
-#include "../Core/Core.h"
-
-#include "../Renderer/Font.h"
+#include "Quark/Core/Core.h"
+#include "Quark/Renderer/Font.h"
 
 #include "UIElement.h"
 

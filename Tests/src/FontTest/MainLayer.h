@@ -9,7 +9,7 @@ class MainLayer : public Layer
 public:
 	MainLayer();
 
-	virtual void OnUpdate(float elapsedTime) override;
+	virtual void OnUpdate(Timestep elapsedTime) override;
 	virtual void OnEvent(Event& e) override;
 
 private:

@@ -21,7 +21,7 @@ namespace Quark {
             case GL_DEBUG_SEVERITY_NOTIFICATION: QK_CORE_TRACE(message); return;
         }
             
-        QK_ASSERT(false, "OnOpenGLMessage had an unknown severity level");
+        QK_CORE_ASSERT(false, "OnOpenGLMessage had an unknown severity level");
     }
 
     void OpenGLRenderingAPI::Init()

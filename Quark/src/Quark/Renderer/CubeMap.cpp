@@ -3,7 +3,7 @@
 #include "RenderingAPI.h"
 
 // Include all supported API's environment maps implementations
-#include "../../Platform/OpenGL/OpenGLCubeMap.h"
+#include "Platform/OpenGL/OpenGLCubeMap.h"
 
 namespace Quark {
 
@@ -11,11 +11,11 @@ namespace Quark {
 	{
 		switch (RenderingAPI::GetAPI())
 		{
-		case RenderingAPI::API::OpenGL:
-			return CreateRef<OpenGLCubeMap>(filepaths);
-		case RenderingAPI::API::None:
-			QK_FATAL("Rendering API not supported");
+			case RenderingAPI::API::OpenGL:
+				return CreateRef<OpenGLCubeMap>(filepaths);
 		}
+
+		QK_FATAL("Rendering API not supported");
 		return nullptr;
 	}
 }

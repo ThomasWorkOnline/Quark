@@ -1,8 +1,8 @@
 #include "Mesh.h"
 #include "Baked/Cube.h"
 
-#include "../Core/Core.h"
-#include "../Filesystem/Filesystem.h"
+#include "Quark/Core/Core.h"
+#include "Quark/Filesystem/Filesystem.h"
 
 namespace Quark {
 

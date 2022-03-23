@@ -6,9 +6,11 @@
 #include "Layer.h"
 #include "Window.h"
 
-#include "../Audio/AudioDevice.h"
-#include "../Events/ApplicationEvent.h"
-#include "../Renderer/RenderingAPI.h"
+#include "Quark/Audio/AudioDevice.h"
+#include "Quark/Events/ApplicationEvent.h"
+#include "Quark/Renderer/RenderingAPI.h"
+
+#include <thread>
 
 namespace Quark {
 

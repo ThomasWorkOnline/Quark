@@ -3,7 +3,7 @@
 #include "RenderingAPI.h"
 
 // Include all supported API's font implementations
-#include "../../Platform/OpenGL/OpenGLFont.h"
+#include "Platform/OpenGL/OpenGLFont.h"
 
 namespace Quark {
 
@@ -11,11 +11,11 @@ namespace Quark {
 	{
 		switch (RenderingAPI::GetAPI())
 		{
-		case RenderingAPI::API::OpenGL:
-			return CreateRef<OpenGLFont>(filepath, width, height);
-		case RenderingAPI::API::None:
-			QK_FATAL("Rendering API not supported");
+			case RenderingAPI::API::OpenGL:
+				return CreateRef<OpenGLFont>(filepath, width, height);
 		}
+
+		QK_FATAL("Rendering API not supported");
 		return nullptr;
 	}
 

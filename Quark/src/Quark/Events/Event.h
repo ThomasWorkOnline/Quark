@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Core/Core.h"
+#include "Quark/Core/Core.h"
 
 #include <functional>
 
@@ -70,7 +70,6 @@ namespace Quark {
 				m_Event.Handled = func((T&)m_Event);
 				return true;
 			}
-
 			return false;
 		}
 

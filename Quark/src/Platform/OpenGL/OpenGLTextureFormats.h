@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../Quark/Core/Core.h"
-#include "../../Quark/Renderer/TextureFormats.h"
+#include "Quark/Core/Core.h"
+#include "Quark/Renderer/TextureFormats.h"
 
 #include <glad/glad.h>
 

@@ -3,8 +3,7 @@
 #include "RenderingAPI.h"
 
 // Include all supported API's buffers implementations
-#include "../../Platform/OpenGL/OpenGLBuffer.h"
-#include "Buffer.h"
+#include "Platform/OpenGL/OpenGLBuffer.h"
 
 namespace Quark {
 
@@ -12,11 +11,11 @@ namespace Quark {
     {
         switch(RenderingAPI::GetAPI())
         {
-        case RenderingAPI::API::OpenGL:
-            return CreateRef<OpenGLVertexBuffer>(vertices, size);
-        case RenderingAPI::API::None:
-            QK_FATAL("Rendering API not supported");
+            case RenderingAPI::API::OpenGL:
+                return CreateRef<OpenGLVertexBuffer>(vertices, size);
         }
+
+        QK_FATAL("Rendering API not supported");
         return nullptr;
     }
 
@@ -24,11 +23,11 @@ namespace Quark {
     {
         switch(RenderingAPI::GetAPI())
         {
-        case RenderingAPI::API::OpenGL:
-            return CreateRef<OpenGLVertexBuffer>(size);
-        case RenderingAPI::API::None:
-            QK_FATAL("Rendering API not supported");
+            case RenderingAPI::API::OpenGL:
+                return CreateRef<OpenGLVertexBuffer>(size);
         }
+
+        QK_FATAL("Rendering API not supported");
         return nullptr;
     }
 
@@ -38,9 +37,9 @@ namespace Quark {
         {
         case RenderingAPI::API::OpenGL:
             return CreateRef<OpenGLIndexBuffer>(indices, count);
-        case RenderingAPI::API::None:
-            QK_FATAL("Rendering API not supported");
         }
+
+        QK_FATAL("Rendering API not supported");
         return nullptr;
     }
 
@@ -50,9 +49,9 @@ namespace Quark {
         {
         case RenderingAPI::API::OpenGL:
             return CreateRef<OpenGLIndexBuffer>(count);
-        case RenderingAPI::API::None:
-            QK_FATAL("Rendering API not supported");
         }
+
+        QK_FATAL("Rendering API not supported");
         return nullptr;
     }
 }

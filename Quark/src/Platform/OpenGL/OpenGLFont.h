@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Quark/Renderer/Font.h"
+#include "Quark/Renderer/Font.h"
 
 #include <unordered_map>
 

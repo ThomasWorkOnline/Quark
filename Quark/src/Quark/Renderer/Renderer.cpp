@@ -1,7 +1,5 @@
 #include "Renderer.h"
 
-#include "../Core/Core.h"
-
 #include "RenderingAPI.h"
 
 namespace Quark {
@@ -65,7 +63,7 @@ namespace Quark {
 	Renderer::SceneData Renderer::s_SceneData;
 	RendererStats Renderer::s_Stats;
 
-	uint32_t Renderer::s_ViewportWidth = 0;
+	uint32_t Renderer::s_ViewportWidth  = 0;
 	uint32_t Renderer::s_ViewportHeight = 0;
 
 	static RendererData s_Data;

@@ -9,7 +9,7 @@ namespace Quark {
 		: m_Spec(spec)
 	{
 		// TODO: implement multisampling
-		QK_ASSERT(spec.Samples == 1, "OpenGLTexture2DArray does not yet support multisampling");
+		QK_CORE_ASSERT(spec.Samples == 1, "OpenGLTexture2DArray does not yet support multisampling");
 
 		m_InternalFormat = GetTextureInternalFormat(m_Spec.DataFormat);
 		m_DataFormat = GetTextureFormat(m_Spec.DataFormat);
@@ -36,7 +36,7 @@ namespace Quark {
 	{
 		bool alpha = IsTextureAlphaFormat(m_Spec.DataFormat);
 		uint32_t bpp = alpha ? 4 : 3;
-		QK_ASSERT(size == m_Spec.Width * m_Spec.Height * bpp, "Data must be entire texture");
+		QK_CORE_ASSERT(size == m_Spec.Width * m_Spec.Height * bpp, "Data must be entire texture");
 		glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, layer, m_Spec.Width, m_Spec.Height, 1, m_DataFormat, GL_UNSIGNED_BYTE, data);
 	}
 

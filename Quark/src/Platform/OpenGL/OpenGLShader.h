@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Quark/Renderer/Shader.h"
+#include "Quark/Renderer/Shader.h"
 
 #include <unordered_map>
 

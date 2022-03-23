@@ -3,7 +3,7 @@
 #include "RenderingAPI.h"
 
 // Include all supported API's texture array implementations
-#include "../../Platform/OpenGL/OpenGLTextureArray.h"
+#include "Platform/OpenGL/OpenGLTextureArray.h"
 
 namespace Quark {
 
@@ -11,11 +11,11 @@ namespace Quark {
 	{
 		switch (RenderingAPI::GetAPI())
 		{
-		case RenderingAPI::API::OpenGL:
-			return CreateRef<OpenGLTexture2DArray>(spec);
-		case RenderingAPI::API::None:
-			QK_FATAL("Rendering API not supported");
+			case RenderingAPI::API::OpenGL:
+				return CreateRef<OpenGLTexture2DArray>(spec);
 		}
+
+		QK_FATAL("Rendering API not supported");
 		return nullptr;
 	}
 }

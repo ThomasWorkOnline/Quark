@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../Core/Core.h"
 #include "Camera.h"
 
 namespace Quark {

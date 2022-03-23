@@ -2,8 +2,6 @@
 
 #include "Core.h"
 
-#include "../Renderer/RenderingAPI.h"
-
 namespace Quark {
 
     enum ApplicationFlag

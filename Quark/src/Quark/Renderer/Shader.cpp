@@ -3,7 +3,7 @@
 #include "RenderingAPI.h"
 
 // Include all supported API's shader implementations
-#include "../../Platform/OpenGL/OpenGLShader.h"
+#include "Platform/OpenGL/OpenGLShader.h"
 
 namespace Quark {
 
@@ -11,11 +11,11 @@ namespace Quark {
 	{
 		switch (RenderingAPI::GetAPI())
 		{
-		case RenderingAPI::API::OpenGL:
-			return CreateRef<OpenGLShader>(filepath);
-		case RenderingAPI::API::None:
-			QK_FATAL("Rendering API not supported");
+			case RenderingAPI::API::OpenGL:
+				return CreateRef<OpenGLShader>(filepath);
 		}
+
+		QK_FATAL("Rendering API not supported");
 		return nullptr;
 	}
 
@@ -23,11 +23,11 @@ namespace Quark {
 	{
 		switch (RenderingAPI::GetAPI())
 		{
-		case RenderingAPI::API::OpenGL:
-			return CreateRef<OpenGLShader>(name, vertexSource, fragmentSource);
-		case RenderingAPI::API::None:
-			QK_FATAL("Rendering API not supported");
+			case RenderingAPI::API::OpenGL:
+				return CreateRef<OpenGLShader>(name, vertexSource, fragmentSource);
 		}
+
+		QK_FATAL("Rendering API not supported");
 		return nullptr;
 	}
 
@@ -35,11 +35,11 @@ namespace Quark {
 	{
 		switch (RenderingAPI::GetAPI())
 		{
-		case RenderingAPI::API::OpenGL:
-			return CreateRef<OpenGLShader>(name, vertexSource, geometrySource, fragmentSource);
-		case RenderingAPI::API::None:
-			QK_FATAL("Rendering API not supported");
+			case RenderingAPI::API::OpenGL:
+				return CreateRef<OpenGLShader>(name, vertexSource, geometrySource, fragmentSource);
 		}
+
+		QK_FATAL("Rendering API not supported");
 		return nullptr;
 	}
 

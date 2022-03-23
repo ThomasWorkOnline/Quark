@@ -1,9 +1,8 @@
 #include "Application.h"
 
 #include "Core.h"
-
-#include "../Renderer/Renderer.h"
-#include "../Renderer/RenderCommand.h"
+#include "Quark/Renderer/Renderer.h"
+#include "Quark/Renderer/RenderCommand.h"
 
 #include <ctime>
 

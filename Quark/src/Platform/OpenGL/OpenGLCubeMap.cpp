@@ -18,7 +18,7 @@ namespace Quark {
 		for (size_t i = 0; i < filepaths.size(); i++)
 		{
 			stbi_uc* data = stbi_load(filepaths[i].data(), &width, &height, &channels, 0);
-			QK_ASSERT(data, "Failed to load image at path: " << filepaths[i]);
+			QK_CORE_ASSERT(data, "Failed to load image at path: " << filepaths[i]);
 
 			GLenum internalFormat = 0, dataFormat = 0;
 			if (channels == 4)
@@ -34,7 +34,7 @@ namespace Quark {
 
 			m_InternalFormats[i] = internalFormat;
 			m_DataFormats[i] = dataFormat;
-			QK_ASSERT(internalFormat & dataFormat, "Image format not supported");
+			QK_CORE_ASSERT(internalFormat & dataFormat, "Image format not supported");
 
 			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat, width, height, 0, dataFormat, GL_UNSIGNED_BYTE, data);
 

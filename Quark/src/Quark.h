@@ -27,9 +27,6 @@
 #include "Quark/Input/OrthographicCameraController.h"
 #include "Quark/Input/PerspectiveCameraController.h"
 
-// Profiling
-#include "Quark/Profiling/Monitoring.h"
-
 // Rendering
 #include "Quark/Renderer/CubeMap.h"
 #include "Quark/Renderer/Font.h"
@@ -47,7 +44,6 @@
 // Tools
 #include "Quark/Tools/Colorimetry.h"
 #include "Quark/Tools/EasingCurves.h"
-#include "Quark/Tools/LogUtils.h"
 #include "Quark/Tools/Noise.h"
 
 // UI

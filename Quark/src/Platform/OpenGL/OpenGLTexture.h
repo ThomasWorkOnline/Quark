@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Quark/Renderer/Texture.h"
+#include "Quark/Renderer/Texture.h"
 
 namespace Quark {
 

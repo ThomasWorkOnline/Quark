@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../Core/Core.h"
+#include "Quark/Core/Core.h"
 
-#include "../Renderer/Mesh.h"
-#include "../Renderer/PerspectiveCamera.h"
-#include "../Renderer/OrthographicCamera.h"
+#include "Quark/Renderer/Mesh.h"
+#include "Quark/Renderer/PerspectiveCamera.h"
+#include "Quark/Renderer/OrthographicCamera.h"
 
 namespace Quark {
 

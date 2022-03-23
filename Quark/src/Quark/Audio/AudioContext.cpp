@@ -1,6 +1,6 @@
 #include "AudioContext.h"
 
-#include "../../Platform/OpenAL/OpenALAudioContext.h"
+#include "Platform/OpenAL/OpenALAudioContext.h"
 
 namespace Quark {
 

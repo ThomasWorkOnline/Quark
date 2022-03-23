@@ -1,8 +1,7 @@
 #include "Window.h"
 
 #include "Core.h"
-
-#include "../../Platform/GLFW/GLFWWindow.h"
+#include "Platform/GLFW/GLFWWindow.h"
 
 namespace Quark {
 

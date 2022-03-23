@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Core/Core.h"
+#include "Quark/Core/Core.h"
 
 #include "RenderingAPI.h"
 

@@ -18,10 +18,10 @@ namespace Quark {
 		case Quark::HorizontalTextAlignment::Center:
 			return m_Width / 2.0f;
 		case Quark::HorizontalTextAlignment::Justify:
-			QK_ASSERT(false, "Justify mode not implemented yet.");
+			QK_CORE_ASSERT(false, "Justify mode not implemented yet.");
 			return 0.0f;
 		default:
-			QK_ASSERT(false, "No alignment mode was specified.");
+			QK_CORE_ASSERT(false, "No alignment mode was specified.");
 			return 0.0f;
 		}
 	}
@@ -37,7 +37,7 @@ namespace Quark {
 		case Quark::VerticalTextAlignment::Center:
 			return m_Height / 2.0f;
 		default:
-			QK_ASSERT(false, "No alignment mode was specified.");
+			QK_CORE_ASSERT(false, "No alignment mode was specified.");
 			return 0.0f;
 		}
 	}

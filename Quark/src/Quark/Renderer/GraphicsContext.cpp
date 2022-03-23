@@ -3,7 +3,7 @@
 #include "RenderingAPI.h"
 
 // Include all supported API's graphics context implementations
-#include "../../Platform/OpenGL/OpenGLGraphicsContext.h"
+#include "Platform/OpenGL/OpenGLGraphicsContext.h"
 
 namespace Quark {
 
@@ -11,8 +11,8 @@ namespace Quark {
 	{
 		switch (RenderingAPI::GetAPI())
 		{
-		case RenderingAPI::API::OpenGL:
-			return CreateScope<OpenGLGraphicsContext>(window);
+			case RenderingAPI::API::OpenGL:
+				return CreateScope<OpenGLGraphicsContext>(window);
 		}
 
 		QK_FATAL("Unknown Rendering API");
