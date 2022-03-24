@@ -18,7 +18,7 @@ Official support for Linux and macOS is on it's way!
 *NOTE: `GenInclude_Win.bat` will only copy files, so make sure the application is compiled for your desired platform.*<br />
 
 4. Link the appropriate libraries for your application (on Visual Studio, you will need to link the Debug and Release binaries seperately depending on your configuration).<br />
-5. Quark uses [glm](https://github.com/g-truc/glm). You will need to link glm as a dependency to your project.<br />
+5. Quark uses [glm](https://github.com/g-truc/glm). You will need to include glm as a dependency to your project.<br />
 6. Quark also uses [entt](https://github.com/skypjack/entt). You will need to include both of these templated header libraries for Quark to link.<br />
 	*(all dependencies are located inside the `vendor` folder when the project has been built)*.<br />
 
@@ -32,7 +32,7 @@ Official support for Linux and macOS is on it's way!
 *NOTE: `GenInclude_MacOS.sh` will only copy files, so make sure the application is compiled for your desired platform.*<br />
 
 4. Link the appropriate libraries for your application (remember to link the debug and release configs appropriately).<br />
-5. Quark uses [glm](https://github.com/g-truc/glm). You will need to link glm as a dependency to your project.<br />
+5. Quark uses [glm](https://github.com/g-truc/glm). You will need to include glm as a dependency to your project.<br />
 6. Quark also uses [entt](https://github.com/skypjack/entt). You will need to include both of these templated header libraries for Quark to link.<br />
 	*(all dependencies are located inside the `vendor` folder when the project has been built)*.<br />
 
