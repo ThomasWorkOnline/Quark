@@ -13,9 +13,9 @@ namespace Quark {
 		{
 			case RenderingAPI::API::OpenGL:
 				return CreateRef<OpenGLVertexArray>();
+			default:
+				QK_FATAL("Rendering API not supported");
+				return nullptr;
 		}
-
-		QK_FATAL("Rendering API not supported");
-		return nullptr;
 	}
 }

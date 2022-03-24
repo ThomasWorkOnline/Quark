@@ -22,6 +22,7 @@ project "Tests"
 		"Quark"
 	}
 	
+	-- for some reason, generating the project using gmake2 requires us to redefine the dependencies to link
 	filter "system:macosx"
 		includedirs {
 			"%{wks.location}/Quark/vendor/glfw-prebuilt-macos/include",

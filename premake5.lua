@@ -17,10 +17,12 @@ workspace "Quark"
 
 	filter "configurations:Debug"
 		defines "QK_DEBUG"
+		runtime "Debug"
 		symbols "On"
 
 	filter "configurations:Release"
 		defines "QK_RELEASE"
+		runtime "Release"
 		symbols "On"
 		optimize "On"
 

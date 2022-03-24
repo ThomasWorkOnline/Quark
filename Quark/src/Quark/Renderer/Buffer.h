@@ -30,10 +30,10 @@ namespace Quark {
 			case ShaderDataType::Int3:      return sizeof(int32_t) * 3;
 			case ShaderDataType::Int4:      return sizeof(int32_t) * 4;
 			case ShaderDataType::Bool:      return sizeof(bool);
+			default:
+				QK_FATAL("Unknown ShaderDataType");
+				return 0;
 		}
-
-		QK_FATAL("Unknown ShaderDataType");
-		return 0;
 	}
 
 	static constexpr uint32_t ShaderDataTypeComponentCount(ShaderDataType type)
@@ -55,10 +55,10 @@ namespace Quark {
 			case ShaderDataType::Int3:    return 3;
 			case ShaderDataType::Int4:    return 4;
 			case ShaderDataType::Bool:    return 1;
+			default:
+				QK_FATAL("Unknown ShaderDataType");
+				return 0;
 		}
-
-		QK_FATAL("Unknown ShaderDataType");
-		return 0;
 	}
 
 	struct BufferElement

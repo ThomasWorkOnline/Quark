@@ -21,10 +21,10 @@ namespace Quark {
 			case TextureFormat::SRGB8:				return GL_SRGB8;
 			case TextureFormat::SRGBA8:				return GL_SRGB8_ALPHA8;
 			case TextureFormat::Depth24Stencil8:	return GL_DEPTH24_STENCIL8;
+			default:
+				QK_FATAL("Invalid internal texture format");
+				return GL_NONE;
 		}
-
-		QK_FATAL("Invalid internal texture format");
-		return GL_NONE;
 	}
 
 	constexpr GLenum GetTextureFormat(TextureFormat format)
@@ -35,10 +35,10 @@ namespace Quark {
 			case TextureFormat::RGBA8:	return GL_RGBA;
 			case TextureFormat::SRGB8:	return GL_RGB;
 			case TextureFormat::SRGBA8:	return GL_RGBA;
+			default:
+				QK_FATAL("Invalid texture color format");
+				return GL_NONE;
 		}
-
-		QK_FATAL("Invalid texture color format");
-		return GL_NONE;
 	}
 
 	constexpr GLenum GetTextureFilteringMode(TextureFilteringMode mode)
@@ -51,10 +51,10 @@ namespace Quark {
 			case TextureFilteringMode::NearestMipmapLinear:		return GL_NEAREST_MIPMAP_LINEAR;
 			case TextureFilteringMode::LinearMipmapNearest:		return GL_LINEAR_MIPMAP_NEAREST;
 			case TextureFilteringMode::LinearMipmapLinear:		return GL_LINEAR_MIPMAP_LINEAR;
+			default:
+				QK_FATAL("Invalid texture filtering mode");
+				return GL_NONE;
 		}
-
-		QK_FATAL("Invalid texture filtering mode");
-		return GL_NONE;
 	}
 
 	constexpr GLenum GetTextureTilingMode(TextureTilingMode mode)
@@ -64,10 +64,10 @@ namespace Quark {
 			case TextureTilingMode::ClampToBorder: return GL_CLAMP_TO_BORDER;
 			case TextureTilingMode::ClampToEdge:   return GL_CLAMP_TO_EDGE;
 			case TextureTilingMode::Repeat:        return GL_REPEAT;
+			default:
+				QK_FATAL("Invalid texture tiling mode");
+				return GL_NONE;
 		}
-
-		QK_FATAL("Invalid texture tiling mode");
-		return GL_NONE;
 	}
 
 	constexpr GLenum GetTextureTarget(uint32_t samples)
@@ -80,8 +80,8 @@ namespace Quark {
 		switch (format)
 		{
 			case TextureFormat::Depth24Stencil8: return true;
+			default:                             return false;
 		}
-		return false;
 	}
 
 	constexpr bool IsTextureAlphaFormat(TextureFormat format)
@@ -90,7 +90,7 @@ namespace Quark {
 		{
 			case TextureFormat::RGBA8:	return true;
 			case TextureFormat::SRGBA8:	return true;
+			default:                    return false;
 		}
-		return false;
 	}
 }
