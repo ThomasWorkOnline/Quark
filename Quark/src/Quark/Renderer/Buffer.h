@@ -2,6 +2,8 @@
 
 #include "Quark/Core/Core.h"
 
+#include <vector>
+
 namespace Quark {
 
 	enum class ShaderDataType

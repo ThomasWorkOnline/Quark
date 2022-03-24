@@ -3,6 +3,8 @@
 #include "Quark/Core/Core.h"
 #include "TextureFormats.h"
 
+#include <vector>
+
 namespace Quark {
 
 	struct FramebufferTextureSpecification

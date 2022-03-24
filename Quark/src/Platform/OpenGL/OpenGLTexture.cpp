@@ -25,27 +25,22 @@ namespace Quark {
 		if (multisampled)
 		{
 			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_RendererID);
-			glTexStorage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Spec.Samples, m_InternalFormat, m_Spec.Width, m_Spec.Height, GL_FALSE);
-
-			GLenum tilingMode = GetTextureTilingMode(m_Spec.RenderModes.TilingMode);
-			glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MIN_FILTER, GetTextureFilteringMode(m_Spec.RenderModes.MinFilteringMode));
-			glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MAG_FILTER, GetTextureFilteringMode(m_Spec.RenderModes.MagFilteringMode));
-			glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_WRAP_S, tilingMode);
-			glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_WRAP_T, tilingMode);
+			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Spec.Samples, m_InternalFormat, m_Spec.Width, m_Spec.Height, GL_FALSE);
+			//glTexStorage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Spec.Samples, m_InternalFormat, m_Spec.Width, m_Spec.Height, GL_FALSE); <-- Not supported by OpenGL 4.1 (MacOS)
 		}
 		else
 		{
 			glBindTexture(GL_TEXTURE_2D, m_RendererID);
-
-			// Immutable texture format, contents can change but not specification
-			glTexStorage2D(GL_TEXTURE_2D, 1, m_InternalFormat, m_Spec.Width, m_Spec.Height);
-
-			GLenum tilingMode = GetTextureTilingMode(m_Spec.RenderModes.TilingMode);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetTextureFilteringMode(m_Spec.RenderModes.MinFilteringMode));
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GetTextureFilteringMode(m_Spec.RenderModes.MagFilteringMode));
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, tilingMode);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, tilingMode);
+			glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Spec.Width, m_Spec.Height, 0, m_DataFormat, GL_UNSIGNED_BYTE, nullptr);
+			//glTexStorage2D(GL_TEXTURE_2D, 1, m_InternalFormat, m_Spec.Width, m_Spec.Height); <-- Not supported by OpenGL 4.1 (MacOS)
 		}
+
+		GLenum target     = GetTextureTarget(m_Spec.Samples);
+		GLenum tilingMode = GetTextureTilingMode(m_Spec.RenderModes.TilingMode);
+		glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GetTextureFilteringMode(m_Spec.RenderModes.MinFilteringMode));
+		glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GetTextureFilteringMode(m_Spec.RenderModes.MagFilteringMode));
+		glTexParameteri(target, GL_TEXTURE_WRAP_S, tilingMode);
+		glTexParameteri(target, GL_TEXTURE_WRAP_T, tilingMode);
 	}
 
 	OpenGLTexture2D::OpenGLTexture2D(std::string_view filepath, const TextureRenderModes& modes)
@@ -104,19 +99,11 @@ namespace Quark {
 	void OpenGLTexture2D::Attach(uint32_t textureSlot) const
 	{
 		glActiveTexture(GL_TEXTURE0 + textureSlot);
-		glBindTexture(GetTarget(), m_RendererID);
+		glBindTexture(GetTextureTarget(m_Spec.Samples), m_RendererID);
 	}
 
 	void OpenGLTexture2D::Detach() const
 	{
-		glBindTexture(GetTarget(), 0);
-	}
-
-	uint32_t OpenGLTexture2D::GetTarget() const
-	{
-		if (m_Spec.Samples == 1)
-			return GL_TEXTURE_2D;
-		else
-			return GL_TEXTURE_2D_MULTISAMPLE;
+		glBindTexture(GetTextureTarget(m_Spec.Samples), 0);
 	}
 }

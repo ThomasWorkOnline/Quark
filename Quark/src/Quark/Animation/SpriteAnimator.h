@@ -3,6 +3,8 @@
 #include "Quark/Core/Core.h"
 #include "Quark/Renderer/SubTexture.h"
 
+#include <vector>
+
 namespace Quark {
 
 	class SpriteAnimator

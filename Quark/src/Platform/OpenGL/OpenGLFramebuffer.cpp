@@ -114,7 +114,9 @@ namespace Quark {
 			}
 			else
 			{
-				glTexStorage2D(GL_TEXTURE_2D, 1, GetTextureInternalFormat(m_DepthSpec.TextureFormat), m_Spec.Width, m_Spec.Height);
+				glTexImage2D(GL_TEXTURE_2D, 0, GetTextureInternalFormat(m_DepthSpec.TextureFormat), m_Spec.Width, m_Spec.Height, 0,
+					GetTextureFormat(m_DepthSpec.TextureFormat), GL_UNSIGNED_BYTE, nullptr);
+				//glTexStorage2D(GL_TEXTURE_2D, 1, GetTextureInternalFormat(m_DepthSpec.TextureFormat), m_Spec.Width, m_Spec.Height); <-- Not supported by OpenGL 4.1 (MacOS)
 
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetTextureFilteringMode(m_DepthSpec.RenderModes.MinFilteringMode));
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GetTextureFilteringMode(m_DepthSpec.RenderModes.MagFilteringMode));
@@ -137,7 +139,6 @@ namespace Quark {
 		}
 
 		QK_CORE_ASSERT(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE, "Framebuffer is invalid");
-
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 }

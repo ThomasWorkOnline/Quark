@@ -34,6 +34,19 @@ Pong::Pong()
 
 void Pong::OnUpdate(Timestep elapsedTime)
 {
+	static uint32_t frameCount = 0;
+	static float bufTime       = 0.f;
+	frameCount++;
+	bufTime += elapsedTime;
+
+	if (bufTime > 0.5)
+	{
+		std::cout << "FPS: " << frameCount / bufTime << std::endl;
+
+		frameCount = 0;
+		bufTime = 0.f;
+	}
+
 	m_Controller.OnUpdate(elapsedTime);
 	m_Scene.OnUpdate(elapsedTime);
 

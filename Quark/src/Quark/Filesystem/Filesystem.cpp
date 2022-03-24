@@ -1,6 +1,7 @@
 #include "Filesystem.h"
 
 #include <fstream>
+#include <sstream>
 
 namespace Quark {
 

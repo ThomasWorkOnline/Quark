@@ -1,7 +1,7 @@
 project "Quark"
 	kind "StaticLib"
 	language "C++"
-	cppdialect "C++20"
+	cppdialect "C++17"
 	staticruntime "off"
 
 	targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
@@ -9,20 +9,7 @@ project "Quark"
 
 	files {
 		"src/**.h",
-		"src/**.cpp",
-
-		"vendor/glad/include/**.h",
-		"vendor/glad/**.c"
-	}
-
-	includedirs {
-		"src",
-		"vendor/freetype/include",
-		"vendor/glad/include",
-		"vendor/entt/include",
-		"vendor/glm",
-		"vendor/openal/include",
-		"vendor/stb_image"
+		"src/**.cpp"
 	}
 
 	defines {
@@ -30,34 +17,62 @@ project "Quark"
 		"GLFW_INCLUDE_NONE"
 	}
 
+	includedirs {
+		"src",
+		"vendor/freetype/include",
+		"vendor/entt/include",
+		"vendor/glm",
+		"vendor/openal/include",
+		"vendor/stb_image"
+	}
+
 	links {
 		"freetype",
-		"glfw3",
-		"OpenAL32"
+		"glfw3"
 	}
 
 	filter "system:windows"
 		systemversion "latest"
 
-		links {
-			"opengl32.lib"
+		files {
+			"vendor/glad/include/**.h",
+			"vendor/glad/**.c"
 		}
 
 		includedirs {
+			"vendor/openal/libs/Win64",
+			"vendor/glad/include",
 			"vendor/glfw-prebuilt-win/include"
 		}
 
 		libdirs {
 			"vendor/freetype/vs2015-2019/win64",
-			"vendor/glfw-prebuilt-win/lib-vc2022",
-			"vendor/openal/libs/Win64"
+			"vendor/glfw-prebuilt-win/lib-vc2022"
 		}
 
-	filter "system:unix"
+		links {
+			"OpenAL32.lib",
+			"opengl32.lib"
+		}
+	
+	filter "system:macosx"
+		files {
+			"vendor/glad-macos/include/**.h",
+			"vendor/glad-macos/**.c"
+		}
+
 		includedirs {
-			"vendor/glfw/include"
+			"vendor/glad-macos/include",
+			"vendor/glfw-prebuilt-macos/include"
 		}
 
 		libdirs {
-			"vendor/glfw/lib-linux-x86_64"
+			"vendor/glfw-prebuilt-macos/lib-x86_64"
+		}
+
+		links {
+			"Cocoa.framework",
+			"IOKit.framework",
+			"OpenAL.framework",
+			"OpenGL.framework"
 		}

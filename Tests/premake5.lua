@@ -1,7 +1,7 @@
 project "Tests"
 	kind "ConsoleApp"
 	language "C++"
-	cppdialect "C++20"
+	cppdialect "C++17"
 	staticruntime "off"
 
 	targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
@@ -21,9 +21,24 @@ project "Tests"
 	links {
 		"Quark"
 	}
+	
+	filter "system:macosx"
+		includedirs {
+			"%{wks.location}/Quark/vendor/glfw-prebuilt-macos/include",
+			"%{wks.location}/Quark/vendor/freetype/include",
+			"%{wks.location}/Quark/vendor/glad-macos/include",
+			"%{wks.location}/Quark/vendor/openal/include"
+		}
 
-	postbuildcommands {
-	}
+		libdirs {
+			"%{wks.location}/Quark/vendor/glfw-prebuilt-macos/lib-x86_64"
+		}
 
-	filter "system:windows"
-		systemversion "latest"
+		links {
+			"Cocoa.framework",
+			"IOKit.framework",
+			"OpenAL.framework",
+			"OpenGL.framework",
+			--"freetype",
+			"glfw3"
+		}
