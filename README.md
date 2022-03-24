@@ -17,11 +17,10 @@ Official support for Linux and macOS is on it's way!
 3. Run `GenInclude_Win.bat`. This will generate the `include` directory alongside the `lib` and `vendor` folders.<br />
 *NOTE: `GenInclude_Win.bat` will only copy files, so make sure the application is compiled for your desired platform.*<br />
 
-4. Link the appropriate libraries for your application (on Visual Studio, you will need to link the Debug and Release binaries seperately depending on your configuration).
+4. Link the appropriate libraries for your application (on Visual Studio, you will need to link the Debug and Release binaries seperately depending on your configuration).<br />
 5. Quark uses [glm](https://github.com/g-truc/glm). You will need to link glm as a dependency to your project.<br />
 6. Quark also uses [entt](https://github.com/skypjack/entt). You will need to include both of these templated header libraries for Quark to link.<br />
 	*(all dependencies are located inside the `vendor` folder when the project has been built)*.<br />
-7. The following examples will guide you in learning the Quark API.<br />
 
 ## On MacOS
 
@@ -29,9 +28,21 @@ Official support for Linux and macOS is on it's way!
 2. Navigate to the project root directory and type `make config=release` to build the application for release mode *or* `make config=debug` for debug mode.<br />
 	*(I encourage using release builds with optimizations for distribution and debug while testing)*.<br />
 
-...
+3. Run `GenInclude_MacOS.sh`. This will generate the `include` directory alongside the `lib` and `vendor` folders.<br />
+*NOTE: `GenInclude_MacOS.sh` will only copy files, so make sure the application is compiled for your desired platform.*<br />
+
+4. Link the appropriate libraries for your application (remember to link the debug and release configs appropriately).<br />
+5. Quark uses [glm](https://github.com/g-truc/glm). You will need to link glm as a dependency to your project.<br />
+6. Quark also uses [entt](https://github.com/skypjack/entt). You will need to include both of these templated header libraries for Quark to link.<br />
+	*(all dependencies are located inside the `vendor` folder when the project has been built)*.<br />
+
+## On Linux
+
+Coming soon!
 
 # How to use
+
+The following examples will guide you in learning the Quark API.<br />
 
 <ins>**1. Creating a Quark application**</ins>
 ```c++
