@@ -1,5 +1,5 @@
 project "Tests"
-	kind "ConsoleApp"
+	kind "WindowedApp"
 	language "C++"
 	cppdialect "C++17"
 	staticruntime "off"
