@@ -27,7 +27,6 @@ project "Tests"
 		includedirs {
 			"%{wks.location}/Quark/vendor/glfw-prebuilt-macos/include",
 			"%{wks.location}/Quark/vendor/freetype/include",
-			"%{wks.location}/Quark/vendor/glad-macos/include",
 			"%{wks.location}/Quark/vendor/openal/include"
 		}
 

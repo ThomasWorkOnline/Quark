@@ -9,7 +9,10 @@ project "Quark"
 
 	files {
 		"src/**.h",
-		"src/**.cpp"
+		"src/**.cpp",
+
+		"vendor/glad/include/**.h",
+		"vendor/glad/src/**.c"
 	}
 
 	defines {
@@ -21,6 +24,7 @@ project "Quark"
 		"src",
 		"vendor/freetype/include",
 		"vendor/entt/include",
+		"vendor/glad/include",
 		"vendor/glm",
 		"vendor/openal/include",
 		"vendor/stb_image"
@@ -34,14 +38,8 @@ project "Quark"
 	filter "system:windows"
 		systemversion "latest"
 
-		files {
-			"vendor/glad/include/**.h",
-			"vendor/glad/**.c"
-		}
-
 		includedirs {
 			"vendor/openal/libs/Win64",
-			"vendor/glad/include",
 			"vendor/glfw-prebuilt-win/include"
 		}
 
@@ -56,13 +54,8 @@ project "Quark"
 		}
 	
 	filter "system:macosx"
-		files {
-			"vendor/glad-macos/include/**.h",
-			"vendor/glad-macos/**.c"
-		}
 
 		includedirs {
-			"vendor/glad-macos/include",
 			"vendor/glfw-prebuilt-macos/include"
 		}
 

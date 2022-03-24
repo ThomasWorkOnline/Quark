@@ -8,22 +8,22 @@
 
 namespace Quark {
 
-	/*static uint32_t s_FontCount = 0;
-	static FT_Library s_Library;
+	static uint32_t s_FontCount = 0;
+	//static FT_Library s_Library;
 
 	static constexpr uint32_t s_ASCII_Start	= 32;
 	static constexpr uint32_t s_ASCII_End	= 128;
-	static constexpr uint32_t s_GlyphCount = s_ASCII_End - s_ASCII_Start;*/
+	static constexpr uint32_t s_GlyphCount = s_ASCII_End - s_ASCII_Start;
 
 	OpenGLFont::OpenGLFont(std::string_view filepath, uint32_t width, uint32_t height)
 		: m_Width(width), m_Height(height)
 	{
-		/*if (s_FontCount == 0)
+		if (s_FontCount == 0)
 			Init();
 
 		s_FontCount++;
 
-		FT_Error error;
+		/*FT_Error error;
 		error = FT_New_Face(s_Library, filepath.data(), 0, &m_Face);
 		QK_CORE_ASSERT(error == FT_Err_Ok, "Could not load new font face at path: '" << filepath << "'.");
 
@@ -88,26 +88,26 @@ namespace Quark {
 
 	OpenGLFont::~OpenGLFont()
 	{
-		/*--s_FontCount;
+		--s_FontCount;
 
 		if (s_FontCount == 0)
-			Shutdown();*/
+			Shutdown();
 	}
 
 	void OpenGLFont::Attach(uint32_t textureSlot) const
 	{
-		//glActiveTexture(GL_TEXTURE0 + textureSlot);
-		//glBindTexture(GL_TEXTURE_2D, m_RendererID);
+		glActiveTexture(GL_TEXTURE0 + textureSlot);
+		glBindTexture(GL_TEXTURE_2D, m_RendererID);
 	}
 
 	void OpenGLFont::Detach() const
 	{
-		//glBindTexture(GL_TEXTURE_2D, 0);
+		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
 	void OpenGLFont::Init()
 	{
-		//QK_SCOPE_TIMER(OpenGLFont::Init);
+		QK_SCOPE_TIMER(OpenGLFont::Init);
 
 		//FT_Error error = FT_Init_FreeType(&s_Library);
 		//QK_CORE_ASSERT(error == FT_Err_Ok, "Could not initialize freetype!");
@@ -115,7 +115,7 @@ namespace Quark {
 
 	void OpenGLFont::Shutdown()
 	{
-		//QK_SCOPE_TIMER(OpenGLFont::Shutdown);
+		QK_SCOPE_TIMER(OpenGLFont::Shutdown);
 
 		//FT_Done_FreeType(s_Library);
 	}
