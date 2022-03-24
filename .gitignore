@@ -12,6 +12,9 @@ bin-int
 **.vcxproj.user
 .vs
 
+# Visual Studio Code
+.vscode
+
 # Makefile
 Makefile
 
