@@ -17,7 +17,7 @@ Pong::Pong()
 	m_BallTransform.Position = glm::vec3(0.0f, 0.0f, 10.0f);
 
 	m_Shader = Shader::Create("assets/shaders/default3D.glsl");
-	m_Ball = Mesh("assets/meshes/sphere.obj");
+	m_Ball = Mesh("assets/meshes/ironman.obj");
 
 	AudioBufferSpecification spec = {
 		AudioFormat::Mono16,
@@ -37,11 +37,13 @@ void Pong::OnUpdate(Timestep elapsedTime)
 	m_Controller.OnUpdate(elapsedTime);
 	m_Scene.OnUpdate(elapsedTime);
 
+#if 0
 	m_BallTransform.Position.x += m_Speed * m_CoeffX * elapsedTime;
 	m_BallTransform.Position.y += m_Speed * m_CoeffY * elapsedTime;
 
 	ProcessCollision();
 	ProcessCollisionResolution();
+#endif
 
 	const auto& transform = m_Entity.GetComponent<Transform3DComponent>();
 

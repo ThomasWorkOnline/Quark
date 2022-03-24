@@ -9,9 +9,11 @@ PBRRendering::PBRRendering()
 	
 	m_Controller = { m_Player };
 
-	m_TextureModes.MinFilteringMode = TextureFilteringMode::Linear;
-	m_TextureModes.MagFilteringMode = TextureFilteringMode::Nearest;
-	m_Texture = Texture2D::Create("assets/textures/sprite_sheet.png", m_TextureModes);
+	TextureRenderModes textureModes;
+	textureModes.MinFilteringMode = TextureFilteringMode::Linear;
+	textureModes.MagFilteringMode = TextureFilteringMode::Nearest;
+	
+	m_Texture = Texture2D::Create("assets/textures/sprite_sheet.png", textureModes);
 	m_Shader = Shader::Create("assets/shaders/default3D.glsl");
 
 	m_Cube.GenerateUnitCube();
