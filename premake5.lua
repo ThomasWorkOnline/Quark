@@ -4,7 +4,8 @@ workspace "Quark"
 
 	configurations {
 		"Debug",
-		"Release"
+		"Release",
+		"Dist"
 	}
 
 	flags {
@@ -23,7 +24,11 @@ workspace "Quark"
 	filter "configurations:Release"
 		defines "QK_RELEASE"
 		runtime "Release"
-		symbols "On"
+		optimize "On"
+
+	filter "configurations:Dist"
+		defines "QK_DIST"
+		runtime "Release"
 		optimize "On"
 
 outputdir = "%{cfg.system}-%{cfg.buildcfg}-%{cfg.architecture}"

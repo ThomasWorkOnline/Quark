@@ -1,5 +1,4 @@
 project "Tests"
-	kind "WindowedApp"
 	language "C++"
 	cppdialect "C++17"
 
@@ -20,3 +19,9 @@ project "Tests"
 	links {
 		"Quark"
 	}
+
+	filter "system:windows"
+		kind "ConsoleApp"
+
+	filter "system:macosx"
+		kind "WindowedApp"

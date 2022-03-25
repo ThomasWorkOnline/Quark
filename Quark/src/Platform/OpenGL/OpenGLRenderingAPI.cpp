@@ -34,8 +34,8 @@ namespace Quark {
 #if defined(QK_PLATFORM_WINDOWS) && defined(QK_DEBUG)
         glEnable(GL_DEBUG_OUTPUT);
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-        glDebugMessageCallback(OnOpenGLMessage, nullptr); // <-- This is not supported on Macos
 
+        glDebugMessageCallback(OnOpenGLMessage, nullptr); // <-- This is not supported on OpenGL 4.1 or lower
         glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
 #endif
 
@@ -72,7 +72,8 @@ namespace Quark {
 
     void OpenGLRenderingAPI::SetCullFace(RenderCullFace face)
     {
-        // Front and back are reversed
+        // Front and back are reversed since we use a left-handed coordinate system and OpenGL is defaulted to right hand
+        // See: 'Math/Types.h' for more details
         switch (face)
         {
             case RenderCullFace::None:
@@ -119,6 +120,11 @@ namespace Quark {
                 glDepthFunc(GL_GEQUAL);
                 break;
         }
+    }
+
+    RenderingAPI::Version OpenGLRenderingAPI::GetVersion() const
+    {
+        return { GLVersion.major, GLVersion.minor };
     }
 
     void OpenGLRenderingAPI::SetClearColor(const glm::vec4& rgba)

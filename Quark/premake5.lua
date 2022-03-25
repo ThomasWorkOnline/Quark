@@ -2,7 +2,6 @@ project "Quark"
 	kind "StaticLib"
 	language "C++"
 	cppdialect "C++17"
-	staticruntime "on"
 
 	targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("%{wks.location}/bin-int/" .. outputdir .. "/%{prj.name}")
@@ -39,11 +38,11 @@ project "Quark"
 		systemversion "latest"
 
 		includedirs {
-			"vendor/openal/libs/Win64",
 			"vendor/glfw-prebuilt-win/include"
 		}
 
 		libdirs {
+			"vendor/openal/libs/Win64",
 			"vendor/freetype/vs2015-2019/win64",
 			"vendor/glfw-prebuilt-win/lib-vc2022"
 		}

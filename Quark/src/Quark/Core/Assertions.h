@@ -3,7 +3,7 @@
 #include "Core.h"
 #include "Logger.h"
 
-#ifdef QK_DEBUG
+#if defined(QK_DEBUG)
 #   define QK_ENABLE_ASSERTIONS
 #endif
 
