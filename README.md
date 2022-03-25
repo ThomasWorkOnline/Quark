@@ -11,7 +11,7 @@ Official support for macOS and Linux is on it's way!
 ## On Windows
 1. After cloning this repository, run the script `GenVisualStudioSolution20xx_Win.bat` located under `Scripts/Windows`.
 2. Open the Visual Studio solution and hit build! Build for your desired configuration.
-3. Run `GenInclude_Win.bat`. This will generate the `include` directory alongside the `lib` and `vendor` folders.
+3. Run `GenInclude_Win.bat`. This will generate the `include` directory alongside the `lib` and `vendor` folders.<br />
 *NOTE: `GenInclude_Win.bat` will only copy files, so make sure the application is compiled for your desired platform.*
 
 4. Link the appropriate libraries for your application (on Visual Studio, you will need to link the Debug, Release and Dist binaries seperately depending on your configuration).<br />
@@ -23,7 +23,7 @@ Official support for macOS and Linux is on it's way!
 1. After cloning this repository, run the script `GenMakefile_MacOS.sh` located under `Scripts/Macos`.
 2. Navigate to the project root directory and type `make config=dist` to build the application for distribution mode *or* `make config=debug` for debug mode.
 
-3. Run `GenInclude_MacOS.sh`. This will generate the `include` directory alongside the `lib` and `vendor` folders.
+3. Run `GenInclude_MacOS.sh`. This will generate the `include` directory alongside the `lib` and `vendor` folders.<br />
 *NOTE: `GenInclude_MacOS.sh` will only copy files, so make sure the application is compiled for your desired platform.*
 
 4. Link the appropriate libraries for your application (remember to link the debug and release configs appropriately).
