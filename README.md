@@ -6,6 +6,8 @@ Official support for macOS and Linux is on it's way!
 
 ***
 
+# Installation & Setup
+
 ## On Windows
 1. After cloning this repository, run the script `GenVisualStudioSolution20xx_Win.bat` located under `Scripts/Windows`.<br />
 2. Open the Visual Studio solution and hit build! Build for your desired configuration<br />
@@ -31,8 +33,6 @@ Official support for macOS and Linux is on it's way!
 
 ## On Linux
 Coming soon!
-
-# Installation & Setup
 
 ## Dependencies
 *(all dependencies are located inside the `vendor` folder when the project has been built)*.<br />
