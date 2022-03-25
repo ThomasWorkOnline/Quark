@@ -1,9 +1,11 @@
 #include "OpenGLRenderingAPI.h"
 
 #include <glad/glad.h>
+#include <sstream>
 
 namespace Quark {
 
+#if defined(QK_PLATFORM_WINDOWS) && defined(QK_DEBUG)
     static void OnOpenGLMessage(
         GLenum source,
         GLenum type,
@@ -23,17 +25,18 @@ namespace Quark {
             
         QK_CORE_ASSERT(false, "OnOpenGLMessage had an unknown severity level");
     }
+#endif
 
     void OpenGLRenderingAPI::Init()
     {
         QK_SCOPE_TIMER(OpenGLRenderingAPI::Init);
 
-#ifdef QK_DEBUG
+#if defined(QK_PLATFORM_WINDOWS) && defined(QK_DEBUG)
         glEnable(GL_DEBUG_OUTPUT);
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-        glDebugMessageCallback(OnOpenGLMessage, nullptr);
 
-        glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, NULL, GL_FALSE);
+        glDebugMessageCallback(OnOpenGLMessage, nullptr); // <-- This is not supported on OpenGL 4.1 or lower
+        glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
 #endif
 
         // Gamma correction
@@ -51,9 +54,6 @@ namespace Quark {
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS);
 
-        // Stencil Testing
-        glEnable(GL_STENCIL_TEST);
-
         // Filtering
         glEnable(GL_MULTISAMPLE);
         glEnable(GL_LINE_SMOOTH); // <-- NOTE: this massively slows down line rendering
@@ -67,29 +67,30 @@ namespace Quark {
 
     void OpenGLRenderingAPI::Clear()
     {
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
     void OpenGLRenderingAPI::SetCullFace(RenderCullFace face)
     {
-        // Front and back are reversed
+        // Front and back are reversed since we use a left-handed coordinate system and OpenGL is defaulted to right hand
+        // See: 'Math/Types.h' for more details
         switch (face)
         {
-        case RenderCullFace::None:
-            glDisable(GL_CULL_FACE);
-            break;
-        case RenderCullFace::Front:
-            glEnable(GL_CULL_FACE);
-            glCullFace(GL_BACK);
-            break;
-        case RenderCullFace::Back:
-            glEnable(GL_CULL_FACE);
-            glCullFace(GL_FRONT);
-            break;
-        case RenderCullFace::FrontAndBack:
-            glEnable(GL_CULL_FACE);
-            glCullFace(GL_FRONT_AND_BACK);
-            break;
+            case RenderCullFace::None:
+                glDisable(GL_CULL_FACE);
+                break;
+            case RenderCullFace::Front:
+                glEnable(GL_CULL_FACE);
+                glCullFace(GL_BACK);
+                break;
+            case RenderCullFace::Back:
+                glEnable(GL_CULL_FACE);
+                glCullFace(GL_FRONT);
+                break;
+            case RenderCullFace::FrontAndBack:
+                glEnable(GL_CULL_FACE);
+                glCullFace(GL_FRONT_AND_BACK);
+                break;
         }
     }
 
@@ -97,28 +98,33 @@ namespace Quark {
     {
         switch (func)
         {
-        case RenderDepthFunction::Never:
-            glDepthFunc(GL_NEVER);
-            break;
-        case RenderDepthFunction::Always:
-            glDepthFunc(GL_ALWAYS);
-            break;
-        case RenderDepthFunction::NotEqual:
-            glDepthFunc(GL_NOTEQUAL);
-            break;
-        case RenderDepthFunction::Less:
-            glDepthFunc(GL_LESS);
-            break;
-        case RenderDepthFunction::LessEqual:
-            glDepthFunc(GL_LEQUAL);
-            break;
-        case RenderDepthFunction::Greater:
-            glDepthFunc(GL_GREATER);
-            break;
-        case RenderDepthFunction::GreaterEqual:
-            glDepthFunc(GL_GEQUAL);
-            break;
+            case RenderDepthFunction::Never:
+                glDepthFunc(GL_NEVER);
+                break;
+            case RenderDepthFunction::Always:
+                glDepthFunc(GL_ALWAYS);
+                break;
+            case RenderDepthFunction::NotEqual:
+                glDepthFunc(GL_NOTEQUAL);
+                break;
+            case RenderDepthFunction::Less:
+                glDepthFunc(GL_LESS);
+                break;
+            case RenderDepthFunction::LessEqual:
+                glDepthFunc(GL_LEQUAL);
+                break;
+            case RenderDepthFunction::Greater:
+                glDepthFunc(GL_GREATER);
+                break;
+            case RenderDepthFunction::GreaterEqual:
+                glDepthFunc(GL_GEQUAL);
+                break;
         }
+    }
+
+    RenderingAPI::Version OpenGLRenderingAPI::GetVersion() const
+    {
+        return { GLVersion.major, GLVersion.minor };
     }
 
     void OpenGLRenderingAPI::SetClearColor(const glm::vec4& rgba)

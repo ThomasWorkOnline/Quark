@@ -43,7 +43,7 @@ namespace Quark {
 
         virtual void SetData(const uint32_t* data, uint32_t count, size_t offset) override;
 
-        virtual uint32_t GetCount() const { return m_Count; };
+        virtual uint32_t GetCount() const override { return m_Count; };
 
         virtual uint32_t GetRendererID() const override { return m_RendererID; };
 

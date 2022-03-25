@@ -24,10 +24,10 @@ namespace Quark {
 			case ShaderDataType::Int3:		return GL_INT;
 			case ShaderDataType::Int4:		return GL_INT;
 			case ShaderDataType::Bool:		return GL_BOOL;
+			default:
+				QK_FATAL("Unknown ShaderDataType");
+				return 0;
 		}
-
-		QK_FATAL("Unknown ShaderDataType");
-		return 0;
 	}
 
 	OpenGLVertexArray::OpenGLVertexArray()

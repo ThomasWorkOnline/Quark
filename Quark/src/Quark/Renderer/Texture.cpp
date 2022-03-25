@@ -13,10 +13,10 @@ namespace Quark {
 		{
 			case RenderingAPI::API::OpenGL:
 				return CreateRef<OpenGLTexture2D>(spec);
+			default:
+				QK_FATAL("Rendering API not supported");
+				return nullptr;
 		}
-
-		QK_FATAL("Rendering API not supported");
-		return nullptr;
 	}
 
 	Ref<Texture2D> Texture2D::Create(std::string_view filepath, const TextureRenderModes& modes)
@@ -25,8 +25,9 @@ namespace Quark {
 		{
 			case RenderingAPI::API::OpenGL:
 				return CreateRef<OpenGLTexture2D>(filepath, modes);
+			default:
+				QK_FATAL("Rendering API not supported");
+				return nullptr;
 		}
-		QK_FATAL("Rendering API not supported");
-		return nullptr;
 	}
 }

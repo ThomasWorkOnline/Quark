@@ -13,10 +13,10 @@ namespace Quark {
 		{
 			case RenderingAPI::API::OpenGL:
 				return CreateRef<OpenGLFont>(filepath, width, height);
+			default:
+				QK_FATAL("Rendering API not supported");
+				return nullptr;
 		}
-
-		QK_FATAL("Rendering API not supported");
-		return nullptr;
 	}
 
 	Ref<Font> FontLibrary::Load(const std::string& name, std::string_view filepath, uint32_t width, uint32_t height)

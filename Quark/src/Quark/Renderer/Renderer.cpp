@@ -2,6 +2,8 @@
 
 #include "RenderingAPI.h"
 
+#include <sstream>
+
 namespace Quark {
 
 	static constexpr glm::vec4 s_SpriteVertexPositions[] = {
@@ -73,6 +75,7 @@ namespace Quark {
 		QK_SCOPE_TIMER(Renderer::Initialize);
 
 		RenderCommand::Init();
+
 		RenderCommand::SetClearColor({ 0.01f, 0.01f, 0.01f, 1.0f });
 		QK_CORE_INFO(RenderCommand::GetSpecification());
 
@@ -176,12 +179,17 @@ namespace Quark {
 			}
 		)";
 
-		const char* spriteFragmentSource = R"(
+		std::stringstream spriteFragmentSource;
+		spriteFragmentSource << R"(
 			#version 330 core
 
 			out vec4 o_FragColor;
 
-			uniform sampler2D u_Samplers[32];
+			uniform sampler2D u_Samplers[
+		)";
+
+		spriteFragmentSource << s_Data.MaxSamplers;
+		spriteFragmentSource << R"(];
 
 			in vec3 v_Position;
 			in vec2 v_TexCoord;
@@ -194,7 +202,7 @@ namespace Quark {
 			}
 		)";
 
-		s_Data.QuadShader = Shader::Create("defaultSprite", spriteVertexSource, spriteFragmentSource);
+		s_Data.QuadShader = Shader::Create("defaultSprite", spriteVertexSource, spriteFragmentSource.str());
 		s_Data.QuadShader->Attach();
 		s_Data.QuadShader->SetIntArray("u_Samplers", setupData.Samplers, s_Data.MaxSamplers);
 	}
@@ -249,12 +257,17 @@ namespace Quark {
 			}
 		)";
 
-		const char* fontFragmentSource = R"(
+		std::stringstream fontFragmentSource;
+		fontFragmentSource << R"(
 			#version 330 core
 
 			out vec4 o_FragColor;
 
-			uniform sampler2D u_Samplers[32];
+			uniform sampler2D u_Samplers[
+		)";
+			
+		fontFragmentSource << s_Data.MaxSamplers;
+		fontFragmentSource << R"(];
 
 			in vec3 v_Position;
 			in vec2 v_TexCoord;
@@ -269,7 +282,7 @@ namespace Quark {
 			}
 		)";
 
-		s_Data.FontShader = Shader::Create("defaultFont", fontVertexSource, fontFragmentSource);
+		s_Data.FontShader = Shader::Create("defaultFont", fontVertexSource, fontFragmentSource.str());
 		s_Data.FontShader->Attach();
 		s_Data.FontShader->SetIntArray("u_Samplers", setupData.Samplers, s_Data.MaxSamplers);
 	}

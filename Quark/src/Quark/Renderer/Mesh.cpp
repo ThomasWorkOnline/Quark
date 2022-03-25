@@ -1,8 +1,11 @@
 #include "Mesh.h"
 #include "Baked/Cube.h"
 
-#include "Quark/Core/Core.h"
 #include "Quark/Filesystem/Filesystem.h"
+
+#include <charconv>
+#include <string_view>
+#include <vector>
 
 namespace Quark {
 
@@ -18,6 +21,11 @@ namespace Quark {
 		uint32_t PositionIndex;
 		uint32_t TexCoordIndex;
 		uint32_t NormalIndex;
+
+		IndexPack(uint32_t pi, uint32_t ti, uint32_t ni)
+			: PositionIndex(pi), TexCoordIndex(ti), NormalIndex(ni)
+		{
+		}
 	};
 
 	static const Quark::BufferLayout s_Layout = {
@@ -37,16 +45,15 @@ namespace Quark {
 		size_t VertexCount() const { return FacesIndices.size(); }
 	};
 
-	template<char Delim>
 	static void Tokenize(std::string_view str, std::vector<std::string_view>& out)
 	{
 		size_t start;
 		size_t end = 0;
 
 		out.clear();
-		while ((start = str.find_first_not_of(Delim, end)) != std::string::npos)
+		while ((start = str.find_first_not_of(' ', end)) != std::string::npos)
 		{
-			end = str.find(Delim, start);
+			end = str.find(' ', start);
 			out.push_back(str.substr(start, end - start));
 		}
 	}
@@ -77,10 +84,10 @@ namespace Quark {
 		}
 	}
 
-	template<typename T>
-	static void ExtractFromToken(std::string_view token, T& value)
+	static float ExtractFromToken(std::string_view token)
 	{
-		std::from_chars(token.data(), token.data() + token.size(), value);
+		char* end;
+		return std::strtof(token.data(), &end);
 	}
 
 	static void ReadOBJData(std::string_view filepath, OBJData& data)
@@ -96,29 +103,29 @@ namespace Quark {
 		{
 			std::string_view line = file.substr(pos, eol - pos);
 			pos = eol + 1;
-			Tokenize<' '>(line, tokens);
+			Tokenize(line, tokens);
 
 			if (line.substr(0, 2) == "v " && tokens.size() >= 4)
 			{
 				glm::vec3 vertex;
-				ExtractFromToken(tokens[1], vertex.x);
-				ExtractFromToken(tokens[2], vertex.y);
-				ExtractFromToken(tokens[3], vertex.z);
+				vertex.x = ExtractFromToken(tokens[1]);
+				vertex.y = ExtractFromToken(tokens[2]);
+				vertex.z = ExtractFromToken(tokens[3]);
 				data.Positions.push_back(vertex);
 			}
 			else if (line.substr(0, 2) == "vt" && tokens.size() >= 3)
 			{
 				glm::vec2 texCoord;
-				ExtractFromToken(tokens[1], texCoord.x);
-				ExtractFromToken(tokens[2], texCoord.y);
+				texCoord.x = ExtractFromToken(tokens[1]);
+				texCoord.y = ExtractFromToken(tokens[2]);
 				data.TexCoords.push_back(texCoord);
 			}
 			else if (line.substr(0, 2) == "vn" && tokens.size() >= 4)
 			{
 				glm::vec3 normal;
-				ExtractFromToken(tokens[1], normal.x);
-				ExtractFromToken(tokens[2], normal.y);
-				ExtractFromToken(tokens[3], normal.z);
+				normal.x = ExtractFromToken(tokens[1]);
+				normal.y = ExtractFromToken(tokens[2]);
+				normal.z = ExtractFromToken(tokens[3]);
 				data.Normals.push_back(normal);
 			}
 			else if (line.substr(0, 1) == "f" && tokens.size() >= 4)
@@ -137,7 +144,7 @@ namespace Quark {
 			}
 			else if (line.substr(0, 1) == "s" && tokens.size() >= 2)
 			{
-				if (tokens[1].contains("off") || tokens[1].contains('0'))
+				if (tokens[1].find("off") != std::string::npos || tokens[1].find('0') != std::string::npos)
 					data.SmoothShaded = false;
 			}
 		}

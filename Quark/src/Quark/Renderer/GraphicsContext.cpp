@@ -13,9 +13,9 @@ namespace Quark {
 		{
 			case RenderingAPI::API::OpenGL:
 				return CreateScope<OpenGLGraphicsContext>(window);
+			default:
+				QK_FATAL("Rendering API not supported");
+				return nullptr;
 		}
-
-		QK_FATAL("Unknown Rendering API");
-		return nullptr;
 	}
 }

@@ -63,7 +63,8 @@ namespace Quark {
 			case TextureFilteringMode::NearestMipmapLinear:
 			case TextureFilteringMode::NearestMipmapNearest:
 				return true;
+			default:
+				return false;
 		}
-		return false;
 	}
 }

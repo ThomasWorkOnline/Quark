@@ -18,7 +18,8 @@ namespace Quark {
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D_ARRAY, m_RendererID);
 
-		glTexStorage3D(GL_TEXTURE_2D_ARRAY, spec.Levels, m_InternalFormat, m_Spec.Width, m_Spec.Height, m_Spec.Layers);
+		glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, m_InternalFormat, m_Spec.Width, m_Spec.Height, m_Spec.Layers, 0, m_DataFormat, GL_UNSIGNED_BYTE, nullptr);
+		//glTexStorage3D(GL_TEXTURE_2D_ARRAY, spec.Levels, m_InternalFormat, m_Spec.Width, m_Spec.Height, m_Spec.Layers);
 
 		GLenum tilingMode = GetTextureTilingMode(m_Spec.RenderModes.TilingMode);
 		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GetTextureFilteringMode(m_Spec.RenderModes.MinFilteringMode));

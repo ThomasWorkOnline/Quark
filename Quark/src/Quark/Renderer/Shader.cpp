@@ -13,10 +13,10 @@ namespace Quark {
 		{
 			case RenderingAPI::API::OpenGL:
 				return CreateRef<OpenGLShader>(filepath);
+			default:
+				QK_FATAL("Rendering API not supported");
+				return nullptr;
 		}
-
-		QK_FATAL("Rendering API not supported");
-		return nullptr;
 	}
 
 	Ref<Shader> Shader::Create(const std::string& name, std::string_view vertexSource, std::string_view fragmentSource)
@@ -25,10 +25,10 @@ namespace Quark {
 		{
 			case RenderingAPI::API::OpenGL:
 				return CreateRef<OpenGLShader>(name, vertexSource, fragmentSource);
+			default:
+				QK_FATAL("Rendering API not supported");
+				return nullptr;
 		}
-
-		QK_FATAL("Rendering API not supported");
-		return nullptr;
 	}
 
 	Ref<Shader> Shader::Create(const std::string& name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource)
@@ -37,10 +37,10 @@ namespace Quark {
 		{
 			case RenderingAPI::API::OpenGL:
 				return CreateRef<OpenGLShader>(name, vertexSource, geometrySource, fragmentSource);
+			default:
+				QK_FATAL("Rendering API not supported");
+				return nullptr;
 		}
-
-		QK_FATAL("Rendering API not supported");
-		return nullptr;
 	}
 
 	static size_t GetHashedName(std::string_view name)
@@ -50,10 +50,8 @@ namespace Quark {
 
 	void ShaderLibrary::Add(std::string_view name, const Ref<Shader>& shader)
 	{
-		if (!Exists(name))
-			m_Shaders[GetHashedName(name)] = shader;
-		else
-			QK_CORE_WARN("Shader already exists! It was not added");
+		QK_ASSERT(!Exists(name), "Shader already exists! It was not added");
+		m_Shaders[GetHashedName(name)] = shader;
 	}
 
 	void ShaderLibrary::Add(const Ref<Shader>& shader)
@@ -77,9 +75,7 @@ namespace Quark {
 
 	const Ref<Shader>& ShaderLibrary::Get(std::string_view name) const
 	{
-		if (!Exists(name))
-			QK_FATAL("Shader not found!");
-
+		QK_ASSERT(Exists(name), "Shader not found!");
 		return m_Shaders.at(GetHashedName(name));
 	}
 

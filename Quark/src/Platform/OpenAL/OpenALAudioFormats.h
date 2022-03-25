@@ -15,9 +15,9 @@ namespace Quark {
 			case Quark::AudioFormat::Mono16:   return AL_FORMAT_MONO16;
 			case Quark::AudioFormat::Stereo8:  return AL_FORMAT_STEREO8;
 			case Quark::AudioFormat::Stereo16: return AL_FORMAT_STEREO16;
+			default:
+				QK_FATAL("Invalid audio format");
+				return AL_NONE;
 		}
-
-		QK_FATAL("Invalid audio format");
-		return AL_NONE;
 	}
 }

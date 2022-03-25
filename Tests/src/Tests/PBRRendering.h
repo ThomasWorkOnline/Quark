@@ -22,8 +22,6 @@ private:
 	Scene m_Scene;
 	Entity m_Player;
 	PerspectiveCameraController m_Controller;
-
-	TextureRenderModes m_TextureModes;
 	Ref<Texture2D> m_Texture;
 
 	Ref<Shader> m_Shader;

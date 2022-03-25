@@ -1,8 +1,6 @@
 project "Tests"
-	kind "ConsoleApp"
 	language "C++"
-	cppdialect "C++20"
-	staticruntime "off"
+	cppdialect "C++17"
 
 	targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("%{wks.location}/bin-int/" .. outputdir .. "/%{prj.name}")
@@ -22,8 +20,8 @@ project "Tests"
 		"Quark"
 	}
 
-	postbuildcommands {
-	}
-
 	filter "system:windows"
-		systemversion "latest"
+		kind "ConsoleApp"
+
+	filter "system:macosx"
+		kind "WindowedApp"
