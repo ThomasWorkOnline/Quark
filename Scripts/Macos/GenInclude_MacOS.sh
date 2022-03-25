@@ -6,7 +6,7 @@ pushd ${0%/*}/../../
 # Copy Quark header files
 mkdir -p ./${dest}/include/Quark/
 mkdir -p ./${dest}/include/
-cp -r ./Quark/src/Quark/**/*.h ./${dest}/include/Quark/
+cp -r ./Quark/src/Quark/* ./${dest}/include/Quark/
 cp -r ./Quark/src/Quark.h ./${dest}/include/
 
 # Copy header libraries
