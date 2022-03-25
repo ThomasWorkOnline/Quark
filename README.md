@@ -9,48 +9,48 @@ Official support for macOS and Linux is on it's way!
 # Installation & Setup
 
 ## On Windows
-1. After cloning this repository, run the script `GenVisualStudioSolution20xx_Win.bat` located under `Scripts/Windows`.<br />
-2. Open the Visual Studio solution and hit build! Build for your desired configuration<br />
-3. Run `GenInclude_Win.bat`. This will generate the `include` directory alongside the `lib` and `vendor` folders.<br />
-*NOTE: `GenInclude_Win.bat` will only copy files, so make sure the application is compiled for your desired platform.*<br />
+1. After cloning this repository, run the script `GenVisualStudioSolution20xx_Win.bat` located under `Scripts/Windows`.
+2. Open the Visual Studio solution and hit build! Build for your desired configuration.
+3. Run `GenInclude_Win.bat`. This will generate the `include` directory alongside the `lib` and `vendor` folders.
+*NOTE: `GenInclude_Win.bat` will only copy files, so make sure the application is compiled for your desired platform.*
 
 4. Link the appropriate libraries for your application (on Visual Studio, you will need to link the Debug Release and Dist binaries seperately depending on your configuration).<br />
-5. Don't forget to include the dependencies located under the generated build folder `/vendor`.<br />
-6. Quark uses [glm](https://github.com/g-truc/glm). You will need to include glm as a dependency to your project.<br />
-7. Quark also uses [entt](https://github.com/skypjack/entt). You will need to include both of these templated header libraries for Quark to link.<br />
+5. Don't forget to include the dependencies located under the generated build folder `/vendor`.
+6. Quark uses [glm](https://github.com/g-truc/glm). You will need to include glm as a dependency to your project.
+7. Quark also uses [entt](https://github.com/skypjack/entt). You will need to include both of these templated header libraries for Quark to link.
 
 ## On MacOS
-1. After cloning this repository, run the script `GenMakefile_MacOS.sh` located under `Scripts/Macos`.<br />
-2. Navigate to the project root directory and type `make config=dist` to build the application for release mode *or* `make config=debug` for debug mode.<br />
+1. After cloning this repository, run the script `GenMakefile_MacOS.sh` located under `Scripts/Macos`.
+2. Navigate to the project root directory and type `make config=dist` to build the application for release mode *or* `make config=debug` for debug mode.
 
-3. Run `GenInclude_MacOS.sh`. This will generate the `include` directory alongside the `lib` and `vendor` folders.<br />
-*NOTE: `GenInclude_MacOS.sh` will only copy files, so make sure the application is compiled for your desired platform.*<br />
+3. Run `GenInclude_MacOS.sh`. This will generate the `include` directory alongside the `lib` and `vendor` folders.
+*NOTE: `GenInclude_MacOS.sh` will only copy files, so make sure the application is compiled for your desired platform.*
 
-4. Link the appropriate libraries for your application (remember to link the debug and release configs appropriately).<br />
-5. Don't forget to include the dependencies located under the generated build folder `/vendor`.<br /
-6. Quark uses [glm](https://github.com/g-truc/glm). You will need to include glm as a dependency to your project.<br />
-7. Quark also uses [entt](https://github.com/skypjack/entt). You will need to include both of these templated header libraries for Quark to link.<br />
+4. Link the appropriate libraries for your application (remember to link the debug and release configs appropriately).
+5. Don't forget to include the dependencies located under the generated build folder `/vendor`.
+6. Quark uses [glm](https://github.com/g-truc/glm). You will need to include glm as a dependency to your project.
+7. Quark also uses [entt](https://github.com/skypjack/entt). You will need to include both of these templated header libraries for Quark to link.
 
 ## On Linux
 Coming soon!
 
 ## Dependencies
-*(all dependencies are located inside the `vendor` folder when the project has been built)*.<br />
+*(all dependencies are located inside the `vendor` folder when the project has been built)*.
 
 ## Build Configurations
-### Debug:
-This config includes no optimizations and enables asserts aswell as logging. It is well suited for testing.<br />
+### Debug
+This config includes no optimizations and enables asserts aswell as logging. It is well suited for testing.
 ### Release
-This config includes optimizations and strips assertions and log traces. I would not suggest you run tests using this config.<br />
+This config includes optimizations and strips assertions and log traces. I would not suggest you run tests using this config.
 ### Dist
-This config includes full optimizations, strips assertions, all log messages and log errors. Use this config to ship.<br />
+This config includes full optimizations, strips assertions, all log messages and log errors. Use this config to ship.
 	
 *I encourage using dist builds with optimizations for distribution and debug while testing.
-Release mode can be useful when you need to test performance.*<br />
+Release mode can be useful when you need to test performance.*
 
 # How to use
 
-The following examples will guide you in learning the Quark API.<br />
+The following examples will guide you in learning the Quark API.
 
 <ins>**1. Creating a Quark application**</ins>
 ```c++
@@ -114,7 +114,7 @@ public:
 ```
 
 Event dispatchers are used to associate an event type with a given function.
-The event handler must have the following signature:<br />
+The event handler must have the following signature:
 ```c++
 bool Function(EventType&);
 ```
@@ -150,7 +150,7 @@ private:
 ```
 
 # Dependencies
-glm: https://github.com/g-truc/glm<br />
-entt: https://github.com/skypjack/entt<br />
+glm: https://github.com/g-truc/glm
+entt: https://github.com/skypjack/entt
 
 Feel free to explore!
