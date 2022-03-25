@@ -150,7 +150,7 @@ private:
 ```
 
 # Dependencies
-glm: https://github.com/g-truc/glm
+glm: https://github.com/g-truc/glm<br />
 entt: https://github.com/skypjack/entt
 
 Feel free to explore!
