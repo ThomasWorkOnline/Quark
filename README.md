@@ -21,7 +21,7 @@ Official support for macOS and Linux is on it's way!
 
 ## On MacOS
 1. After cloning this repository, run the script `GenMakefile_MacOS.sh` located under `Scripts/Macos`.
-2. Navigate to the project root directory and type `make config=dist` to build the application for release mode *or* `make config=debug` for debug mode.
+2. Navigate to the project root directory and type `make config=dist` to build the application for distribution mode *or* `make config=debug` for debug mode.
 
 3. Run `GenInclude_MacOS.sh`. This will generate the `include` directory alongside the `lib` and `vendor` folders.
 *NOTE: `GenInclude_MacOS.sh` will only copy files, so make sure the application is compiled for your desired platform.*
