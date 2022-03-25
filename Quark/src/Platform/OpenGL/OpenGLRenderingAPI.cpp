@@ -5,7 +5,6 @@
 
 namespace Quark {
 
-#if defined(QK_PLATFORM_WINDOWS) && defined(QK_DEBUG)
     static void OnOpenGLMessage(
         GLenum source,
         GLenum type,
@@ -25,18 +24,20 @@ namespace Quark {
             
         QK_CORE_ASSERT(false, "OnOpenGLMessage had an unknown severity level");
     }
-#endif
 
     void OpenGLRenderingAPI::Init()
     {
         QK_SCOPE_TIMER(OpenGLRenderingAPI::Init);
 
-#if defined(QK_PLATFORM_WINDOWS) && defined(QK_DEBUG)
-        glEnable(GL_DEBUG_OUTPUT);
-        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+#ifdef QK_DEBUG
+        if (GLVersion.major >= 4 && GLVersion.minor >= 3)
+        {
+            glEnable(GL_DEBUG_OUTPUT);
+            glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 
-        glDebugMessageCallback(OnOpenGLMessage, nullptr); // <-- This is not supported on OpenGL 4.1 or lower
-        glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
+            glDebugMessageCallback(OnOpenGLMessage, nullptr); // <-- This is not supported on OpenGL 4.1 or lower
+            glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
+        }
 #endif
 
         // Gamma correction
