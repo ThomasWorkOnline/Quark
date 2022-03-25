@@ -2,8 +2,7 @@
 
 Quark is a 3D game engine in early development inspired by Hazel Game Engine.
 Designed for learning purposes.
-Currently only builds for Windows.
-Official support for Linux and macOS is on it's way!
+Official support for macOS and Linux is on it's way!
 
 ***
 
@@ -11,7 +10,7 @@ Official support for Linux and macOS is on it's way!
 
 ## On Windows
 
-1. After cloning this repository, run the script `GenVisualStudioSolution20XX_Win.bat` located under `Scripts/Windows`.<br />
+1. After cloning this repository, run the script `GenVisualStudioSolution20xx_Win.bat` located under `Scripts/Windows`.<br />
 2. Open the Visual Studio solution and hit build! Build for your desired configuration<br />
 	*(I encourage using release builds with optimizations for distribution and debug while testing)*.<br />
 3. Run `GenInclude_Win.bat`. This will generate the `include` directory alongside the `lib` and `vendor` folders.<br />
