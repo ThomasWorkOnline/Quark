@@ -6,19 +6,6 @@ Official support for macOS and Linux is on it's way!
 
 ***
 
-# Installation & Setup
-
-## Build Configurations
-### Debug:
-	This config includes no optimizations and enables asserts aswell as logging. It is well suited for testing.<br />
-### Release
-	This config includes optimizations and strips assertions and log traces. I would not suggest you run tests using this config.<br />
-### Dist
-	This config includes full optimizations, strips assertions, all log messages and log errors. Use this config to ship.<br />
-	
-*I encourage using dist builds with optimizations for distribution and debug while testing.
-Release mode can be useful when you need to test performance.*<br />
-
 ## On Windows
 1. After cloning this repository, run the script `GenVisualStudioSolution20xx_Win.bat` located under `Scripts/Windows`.<br />
 2. Open the Visual Studio solution and hit build! Build for your desired configuration<br />
@@ -45,8 +32,21 @@ Release mode can be useful when you need to test performance.*<br />
 ## On Linux
 Coming soon!
 
+# Installation & Setup
+
 ## Dependencies
 *(all dependencies are located inside the `vendor` folder when the project has been built)*.<br />
+
+## Build Configurations
+### Debug:
+This config includes no optimizations and enables asserts aswell as logging. It is well suited for testing.<br />
+### Release
+This config includes optimizations and strips assertions and log traces. I would not suggest you run tests using this config.<br />
+### Dist
+This config includes full optimizations, strips assertions, all log messages and log errors. Use this config to ship.<br />
+	
+*I encourage using dist builds with optimizations for distribution and debug while testing.
+Release mode can be useful when you need to test performance.*<br />
 
 # How to use
 
