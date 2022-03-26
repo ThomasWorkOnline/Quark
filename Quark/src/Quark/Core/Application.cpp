@@ -43,7 +43,7 @@ namespace Quark {
 
 			auto tNow = std::chrono::steady_clock::now();
 			float elapsedTime = std::chrono::duration<float>(tNow - tStart).count();
-			tStart = std::chrono::steady_clock::now();
+			tStart = tNow;
 
 			m_TotalTime += elapsedTime;
 			OnUpdate(elapsedTime);
