@@ -18,7 +18,9 @@ cp -r ./Quark/vendor/glm/* ./${dest}/vendor/glm/
 # Copy binaries
 mkdir -p ./${dest}/lib/macosx-x64-Debug/
 mkdir -p ./${dest}/lib/macosx-x64-Release/
+mkdir -p ./${dest}/lib/macosx-x64-Dist/
 cp ./bin/macosx-Debug-x86_64/Quark/*.a ./${dest}/lib/macosx-x64-Debug/
 cp ./bin/macosx-Release-x86_64/Quark/*.a ./${dest}/lib/macosx-x64-Release/
+cp ./bin/macosx-Dist-x86_64/Quark/*.a ./${dest}/lib/macosx-x64-Dist/
 
 popd
