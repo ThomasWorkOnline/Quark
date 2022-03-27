@@ -12,8 +12,8 @@ xcopy /e .\Quark\vendor\entt\* .\%dest%\vendor\entt\
 xcopy /e .\Quark\vendor\glm\* .\%dest%\vendor\glm\
 
 :: Copy binaries
-xcopy .\bin\windows-Debug-x86_64\Quark\*.lib .\%dest%\lib\Windows-x64-Debug\
-xcopy .\bin\windows-Release-x86_64\Quark\*.lib .\%dest%\lib\Windows-x64-Release\
+xcopy .\bin\windows-Debug-x86_64\Quark\*.lib .\%dest%\lib\windows-x64-Debug\
+xcopy .\bin\windows-Release-x86_64\Quark\*.lib .\%dest%\lib\windows-x64-Release\
 
 popd
 pause
