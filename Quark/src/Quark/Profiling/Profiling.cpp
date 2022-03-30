@@ -24,6 +24,6 @@ namespace Quark {
 	ScopeTimer::~ScopeTimer()
 	{
 		Stop();
-		Logger::GetProfilerLogger()->debug("'{0}'\t took: {1} ms", m_Scope, (float)Milliseconds());
+		Logger::GetProfilerLogger()->debug("'{0}'\t took: {1}ms", m_Scope, (float)Milliseconds());
 	}
 }

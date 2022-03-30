@@ -8,15 +8,18 @@ namespace Quark {
 
 	struct Logger
 	{
-		static void Init();
-		static Ref<spdlog::logger>& GetCoreLogger() { return s_CoreLogger; }
-		static Ref<spdlog::logger>& GetClientLogger() { return s_ClientLogger; }
-		static Ref<spdlog::logger>& GetProfilerLogger() { return s_ProfilerLogger; }
+		static Ref<spdlog::logger>& GetCoreLogger() { return GetInstance().m_CoreLogger; }
+		static Ref<spdlog::logger>& GetClientLogger() { return GetInstance().m_ClientLogger; }
+		static Ref<spdlog::logger>& GetProfilerLogger() { return GetInstance().m_ProfilerLogger; }
 
 	private:
-		static Ref<spdlog::logger> s_CoreLogger;
-		static Ref<spdlog::logger> s_ClientLogger;
-		static Ref<spdlog::logger> s_ProfilerLogger;
+		Logger();
+		static Logger& GetInstance();
+
+	private:
+		Ref<spdlog::logger> m_CoreLogger;
+		Ref<spdlog::logger> m_ClientLogger;
+		Ref<spdlog::logger> m_ProfilerLogger;
 	};
 }
 

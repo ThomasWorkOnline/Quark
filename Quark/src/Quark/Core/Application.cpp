@@ -58,8 +58,6 @@ namespace Quark {
 
 	void Application::Initialize()
 	{
-		Logger::Init();
-
 		QK_SCOPE_TIMER(Application::Initialize);
 
 		s_Instance = this;
