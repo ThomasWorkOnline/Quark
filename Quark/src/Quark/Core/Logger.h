@@ -20,16 +20,16 @@ namespace Quark {
 	};
 }
 
-#define QK_CORE_TRACE(...)    Logger::GetCoreLogger()->trace    (__VA_ARGS__);
-#define QK_CORE_INFO(...)     Logger::GetCoreLogger()->info     (__VA_ARGS__);
-#define QK_CORE_WARN(...)     Logger::GetCoreLogger()->warn     (__VA_ARGS__);
-#define QK_CORE_ERROR(...)    Logger::GetCoreLogger()->error    (__VA_ARGS__);
-#define QK_CORE_CRITICAL(...) Logger::GetCoreLogger()->critical (__VA_ARGS__);
+#define QK_CORE_TRACE(...)    Quark::Logger::GetCoreLogger()->trace    (__VA_ARGS__);
+#define QK_CORE_INFO(...)     Quark::Logger::GetCoreLogger()->info     (__VA_ARGS__);
+#define QK_CORE_WARN(...)     Quark::Logger::GetCoreLogger()->warn     (__VA_ARGS__);
+#define QK_CORE_ERROR(...)    Quark::Logger::GetCoreLogger()->error    (__VA_ARGS__);
+#define QK_CORE_CRITICAL(...) Quark::Logger::GetCoreLogger()->critical (__VA_ARGS__);
 
-#define QK_TRACE(...)         Logger::GetClientLogger()->trace     (__VA_ARGS__);
-#define QK_INFO(...)          Logger::GetClientLogger()->info      (__VA_ARGS__);
-#define QK_WARN(...)          Logger::GetClientLogger()->warn      (__VA_ARGS__);
-#define QK_ERROR(...)         Logger::GetClientLogger()->error     (__VA_ARGS__);
-#define QK_CRITICAL(...)      Logger::GetClientLogger()->critical  (__VA_ARGS__);
+#define QK_TRACE(...)         Quark::Logger::GetClientLogger()->trace     (__VA_ARGS__);
+#define QK_INFO(...)          Quark::Logger::GetClientLogger()->info      (__VA_ARGS__);
+#define QK_WARN(...)          Quark::Logger::GetClientLogger()->warn      (__VA_ARGS__);
+#define QK_ERROR(...)         Quark::Logger::GetClientLogger()->error     (__VA_ARGS__);
+#define QK_CRITICAL(...)      Quark::Logger::GetClientLogger()->critical  (__VA_ARGS__);
 
 #include "LogUtils.h"
