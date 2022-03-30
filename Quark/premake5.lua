@@ -10,6 +10,7 @@ project "Quark"
 		"src/**.h",
 		"src/**.cpp",
 
+		-- glad
 		"vendor/glad/include/**.h",
 		"vendor/glad/src/**.c"
 	}
@@ -26,6 +27,7 @@ project "Quark"
 		"vendor/glad/include",
 		"vendor/glm",
 		"vendor/openal/include",
+		"vendor/spdlog/include",
 		"vendor/stb_image"
 	}
 

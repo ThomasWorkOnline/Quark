@@ -26,7 +26,7 @@ void MainLayer::OnUpdate(Timestep elapsedTime)
 
 	Renderer::DrawLine({ 0, 0, 1 }, { 1, 0.5, 1 }, colorStart, colorEnd);
 
-#if 1
+#if 0
 	Renderer::DrawSprite(m_Texture, m_Transform3);
 
 	RenderCommand::SetDepthFunction(RenderDepthFunction::LessEqual);

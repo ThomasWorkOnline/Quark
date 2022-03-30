@@ -11,8 +11,8 @@ namespace Quark {
 
 	void Timer::Stop()
 	{
-		m_End = std::chrono::steady_clock::now();
-		m_Elapsed = m_End - m_Start;
+		auto end = std::chrono::steady_clock::now();
+		m_Elapsed = end - m_Start;
 	}
 
 	ScopeTimer::ScopeTimer(const char* scope)
@@ -21,12 +21,9 @@ namespace Quark {
 		Start();
 	}
 
-	static std::mutex s_WriterMutex;
 	ScopeTimer::~ScopeTimer()
 	{
 		Stop();
-
-		std::lock_guard<std::mutex> lock(s_WriterMutex);
-		std::cout << "[TIMER]: " << m_Scope << " took:\t" << Milliseconds() << "ms\n";
+		Logger::GetProfilerLogger()->debug("'{0}'\t took: {1} ms", m_Scope, (float)Milliseconds());
 	}
 }

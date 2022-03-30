@@ -10,6 +10,7 @@ xcopy .\Quark\src\Quark.h .\%dest%\include\
 :: Copy header libraries
 xcopy /e .\Quark\vendor\entt\* .\%dest%\vendor\entt\
 xcopy /e .\Quark\vendor\glm\* .\%dest%\vendor\glm\
+xcopy /e .\Quark\vendor\spdlog\* .\%dest%\vendor\spdlog\
 
 :: Copy binaries
 xcopy .\bin\windows-Debug-x86_64\Quark\*.lib .\%dest%\lib\windows-x64-Debug\

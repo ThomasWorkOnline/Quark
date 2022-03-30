@@ -21,9 +21,6 @@ namespace Quark {
 		QK_CORE_TRACE("Initiating shutdown...");
 		QK_SCOPE_TIMER(Application::~Application);
 
-		for (uint32_t i = 0; i < m_Layers.size(); i++)
-			delete m_Layers[i];
-
 		Renderer::Dispose();
 	}
 
@@ -58,6 +55,8 @@ namespace Quark {
 
 	void Application::Initialize()
 	{
+		Logger::Init();
+
 		QK_SCOPE_TIMER(Application::Initialize);
 
 		s_Instance = this;
@@ -100,12 +99,12 @@ namespace Quark {
 		}
 	}
 
-	void Application::PushLayer(Layer* layer)
+	void Application::PushLayer(const Ref<Layer>& layer)
 	{
 		m_Layers.push_back(layer);
 	}
 
-	void Application::PopLayer(Layer* layer)
+	void Application::PopLayer(const Ref<Layer>& layer)
 	{
 		auto it = std::find(m_Layers.begin(), m_Layers.end(), layer);
 

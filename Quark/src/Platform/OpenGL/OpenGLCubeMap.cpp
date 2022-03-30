@@ -18,7 +18,7 @@ namespace Quark {
 		for (size_t i = 0; i < filepaths.size(); i++)
 		{
 			stbi_uc* data = stbi_load(filepaths[i].data(), &width, &height, &channels, 0);
-			QK_CORE_ASSERT(data, "Failed to load image at path: " << filepaths[i]);
+			QK_CORE_ASSERT(data, "Failed to load image at path: {0}", filepaths[i]);
 
 			GLenum internalFormat = 0, dataFormat = 0;
 			if (channels == 4)

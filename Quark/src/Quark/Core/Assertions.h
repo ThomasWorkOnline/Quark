@@ -25,8 +25,8 @@
 #endif
 
 #ifdef QK_ENABLE_ASSERTIONS
-#	define QK_CORE_ASSERT(x, ...) do { if(!(x)) { QK_CORE_ERROR(__VA_ARGS__); QK_DEBUGBREAK(); } } while (false)
-#	define QK_ASSERT(x, ...)      do { if(!(x)) { QK_ERROR(__VA_ARGS__);      QK_DEBUGBREAK(); } } while (false)
+#	define QK_CORE_ASSERT(x, ...) do { if(!(x)) { QK_CORE_CRITICAL(__VA_ARGS__); QK_DEBUGBREAK(); } } while (false)
+#	define QK_ASSERT(x, ...)      do { if(!(x)) { QK_CRITICAL(__VA_ARGS__);      QK_DEBUGBREAK(); } } while (false)
 #else
 #	define QK_CORE_ASSERT(x, ...)
 #	define QK_ASSERT(x, ...)

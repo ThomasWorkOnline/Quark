@@ -16,10 +16,7 @@ namespace Quark {
 		std::string Title = "Quark Engine";
 		ApplicationFlag Flags = ApplicationNoFlags;
 
-		bool HasFlag(ApplicationFlag flag) const
-		{
-			return Flags & flag;
-		}
+		bool HasFlag(ApplicationFlag flag) const { return Flags & flag; }
 
 		ApplicationOptions() = default;
 		ApplicationOptions(
@@ -28,8 +25,6 @@ namespace Quark {
 			ApplicationFlag flags = ApplicationNoFlags
 		)
 			: Width(width), Height(height),
-			Title(title), Flags(flags)
-		{
-		}
+			Title(title), Flags(flags) {}
 	};
 }

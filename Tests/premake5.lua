@@ -13,7 +13,8 @@ project "Tests"
 	includedirs {
 		"%{wks.location}/Quark/src",
 		"%{wks.location}/Quark/vendor/glm",
-		"%{wks.location}/Quark/vendor/entt/include"
+		"%{wks.location}/Quark/vendor/entt/include",
+		"%{wks.location}/Quark/vendor/spdlog/include"
 	}
 
 	links {

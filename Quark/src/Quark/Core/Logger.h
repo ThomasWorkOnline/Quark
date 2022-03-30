@@ -2,29 +2,34 @@
 
 #include "Core.h"
 
-#include <iostream>
+#include <spdlog/spdlog.h>
 
-// Use unbuffered std::cerr for errors
-#ifdef QK_DEBUG
-#	define QK_CORE_TRACE(...) std::cout << "[Core Trace]: "     << __VA_ARGS__ << std::endl
-#	define QK_CORE_INFO(...)  std::cout << "[Core Info]: "      << __VA_ARGS__ << std::endl
-#	define QK_CORE_WARN(...)  std::cout << "[Core Warning]: "   << __VA_ARGS__ << std::endl
-#	define QK_CORE_ERROR(...) std::cerr << "[CORE ERROR]: "     << __VA_ARGS__ << std::endl
+namespace Quark {
 
-#	define QK_TRACE(...) std::cout << "[Trace]: "               << __VA_ARGS__ << std::endl
-#	define QK_INFO(...)  std::cout << "[Info]: "                << __VA_ARGS__ << std::endl
-#	define QK_WARN(...)  std::cout << "[Warning]: "             << __VA_ARGS__ << std::endl
-#	define QK_ERROR(...) std::cerr << "[ERROR]: "               << __VA_ARGS__ << std::endl
-#else
-#	define QK_CORE_TRACE(...)                                   // Tracing disabled
-#	define QK_CORE_INFO(...)  std::cout << "[Core Info]: "      << __VA_ARGS__ << std::endl
-#	define QK_CORE_WARN(...)  std::cout << "[Core Warning]: "   << __VA_ARGS__ << std::endl
-#	define QK_CORE_ERROR(...) std::cerr << "[CORE ERROR]: "     << __VA_ARGS__ << std::endl
+	struct Logger
+	{
+		static void Init();
+		static Ref<spdlog::logger>& GetCoreLogger() { return s_CoreLogger; }
+		static Ref<spdlog::logger>& GetClientLogger() { return s_ClientLogger; }
+		static Ref<spdlog::logger>& GetProfilerLogger() { return s_ProfilerLogger; }
 
-#	define QK_TRACE(...)                                        // Tracing disabled
-#	define QK_INFO(...)  std::cout << "[Info]: "                << __VA_ARGS__ << std::endl
-#	define QK_WARN(...)  std::cout << "[Warning]: "             << __VA_ARGS__ << std::endl
-#	define QK_ERROR(...) std::cerr << "[ERROR]: "               << __VA_ARGS__ << std::endl
-#endif
+	private:
+		static Ref<spdlog::logger> s_CoreLogger;
+		static Ref<spdlog::logger> s_ClientLogger;
+		static Ref<spdlog::logger> s_ProfilerLogger;
+	};
+}
+
+#define QK_CORE_TRACE(...)    Logger::GetCoreLogger()->trace    (__VA_ARGS__);
+#define QK_CORE_INFO(...)     Logger::GetCoreLogger()->info     (__VA_ARGS__);
+#define QK_CORE_WARN(...)     Logger::GetCoreLogger()->warn     (__VA_ARGS__);
+#define QK_CORE_ERROR(...)    Logger::GetCoreLogger()->error    (__VA_ARGS__);
+#define QK_CORE_CRITICAL(...) Logger::GetCoreLogger()->critical (__VA_ARGS__);
+
+#define QK_TRACE(...)         Logger::GetClientLogger()->trace     (__VA_ARGS__);
+#define QK_INFO(...)          Logger::GetClientLogger()->info      (__VA_ARGS__);
+#define QK_WARN(...)          Logger::GetClientLogger()->warn      (__VA_ARGS__);
+#define QK_ERROR(...)         Logger::GetClientLogger()->error     (__VA_ARGS__);
+#define QK_CRITICAL(...)      Logger::GetClientLogger()->critical  (__VA_ARGS__);
 
 #include "LogUtils.h"

@@ -206,7 +206,7 @@ namespace Quark {
         ss << "|\t" << glGetString(GL_VENDOR) << '\n';
         ss << "|\t" << glGetString(GL_RENDERER) << '\n';
         ss << "|\t" << glGetString(GL_VERSION) << '\n';
-        ss << "|\tHardware texture slots available: " << GetMaxTextureSlotsCount() << '\n';
+        ss << "|\tHardware texture slots available: " << GetMaxTextureSlotsCount();
         return ss.str();
     }
 }

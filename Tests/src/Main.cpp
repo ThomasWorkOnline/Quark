@@ -1,7 +1,7 @@
-#include "Pong/Pong.h"
+#include "FontTest/FontTest.h"
 
 int main()
 {
-	auto test = Quark::CreateScope<Pong>();
+	auto test = Quark::CreateScope<FontTest>();
 	test->Run();
 }

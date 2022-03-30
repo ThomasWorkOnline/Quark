@@ -12,8 +12,10 @@ cp -r ./Quark/src/Quark.h ./${dest}/include/
 # Copy header libraries
 mkdir -p ./${dest}/vendor/entt/
 mkdir -p ./${dest}/vendor/glm/
+mkdir -p ./${dest}/vendor/spdlog/
 cp -r ./Quark/vendor/entt/* ./${dest}/vendor/entt/
 cp -r ./Quark/vendor/glm/* ./${dest}/vendor/glm/
+cp -r ./Quark/vendor/spdlog/* ./${dest}/vendor/spdlog/
 
 # Copy binaries
 mkdir -p ./${dest}/lib/macosx-x64-Debug/

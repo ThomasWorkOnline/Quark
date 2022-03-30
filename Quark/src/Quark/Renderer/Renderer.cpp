@@ -29,9 +29,9 @@ namespace Quark {
 
 	struct RendererData
 	{
-		static constexpr uint32_t MaxQuads = 20000;
+		static constexpr uint32_t MaxQuads    = 20000;
 		static constexpr uint32_t MaxVertices = MaxQuads * 4;
-		static constexpr uint32_t MaxIndices = MaxQuads * 6;
+		static constexpr uint32_t MaxIndices  = MaxQuads * 6;
 
 		uint32_t MaxSamplers = 0;
 		QuadVertex* QuadVertexPtr = nullptr;
@@ -69,6 +69,43 @@ namespace Quark {
 	uint32_t Renderer::s_ViewportHeight = 0;
 
 	static RendererData s_Data;
+	struct Renderer::SetupData
+	{
+		uint32_t* Indices = nullptr;
+		int32_t* Samplers = nullptr;
+
+		SetupData()
+		{
+			QK_SCOPE_TIMER(SetupData::SetupData);
+
+			// Samplers
+			Samplers = new int32_t[s_Data.MaxSamplers];
+			for (uint32_t i = 0; i < s_Data.MaxSamplers; i++)
+				Samplers[i] = i;
+
+			// Indices
+			Indices = new uint32_t[s_Data.MaxIndices];
+
+			uint32_t offset = 0;
+			for (uint32_t i = 0; i < s_Data.MaxIndices; i += 6)
+			{
+				Indices[i + 0] = offset + 0;
+				Indices[i + 1] = offset + 3;
+				Indices[i + 2] = offset + 2;
+				Indices[i + 3] = offset + 0;
+				Indices[i + 4] = offset + 2;
+				Indices[i + 5] = offset + 1;
+
+				offset += 4;
+			}
+		}
+
+		~SetupData()
+		{
+			delete[] Indices;
+			delete[] Samplers;
+		}
+	};
 	
 	void Renderer::Initialize()
 	{
@@ -79,29 +116,8 @@ namespace Quark {
 		RenderCommand::SetClearColor({ 0.01f, 0.01f, 0.01f, 1.0f });
 		QK_CORE_INFO(RenderCommand::GetSpecification());
 
-		SetupData setupData{};
-
-		// Samplers
 		s_Data.MaxSamplers = RenderCommand::GetTextureSlotsCount();
-		setupData.Samplers = new int32_t[s_Data.MaxSamplers];
-		for (uint32_t i = 0; i < s_Data.MaxSamplers; i++)
-			setupData.Samplers[i] = i;
-
-		// Indices
-		setupData.Indices = new uint32_t[s_Data.MaxIndices];
-
-		uint32_t offset = 0;
-		for (uint32_t i = 0; i < s_Data.MaxIndices; i += 6)
-		{
-			setupData.Indices[i + 0] = offset + 0;
-			setupData.Indices[i + 1] = offset + 3;
-			setupData.Indices[i + 2] = offset + 2;
-			setupData.Indices[i + 3] = offset + 0;
-			setupData.Indices[i + 4] = offset + 2;
-			setupData.Indices[i + 5] = offset + 1;
-
-			offset += 4;
-		}
+		SetupData setupData{};
 
 		SetupQuadRenderer(setupData);
 		SetupFontRenderer(setupData);
@@ -119,6 +135,8 @@ namespace Quark {
 
 	void Renderer::SetupQuadRenderer(SetupData& setupData)
 	{
+		QK_SCOPE_TIMER(Renderer::SetupQuadRenderer);
+
 		s_Data.QuadVertexArray = VertexArray::Create();
 
 		s_Data.QuadVertexBuffer = VertexBuffer::Create(s_Data.MaxVertices * sizeof(QuadVertex));
@@ -169,7 +187,6 @@ namespace Quark {
 			void main()
 			{
 				vec4 position = vec4(a_Position, 1.0);
-
 				gl_Position = u_Projection * u_View * position;
 
 				v_Position	= position.xyz;
@@ -183,8 +200,6 @@ namespace Quark {
 		spriteFragmentSource << R"(
 			#version 330 core
 
-			out vec4 o_FragColor;
-
 			uniform sampler2D u_Samplers[
 		)";
 
@@ -195,6 +210,7 @@ namespace Quark {
 			in vec2 v_TexCoord;
 			in vec4 v_Tint;
 			flat in int v_TexIndex;
+			out vec4 o_FragColor;
 
 			void main()
 			{
@@ -209,6 +225,8 @@ namespace Quark {
 
 	void Renderer::SetupFontRenderer(SetupData& setupData)
 	{
+		QK_SCOPE_TIMER(Renderer::SetupFontRenderer);
+
 		s_Data.FontVertexArray = VertexArray::Create();
 
 		s_Data.FontVertexBuffer = VertexBuffer::Create(s_Data.MaxVertices * sizeof(QuadVertex));
@@ -247,7 +265,6 @@ namespace Quark {
 			void main()
 			{
 				vec4 position = vec4(a_Position, 1.0);
-
 				gl_Position = u_Projection * u_View * position;
 
 				v_Position	= position.xyz;
@@ -261,8 +278,6 @@ namespace Quark {
 		fontFragmentSource << R"(
 			#version 330 core
 
-			out vec4 o_FragColor;
-
 			uniform sampler2D u_Samplers[
 		)";
 			
@@ -273,6 +288,7 @@ namespace Quark {
 			in vec2 v_TexCoord;
 			in vec4 v_Color;
 			flat in int v_TexIndex;
+			out vec4 o_FragColor;
 
 			void main()
 			{
@@ -289,6 +305,8 @@ namespace Quark {
 
 	void Renderer::SetupLineRenderer()
 	{
+		QK_SCOPE_TIMER(Renderer::SetupLineRenderer);
+
 		s_Data.LineVertexArray = VertexArray::Create();
 
 		s_Data.LineVertexBuffer = VertexBuffer::Create(s_Data.MaxVertices * sizeof(LineVertex));
@@ -315,7 +333,6 @@ namespace Quark {
 			void main()
 			{
 				vec4 position = vec4(a_Position, 1.0);
-
 				gl_Position = u_Projection * u_View * position;
 
 				v_Color = a_Color;
@@ -351,7 +368,6 @@ namespace Quark {
 		s_SceneData.ViewMatrix = cameraView;
 
 		StartBatch();
-
 		ResetStats();
 	}
 
@@ -436,19 +452,6 @@ namespace Quark {
 		s_Stats.LinesDrawn = 0;
 	}
 
-	void Renderer::Submit(const Ref<Shader>& shader, const Ref<Texture2D>& texture, const Ref<VertexArray>& va, const glm::mat4& transform)
-	{
-		shader->Attach();
-		shader->SetMat4("u_Projection", s_SceneData.ProjectionMatrix);
-		shader->SetMat4("u_View", s_SceneData.ViewMatrix);
-		shader->SetMat4("u_Model", transform);
-
-		texture->Attach();
-
-		va->Attach();
-		RenderCommand::DrawIndexed(va);
-	}
-
 	void Renderer::Submit(const Ref<Shader>& shader, const Ref<VertexArray>& va, const glm::mat4& transform)
 	{
 		shader->Attach();
@@ -457,6 +460,19 @@ namespace Quark {
 		shader->SetMat4("u_Model", transform);
 
 		s_Data.DefaultTexture->Attach();
+
+		va->Attach();
+		RenderCommand::DrawIndexed(va);
+	}
+
+	void Renderer::Submit(const Ref<Shader>& shader, const Ref<Texture2D>& texture, const Ref<VertexArray>& va, const glm::mat4& transform)
+	{
+		shader->Attach();
+		shader->SetMat4("u_Projection", s_SceneData.ProjectionMatrix);
+		shader->SetMat4("u_View", s_SceneData.ViewMatrix);
+		shader->SetMat4("u_Model", transform);
+
+		texture->Attach();
 
 		va->Attach();
 		RenderCommand::DrawIndexed(va);
@@ -477,8 +493,7 @@ namespace Quark {
 
 	void Renderer::DrawSprite(const Ref<Texture2D>& texture, const glm::mat4& transform)
 	{
-		constexpr glm::vec2 textureCoords[4] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
-
+		static constexpr glm::vec2 textureCoords[4] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
 		DrawSprite(texture, textureCoords, transform);
 	}
 
