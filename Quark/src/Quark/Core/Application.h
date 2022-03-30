@@ -26,10 +26,8 @@ namespace Quark {
 		void Run();
 		void Stop();
 
-		template<typename T, typename... Args>
-		void PushLayer(Args&&... args);
-		void PushLayer(const Ref<Layer>& layer);
-		void PopLayer(const Ref<Layer>& layer);
+		void PushLayer(Layer* layer);
+		void PopLayer(Layer* layer);
 
 		float GetAppRunningTime() const { return m_TotalTime; }
 		std::thread::id GetThreadId() const { return m_AppMainThreadId; }
@@ -53,15 +51,9 @@ namespace Quark {
 		ApplicationOptions m_Options;
 		Scope<Window> m_Window;
 		Scope<AudioDevice> m_AudioDevice;
-		std::vector<Ref<Layer>> m_Layers;
+		std::vector<Layer*> m_Layers;
 
 		float m_TotalTime = 0.0f;
 		bool m_Running = false;
 	};
-
-	template<typename T, typename... Args>
-	inline void Application::PushLayer(Args&&... args)
-	{
-		m_Layers.emplace_back(CreateRef<T>(std::forward<Args>(args)...));
-	}
 }
