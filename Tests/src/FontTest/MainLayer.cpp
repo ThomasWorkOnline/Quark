@@ -26,14 +26,12 @@ void MainLayer::OnUpdate(Timestep elapsedTime)
 
 	Renderer::DrawLine({ 0, 0, 1 }, { 1, 0.5, 1 }, colorStart, colorEnd);
 
-#if 0
 	Renderer::DrawSprite(m_Texture, m_Transform3);
 
 	RenderCommand::SetDepthFunction(RenderDepthFunction::LessEqual);
 	Renderer::DrawText(m_Text, m_Transform1);
 	Renderer::DrawText(m_Font2, "Hi there!", m_Color2, glm::vec2(1.0f), glm::vec2(0.0f), m_Transform2);
 	RenderCommand::SetDepthFunction(RenderDepthFunction::Default);
-#endif
 
 	Renderer::EndScene();
 }

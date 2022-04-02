@@ -16,9 +16,9 @@ namespace Quark {
     {
         switch (severity)
         {
-            case GL_DEBUG_SEVERITY_HIGH:         QK_FATAL(message);      return;
-            case GL_DEBUG_SEVERITY_MEDIUM:       QK_CORE_ERROR(message); return;
-            case GL_DEBUG_SEVERITY_LOW:          QK_CORE_WARN(message);  return;
+            case GL_DEBUG_SEVERITY_HIGH:         QK_FATAL     (message); return;
+            case GL_DEBUG_SEVERITY_MEDIUM:       QK_CORE_WARN (message); return;
+            case GL_DEBUG_SEVERITY_LOW:          QK_CORE_WARN (message); return;
             case GL_DEBUG_SEVERITY_NOTIFICATION: QK_CORE_TRACE(message); return;
         }
             
