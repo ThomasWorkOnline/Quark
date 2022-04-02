@@ -379,7 +379,7 @@ namespace Quark {
 
 	GLint OpenGLShader::GetUniformLocation(std::string_view name)
 	{
-		auto hash = std::hash<std::string_view>()(name);
+		size_t hash = std::hash<std::string_view>()(name);
 		auto it = m_UniformLocations.find(hash);
 		if (it != m_UniformLocations.end())
 			return it->second;

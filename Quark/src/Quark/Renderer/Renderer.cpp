@@ -129,6 +129,8 @@ namespace Quark {
 		QK_SCOPE_TIMER(Renderer::Dispose);
 
 		delete[] s_Data.QuadVertices;
+		delete[] s_Data.FontVertices;
+		delete[] s_Data.LineVertices;
 		delete[] s_Data.Textures;
 		delete[] s_Data.Fonts;
 	}
