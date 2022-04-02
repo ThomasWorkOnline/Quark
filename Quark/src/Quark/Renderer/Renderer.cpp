@@ -245,7 +245,6 @@ namespace Quark {
 
 		// Vertices
 		s_Data.FontVertices = new QuadVertex[s_Data.MaxVertices];
-
 		s_Data.Fonts = new Ref<Font>[s_Data.MaxSamplers];
 
 		const char* fontVertexSource = R"(
@@ -380,15 +379,15 @@ namespace Quark {
 
 	void Renderer::StartBatch()
 	{
-		s_Data.QuadVertexPtr = s_Data.QuadVertices;
-		s_Data.QuadIndexCount = 0;
+		s_Data.QuadVertexPtr    = s_Data.QuadVertices;
+		s_Data.QuadIndexCount   = 0;
 		s_Data.QuadSamplerIndex = 1; // 0 is reserved for default white texture
 		
-		s_Data.FontVertexPtr = s_Data.FontVertices;
-		s_Data.FontIndexCount = 0;
+		s_Data.FontVertexPtr    = s_Data.FontVertices;
+		s_Data.FontIndexCount   = 0;
 		s_Data.FontSamplerIndex = 0;
 
-		s_Data.LineVertexPtr = s_Data.LineVertices;
+		s_Data.LineVertexPtr    = s_Data.LineVertices;
 	}
 
 	void Renderer::PushBatch()
@@ -541,10 +540,10 @@ namespace Quark {
 
 		for (uint8_t i = 0; i < 4; i++)
 		{
-			s_Data.QuadVertexPtr->Position	= transform * s_SpriteVertexPositions[i];
-			s_Data.QuadVertexPtr->TexCoord	= texCoords[i];
-			s_Data.QuadVertexPtr->Color		= { 1.0f, 1.0f, 1.0f, 1.0f };
-			s_Data.QuadVertexPtr->TexIndex	= textureIndex;
+			s_Data.QuadVertexPtr->Position = transform * s_SpriteVertexPositions[i];
+			s_Data.QuadVertexPtr->TexCoord = texCoords[i];
+			s_Data.QuadVertexPtr->Color    = { 1.0f, 1.0f, 1.0f, 1.0f };
+			s_Data.QuadVertexPtr->TexIndex = textureIndex;
 
 			s_Data.QuadVertexPtr++;
 		}
@@ -564,10 +563,10 @@ namespace Quark {
 
 		for (uint8_t i = 0; i < 4; i++)
 		{
-			s_Data.QuadVertexPtr->Position	= transform * s_SpriteVertexPositions[i];
-			s_Data.QuadVertexPtr->TexCoord	= { 0.0f, 0.0f };
-			s_Data.QuadVertexPtr->Color		= color;
-			s_Data.QuadVertexPtr->TexIndex	= 0;
+			s_Data.QuadVertexPtr->Position = transform * s_SpriteVertexPositions[i];
+			s_Data.QuadVertexPtr->TexCoord = { 0.0f, 0.0f };
+			s_Data.QuadVertexPtr->Color    = color;
+			s_Data.QuadVertexPtr->TexIndex = 0;
 
 			s_Data.QuadVertexPtr++;
 		}
@@ -639,28 +638,28 @@ namespace Quark {
 			float atlasWidth = (float)font->GetAtlasWidth();
 			float atlasHeight = (float)font->GetAtlasHeight();
 
-			s_Data.FontVertexPtr->Position	= transform * glm::vec4(xpos + w, -ypos, 0.0f, 1.0f);
-			s_Data.FontVertexPtr->TexCoord	= { tx + ch.Size.x / atlasWidth, 0.0f };
-			s_Data.FontVertexPtr->Color		= color;
-			s_Data.FontVertexPtr->TexIndex	= textureIndex;
+			s_Data.FontVertexPtr->Position = transform * glm::vec4(xpos + w, -ypos, 0.0f, 1.0f);
+			s_Data.FontVertexPtr->TexCoord = { tx + ch.Size.x / atlasWidth, 0.0f };
+			s_Data.FontVertexPtr->Color    = color;
+			s_Data.FontVertexPtr->TexIndex = textureIndex;
 			s_Data.FontVertexPtr++;
 
-			s_Data.FontVertexPtr->Position	= transform * glm::vec4(xpos, -ypos, 0.0f, 1.0f);
-			s_Data.FontVertexPtr->TexCoord	= { tx, 0.0f };
-			s_Data.FontVertexPtr->Color		= color;
-			s_Data.FontVertexPtr->TexIndex	= textureIndex;
+			s_Data.FontVertexPtr->Position = transform * glm::vec4(xpos, -ypos, 0.0f, 1.0f);
+			s_Data.FontVertexPtr->TexCoord = { tx, 0.0f };
+			s_Data.FontVertexPtr->Color    = color;
+			s_Data.FontVertexPtr->TexIndex = textureIndex;
 			s_Data.FontVertexPtr++;
 
-			s_Data.FontVertexPtr->Position	= transform * glm::vec4(xpos, -ypos - h, 0.0f, 1.0f);
-			s_Data.FontVertexPtr->TexCoord	= { tx, ch.Size.y / atlasHeight };
-			s_Data.FontVertexPtr->Color		= color;
-			s_Data.FontVertexPtr->TexIndex	= textureIndex;
+			s_Data.FontVertexPtr->Position = transform * glm::vec4(xpos, -ypos - h, 0.0f, 1.0f);
+			s_Data.FontVertexPtr->TexCoord = { tx, ch.Size.y / atlasHeight };
+			s_Data.FontVertexPtr->Color    = color;
+			s_Data.FontVertexPtr->TexIndex = textureIndex;
 			s_Data.FontVertexPtr++;
 
-			s_Data.FontVertexPtr->Position	= transform * glm::vec4(xpos + w, -ypos - h, 0.0f, 1.0f);
-			s_Data.FontVertexPtr->TexCoord	= { tx + ch.Size.x / atlasWidth, ch.Size.y / atlasHeight };
-			s_Data.FontVertexPtr->Color		= color;
-			s_Data.FontVertexPtr->TexIndex	= textureIndex;
+			s_Data.FontVertexPtr->Position = transform * glm::vec4(xpos + w, -ypos - h, 0.0f, 1.0f);
+			s_Data.FontVertexPtr->TexCoord = { tx + ch.Size.x / atlasWidth, ch.Size.y / atlasHeight };
+			s_Data.FontVertexPtr->Color    = color;
+			s_Data.FontVertexPtr->TexIndex = textureIndex;
 			s_Data.FontVertexPtr++;
 
 			s_Data.FontIndexCount += 6;
