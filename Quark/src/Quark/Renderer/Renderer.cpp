@@ -516,7 +516,7 @@ namespace Quark {
 		uint32_t textureIndex = 0;
 		for (uint32_t i = 1; i < s_Data.QuadSamplerIndex; i++)
 		{
-			if (s_Data.Textures[i] && *s_Data.Textures[i] == *texture)
+			if (*s_Data.Textures[i] == *texture)
 			{
 				textureIndex = i;
 				break;
@@ -534,7 +534,7 @@ namespace Quark {
 			}
 
 			textureIndex = s_Data.QuadSamplerIndex;
-			s_Data.Textures[s_Data.QuadSamplerIndex] = texture;
+			s_Data.Textures[textureIndex] = texture;
 			s_Data.QuadSamplerIndex++;
 		}
 
@@ -593,7 +593,7 @@ namespace Quark {
 		uint32_t textureIndex = 0;
 		for (uint32_t i = 1; i < s_Data.FontSamplerIndex; i++)
 		{
-			if (s_Data.Fonts[i] && *s_Data.Fonts[i] == *font)
+			if (*s_Data.Fonts[i] == *font)
 			{
 				textureIndex = i;
 				break;
@@ -611,7 +611,7 @@ namespace Quark {
 			}
 
 			textureIndex = s_Data.FontSamplerIndex;
-			s_Data.Fonts[s_Data.FontSamplerIndex] = font;
+			s_Data.Fonts[textureIndex] = font;
 			s_Data.FontSamplerIndex++;
 		}
 
