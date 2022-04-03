@@ -49,7 +49,9 @@ namespace Quark {
 
         // Face Culling
         glEnable(GL_CULL_FACE);
-        glCullFace(GL_FRONT);
+        glCullFace(GL_BACK);
+        glFrontFace(GL_CW); // <-- values are GL_CCW and GL_CW
+        //           ^^^-- we use a clockwise winding order
 
         // Depth Testing
         glEnable(GL_DEPTH_TEST);
@@ -73,8 +75,6 @@ namespace Quark {
 
     void OpenGLRenderingAPI::SetCullFace(RenderCullFace face)
     {
-        // Front and back are reversed since we use a left-handed coordinate system and OpenGL is defaulted to right hand
-        // See: 'Math/Types.h' for more details
         switch (face)
         {
             case RenderCullFace::None:
@@ -82,11 +82,11 @@ namespace Quark {
                 break;
             case RenderCullFace::Front:
                 glEnable(GL_CULL_FACE);
-                glCullFace(GL_BACK);
+                glCullFace(GL_FRONT);
                 break;
             case RenderCullFace::Back:
                 glEnable(GL_CULL_FACE);
-                glCullFace(GL_FRONT);
+                glCullFace(GL_BACK);
                 break;
             case RenderCullFace::FrontAndBack:
                 glEnable(GL_CULL_FACE);

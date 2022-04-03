@@ -10,31 +10,39 @@ uniform mat4 u_Model;
 uniform mat4 u_Projection;
 uniform mat4 u_View;
 
-out vec2 v_TexCoord;
-out vec4 v_Color;
-flat out int v_TexIndex;
+out VertexOutput
+{
+    vec2 TexCoord;
+    vec4 Color;
+    flat int TexIndex;
+} v_Output;
 
 void main()
 {
     gl_Position = u_Projection * u_View * vec4(a_Position, 1.0);
     
-    v_TexCoord	= a_TexCoord;
-    v_Color		= a_Color;
-    v_TexIndex	= a_TexIndex;
+    v_Output.TexCoord = a_TexCoord;
+    v_Output.Color    = a_Color;
+    v_Output.TexIndex = a_TexIndex;
 }
 
 #type fragment
 #version 330 core
 
-in vec2 v_TexCoord;
-in vec4 v_Color;
-flat in int v_TexIndex;
-
 uniform sampler2D u_Samplers[32];
+
+in VertexOutput
+{
+    vec2 TexCoord;
+    vec4 Color;
+    flat int TexIndex;
+} v_Input;
+
+out vec4 o_Color;
 
 void main()
 {
-    float texture = texture(u_Samplers[v_TexIndex], v_TexCoord).r;
-    vec4 sampled = vec4(v_Color) * texture;
-    gl_FragColor = sampled;
+    float texture = texture(u_Samplers[v_Input.TexIndex], v_Input.TexCoord).r;
+    vec4 color = vec4(v_Input.Color) * texture;
+    o_Color = color;
 }

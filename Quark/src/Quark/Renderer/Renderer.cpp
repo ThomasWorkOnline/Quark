@@ -181,20 +181,23 @@ namespace Quark {
 			uniform mat4 u_View;
 			uniform mat4 u_Projection;
 
-			out vec3 v_Position;
-			out vec2 v_TexCoord;
-			out vec4 v_Tint;
-			flat out int v_TexIndex;
+			out VertexOutput
+			{
+				vec3 Position;
+				vec2 TexCoord;
+				vec4 Tint;
+				flat int TexIndex;
+			} v_Output;
 
 			void main()
 			{
 				vec4 position = vec4(a_Position, 1.0);
 				gl_Position = u_Projection * u_View * position;
 
-				v_Position	= position.xyz;
-				v_TexCoord	= a_TexCoord;
-				v_Tint		= a_Tint;
-				v_TexIndex	= a_TexIndex;
+				v_Output.Position = position.xyz;
+				v_Output.TexCoord = a_TexCoord;
+				v_Output.Tint     = a_Tint;
+				v_Output.TexIndex = a_TexIndex;
 			}
 		)";
 
@@ -208,15 +211,19 @@ namespace Quark {
 		spriteFragmentSource << s_Data.MaxSamplers;
 		spriteFragmentSource << R"(];
 
-			in vec3 v_Position;
-			in vec2 v_TexCoord;
-			in vec4 v_Tint;
-			flat in int v_TexIndex;
-			out vec4 o_FragColor;
+			in VertexOutput
+			{
+				vec3 Position;
+				vec2 TexCoord;
+				vec4 Tint;
+				flat int TexIndex;
+			} v_Input;
+
+			out vec4 o_Color;
 
 			void main()
 			{
-				o_FragColor = texture(u_Samplers[v_TexIndex], v_TexCoord.xy) * v_Tint;
+				o_Color = texture(u_Samplers[v_Input.TexIndex], v_Input.TexCoord.xy) * v_Input.Tint;
 			}
 		)";
 
@@ -258,20 +265,23 @@ namespace Quark {
 			uniform mat4 u_View;
 			uniform mat4 u_Projection;
 
-			out vec3 v_Position;
-			out vec2 v_TexCoord;
-			out vec4 v_Color;
-			flat out int v_TexIndex;
+			out VertexOutput
+			{
+				vec3 Position;
+				vec2 TexCoord;
+				vec4 Color;
+				flat int TexIndex;
+			} v_Output;
 
 			void main()
 			{
 				vec4 position = vec4(a_Position, 1.0);
 				gl_Position = u_Projection * u_View * position;
 
-				v_Position	= position.xyz;
-				v_TexCoord	= a_TexCoord;
-				v_Color		= a_Color;
-				v_TexIndex	= a_TexIndex;
+				v_Output.Position = position.xyz;
+				v_Output.TexCoord = a_TexCoord;
+				v_Output.Color    = a_Color;
+				v_Output.TexIndex = a_TexIndex;
 			}
 		)";
 
@@ -285,17 +295,21 @@ namespace Quark {
 		fontFragmentSource << s_Data.MaxSamplers;
 		fontFragmentSource << R"(];
 
-			in vec3 v_Position;
-			in vec2 v_TexCoord;
-			in vec4 v_Color;
-			flat in int v_TexIndex;
-			out vec4 o_FragColor;
+			in VertexOutput
+			{
+				vec3 Position;
+				vec2 TexCoord;
+				vec4 Color;
+				flat int TexIndex;
+			} v_Input;
+
+			out vec4 o_Color;
 
 			void main()
 			{
 				// Glyph information is encoded in the red channel
-				float texture = texture(u_Samplers[v_TexIndex], v_TexCoord.xy, 0).r;
-				o_FragColor = v_Color * texture;
+				float texture = texture(u_Samplers[v_Input.TexIndex], v_Input.TexCoord.xy, 0).r;
+				o_Color = v_Input.Color * texture;
 			}
 		)";
 
@@ -344,11 +358,11 @@ namespace Quark {
 			#version 330 core
 
 			in vec4 v_Color;
-			out vec4 o_FragColor;
+			out vec4 o_Color;
 
 			void main()
 			{
-				o_FragColor = v_Color;
+				o_Color = v_Color;
 			}
 		)";
 

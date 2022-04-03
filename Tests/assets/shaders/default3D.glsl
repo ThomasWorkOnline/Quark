@@ -9,9 +9,11 @@ uniform mat4 u_Model;
 uniform mat4 u_View;
 uniform mat4 u_Projection;
 
-out vec2 v_TexCoord;
-out vec3 v_Normal;
-out int v_TexIndex;
+out VertexOutput
+{
+    vec2 TexCoord;
+    vec3 Normal;
+} v_Output;
 
 void main()
 {
@@ -20,25 +22,28 @@ void main()
     // Calculate the transformed normal                      w = 0!
     //vec4 transformedModelNormal = normalize(u_Model * vec4(a_Normal, 0.0));
     
-    v_TexCoord	= a_TexCoord;
-    v_Normal	= mat3(transpose(inverse(u_Model))) * a_Normal;
+    v_Output.TexCoord = a_TexCoord;
+    v_Output.Normal   = mat3(transpose(inverse(u_Model))) * a_Normal;
 }
 
 #type fragment
 #version 330 core
 
-uniform sampler2D u_Samplers[32];
-
-in vec2 v_TexCoord;
-in vec3 v_Normal;
-
-out vec4 o_Color;
-
 vec3 lightDir = normalize(vec3(1.0, 0.3, 0.5));
 float ambiant = 0.1;
 
+uniform sampler2D u_Sampler;
+
+in VertexOutput
+{
+    vec2 TexCoord;
+    vec3 Normal;
+} v_Input;
+
+out vec4 o_Color;
+
 void main()
 {
-    vec4 color = texture(u_Samplers[0], v_TexCoord);
-    o_Color = vec4(color.rgb * max(dot(lightDir, v_Normal), 0.0) + ambiant, color.a);
+    vec4 color = texture(u_Sampler, v_Input.TexCoord);
+    o_Color = vec4(color.rgb * max(dot(lightDir, v_Input.Normal), 0.0) + ambiant, color.a);
 }

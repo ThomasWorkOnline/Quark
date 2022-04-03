@@ -8,7 +8,6 @@ struct Vertex
 {
 	glm::vec3 Position;
 	glm::vec2 TexCoord;
-	uint32_t TexLayer;
 	uint32_t TexIndex;
 };
 
@@ -37,10 +36,10 @@ public:
 		m_VertexArray = VertexArray::Create();
 
 		static constexpr Vertex vertices[] = {
-			{ { 0.0f, 0.0f, 1.0f },  { 0.0f, 0.0f }, 0, 0 },
-			{ { 1.0f, 0.0f, 1.0f },  { 1.0f, 0.0f }, 0, 0 },
-			{ { 1.0f, 1.0f, 1.0f },  { 1.0f, 1.0f }, 1, 0 },
-			{ { 0.0f, 1.0f, 1.0f },  { 0.0f, 1.0f }, 0, 0 }
+			{ { 0.0f, 0.0f, 1.0f },  { 0.0f, 0.0f }, 0 },
+			{ { 1.0f, 0.0f, 1.0f },  { 1.0f, 0.0f }, 0 },
+			{ { 1.0f, 1.0f, 1.0f },  { 1.0f, 1.0f }, 1 },
+			{ { 0.0f, 1.0f, 1.0f },  { 0.0f, 1.0f }, 0 }
 		};
 
 		static constexpr uint32_t indices[] = {
@@ -52,7 +51,6 @@ public:
 		m_VertexBuffer->SetLayout({
 			{ ShaderDataType::Float3, "a_Position" },
 			{ ShaderDataType::Float2, "a_TexCoord" },
-			{ ShaderDataType::Int,    "a_TexLayer" },
 			{ ShaderDataType::Int,    "a_TexIndex" }
 		});
 		m_VertexArray->AddVertexBuffer(m_VertexBuffer);
