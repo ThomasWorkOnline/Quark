@@ -1,6 +1,8 @@
 #include "Renderer.h"
+#include "RenderCommand.h"
 
 #include "RenderingAPI.h"
+#include "UniformBuffer.h"
 
 #include <sstream>
 
@@ -32,12 +34,15 @@ namespace Quark {
 		static constexpr uint32_t MaxQuads    = 20000;
 		static constexpr uint32_t MaxVertices = MaxQuads * 4;
 		static constexpr uint32_t MaxIndices  = MaxQuads * 6;
+		static constexpr uint32_t CameraUniformBufferBinding = 0;
 
 		uint32_t MaxSamplers = 0;
+
 		QuadVertex* QuadVertexPtr = nullptr;
 		QuadVertex* QuadVertices  = nullptr;
 		uint32_t QuadIndexCount   = 0;
 		uint32_t QuadSamplerIndex = 1; // Next texture slot to be attached, 0 is reserved for default texture
+
 		Ref<Shader> QuadShader;
 		Ref<VertexArray> QuadVertexArray;
 		Ref<VertexBuffer> QuadVertexBuffer;
@@ -47,12 +52,14 @@ namespace Quark {
 		QuadVertex* FontVertices  = nullptr;
 		uint32_t FontIndexCount   = 0;
 		uint32_t FontSamplerIndex = 0;
+
 		Ref<Shader> FontShader;
 		Ref<VertexArray> FontVertexArray;
 		Ref<VertexBuffer> FontVertexBuffer;
 
 		LineVertex* LineVertexPtr = nullptr;
 		LineVertex* LineVertices  = nullptr;
+
 		Ref<Shader> LineShader;
 		Ref<VertexArray> LineVertexArray;
 		Ref<VertexBuffer> LineVertexBuffer;
@@ -60,6 +67,8 @@ namespace Quark {
 		Ref<Texture2D> DefaultTexture;
 		Ref<Texture2D>* Textures = nullptr;
 		Ref<Font>* Fonts = nullptr;
+
+		Ref<UniformBuffer> CameraUniformBuffer;
 	};
 
 	Renderer::SceneData Renderer::s_SceneData;
@@ -117,6 +126,8 @@ namespace Quark {
 		QK_CORE_INFO(RenderCommand::GetSpecification());
 
 		s_Data.MaxSamplers = RenderCommand::GetTextureSlotsCount();
+		s_Data.CameraUniformBuffer = UniformBuffer::Create(sizeof(SceneData), RendererData::CameraUniformBufferBinding);
+
 		SetupData setupData{};
 
 		SetupQuadRenderer(setupData);
@@ -171,15 +182,18 @@ namespace Quark {
 		s_Data.Textures[0] = s_Data.DefaultTexture;
 
 		const char* spriteVertexSource = R"(
-			#version 330 core
+			#version 420 core
 
 			layout(location = 0) in vec3 a_Position;
 			layout(location = 1) in vec2 a_TexCoord;
 			layout(location = 2) in vec4 a_Tint;
 			layout(location = 3) in int  a_TexIndex;
 
-			uniform mat4 u_View;
-			uniform mat4 u_Projection;
+			layout(std140, binding = 0) uniform Camera
+			{
+				mat4 u_View;
+				mat4 u_Projection;
+			};
 
 			out VertexOutput
 			{
@@ -255,15 +269,18 @@ namespace Quark {
 		s_Data.Fonts = new Ref<Font>[s_Data.MaxSamplers];
 
 		const char* fontVertexSource = R"(
-			#version 330 core
+			#version 420 core
 
 			layout(location = 0) in vec3 a_Position;
 			layout(location = 1) in vec2 a_TexCoord;
 			layout(location = 2) in vec4 a_Color;
 			layout(location = 3) in int  a_TexIndex;
 
-			uniform mat4 u_View;
-			uniform mat4 u_Projection;
+			layout(std140, binding = 0) uniform Camera
+			{
+				mat4 u_View;
+				mat4 u_Projection;
+			};
 
 			out VertexOutput
 			{
@@ -335,13 +352,16 @@ namespace Quark {
 		s_Data.LineVertices = new LineVertex[s_Data.MaxVertices];
 
 		const char* lineVertexSource = R"(
-			#version 330 core
+			#version 420 core
 
 			layout(location = 0) in vec3 a_Position;
 			layout(location = 1) in vec4 a_Color;
 
-			uniform mat4 u_View;
-			uniform mat4 u_Projection;
+			layout(std140, binding = 0) uniform Camera
+			{
+				mat4 u_View;
+				mat4 u_Projection;
+			};
 
 			out vec4 v_Color;
 
@@ -395,7 +415,7 @@ namespace Quark {
 	{
 		s_Data.QuadVertexPtr    = s_Data.QuadVertices;
 		s_Data.QuadIndexCount   = 0;
-		s_Data.QuadSamplerIndex = 1; // 0 is reserved for default white texture
+		s_Data.QuadSamplerIndex = 1; // 0 is reserved for default texture
 		
 		s_Data.FontVertexPtr    = s_Data.FontVertices;
 		s_Data.FontIndexCount   = 0;
@@ -406,6 +426,8 @@ namespace Quark {
 
 	void Renderer::PushBatch()
 	{
+		s_Data.CameraUniformBuffer->SetData(&s_SceneData, sizeof(SceneData));
+
 		if (s_Data.QuadIndexCount > 0)
 		{
 			size_t size = ((uint8_t*)s_Data.QuadVertexPtr - (uint8_t*)s_Data.QuadVertices);
@@ -415,9 +437,6 @@ namespace Quark {
 				s_Data.Textures[i]->Attach(i);
 
 			s_Data.QuadShader->Attach();
-			s_Data.QuadShader->SetMat4("u_Projection", s_SceneData.ProjectionMatrix);
-			s_Data.QuadShader->SetMat4("u_View", s_SceneData.ViewMatrix);
-
 			s_Data.QuadVertexArray->Attach();
 			RenderCommand::DrawIndexed(s_Data.QuadVertexArray, s_Data.QuadIndexCount);
 
@@ -433,9 +452,6 @@ namespace Quark {
 				s_Data.Fonts[i]->Attach(i);
 
 			s_Data.FontShader->Attach();
-			s_Data.FontShader->SetMat4("u_Projection", s_SceneData.ProjectionMatrix);
-			s_Data.FontShader->SetMat4("u_View", s_SceneData.ViewMatrix);
-
 			s_Data.FontVertexArray->Attach();
 			RenderCommand::DrawIndexed(s_Data.FontVertexArray, s_Data.FontIndexCount);
 
@@ -449,9 +465,6 @@ namespace Quark {
 				s_Data.LineVertexBuffer->SetData(s_Data.LineVertices, count * sizeof(LineVertex));
 
 				s_Data.LineShader->Attach();
-				s_Data.LineShader->SetMat4("u_Projection", s_SceneData.ProjectionMatrix);
-				s_Data.LineShader->SetMat4("u_View", s_SceneData.ViewMatrix);
-
 				s_Data.LineVertexArray->Attach();
 				RenderCommand::DrawLines(s_Data.LineVertexArray, count);
 
@@ -470,8 +483,6 @@ namespace Quark {
 	void Renderer::Submit(const Ref<Shader>& shader, const Ref<VertexArray>& va, const glm::mat4& transform)
 	{
 		shader->Attach();
-		shader->SetMat4("u_Projection", s_SceneData.ProjectionMatrix);
-		shader->SetMat4("u_View", s_SceneData.ViewMatrix);
 		shader->SetMat4("u_Model", transform);
 
 		s_Data.DefaultTexture->Attach();
@@ -483,8 +494,6 @@ namespace Quark {
 	void Renderer::Submit(const Ref<Shader>& shader, const Ref<Texture2D>& texture, const Ref<VertexArray>& va, const glm::mat4& transform)
 	{
 		shader->Attach();
-		shader->SetMat4("u_Projection", s_SceneData.ProjectionMatrix);
-		shader->SetMat4("u_View", s_SceneData.ViewMatrix);
 		shader->SetMat4("u_Model", transform);
 
 		texture->Attach();
@@ -496,8 +505,6 @@ namespace Quark {
 	void Renderer::Submit(const Ref<Shader>& shader, const Ref<Framebuffer>& framebuffer, const Ref<VertexArray>& va, const glm::mat4& transform)
 	{
 		shader->Attach();
-		shader->SetMat4("u_Projection", s_SceneData.ProjectionMatrix);
-		shader->SetMat4("u_View", s_SceneData.ViewMatrix);
 		shader->SetMat4("u_Model", transform);
 
 		framebuffer->AttachColorAttachment(0);

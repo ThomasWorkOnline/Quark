@@ -12,7 +12,6 @@
 #include "Mesh.h"
 #include "OrthographicCamera.h"
 #include "PerspectiveCamera.h"
-#include "RenderCommand.h"
 #include "Shader.h"
 #include "SubTexture.h"
 #include "Texture.h"
@@ -72,10 +71,11 @@ namespace Quark {
 		static const RendererStats& GetStats() { return s_Stats; }
 
 	private:
+		// Ensure std140 layout
 		struct SceneData
 		{
-			glm::mat4 ProjectionMatrix;
 			glm::mat4 ViewMatrix;
+			glm::mat4 ProjectionMatrix;
 		};
 
 		struct SetupData;

@@ -29,7 +29,7 @@ namespace Quark {
 
 		virtual bool operator==(const TextureArray& other) const = 0;
 
-		virtual void SetData(void* data, size_t size, uint32_t layer) = 0;
+		virtual void SetData(const void* data, size_t size, uint32_t layer) = 0;
 		virtual void GenerateMipmaps() = 0;
 
 		virtual void Attach(uint32_t textureSlot = 0) const = 0;

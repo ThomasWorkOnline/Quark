@@ -3,8 +3,6 @@
 Pong::Pong()
 	: Application(ApplicationOptions(1280, 720, "Pong"))
 {
-	RenderCommand::SetClearColor({ 0.01f, 0.01f, 0.01f, 1.0f });
-
 	auto& window = GetWindow();
 	float aspectRatio = (float)window.GetWidth() / window.GetHeight();
 
@@ -104,9 +102,9 @@ bool Pong::OnMouseButtonPressed(MouseButtonPressedEvent& e)
 {
 	switch (e.GetMouseButton())
 	{
-	case MouseCode::ButtonLeft:
-		GetWindow().DisableCursor();
-		break;
+		case MouseCode::ButtonLeft:
+			GetWindow().DisableCursor();
+			break;
 	}
 	return false;
 }
@@ -115,9 +113,9 @@ bool Pong::OnKeyPressed(KeyPressedEvent& e)
 {
 	switch (e.GetKeyCode())
 	{
-	case Key::Escape:
-		GetWindow().EnableCursor();
-		break;
+		case Key::Escape:
+			GetWindow().EnableCursor();
+			break;
 	}
 	return false;
 }

@@ -4,95 +4,16 @@
 
 using namespace Quark;
 
-struct Vertex
-{
-	glm::vec3 Position;
-	glm::vec2 TexCoord;
-	uint32_t TexIndex;
-};
-
 class TextureArrayTest : public Application
 {
 public:
-	TextureArrayTest()
-	{
-		TextureArraySpecification spec;
-		spec.DataFormat = TextureFormat::SRGBA8;
-		spec.Width = 16;
-		spec.Height = 16;
-		spec.Layers = 2;
-		spec.RenderModes.MinFilteringMode = TextureFilteringMode::NearestMipmapLinear;
-		spec.RenderModes.MagFilteringMode = TextureFilteringMode::Nearest;
+	TextureArrayTest();
 
-		Image defaultTexture("assets/textures/blocks/default_texture.png", true);
-		Image oakLeavesTexture("assets/textures/blocks/oak_leaves.png", true);
+	void OnUpdate(Timestep elapsedTime);
+	void OnEvent(Event& e);
 
-		m_TextureArray = Texture2DArray::Create(spec);
-		m_TextureArray->SetData(defaultTexture.Data(), defaultTexture.Size(), 0);
-		m_TextureArray->SetData(oakLeavesTexture.Data(), oakLeavesTexture.Size(), 1);
-		m_TextureArray->GenerateMipmaps();
-
-		m_Shader = Shader::Create("assets/shaders/textureArray.glsl");
-		m_VertexArray = VertexArray::Create();
-
-		static constexpr Vertex vertices[] = {
-			{ { 0.0f, 0.0f, 1.0f },  { 0.0f, 0.0f }, 0 },
-			{ { 1.0f, 0.0f, 1.0f },  { 1.0f, 0.0f }, 0 },
-			{ { 1.0f, 1.0f, 1.0f },  { 1.0f, 1.0f }, 1 },
-			{ { 0.0f, 1.0f, 1.0f },  { 0.0f, 1.0f }, 0 }
-		};
-
-		static constexpr uint32_t indices[] = {
-			0, 3, 2,
-			0, 2, 1
-		};
-
-		m_VertexBuffer = VertexBuffer::Create(vertices, sizeof(vertices));
-		m_VertexBuffer->SetLayout({
-			{ ShaderDataType::Float3, "a_Position" },
-			{ ShaderDataType::Float2, "a_TexCoord" },
-			{ ShaderDataType::Int,    "a_TexIndex" }
-		});
-		m_VertexArray->AddVertexBuffer(m_VertexBuffer);
-
-		m_IndexBuffer = IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
-		m_VertexArray->SetIndexBuffer(m_IndexBuffer);
-	}
-
-	void OnUpdate(Timestep elapsedTime)
-	{
-		Renderer::BeginScene(m_Camera.GetProjection(), m_CameraView);
-
-		static constexpr glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
-		Renderer::DrawLine(glm::vec3(-1, -1, 0), glm::vec3(1, 1, 0), color, color);
-
-		Renderer::EndScene();
-
-		static glm::mat4 transform = glm::mat4(1.0f);
-		transform = glm::rotate(transform, elapsedTime * 0.1f, glm::vec3(1.0f, 0.0f, 0.0f));
-
-		m_Shader->Attach();
-		m_Shader->SetMat4("u_Model", transform);
-		m_Shader->SetMat4("u_View", m_CameraView);
-		m_Shader->SetMat4("u_Projection", m_Camera.GetProjection());
-		m_Shader->SetInt("u_Sampler", 0);
-
-		m_TextureArray->Attach();
-		m_VertexArray->Attach();
-		RenderCommand::DrawIndexed(m_VertexArray);
-	}
-
-	void OnEvent(Event& e)
-	{
-		EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<WindowResizedEvent>(ATTACH_EVENT_FN(TextureArrayTest::OnWindowResized));
-	}
-
-	bool OnWindowResized(WindowResizedEvent& e)
-	{
-		m_Camera.SetAspectRatio((float)e.GetWidth() / e.GetHeight());
-		return false;
-	}
+private:
+	bool OnWindowResized(WindowResizedEvent& e);
 
 private:
 	PerspectiveCamera m_Camera = { 16.0f / 9.0f, 70.0f };

@@ -26,13 +26,11 @@ namespace Quark {
 		{
 			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_RendererID);
 			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Spec.Samples, m_InternalFormat, m_Spec.Width, m_Spec.Height, GL_FALSE);
-			//glTexStorage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Spec.Samples, m_InternalFormat, m_Spec.Width, m_Spec.Height, GL_FALSE); <-- Not supported by OpenGL 4.1 (MacOS)
 		}
 		else
 		{
 			glBindTexture(GL_TEXTURE_2D, m_RendererID);
 			glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Spec.Width, m_Spec.Height, 0, m_DataFormat, GL_UNSIGNED_BYTE, nullptr);
-			//glTexStorage2D(GL_TEXTURE_2D, 1, m_InternalFormat, m_Spec.Width, m_Spec.Height); <-- Not supported by OpenGL 4.1 (MacOS)
 		}
 
 		GLenum target     = GetTextureTarget(m_Spec.Samples);
@@ -88,11 +86,13 @@ namespace Quark {
 		glDeleteTextures(1, &m_RendererID);
 	}
 
-	void OpenGLTexture2D::SetData(void* data, size_t size)
+	void OpenGLTexture2D::SetData(const void* data, size_t size)
 	{
 		bool alpha = IsTextureAlphaFormat(m_Spec.DataFormat);
 		uint32_t bpp = alpha ? 4 : 3;
 		QK_CORE_ASSERT(size == m_Spec.Width * m_Spec.Height * bpp, "Data must be entire texture");
+
+		glBindTexture(GetTextureTarget(m_Spec.Samples), m_RendererID);
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_Spec.Width, m_Spec.Height, m_DataFormat, GL_UNSIGNED_BYTE, data);
 	}
 

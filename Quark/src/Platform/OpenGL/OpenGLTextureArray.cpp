@@ -33,11 +33,13 @@ namespace Quark {
 		glDeleteTextures(1, &m_RendererID);
 	}
 
-	void OpenGLTexture2DArray::SetData(void* data, size_t size, uint32_t layer)
+	void OpenGLTexture2DArray::SetData(const void* data, size_t size, uint32_t layer)
 	{
 		bool alpha = IsTextureAlphaFormat(m_Spec.DataFormat);
 		uint32_t bpp = alpha ? 4 : 3;
 		QK_CORE_ASSERT(size == m_Spec.Width * m_Spec.Height * bpp, "Data must be entire texture");
+
+		glBindTexture(GL_TEXTURE_2D_ARRAY, m_RendererID);
 		glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, layer, m_Spec.Width, m_Spec.Height, 1, m_DataFormat, GL_UNSIGNED_BYTE, data);
 	}
 

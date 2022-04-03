@@ -27,10 +27,7 @@ void PBRRendering::OnUpdate(Timestep elapsedTime)
 	const auto& camera = m_Player.GetComponent<PerspectiveCameraComponent>().Camera;
 	const auto& transform = m_Player.GetComponent<Transform3DComponent>();
 	Renderer::BeginScene(camera.GetProjection(), transform);
-
-	Renderer::DrawSprite(m_Texture);
 	Renderer::Submit(m_Shader, m_Texture, m_Cube.GetVertexArray());
-
 	Renderer::EndScene();
 }
 
@@ -52,10 +49,10 @@ bool PBRRendering::OnKeyPressed(KeyPressedEvent& e)
 {
 	switch (e.GetKeyCode())
 	{
-	case KeyCode::Escape:
-		auto& window = GetWindow();
-		window.DisableCursor();
-		break;
+		case KeyCode::Escape:
+			auto& window = GetWindow();
+			window.EnableCursor();
+			break;
 	}
 	return false;
 }
@@ -69,7 +66,7 @@ bool PBRRendering::OnMouseMoved(MouseMovedEvent& e)
 
 bool PBRRendering::OnMouseButtonPressed(MouseButtonPressedEvent& e)
 {
-	GetWindow().EnableCursor();
+	GetWindow().DisableCursor();
 	return false;
 }
 

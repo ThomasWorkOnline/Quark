@@ -14,7 +14,7 @@ namespace Quark {
 		virtual uint32_t GetWidth() const override { return m_Spec.Width; }
 		virtual uint32_t GetHeight() const override { return m_Spec.Height; }
 
-		virtual void SetData(void* data, size_t size) override;
+		virtual void SetData(const void* data, size_t size) override;
 
 		virtual void Attach(uint32_t textureSlot = 0) const override;
 		virtual void Detach() const override;
