@@ -190,13 +190,11 @@ namespace Quark {
 
 			layout(std140, binding = 0) uniform Camera
 			{
-				mat4 u_View;
-				mat4 u_Projection;
+				mat4 u_ViewProjection;
 			};
 
 			out VertexOutput
 			{
-				vec3 Position;
 				vec2 TexCoord;
 				vec4 Tint;
 				flat int TexIndex;
@@ -204,10 +202,8 @@ namespace Quark {
 
 			void main()
 			{
-				vec4 position = vec4(a_Position, 1.0);
-				gl_Position = u_Projection * u_View * position;
+				gl_Position = u_ViewProjection * vec4(a_Position, 1.0);
 
-				v_Output.Position = position.xyz;
 				v_Output.TexCoord = a_TexCoord;
 				v_Output.Tint     = a_Tint;
 				v_Output.TexIndex = a_TexIndex;
@@ -226,7 +222,6 @@ namespace Quark {
 
 			in VertexOutput
 			{
-				vec3 Position;
 				vec2 TexCoord;
 				vec4 Tint;
 				flat int TexIndex;
@@ -277,13 +272,11 @@ namespace Quark {
 
 			layout(std140, binding = 0) uniform Camera
 			{
-				mat4 u_View;
-				mat4 u_Projection;
+				mat4 u_ViewProjection;
 			};
 
 			out VertexOutput
 			{
-				vec3 Position;
 				vec2 TexCoord;
 				vec4 Color;
 				flat int TexIndex;
@@ -291,10 +284,8 @@ namespace Quark {
 
 			void main()
 			{
-				vec4 position = vec4(a_Position, 1.0);
-				gl_Position = u_Projection * u_View * position;
+				gl_Position = u_ViewProjection * vec4(a_Position, 1.0);
 
-				v_Output.Position = position.xyz;
 				v_Output.TexCoord = a_TexCoord;
 				v_Output.Color    = a_Color;
 				v_Output.TexIndex = a_TexIndex;
@@ -313,7 +304,6 @@ namespace Quark {
 
 			in VertexOutput
 			{
-				vec3 Position;
 				vec2 TexCoord;
 				vec4 Color;
 				flat int TexIndex;
@@ -358,16 +348,14 @@ namespace Quark {
 
 			layout(std140, binding = 0) uniform Camera
 			{
-				mat4 u_View;
-				mat4 u_Projection;
+				mat4 u_ViewProjection;
 			};
 
 			out vec4 v_Color;
 
 			void main()
 			{
-				vec4 position = vec4(a_Position, 1.0);
-				gl_Position = u_Projection * u_View * position;
+				gl_Position = u_ViewProjection * vec4(a_Position, 1.0);
 
 				v_Color = a_Color;
 			}
@@ -398,8 +386,8 @@ namespace Quark {
 
 	void Renderer::BeginScene(const glm::mat4& cameraProjection, const glm::mat4& cameraView)
 	{
-		s_SceneData.ProjectionMatrix = cameraProjection;
-		s_SceneData.ViewMatrix = cameraView;
+		s_SceneData.ViewProjection = cameraProjection * cameraView;
+		s_Data.CameraUniformBuffer->SetData(&s_SceneData, sizeof(SceneData));
 
 		StartBatch();
 		ResetStats();
@@ -425,8 +413,6 @@ namespace Quark {
 
 	void Renderer::PushBatch()
 	{
-		s_Data.CameraUniformBuffer->SetData(&s_SceneData, sizeof(SceneData));
-
 		if (s_Data.QuadIndexCount > 0)
 		{
 			size_t size = ((uint8_t*)s_Data.QuadVertexPtr - (uint8_t*)s_Data.QuadVertices);

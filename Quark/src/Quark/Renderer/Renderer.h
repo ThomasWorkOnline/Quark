@@ -74,8 +74,7 @@ namespace Quark {
 		// Ensure std140 layout
 		struct SceneData
 		{
-			glm::mat4 ViewMatrix;
-			glm::mat4 ProjectionMatrix;
+			glm::mat4 ViewProjection;
 		};
 
 		struct SetupData;
