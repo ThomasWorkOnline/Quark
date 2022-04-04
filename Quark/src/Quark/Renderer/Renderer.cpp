@@ -92,10 +92,10 @@ namespace Quark {
 				Samplers[i] = i;
 
 			// Indices
-			Indices = new uint32_t[s_Data.MaxIndices];
+			Indices = new uint32_t[RendererData::MaxIndices];
 
 			uint32_t offset = 0;
-			for (uint32_t i = 0; i < s_Data.MaxIndices; i += 6)
+			for (uint32_t i = 0; i < RendererData::MaxIndices; i += 6)
 			{
 				Indices[i + 0] = offset + 0;
 				Indices[i + 1] = offset + 3;
@@ -151,7 +151,7 @@ namespace Quark {
 
 		s_Data.QuadVertexArray = VertexArray::Create();
 
-		s_Data.QuadVertexBuffer = VertexBuffer::Create(s_Data.MaxVertices * sizeof(QuadVertex));
+		s_Data.QuadVertexBuffer = VertexBuffer::Create(RendererData::MaxVertices * sizeof(QuadVertex));
 		s_Data.QuadVertexBuffer->SetLayout({
 			{ ShaderDataType::Float3, "a_Position" },
 			{ ShaderDataType::Float2, "a_TexCoord" },
@@ -161,11 +161,11 @@ namespace Quark {
 		s_Data.QuadVertexArray->AddVertexBuffer(s_Data.QuadVertexBuffer);
 
 		// Indices
-		s_Data.QuadIndexBuffer = IndexBuffer::Create(setupData.Indices, s_Data.MaxIndices);
+		s_Data.QuadIndexBuffer = IndexBuffer::Create(setupData.Indices, RendererData::MaxIndices);
 		s_Data.QuadVertexArray->SetIndexBuffer(s_Data.QuadIndexBuffer);
 
 		// Vertices
-		s_Data.QuadVertices = new QuadVertex[s_Data.MaxVertices];
+		s_Data.QuadVertices = new QuadVertex[RendererData::MaxVertices];
 
 		// Textures
 		s_Data.Textures = new Ref<Texture2D>[s_Data.MaxSamplers];
@@ -246,7 +246,7 @@ namespace Quark {
 
 		s_Data.FontVertexArray = VertexArray::Create();
 
-		s_Data.FontVertexBuffer = VertexBuffer::Create(s_Data.MaxVertices * sizeof(QuadVertex));
+		s_Data.FontVertexBuffer = VertexBuffer::Create(RendererData::MaxVertices * sizeof(QuadVertex));
 		s_Data.FontVertexBuffer->SetLayout({
 			{ ShaderDataType::Float3, "a_Position" },
 			{ ShaderDataType::Float2, "a_TexCoord" },
@@ -259,7 +259,7 @@ namespace Quark {
 		s_Data.FontVertexArray->SetIndexBuffer(s_Data.QuadIndexBuffer);
 
 		// Vertices
-		s_Data.FontVertices = new QuadVertex[s_Data.MaxVertices];
+		s_Data.FontVertices = new QuadVertex[RendererData::MaxVertices];
 		s_Data.Fonts = new Ref<Font>[s_Data.MaxSamplers];
 
 		const char* fontVertexSource = R"(
@@ -330,7 +330,7 @@ namespace Quark {
 
 		s_Data.LineVertexArray = VertexArray::Create();
 
-		s_Data.LineVertexBuffer = VertexBuffer::Create(s_Data.MaxVertices * sizeof(LineVertex));
+		s_Data.LineVertexBuffer = VertexBuffer::Create(RendererData::MaxVertices * sizeof(LineVertex));
 		s_Data.LineVertexBuffer->SetLayout({
 			{ ShaderDataType::Float3, "a_Position" },
 			{ ShaderDataType::Float4, "a_Color"    }
@@ -338,7 +338,7 @@ namespace Quark {
 		s_Data.LineVertexArray->AddVertexBuffer(s_Data.LineVertexBuffer);
 
 		// Vertices
-		s_Data.LineVertices = new LineVertex[s_Data.MaxVertices];
+		s_Data.LineVertices = new LineVertex[RendererData::MaxVertices];
 
 		const char* lineVertexSource = R"(
 			#version 420 core
@@ -512,7 +512,7 @@ namespace Quark {
 	void Renderer::DrawSprite(const Ref<Texture2D>& texture, const glm::vec2* texCoords, const glm::mat4& transform)
 	{
 		// Check if buffer is full
-		if (s_Data.QuadIndexCount >= s_Data.MaxIndices)
+		if (s_Data.QuadIndexCount >= RendererData::MaxIndices)
 		{
 			PushBatch();
 			StartBatch();
@@ -561,7 +561,7 @@ namespace Quark {
 	void Renderer::DrawSprite(const glm::vec4& color, const glm::mat4& transform)
 	{
 		// Check if buffer is full
-		if (s_Data.QuadIndexCount >= s_Data.MaxIndices)
+		if (s_Data.QuadIndexCount >= RendererData::MaxIndices)
 		{
 			PushBatch();
 			StartBatch();
@@ -589,7 +589,7 @@ namespace Quark {
 	void Renderer::DrawText(const Ref<Font>& font, const std::string_view text, const glm::vec4& color, const glm::vec2& size, const glm::vec2& origin, const glm::mat4& transform)
 	{
 		// Check if buffer is full
-		if (s_Data.FontIndexCount >= s_Data.MaxIndices)
+		if (s_Data.FontIndexCount >= RendererData::MaxIndices)
 		{
 			PushBatch();
 			StartBatch();
@@ -677,7 +677,7 @@ namespace Quark {
 	{
 		// Check if buffer is full
 		size_t count = s_Data.LineVertexPtr - s_Data.LineVertices;
-		if (count >= s_Data.MaxVertices)
+		if (count >= RendererData::MaxVertices)
 		{
 			PushBatch();
 			StartBatch();
