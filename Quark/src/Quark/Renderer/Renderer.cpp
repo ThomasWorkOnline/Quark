@@ -621,7 +621,7 @@ namespace Quark {
 			s_Data.FontSamplerIndex++;
 		}
 
-		constexpr float scale = 0.001f;
+		static constexpr float scale = 0.001f;
 
 		float x = -origin.x;
 		float y = -origin.y;
