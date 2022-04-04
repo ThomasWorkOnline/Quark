@@ -8,14 +8,14 @@ namespace Quark {
 	{
 	public:
 		OpenGLCubeMap(const std::array<std::string_view, 6>& filepaths);
-		virtual ~OpenGLCubeMap() override;
+		~OpenGLCubeMap() override;
 
-		virtual void Attach(uint32_t textureSlot = 0) const override;
-		virtual void Detach() const override;
+		void Attach(uint32_t textureSlot = 0) const override;
+		void Detach() const override;
 
-		virtual uint32_t GetRendererID() const override { return m_RendererID; }
+		uint32_t GetRendererID() const override { return m_RendererID; }
 
-		virtual bool operator==(const CubeMap& other) const override
+		bool operator==(const CubeMap& other) const override
 		{
 			return m_RendererID == ((OpenGLCubeMap&)other).m_RendererID;
 		}

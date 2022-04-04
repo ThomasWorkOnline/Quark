@@ -19,10 +19,6 @@ namespace Quark {
 		m_ClientLogger = std::make_shared<spdlog::logger>("Client", sinks.begin(), sinks.end());
 		m_ProfilerLogger = std::make_shared<spdlog::logger>("Profiler", sinks.begin(), sinks.end());
 
-		spdlog::register_logger(m_CoreLogger);
-		spdlog::register_logger(m_ClientLogger);
-		spdlog::register_logger(m_ProfilerLogger);
-
 #if defined(QK_DEBUG)
 		m_CoreLogger->set_level(spdlog::level::trace);
 		m_ClientLogger->set_level(spdlog::level::trace);
@@ -30,6 +26,10 @@ namespace Quark {
 #elif defined(QK_RELEASE)
 		m_ProfilerLogger->set_level(spdlog::level::trace);
 #endif
+
+		spdlog::register_logger(m_CoreLogger);
+		spdlog::register_logger(m_ClientLogger);
+		spdlog::register_logger(m_ProfilerLogger);
 	}
 
 	Logger& Logger::GetInstance()

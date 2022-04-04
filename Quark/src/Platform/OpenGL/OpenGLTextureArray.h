@@ -8,24 +8,24 @@ namespace Quark {
 	{
 	public:
 		OpenGLTexture2DArray(const TextureArraySpecification& spec);
-		virtual ~OpenGLTexture2DArray() override;
+		~OpenGLTexture2DArray() override;
 
-		virtual uint32_t GetWidth() const override { return m_Spec.Width; }
-		virtual uint32_t GetHeight() const override{ return m_Spec.Height; }
-		virtual uint32_t GetLayerCount() const override { return m_Spec.Layers; }
+		uint32_t GetWidth() const override { return m_Spec.Width; }
+		uint32_t GetHeight() const override{ return m_Spec.Height; }
+		uint32_t GetLayerCount() const override { return m_Spec.Layers; }
 
-		virtual uint32_t GetRendererID() const override { return m_RendererID; }
+		uint32_t GetRendererID() const override { return m_RendererID; }
 
-		virtual bool operator==(const TextureArray& other) const override
+		bool operator==(const TextureArray& other) const override
 		{
 			return m_RendererID == ((OpenGLTexture2DArray&)other).m_RendererID;
 		}
 
-		virtual void SetData(const void* data, size_t size, uint32_t layer) override;
-		virtual void GenerateMipmaps() override;
+		void SetData(const void* data, size_t size, uint32_t layer) override;
+		void GenerateMipmaps() override;
 
-		virtual void Attach(uint32_t textureSlot = 0) const override;
-		virtual void Detach() const override;
+		void Attach(uint32_t textureSlot = 0) const override;
+		void Detach() const override;
 
 	private:
 		uint32_t m_RendererID = 0;

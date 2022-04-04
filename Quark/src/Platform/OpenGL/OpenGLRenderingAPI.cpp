@@ -178,7 +178,7 @@ namespace Quark {
         return thickness;
     }
 
-    int32_t OpenGLRenderingAPI::GetMaxTextureSlotsCount() const
+    int32_t OpenGLRenderingAPI::GetMaxTextureSlots() const
     {
         int32_t textureSlots;
         glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &textureSlots);
@@ -199,6 +199,34 @@ namespace Quark {
         return maxArrayTextureLayers;
     }
 
+    int32_t OpenGLRenderingAPI::GetMaxUniformBufferBindings() const
+    {
+        int32_t bindings;
+        glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, &bindings);
+        return bindings;
+    }
+
+    int32_t OpenGLRenderingAPI::GetMaxVertexUniformBuffers() const
+    {
+        int32_t uniforms;
+        glGetIntegerv(GL_MAX_VERTEX_UNIFORM_BLOCKS, &uniforms);
+        return uniforms;
+    }
+
+    int32_t OpenGLRenderingAPI::GetMaxGeometryUniformBuffers() const
+    {
+        int32_t uniforms;
+        glGetIntegerv(GL_MAX_GEOMETRY_UNIFORM_BLOCKS, &uniforms);
+        return uniforms;
+    }
+
+    int32_t OpenGLRenderingAPI::GetMaxFragmentUniformBuffers() const
+    {
+        int32_t uniforms;
+        glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_BLOCKS, &uniforms);
+        return uniforms;
+    }
+
     std::string OpenGLRenderingAPI::GetSpecification() const
     {
         std::stringstream ss;
@@ -206,7 +234,8 @@ namespace Quark {
         ss << "|\t" << glGetString(GL_VENDOR) << '\n';
         ss << "|\t" << glGetString(GL_RENDERER) << '\n';
         ss << "|\t" << glGetString(GL_VERSION) << '\n';
-        ss << "|\tHardware texture slots available: " << GetMaxTextureSlotsCount();
+        ss << "|\t" << "Uniform buffer bindings: " << GetMaxUniformBufferBindings() << '\n';
+        ss << "|\tHardware texture slots available: " << GetMaxTextureSlots();
         return ss.str();
     }
 }

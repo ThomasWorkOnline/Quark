@@ -13,23 +13,23 @@ namespace Quark {
 	{
 	public:
 		OpenGLFont(std::string_view filepath, uint32_t width, uint32_t height);
-		virtual ~OpenGLFont() override;
+		~OpenGLFont() override;
 
-		virtual void Attach(uint32_t textureSlot = 0) const override;
-		virtual void Detach() const override;
+		void Attach(uint32_t textureSlot = 0) const override;
+		void Detach() const override;
 
-		virtual const Character& GetCharacter(uint32_t charcode) const override { return m_Characters.at(charcode); }
-		virtual uint32_t GetCharacterCount() const override { return m_Characters.size(); }
+		const Character& GetCharacter(uint32_t charcode) const override { return m_Characters.at(charcode); }
+		uint32_t GetCharacterCount() const override { return m_Characters.size(); }
 
-		virtual uint32_t GetPixelWidth() const override { return m_Width; }
-		virtual uint32_t GetPixelHeight() const override { return m_Height; }
+		uint32_t GetPixelWidth() const override { return m_Width; }
+		uint32_t GetPixelHeight() const override { return m_Height; }
 
-		virtual uint32_t GetAtlasWidth() const override { return m_AtlasWidth; }
-		virtual uint32_t GetAtlasHeight() const override { return m_AtlasHeight; }
+		uint32_t GetAtlasWidth() const override { return m_AtlasWidth; }
+		uint32_t GetAtlasHeight() const override { return m_AtlasHeight; }
 
-		virtual uint32_t GetRendererID() const override { return m_RendererID; }
+		uint32_t GetRendererID() const override { return m_RendererID; }
 
-		virtual bool operator==(const Font& other) const override
+		bool operator==(const Font& other) const override
 		{
 			return m_RendererID == ((OpenGLFont&)other).m_RendererID;
 		}

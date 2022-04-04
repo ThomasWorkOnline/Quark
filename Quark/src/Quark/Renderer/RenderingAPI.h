@@ -41,12 +41,16 @@ namespace Quark {
 		virtual void SetLineThickness(float thickness) = 0;
 		virtual float GetLineThickness() const = 0;
 
-		virtual int32_t GetMaxTextureSlotsCount() const = 0;
-		virtual int32_t GetMaxTextureSize() const = 0;
-		virtual int32_t GetMaxTextureLayers() const = 0;
-
 		virtual const char* GetName() const = 0;
 		virtual std::string GetSpecification() const = 0;
+
+		virtual int32_t GetMaxTextureSlots() const = 0;
+		virtual int32_t GetMaxTextureSize() const = 0;
+		virtual int32_t GetMaxTextureLayers() const = 0;
+		virtual int32_t GetMaxUniformBufferBindings() const = 0;
+		virtual int32_t GetMaxVertexUniformBuffers() const = 0;
+		virtual int32_t GetMaxGeometryUniformBuffers() const = 0;
+		virtual int32_t GetMaxFragmentUniformBuffers() const = 0;
 
 		static API GetAPI() { return s_API; }
 		static Scope<RenderingAPI> Create(API api);

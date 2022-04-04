@@ -15,36 +15,36 @@ namespace Quark {
 		OpenGLShader(std::string_view filepath);
 		OpenGLShader(const std::string& name, std::string_view vertexSource, std::string_view fragmentSource);
 		OpenGLShader(const std::string& name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource);
-		virtual ~OpenGLShader() override;
+		~OpenGLShader() override;
 
-		virtual void Attach() const override;
-		virtual void Detach() const override;
+		void Attach() const override;
+		void Detach() const override;
 
-		virtual void SetInt(std::string_view name, int32_t value) override;
-		virtual void SetInt2(std::string_view name, const glm::ivec2& value) override;
-		virtual void SetInt3(std::string_view name, const glm::ivec3& value) override;
-		virtual void SetInt4(std::string_view name, const glm::ivec4& value) override;
-		virtual void SetIntArray(std::string_view name, int32_t* values, uint32_t count) override;
+		void SetInt(std::string_view name, int32_t value) override;
+		void SetInt2(std::string_view name, const glm::ivec2& value) override;
+		void SetInt3(std::string_view name, const glm::ivec3& value) override;
+		void SetInt4(std::string_view name, const glm::ivec4& value) override;
+		void SetIntArray(std::string_view name, int32_t* values, uint32_t count) override;
 
-		virtual void SetFloat(std::string_view name, float value) override;
-		virtual void SetFloat2(std::string_view name, const glm::vec2& value) override;
-		virtual void SetFloat3(std::string_view name, const glm::vec3& value) override;
-		virtual void SetFloat4(std::string_view name, const glm::vec4& value) override;
-		virtual void SetFloatArray(std::string_view name, float* values, uint32_t count) override;
+		void SetFloat(std::string_view name, float value) override;
+		void SetFloat2(std::string_view name, const glm::vec2& value) override;
+		void SetFloat3(std::string_view name, const glm::vec3& value) override;
+		void SetFloat4(std::string_view name, const glm::vec4& value) override;
+		void SetFloatArray(std::string_view name, float* values, uint32_t count) override;
 
-		virtual void SetDouble(std::string_view name, double value) override;
-		virtual void SetDouble2(std::string_view name, const glm::dvec2& value) override;
-		virtual void SetDouble3(std::string_view name, const glm::dvec3& value) override;
-		virtual void SetDouble4(std::string_view name, const glm::dvec4& value) override;
-		virtual void SetDoubleArray(std::string_view name, double* values, uint32_t count) override;
+		void SetDouble(std::string_view name, double value) override;
+		void SetDouble2(std::string_view name, const glm::dvec2& value) override;
+		void SetDouble3(std::string_view name, const glm::dvec3& value) override;
+		void SetDouble4(std::string_view name, const glm::dvec4& value) override;
+		void SetDoubleArray(std::string_view name, double* values, uint32_t count) override;
 
-		virtual void SetMat3(std::string_view name, const glm::mat3& matrix) override;
-		virtual void SetMat4(std::string_view name, const glm::mat4& matrix) override;
+		void SetMat3(std::string_view name, const glm::mat3& matrix) override;
+		void SetMat4(std::string_view name, const glm::mat4& matrix) override;
 
-		virtual uint32_t GetRendererID() const override { return m_RendererID; }
-		virtual const std::string& GetName() const override { return m_Name; }
+		uint32_t GetRendererID() const override { return m_RendererID; }
+		const std::string& GetName() const override { return m_Name; }
 
-		virtual bool operator==(const Shader& other) const override
+		bool operator==(const Shader& other) const override
 		{
 			return m_RendererID == ((OpenGLShader&)other).m_RendererID;
 		}

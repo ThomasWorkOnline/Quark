@@ -12,9 +12,9 @@ namespace Quark {
 	public:
 		OpenALAudioDevice();
 		OpenALAudioDevice(std::string_view deviceName);
-		virtual ~OpenALAudioDevice() override;
+		~OpenALAudioDevice() override;
 
-		virtual void* GetNativeDevice() const override { return m_Device; }
+		void* GetNativeDevice() const override { return m_Device; }
 
 	private:
 		ALCdevice* m_Device;

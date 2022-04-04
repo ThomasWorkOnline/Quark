@@ -10,9 +10,9 @@ namespace Quark {
 	{
 	public:
 		OpenALAudioContext(void* device);
-		virtual ~OpenALAudioContext() override;
+		~OpenALAudioContext() override;
 
-		virtual void Init() override;
+		void Init() override;
 
 	private:
 		void* m_DeviceHandle;

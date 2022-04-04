@@ -34,7 +34,6 @@ namespace Quark {
 		static constexpr uint32_t MaxQuads    = 20000;
 		static constexpr uint32_t MaxVertices = MaxQuads * 4;
 		static constexpr uint32_t MaxIndices  = MaxQuads * 6;
-		static constexpr uint32_t CameraUniformBufferBinding = 0;
 
 		uint32_t MaxSamplers = 0;
 
@@ -125,8 +124,8 @@ namespace Quark {
 		RenderCommand::SetClearColor({ 0.01f, 0.01f, 0.01f, 1.0f });
 		QK_CORE_INFO(RenderCommand::GetSpecification());
 
-		s_Data.MaxSamplers = RenderCommand::GetTextureSlotsCount();
-		s_Data.CameraUniformBuffer = UniformBuffer::Create(sizeof(SceneData), RendererData::CameraUniformBufferBinding);
+		s_Data.MaxSamplers = RenderCommand::GetMaxTextureSlots();
+		s_Data.CameraUniformBuffer = UniformBuffer::Create(sizeof(SceneData), 0);
 
 		SetupData setupData{};
 

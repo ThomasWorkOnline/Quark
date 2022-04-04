@@ -9,19 +9,19 @@ namespace Quark {
 	public:
 		OpenGLTexture2D(const TextureSpecification& spec);
 		OpenGLTexture2D(std::string_view filepath, const TextureRenderModes& modes);
-		virtual ~OpenGLTexture2D() override;
+		~OpenGLTexture2D() override;
 
-		virtual uint32_t GetWidth() const override { return m_Spec.Width; }
-		virtual uint32_t GetHeight() const override { return m_Spec.Height; }
+		uint32_t GetWidth() const override { return m_Spec.Width; }
+		uint32_t GetHeight() const override { return m_Spec.Height; }
 
-		virtual void SetData(const void* data, size_t size) override;
+		void SetData(const void* data, size_t size) override;
 
-		virtual void Attach(uint32_t textureSlot = 0) const override;
-		virtual void Detach() const override;
+		void Attach(uint32_t textureSlot = 0) const override;
+		void Detach() const override;
 
-		virtual uint32_t GetRendererID() const override { return m_RendererID; }
+		uint32_t GetRendererID() const override { return m_RendererID; }
 
-		virtual bool operator==(const Texture& other) const override
+		bool operator==(const Texture& other) const override
 		{
 			return m_RendererID == ((OpenGLTexture2D&)other).m_RendererID;
 		}

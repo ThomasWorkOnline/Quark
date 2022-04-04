@@ -8,28 +8,28 @@ namespace Quark {
 	{
 	public:
 		OpenGLFramebuffer(const FramebufferSpecification& spec);
-		virtual ~OpenGLFramebuffer() override;
+		~OpenGLFramebuffer() override;
 
-		virtual void Attach() override;
-		virtual void Detach() override;
+		void Attach() override;
+		void Detach() override;
 
-		virtual void AttachColorAttachment(uint32_t textureSlot, uint32_t index) override;
-		virtual void AttachDepthAttachment(uint32_t textureSlot) override;
+		void AttachColorAttachment(uint32_t textureSlot, uint32_t index) override;
+		void AttachDepthAttachment(uint32_t textureSlot) override;
 
-		virtual void Resize(uint32_t width, uint32_t height) override;
+		void Resize(uint32_t width, uint32_t height) override;
 
-		virtual uint32_t GetRendererID() const override { return m_RendererID; };
+		uint32_t GetRendererID() const override { return m_RendererID; };
 
-		virtual bool operator==(const Framebuffer& other) const override
+		bool operator==(const Framebuffer& other) const override
 		{
 			return m_RendererID == ((OpenGLFramebuffer&)other).m_RendererID;
 		}
 
-		virtual uint32_t GetColorAttachmentRendererID(uint32_t index) const override { return m_ColorAttachments[index]; }
-		virtual uint32_t GetDepthAttachmentRendererID() const override { return m_DepthAttachment; }
+		uint32_t GetColorAttachmentRendererID(uint32_t index) const override { return m_ColorAttachments[index]; }
+		uint32_t GetDepthAttachmentRendererID() const override { return m_DepthAttachment; }
 
-		virtual uint32_t GetWidth() const override { return m_Spec.Width; }
-		virtual uint32_t GetHeight() const override { return m_Spec.Height; }
+		uint32_t GetWidth() const override { return m_Spec.Width; }
+		uint32_t GetHeight() const override { return m_Spec.Height; }
 
 	private:
 		void Invalidate();

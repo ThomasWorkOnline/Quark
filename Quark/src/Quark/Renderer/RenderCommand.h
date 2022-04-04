@@ -74,9 +74,9 @@ namespace Quark {
 			return s_RenderingApi->GetLineThickness();
 		}
 
-		static int32_t GetTextureSlotsCount()
+		static int32_t GetMaxTextureSlots()
 		{
-			return s_RenderingApi->GetMaxTextureSlotsCount();
+			return s_RenderingApi->GetMaxTextureSlots();
 		}
 
 		static int32_t GetMaxTextureSize()
@@ -87,6 +87,21 @@ namespace Quark {
 		static int32_t GetMaxTextureLayers()
 		{
 			return s_RenderingApi->GetMaxTextureLayers();
+		}
+
+		static int32_t GetMaxVertexUniformBuffers()
+		{
+			return s_RenderingApi->GetMaxVertexUniformBuffers();
+		}
+
+		static int32_t GetMaxGeometryUniformBuffers()
+		{
+			return s_RenderingApi->GetMaxGeometryUniformBuffers();
+		}
+
+		static int32_t GetMaxFragmentUniformBuffers()
+		{
+			return s_RenderingApi->GetMaxFragmentUniformBuffers();
 		}
 
 		static const char* GetAPIName()
