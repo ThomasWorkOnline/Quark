@@ -35,6 +35,9 @@ namespace Quark {
 		virtual void SetMat3(std::string_view name, const glm::mat3& matrix) = 0;
 		virtual void SetMat4(std::string_view name, const glm::mat4& matrix) = 0;
 
+		virtual void SetMat3d(std::string_view name, const glm::dmat3& matrix) = 0;
+		virtual void SetMat4d(std::string_view name, const glm::dmat4& matrix) = 0;
+
 		virtual uint32_t GetRendererID() const = 0;
 		virtual const std::string& GetName() const = 0;
 

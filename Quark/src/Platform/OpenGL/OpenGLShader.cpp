@@ -275,6 +275,16 @@ namespace Quark {
 		UploadUniformMat4(name, matrix);
 	}
 
+	void OpenGLShader::SetMat3d(std::string_view name, const glm::dmat3& matrix)
+	{
+		UploadUniformMat3d(name, matrix);
+	}
+
+	void OpenGLShader::SetMat4d(std::string_view name, const glm::dmat4& matrix)
+	{
+		UploadUniformMat4d(name, matrix);
+	}
+
 	void OpenGLShader::UploadUniformInt(std::string_view name, int32_t value)
 	{
 		GLint location = GetUniformLocation(name);
@@ -375,6 +385,18 @@ namespace Quark {
 	{
 		GLint location = GetUniformLocation(name);
 		glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
+	}
+
+	void OpenGLShader::UploadUniformMat3d(std::string_view name, const glm::dmat3& matrix)
+	{
+		GLint location = GetUniformLocation(name);
+		glUniformMatrix3dv(location, 1, GL_FALSE, glm::value_ptr(matrix));
+	}
+
+	void OpenGLShader::UploadUniformMat4d(std::string_view name, const glm::dmat4& matrix)
+	{
+		GLint location = GetUniformLocation(name);
+		glUniformMatrix4dv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 
 	GLint OpenGLShader::GetUniformLocation(std::string_view name)

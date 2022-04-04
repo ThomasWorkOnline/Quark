@@ -41,6 +41,9 @@ namespace Quark {
 		void SetMat3(std::string_view name, const glm::mat3& matrix) override;
 		void SetMat4(std::string_view name, const glm::mat4& matrix) override;
 
+		void SetMat3d(std::string_view name, const glm::dmat3& matrix) override;
+		void SetMat4d(std::string_view name, const glm::dmat4& matrix) override;
+
 		uint32_t GetRendererID() const override { return m_RendererID; }
 		const std::string& GetName() const override { return m_Name; }
 
@@ -70,6 +73,8 @@ namespace Quark {
 
 		void UploadUniformMat3(std::string_view name, const glm::mat3& matrix);
 		void UploadUniformMat4(std::string_view name, const glm::mat4& matrix);
+		void UploadUniformMat3d(std::string_view name, const glm::dmat3& matrix);
+		void UploadUniformMat4d(std::string_view name, const glm::dmat4& matrix);
 
 		GLint GetUniformLocation(std::string_view name);
 

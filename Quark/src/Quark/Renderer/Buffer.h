@@ -8,7 +8,7 @@ namespace Quark {
 
 	enum class ShaderDataType
 	{
-		None = 0, Float, Float2, Float3, Float4, Double, Double2, Double3, Double4, Mat3, Mat4, Int, Int2, Int3, Int4, Bool
+		None = 0, Float, Float2, Float3, Float4, Double, Double2, Double3, Double4, Mat3, Mat4, Mat3d, Mat4d, Int, Int2, Int3, Int4, Bool
 	};
 
 	static constexpr size_t ShaderDataTypeSize(ShaderDataType type)
@@ -25,6 +25,8 @@ namespace Quark {
 			case ShaderDataType::Double4:   return sizeof(double) * 4;
 			case ShaderDataType::Mat3:      return sizeof(float) * 3 * 3;
 			case ShaderDataType::Mat4:      return sizeof(float) * 4 * 4;
+			case ShaderDataType::Mat3d:     return sizeof(double) * 3 * 3;
+			case ShaderDataType::Mat4d:     return sizeof(double) * 4 * 4;
 			case ShaderDataType::Int:       return sizeof(int32_t);
 			case ShaderDataType::Int2:      return sizeof(int32_t) * 2;
 			case ShaderDataType::Int3:      return sizeof(int32_t) * 3;
@@ -50,6 +52,8 @@ namespace Quark {
 			case ShaderDataType::Double4: return 4;
 			case ShaderDataType::Mat3:    return 3; // 3 * float3
 			case ShaderDataType::Mat4:    return 4; // 4 * float4
+			case ShaderDataType::Mat3d:   return 3;
+			case ShaderDataType::Mat4d:   return 4;
 			case ShaderDataType::Int:     return 1;
 			case ShaderDataType::Int2:    return 2;
 			case ShaderDataType::Int3:    return 3;
