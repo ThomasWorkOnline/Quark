@@ -7,6 +7,7 @@ namespace Quark {
 	class OpenALAudioBuffer : public AudioBuffer
 	{
 	public:
+		OpenALAudioBuffer(std::string_view filepath);
 		OpenALAudioBuffer(const AudioBufferSpecification& spec, const void* data);
 		~OpenALAudioBuffer() override;
 

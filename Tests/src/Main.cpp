@@ -1,7 +1,7 @@
-#include "Tests/TextureArrayTest.h"
+#include "Pong/Pong.h"
 
 int main()
 {
-	auto test = Quark::CreateScope<TextureArrayTest>();
+	auto test = Quark::CreateScope<Pong>();
 	test->Run();
 }

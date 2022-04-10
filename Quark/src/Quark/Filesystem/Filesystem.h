@@ -6,6 +6,6 @@ namespace Quark {
 
 	namespace Filesystem {
 
-		std::string ReadFile(std::string_view filepath);
+		std::string ReadTextFile(std::string_view filepath);
 	}
 }

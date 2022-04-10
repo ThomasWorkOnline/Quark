@@ -35,6 +35,9 @@ namespace Quark {
 		const Window& GetWindow() const { return *m_Window; }
 		Window& GetWindow() { return *m_Window; }
 
+		const AudioOutputDevice& GetAudioOutputDevice() const { return *m_AudioOutputDevice; }
+		AudioOutputDevice& GetAudioOutputDevice() { return *m_AudioOutputDevice; }
+
 		static Application& Get() { return *s_Instance; }
 
 	private:
@@ -50,7 +53,7 @@ namespace Quark {
 
 		ApplicationOptions m_Options;
 		Scope<Window> m_Window;
-		Scope<AudioDevice> m_AudioDevice;
+		Scope<AudioOutputDevice> m_AudioOutputDevice;
 		std::vector<Layer*> m_Layers;
 
 		float m_TotalTime = 0.0f;

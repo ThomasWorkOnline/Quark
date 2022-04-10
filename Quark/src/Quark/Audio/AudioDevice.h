@@ -4,14 +4,15 @@
 
 namespace Quark {
 
-	class AudioDevice
+	class AudioOutputDevice
 	{
 	public:
-		virtual ~AudioDevice() = default;
+		virtual ~AudioOutputDevice() = default;
 
+		virtual const char* GetDeviceName() const = 0;
 		virtual void* GetNativeDevice() const = 0;
 
-		static Scope<AudioDevice> Create();
-		static Scope<AudioDevice> Create(std::string_view deviceName);
+		static Scope<AudioOutputDevice> Create();
+		static Scope<AudioOutputDevice> Create(std::string_view deviceName);
 	};
 }

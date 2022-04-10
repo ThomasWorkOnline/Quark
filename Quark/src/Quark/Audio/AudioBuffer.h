@@ -7,9 +7,9 @@ namespace Quark {
 
 	struct AudioBufferSpecification
 	{
+		size_t Size         = 1024;
+		uint32_t Samplerate = 48000;
 		AudioFormat Format;
-		size_t Size;
-		size_t Frequency;
 	};
 
 	class AudioBuffer
@@ -19,6 +19,7 @@ namespace Quark {
 
 		virtual uint32_t GetBufferID() const = 0;
 
+		static Ref<AudioBuffer> Create(std::string_view filepath);
 		static Ref<AudioBuffer> Create(const AudioBufferSpecification& spec, const void* data);
 	};
 }

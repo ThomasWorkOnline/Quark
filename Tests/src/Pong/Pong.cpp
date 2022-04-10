@@ -17,15 +17,12 @@ Pong::Pong()
 	m_Shader = Shader::Create("assets/shaders/default3D.glsl");
 	m_Ball = Mesh("assets/meshes/sphere.obj");
 
-	AudioBufferSpecification spec = {
-		AudioFormat::Mono16,
-		1024,
-		48000
-	};
+	m_AudioBuffer = AudioBuffer::Create("assets/sounds/Down V1.2.wav");
+	m_AudioSource = AudioSource::Create();
+	m_AudioSource->Attach(m_AudioBuffer->GetBufferID());
 
-	uint8_t* buffer = new uint8_t[spec.Size];
-	m_AudioBuffer = AudioBuffer::Create(spec, buffer);
-	delete[] buffer;
+	m_AudioSource->Play();
+	m_AudioPlaying = true;
 
 	FaceOff();
 }
@@ -116,6 +113,15 @@ bool Pong::OnKeyPressed(KeyPressedEvent& e)
 		case Key::Escape:
 			GetWindow().EnableCursor();
 			break;
+		case Key::Enter:
+		{
+			if (m_AudioPlaying)
+				m_AudioSource->Pause();
+			else 
+				m_AudioSource->Play();
+			m_AudioPlaying = !m_AudioPlaying;
+			break;
+		}
 	}
 	return false;
 }

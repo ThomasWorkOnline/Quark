@@ -10,6 +10,8 @@
 
 // Audio
 #include "Quark/Audio/AudioBuffer.h"
+#include "Quark/Audio/AudioDevice.h"
+#include "Quark/Audio/AudioSource.h"
 
 // Entity Component System
 #include "Quark/Scene/Components.h"

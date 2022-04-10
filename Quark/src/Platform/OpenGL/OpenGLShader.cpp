@@ -28,7 +28,7 @@ namespace Quark {
 	{
 		QK_SCOPE_TIMER(OpenGLShader::OpenGLShader);
 
-		std::string source = Filesystem::ReadFile(filepath);
+		std::string source = Filesystem::ReadTextFile(filepath);
 		auto shaderSources = PreProcess(source);
 		Compile(shaderSources);
 

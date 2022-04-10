@@ -92,7 +92,7 @@ namespace Quark {
 
 	static void ReadOBJData(std::string_view filepath, OBJData& data)
 	{
-		const std::string fileRaw = Filesystem::ReadFile(filepath);
+		const std::string fileRaw = Filesystem::ReadTextFile(filepath);
 
 		std::string_view file = fileRaw;
 		std::vector<std::string_view> tokens;

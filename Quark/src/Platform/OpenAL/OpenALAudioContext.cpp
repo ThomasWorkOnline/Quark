@@ -1,6 +1,7 @@
 #include "OpenALAudioContext.h"
 
 #include "OpenALCore.h"
+#include <AL/alc.h>
 
 namespace Quark {
 

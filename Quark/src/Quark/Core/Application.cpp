@@ -70,7 +70,8 @@ namespace Quark {
 		m_Window = Window::Create(spec);
 		m_Window->SetEventCallback(ATTACH_EVENT_FN(Application::OnEventInternal));
 
-		m_AudioDevice = AudioDevice::Create();
+		m_AudioOutputDevice = AudioOutputDevice::Create();
+		QK_CORE_INFO("Opened audio device: {0}", m_AudioOutputDevice->GetDeviceName());
 
 		Renderer::Initialize();
 

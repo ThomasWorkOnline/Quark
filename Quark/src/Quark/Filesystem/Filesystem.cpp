@@ -1,13 +1,12 @@
 #include "Filesystem.h"
 
 #include <fstream>
-#include <sstream>
 
 namespace Quark {
 
 	namespace Filesystem {
 
-		std::string ReadFile(std::string_view filepath)
+		std::string ReadTextFile(std::string_view filepath)
 		{
 			std::string result;
 			std::ifstream in(filepath.data(), std::ios::in | std::ios::binary);
@@ -24,16 +23,12 @@ namespace Quark {
 				}
 				else
 				{
-					std::stringstream ss;
-					ss << "Could not read from file '" << filepath << "'";
-					QK_FATAL(ss.str());
+					QK_FATAL("Could not open file '{0}'", filepath);
 				}
 			}
 			else
 			{
-				std::stringstream ss;
-				ss << "Could not open file '" << filepath << "'";
-				QK_FATAL(ss.str());
+				QK_FATAL("Could not open file '{0}'", filepath);
 			}
 
 			return result;
