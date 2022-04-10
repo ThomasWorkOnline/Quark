@@ -1,9 +1,6 @@
 [submodule "glm"]
 	path = Quark/vendor/glm
 	url = https://github.com/g-truc/glm
-[submodule "glfw"]
-	path = Quark/vendor/glfw
-	url = https://github.com/glfw/glfw
 [submodule "Quark/vendor/spdlog"]
 	path = Quark/vendor/spdlog
 	url = https://github.com/gabime/spdlog.git

@@ -1,70 +1,65 @@
+include "vendor/glad"
+include "vendor/glfw"
+
 project "Quark"
 	kind "StaticLib"
 	language "C++"
 	cppdialect "C++17"
+	staticruntime "off"
 
 	targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("%{wks.location}/bin-int/" .. outputdir .. "/%{prj.name}")
 
-	files {
+	files
+	{
 		"src/**.h",
-		"src/**.cpp",
-
-		-- glad
-		"vendor/glad/include/**.h",
-		"vendor/glad/src/**.c"
+		"src/**.cpp"
 	}
 
-	defines {
+	defines
+	{
 		"AL_LIBTYPE_STATIC",
 		"GLFW_INCLUDE_NONE"
 	}
 
-	includedirs {
+	includedirs
+	{
 		"src",
 		"vendor/freetype/include",
 		"vendor/entt/include",
 		"vendor/glad/include",
+		"vendor/glfw/include",
 		"vendor/glm",
 		"vendor/openal/include",
 		"vendor/spdlog/include",
 		"vendor/stb_image"
 	}
 
-	links {
+	links
+	{
 		"freetype",
-		"glfw3"
+		"Glad",
+		"GLFW"
 	}
 
 	filter "system:windows"
 		systemversion "latest"
 
-		includedirs {
-			"vendor/glfw-prebuilt-win/include"
-		}
-
-		libdirs {
+		libdirs
+		{
 			"vendor/openal/libs/Win64",
-			"vendor/freetype/vs2015-2019/win64",
-			"vendor/glfw-prebuilt-win/lib-vc2022"
+			"vendor/freetype/vs2015-2019/win64"
 		}
 
-		links {
+		links
+		{
 			"OpenAL32.lib",
 			"opengl32.lib"
 		}
 	
 	filter "system:macosx"
-
-		includedirs {
-			"vendor/glfw-prebuilt-macos/include"
-		}
-
-		libdirs {
-			"vendor/glfw-prebuilt-macos/lib-x86_64"
-		}
-
-		links {
+		links
+		{
 			"Cocoa.framework",
 			"IOKit.framework",
 			"OpenAL.framework",
