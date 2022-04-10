@@ -41,10 +41,10 @@ namespace Quark {
 		QK_SCOPE_TIMER(OpenALAudioBuffer::OpenALAudioBuffer);
 		QK_CORE_ASSERT(filepath.rfind(".wav") != std::string::npos, "Quark only supports .wav formats");
 
-        WavHeader header{};
-        std::ifstream in(filepath.data(), std::ios::in | std::ios::binary);
-        QK_CORE_ASSERT(in.is_open(), "could not open file {0}", filepath);
-
+		WavHeader header{};
+		std::ifstream in(filepath.data(), std::ios::in | std::ios::binary);
+		QK_CORE_ASSERT(in.is_open(), "could not open file {0}", filepath);
+		
 		// TODO: use a memory mapped file for performance
 
 		// Read the header
