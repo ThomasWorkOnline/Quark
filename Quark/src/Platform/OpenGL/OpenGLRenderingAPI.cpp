@@ -201,30 +201,16 @@ namespace Quark {
 
     int32_t OpenGLRenderingAPI::GetMaxUniformBufferBindings() const
     {
-        int32_t bindings;
-        glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, &bindings);
-        return bindings;
+        int32_t maxBindings;
+        glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, &maxBindings);
+        return maxBindings;
     }
 
-    int32_t OpenGLRenderingAPI::GetMaxVertexUniformBuffers() const
+    int32_t OpenGLRenderingAPI::GetMaxUniformBufferSize() const
     {
-        int32_t uniforms;
-        glGetIntegerv(GL_MAX_VERTEX_UNIFORM_BLOCKS, &uniforms);
-        return uniforms;
-    }
-
-    int32_t OpenGLRenderingAPI::GetMaxGeometryUniformBuffers() const
-    {
-        int32_t uniforms;
-        glGetIntegerv(GL_MAX_GEOMETRY_UNIFORM_BLOCKS, &uniforms);
-        return uniforms;
-    }
-
-    int32_t OpenGLRenderingAPI::GetMaxFragmentUniformBuffers() const
-    {
-        int32_t uniforms;
-        glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_BLOCKS, &uniforms);
-        return uniforms;
+        int32_t maxBlockSize;
+        glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &maxBlockSize);
+        return maxBlockSize;
     }
 
     std::string OpenGLRenderingAPI::GetSpecification() const

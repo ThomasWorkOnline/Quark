@@ -89,19 +89,9 @@ namespace Quark {
 			return s_RenderingApi->GetMaxTextureLayers();
 		}
 
-		static int32_t GetMaxVertexUniformBuffers()
+		static int32_t GetMaxUniformBufferSize()
 		{
-			return s_RenderingApi->GetMaxVertexUniformBuffers();
-		}
-
-		static int32_t GetMaxGeometryUniformBuffers()
-		{
-			return s_RenderingApi->GetMaxGeometryUniformBuffers();
-		}
-
-		static int32_t GetMaxFragmentUniformBuffers()
-		{
-			return s_RenderingApi->GetMaxFragmentUniformBuffers();
+			return s_RenderingApi->GetMaxUniformBufferSize();
 		}
 
 		static const char* GetAPIName()

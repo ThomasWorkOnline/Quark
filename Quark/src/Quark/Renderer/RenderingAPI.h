@@ -48,9 +48,7 @@ namespace Quark {
 		virtual int32_t GetMaxTextureSize() const = 0;
 		virtual int32_t GetMaxTextureLayers() const = 0;
 		virtual int32_t GetMaxUniformBufferBindings() const = 0;
-		virtual int32_t GetMaxVertexUniformBuffers() const = 0;
-		virtual int32_t GetMaxGeometryUniformBuffers() const = 0;
-		virtual int32_t GetMaxFragmentUniformBuffers() const = 0;
+		virtual int32_t GetMaxUniformBufferSize() const = 0;
 
 		static API GetAPI() { return s_API; }
 		static std::thread::id GetThreadId() { return s_ThreadId; }

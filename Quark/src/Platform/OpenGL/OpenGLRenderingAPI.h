@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Quark/Renderer/RenderingAPI.h"
+#include "Quark/Renderer/RenderingAPI.h"
 
 namespace Quark {
 
@@ -10,6 +10,7 @@ namespace Quark {
         void Init() override;
 
         Version GetVersion() const override;
+
         void SetClearColor(const glm::vec4& rgba) override;
         void Clear() override;
         void SetCullFace(RenderCullFace face) override;
@@ -29,9 +30,7 @@ namespace Quark {
         int32_t GetMaxTextureSize() const override;
         int32_t GetMaxTextureLayers() const override;
         int32_t GetMaxUniformBufferBindings() const override;
-        int32_t GetMaxVertexUniformBuffers() const override;
-        int32_t GetMaxGeometryUniformBuffers() const override;
-        int32_t GetMaxFragmentUniformBuffers() const override;
+        int32_t GetMaxUniformBufferSize() const override;
 
         const char* GetName() const override { return "OpenGL"; }
         std::string GetSpecification() const override;
