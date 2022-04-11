@@ -45,3 +45,6 @@ project "Tests"
 
 	filter "system:macosx"
 		kind "WindowedApp"
+	
+	filter "system:linux"
+		kind "WindowedApp"
