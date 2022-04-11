@@ -74,12 +74,6 @@ project "freetype"
 		{
 			"builds/unix/ftsystem.c"
 		}
-		
-	filter "system:macosx"
-		files
-		{
-			"builds/unix/ftsystem.c"
-		}
 
     filter "configurations:Debug"
         runtime "Debug"

@@ -79,19 +79,19 @@ OBJECTS :=
 GENERATED += $(OBJDIR)/autofit.o
 GENERATED += $(OBJDIR)/bdf.o
 GENERATED += $(OBJDIR)/cff.o
-GENERATED += $(OBJDIR)/dlgwrap.o
 GENERATED += $(OBJDIR)/ftbase.o
 GENERATED += $(OBJDIR)/ftbbox.o
+GENERATED += $(OBJDIR)/ftbdf.o
 GENERATED += $(OBJDIR)/ftbitmap.o
 GENERATED += $(OBJDIR)/ftbzip2.o
 GENERATED += $(OBJDIR)/ftcache.o
+GENERATED += $(OBJDIR)/ftcid.o
 GENERATED += $(OBJDIR)/ftfstype.o
 GENERATED += $(OBJDIR)/ftgasp.o
 GENERATED += $(OBJDIR)/ftglyph.o
 GENERATED += $(OBJDIR)/ftgxval.o
 GENERATED += $(OBJDIR)/ftgzip.o
 GENERATED += $(OBJDIR)/ftinit.o
-GENERATED += $(OBJDIR)/ftlcdfil.o
 GENERATED += $(OBJDIR)/ftlzw.o
 GENERATED += $(OBJDIR)/ftmm.o
 GENERATED += $(OBJDIR)/ftotval.o
@@ -102,8 +102,6 @@ GENERATED += $(OBJDIR)/ftsynth.o
 GENERATED += $(OBJDIR)/ftsystem.o
 GENERATED += $(OBJDIR)/fttype1.o
 GENERATED += $(OBJDIR)/ftwinfnt.o
-GENERATED += $(OBJDIR)/gxvalid.o
-GENERATED += $(OBJDIR)/otvalid.o
 GENERATED += $(OBJDIR)/pcf.o
 GENERATED += $(OBJDIR)/pfr.o
 GENERATED += $(OBJDIR)/psaux.o
@@ -122,19 +120,19 @@ GENERATED += $(OBJDIR)/winfnt.o
 OBJECTS += $(OBJDIR)/autofit.o
 OBJECTS += $(OBJDIR)/bdf.o
 OBJECTS += $(OBJDIR)/cff.o
-OBJECTS += $(OBJDIR)/dlgwrap.o
 OBJECTS += $(OBJDIR)/ftbase.o
 OBJECTS += $(OBJDIR)/ftbbox.o
+OBJECTS += $(OBJDIR)/ftbdf.o
 OBJECTS += $(OBJDIR)/ftbitmap.o
 OBJECTS += $(OBJDIR)/ftbzip2.o
 OBJECTS += $(OBJDIR)/ftcache.o
+OBJECTS += $(OBJDIR)/ftcid.o
 OBJECTS += $(OBJDIR)/ftfstype.o
 OBJECTS += $(OBJDIR)/ftgasp.o
 OBJECTS += $(OBJDIR)/ftglyph.o
 OBJECTS += $(OBJDIR)/ftgxval.o
 OBJECTS += $(OBJDIR)/ftgzip.o
 OBJECTS += $(OBJDIR)/ftinit.o
-OBJECTS += $(OBJDIR)/ftlcdfil.o
 OBJECTS += $(OBJDIR)/ftlzw.o
 OBJECTS += $(OBJDIR)/ftmm.o
 OBJECTS += $(OBJDIR)/ftotval.o
@@ -145,8 +143,6 @@ OBJECTS += $(OBJDIR)/ftsynth.o
 OBJECTS += $(OBJDIR)/ftsystem.o
 OBJECTS += $(OBJDIR)/fttype1.o
 OBJECTS += $(OBJDIR)/ftwinfnt.o
-OBJECTS += $(OBJDIR)/gxvalid.o
-OBJECTS += $(OBJDIR)/otvalid.o
 OBJECTS += $(OBJDIR)/pcf.o
 OBJECTS += $(OBJDIR)/pfr.o
 OBJECTS += $(OBJDIR)/psaux.o
@@ -234,7 +230,13 @@ $(OBJDIR)/ftbase.o: src/base/ftbase.c
 $(OBJDIR)/ftbbox.o: src/base/ftbbox.c
 	@echo $(notdir $<)
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/ftbdf.o: src/base/ftbdf.c
+	@echo $(notdir $<)
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/ftbitmap.o: src/base/ftbitmap.c
+	@echo $(notdir $<)
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/ftcid.o: src/base/ftcid.c
 	@echo $(notdir $<)
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/ftfstype.o: src/base/ftfstype.c
@@ -250,9 +252,6 @@ $(OBJDIR)/ftgxval.o: src/base/ftgxval.c
 	@echo $(notdir $<)
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/ftinit.o: src/base/ftinit.c
-	@echo $(notdir $<)
-	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
-$(OBJDIR)/ftlcdfil.o: src/base/ftlcdfil.c
 	@echo $(notdir $<)
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/ftmm.o: src/base/ftmm.c
@@ -297,19 +296,10 @@ $(OBJDIR)/cff.o: src/cff/cff.c
 $(OBJDIR)/type1cid.o: src/cid/type1cid.c
 	@echo $(notdir $<)
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
-$(OBJDIR)/dlgwrap.o: src/dlg/dlgwrap.c
-	@echo $(notdir $<)
-	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
-$(OBJDIR)/gxvalid.o: src/gxvalid/gxvalid.c
-	@echo $(notdir $<)
-	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/ftgzip.o: src/gzip/ftgzip.c
 	@echo $(notdir $<)
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/ftlzw.o: src/lzw/ftlzw.c
-	@echo $(notdir $<)
-	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
-$(OBJDIR)/otvalid.o: src/otvalid/otvalid.c
 	@echo $(notdir $<)
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/pcf.o: src/pcf/pcf.c
