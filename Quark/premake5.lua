@@ -1,3 +1,4 @@
+include "vendor/freetype"
 include "vendor/glad"
 include "vendor/glfw"
 
@@ -47,8 +48,7 @@ project "Quark"
 
 		libdirs
 		{
-			"vendor/openal/libs/Win64",
-			"vendor/freetype/vs2015-2019/win64"
+			"vendor/openal/libs/Win64"
 		}
 
 		links

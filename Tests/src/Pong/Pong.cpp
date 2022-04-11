@@ -17,7 +17,7 @@ Pong::Pong()
 	m_Shader = Shader::Create("assets/shaders/default3D.glsl");
 	m_Ball = Mesh("assets/meshes/sphere.obj");
 
-	m_AudioBuffer = AudioBuffer::Create("assets/sounds/file_example_WAV_1MG.wav");
+	m_AudioBuffer = AudioBuffer::Create("assets/sounds/Down V1.2.wav");
 	m_AudioSource = AudioSource::Create();
 	m_AudioSource->Attach(m_AudioBuffer->GetBufferID());
 
