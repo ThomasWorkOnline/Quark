@@ -22,4 +22,15 @@ namespace Quark {
 		glBindBuffer(GL_UNIFORM_BUFFER, m_RendererID);
 		glBufferSubData(GL_UNIFORM_BUFFER, offset, size, data);
 	}
+
+	void OpenGLUniformBuffer::Attach(uint32_t binding) const
+	{
+		glBindBuffer(GL_UNIFORM_BUFFER, m_RendererID);
+		glBindBufferBase(GL_UNIFORM_BUFFER, binding, m_RendererID);
+	}
+
+	void OpenGLUniformBuffer::Detach() const
+	{
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	}
 }

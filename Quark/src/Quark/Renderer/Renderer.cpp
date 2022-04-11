@@ -36,6 +36,7 @@ namespace Quark {
 		static constexpr uint32_t MaxIndices  = MaxQuads * 6;
 
 		uint32_t MaxSamplers = 0;
+		uint32_t MaxUniformBuffers = 0;
 
 		QuadVertex* QuadVertexPtr = nullptr;
 		QuadVertex* QuadVertices  = nullptr;
@@ -124,7 +125,8 @@ namespace Quark {
 		RenderCommand::SetClearColor({ 0.01f, 0.01f, 0.01f, 1.0f });
 		QK_CORE_INFO(RenderCommand::GetSpecification());
 
-		s_Data.MaxSamplers = RenderCommand::GetMaxTextureSlots();
+		s_Data.MaxSamplers         = RenderCommand::GetMaxTextureSlots();
+		s_Data.MaxUniformBuffers   = RenderCommand::GetMaxUniformBufferBindings();
 		s_Data.CameraUniformBuffer = UniformBuffer::Create(sizeof(SceneData), 0);
 
 		SetupData setupData{};
@@ -387,6 +389,7 @@ namespace Quark {
 	void Renderer::BeginScene(const glm::mat4& cameraProjection, const glm::mat4& cameraView)
 	{
 		s_SceneData.ViewProjection = cameraProjection * cameraView;
+		s_Data.CameraUniformBuffer->Attach();
 		s_Data.CameraUniformBuffer->SetData(&s_SceneData, sizeof(SceneData));
 
 		StartBatch();

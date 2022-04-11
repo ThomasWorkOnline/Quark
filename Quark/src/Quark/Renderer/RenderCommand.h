@@ -89,6 +89,11 @@ namespace Quark {
 			return s_RenderingApi->GetMaxTextureLayers();
 		}
 
+		static int32_t GetMaxUniformBufferBindings()
+		{
+			return s_RenderingApi->GetMaxUniformBufferBindings();
+		}
+
 		static int32_t GetMaxUniformBufferSize()
 		{
 			return s_RenderingApi->GetMaxUniformBufferSize();
