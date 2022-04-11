@@ -23,6 +23,9 @@ project "Tests"
 	links
 	{
 		"Quark"
+		"freetype",
+		"Glad",
+		"GLFW"
 	}
 
 	filter "configurations:Debug"

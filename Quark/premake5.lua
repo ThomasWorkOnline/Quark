@@ -80,3 +80,9 @@ project "Quark"
 			"OpenAL.framework",
 			"OpenGL.framework"
 		}
+
+	filter "system:linux"
+		links
+		{
+
+		}
