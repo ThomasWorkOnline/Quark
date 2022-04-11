@@ -22,6 +22,8 @@ namespace Quark {
 		ImageData* Data() const { return m_Data; }
 		size_t Size() const;
 
+		ImageData* operator*() const { return m_Data; }
+
 	private:
 		ImageData* m_Data = nullptr;
 		ImageProperties m_Properties{};

@@ -70,7 +70,7 @@ namespace Quark {
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, m_RendererID);
 
-		glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, m_Spec.Width, m_Spec.Height, 0, dataFormat, GL_UNSIGNED_BYTE, image.Data());
+		glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, m_Spec.Width, m_Spec.Height, 0, dataFormat, GL_UNSIGNED_BYTE, *image);
 
 		GLenum tilingMode = GetTextureTilingMode(m_Spec.RenderModes.TilingMode);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetTextureFilteringMode(m_Spec.RenderModes.MinFilteringMode));
