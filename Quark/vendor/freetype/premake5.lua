@@ -11,6 +11,11 @@ project "freetype"
 		"FT2_BUILD_LIBRARY",
 	}
 
+	includedirs
+	{
+		"include"
+	}
+
 	files
 	{
 		"src/autofit/autofit.c",
