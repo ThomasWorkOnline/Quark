@@ -10,7 +10,7 @@ namespace Quark {
 	{
 		for (const auto& s : m_Spec.Attachments.Attachments)
 		{
-			if (!IsTextureDepthFormat(s.TextureFormat))
+			if (!IsTextureDepthFormat(s.Format))
 				m_ColorSpecs.emplace_back(s);
 			else
 				m_DepthSpec = s;
@@ -85,12 +85,12 @@ namespace Quark {
 
 				if (multisampled)
 				{
-					glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Spec.Samples, GetTextureInternalFormat(m_ColorSpecs[i].TextureFormat), m_Spec.Width, m_Spec.Height, GL_FALSE);
+					glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Spec.Samples, GetTextureInternalFormat(m_ColorSpecs[i].Format), m_Spec.Width, m_Spec.Height, GL_FALSE);
 				}
 				else
 				{
-					glTexImage2D(GL_TEXTURE_2D, 0, GetTextureInternalFormat(m_ColorSpecs[i].TextureFormat), m_Spec.Width, m_Spec.Height, 0,
-						GetTextureFormat(m_ColorSpecs[i].TextureFormat), GL_UNSIGNED_BYTE, nullptr);
+					glTexImage2D(GL_TEXTURE_2D, 0, GetTextureInternalFormat(m_ColorSpecs[i].Format), m_Spec.Width, m_Spec.Height, 0,
+						GetTextureFormat(m_ColorSpecs[i].Format), GL_UNSIGNED_BYTE, nullptr);
 
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetTextureFilteringMode(m_ColorSpecs[i].RenderModes.MinFilteringMode));
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GetTextureFilteringMode(m_ColorSpecs[i].RenderModes.MagFilteringMode));
@@ -103,19 +103,19 @@ namespace Quark {
 		}
 
 		// Depth stencil format
-		if (m_DepthSpec.TextureFormat != TextureFormat::None)
+		if (m_DepthSpec.Format != TextureFormat::None)
 		{
 			glGenTextures(1, &m_DepthAttachment);
 			glBindTexture(GetTextureSampleMode(multisampled), m_DepthAttachment);
 
 			if (multisampled)
 			{
-				glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Spec.Samples, GetTextureInternalFormat(m_DepthSpec.TextureFormat), m_Spec.Width, m_Spec.Height, GL_FALSE);
+				glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Spec.Samples, GetTextureInternalFormat(m_DepthSpec.Format), m_Spec.Width, m_Spec.Height, GL_FALSE);
 			}
 			else
 			{
-				glTexImage2D(GL_TEXTURE_2D, 0, GetTextureInternalFormat(m_DepthSpec.TextureFormat), m_Spec.Width, m_Spec.Height, 0,
-					GetTextureFormat(m_DepthSpec.TextureFormat), GL_UNSIGNED_BYTE, nullptr);
+				glTexImage2D(GL_TEXTURE_2D, 0, GetTextureInternalFormat(m_DepthSpec.Format), m_Spec.Width, m_Spec.Height, 0,
+					GetTextureFormat(m_DepthSpec.Format), GL_UNSIGNED_BYTE, nullptr);
 				//glTexStorage2D(GL_TEXTURE_2D, 1, GetTextureInternalFormat(m_DepthSpec.TextureFormat), m_Spec.Width, m_Spec.Height); <-- Not supported by OpenGL 4.1 (MacOS)
 
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetTextureFilteringMode(m_DepthSpec.RenderModes.MinFilteringMode));
