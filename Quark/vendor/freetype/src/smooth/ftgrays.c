@@ -1907,6 +1907,9 @@ typedef ptrdiff_t  FT_PtrDist;
     0                                        /* delta    */
   )
 
+  // MODIF: fix unresolved external on unix
+  #define FT_Trace_Disable()
+  #define FT_Trace_Enable()
 
   static int
   gray_convert_glyph_inner( RAS_ARG,
