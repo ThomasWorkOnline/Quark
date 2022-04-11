@@ -8,14 +8,15 @@ namespace Quark {
 	Logger::Logger()
 	{
 		std::vector<spdlog::sink_ptr> sinks;
-		
-#if defined(QK_PLATFORM_WINDOWS) && 0
 		auto logSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+
+#if defined(QK_PLATFORM_WINDOWS)
 		logSink->set_color(spdlog::level::trace, FOREGROUND_INTENSITY);
 		logSink->set_color(spdlog::level::info, FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+#endif
+
 		logSink->set_pattern("%^[%n]:%$ %v");
 		sinks.push_back(logSink);
-#endif
 
 		m_CoreLogger = std::make_shared<spdlog::logger>("Core", sinks.begin(), sinks.end());
 		m_ClientLogger = std::make_shared<spdlog::logger>("Client", sinks.begin(), sinks.end());

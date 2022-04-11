@@ -43,7 +43,7 @@ namespace Quark {
 
 		WavHeader header{};
 		std::ifstream in(filepath.data(), std::ios::in | std::ios::binary);
-		QK_CORE_ASSERT(in.is_open(), "could not open file {0}", filepath);
+		QK_CORE_ASSERT(in.is_open(), "Could not open audio file: '{0}'", filepath);
 		
 		// TODO: use a memory mapped file for performance
 

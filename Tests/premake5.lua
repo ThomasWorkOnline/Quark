@@ -28,6 +28,11 @@ project "Tests"
 		"GLFW"
 	}
 
+	defines
+	{
+		"QK_64BIT_PRECISION"
+	}
+
 	filter "configurations:Debug"
 		defines "QK_DEBUG"
 		runtime "Debug"
@@ -48,14 +53,23 @@ project "Tests"
 
 	filter "system:macosx"
 		kind "WindowedApp"
+		
+		links
+		{
+			"Cocoa.framework",
+			"CoreVideo.framework",
+			"IOKit.framework",
+			"OpenAL.framework",
+			"OpenGL.framework"
+		}
 	
 	filter "system:linux"
 		kind "WindowedApp"
 
-	filter "system:linux"
 		links
 		{
 			"GL",
 			"X11",
 			"openal"
 		}
+		

@@ -43,6 +43,11 @@ project "Quark"
 		"GLFW"
 	}
 
+	defines
+	{
+		"QK_64BIT_PRECISION"
+	}
+
 	filter "configurations:Debug"
 		defines "QK_DEBUG"
 		runtime "Debug"
@@ -76,6 +81,7 @@ project "Quark"
 		links
 		{
 			"Cocoa.framework",
+			"CoreVideo.framework",
 			"IOKit.framework",
 			"OpenAL.framework",
 			"OpenGL.framework"
