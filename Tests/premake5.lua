@@ -51,3 +51,11 @@ project "Tests"
 	
 	filter "system:linux"
 		kind "WindowedApp"
+
+	filter "system:linux"
+		links
+		{
+			"GL",
+			"X11",
+			"openal"
+		}

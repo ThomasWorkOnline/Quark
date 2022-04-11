@@ -84,5 +84,7 @@ project "Quark"
 	filter "system:linux"
 		links
 		{
-
+			"GL",
+			"X11",
+			"openal"
 		}
