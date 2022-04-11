@@ -22,7 +22,7 @@ project "Tests"
 
 	links
 	{
-		"Quark"
+		"Quark",
 		"freetype",
 		"Glad",
 		"GLFW"
