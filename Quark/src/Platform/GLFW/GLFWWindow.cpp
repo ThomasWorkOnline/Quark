@@ -45,8 +45,6 @@ namespace Quark {
 
 			glfwSetErrorCallback(GLFWErrorCallback);
 
-			glfwWindowHint(GLFW_REFRESH_RATE, GLFW_DONT_CARE);
-
 			if (RenderingAPI::GetAPI() == RenderingAPI::API::OpenGL)
 			{
 #ifdef QK_DEBUG
