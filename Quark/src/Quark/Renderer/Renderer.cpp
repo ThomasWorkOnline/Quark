@@ -425,7 +425,6 @@ namespace Quark {
 				s_Data.Textures[i]->Attach(i);
 
 			s_Data.QuadShader->Attach();
-			s_Data.QuadVertexArray->Attach();
 			RenderCommand::DrawIndexed(s_Data.QuadVertexArray, s_Data.QuadIndexCount);
 
 			s_Stats.DrawCalls++;
@@ -440,7 +439,6 @@ namespace Quark {
 				s_Data.Fonts[i]->Attach(i);
 
 			s_Data.FontShader->Attach();
-			s_Data.FontVertexArray->Attach();
 			RenderCommand::DrawIndexed(s_Data.FontVertexArray, s_Data.FontIndexCount);
 
 			s_Stats.DrawCalls++;
@@ -453,7 +451,6 @@ namespace Quark {
 				s_Data.LineVertexBuffer->SetData(s_Data.LineVertices, count * sizeof(LineVertex));
 
 				s_Data.LineShader->Attach();
-				s_Data.LineVertexArray->Attach();
 				RenderCommand::DrawLines(s_Data.LineVertexArray, count);
 
 				s_Stats.DrawCalls++;

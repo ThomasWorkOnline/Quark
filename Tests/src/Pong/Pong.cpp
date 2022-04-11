@@ -48,7 +48,6 @@ void Pong::OnUpdate(Timestep elapsedTime)
 
 	Renderer::BeginScene(projection, view);
 	Renderer::Submit(m_Shader, m_Ball.GetVertexArray(), m_BallTransform);
-
 	Renderer::EndScene();
 }
 

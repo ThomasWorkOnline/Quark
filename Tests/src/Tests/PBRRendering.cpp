@@ -26,6 +26,7 @@ void PBRRendering::OnUpdate(Timestep elapsedTime)
 	
 	const auto& camera = m_Player.GetComponent<PerspectiveCameraComponent>().Camera;
 	const auto& transform = m_Player.GetComponent<Transform3DComponent>();
+
 	Renderer::BeginScene(camera.GetProjection(), transform);
 	Renderer::Submit(m_Shader, m_Texture, m_Cube.GetVertexArray());
 	Renderer::EndScene();

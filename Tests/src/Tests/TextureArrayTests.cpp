@@ -70,7 +70,6 @@ void TextureArrayTest::OnUpdate(Timestep elapsedTime)
 	m_Shader->SetMat4("u_Model", transform);
 
 	m_TextureArray->Attach();
-	m_VertexArray->Attach();
 	RenderCommand::DrawIndexed(m_VertexArray);
 }
 
