@@ -25,6 +25,21 @@ project "Tests"
 		"Quark"
 	}
 
+	filter "configurations:Debug"
+		defines "QK_DEBUG"
+		runtime "Debug"
+		symbols "On"
+
+	filter "configurations:Release"
+		defines "QK_RELEASE"
+		runtime "Release"
+		optimize "On"
+
+	filter "configurations:Dist"
+		defines "QK_DIST"
+		runtime "Release"
+		optimize "On"
+
 	filter "system:windows"
 		kind "ConsoleApp"
 
