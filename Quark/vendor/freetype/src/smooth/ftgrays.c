@@ -242,10 +242,6 @@ typedef ptrdiff_t  FT_PtrDist;
 #endif /* !FT_DEBUG_LEVEL_TRACE */
 
 
-#define FT_Trace_Enable()   do { } while ( 0 )  /* nothing */
-#define FT_Trace_Disable()  do { } while ( 0 )  /* nothing */
-
-
 #define FT_DEFINE_OUTLINE_FUNCS( class_,               \
                                  move_to_, line_to_,   \
                                  conic_to_, cubic_to_, \
