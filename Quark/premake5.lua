@@ -1,6 +1,9 @@
-include "vendor/freetype"
-include "vendor/glad"
-include "vendor/glfw"
+-- Quark Dependencies
+group "Dependencies"
+	include "vendor/freetype"
+	include "vendor/Glad"
+	include "vendor/GLFW"
+group ""
 
 project "Quark"
 	kind "StaticLib"
@@ -26,9 +29,9 @@ project "Quark"
 	includedirs
 	{
 		"src",
-		"vendor/freetype/include",
 		"vendor/entt/include",
-		"vendor/glad/include",
+		"vendor/freetype/include",
+		"vendor/Glad/include",
 		"vendor/glfw/include",
 		"vendor/glm",
 		"vendor/openal/include",
@@ -41,11 +44,6 @@ project "Quark"
 		"freetype",
 		"Glad",
 		"GLFW"
-	}
-
-	defines
-	{
-		"QK_64BIT_PRECISION"
 	}
 
 	filter "configurations:Debug"

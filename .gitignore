@@ -1,7 +1,3 @@
-# Binaries
-bin
-bin-int
-
 # Premake
 !vendor/bin
 
@@ -18,8 +14,11 @@ bin-int
 # Makefile
 Makefile
 
-# Scripts remnants
-quark-v1.0
-
 # macOS files
 .DS_Store
+
+# Auto Generated
+include
+lib
+bin
+bin-int

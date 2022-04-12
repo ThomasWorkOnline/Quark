@@ -28,11 +28,6 @@ project "Tests"
 		"GLFW"
 	}
 
-	defines
-	{
-		"QK_64BIT_PRECISION"
-	}
-
 	filter "configurations:Debug"
 		defines "QK_DEBUG"
 		runtime "Debug"
