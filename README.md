@@ -37,7 +37,7 @@ Coming soon!
 ## Dependencies
 *(all dependencies are located inside the `Quark/vendor` folder)*.
 
-Don't forget to include the dependencies located in the `Quark/vendor` folder.
+Don't forget to include the required dependencies exposed by Quark.
 Quark uses [glm](https://github.com/g-truc/glm). You will need to include glm as a dependency to your project.
 Quark also uses [entt](https://github.com/skypjack/entt). You will need to include both of these templated header libraries for Quark to link.
 
