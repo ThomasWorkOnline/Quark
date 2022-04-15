@@ -35,11 +35,14 @@ Official support for macOS and Linux is on it's way!
 Coming soon!
 
 ## Dependencies
-*(all dependencies are located inside the `Quark/vendor` folder)*.
+- [glm](https://github.com/g-truc/glm).
 
-Don't forget to include the required dependencies exposed by Quark.
-Quark uses [glm](https://github.com/g-truc/glm). You will need to include glm as a dependency to your project.
-Quark also uses [entt](https://github.com/skypjack/entt). You will need to include both of these templated header libraries for Quark to link.
+- [entt](https://github.com/skypjack/entt).
+
+- [spdlog](https://github.com/gabime/spdlog/tree/083ea59fbd06add6f973636acca93ae0dfc0b73f).
+
+*(all dependencies are located inside the `Quark/vendor` folder)*.
+All you need to do is to include the designated 'Quark/premake5.lua' build step to your premake5 script.
 
 ## Build Configurations
 ### Debug
