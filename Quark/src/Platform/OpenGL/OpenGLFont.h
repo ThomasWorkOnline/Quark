@@ -18,7 +18,7 @@ namespace Quark {
 		void Attach(uint32_t textureSlot = 0) const override;
 		void Detach() const override;
 
-		const Glyph& GetGlyph(uint32_t charcode) const override { return m_Glyphs.at(charcode); }
+		const Glyph& GetGlyph(uint8_t charcode) const override;
 		uint32_t GetGlyphCount() const override { return m_Glyphs.size(); }
 
 		uint32_t GetFontSize() const override { return m_FontSize; }
@@ -38,7 +38,7 @@ namespace Quark {
 
 	private:
 		Face m_Face;
-		std::unordered_map<uint32_t, Glyph> m_Glyphs;
+		std::vector<Glyph> m_Glyphs;
 		uint32_t m_FontSize;
 		uint32_t m_AtlasWidth, m_AtlasHeight;
 		uint32_t m_RendererID = 0;

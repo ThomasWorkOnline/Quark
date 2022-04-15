@@ -23,7 +23,7 @@ namespace Quark {
 		virtual void Attach(uint32_t textureSlot = 0) const = 0;
 		virtual void Detach() const = 0;
 
-		virtual const Glyph& GetGlyph(uint32_t charcode) const = 0;
+		virtual const Glyph& GetGlyph(uint8_t charcode) const = 0;
 		virtual uint32_t GetGlyphCount() const = 0;
 
 		virtual uint32_t GetFontSize() const = 0;

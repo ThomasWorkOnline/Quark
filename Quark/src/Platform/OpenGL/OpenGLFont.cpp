@@ -50,6 +50,7 @@ namespace Quark {
 
 		m_AtlasWidth = w;
 		m_AtlasHeight = h;
+		m_Glyphs.reserve(s_GlyphCount);
 
 		glGenTextures(1, &m_RendererID);
 		glActiveTexture(GL_TEXTURE0);
@@ -59,19 +60,19 @@ namespace Quark {
 		glClearTexImage(m_RendererID, 0, GL_RED, GL_UNSIGNED_BYTE, 0);
 
 		uint32_t x = 0;
-		for (uint32_t i = s_ASCII_Start; i < s_ASCII_End; i++)
+		for (uint32_t i = 0; i < s_GlyphCount; i++)
 		{
-			if (FT_Load_Char(m_Face, i, FT_LOAD_RENDER))
+			if (FT_Load_Char(m_Face, i + s_ASCII_Start, FT_LOAD_RENDER))
 				continue;
 
 			glTexSubImage2D(GL_TEXTURE_2D, 0, x, 0, g->bitmap.width, g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, g->bitmap.buffer);
 
-			m_Glyphs[i] = {
+			m_Glyphs.push_back({
 				{ g->bitmap.width, g->bitmap.rows },
 				{ g->bitmap_left, g->bitmap_top },
 				{ g->advance.x, g->advance.y },
 				x
-			};
+			});
 
 			x += g->bitmap.width;
 		}
@@ -103,6 +104,11 @@ namespace Quark {
 	void OpenGLFont::Detach() const
 	{
 		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+
+	const Glyph& OpenGLFont::GetGlyph(uint8_t charcode) const
+	{
+		return m_Glyphs.at(charcode - s_ASCII_Start);
 	}
 
 	void OpenGLFont::Init()
