@@ -22,9 +22,9 @@ Official support for macOS and Linux is on it's way!
 2. After cloning this repository, run the script `GenMakefile_MacOS.sh` located under `Scripts/Macos`.
 3. Navigate to the project root directory and type `make config=<config>`.
 ### Different configs:
-	`make config=debug`
-	`make config=release`
-	`make config=dist`   
+	make config=debug
+	make config=release
+	make config=dist
 
 4. Run `GenInclude_MacOS.sh`. This will generate the `include` directory alongside the `lib` folder.<br />
 *NOTE: `GenInclude_MacOS.sh` will only copy files, so make sure the application is compiled for your desired platform.*
