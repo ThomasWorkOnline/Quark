@@ -321,6 +321,8 @@ namespace Quark {
 			{
 				// Glyph information is encoded in the red channel
 				float texel = texture(u_Samplers[v_Input.TexIndex], v_Input.TexCoord.xy, 0).r;
+				if (texel == 0.0) // TODO: blend
+					discard;
 				o_Color = v_Input.Color * texel;
 			}
 		)";
