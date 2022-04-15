@@ -18,6 +18,8 @@ namespace Quark {
 	OpenGLFont::OpenGLFont(std::string_view filepath, uint32_t fontSize)
 		: m_FontSize(fontSize)
 	{
+		QK_SCOPE_TIMER(OpenGLFont::OpenGLFont);
+
 		if (s_FontCount == 0)
 			Init();
 
@@ -87,6 +89,8 @@ namespace Quark {
 
 	OpenGLFont::~OpenGLFont()
 	{
+		QK_SCOPE_TIMER(OpenGLFont::~OpenGLFont);
+
 		glDeleteTextures(1, &m_RendererID);
 
 		--s_FontCount;
