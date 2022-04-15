@@ -9,33 +9,37 @@ Official support for macOS and Linux is on it's way!
 # Installation & Setup
 
 ## On Windows
-1. After cloning this repository, run the script `GenVisualStudioSolution20xx_Win.bat` located under `Scripts/Windows`.
-2. Open the Visual Studio solution and hit build! Build for your desired configuration.
-3. Run `GenInclude_Win.bat`. This will generate the `include` directory alongside the `lib` and `vendor` folders.<br />
+1. Run `git clone --resursive `https://github.com/ThomasWorkOnline/Quark.git` in your desired environment folder.
+2. After cloning this repository, run the script `GenVisualStudioSolution20xx_Win.bat` located under `Scripts/Windows`.
+3. Open the Visual Studio solution and hit build! Build for your desired configuration.
+4. Run `GenInclude_Win.bat`. This will generate the `include` directory alongside the `lib` folder.<br />
 *NOTE: `GenInclude_Win.bat` will only copy files, so make sure the application is compiled for your desired platform.*
 
-4. Link the appropriate libraries for your application (on Visual Studio, you will need to link the Debug, Release and Dist binaries seperately depending on your configuration).<br />
-5. Don't forget to include the dependencies located under the generated build folder `/vendor`.
-6. Quark uses [glm](https://github.com/g-truc/glm). You will need to include glm as a dependency to your project.
-7. Quark also uses [entt](https://github.com/skypjack/entt). You will need to include both of these templated header libraries for Quark to link.
+5. Link the appropriate libraries for your application (on Visual Studio, you will need to link the Debug, Release and Dist binaries seperately depending on your configuration).<br />
 
 ## On MacOS
-1. After cloning this repository, run the script `GenMakefile_MacOS.sh` located under `Scripts/Macos`.
-2. Navigate to the project root directory and type `make config=dist` to build the application for distribution mode *or* `make config=debug` for debug mode.
+1. Run `git clone --resursive `https://github.com/ThomasWorkOnline/Quark.git` in your desired environment folder.
+2. After cloning this repository, run the script `GenMakefile_MacOS.sh` located under `Scripts/Macos`.
+3. Navigate to the project root directory and type `make config=<config>`.
+### Different configs:
+	`make config=debug`
+	`make config=release`
+	`make config=dist`   
 
-3. Run `GenInclude_MacOS.sh`. This will generate the `include` directory alongside the `lib` and `vendor` folders.<br />
+4. Run `GenInclude_MacOS.sh`. This will generate the `include` directory alongside the `lib` folder.<br />
 *NOTE: `GenInclude_MacOS.sh` will only copy files, so make sure the application is compiled for your desired platform.*
 
-4. Link the appropriate libraries for your application (remember to link the debug and release configs appropriately).
-5. Don't forget to include the dependencies located under the generated build folder `/vendor`.
-6. Quark uses [glm](https://github.com/g-truc/glm). You will need to include glm as a dependency to your project.
-7. Quark also uses [entt](https://github.com/skypjack/entt). You will need to include both of these templated header libraries for Quark to link.
+5. Link the appropriate libraries for your application (remember to link the debug and release configs appropriately).
 
 ## On Linux
 Coming soon!
 
 ## Dependencies
-*(all dependencies are located inside the `vendor` folder when the project has been built)*.
+*(all dependencies are located inside the `Quark/vendor` folder)*.
+
+Don't forget to include the dependencies located in the `Quark/vendor` folder.
+Quark uses [glm](https://github.com/g-truc/glm). You will need to include glm as a dependency to your project.
+Quark also uses [entt](https://github.com/skypjack/entt). You will need to include both of these templated header libraries for Quark to link.
 
 ## Build Configurations
 ### Debug
