@@ -12,7 +12,7 @@ namespace Quark {
 	static FT_Library s_Library;
 
 	static constexpr uint8_t s_ASCII_Start  = 32;
-	static constexpr uint8_t s_ASCII_End    = 128;
+	static constexpr uint8_t s_ASCII_End    = 255;
 	static constexpr uint8_t s_GlyphCount   = s_ASCII_End - s_ASCII_Start;
 
 	OpenGLFont::OpenGLFont(std::string_view filepath, uint32_t fontSize)
@@ -108,6 +108,7 @@ namespace Quark {
 
 	const Glyph& OpenGLFont::GetGlyph(uint8_t charcode) const
 	{
+		QK_ASSERT(charcode >= s_ASCII_Start, "Invalid charcode");
 		return m_Glyphs.at(charcode - s_ASCII_Start);
 	}
 
