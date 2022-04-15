@@ -160,5 +160,6 @@ For instance, in a FPS, you would not wan't your player controller to shoot when
 # Dependencies
 glm: https://github.com/g-truc/glm<br />
 entt: https://github.com/skypjack/entt<br />
+spdlog: https://github.com/gabime/spdlog/tree/083ea59fbd06add6f973636acca93ae0dfc0b73f<br />
 
 Feel free to explore!
