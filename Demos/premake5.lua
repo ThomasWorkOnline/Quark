@@ -1,4 +1,4 @@
-project "Tests"
+project "Demos"
 	language "C++"
 	cppdialect "C++17"
 	staticruntime "off"

@@ -1,6 +1,6 @@
 workspace "Quark"
 	architecture "x86_64"
-	startproject "Tests"
+	startproject "Demos"
 
 	configurations
 	{
@@ -17,4 +17,4 @@ workspace "Quark"
 outputdir = "%{cfg.system}-%{cfg.buildcfg}-%{cfg.architecture}"
 
 include "Quark"
-include "Tests"
+include "Demos"
