@@ -8,6 +8,7 @@
 
 #include "Renderer2D.h"
 
+#include "Font.h"
 #include "Framebuffer.h"
 #include "PerspectiveCamera.h"
 #include "Shader.h"
@@ -42,7 +43,7 @@ namespace Quark {
 
 		static void OnWindowResized(uint32_t width, uint32_t height);
 
-		static const ShaderLibrary& GetShaderLibrary() { return s_ShaderLibrary; }
+		static ShaderLibrary& GetShaderLibrary() { return s_ShaderLibrary; }
 
 	private:
 		static ShaderLibrary s_ShaderLibrary;

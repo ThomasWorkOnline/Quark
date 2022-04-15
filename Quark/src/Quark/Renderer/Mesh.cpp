@@ -90,12 +90,14 @@ namespace Quark {
 		return std::strtof(token.data(), &end);
 	}
 
-	static void ReadOBJData(std::string_view filepath, OBJData& data)
+	static void ReadOBJData(std::string_view filepath, OBJData& data, const MeshDescriptor& descriptor)
 	{
 		const std::string fileRaw = Filesystem::ReadTextFile(filepath);
 
 		std::string_view file = fileRaw;
 		std::vector<std::string_view> tokens;
+
+		float Zflip = descriptor.ZFlip ? -1 : 1;
 
 		size_t pos = 0;
 		size_t eol;
@@ -107,26 +109,26 @@ namespace Quark {
 
 			if (line.substr(0, 2) == "v " && tokens.size() >= 4)
 			{
-				glm::vec3 vertex;
-				vertex.x = ExtractFromToken(tokens[1]);
-				vertex.y = ExtractFromToken(tokens[2]);
-				vertex.z = ExtractFromToken(tokens[3]);
-				data.Positions.push_back(vertex);
+				data.Positions.emplace_back(
+					ExtractFromToken(tokens[1]),
+					ExtractFromToken(tokens[2]),
+					ExtractFromToken(tokens[3]) * Zflip
+				);
 			}
 			else if (line.substr(0, 2) == "vt" && tokens.size() >= 3)
 			{
-				glm::vec2 texCoord;
-				texCoord.x = ExtractFromToken(tokens[1]);
-				texCoord.y = ExtractFromToken(tokens[2]);
-				data.TexCoords.push_back(texCoord);
+				data.TexCoords.emplace_back(
+					ExtractFromToken(tokens[1]),
+					ExtractFromToken(tokens[2])
+				);
 			}
 			else if (line.substr(0, 2) == "vn" && tokens.size() >= 4)
 			{
-				glm::vec3 normal;
-				normal.x = ExtractFromToken(tokens[1]);
-				normal.y = ExtractFromToken(tokens[2]);
-				normal.z = ExtractFromToken(tokens[3]);
-				data.Normals.push_back(normal);
+				data.Normals.emplace_back(
+					ExtractFromToken(tokens[1]),
+					ExtractFromToken(tokens[2]),
+					ExtractFromToken(tokens[3]) * Zflip
+				);
 			}
 			else if (line.substr(0, 1) == "f" && tokens.size() >= 4)
 			{
@@ -150,18 +152,27 @@ namespace Quark {
 		}
 
 		if (data.Positions.empty())
+		{
 			data.Positions.push_back(glm::vec3(0.0f));
+			QK_CORE_WARN("Invalid mesh: does not contain position information.");
+		}
 
 		if (data.TexCoords.empty())
+		{
 			data.TexCoords.push_back(glm::vec2(0.0f));
+			QK_CORE_WARN("Invalid mesh: does not contain texCoord information.");
+		}
 
 		if (data.Normals.empty())
+		{
 			data.Normals.push_back(glm::vec3(0.0f));
+			QK_CORE_WARN("Invalid mesh: does not contain normal information.");
+		}
 	}
 
-	Mesh::Mesh(std::string_view filepath)
+	Mesh::Mesh(std::string_view filepath, const MeshDescriptor& descriptor)
 	{
-		LoadOBJFromFile(filepath);
+		LoadOBJFromFile(filepath, descriptor);
 	}
 
 	void Mesh::GenerateUnitCube()
@@ -173,16 +184,16 @@ namespace Quark {
 
 		m_VertexArray->AddVertexBuffer(vbo);
 
-		auto ibo = IndexBuffer::Create(Cube::Indices, sizeof(Cube::Indices) / sizeof(uint32_t));
+		auto ibo = IndexBuffer::Create(Cube::Indices, sizeof(Cube::Indices) / sizeof(Cube::Indices[0]));
 		m_VertexArray->SetIndexBuffer(ibo);
 	}
 
-	void Mesh::LoadOBJFromFile(std::string_view filepath)
+	void Mesh::LoadOBJFromFile(std::string_view filepath, const MeshDescriptor& descriptor)
 	{
 		QK_SCOPE_TIMER(Mesh::LoadOBJFromFile);
 
 		OBJData data;
-		ReadOBJData(filepath, data);
+		ReadOBJData(filepath, data, descriptor);
 
 		size_t vertexCount = data.VertexCount();
 		if (vertexCount == 0)
@@ -200,9 +211,23 @@ namespace Quark {
 		}
 
 		uint32_t* indices = new uint32_t[vertexCount];
-		for (uint32_t i = 0; i < vertexCount; i++)
+		if (descriptor.ZFlip)
 		{
-			indices[i] = i;
+			for (uint32_t i = 0; i < vertexCount; i += 3)
+			{
+				indices[i + 0] = i + 2;
+				indices[i + 1] = i + 1;
+				indices[i + 2] = i + 0;
+			}
+		}
+		else
+		{
+			for (uint32_t i = 0; i < vertexCount; i += 3)
+			{
+				indices[i + 0] = i + 0;
+				indices[i + 1] = i + 1;
+				indices[i + 2] = i + 2;
+			}
 		}
 
 		m_VertexArray = VertexArray::Create();

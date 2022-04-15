@@ -1,7 +1,7 @@
-#include "FontTest/FontTest.h"
+#include "Tests/PBRRendering.h"
 
 int main()
 {
-	auto test = Quark::CreateScope<FontTest>();
+	auto test = Quark::CreateScope<PBRRendering>();
 	test->Run();
 }

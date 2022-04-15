@@ -22,8 +22,13 @@ private:
 	Scene m_Scene;
 	Entity m_Player;
 	PerspectiveCameraController m_Controller;
-	Ref<Texture2D> m_Texture;
+
+	Ref<Texture2D> m_Albedo;
+	Ref<Texture2D> m_Normal;
+	Ref<Texture2D> m_Metallic;
+	Ref<Texture2D> m_Roughness;
+	Ref<Texture2D> m_AmbiantOcclusion;
 
 	Ref<Shader> m_Shader;
-	Mesh m_Cube;
+	Mesh m_Body;
 };

@@ -5,6 +5,10 @@
 
 #include <glad/glad.h>
 
+#define STB_IMAGE_WRITE_STATIC
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <stb_image_write.h>
+
 namespace Quark {
 
 	static constexpr bool IsPowerOfTwo(uint32_t x)
@@ -51,15 +55,20 @@ namespace Quark {
 		m_Spec.RenderModes = modes;
 
 		GLenum internalFormat = 0, dataFormat = 0;
-		if (props.Channels == 4)
+		switch (props.Channels)
 		{
-			internalFormat = props.SRGB ? GL_SRGB8_ALPHA8 : GL_RGBA8;
-			dataFormat = GL_RGBA;
-		}
-		else if (props.Channels == 3)
-		{
+		case 1:
+			internalFormat = GL_R8;
+			dataFormat = GL_RED;
+			break;
+		case 3:
 			internalFormat = props.SRGB ? GL_SRGB8 : GL_RGB8;
 			dataFormat = GL_RGB;
+			break;
+		case 4:
+			internalFormat = props.SRGB ? GL_SRGB8_ALPHA8 : GL_RGBA8;
+			dataFormat = GL_RGBA;
+			break;
 		}
 
 		m_InternalFormat = internalFormat;
@@ -69,6 +78,7 @@ namespace Quark {
 		glGenTextures(1, &m_RendererID);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, m_RendererID);
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 		glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, m_Spec.Width, m_Spec.Height, 0, dataFormat, GL_UNSIGNED_BYTE, *image);
 
