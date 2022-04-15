@@ -73,7 +73,7 @@ class YourApplication : public Quark::Application
 
 Allocating an instance of your application can potentially be very memory heavy.
 Therefore, instantiating your application on the stack is not adviced.
-I suggest you dynamically allocate your app to prevent high stack usage which can lead to janky behavior.
+I suggest you dynamically allocate your app to prevent high stack usage which can lead to bugs and crashes.
 
 ```c++
 int main()
