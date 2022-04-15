@@ -36,7 +36,7 @@ project "Quark"
 		"vendor/glm",
 		"vendor/openal/include",
 		"vendor/spdlog/include",
-		"vendor/stb_image"
+		"vendor/stb"
 	}
 
 	links
