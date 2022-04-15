@@ -11,7 +11,7 @@ Official support for macOS and Linux is on it's way!
 ## On Windows
 1. Run `git clone --resursive https://github.com/ThomasWorkOnline/Quark.git` in your desired environment folder.
 2. After cloning this repository, run the script `GenVisualStudioSolution20xx_Win.bat` located under `Scripts/Windows`.
-3. Open the Visual Studio solution and hit build! Build for your desired configuration.
+3. Open the Visual Studio solution and hit build! Build for your desired configuration(s).
 4. Run `GenInclude_Win.bat`. This will generate the `include` directory alongside the `lib` folder.<br />
 *NOTE: `GenInclude_Win.bat` will only copy files, so make sure the application is compiled for your desired platform.*
 
