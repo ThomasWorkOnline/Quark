@@ -29,14 +29,14 @@ namespace Quark {
 	{
 	public:
 		Text() = default;
-		Text(const std::string& text, const Ref<Font>& font, const glm::vec4& color,
+		Text(std::string text, const Ref<Font>& font, const glm::vec4& color,
 			HorizontalTextAlignment hAlign = HorizontalTextAlignment::Default, VerticalTextAlignment vAlign = VerticalTextAlignment::Default);
 
 		std::string_view GetString() const { return m_Text; }
-		void SetString(const std::string& text) { m_Text = text; }
+		void SetString(std::string text);
 
 		const Ref<Font>& GetFont() const { return m_Font; }
-		void SetFont(const Ref<Font>& font) { m_Font = font; }
+		void SetFont(const Ref<Font>& font);
 
 		const glm::vec4& GetColor() const { return m_Color; }
 		void SetColor(const glm::vec4& color) { m_Color = color; }
@@ -50,6 +50,9 @@ namespace Quark {
 		glm::ivec2 GetOrigin() const { return { GetOriginX(), GetOriginY() }; }
 		int32_t GetOriginX() const;
 		int32_t GetOriginY() const;
+
+	private:
+		void CalculateLabelDimensions();
 
 	private:
 		std::string m_Text;

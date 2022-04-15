@@ -70,6 +70,9 @@ bool MainLayer::OnKeyPressed(KeyPressedEvent& e)
 		case KeyCode::Down:
 			m_Text.SetVerticalAlignment(VerticalTextAlignment::Bottom);
 			break;
+		case KeyCode::N:
+			m_Text.SetString("New Text is now longer!");
+			break;
 	}
 	return false;
 }
