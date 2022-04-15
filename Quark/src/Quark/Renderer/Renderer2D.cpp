@@ -6,12 +6,12 @@
 namespace Quark {
 
 	/*      Index order
-	 *	1    2       1 <- 2
-	 *	    /^	     |   ^ 
-	 *	   / |       |  /	 
-	 *	  /  |	     | /	 
-	 *	 v	 |       v/	 
-	 *	0 -> 3       0    3
+	 *  1    2       1 <- 2
+	 *      /^	     |   ^ 
+	 *     / |       |  /	 
+	 *    /  |	     | /	 
+	 *   v	 |       v/	 
+	 *  0 -> 3       0    3
 	 */
 
 	static constexpr glm::vec4 s_SpriteVertexPositions[] = {
