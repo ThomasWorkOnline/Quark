@@ -89,7 +89,7 @@ class YourApplication : public Quark::Application
 {
 public:
 	// Called each frame
-	// Elapsed time is in seconds
+	// Elapsed time holds the time delta in seconds between frames
 	void OnUpdate(Quark::Timestep elapsedTime) override
 	{
 		// Run your app logic and rendering here:
