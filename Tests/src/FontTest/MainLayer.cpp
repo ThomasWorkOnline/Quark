@@ -9,44 +9,41 @@ MainLayer::MainLayer()
 	spec.DataFormat = TextureFormat::RGBA8;
 	spec.RenderModes.MagFilteringMode = TextureFilteringMode::Nearest;
 
-	m_Font1 = m_Library.Load("arial-regular", "assets/fonts/arial.ttf", 0, 128);
-	m_Font2 = m_Library.Load("agency-regular", "assets/fonts/ANTQUAI.TTF", 0, 64);
+	m_Font1 = m_Library.Load("arial-regular", "assets/fonts/arial.ttf", 48);
+	m_Font2 = m_Library.Load("agency-regular", "assets/fonts/ANTQUAI.TTF", 64);
 
-	m_Text = Text("Some sample text!", m_Font1, m_Color1, 1.0f, 1.0f, HorizontalTextAlignment::Left);
-	m_Transform2 = glm::translate(m_Transform2, glm::vec3(-0.4f, -0.3f, 0.0f));
+	m_Text = Text("Hello quad", m_Font1, m_Color1, HorizontalTextAlignment::Left, VerticalTextAlignment::Center);
+	m_Text2 = Text("Hello quad", m_Font1, m_Color1, HorizontalTextAlignment::Right, VerticalTextAlignment::Bottom);
 	m_Texture = Texture2D::Create("assets/textures/sprite_sheet.png", spec.RenderModes);
+
+	auto& window = Application::Get().GetWindow();
+	float width  = window.GetWidth();
+	float height = window.GetHeight();
+
+	m_Camera.SetProjection(-width / 2, width / 2, -height / 2, height / 2);
 }
 
 void MainLayer::OnUpdate(Timestep elapsedTime)
 {
-	Renderer::BeginScene(m_Camera.GetProjection(), m_CameraView);
-
-	static constexpr glm::vec4 colorStart = { 0.0f, 1.0f, 1.0f, 1.0f };
-	static constexpr glm::vec4 colorEnd = { 1.0f, 0.0f, 0.0f, 1.0f };
-
-	Renderer::DrawLine({ 0, 0, 1 }, { 1, 0.5, 1 }, colorStart, colorEnd);
-
-	Renderer::DrawSprite(m_Texture, m_Transform3);
-
-	RenderCommand::SetDepthFunction(RenderDepthFunction::LessEqual);
-	Renderer::DrawText(m_Text, m_Transform1);
-	Renderer::DrawText(m_Font2, "Hi there!", m_Color2, glm::vec2(1.0f), glm::vec2(0.0f), m_Transform2);
-	RenderCommand::SetDepthFunction(RenderDepthFunction::Default);
-
+	Renderer::BeginScene(m_Camera.GetProjection(), glm::mat4(1.0f));
+	Renderer::DrawText(m_Text);
+	Renderer::DrawText(m_Text2);
 	Renderer::EndScene();
 }
 
 void MainLayer::OnEvent(Event& e)
 {
 	EventDispatcher dispatcher(e);
-
 	dispatcher.Dispatch<WindowResizedEvent>(ATTACH_EVENT_FN(MainLayer::OnWindowResized));
 	dispatcher.Dispatch<KeyPressedEvent>(ATTACH_EVENT_FN(MainLayer::OnKeyPressed));
 }
 
 bool MainLayer::OnWindowResized(WindowResizedEvent& e)
 {
-	m_Camera.SetAspectRatio((float)e.GetWidth() / e.GetHeight());
+	float width = e.GetWidth();
+	float height = e.GetHeight();
+
+	m_Camera.SetProjection(-width / 2, width / 2, -height / 2, height / 2);
 	return false;
 }
 
@@ -61,6 +58,18 @@ bool MainLayer::OnKeyPressed(KeyPressedEvent& e)
 			window.SetFullScreen(!fullscreen);
 			break;
 		}
+		case KeyCode::Left:
+			m_Text.SetHorizontalAlignment(HorizontalTextAlignment::Left);
+			break;
+		case KeyCode::Right:
+			m_Text.SetHorizontalAlignment(HorizontalTextAlignment::Right);
+			break;
+		case KeyCode::Up:
+			m_Text.SetVerticalAlignment(VerticalTextAlignment::Top);
+			break;
+		case KeyCode::Down:
+			m_Text.SetVerticalAlignment(VerticalTextAlignment::Bottom);
+			break;
 	}
 	return false;
 }

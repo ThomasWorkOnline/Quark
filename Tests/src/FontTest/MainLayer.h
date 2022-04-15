@@ -22,13 +22,12 @@ private:
 	Ref<Font> m_Font2;
 	Ref<Texture2D> m_Texture;
 	Text m_Text;
+	Text m_Text2;
 
 	glm::vec4 m_Color1 = { 1.0f, 1.0f, 0.0f, 1.0f };
 	glm::vec4 m_Color2 = { 1.0f, 0.0f, 1.0f, 0.5f };
-	glm::mat4 m_Transform1 = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.01f));
-	glm::mat4 m_Transform2 = glm::mat4(1.0f);
-	glm::mat4 m_Transform3 = glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 1.0f)), glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	glm::mat4 m_Transform = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
-	PerspectiveCamera m_Camera = { 16.0f / 9.0f, 70.0f };
-	glm::mat4 m_CameraView = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	OrthographicCamera m_Camera;
 };
+ 

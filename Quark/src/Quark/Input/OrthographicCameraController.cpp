@@ -77,6 +77,7 @@ namespace Quark {
 				QK_CORE_TRACE("Teleported to world origin");
 			}
 
+#if 0
 			// Zooming
 			static constexpr float zoomFrictionCoeff = 8.0f;
 			m_ZoomSpeed -= (m_ZoomSpeed * zoomFrictionCoeff) * elapsedTime;
@@ -97,6 +98,7 @@ namespace Quark {
 				camera.SetZoom(1000.0f);
 				m_ZoomSpeed = 0.0f;
 			}
+#endif
 		}
 	}
 
@@ -117,7 +119,7 @@ namespace Quark {
 	bool OrthographicCameraController::OnWindowResized(WindowResizedEvent& e)
 	{
 		if (m_CameraEntity)
-			m_CameraEntity.GetComponent<OrthographicCameraComponent>().Camera.SetAspectRatio((float)e.GetWidth() / e.GetHeight());
+			m_CameraEntity.GetComponent<OrthographicCameraComponent>().Camera.SetProjection(0, 0, e.GetWidth(), e.GetHeight());
 
 		return false;
 	}

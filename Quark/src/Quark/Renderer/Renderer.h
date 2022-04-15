@@ -64,30 +64,23 @@ namespace Quark {
 		static void DrawSprite(const Ref<Texture2D>& texture, const glm::vec2* texCoords, const glm::mat4& transform = glm::mat4(1.0f));
 		static void DrawSprite(const SubTexture2D& subTexture, const glm::mat4& transform = glm::mat4(1.0f));
 		static void DrawSprite(const glm::vec4& color, const glm::mat4& transform = glm::mat4(1.0f));
-		static void DrawText(const Text& text, const glm::mat4& transform = glm::mat4(1.0f));
-		static void DrawText(const Ref<Font>& font, std::string_view text, const glm::vec4& color, const glm::vec2& size, const glm::vec2& origin = glm::vec2(0.0f, 0.0f), const glm::mat4& transform = glm::mat4(1.0f));
+		static void DrawText(const Text& text);
+		static void DrawText(const Ref<Font>& font, std::string_view text, const glm::vec4& color, const glm::ivec2& origin = glm::ivec2(0.0f, 0.0f));
 		static void DrawLine(const glm::vec3& p1, const glm::vec3& p2, const glm::vec4& beginColor, const glm::vec4& endColor);
 
 		static const RendererStats& GetStats() { return s_Stats; }
 
 	private:
-		// Ensure std140 layout
-		struct SceneData
-		{
-			glm::mat4 ViewProjection;
-		};
-
-		struct SetupData;
+		struct Renderer2DSetupData;
 
 		static void StartBatch();
 		static void PushBatch();
 		static void ResetStats();
 
-		static void SetupQuadRenderer(SetupData& setupData);
-		static void SetupFontRenderer(SetupData& setupData);
+		static void SetupQuadRenderer(Renderer2DSetupData& setupData);
+		static void SetupFontRenderer(Renderer2DSetupData& setupData);
 		static void SetupLineRenderer();
 
-		static SceneData s_SceneData;
 		static RendererStats s_Stats;
 		static uint32_t s_ViewportWidth, s_ViewportHeight;
 	};

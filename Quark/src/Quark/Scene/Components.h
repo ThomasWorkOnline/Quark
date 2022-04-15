@@ -79,8 +79,8 @@ namespace Quark {
 	{
 		OrthographicCamera Camera;
 
-		OrthographicCameraComponent(float aspectRatio, float zoom)
-			: Camera(aspectRatio, zoom) {}
+		OrthographicCameraComponent(float left, float right, float bottom, float top)
+			: Camera(left, right, bottom, top) {}
 	};
 
 	struct TagComponent

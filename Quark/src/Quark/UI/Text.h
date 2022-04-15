@@ -12,7 +12,6 @@ namespace Quark {
 		Left = 0,
 		Right,
 		Center,
-		Justify,
 
 		Default = Left
 	};
@@ -30,33 +29,36 @@ namespace Quark {
 	{
 	public:
 		Text() = default;
-		Text(const std::string& text, const Ref<Font>& font, const glm::vec4& color, float width, float height,
+		Text(const std::string& text, const Ref<Font>& font, const glm::vec4& color,
 			HorizontalTextAlignment hAlign = HorizontalTextAlignment::Default, VerticalTextAlignment vAlign = VerticalTextAlignment::Default);
 
-		const std::string& GetString() const { return m_Text; }
+		std::string_view GetString() const { return m_Text; }
 		void SetString(const std::string& text) { m_Text = text; }
 
 		const Ref<Font>& GetFont() const { return m_Font; }
 		void SetFont(const Ref<Font>& font) { m_Font = font; }
 
-		const glm::vec4& GetColor() const { return m_Color;  }
+		const glm::vec4& GetColor() const { return m_Color; }
 		void SetColor(const glm::vec4& color) { m_Color = color; }
 
-		glm::vec2 GetSize() const { return { m_Width, m_Height }; }
-		float GetWidth() const { return m_Width; }
-		float GetHeight() const { return m_Height; }
+		HorizontalTextAlignment GetHorizontalAlignment() const { return m_HAlign; }
+		void SetHorizontalAlignment(HorizontalTextAlignment align) { m_HAlign = align; }
 
-		glm::vec2 GetOrigin() const { return { GetOriginX(), GetOriginY() }; }
-		float GetOriginX() const;
-		float GetOriginY() const;
+		VerticalTextAlignment GetVerticalAlignment() const { return m_VAlign; }
+		void SetVerticalAlignment(VerticalTextAlignment align) { m_VAlign = align; }
+
+		glm::ivec2 GetOrigin() const { return { GetOriginX(), GetOriginY() }; }
+		int32_t GetOriginX() const;
+		int32_t GetOriginY() const;
 
 	private:
 		std::string m_Text;
 		Ref<Font> m_Font;
-		glm::vec4 m_Color;
-		float m_Width, m_Height;
+		glm::vec4 m_Color = glm::vec4(1.0f);
 
-		HorizontalTextAlignment m_HAlign;
-		VerticalTextAlignment m_VAlign;
+		int32_t m_Width = 0, m_Height = 0;
+
+		HorizontalTextAlignment m_HAlign{};
+		VerticalTextAlignment m_VAlign{};
 	};
 }

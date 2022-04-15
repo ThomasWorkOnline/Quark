@@ -7,12 +7,12 @@
 
 namespace Quark {
 
-	struct Character
+	struct Glyph
 	{
 		glm::ivec2 Size;
 		glm::ivec2 Bearing;
 		glm::ivec2 Advance;
-		float TexCoordX;
+		uint32_t OffsetX;
 	};
 
 	class Font
@@ -23,12 +23,10 @@ namespace Quark {
 		virtual void Attach(uint32_t textureSlot = 0) const = 0;
 		virtual void Detach() const = 0;
 
-		virtual const Character& GetCharacter(uint32_t charcode) const = 0;
-		virtual uint32_t GetCharacterCount() const = 0;
+		virtual const Glyph& GetGlyph(uint32_t charcode) const = 0;
+		virtual uint32_t GetGlyphCount() const = 0;
 
-		virtual uint32_t GetPixelWidth() const = 0;
-		virtual uint32_t GetPixelHeight() const = 0;
-
+		virtual uint32_t GetFontSize() const = 0;
 		virtual uint32_t GetAtlasWidth() const = 0;
 		virtual uint32_t GetAtlasHeight() const = 0;
 
@@ -36,13 +34,13 @@ namespace Quark {
 
 		virtual bool operator==(const Font& other) const = 0;
 
-		static Ref<Font> Create(std::string_view filepath, uint32_t width = 0, uint32_t height = 48);
+		static Ref<Font> Create(std::string_view filepath, uint32_t fontSize);
 	};
 
 	class FontLibrary
 	{
 	public:
-		Ref<Font> Load(const std::string& name, std::string_view filepath, uint32_t width = 0, uint32_t height = 48);
+		Ref<Font> Load(const std::string& name, std::string_view filepath, uint32_t fontSize);
 		void Add(const Ref<Font>& font, const std::string& name);
 
 		const Ref<Font>& Get(const std::string& name);

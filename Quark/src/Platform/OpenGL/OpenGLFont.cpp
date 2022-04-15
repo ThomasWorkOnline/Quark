@@ -15,8 +15,8 @@ namespace Quark {
 	static constexpr uint8_t s_ASCII_End    = 128;
 	static constexpr uint8_t s_GlyphCount   = s_ASCII_End - s_ASCII_Start;
 
-	OpenGLFont::OpenGLFont(std::string_view filepath, uint32_t width, uint32_t height)
-		: m_Width(width), m_Height(height)
+	OpenGLFont::OpenGLFont(std::string_view filepath, uint32_t fontSize)
+		: m_FontSize(fontSize)
 	{
 		if (s_FontCount == 0)
 			Init();
@@ -27,7 +27,7 @@ namespace Quark {
 		error = FT_New_Face(s_Library, filepath.data(), 0, &m_Face);
 		QK_CORE_ASSERT(error == FT_Err_Ok, "Could not load new font face at path: '{0}'", filepath);
 
-		error = FT_Set_Pixel_Sizes(m_Face, width, height);
+		error = FT_Set_Pixel_Sizes(m_Face, 0, fontSize);
 		QK_CORE_ASSERT(error == FT_Err_Ok, "Could not set font dimensions.");
 
 		QK_CORE_TRACE("Loading {0} glyphs from font at path: '{1}'", s_GlyphCount, filepath);
@@ -66,28 +66,28 @@ namespace Quark {
 
 			glTexSubImage2D(GL_TEXTURE_2D, 0, x, 0, g->bitmap.width, g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, g->bitmap.buffer);
 
-			Character character = {
+			m_Glyphs[i] = {
 				{ g->bitmap.width, g->bitmap.rows },
 				{ g->bitmap_left, g->bitmap_top },
-				{ g->advance.x >> 6, g->advance.y >> 6 },
-				(float)x / (float)w
+				{ g->advance.x, g->advance.y },
+				x
 			};
-
-			m_Characters[i] = character;
 
 			x += g->bitmap.width;
 		}
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 		FT_Done_Face(m_Face);
 	}
 
 	OpenGLFont::~OpenGLFont()
 	{
+		glDeleteTextures(1, &m_RendererID);
+
 		--s_FontCount;
 
 		if (s_FontCount == 0)

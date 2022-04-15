@@ -2,14 +2,18 @@
 
 namespace Quark {
 
-	OrthographicCamera::OrthographicCamera(float aspectRatio, float zoom)
-		: m_AspectRatio(aspectRatio), m_Zoom(zoom)
+	OrthographicCamera::OrthographicCamera()
 	{
-		RecalculateProjection();
+		SetProjection(-1, 1, -1, 1);
 	}
 
-	void OrthographicCamera::RecalculateProjection()
+	OrthographicCamera::OrthographicCamera(float left, float right, float bottom, float top)
 	{
-		m_Matrix = glm::ortho(-m_Zoom * m_AspectRatio, m_Zoom * m_AspectRatio, -m_Zoom, m_Zoom, -1.0f, 1.0f);
+		SetProjection(left, right, bottom, top);
+	}
+
+	void OrthographicCamera::SetProjection(float left, float right, float bottom, float top)
+	{
+		m_Projection = glm::ortho(left, right, bottom, top, -1.0f, 1.0f);
 	}
 }

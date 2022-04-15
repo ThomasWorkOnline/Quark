@@ -74,6 +74,7 @@ namespace Quark {
 		QK_CORE_INFO("Opened audio device: {0}", m_AudioOutputDevice->GetDeviceName());
 
 		Renderer::Initialize();
+		Renderer::OnWindowResized(m_Window->GetWidth(), m_Window->GetHeight());
 
 		if (m_Options.HasFlag(ShowApiInWindowTitle))
 		{

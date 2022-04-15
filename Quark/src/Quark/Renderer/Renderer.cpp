@@ -8,6 +8,15 @@
 
 namespace Quark {
 
+	/*      Index order
+	 *	1    2       1 <- 2
+	 *	    /^	     |   ^ 
+	 *	   / |       |  /	 
+	 *	  /  |	     | /	 
+	 *	 v	 |       v/	 
+	 *	0 -> 3       0    3
+	 */
+
 	static constexpr glm::vec4 s_SpriteVertexPositions[] = {
 		{ -0.5f, -0.5f, 0.0f, 1.0f },
 		{  0.5f, -0.5f, 0.0f, 1.0f },
@@ -68,24 +77,29 @@ namespace Quark {
 		Ref<Texture2D>* Textures = nullptr;
 		Ref<Font>* Fonts = nullptr;
 
+		// Ensure std140 layout
+		struct CameraData
+		{
+			glm::mat4 ViewProjection;
+		};
+
+		CameraData CameraBufferData{};
 		Ref<UniformBuffer> CameraUniformBuffer;
 	};
 
-	Renderer::SceneData Renderer::s_SceneData;
 	RendererStats Renderer::s_Stats;
-
 	uint32_t Renderer::s_ViewportWidth  = 0;
 	uint32_t Renderer::s_ViewportHeight = 0;
 
 	static RendererData s_Data;
-	struct Renderer::SetupData
+	struct Renderer::Renderer2DSetupData
 	{
 		uint32_t* Indices = nullptr;
 		int32_t* Samplers = nullptr;
 
-		SetupData()
+		Renderer2DSetupData()
 		{
-			QK_SCOPE_TIMER(SetupData::SetupData);
+			QK_SCOPE_TIMER(Renderer2DSetupData::Renderer2DSetupData);
 
 			// Samplers
 			Samplers = new int32_t[s_Data.MaxSamplers];
@@ -109,7 +123,7 @@ namespace Quark {
 			}
 		}
 
-		~SetupData()
+		~Renderer2DSetupData()
 		{
 			delete[] Indices;
 			delete[] Samplers;
@@ -127,9 +141,9 @@ namespace Quark {
 
 		s_Data.MaxSamplers         = RenderCommand::GetMaxTextureSlots();
 		s_Data.MaxUniformBuffers   = RenderCommand::GetMaxUniformBufferBindings();
-		s_Data.CameraUniformBuffer = UniformBuffer::Create(sizeof(SceneData), 0);
+		s_Data.CameraUniformBuffer = UniformBuffer::Create(sizeof(RendererData::CameraData), 0);
 
-		SetupData setupData{};
+		Renderer2DSetupData setupData;
 
 		SetupQuadRenderer(setupData);
 		SetupFontRenderer(setupData);
@@ -147,7 +161,7 @@ namespace Quark {
 		delete[] s_Data.Fonts;
 	}
 
-	void Renderer::SetupQuadRenderer(SetupData& setupData)
+	void Renderer::SetupQuadRenderer(Renderer2DSetupData& setupData)
 	{
 		QK_SCOPE_TIMER(Renderer::SetupQuadRenderer);
 
@@ -205,7 +219,6 @@ namespace Quark {
 			void main()
 			{
 				gl_Position = u_ViewProjection * vec4(a_Position, 1.0);
-
 				v_Output.TexCoord = a_TexCoord;
 				v_Output.Tint     = a_Tint;
 				v_Output.TexIndex = a_TexIndex;
@@ -242,7 +255,7 @@ namespace Quark {
 		s_Data.QuadShader->SetIntArray("u_Samplers", setupData.Samplers, s_Data.MaxSamplers);
 	}
 
-	void Renderer::SetupFontRenderer(SetupData& setupData)
+	void Renderer::SetupFontRenderer(Renderer2DSetupData& setupData)
 	{
 		QK_SCOPE_TIMER(Renderer::SetupFontRenderer);
 
@@ -287,7 +300,6 @@ namespace Quark {
 			void main()
 			{
 				gl_Position = u_ViewProjection * vec4(a_Position, 1.0);
-
 				v_Output.TexCoord = a_TexCoord;
 				v_Output.Color    = a_Color;
 				v_Output.TexIndex = a_TexIndex;
@@ -316,8 +328,8 @@ namespace Quark {
 			void main()
 			{
 				// Glyph information is encoded in the red channel
-				float texture = texture(u_Samplers[v_Input.TexIndex], v_Input.TexCoord.xy, 0).r;
-				o_Color = v_Input.Color * texture;
+				float texel = texture(u_Samplers[v_Input.TexIndex], v_Input.TexCoord.xy, 0).r;
+				o_Color = v_Input.Color * texel;
 			}
 		)";
 
@@ -358,7 +370,6 @@ namespace Quark {
 			void main()
 			{
 				gl_Position = u_ViewProjection * vec4(a_Position, 1.0);
-
 				v_Color = a_Color;
 			}
 		)";
@@ -388,9 +399,9 @@ namespace Quark {
 
 	void Renderer::BeginScene(const glm::mat4& cameraProjection, const glm::mat4& cameraView)
 	{
-		s_SceneData.ViewProjection = cameraProjection * cameraView;
+		s_Data.CameraBufferData.ViewProjection = cameraProjection * cameraView;
 		s_Data.CameraUniformBuffer->Attach();
-		s_Data.CameraUniformBuffer->SetData(&s_SceneData, sizeof(SceneData));
+		s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBufferData, sizeof(RendererData::CameraData));
 
 		StartBatch();
 		ResetStats();
@@ -460,41 +471,38 @@ namespace Quark {
 
 	void Renderer::ResetStats()
 	{
-		s_Stats.DrawCalls = 0;
+		s_Stats.DrawCalls  = 0;
 		s_Stats.QuadsDrawn = 0;
 		s_Stats.LinesDrawn = 0;
 	}
 
 	void Renderer::Submit(const Ref<Shader>& shader, const Ref<VertexArray>& va, const glm::mat4& transform)
 	{
+		s_Data.DefaultTexture->Attach();
+
 		shader->Attach();
 		shader->SetMat4("u_Model", transform);
 
-		s_Data.DefaultTexture->Attach();
-
-		va->Attach();
 		RenderCommand::DrawIndexed(va);
 	}
 
 	void Renderer::Submit(const Ref<Shader>& shader, const Ref<Texture2D>& texture, const Ref<VertexArray>& va, const glm::mat4& transform)
 	{
+		texture->Attach();
+
 		shader->Attach();
 		shader->SetMat4("u_Model", transform);
 
-		texture->Attach();
-
-		va->Attach();
 		RenderCommand::DrawIndexed(va);
 	}
 
 	void Renderer::Submit(const Ref<Shader>& shader, const Ref<Framebuffer>& framebuffer, const Ref<VertexArray>& va, const glm::mat4& transform)
 	{
+		framebuffer->AttachColorAttachment(0);
+
 		shader->Attach();
 		shader->SetMat4("u_Model", transform);
 
-		framebuffer->AttachColorAttachment(0);
-
-		va->Attach();
 		RenderCommand::DrawIndexed(va);
 	}
 
@@ -581,12 +589,12 @@ namespace Quark {
 		s_Stats.QuadsDrawn++;
 	}
 
-	void Renderer::DrawText(const Text& text, const glm::mat4& transform)
+	void Renderer::DrawText(const Text& text)
 	{
-		DrawText(text.GetFont(), text.GetString(), text.GetColor(), { 1.0f, 1.0f }, text.GetOrigin(), transform);
+		DrawText(text.GetFont(), text.GetString(), text.GetColor(), text.GetOrigin());
 	}
 
-	void Renderer::DrawText(const Ref<Font>& font, const std::string_view text, const glm::vec4& color, const glm::vec2& size, const glm::vec2& origin, const glm::mat4& transform)
+	void Renderer::DrawText(const Ref<Font>& font, std::string_view text, const glm::vec4& color, const glm::ivec2& origin)
 	{
 		// Check if buffer is full
 		if (s_Data.FontIndexCount >= RendererData::MaxIndices)
@@ -621,49 +629,48 @@ namespace Quark {
 			s_Data.FontSamplerIndex++;
 		}
 
-		static constexpr float scale = 0.001f;
+		int32_t x = origin.x;
+		int32_t y = origin.y;
 
-		float x = -origin.x;
-		float y = -origin.y;
-		for (uint32_t i = 0; i < text.size(); i++)
+		float atlasWidth = font->GetAtlasWidth();
+		float atlasHeight = font->GetAtlasHeight();
+
+		for (auto it = text.begin(); it != text.end(); it++)
 		{
-			auto& ch = font->GetCharacter(text[i]);
+			auto& g = font->GetGlyph(*it);
 
-			float xpos = (x + ch.Bearing.x) * scale;
-			float ypos = (-y - ch.Bearing.y) * scale;
-			float w = ch.Size.x * scale;
-			float h = ch.Size.y * scale;
-			float tx = ch.TexCoordX;
+			int32_t xpos = (x + g.Bearing.x);
+			int32_t ypos = (-y - g.Bearing.y);
+			int32_t w = g.Size.x;
+			int32_t h = g.Size.y;
+			float tx = (float)g.OffsetX / atlasWidth;
 
-			x += ch.Advance.x;
-			y += ch.Advance.y;
+			x += (g.Advance.x >> 6);
+			y += (g.Advance.y >> 6);
 
 			if (!w || !h)
 				continue;
 
-			float atlasWidth = (float)font->GetAtlasWidth();
-			float atlasHeight = (float)font->GetAtlasHeight();
-
-			s_Data.FontVertexPtr->Position = transform * glm::vec4(xpos + w, -ypos, 0.0f, 1.0f);
-			s_Data.FontVertexPtr->TexCoord = { tx + ch.Size.x / atlasWidth, 0.0f };
+			s_Data.FontVertexPtr->Position = glm::vec4(xpos + w, -ypos,     0.0f, 1.0f);
+			s_Data.FontVertexPtr->TexCoord = { tx + g.Size.x / atlasWidth, 0.0f };
 			s_Data.FontVertexPtr->Color    = color;
 			s_Data.FontVertexPtr->TexIndex = textureIndex;
 			s_Data.FontVertexPtr++;
 
-			s_Data.FontVertexPtr->Position = transform * glm::vec4(xpos, -ypos, 0.0f, 1.0f);
+			s_Data.FontVertexPtr->Position = glm::vec4(xpos,     -ypos,     0.0f, 1.0f);
 			s_Data.FontVertexPtr->TexCoord = { tx, 0.0f };
 			s_Data.FontVertexPtr->Color    = color;
 			s_Data.FontVertexPtr->TexIndex = textureIndex;
 			s_Data.FontVertexPtr++;
 
-			s_Data.FontVertexPtr->Position = transform * glm::vec4(xpos, -ypos - h, 0.0f, 1.0f);
-			s_Data.FontVertexPtr->TexCoord = { tx, ch.Size.y / atlasHeight };
+			s_Data.FontVertexPtr->Position = glm::vec4(xpos,     -ypos - h, 0.0f, 1.0f);
+			s_Data.FontVertexPtr->TexCoord = { tx, g.Size.y / atlasHeight };
 			s_Data.FontVertexPtr->Color    = color;
 			s_Data.FontVertexPtr->TexIndex = textureIndex;
 			s_Data.FontVertexPtr++;
 
-			s_Data.FontVertexPtr->Position = transform * glm::vec4(xpos + w, -ypos - h, 0.0f, 1.0f);
-			s_Data.FontVertexPtr->TexCoord = { tx + ch.Size.x / atlasWidth, ch.Size.y / atlasHeight };
+			s_Data.FontVertexPtr->Position = glm::vec4(xpos + w, -ypos - h, 0.0f, 1.0f);
+			s_Data.FontVertexPtr->TexCoord = { tx + g.Size.x / atlasWidth, g.Size.y / atlasHeight };
 			s_Data.FontVertexPtr->Color    = color;
 			s_Data.FontVertexPtr->TexIndex = textureIndex;
 			s_Data.FontVertexPtr++;
