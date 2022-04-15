@@ -10,7 +10,8 @@ struct Vertex
 TextureArrayTest::TextureArrayTest()
 {
 	TextureArraySpecification spec;
-	spec.DataFormat = TextureFormat::SRGBA8;
+	spec.DataFormat     = TextureDataFormat::RGBA;
+	spec.InternalFormat = TextureInternalFormat::SRGBA8;
 	spec.Width = 16;
 	spec.Height = 16;
 	spec.Layers = 2;
@@ -56,12 +57,12 @@ TextureArrayTest::TextureArrayTest()
 
 void TextureArrayTest::OnUpdate(Timestep elapsedTime)
 {
-	Renderer::BeginScene(m_Camera.GetProjection(), m_CameraView);
+	Renderer2D::BeginScene(m_Camera.GetProjection(), m_CameraView);
 
 	static constexpr glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
-	Renderer::DrawLine(glm::vec3(-1, -1, 0), glm::vec3(1, 1, 0), color, color);
+	Renderer2D::DrawLine(glm::vec3(-1, -1, 0), glm::vec3(1, 1, 0), color, color);
 
-	Renderer::EndScene();
+	Renderer2D::EndScene();
 
 	static glm::mat4 transform = glm::mat4(1.0f);
 	transform = glm::rotate(transform, elapsedTime * 0.1f, glm::vec3(1.0f, 0.0f, 0.0f));

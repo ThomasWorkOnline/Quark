@@ -15,7 +15,7 @@ namespace Quark {
 	OpenGLTexture2D::OpenGLTexture2D(const TextureSpecification& spec)
 		: m_Spec(spec)
 	{
-		m_InternalFormat = GetTextureInternalFormat(m_Spec.DataFormat);
+		m_InternalFormat = GetTextureInternalFormat(m_Spec.InternalFormat);
 		m_DataFormat = GetTextureFormat(m_Spec.DataFormat);
 
 		glGenTextures(1, &m_RendererID);
@@ -33,7 +33,7 @@ namespace Quark {
 			glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Spec.Width, m_Spec.Height, 0, m_DataFormat, GL_UNSIGNED_BYTE, nullptr);
 		}
 
-		GLenum target     = GetTextureTarget(m_Spec.Samples);
+		GLenum target     = GetTextureSampleTarget(m_Spec.Samples);
 		GLenum tilingMode = GetTextureTilingMode(m_Spec.RenderModes.TilingMode);
 		glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GetTextureFilteringMode(m_Spec.RenderModes.MinFilteringMode));
 		glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GetTextureFilteringMode(m_Spec.RenderModes.MagFilteringMode));
@@ -43,22 +43,22 @@ namespace Quark {
 
 	OpenGLTexture2D::OpenGLTexture2D(std::string_view filepath, const TextureRenderModes& modes)
 	{
-		Image image(filepath, true);
-		const ImageProperties& prop = image.GetProperties();
+		Image image(filepath);
+		const ImageProperties& props = image.GetProperties();
 
-		m_Spec.Width = prop.Width;
-		m_Spec.Height = prop.Height;
+		m_Spec.Width = props.Width;
+		m_Spec.Height = props.Height;
 		m_Spec.RenderModes = modes;
 
 		GLenum internalFormat = 0, dataFormat = 0;
-		if (prop.Channels == 4)
+		if (props.Channels == 4)
 		{
-			internalFormat = prop.SRGB ? GL_SRGB8_ALPHA8 : GL_RGBA8;
+			internalFormat = props.SRGB ? GL_SRGB8_ALPHA8 : GL_RGBA8;
 			dataFormat = GL_RGBA;
 		}
-		else if (prop.Channels == 3)
+		else if (props.Channels == 3)
 		{
-			internalFormat = prop.SRGB ? GL_SRGB8 : GL_RGB8;
+			internalFormat = props.SRGB ? GL_SRGB8 : GL_RGB8;
 			dataFormat = GL_RGB;
 		}
 
@@ -92,18 +92,18 @@ namespace Quark {
 		uint32_t bpp = alpha ? 4 : 3;
 		QK_CORE_ASSERT(size == m_Spec.Width * m_Spec.Height * bpp, "Data must be entire texture");
 
-		glBindTexture(GetTextureTarget(m_Spec.Samples), m_RendererID);
+		glBindTexture(GetTextureSampleTarget(m_Spec.Samples), m_RendererID);
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_Spec.Width, m_Spec.Height, m_DataFormat, GL_UNSIGNED_BYTE, data);
 	}
 
 	void OpenGLTexture2D::Attach(uint32_t textureSlot) const
 	{
 		glActiveTexture(GL_TEXTURE0 + textureSlot);
-		glBindTexture(GetTextureTarget(m_Spec.Samples), m_RendererID);
+		glBindTexture(GetTextureSampleTarget(m_Spec.Samples), m_RendererID);
 	}
 
 	void OpenGLTexture2D::Detach() const
 	{
-		glBindTexture(GetTextureTarget(m_Spec.Samples), 0);
+		glBindTexture(GetTextureSampleTarget(m_Spec.Samples), 0);
 	}
 }

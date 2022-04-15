@@ -14,7 +14,7 @@ namespace Quark {
 			case RenderingAPI::API::OpenGL:
 				return CreateRef<OpenGLVertexBuffer>(vertices, size);
 			default:
-				QK_FATAL("Rendering API not supported");
+				QK_CORE_FATAL("Rendering API not supported");
 				return nullptr;
 		}
 	}
@@ -26,7 +26,7 @@ namespace Quark {
 			case RenderingAPI::API::OpenGL:
 				return CreateRef<OpenGLVertexBuffer>(size);
 			default:
-				QK_FATAL("Rendering API not supported");
+				QK_CORE_FATAL("Rendering API not supported");
 				return nullptr;
 		}
 	}
@@ -38,7 +38,7 @@ namespace Quark {
 			case RenderingAPI::API::OpenGL:
 				return CreateRef<OpenGLIndexBuffer>(indices, count);
 			default:
-				QK_FATAL("Rendering API not supported");
+				QK_CORE_FATAL("Rendering API not supported");
 				return nullptr;
 		}
 	}
@@ -50,7 +50,7 @@ namespace Quark {
 			case RenderingAPI::API::OpenGL:
 				return CreateRef<OpenGLIndexBuffer>(count);
 			default:
-				QK_FATAL("Rendering API not supported");
+				QK_CORE_FATAL("Rendering API not supported");
 				return nullptr;
 		}
 	}

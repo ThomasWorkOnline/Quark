@@ -10,7 +10,7 @@ namespace Quark {
 	{
 		for (const auto& s : m_Spec.Attachments.Attachments)
 		{
-			if (!IsTextureDepthFormat(s.Format))
+			if (!IsTextureDepthFormat(s.InternalFormat))
 				m_ColorSpecs.emplace_back(s);
 			else
 				m_DepthSpec = s;
@@ -81,15 +81,15 @@ namespace Quark {
 
 			for (size_t i = 0; i < m_ColorAttachments.size(); i++)
 			{
-				glBindTexture(GetTextureSampleMode(multisampled), m_ColorAttachments[i]);
+				glBindTexture(GetTextureSampleTarget(multisampled), m_ColorAttachments[i]);
 
 				if (multisampled)
 				{
-					glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Spec.Samples, GetTextureInternalFormat(m_ColorSpecs[i].Format), m_Spec.Width, m_Spec.Height, GL_FALSE);
+					glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Spec.Samples, GetTextureInternalFormat(m_ColorSpecs[i].InternalFormat), m_Spec.Width, m_Spec.Height, GL_FALSE);
 				}
 				else
 				{
-					glTexImage2D(GL_TEXTURE_2D, 0, GetTextureInternalFormat(m_ColorSpecs[i].Format), m_Spec.Width, m_Spec.Height, 0,
+					glTexImage2D(GL_TEXTURE_2D, 0, GetTextureInternalFormat(m_ColorSpecs[i].InternalFormat), m_Spec.Width, m_Spec.Height, 0,
 						GetTextureFormat(m_ColorSpecs[i].Format), GL_UNSIGNED_BYTE, nullptr);
 
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetTextureFilteringMode(m_ColorSpecs[i].RenderModes.MinFilteringMode));
@@ -98,25 +98,24 @@ namespace Quark {
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GetTextureTilingMode(m_ColorSpecs[i].RenderModes.TilingMode));
 				}
 
-				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GetTextureSampleMode(multisampled), m_ColorAttachments[i], 0);
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GetTextureSampleTarget(multisampled), m_ColorAttachments[i], 0);
 			}
 		}
 
 		// Depth stencil format
-		if (m_DepthSpec.Format != TextureFormat::None)
+		if (m_DepthSpec.Format != TextureDataFormat::None)
 		{
 			glGenTextures(1, &m_DepthAttachment);
-			glBindTexture(GetTextureSampleMode(multisampled), m_DepthAttachment);
+			glBindTexture(GetTextureSampleTarget(multisampled), m_DepthAttachment);
 
 			if (multisampled)
 			{
-				glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Spec.Samples, GetTextureInternalFormat(m_DepthSpec.Format), m_Spec.Width, m_Spec.Height, GL_FALSE);
+				glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Spec.Samples, GetTextureInternalFormat(m_DepthSpec.InternalFormat), m_Spec.Width, m_Spec.Height, GL_FALSE);
 			}
 			else
 			{
-				glTexImage2D(GL_TEXTURE_2D, 0, GetTextureInternalFormat(m_DepthSpec.Format), m_Spec.Width, m_Spec.Height, 0,
+				glTexImage2D(GL_TEXTURE_2D, 0, GetTextureInternalFormat(m_DepthSpec.InternalFormat), m_Spec.Width, m_Spec.Height, 0,
 					GetTextureFormat(m_DepthSpec.Format), GL_UNSIGNED_BYTE, nullptr);
-				//glTexStorage2D(GL_TEXTURE_2D, 1, GetTextureInternalFormat(m_DepthSpec.TextureFormat), m_Spec.Width, m_Spec.Height); <-- Not supported by OpenGL 4.1 (MacOS)
 
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetTextureFilteringMode(m_DepthSpec.RenderModes.MinFilteringMode));
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GetTextureFilteringMode(m_DepthSpec.RenderModes.MagFilteringMode));
@@ -124,7 +123,7 @@ namespace Quark {
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GetTextureTilingMode(m_DepthSpec.RenderModes.TilingMode));
 			}
 
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GetTextureSampleMode(multisampled), m_DepthAttachment, 0);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GetTextureSampleTarget(multisampled), m_DepthAttachment, 0);
 		}
 
 		if (m_ColorAttachments.size() > 1)

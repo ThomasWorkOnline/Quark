@@ -10,12 +10,13 @@ namespace Quark {
 	struct FramebufferTextureSpecification
 	{
 		FramebufferTextureSpecification() = default;
-		FramebufferTextureSpecification(TextureFormat textureFormat,
+		FramebufferTextureSpecification(TextureDataFormat textureFormat,
 			TextureRenderModes modes = {})
 			: Format(textureFormat), RenderModes(modes) {}
 
-		TextureFormat Format = TextureFormat::None;
-		TextureRenderModes RenderModes;
+		TextureDataFormat     Format{};
+		TextureInternalFormat InternalFormat{};
+		TextureRenderModes    RenderModes;
 	};
 
 	struct FramebufferAttachmentSpecification

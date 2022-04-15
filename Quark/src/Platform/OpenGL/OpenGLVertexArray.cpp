@@ -27,7 +27,7 @@ namespace Quark {
 			case ShaderDataType::Int4:		return GL_INT;
 			case ShaderDataType::Bool:		return GL_BOOL;
 			default:
-				QK_FATAL("Unknown ShaderDataType");
+				QK_CORE_FATAL("Unknown ShaderDataType");
 				return 0;
 		}
 	}
@@ -146,7 +146,7 @@ namespace Quark {
 					break;
 				}
 				default:
-					QK_FATAL("Unknown ShaderDataType");
+					QK_CORE_FATAL("Unknown ShaderDataType");
 			}
 		}
 

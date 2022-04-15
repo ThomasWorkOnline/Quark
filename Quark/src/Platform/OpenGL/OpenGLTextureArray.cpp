@@ -11,7 +11,7 @@ namespace Quark {
 		// TODO: implement multisampling
 		QK_CORE_ASSERT(spec.Samples == 1, "OpenGLTexture2DArray does not yet support multisampling");
 
-		m_InternalFormat = GetTextureInternalFormat(m_Spec.DataFormat);
+		m_InternalFormat = GetTextureInternalFormat(m_Spec.InternalFormat);
 		m_DataFormat = GetTextureFormat(m_Spec.DataFormat);
 
 		glGenTextures(1, &m_RendererID);
@@ -19,7 +19,6 @@ namespace Quark {
 		glBindTexture(GL_TEXTURE_2D_ARRAY, m_RendererID);
 
 		glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, m_InternalFormat, m_Spec.Width, m_Spec.Height, m_Spec.Layers, 0, m_DataFormat, GL_UNSIGNED_BYTE, nullptr);
-		//glTexStorage3D(GL_TEXTURE_2D_ARRAY, spec.Levels, m_InternalFormat, m_Spec.Width, m_Spec.Height, m_Spec.Layers);
 
 		GLenum tilingMode = GetTextureTilingMode(m_Spec.RenderModes.TilingMode);
 		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GetTextureFilteringMode(m_Spec.RenderModes.MinFilteringMode));

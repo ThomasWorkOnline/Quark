@@ -18,7 +18,7 @@ namespace Quark {
 				case 8:  return AL_FORMAT_MONO8;
 				case 16: return AL_FORMAT_MONO16;
 				default:
-					QK_FATAL("Invalid bitdepth");
+					QK_CORE_FATAL("Invalid bitdepth");
 					return AL_NONE;
 			}
 			case 2:
@@ -27,11 +27,11 @@ namespace Quark {
 				case 8:  return AL_FORMAT_STEREO8;
 				case 16: return AL_FORMAT_STEREO16;
 				default:
-					QK_FATAL("Invalid bitdepth");
+					QK_CORE_FATAL("Invalid bitdepth");
 					return AL_NONE;
 			}
 			default:
-				QK_FATAL("Unknown audio format");
+				QK_CORE_FATAL("Unknown audio format");
 				return AL_NONE;
 		}
 	}

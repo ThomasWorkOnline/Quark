@@ -15,7 +15,7 @@ namespace Quark {
 	class Image
 	{
 	public:
-		Image(std::string_view filepath, bool flipVertically = false);
+		Image(std::string_view filepath, bool flipVertically = true);
 		~Image();
 
 		const ImageProperties& GetProperties() const { return m_Properties; }

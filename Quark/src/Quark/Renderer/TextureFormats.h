@@ -2,17 +2,34 @@
 
 namespace Quark {
 
-	enum class TextureFormat
+	enum class TextureDataFormat
 	{
 		None = 0,
 
 		// Color formats
+		RGB,
+		RGBA,
+
+		BGR,
+		BGRA,
+
+		Red,
+
+		Default = RGBA
+	};
+
+	enum class TextureInternalFormat
+	{
+		None = 0,
+
 		RGB8,
 		RGBA8,
 
 		// sRGB formats
 		SRGB8,
 		SRGBA8,
+
+		Red8,
 
 		// Depth formats
 		Depth24Stencil8,
@@ -49,9 +66,9 @@ namespace Quark {
 
 	struct TextureRenderModes
 	{
-		TextureFilteringMode MagFilteringMode = TextureFilteringMode::Linear;
-		TextureFilteringMode MinFilteringMode = TextureFilteringMode::LinearMipmapLinear;
-		TextureTilingMode TilingMode          = TextureTilingMode::Default;
+		TextureFilteringMode MagFilteringMode = TextureFilteringMode::Default;
+		TextureFilteringMode MinFilteringMode = TextureFilteringMode::Default;
+		TextureTilingMode    TilingMode       = TextureTilingMode::Default;
 	};
 
 	constexpr bool IsformatUsingMips(TextureFilteringMode mode)

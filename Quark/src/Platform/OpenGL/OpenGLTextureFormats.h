@@ -7,36 +7,38 @@
 
 namespace Quark {
 
-	constexpr GLenum GetTextureSampleMode(bool multisampled)
+	constexpr GLenum GetTextureSampleTarget(uint32_t samples)
 	{
-		return multisampled ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
+		return samples > 1 ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
 	}
 
-	constexpr GLenum GetTextureInternalFormat(TextureFormat format)
+	constexpr GLenum GetTextureInternalFormat(TextureInternalFormat format)
 	{
 		switch (format)
 		{
-			case TextureFormat::RGB8:				return GL_RGB8;
-			case TextureFormat::RGBA8:				return GL_RGBA8;
-			case TextureFormat::SRGB8:				return GL_SRGB8;
-			case TextureFormat::SRGBA8:				return GL_SRGB8_ALPHA8;
-			case TextureFormat::Depth24Stencil8:	return GL_DEPTH24_STENCIL8;
+			case TextureInternalFormat::RGB8:            return GL_RGB8;
+			case TextureInternalFormat::RGBA8:           return GL_RGBA8;
+			case TextureInternalFormat::SRGB8:           return GL_SRGB8;
+			case TextureInternalFormat::SRGBA8:          return GL_SRGB8_ALPHA8;
+			case TextureInternalFormat::Red8:            return GL_R8;
+			case TextureInternalFormat::Depth24Stencil8: return GL_DEPTH24_STENCIL8;
 			default:
-				QK_FATAL("Invalid internal texture format");
+				QK_CORE_FATAL("Invalid internal texture format");
 				return GL_NONE;
 		}
 	}
 
-	constexpr GLenum GetTextureFormat(TextureFormat format)
+	constexpr GLenum GetTextureFormat(TextureDataFormat format)
 	{
 		switch (format)
 		{
-			case TextureFormat::RGB8:	return GL_RGB;
-			case TextureFormat::RGBA8:	return GL_RGBA;
-			case TextureFormat::SRGB8:	return GL_RGB;
-			case TextureFormat::SRGBA8:	return GL_RGBA;
+			case TextureDataFormat::RGB:  return GL_RGB;
+			case TextureDataFormat::RGBA: return GL_RGBA;
+			case TextureDataFormat::BGR:  return GL_BGR;
+			case TextureDataFormat::BGRA: return GL_BGRA;
+			case TextureDataFormat::Red:  return GL_RED;
 			default:
-				QK_FATAL("Invalid texture color format");
+				QK_CORE_FATAL("Invalid texture data format");
 				return GL_NONE;
 		}
 	}
@@ -52,7 +54,7 @@ namespace Quark {
 			case TextureFilteringMode::LinearMipmapNearest:		return GL_LINEAR_MIPMAP_NEAREST;
 			case TextureFilteringMode::LinearMipmapLinear:		return GL_LINEAR_MIPMAP_LINEAR;
 			default:
-				QK_FATAL("Invalid texture filtering mode");
+				QK_CORE_FATAL("Invalid texture filtering mode");
 				return GL_NONE;
 		}
 	}
@@ -65,32 +67,26 @@ namespace Quark {
 			case TextureTilingMode::ClampToEdge:   return GL_CLAMP_TO_EDGE;
 			case TextureTilingMode::Repeat:        return GL_REPEAT;
 			default:
-				QK_FATAL("Invalid texture tiling mode");
+				QK_CORE_FATAL("Invalid texture tiling mode");
 				return GL_NONE;
 		}
 	}
 
-	constexpr GLenum GetTextureTarget(uint32_t samples)
-	{
-		return (samples > 1) ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
-	}
-
-	constexpr bool IsTextureDepthFormat(TextureFormat format)
+	constexpr bool IsTextureDepthFormat(TextureInternalFormat format)
 	{
 		switch (format)
 		{
-			case TextureFormat::Depth24Stencil8: return true;
-			default:                             return false;
+			case TextureInternalFormat::Depth24Stencil8: return true;
+			default:                                     return false;
 		}
 	}
 
-	constexpr bool IsTextureAlphaFormat(TextureFormat format)
+	constexpr bool IsTextureAlphaFormat(TextureDataFormat format)
 	{
 		switch (format)
 		{
-			case TextureFormat::RGBA8:	return true;
-			case TextureFormat::SRGBA8:	return true;
-			default:                    return false;
+			case TextureDataFormat::RGBA: return true;
+			default:                       return false;
 		}
 	}
 }

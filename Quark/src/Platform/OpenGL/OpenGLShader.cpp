@@ -20,7 +20,7 @@ namespace Quark {
 		else if (type == "geometry")
 			return GL_GEOMETRY_SHADER;
 
-		QK_FATAL("Unknown shader type");
+		QK_CORE_FATAL("Unknown shader type");
 		return 0;
 	}
 
@@ -79,17 +79,17 @@ namespace Quark {
 		{
 			size_t eol = source.find_first_of("\r\n", pos); // End of shader type declaration line
 			if (eol == std::string::npos)
-				QK_FATAL("Syntax error in shader");
+				QK_CORE_FATAL("Syntax error in shader");
 
 			size_t begin = pos + typeTokenLength + 1; // Start of shader type name (after "#type " keyword)
 			std::string_view type = source.substr(begin, eol - begin);
 			GLenum shaderType = ShaderTypeFromString(type);
 			if (!shaderType)
-				QK_FATAL("Invalid shader type specified");
+				QK_CORE_FATAL("Invalid shader type specified");
 
 			size_t nextLinePos = source.find_first_not_of("\r\n", eol); // Start of shader code after shader type declaration line
 			if (nextLinePos == std::string::npos)
-				QK_FATAL("Syntax error in shader");
+				QK_CORE_FATAL("Syntax error in shader");
 
 			pos = source.find(typeToken, nextLinePos); // Start of next shader type declaration line
 
@@ -135,7 +135,7 @@ namespace Quark {
 				std::stringstream ss;
 				ss << infoLog.data();
 				QK_CORE_ERROR(ss.str());
-				QK_FATAL("Shader compilation failure");
+				QK_CORE_FATAL("Shader compilation failure");
 				break;
 			}
 
@@ -169,7 +169,7 @@ namespace Quark {
 			std::stringstream ss;
 			ss << infoLog.data();
 			QK_CORE_ERROR(ss.str());
-			QK_FATAL("Shader link failure");
+			QK_CORE_FATAL("Shader link failure");
 			return;
 		}
 

@@ -10,7 +10,7 @@ namespace Quark {
 
 	static void GLFWErrorCallback(int32_t error, const char* description)
 	{
-		QK_FATAL(description);
+		QK_CORE_FATAL(description);
 	}
 
 	GLFWWindow::GLFWWindow(const WindowSpecification& spec)

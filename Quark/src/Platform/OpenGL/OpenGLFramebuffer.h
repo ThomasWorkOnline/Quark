@@ -39,7 +39,7 @@ namespace Quark {
 		FramebufferSpecification m_Spec;
 
 		std::vector<FramebufferTextureSpecification> m_ColorSpecs;
-		FramebufferTextureSpecification m_DepthSpec = {};
+		FramebufferTextureSpecification m_DepthSpec;
 
 		std::vector<uint32_t> m_ColorAttachments;
 		uint32_t m_DepthAttachment = 0;

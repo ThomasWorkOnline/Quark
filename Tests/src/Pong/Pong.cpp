@@ -46,9 +46,10 @@ void Pong::OnUpdate(Timestep elapsedTime)
 	glm::mat4 rotate = glm::toMat4(transform.Orientation);
 	glm::mat4 view = glm::translate(rotate, (glm::vec3)-transform.Position);
 
-	Renderer::BeginScene(projection, view);
-	Renderer::Submit(m_Shader, m_Ball.GetVertexArray(), m_BallTransform);
-	Renderer::EndScene();
+	Renderer2D::BeginScene(projection, view);
+	Renderer2D::EndScene();
+
+	Renderer3D::Submit(m_Shader, m_Ball.GetVertexArray(), m_BallTransform);
 }
 
 void Pong::OnEvent(Event& e)
