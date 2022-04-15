@@ -154,6 +154,9 @@ private:
 }
 ```
 
+By returning false, we do not prevent the event propagation. Returning true can be useful when you want to prevent the app from propagating the event any further.
+For instance, in a FPS, you would not wan't your player controller to shoot when left-clicking in your inventory. Furthermore, your player controller should not be aware that a click event has been fired.
+
 # Dependencies
 glm: https://github.com/g-truc/glm<br />
 entt: https://github.com/skypjack/entt<br />
