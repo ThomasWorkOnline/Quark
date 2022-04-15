@@ -1,8 +1,6 @@
 #include "Renderer2D.h"
 #include "RenderCommand.h"
 
-#include "UniformBuffer.h"
-
 #include <sstream>
 
 namespace Quark {
@@ -44,7 +42,6 @@ namespace Quark {
 		static constexpr uint32_t MaxIndices  = MaxQuads * 6;
 
 		uint32_t MaxSamplers = 0;
-		uint32_t MaxUniformBuffers = 0;
 
 		QuadVertex* QuadVertexPtr = nullptr;
 		QuadVertex* QuadVertices  = nullptr;
@@ -75,15 +72,6 @@ namespace Quark {
 		Ref<Texture2D> DefaultTexture;
 		Ref<Texture2D>* Textures = nullptr;
 		Ref<Font>* Fonts = nullptr;
-
-		// Ensure std140 layout
-		struct CameraData
-		{
-			glm::mat4 ViewProjection;
-		};
-
-		CameraData CameraBufferData{};
-		Ref<UniformBuffer> CameraUniformBuffer;
 	};
 
 	Renderer2DStats Renderer2D::s_Stats;
@@ -125,13 +113,206 @@ namespace Quark {
 		}
 	};
 	
+	void Renderer2D::DrawSprite(const Ref<Texture2D>& texture, const glm::mat4& transform)
+	{
+		static constexpr glm::vec2 textureCoords[4] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
+		DrawSprite(texture, textureCoords, transform);
+	}
+
+	void Renderer2D::DrawSprite(const SubTexture2D& subTexture, const glm::mat4& transform)
+	{
+		DrawSprite(subTexture.GetTexture(), subTexture.GetCoords(), transform);
+	}
+
+	void Renderer2D::DrawSprite(const Ref<Texture2D>& texture, const glm::vec2* texCoords, const glm::mat4& transform)
+	{
+		// Check if buffer is full
+		if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices)
+		{
+			PushBatch();
+			StartBatch();
+		}
+
+		// Check if texture exists in samplers
+		uint32_t textureIndex = 0;
+		for (uint32_t i = 1; i < s_Data.QuadSamplerIndex; i++)
+		{
+			if (*s_Data.Textures[i] == *texture)
+			{
+				textureIndex = i;
+				break;
+			}
+		}
+
+		// If texture was not found in samplers
+		if (textureIndex == 0)
+		{
+			// If not enough space to attach new texture
+			if (s_Data.QuadSamplerIndex >= s_Data.MaxSamplers)
+			{
+				PushBatch();
+				StartBatch();
+			}
+
+			textureIndex = s_Data.QuadSamplerIndex;
+			s_Data.Textures[textureIndex] = texture;
+			s_Data.QuadSamplerIndex++;
+		}
+
+		for (uint8_t i = 0; i < 4; i++)
+		{
+			s_Data.QuadVertexPtr->Position = transform * s_SpriteVertexPositions[i];
+			s_Data.QuadVertexPtr->TexCoord = texCoords[i];
+			s_Data.QuadVertexPtr->Color = { 1.0f, 1.0f, 1.0f, 1.0f };
+			s_Data.QuadVertexPtr->TexIndex = textureIndex;
+
+			s_Data.QuadVertexPtr++;
+		}
+
+		s_Data.QuadIndexCount += 6;
+		s_Stats.QuadsDrawn++;
+	}
+
+	void Renderer2D::DrawSprite(const glm::vec4& color, const glm::mat4& transform)
+	{
+		// Check if buffer is full
+		if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices)
+		{
+			PushBatch();
+			StartBatch();
+		}
+
+		for (uint8_t i = 0; i < 4; i++)
+		{
+			s_Data.QuadVertexPtr->Position = transform * s_SpriteVertexPositions[i];
+			s_Data.QuadVertexPtr->TexCoord = { 0.0f, 0.0f };
+			s_Data.QuadVertexPtr->Color = color;
+			s_Data.QuadVertexPtr->TexIndex = 0;
+
+			s_Data.QuadVertexPtr++;
+		}
+
+		s_Data.QuadIndexCount += 6;
+		s_Stats.QuadsDrawn++;
+	}
+
+	void Renderer2D::DrawText(const Text& text)
+	{
+		DrawText(text.GetFont(), text.GetString(), text.GetColor(), text.GetOrigin());
+	}
+
+	void Renderer2D::DrawText(const Ref<Font>& font, std::string_view text, const glm::vec4& color, const glm::ivec2& origin)
+	{
+		// Check if buffer is full
+		if (s_Data.FontIndexCount >= Renderer2DData::MaxIndices)
+		{
+			PushBatch();
+			StartBatch();
+		}
+
+		// Check if texture exists in samplers
+		uint32_t textureIndex = 0;
+		for (uint32_t i = 1; i < s_Data.FontSamplerIndex; i++)
+		{
+			if (*s_Data.Fonts[i] == *font)
+			{
+				textureIndex = i;
+				break;
+			}
+		}
+
+		// If texture was not found in samplers
+		if (textureIndex == 0)
+		{
+			// If not enough space to attach new font texture
+			if (s_Data.FontSamplerIndex >= s_Data.MaxSamplers)
+			{
+				PushBatch();
+				StartBatch();
+			}
+
+			textureIndex = s_Data.FontSamplerIndex;
+			s_Data.Fonts[textureIndex] = font;
+			s_Data.FontSamplerIndex++;
+		}
+
+		int32_t x = origin.x;
+		int32_t y = origin.y;
+
+		float atlasWidth = font->GetAtlasWidth();
+		float atlasHeight = font->GetAtlasHeight();
+
+		for (auto it = text.begin(); it != text.end(); it++)
+		{
+			auto& g = font->GetGlyph(*it);
+
+			int32_t xpos = (x + g.Bearing.x);
+			int32_t ypos = (-y - g.Bearing.y);
+			int32_t w = g.Size.x;
+			int32_t h = g.Size.y;
+			float tx = (float)g.OffsetX / atlasWidth;
+
+			x += (g.Advance.x >> 6);
+			y += (g.Advance.y >> 6);
+
+			if (!w || !h)
+				continue;
+
+			s_Data.FontVertexPtr->Position = glm::vec4(xpos + w, -ypos, 0.0f, 1.0f);
+			s_Data.FontVertexPtr->TexCoord = { tx + g.Size.x / atlasWidth, 0.0f };
+			s_Data.FontVertexPtr->Color = color;
+			s_Data.FontVertexPtr->TexIndex = textureIndex;
+			s_Data.FontVertexPtr++;
+
+			s_Data.FontVertexPtr->Position = glm::vec4(xpos, -ypos, 0.0f, 1.0f);
+			s_Data.FontVertexPtr->TexCoord = { tx, 0.0f };
+			s_Data.FontVertexPtr->Color = color;
+			s_Data.FontVertexPtr->TexIndex = textureIndex;
+			s_Data.FontVertexPtr++;
+
+			s_Data.FontVertexPtr->Position = glm::vec4(xpos, -ypos - h, 0.0f, 1.0f);
+			s_Data.FontVertexPtr->TexCoord = { tx, g.Size.y / atlasHeight };
+			s_Data.FontVertexPtr->Color = color;
+			s_Data.FontVertexPtr->TexIndex = textureIndex;
+			s_Data.FontVertexPtr++;
+
+			s_Data.FontVertexPtr->Position = glm::vec4(xpos + w, -ypos - h, 0.0f, 1.0f);
+			s_Data.FontVertexPtr->TexCoord = { tx + g.Size.x / atlasWidth, g.Size.y / atlasHeight };
+			s_Data.FontVertexPtr->Color = color;
+			s_Data.FontVertexPtr->TexIndex = textureIndex;
+			s_Data.FontVertexPtr++;
+
+			s_Data.FontIndexCount += 6;
+			s_Stats.QuadsDrawn++;
+		}
+	}
+
+	void Renderer2D::DrawLine(const glm::vec3& p1, const glm::vec3& p2, const glm::vec4& beginColor, const glm::vec4& endColor)
+	{
+		// Check if buffer is full
+		size_t count = s_Data.LineVertexPtr - s_Data.LineVertices;
+		if (count >= Renderer2DData::MaxVertices)
+		{
+			PushBatch();
+			StartBatch();
+		}
+
+		s_Data.LineVertexPtr->Position = p1;
+		s_Data.LineVertexPtr->Color = beginColor;
+		s_Data.LineVertexPtr++;
+
+		s_Data.LineVertexPtr->Position = p2;
+		s_Data.LineVertexPtr->Color = endColor;
+		s_Data.LineVertexPtr++;
+
+		s_Stats.LinesDrawn++;
+	}
+
 	void Renderer2D::Initialize()
 	{
 		QK_SCOPE_TIMER(Renderer2D::Initialize);
 
-		s_Data.MaxSamplers         = RenderCommand::GetMaxTextureSlots();
-		s_Data.MaxUniformBuffers   = RenderCommand::GetMaxUniformBufferBindings();
-		s_Data.CameraUniformBuffer = UniformBuffer::Create(sizeof(Renderer2DData::CameraData), 0);
+		s_Data.MaxSamplers = RenderCommand::GetMaxTextureSlots();
 
 		Renderer2DSetupData setupData;
 
@@ -383,20 +564,8 @@ namespace Quark {
 		s_Data.LineShader = Shader::Create("defaultLine", lineVertexSource, lineFragmentSource);
 	}
 
-	void Renderer2D::BeginScene(const glm::mat4& cameraProjection, const Transform3DComponent& cameraTransform)
+	void Renderer2D::BeginScene()
 	{
-		glm::mat4 rotate = glm::toMat4(cameraTransform.Orientation);
-		glm::mat4 view = glm::translate(rotate, (glm::vec3)-cameraTransform.Position);
-		
-		BeginScene(cameraProjection, view);
-	}
-
-	void Renderer2D::BeginScene(const glm::mat4& cameraProjection, const glm::mat4& cameraView)
-	{
-		s_Data.CameraBufferData.ViewProjection = cameraProjection * cameraView;
-		s_Data.CameraUniformBuffer->Attach();
-		s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBufferData, sizeof(Renderer2DData::CameraData));
-
 		StartBatch();
 		ResetStats();
 	}
@@ -465,203 +634,8 @@ namespace Quark {
 
 	void Renderer2D::ResetStats()
 	{
-		s_Stats.DrawCalls  = 0;
+		s_Stats.DrawCalls = 0;
 		s_Stats.QuadsDrawn = 0;
 		s_Stats.LinesDrawn = 0;
-	}
-
-	void Renderer2D::DrawSprite(const Ref<Texture2D>& texture, const glm::mat4& transform)
-	{
-		static constexpr glm::vec2 textureCoords[4] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
-		DrawSprite(texture, textureCoords, transform);
-	}
-
-	void Renderer2D::DrawSprite(const SubTexture2D& subTexture, const glm::mat4& transform)
-	{
-		DrawSprite(subTexture.GetTexture(), subTexture.GetCoords(), transform);
-	}
-
-	void Renderer2D::DrawSprite(const Ref<Texture2D>& texture, const glm::vec2* texCoords, const glm::mat4& transform)
-	{
-		// Check if buffer is full
-		if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices)
-		{
-			PushBatch();
-			StartBatch();
-		}
-
-		// Check if texture exists in samplers
-		uint32_t textureIndex = 0;
-		for (uint32_t i = 1; i < s_Data.QuadSamplerIndex; i++)
-		{
-			if (*s_Data.Textures[i] == *texture)
-			{
-				textureIndex = i;
-				break;
-			}
-		}
-
-		// If texture was not found in samplers
-		if (textureIndex == 0)
-		{
-			// If not enough space to attach new texture
-			if (s_Data.QuadSamplerIndex >= s_Data.MaxSamplers)
-			{
-				PushBatch();
-				StartBatch();
-			}
-
-			textureIndex = s_Data.QuadSamplerIndex;
-			s_Data.Textures[textureIndex] = texture;
-			s_Data.QuadSamplerIndex++;
-		}
-
-		for (uint8_t i = 0; i < 4; i++)
-		{
-			s_Data.QuadVertexPtr->Position = transform * s_SpriteVertexPositions[i];
-			s_Data.QuadVertexPtr->TexCoord = texCoords[i];
-			s_Data.QuadVertexPtr->Color    = { 1.0f, 1.0f, 1.0f, 1.0f };
-			s_Data.QuadVertexPtr->TexIndex = textureIndex;
-
-			s_Data.QuadVertexPtr++;
-		}
-
-		s_Data.QuadIndexCount += 6;
-		s_Stats.QuadsDrawn++;
-	}
-
-	void Renderer2D::DrawSprite(const glm::vec4& color, const glm::mat4& transform)
-	{
-		// Check if buffer is full
-		if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices)
-		{
-			PushBatch();
-			StartBatch();
-		}
-
-		for (uint8_t i = 0; i < 4; i++)
-		{
-			s_Data.QuadVertexPtr->Position = transform * s_SpriteVertexPositions[i];
-			s_Data.QuadVertexPtr->TexCoord = { 0.0f, 0.0f };
-			s_Data.QuadVertexPtr->Color    = color;
-			s_Data.QuadVertexPtr->TexIndex = 0;
-
-			s_Data.QuadVertexPtr++;
-		}
-
-		s_Data.QuadIndexCount += 6;
-		s_Stats.QuadsDrawn++;
-	}
-
-	void Renderer2D::DrawText(const Text& text)
-	{
-		DrawText(text.GetFont(), text.GetString(), text.GetColor(), text.GetOrigin());
-	}
-
-	void Renderer2D::DrawText(const Ref<Font>& font, std::string_view text, const glm::vec4& color, const glm::ivec2& origin)
-	{
-		// Check if buffer is full
-		if (s_Data.FontIndexCount >= Renderer2DData::MaxIndices)
-		{
-			PushBatch();
-			StartBatch();
-		}
-
-		// Check if texture exists in samplers
-		uint32_t textureIndex = 0;
-		for (uint32_t i = 1; i < s_Data.FontSamplerIndex; i++)
-		{
-			if (*s_Data.Fonts[i] == *font)
-			{
-				textureIndex = i;
-				break;
-			}
-		}
-
-		// If texture was not found in samplers
-		if (textureIndex == 0)
-		{
-			// If not enough space to attach new font texture
-			if (s_Data.FontSamplerIndex >= s_Data.MaxSamplers)
-			{
-				PushBatch();
-				StartBatch();
-			}
-
-			textureIndex = s_Data.FontSamplerIndex;
-			s_Data.Fonts[textureIndex] = font;
-			s_Data.FontSamplerIndex++;
-		}
-
-		int32_t x = origin.x;
-		int32_t y = origin.y;
-
-		float atlasWidth = font->GetAtlasWidth();
-		float atlasHeight = font->GetAtlasHeight();
-
-		for (auto it = text.begin(); it != text.end(); it++)
-		{
-			auto& g = font->GetGlyph(*it);
-
-			int32_t xpos = (x + g.Bearing.x);
-			int32_t ypos = (-y - g.Bearing.y);
-			int32_t w = g.Size.x;
-			int32_t h = g.Size.y;
-			float tx = (float)g.OffsetX / atlasWidth;
-
-			x += (g.Advance.x >> 6);
-			y += (g.Advance.y >> 6);
-
-			if (!w || !h)
-				continue;
-
-			s_Data.FontVertexPtr->Position = glm::vec4(xpos + w, -ypos,     0.0f, 1.0f);
-			s_Data.FontVertexPtr->TexCoord = { tx + g.Size.x / atlasWidth, 0.0f };
-			s_Data.FontVertexPtr->Color    = color;
-			s_Data.FontVertexPtr->TexIndex = textureIndex;
-			s_Data.FontVertexPtr++;
-
-			s_Data.FontVertexPtr->Position = glm::vec4(xpos,     -ypos,     0.0f, 1.0f);
-			s_Data.FontVertexPtr->TexCoord = { tx, 0.0f };
-			s_Data.FontVertexPtr->Color    = color;
-			s_Data.FontVertexPtr->TexIndex = textureIndex;
-			s_Data.FontVertexPtr++;
-
-			s_Data.FontVertexPtr->Position = glm::vec4(xpos,     -ypos - h, 0.0f, 1.0f);
-			s_Data.FontVertexPtr->TexCoord = { tx, g.Size.y / atlasHeight };
-			s_Data.FontVertexPtr->Color    = color;
-			s_Data.FontVertexPtr->TexIndex = textureIndex;
-			s_Data.FontVertexPtr++;
-
-			s_Data.FontVertexPtr->Position = glm::vec4(xpos + w, -ypos - h, 0.0f, 1.0f);
-			s_Data.FontVertexPtr->TexCoord = { tx + g.Size.x / atlasWidth, g.Size.y / atlasHeight };
-			s_Data.FontVertexPtr->Color    = color;
-			s_Data.FontVertexPtr->TexIndex = textureIndex;
-			s_Data.FontVertexPtr++;
-
-			s_Data.FontIndexCount += 6;
-			s_Stats.QuadsDrawn++;
-		}
-	}
-
-	void Renderer2D::DrawLine(const glm::vec3& p1, const glm::vec3& p2, const glm::vec4& beginColor, const glm::vec4& endColor)
-	{
-		// Check if buffer is full
-		size_t count = s_Data.LineVertexPtr - s_Data.LineVertices;
-		if (count >= Renderer2DData::MaxVertices)
-		{
-			PushBatch();
-			StartBatch();
-		}
-
-		s_Data.LineVertexPtr->Position = p1;
-		s_Data.LineVertexPtr->Color    = beginColor;
-		s_Data.LineVertexPtr++;
-
-		s_Data.LineVertexPtr->Position = p2;
-		s_Data.LineVertexPtr->Color    = endColor;
-		s_Data.LineVertexPtr++;
-
-		s_Stats.LinesDrawn++;
 	}
 }

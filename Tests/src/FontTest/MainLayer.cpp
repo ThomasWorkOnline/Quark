@@ -27,10 +27,10 @@ MainLayer::MainLayer()
 
 void MainLayer::OnUpdate(Timestep elapsedTime)
 {
-	Renderer2D::BeginScene(m_Camera.GetProjection(), glm::mat4(1.0f));
+	Renderer::BeginScene(m_Camera.GetProjection(), glm::mat4(1.0f));
 	Renderer2D::DrawText(m_Text);
 	Renderer2D::DrawText(m_Text2);
-	Renderer2D::EndScene();
+	Renderer::EndScene();
 }
 
 void MainLayer::OnEvent(Event& e)
@@ -73,10 +73,13 @@ bool MainLayer::OnKeyPressed(KeyPressedEvent& e)
 			m_Text.SetVerticalAlignment(VerticalTextAlignment::Bottom);
 			break;
 		case KeyCode::N:
-			m_Text.SetString("New Text is now longer!");
+			m_Text.SetString("New text is now longer!");
 			break;
 		case KeyCode::F:
-			m_Text.SetFont(m_Font1);
+			if (*m_Text.GetFont() == *m_Font1)
+				m_Text.SetFont(m_Font2);
+			else
+				m_Text.SetFont(m_Font1);
 			break;
 	}
 	return false;

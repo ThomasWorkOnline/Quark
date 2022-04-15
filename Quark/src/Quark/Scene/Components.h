@@ -24,8 +24,8 @@ namespace Quark {
 			: Position(position), Scale(scale), Orientation(orientation) {}
 
 		// Conversion operators
-		operator Mat4f() { return ComputeMatrix(); }
-		operator Mat4d() { return ComputeMatrix(); }
+		operator Mat4() const { return GetMatrix(); }
+		Mat4 GetMatrix() const { return ComputeMatrix(); }
 
 		Vector3 GetFrontVector() const { return Vector3(0.0f, 0.0f, 1.0f) * Orientation; }
 		Vector3 GetRightVector() const { return Vector3(1.0f, 0.0f, 0.0f) * Orientation; }
@@ -41,7 +41,7 @@ namespace Quark {
 		Transform3DComponent& Rotate(float angle, const Vector3& axis) { Rotate(glm::angleAxis<Float>(angle, glm::normalize(axis))); return *this; }
 
 	private:
-		Mat4 ComputeMatrix()
+		Mat4 ComputeMatrix() const
 		{
 			return glm::translate(Mat4(1.0f), Position)
 				* glm::toMat4(Orientation)

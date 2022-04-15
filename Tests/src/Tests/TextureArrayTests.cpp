@@ -57,12 +57,10 @@ TextureArrayTest::TextureArrayTest()
 
 void TextureArrayTest::OnUpdate(Timestep elapsedTime)
 {
-	Renderer2D::BeginScene(m_Camera.GetProjection(), m_CameraView);
+	Renderer::BeginScene(m_Camera.GetProjection(), m_CameraView);
 
 	static constexpr glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
 	Renderer2D::DrawLine(glm::vec3(-1, -1, 0), glm::vec3(1, 1, 0), color, color);
-
-	Renderer2D::EndScene();
 
 	static glm::mat4 transform = glm::mat4(1.0f);
 	transform = glm::rotate(transform, elapsedTime * 0.1f, glm::vec3(1.0f, 0.0f, 0.0f));
@@ -72,6 +70,8 @@ void TextureArrayTest::OnUpdate(Timestep elapsedTime)
 
 	m_TextureArray->Attach();
 	RenderCommand::DrawIndexed(m_VertexArray);
+
+	Renderer::EndScene();
 }
 
 void TextureArrayTest::OnEvent(Event& e)

@@ -40,16 +40,12 @@ void Pong::OnUpdate(Timestep elapsedTime)
 	ProcessCollisionResolution();
 #endif
 
+	const auto& camera = m_Entity.GetComponent<PerspectiveCameraComponent>().Camera;
 	const auto& transform = m_Entity.GetComponent<Transform3DComponent>();
 
-	glm::mat4 projection = m_Entity.GetComponent<PerspectiveCameraComponent>().Camera.GetProjection();
-	glm::mat4 rotate = glm::toMat4(transform.Orientation);
-	glm::mat4 view = glm::translate(rotate, (glm::vec3)-transform.Position);
-
-	Renderer2D::BeginScene(projection, view);
-	Renderer2D::EndScene();
-
-	Renderer3D::Submit(m_Shader, m_Ball.GetVertexArray(), m_BallTransform);
+	Renderer::BeginScene(camera, transform);
+	Renderer::Submit(m_Shader, m_Ball.GetVertexArray(), m_BallTransform);
+	Renderer::EndScene();
 }
 
 void Pong::OnEvent(Event& e)
