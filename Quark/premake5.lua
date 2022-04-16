@@ -31,7 +31,7 @@ project "Quark"
 		"src",
 		"vendor/entt/include",
 		"vendor/freetype/include",
-		"vendor/Glad/include",
+		"vendor/glad/include",
 		"vendor/glfw/include",
 		"vendor/glm",
 		"vendor/openal/include",
