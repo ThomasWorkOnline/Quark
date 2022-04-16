@@ -13,7 +13,7 @@ Official support for macOS and Linux is on it's way!
 2. After cloning this repository, run the script `GenVisualStudioSolution20xx_Win.bat` located under `Scripts/Windows`.
 3. Open the Visual Studio solution and hit build! Build for your desired configuration(s).
 4. Run `GenInclude_Win.bat`. This will generate the `include` directory alongside the `lib` folder.<br />
-NOTE: *`GenInclude_Win.bat` will only copy files, so make sure the application is compiled for your desired platform.*
+Note: *`GenInclude_Win.bat` will only copy files, so make sure the application is compiled for your desired platform.*
 
 5. Link the appropriate libraries for your application (on Visual Studio, you will need to link the Debug, Release and Dist binaries seperately depending on your configuration).<br />
 
@@ -27,7 +27,7 @@ NOTE: *`GenInclude_Win.bat` will only copy files, so make sure the application i
 	make config=dist
 
 4. Run `GenInclude_MacOS.sh`. This will generate the `include` directory alongside the `lib` folder.<br />
-NOTE: *`GenInclude_MacOS.sh` will only copy files, so make sure the application is compiled for your desired platform.*
+Note: *`GenInclude_MacOS.sh` will only copy files, so make sure the application is compiled for your desired platform.*
 
 5. Link the appropriate libraries for your application (remember to link the debug and release configs appropriately).
 
@@ -75,6 +75,7 @@ Quark already provides the default entry point for launching your program.
 Redefining `main()` will cause a duplicate symbol linking error.
 
 Use `Quark::Main()` as shown in this snippet below:
+
 Note: *On Windows, the app with launch without the console using the builtin WinMain() entry point (see EntryPoint.h for details)*
 
 ```c++
