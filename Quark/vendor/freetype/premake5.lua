@@ -69,12 +69,6 @@ project "freetype"
 			"builds/windows/ftsystem.c"
 		}
 
-	filter "system:linux"
-		files
-		{
-			"builds/unix/ftsystem.c"
-		}
-
     filter "configurations:Debug"
         runtime "Debug"
         symbols "On"
