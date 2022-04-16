@@ -1,8 +1,8 @@
 -- Quark Dependencies
 group "Dependencies"
 	include "vendor/freetype"
-	include "vendor/Glad"
-	include "vendor/GLFW"
+	include "vendor/glad"
+	include "vendor/glfw"
 group ""
 
 project "Quark"
