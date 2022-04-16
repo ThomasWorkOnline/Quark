@@ -74,7 +74,7 @@ class YourApplication : public Quark::Application
 Quark already provides the default entry point for launching your program.
 Redefining `main()` will cause a duplicate symbol linking error.
 
-Use `Quark::Main()` method as shown in this snippet below:
+Use `Quark::Main()` as shown in this snippet below:
 Note: *On Windows, the app with launch without the console using the builtin WinMain() entry point (see EntryPoint.h for details)*
 
 ```c++
