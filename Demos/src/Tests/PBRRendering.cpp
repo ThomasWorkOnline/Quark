@@ -24,11 +24,29 @@ PBRRendering::PBRRendering()
 		descriptor.RenderModes.MagFilteringMode = TextureFilteringMode::Linear;
 		descriptor.RenderModes.MinFilteringMode = TextureFilteringMode::LinearMipmapLinear;
 
+#if 1
+		m_Albedo           = Texture2D::Create("assets/textures/pbr/greasy-pan/greasy-pan-2-albedo.png", descriptor);
+		m_Metallic         = Texture2D::Create("assets/textures/pbr/greasy-pan/greasy-pan-2-metal.png");
+		m_Normal           = Texture2D::Create("assets/textures/pbr/greasy-pan/greasy-pan-2-normal.png");
+		m_Roughness        = Texture2D::Create("assets/textures/pbr/greasy-pan/greasy-pan-2-roughness.png");
+		m_AmbiantOcclusion = Texture2D::Create("assets/textures/pbr/streaked-metal/ao.png");
+#endif
+
+#if 0
+		m_Albedo           = Texture2D::Create("assets/textures/pbr/copper-scuffed/Copper-scuffed_basecolor.png", descriptor);
+		m_Metallic         = Texture2D::Create("assets/textures/pbr/copper-scuffed/Copper-scuffed_metallic.png");
+		m_Normal           = Texture2D::Create("assets/textures/pbr/copper-scuffed/Copper-scuffed_normal.png");
+		m_Roughness        = Texture2D::Create("assets/textures/pbr/copper-scuffed/Copper-scuffed_roughness.png");
+		m_AmbiantOcclusion = Texture2D::Create("assets/textures/pbr/streaked-metal/ao.png");
+#endif
+
+#if 0
 		m_Albedo           = Texture2D::Create("assets/textures/pbr/streaked-metal/albedo.png", descriptor);
-		m_Normal           = Texture2D::Create("assets/textures/pbr/streaked-metal/normal-dx.png", descriptor);
 		m_Metallic         = Texture2D::Create("assets/textures/pbr/streaked-metal/metalness.png");
+		m_Normal           = Texture2D::Create("assets/textures/pbr/streaked-metal/normal-dx.png");
 		m_Roughness        = Texture2D::Create("assets/textures/pbr/streaked-metal/rough.png");
-		m_AmbiantOcclusion = Texture2D::Create("assets/textures/pbr/streaked-metal/ao.png", descriptor);
+		m_AmbiantOcclusion = Texture2D::Create("assets/textures/pbr/streaked-metal/ao.png");
+#endif
 	}
 
 	m_HDRMap = Texture2D::Create("assets/textures/hdr/MonValley_G_DirtRoad_3k.hdr");
@@ -42,13 +60,13 @@ PBRRendering::PBRRendering()
 	m_Shader->SetInt("u_RoughnessMap",        3);
 	m_Shader->SetInt("u_AmbiantOcclusionMap", 4);
 
-	static constexpr float lightPower = 10.0f;
+	static constexpr float lightPower = 100.0f;
 	static constexpr glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f) * lightPower;
 	static constexpr glm::vec3 lightPositions[4] = {
 		{  0.0f,  0.0f, -3.0f },
-		{  0.0f,  1.0f,  3.0f },
+		{  0.0f,  2.0f,  3.0f },
 		{  1.7f,  0.3f, -0.5f },
-		{  2.0f,  2.0f, -1.0f }
+		{  2.0f,  2.0f, -2.0f }
 	};
 
 	m_Shader->SetFloat3("u_LightColors[0]", lightColor);

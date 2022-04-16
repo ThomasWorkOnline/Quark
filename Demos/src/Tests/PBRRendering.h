@@ -24,8 +24,8 @@ private:
 	PerspectiveCameraController m_Controller;
 
 	Ref<Texture2D> m_Albedo;
-	Ref<Texture2D> m_Normal;
 	Ref<Texture2D> m_Metallic;
+	Ref<Texture2D> m_Normal;
 	Ref<Texture2D> m_Roughness;
 	Ref<Texture2D> m_AmbiantOcclusion;
 

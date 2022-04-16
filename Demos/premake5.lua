@@ -43,8 +43,11 @@ project "Demos"
 		runtime "Release"
 		optimize "On"
 
-	filter "system:windows"
+	filter { "configurations:Debug or configurations:Release", "system:windows" }
 		kind "ConsoleApp"
+
+	filter { "configurations:Dist", "system:windows" }
+		kind "WindowedApp"
 
 	filter "system:macosx"
 		kind "WindowedApp"
@@ -59,7 +62,7 @@ project "Demos"
 		}
 	
 	filter "system:linux"
-		kind "WindowedApp"
+		kind "ConsoleApp"
 
 		links
 		{
