@@ -14,6 +14,11 @@
 
 namespace Quark {
 
+	///
+	/// Client entry point: must be defined by client
+	///
+	extern int Main(int argc, char** argv);
+
 	class Application
 	{
 	public:

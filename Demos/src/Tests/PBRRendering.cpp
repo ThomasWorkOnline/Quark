@@ -18,13 +18,15 @@ PBRRendering::PBRRendering()
 #endif
 	}
 
+#define MATERIAL 2
+
 	{
 		TextureDescriptor descriptor;
 		descriptor.SRGB = true;
 		descriptor.RenderModes.MagFilteringMode = TextureFilteringMode::Linear;
 		descriptor.RenderModes.MinFilteringMode = TextureFilteringMode::LinearMipmapLinear;
 
-#if 1
+#if MATERIAL == 0
 		m_Albedo           = Texture2D::Create("assets/textures/pbr/greasy-pan/greasy-pan-2-albedo.png", descriptor);
 		m_Metallic         = Texture2D::Create("assets/textures/pbr/greasy-pan/greasy-pan-2-metal.png");
 		m_Normal           = Texture2D::Create("assets/textures/pbr/greasy-pan/greasy-pan-2-normal.png");
@@ -32,7 +34,7 @@ PBRRendering::PBRRendering()
 		m_AmbiantOcclusion = Texture2D::Create("assets/textures/pbr/streaked-metal/ao.png");
 #endif
 
-#if 0
+#if MATERIAL == 1
 		m_Albedo           = Texture2D::Create("assets/textures/pbr/copper-scuffed/Copper-scuffed_basecolor.png", descriptor);
 		m_Metallic         = Texture2D::Create("assets/textures/pbr/copper-scuffed/Copper-scuffed_metallic.png");
 		m_Normal           = Texture2D::Create("assets/textures/pbr/copper-scuffed/Copper-scuffed_normal.png");
@@ -40,7 +42,7 @@ PBRRendering::PBRRendering()
 		m_AmbiantOcclusion = Texture2D::Create("assets/textures/pbr/streaked-metal/ao.png");
 #endif
 
-#if 0
+#if MATERIAL == 2
 		m_Albedo           = Texture2D::Create("assets/textures/pbr/streaked-metal/albedo.png", descriptor);
 		m_Metallic         = Texture2D::Create("assets/textures/pbr/streaked-metal/metalness.png");
 		m_Normal           = Texture2D::Create("assets/textures/pbr/streaked-metal/normal-dx.png");
