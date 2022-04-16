@@ -4,7 +4,7 @@ namespace Quark {
 
 	int Main(int argc, char** argv)
 	{
-		auto test = Quark::CreateScope<PBRRendering>();
+		auto test = CreateScope<PBRRendering>();
 		test->Run();
 
 		return 0;

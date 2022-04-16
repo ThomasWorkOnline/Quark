@@ -18,7 +18,7 @@ PBRRendering::PBRRendering()
 #endif
 	}
 
-#define MATERIAL 2
+#define MATERIAL 0
 
 	{
 		TextureDescriptor descriptor;
