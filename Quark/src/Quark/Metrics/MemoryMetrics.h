@@ -24,11 +24,11 @@ namespace Quark {
 
 #ifdef QK_MEMORY_METRICS
 
-[[nodiscard("return value of Quark operator new ignored")]]
+[[nodiscard]]
 void* operator new(size_t size);
 void operator delete(void* block, size_t size) noexcept;
 
-[[nodiscard("return value of Quark operator new[] ignored")]]
+[[nodiscard]]
 void* operator new[](size_t size);
 void operator delete[](void* block, size_t size) noexcept;
 
