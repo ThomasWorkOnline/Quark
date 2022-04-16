@@ -82,7 +82,7 @@ namespace Quark {
 
 	int Main(int argc, char** argv)
 	{
-		auto app = Quark::CreateScope<YourApplication>();
+		auto app = CreateScope<YourApplication>();
 		app->Run();
 	}
 }
