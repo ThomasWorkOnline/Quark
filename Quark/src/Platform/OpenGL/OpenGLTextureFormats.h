@@ -17,10 +17,17 @@ namespace Quark {
 		switch (format)
 		{
 			case TextureInternalFormat::RGB8:            return GL_RGB8;
+			case TextureInternalFormat::RGB10:           return GL_RGB10;
+			case TextureInternalFormat::RGB12:           return GL_RGB12;
+			case TextureInternalFormat::RGB16:           return GL_RGB16;
 			case TextureInternalFormat::RGBA8:           return GL_RGBA8;
+			case TextureInternalFormat::RGBA12:          return GL_RGBA12;
+			case TextureInternalFormat::RGBA16:          return GL_RGBA16;
 			case TextureInternalFormat::SRGB8:           return GL_SRGB8;
 			case TextureInternalFormat::SRGBA8:          return GL_SRGB8_ALPHA8;
 			case TextureInternalFormat::Red8:            return GL_R8;
+			case TextureInternalFormat::RGB16f:          return GL_RGB16F;
+			case TextureInternalFormat::RGB32f:          return GL_RGB32F;
 			case TextureInternalFormat::Depth24Stencil8: return GL_DEPTH24_STENCIL8;
 			default:
 				QK_CORE_FATAL("Invalid internal texture format");
@@ -87,6 +94,22 @@ namespace Quark {
 		{
 			case TextureDataFormat::RGBA: return true;
 			default:                       return false;
+		}
+	}
+
+	constexpr bool TextureHasMips(TextureFilteringMode mode)
+	{
+		switch (mode)
+		{
+			case TextureFilteringMode::Nearest:
+			case TextureFilteringMode::Linear:               return false;
+			case TextureFilteringMode::NearestMipmapNearest:
+			case TextureFilteringMode::NearestMipmapLinear:
+			case TextureFilteringMode::LinearMipmapNearest:
+			case TextureFilteringMode::LinearMipmapLinear:   return true;
+			default:
+				QK_CORE_FATAL("Invalid texture filtering mode");
+				return false;
 		}
 	}
 }

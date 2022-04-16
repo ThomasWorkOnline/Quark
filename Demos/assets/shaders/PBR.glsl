@@ -53,12 +53,9 @@ uniform sampler2D u_MetallicMap;
 uniform sampler2D u_RoughnessMap;
 uniform sampler2D u_AmbiantOcclusionMap;
 
-uniform vec3  u_CameraPos;
-uniform vec3  u_Albedo;
-uniform float u_Metallic;
-uniform float u_Roughness;
-uniform float u_AmbiantOcclusion;
+uniform samplerCube u_IrradianceMap;
 
+uniform vec3 u_CameraPos;
 uniform vec3 u_LightPositions[4];
 uniform vec3 u_LightColors[4];
 
@@ -68,13 +65,14 @@ out vec4 o_Color;
 // https://learnopengl.com/code_viewer_gh.php?code=src/6.pbr/1.2.lighting_textured/1.2.pbr.fs
 void main()
 {
-    vec3 albedo     = texture(u_AlbedoMap,    v_Input.TexCoord).rgb;
+    vec3  albedo    = texture(u_AlbedoMap,    v_Input.TexCoord).rgb;
     float metallic  = texture(u_MetallicMap,  v_Input.TexCoord).r;
     float roughness = texture(u_RoughnessMap, v_Input.TexCoord).r;
     float ao        = 0.6;
 
     vec3 N = GetNormalFromMap();
     vec3 V = normalize(u_CameraPos - v_Input.Position);
+    vec3 R = reflect(-V, N); 
 
     // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0 
     // of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)    
@@ -88,18 +86,18 @@ void main()
         // calculate per-light radiance
         vec3 L = normalize(u_LightPositions[i] - v_Input.Position);
         vec3 H = normalize(V + L);
-        float distance = length(u_LightPositions[i] - v_Input.Position);
+        float distance    = length(u_LightPositions[i] - v_Input.Position);
         float attenuation = 1.0 / (distance * distance);
-        vec3 radiance = u_LightColors[i] * attenuation;
+        vec3  radiance    = u_LightColors[i] * attenuation;
 
         // Cook-Torrance BRDF
-        float NDF = DistributionGGX(N, H, roughness);
-        float G   = GeometrySmith(N, V, L, roughness);
-        vec3 F    = FresnelSchlick(max(dot(H, V), 0.0), F0);
-           
+        float NDF = DistributionGGX(N, H, roughness);   
+        float G   = GeometrySmith(N, V, L, roughness);    
+        vec3 F    = FresnelSchlick(max(dot(H, V), 0.0), F0);        
+        
         vec3 numerator    = NDF * G * F;
         float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001; // + 0.0001 to prevent divide by zero
-        vec3 specular = numerator / denominator;
+        vec3 specular     = numerator / denominator;
         
         // kS is equal to Fresnel
         vec3 kS = F;
@@ -107,28 +105,32 @@ void main()
         // be above 1.0 (unless the surface emits light); to preserve this
         // relationship the diffuse component (kD) should equal 1.0 - kS.
         vec3 kD = vec3(1.0) - kS;
-        // multiply kD by the inverse metalness such that only non-metals
+        // multiply kD by the inverse metalness such that only non-metals 
         // have diffuse lighting, or a linear blend if partly metal (pure metals
         // have no diffuse light).
-        kD *= 1.0 - metallic;
-
+        kD *= 1.0 - metallic;	                
+            
         // scale light by NdotL
-        float NdotL = max(dot(N, L), 0.0);
+        float NdotL = max(dot(N, L), 0.0);        
 
         // add to outgoing radiance Lo
-        Lo += (kD * albedo / PI + specular) * radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
+        Lo += (kD * albedo / PI + specular) * radiance * NdotL; // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
     }   
     
-    // ambient lighting (note that the next IBL tutorial will replace
-    // this ambient lighting with environment lighting).
-    vec3 ambient = vec3(0.03) * albedo * ao;
+    // ambient lighting (we now use IBL as the ambient term)
+    vec3 kS = FresnelSchlick(max(dot(N, V), 0.0), F0);
+    vec3 kD = 1.0 - kS;
+    kD *= 1.0 - metallic;	  
+    vec3 irradiance   = texture(u_IrradianceMap, N).rgb;
+    vec3 diffuse      = irradiance * albedo;
+    vec3 ambient      = (kD * diffuse) * ao;
     
     vec3 color = ambient + Lo;
 
     // HDR tonemapping
     color = color / (color + vec3(1.0));
 
-    o_Color = vec4(color, 1.0);
+    o_Color = vec4(color , 1.0);
 }
 
 vec3 GetNormalFromMap()

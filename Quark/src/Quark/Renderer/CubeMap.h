@@ -18,6 +18,6 @@ namespace Quark {
 
 		virtual bool operator==(const CubeMap& other) const = 0;
 
-		static Ref<CubeMap> Create(const std::array<std::string_view, 6>& filepaths);
+		static Ref<CubeMap> Create(uint32_t width, uint32_t height);
 	};
 }

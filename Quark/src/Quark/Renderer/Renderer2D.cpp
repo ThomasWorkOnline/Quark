@@ -419,7 +419,8 @@ namespace Quark {
 
 			void main()
 			{
-				o_Color = texture(u_Samplers[v_Input.TexIndex], v_Input.TexCoord.xy) * v_Input.Tint;
+				vec4 color = texture(u_Samplers[v_Input.TexIndex], v_Input.TexCoord.xy);
+				o_Color = color * v_Input.Tint;
 			}
 		)";
 

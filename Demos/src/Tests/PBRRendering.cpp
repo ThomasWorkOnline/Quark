@@ -8,15 +8,30 @@ PBRRendering::PBRRendering()
 	m_Player.AddComponent<PerspectiveCameraComponent>((float)GetWindow().GetWidth() / GetWindow().GetHeight(), 70.0f);
 	m_Controller = { m_Player };
 
-	MeshDescriptor descriptor;
-	descriptor.ZFlip = true;
-	m_Body.LoadOBJFromFile("assets/meshes/monkey.obj", descriptor);
+	{
+#if 1
+		MeshDescriptor descriptor;
+		descriptor.ZFlip = false;
+		m_Body.LoadOBJFromFile("assets/meshes/poly_sphere.obj", descriptor);
+#else
+		m_Body.GenerateUnitCube();
+#endif
+	}
 
-	m_Albedo = Texture2D::Create("assets/textures/pbr/rustediron2_basecolor.png");
-	m_Normal = Texture2D::Create("assets/textures/pbr/rustediron2_normal.png");
-	m_Metallic = Texture2D::Create("assets/textures/pbr/rustediron2_metallic.png");
-	m_Roughness = Texture2D::Create("assets/textures/pbr/rustediron2_roughness.png");
-	m_AmbiantOcclusion = Texture2D::Create("assets/textures/pbr/rustediron2_basecolor.png");
+	{
+		TextureDescriptor descriptor;
+		descriptor.SRGB = true;
+		descriptor.RenderModes.MagFilteringMode = TextureFilteringMode::Linear;
+		descriptor.RenderModes.MinFilteringMode = TextureFilteringMode::LinearMipmapLinear;
+
+		m_Albedo           = Texture2D::Create("assets/textures/pbr/streaked-metal/albedo.png", descriptor);
+		m_Normal           = Texture2D::Create("assets/textures/pbr/streaked-metal/normal-dx.png", descriptor);
+		m_Metallic         = Texture2D::Create("assets/textures/pbr/streaked-metal/metalness.png");
+		m_Roughness        = Texture2D::Create("assets/textures/pbr/streaked-metal/rough.png");
+		m_AmbiantOcclusion = Texture2D::Create("assets/textures/pbr/streaked-metal/ao.png", descriptor);
+	}
+
+	m_HDRMap = Texture2D::Create("assets/textures/hdr/MonValley_G_DirtRoad_3k.hdr");
 
 	m_Shader = Shader::Create("assets/shaders/PBR.glsl");
 	m_Shader->Attach();
@@ -32,7 +47,7 @@ PBRRendering::PBRRendering()
 	static constexpr glm::vec3 lightPositions[4] = {
 		{  0.0f,  0.0f, -3.0f },
 		{  0.0f,  1.0f,  3.0f },
-		{  1.0f,  0.0f,  0.0f },
+		{  1.7f,  0.3f, -0.5f },
 		{  2.0f,  2.0f, -1.0f }
 	};
 

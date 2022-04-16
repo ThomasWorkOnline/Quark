@@ -16,7 +16,10 @@ MainLayer::MainLayer()
 
 	m_Text = Text("Hello quad", m_Font1, m_Color1, HorizontalTextAlignment::Left, VerticalTextAlignment::Center);
 	m_Text2 = Text("Hello quad", m_Font2, m_Color1, HorizontalTextAlignment::Right, VerticalTextAlignment::Bottom);
-	m_Texture = Texture2D::Create("assets/textures/sprite_sheet.png", spec.RenderModes);
+
+	TextureDescriptor descriptor;
+	descriptor.SRGB = true;
+	m_Texture = Texture2D::Create("assets/textures/pbr/streaked-metal/normal-dx.png", descriptor);
 
 	auto& window = Application::Get().GetWindow();
 	float width  = window.GetWidth();

@@ -29,6 +29,8 @@ private:
 	Ref<Texture2D> m_Roughness;
 	Ref<Texture2D> m_AmbiantOcclusion;
 
+	Ref<Texture2D> m_HDRMap;
+	Ref<CubeMap> m_CubeMap;
 	Ref<Shader> m_Shader;
 	Mesh m_Body;
 };

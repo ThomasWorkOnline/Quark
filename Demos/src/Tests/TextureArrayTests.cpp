@@ -18,8 +18,8 @@ TextureArrayTest::TextureArrayTest()
 	spec.RenderModes.MinFilteringMode = TextureFilteringMode::NearestMipmapLinear;
 	spec.RenderModes.MagFilteringMode = TextureFilteringMode::Nearest;
 
-	Image defaultTexture("assets/textures/blocks/default_texture.png", true);
-	Image oakLeavesTexture("assets/textures/blocks/oak_leaves.png", true);
+	Image defaultTexture("assets/textures/blocks/default_texture.png");
+	Image oakLeavesTexture("assets/textures/blocks/oak_leaves.png");
 
 	m_TextureArray = Texture2DArray::Create(spec);
 	m_TextureArray->SetData(defaultTexture.Data(), defaultTexture.Size(), 0);

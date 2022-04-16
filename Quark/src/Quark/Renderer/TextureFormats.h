@@ -13,9 +13,7 @@ namespace Quark {
 		BGR,
 		BGRA,
 
-		Red,
-
-		Default = RGBA
+		Red
 	};
 
 	enum class TextureInternalFormat
@@ -23,18 +21,26 @@ namespace Quark {
 		None = 0,
 
 		RGB8,
+		RGB10,
+		RGB12,
+		RGB16,
+
 		RGBA8,
+		RGBA12,
+		RGBA16,
 
 		// sRGB formats
 		SRGB8,
 		SRGBA8,
 
+		// HDR formats
+		RGB16f,
+		RGB32f,
+
 		Red8,
 
 		// Depth formats
-		Depth24Stencil8,
-
-		Default = SRGBA8
+		Depth24Stencil8
 	};
 
 	enum class TextureFilteringMode
@@ -47,9 +53,7 @@ namespace Quark {
 		NearestMipmapNearest,
 		NearestMipmapLinear,
 		LinearMipmapNearest,
-		LinearMipmapLinear,
-
-		Default = Linear
+		LinearMipmapLinear
 	};
 
 	enum class TextureTilingMode
@@ -66,8 +70,8 @@ namespace Quark {
 
 	struct TextureRenderModes
 	{
-		TextureFilteringMode MagFilteringMode = TextureFilteringMode::Default;
-		TextureFilteringMode MinFilteringMode = TextureFilteringMode::Default;
+		TextureFilteringMode MagFilteringMode = TextureFilteringMode::Linear;
+		TextureFilteringMode MinFilteringMode = TextureFilteringMode::LinearMipmapLinear;
 		TextureTilingMode    TilingMode       = TextureTilingMode::Default;
 	};
 

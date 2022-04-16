@@ -16,6 +16,12 @@ namespace Quark {
 		TextureRenderModes    RenderModes;
 	};
 
+	struct TextureDescriptor
+	{
+		bool SRGB = false;
+		TextureRenderModes RenderModes;
+	};
+
 	class Texture
 	{
 	public:
@@ -38,6 +44,6 @@ namespace Quark {
 	{
 	public:
 		static Ref<Texture2D> Create(const TextureSpecification& spec);
-		static Ref<Texture2D> Create(std::string_view filepath, const TextureRenderModes& modes = {});
+		static Ref<Texture2D> Create(std::string_view filepath, const TextureDescriptor& descriptor = {});
 	};
 }

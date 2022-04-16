@@ -5,10 +5,6 @@
 
 #include <glad/glad.h>
 
-#define STB_IMAGE_WRITE_STATIC
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include <stb_image_write.h>
-
 namespace Quark {
 
 	static constexpr bool IsPowerOfTwo(uint32_t x)
@@ -22,17 +18,16 @@ namespace Quark {
 		m_InternalFormat = GetTextureInternalFormat(m_Spec.InternalFormat);
 		m_DataFormat = GetTextureFormat(m_Spec.DataFormat);
 
-		glGenTextures(1, &m_RendererID);
-		glActiveTexture(GL_TEXTURE0);
-
 		bool multisampled = m_Spec.Samples > 1;
 		if (multisampled)
 		{
+			glGenTextures(1, &m_RendererID);
 			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_RendererID);
 			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Spec.Samples, m_InternalFormat, m_Spec.Width, m_Spec.Height, GL_FALSE);
 		}
 		else
 		{
+			glGenTextures(1, &m_RendererID);
 			glBindTexture(GL_TEXTURE_2D, m_RendererID);
 			glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Spec.Width, m_Spec.Height, 0, m_DataFormat, GL_UNSIGNED_BYTE, nullptr);
 		}
@@ -45,42 +40,61 @@ namespace Quark {
 		glTexParameteri(target, GL_TEXTURE_WRAP_T, tilingMode);
 	}
 
-	OpenGLTexture2D::OpenGLTexture2D(std::string_view filepath, const TextureRenderModes& modes)
+	OpenGLTexture2D::OpenGLTexture2D(std::string_view filepath, const TextureDescriptor& descriptor)
 	{
-		Image image(filepath);
-		const ImageProperties& props = image.GetProperties();
+		size_t extensionStart = filepath.find_last_of('.');
+		std::string_view extension = filepath.substr(extensionStart);
 
-		m_Spec.Width = props.Width;
-		m_Spec.Height = props.Height;
-		m_Spec.RenderModes = modes;
-
-		GLenum internalFormat = 0, dataFormat = 0;
-		switch (props.Channels)
+		if (extension == ".hdr")
 		{
-		case 1:
-			internalFormat = GL_R8;
-			dataFormat = GL_RED;
-			break;
-		case 3:
-			internalFormat = props.SRGB ? GL_SRGB8 : GL_RGB8;
-			dataFormat = GL_RGB;
-			break;
-		case 4:
-			internalFormat = props.SRGB ? GL_SRGB8_ALPHA8 : GL_RGBA8;
-			dataFormat = GL_RGBA;
-			break;
+			ImageDescriptor imageDescriptor;
+			HDRImage image(filepath, imageDescriptor);
+
+			m_Spec.Width       = image.Width();
+			m_Spec.Height      = image.Height();
+			m_Spec.RenderModes = descriptor.RenderModes;
+
+			m_InternalFormat = GL_RGB16F;
+			m_DataFormat = GL_RGB;
+
+			glGenTextures(1, &m_RendererID);
+			glBindTexture(GL_TEXTURE_2D, m_RendererID);
+			glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Spec.Width, m_Spec.Height, 0, m_DataFormat, GL_FLOAT, *image);
 		}
+		else
+		{
+			ImageDescriptor imageDescriptor;
+			Image image(filepath, imageDescriptor);
 
-		m_InternalFormat = internalFormat;
-		m_DataFormat = dataFormat;
-		QK_CORE_ASSERT(internalFormat & dataFormat, "Image format not supported");
+			m_Spec.Width       = image.Width();
+			m_Spec.Height      = image.Height();
+			m_Spec.RenderModes = descriptor.RenderModes;
 
-		glGenTextures(1, &m_RendererID);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, m_RendererID);
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+			GLenum internalFormat = 0, dataFormat = 0;
+			switch (image.Channels())
+			{
+			case 1:
+				internalFormat = GL_R8;
+				dataFormat = GL_RED;
+				break;
+			case 3:
+				internalFormat = descriptor.SRGB ? GL_SRGB8 : GL_RGB8;
+				dataFormat = GL_RGB;
+				break;
+			case 4:
+				internalFormat = descriptor.SRGB ? GL_SRGB8_ALPHA8 : GL_RGBA8;
+				dataFormat = GL_RGBA;
+				break;
+			}
 
-		glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, m_Spec.Width, m_Spec.Height, 0, dataFormat, GL_UNSIGNED_BYTE, *image);
+			m_InternalFormat = internalFormat;
+			m_DataFormat = dataFormat;
+			QK_CORE_ASSERT(internalFormat & dataFormat, "Image format not supported");
+
+			glGenTextures(1, &m_RendererID);
+			glBindTexture(GL_TEXTURE_2D, m_RendererID);
+			glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, m_Spec.Width, m_Spec.Height, 0, dataFormat, GL_UNSIGNED_BYTE, *image);
+		}
 
 		GLenum tilingMode = GetTextureTilingMode(m_Spec.RenderModes.TilingMode);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetTextureFilteringMode(m_Spec.RenderModes.MinFilteringMode));
@@ -88,7 +102,10 @@ namespace Quark {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, tilingMode);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, tilingMode);
 
-		glGenerateMipmap(GL_TEXTURE_2D);
+		if (TextureHasMips(m_Spec.RenderModes.MinFilteringMode) || TextureHasMips(m_Spec.RenderModes.MagFilteringMode))
+		{
+			glGenerateMipmap(GL_TEXTURE_2D);
+		}
 	}
 
 	OpenGLTexture2D::~OpenGLTexture2D()

@@ -1,44 +1,18 @@
 #include "OpenGLCubeMap.h"
 
-#define STB_IMAGE_STATIC
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
-
 #include <glad/glad.h>
 
 namespace Quark {
 
-	OpenGLCubeMap::OpenGLCubeMap(const std::array<std::string_view, 6>& filepaths)
+	OpenGLCubeMap::OpenGLCubeMap(uint32_t width, uint32_t height)
+		: m_Width(width), m_Height(height)
 	{
 		glGenTextures(1, &m_RendererID);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, m_RendererID);
 
-		int32_t width, height, channels;
-		stbi_set_flip_vertically_on_load(false);
-		for (size_t i = 0; i < filepaths.size(); i++)
+		for (uint8_t i = 0; i < 6; i++)
 		{
-			stbi_uc* data = stbi_load(filepaths[i].data(), &width, &height, &channels, 0);
-			QK_CORE_ASSERT(data, "Failed to load image at path: {0}", filepaths[i]);
-
-			GLenum internalFormat = 0, dataFormat = 0;
-			if (channels == 4)
-			{
-				internalFormat = GL_SRGB_ALPHA;
-				dataFormat = GL_RGBA;
-			}
-			else if (channels == 3)
-			{
-				internalFormat = GL_SRGB;
-				dataFormat = GL_RGB;
-			}
-
-			m_InternalFormats[i] = internalFormat;
-			m_DataFormats[i] = dataFormat;
-			QK_CORE_ASSERT(internalFormat & dataFormat, "Image format not supported");
-
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat, width, height, 0, dataFormat, GL_UNSIGNED_BYTE, data);
-
-			stbi_image_free(data);
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, nullptr);
 		}
 
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -48,6 +22,8 @@ namespace Quark {
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BASE_LEVEL, 0);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, 0);
+
+		QK_ASSERT(false, "Not implemented!");
 	}
 	
 	OpenGLCubeMap::~OpenGLCubeMap()
