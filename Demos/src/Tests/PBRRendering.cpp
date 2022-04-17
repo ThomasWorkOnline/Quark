@@ -56,6 +56,7 @@ PBRRendering::PBRRendering()
 	}
 
 	m_HDRMap = Texture2D::Create("assets/textures/hdr/MonValley_G_DirtRoad_3k.hdr");
+	m_HDRCubeMap = Cubemap::Create(512, 512);
 
 	m_Shader = Shader::Create("assets/shaders/PBR.glsl");
 	m_Shader->Attach();

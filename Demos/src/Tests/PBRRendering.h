@@ -30,7 +30,8 @@ private:
 	Ref<Texture2D> m_AmbiantOcclusion;
 
 	Ref<Texture2D> m_HDRMap;
-	Ref<CubeMap> m_CubeMap;
+	Ref<Cubemap> m_HDRCubeMap;
+
 	Ref<Shader> m_Shader;
 	Mesh m_Body;
 };

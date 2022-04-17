@@ -1,23 +1,23 @@
 #pragma once
 
-#include "Quark/Renderer/CubeMap.h"
+#include "Quark/Renderer/Cubemap.h"
 
 namespace Quark {
 
-	class OpenGLCubeMap : public CubeMap
+	class OpenGLCubemap : public Cubemap
 	{
 	public:
-		OpenGLCubeMap(uint32_t width, uint32_t height);
-		~OpenGLCubeMap() override;
+		OpenGLCubemap(uint32_t width, uint32_t height);
+		~OpenGLCubemap() override;
 
 		void Attach(uint32_t textureSlot = 0) const override;
 		void Detach() const override;
 
 		uint32_t GetRendererID() const override { return m_RendererID; }
 
-		bool operator==(const CubeMap& other) const override
+		bool operator==(const Cubemap& other) const override
 		{
-			return m_RendererID == ((OpenGLCubeMap&)other).m_RendererID;
+			return m_RendererID == ((OpenGLCubemap&)other).m_RendererID;
 		}
 
 	private:

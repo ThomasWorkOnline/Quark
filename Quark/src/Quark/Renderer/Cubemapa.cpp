@@ -1,4 +1,4 @@
-#include "CubeMap.h"
+#include "Cubemap.h"
 
 #include "RenderingAPI.h"
 
@@ -7,12 +7,12 @@
 
 namespace Quark {
 
-	Ref<CubeMap> Quark::CubeMap::Create(uint32_t width, uint32_t height)
+	Ref<Cubemap> Cubemap::Create(uint32_t width, uint32_t height)
 	{
 		switch (RenderingAPI::GetAPI())
 		{
 			case RenderingAPI::API::OpenGL:
-				return CreateRef<OpenGLCubeMap>(width, height);
+				return CreateRef<OpenGLCubemap>(width, height);
 			default:
 				QK_CORE_FATAL("Rendering API not supported");
 				return nullptr;
