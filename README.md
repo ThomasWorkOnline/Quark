@@ -85,6 +85,7 @@ namespace Quark {
 	{
 		auto app = CreateScope<YourApplication>();
 		app->Run();
+		return 0;
 	}
 }
 ```
