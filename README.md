@@ -66,7 +66,7 @@ The following examples will guide you in learning the Quark API.
 class YourApplication : public Quark::Application
 {
 	...
-}
+};
 ```
 	
 <ins>**2. Launching your app**</ins>
@@ -87,7 +87,7 @@ namespace Quark {
 		app->Run();
 		return 0;
 	}
-}
+};
 ```
 
 Make sure to define `Main()` inside the Quark namespace.
@@ -111,7 +111,7 @@ public:
 		// Run your app logic and rendering here:
 		...
 	}
-}
+};
 ```
 
 <ins>**4. Handling events**</ins>
@@ -131,7 +131,7 @@ public:
 	
 		...
 	}
-}
+};
 ```
 
 Event dispatchers are used to associate an event type with a given function.
@@ -167,7 +167,7 @@ private:
 		// A handled event will not be propagated to other handlers
 		return false;
 	}
-}
+};
 ```
 
 By returning false, we do not prevent the event propagation. Returning true can be useful when you want to prevent the app from propagating the event any further.
@@ -192,7 +192,7 @@ public:
 
 private:
 	Quark::Ref<Quark::Texture2D> m_Texture;
-}
+};
 ```
 
 In order for Quark to render objects, we have to give it information about our scene.
@@ -212,7 +212,7 @@ public:
 	YourApplication()
 	{
 		// Loading our texture
-		m_Texture = Quark::Texture2D::Create("assets/textures/example.png");
+		m_Texture = Quark::Texture2D::Create("assets/textures/Example1_BasicRendering.png");
 	}
 	
 	// Called each frame
@@ -220,7 +220,7 @@ public:
 	void OnUpdate(Quark::Timestep elapsedTime) override
 	{
 		// Starting a fresh scene
-		Quark::Renderer::BeginScene(m_Camera.GetProjection(), glm::mat4(1.0f)); <-- This is the camera view matrix, we'll stick to a unit matrix
+		Quark::Renderer::BeginScene(m_Camera.GetProjection(), glm::mat4(1.0f)); // <-- This is the camera view matrix, we'll stick to a unit matrix
 		
 		// Submitting a unit sprite with our given texture
 		Quark::Renderer2D::DrawSprite(m_Texture);
@@ -233,8 +233,19 @@ public:
 private:
 	Quark::Ref<Quark::Texture2D> m_Texture;
 	Quark::OrthographicCamera m_Camera;
-}
+};
 ```
+
+
+
+<ins>**5. Handling window size**</ins>
+
+So far, we've created our camera using the default constructor;
+This default initialization sets the projection matrix to a [-1, 1] orthographic projection.
+This doesn't give us the result we want since we don't take into consideration the screen aspect ratio.
+Let's fix this:
+
+
 
 # Dependencies
 glm: https://github.com/g-truc/glm<br />
