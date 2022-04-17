@@ -71,8 +71,6 @@ namespace Quark {
 		glGenFramebuffers(1, &m_RendererID);
 		glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
 
-		bool multisampled = m_Spec.Samples > 1;
-
 		// Color format
 		if (m_ColorSpecs.size())
 		{
@@ -81,24 +79,27 @@ namespace Quark {
 
 			for (size_t i = 0; i < m_ColorAttachments.size(); i++)
 			{
-				glBindTexture(GetTextureSampleTarget(multisampled), m_ColorAttachments[i]);
-
+				bool multisampled = m_Spec.Samples > 1;
 				if (multisampled)
 				{
+					glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_ColorAttachments[i]);
 					glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Spec.Samples, GetTextureInternalFormat(m_ColorSpecs[i].InternalFormat), m_Spec.Width, m_Spec.Height, GL_FALSE);
 				}
 				else
 				{
+					glBindTexture(GL_TEXTURE_2D, m_ColorAttachments[i]);
 					glTexImage2D(GL_TEXTURE_2D, 0, GetTextureInternalFormat(m_ColorSpecs[i].InternalFormat), m_Spec.Width, m_Spec.Height, 0,
 						GetTextureFormat(m_ColorSpecs[i].Format), GL_UNSIGNED_BYTE, nullptr);
 
+					GLenum tilingMode = GetTextureTilingMode(m_ColorSpecs[i].RenderModes.TilingMode);
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetTextureFilteringMode(m_ColorSpecs[i].RenderModes.MinFilteringMode));
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GetTextureFilteringMode(m_ColorSpecs[i].RenderModes.MagFilteringMode));
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GetTextureTilingMode(m_ColorSpecs[i].RenderModes.TilingMode));
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GetTextureTilingMode(m_ColorSpecs[i].RenderModes.TilingMode));
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, tilingMode);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, tilingMode);
 				}
 
-				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GetTextureSampleTarget(multisampled), m_ColorAttachments[i], 0);
+				GLenum target = multisampled ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, target, m_ColorAttachments[i], 0);
 			}
 		}
 
@@ -106,24 +107,28 @@ namespace Quark {
 		if (m_DepthSpec.Format != TextureDataFormat::None)
 		{
 			glGenTextures(1, &m_DepthAttachment);
-			glBindTexture(GetTextureSampleTarget(multisampled), m_DepthAttachment);
 
+			bool multisampled = m_Spec.Samples > 1;
 			if (multisampled)
 			{
+				glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_DepthAttachment);
 				glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Spec.Samples, GetTextureInternalFormat(m_DepthSpec.InternalFormat), m_Spec.Width, m_Spec.Height, GL_FALSE);
 			}
 			else
 			{
+				glBindTexture(GL_TEXTURE_2D, m_DepthAttachment);
 				glTexImage2D(GL_TEXTURE_2D, 0, GetTextureInternalFormat(m_DepthSpec.InternalFormat), m_Spec.Width, m_Spec.Height, 0,
 					GetTextureFormat(m_DepthSpec.Format), GL_UNSIGNED_BYTE, nullptr);
 
+				GLenum tilingMode = GetTextureTilingMode(m_DepthSpec.RenderModes.TilingMode);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetTextureFilteringMode(m_DepthSpec.RenderModes.MinFilteringMode));
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GetTextureFilteringMode(m_DepthSpec.RenderModes.MagFilteringMode));
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GetTextureTilingMode(m_DepthSpec.RenderModes.TilingMode));
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GetTextureTilingMode(m_DepthSpec.RenderModes.TilingMode));
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, tilingMode);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, tilingMode);
 			}
 
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GetTextureSampleTarget(multisampled), m_DepthAttachment, 0);
+			GLenum target = multisampled ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, target, m_DepthAttachment, 0);
 		}
 
 		if (m_ColorAttachments.size() > 1)

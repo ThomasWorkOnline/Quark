@@ -7,11 +7,6 @@
 
 namespace Quark {
 
-	constexpr GLenum GetTextureSampleTarget(uint32_t samples)
-	{
-		return samples > 1 ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
-	}
-
 	constexpr GLenum GetTextureInternalFormat(TextureInternalFormat format)
 	{
 		switch (format)

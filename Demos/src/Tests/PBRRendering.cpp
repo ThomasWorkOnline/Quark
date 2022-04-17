@@ -31,7 +31,6 @@ PBRRendering::PBRRendering()
 		m_Metallic         = Texture2D::Create("assets/textures/pbr/greasy-pan/greasy-pan-2-metal.png");
 		m_Normal           = Texture2D::Create("assets/textures/pbr/greasy-pan/greasy-pan-2-normal.png");
 		m_Roughness        = Texture2D::Create("assets/textures/pbr/greasy-pan/greasy-pan-2-roughness.png");
-		m_AmbiantOcclusion = Texture2D::Create("assets/textures/pbr/streaked-metal/ao.png");
 #endif
 
 #if MATERIAL == 1
@@ -39,7 +38,6 @@ PBRRendering::PBRRendering()
 		m_Metallic         = Texture2D::Create("assets/textures/pbr/copper-scuffed/Copper-scuffed_metallic.png");
 		m_Normal           = Texture2D::Create("assets/textures/pbr/copper-scuffed/Copper-scuffed_normal.png");
 		m_Roughness        = Texture2D::Create("assets/textures/pbr/copper-scuffed/Copper-scuffed_roughness.png");
-		m_AmbiantOcclusion = Texture2D::Create("assets/textures/pbr/streaked-metal/ao.png");
 #endif
 
 #if MATERIAL == 2
@@ -47,7 +45,13 @@ PBRRendering::PBRRendering()
 		m_Metallic         = Texture2D::Create("assets/textures/pbr/streaked-metal/metalness.png");
 		m_Normal           = Texture2D::Create("assets/textures/pbr/streaked-metal/normal-dx.png");
 		m_Roughness        = Texture2D::Create("assets/textures/pbr/streaked-metal/rough.png");
-		m_AmbiantOcclusion = Texture2D::Create("assets/textures/pbr/streaked-metal/ao.png");
+#endif
+
+#if MATERIAL == 3
+		m_Albedo           = Texture2D::Create("assets/textures/pbr/rustediron/rustediron2_basecolor.png", descriptor);
+		m_Metallic         = Texture2D::Create("assets/textures/pbr/rustediron/rustediron2_metallic.png");
+		m_Normal           = Texture2D::Create("assets/textures/pbr/rustediron/rustediron2_normal.png");
+		m_Roughness        = Texture2D::Create("assets/textures/pbr/rustediron/rustediron2_roughness.png");
 #endif
 	}
 
@@ -60,9 +64,8 @@ PBRRendering::PBRRendering()
 	m_Shader->SetInt("u_NormalMap",           1);
 	m_Shader->SetInt("u_MetallicMap",         2);
 	m_Shader->SetInt("u_RoughnessMap",        3);
-	m_Shader->SetInt("u_AmbiantOcclusionMap", 4);
 
-	static constexpr float lightPower = 100.0f;
+	static constexpr float lightPower = 50.0f;
 	static constexpr glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f) * lightPower;
 	static constexpr glm::vec3 lightPositions[4] = {
 		{  0.0f,  0.0f, -3.0f },
@@ -96,7 +99,6 @@ void PBRRendering::OnUpdate(Timestep elapsedTime)
 	m_Normal->Attach(1);
 	m_Metallic->Attach(2);
 	m_Roughness->Attach(3);
-	m_AmbiantOcclusion->Attach(4);
 
 	m_Shader->Attach();
 	m_Shader->SetFloat3("u_CameraPos", transform.Position);

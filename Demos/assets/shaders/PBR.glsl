@@ -51,7 +51,6 @@ uniform sampler2D u_AlbedoMap;
 uniform sampler2D u_NormalMap;
 uniform sampler2D u_MetallicMap;
 uniform sampler2D u_RoughnessMap;
-uniform sampler2D u_AmbiantOcclusionMap;
 
 uniform samplerCube u_IrradianceMap;
 
@@ -68,7 +67,7 @@ void main()
     vec3  albedo    = texture(u_AlbedoMap,           v_Input.TexCoord).rgb;
     float metallic  = texture(u_MetallicMap,         v_Input.TexCoord).r;
     float roughness = texture(u_RoughnessMap,        v_Input.TexCoord).r;
-    float ao        = texture(u_AmbiantOcclusionMap, v_Input.TexCoord).r;
+    float ao        = 0.6;
 
     vec3 N = v_Input.Normal;
     vec3 V = normalize(u_CameraPos - v_Input.Position);
