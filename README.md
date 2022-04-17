@@ -12,10 +12,7 @@ Official support for macOS and Linux is on it's way!
 1. Run `git clone --resursive https://github.com/ThomasWorkOnline/Quark.git` in your desired environment folder.
 2. After cloning this repository, run the script `GenVisualStudioSolution20xx_Win.bat` located under `Scripts/Windows`.
 3. Open the Visual Studio solution and hit build! Build for your desired configuration(s).
-4. Run `GenInclude_Win.bat`. This will generate the `include` directory alongside the `lib` folder.<br />
-Note: *`GenInclude_Win.bat` will only copy files, so make sure the application is compiled for your desired platform.*
-
-5. Link the appropriate libraries for your application (on Visual Studio, you will need to link the Debug, Release and Dist binaries seperately depending on your configuration).<br />
+4. Link the appropriate libraries for your application (on Visual Studio, you will need to link the Debug, Release and Dist binaries seperately depending on your configuration).<br />
 
 ## On MacOS
 1. Run `git clone --resursive https://github.com/ThomasWorkOnline/Quark.git` in your desired environment folder.
@@ -26,13 +23,14 @@ Note: *`GenInclude_Win.bat` will only copy files, so make sure the application i
 	make config=release
 	make config=dist
 
-4. Run `GenInclude_MacOS.sh`. This will generate the `include` directory alongside the `lib` folder.<br />
-Note: *`GenInclude_MacOS.sh` will only copy files, so make sure the application is compiled for your desired platform.*
-
-5. Link the appropriate libraries for your application (remember to link the debug and release configs appropriately).
+4. Link the appropriate libraries for your application (remember to link the debug and release configs appropriately).
 
 ## On Linux
 Coming soon!
+
+## Building Quark without Premake
+1. Run `Scripts/GenInclude_<platform>` script. This will generate the `include` directory.<br />
+Note: *`GenInclude_...` will also create a 'lib' directory and copy the binaries inside if they are built.*
 
 ## Dependencies
 - [glm](https://github.com/g-truc/glm)
