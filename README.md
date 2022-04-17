@@ -309,6 +309,8 @@ It's also trivial to render a colored sprite using a different overload of the D
 class YourApplication : public Quark::Application
 {
 public:
+	[...]
+
 	// Called each frame
 	// Elapsed time holds the time delta in seconds between frames
 	void OnUpdate(Quark::Timestep elapsedTime) override
@@ -323,6 +325,8 @@ public:
 		// The renderer will optimize and draw the geometry here
 		Quark::Renderer::EndScene();
 	}
+	
+	[...]
 };
 ```
 
