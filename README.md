@@ -66,7 +66,7 @@ The following examples will guide you in learning the Quark API.
 class YourApplication : public Quark::Application
 {
 	...
-}
+};
 ```
 	
 <ins>**2. Launching your app**</ins>
@@ -87,7 +87,7 @@ namespace Quark {
 		app->Run();
 		return 0;
 	}
-}
+};
 ```
 
 Make sure to define `Main()` inside the Quark namespace.
@@ -111,7 +111,7 @@ public:
 		// Run your app logic and rendering here:
 		...
 	}
-}
+};
 ```
 
 <ins>**4. Handling events**</ins>
@@ -131,7 +131,7 @@ public:
 	
 		...
 	}
-}
+};
 ```
 
 Event dispatchers are used to associate an event type with a given function.
@@ -158,7 +158,7 @@ public:
 	
 private:
 	// Our custom KeyPressedEvent handler
-	bool OnKeyPressed(KeyPressedEvent& e)
+	bool OnKeyPressed(Quark::KeyPressedEvent& e)
 	{       //               ^
 		// Note that the event has been cast to the right type
 		std::cout << e.GetKeyCode() << std::endl;
@@ -167,11 +167,85 @@ private:
 		// A handled event will not be propagated to other handlers
 		return false;
 	}
-}
+};
 ```
 
 By returning false, we do not prevent the event propagation. Returning true can be useful when you want to prevent the app from propagating the event any further.
 For instance, in a FPS, you would not wan't your player controller to shoot when left-clicking in your inventory. Furthermore, your player controller should not be aware that a click event has been fired. By returning true, Quark internally discards the event for further handlers.
+
+<ins>**5. Basic 2D rendering**</ins>
+
+Quark provides a easy-to-use batched 2D renderer directly available when you create an application.
+Let's render a basic textured quad to the screen using it.
+
+First, we'll have to load a texture:
+
+```c++
+class YourApplication : public Quark::Application
+{
+public:
+	YourApplication()
+	{
+		// Loading our texture
+		m_Texture = Quark::Texture2D::Create("assets/textures/example.png");
+	}
+
+private:
+	Quark::Ref<Quark::Texture2D> m_Texture;
+};
+```
+
+In order for Quark to render objects, we have to give it information about our scene.
+Let's start by creating a camera object that will hold our scene projection.
+
+## Camera types
+[OrthographicCamera](https://github.com/ThomasWorkOnline/Quark/blob/main/Quark/src/Quark/Renderer/OrthographicCamera.h)
+[PerspectiveCamera](https://github.com/ThomasWorkOnline/Quark/blob/main/Quark/src/Quark/Renderer/PerspectiveCamera.h)
+
+For our simple 2D needs, I'll be using an orthographic camera.
+Finally, we can start drawing things to the screen:
+
+```c++
+class YourApplication : public Quark::Application
+{
+public:
+	YourApplication()
+	{
+		// Loading our texture
+		m_Texture = Quark::Texture2D::Create("assets/textures/Example1_BasicRendering.png");
+	}
+	
+	// Called each frame
+	// Elapsed time holds the time delta in seconds between frames
+	void OnUpdate(Quark::Timestep elapsedTime) override
+	{
+		// Starting a fresh scene
+		Quark::Renderer::BeginScene(m_Camera.GetProjection(), glm::mat4(1.0f)); // <-- This is the camera view matrix, we'll stick to a unit matrix
+		
+		// Submitting a unit sprite with our given texture
+		Quark::Renderer2D::DrawSprite(m_Texture);
+		
+		// Telling Quark we are done with the current scene
+		// The renderer will optimize and draw the geometry here
+		Quark::Renderer::EndScene();
+	}
+
+private:
+	Quark::Ref<Quark::Texture2D> m_Texture;
+	Quark::OrthographicCamera m_Camera;
+};
+```
+
+
+
+<ins>**5. Handling window size**</ins>
+
+So far, we've created our camera using the default constructor;
+This default initialization sets the projection matrix to a [-1, 1] orthographic projection.
+This doesn't give us the result we want since we don't take into consideration the screen aspect ratio.
+Let's fix this:
+
+
 
 # Dependencies
 glm: https://github.com/g-truc/glm<br />
