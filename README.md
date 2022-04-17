@@ -12,7 +12,8 @@ Official support for macOS and Linux is on it's way!
 1. Run `git clone --resursive https://github.com/ThomasWorkOnline/Quark.git` in your desired environment folder.
 2. After cloning this repository, run the script `GenVisualStudioSolution20xx_Win.bat` located under `Scripts/Windows`.
 3. Open the Visual Studio solution and hit build! Build for your desired configuration(s).
-Note: *On Visual Studio, your configuration will automatically be set and can be chosen via the Configuration Manager.*<br />
+4. 
+Note: *On Visual Studio, your configuration will automatically be set and can be chosen via the Configuration Manager.*
 
 ## On MacOS
 1. Run `git clone --resursive https://github.com/ThomasWorkOnline/Quark.git` in your desired environment folder.
@@ -27,7 +28,8 @@ Note: *On Visual Studio, your configuration will automatically be set and can be
 Coming soon!
 
 ## Building Quark without Premake
-1. Run `Scripts/GenInclude_<platform>` script. This will generate the `include` directory.<br />
+1. Run `Scripts/GenInclude_<platform>` script. This will generate the `include` directory.
+
 Note: *`GenInclude_...` will also create a 'lib' directory and copy the binaries inside if they are built.*
 
 ## Dependencies
