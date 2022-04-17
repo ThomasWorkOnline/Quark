@@ -9,6 +9,21 @@ public:
 	{
 		// Loading our texture
 		m_Texture = Quark::Texture2D::Create("assets/textures/Example1_BasicRendering.png");
+
+		auto& window = GetWindow();
+		float aspectRatio = (float)window.GetWidth() / window.GetHeight();
+
+		// Updating the projection with the screen's aspect ratio
+		m_Camera.SetProjection(-aspectRatio, aspectRatio, -1, 1);
+	}
+
+	void OnEvent(Quark::Event& e) override
+	{
+		// Create an dispatcher object with the given event reference
+		Quark::EventDispatcher dispatcher(e);
+
+		// Route all `WindowResizedEvent` to `YourApplication::OnWindowResized`
+		dispatcher.Dispatch<Quark::WindowResizedEvent>(ATTACH_EVENT_FN(YourApplication::OnWindowResized));
 	}
 
 	// Called each frame
@@ -24,6 +39,15 @@ public:
 		// Telling Quark we are done with the current scene
 		// The renderer will optimize and draw the geometry here
 		Quark::Renderer::EndScene();
+	}
+
+private:
+	bool OnWindowResized(Quark::WindowResizedEvent& e)
+	{
+		// Updating the camera projection every time the window is resized
+		float aspectRatio = (float)e.GetWidth() / e.GetHeight();
+		m_Camera.SetProjection(-aspectRatio, aspectRatio, -1, 1);
+		return false;
 	}
 
 private:
