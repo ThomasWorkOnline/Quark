@@ -32,4 +32,4 @@
 #	define QK_ASSERT(x, ...)
 #endif
 
-#define QK_CORE_FATAL(...) do { QK_CORE_ERROR(__VA_ARGS__); QK_DEBUGBREAK(); } while (false)
+#define QK_CORE_FATAL(...) do { QK_CORE_CRITICAL(__VA_ARGS__); QK_DEBUGBREAK(); } while (false)
