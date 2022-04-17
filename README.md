@@ -1,5 +1,7 @@
 # Quark
 
+![Splash](Demos/docs/Splash.PNG)
+
 Quark is a 3D game engine in early development inspired by Hazel Game Engine.
 Designed for learning purposes.
 Official support for macOS and Linux is on it's way!
