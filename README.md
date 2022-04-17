@@ -95,6 +95,9 @@ Make sure to define `Main()` inside the Quark namespace.
 Allocating an instance of your application can potentially be very memory heavy.
 Therefore, instantiating your application on the stack is not adviced.
 I suggest you dynamically allocate your app to prevent high stack usage which can lead to bugs and crashes.
+This is done using the `CreateScope<>` function that returns a shared pointer to your class type.
+
+*If you want full details, see [Core.h](https://github.com/ThomasWorkOnline/Quark/blob/main/Quark/src/Quark/Core/Core.h)*
 
 <ins>**3. Implementing some functionality**</ins>
 ```c++
