@@ -97,7 +97,7 @@ Therefore, instantiating your application on the stack is not adviced.
 I suggest you dynamically allocate your app to prevent high stack usage which can lead to bugs and crashes.
 This is done using the `CreateScope<>` function that returns a shared pointer to your class type.
 
-*If you want full details, see [Core.h](https://github.com/ThomasWorkOnline/Quark/blob/main/Quark/src/Quark/Core/Core.h)*
+*If you wan't full details, see [Core.h](https://github.com/ThomasWorkOnline/Quark/blob/main/Quark/src/Quark/Core/Core.h)*
 
 <ins>**3. Implementing some functionality**</ins>
 ```c++
@@ -170,7 +170,7 @@ private:
 };
 ```
 
-By returning false, we do not prevent the event propagation. Returning true can be useful when you want to prevent the app from propagating the event any further.
+By returning false, we do not prevent the event propagation. Returning true can be useful when you wan't to prevent the app from propagating the event any further.
 For instance, in a FPS, you would not wan't your player controller to shoot when left-clicking in your inventory. Furthermore, your player controller should not be aware that a click event has been fired. By returning true, Quark internally discards the event for further handlers.
 
 <ins>**5. Basic 2D rendering**</ins>
@@ -243,7 +243,7 @@ private:
 
 So far, we've created our camera using the default constructor;
 This default initialization sets the projection matrix to a [-1, 1] orthographic projection.
-This doesn't give us the result we want since we don't take into consideration the screen aspect ratio.
+This doesn't give us the result we wan't since we don't take into consideration the screen aspect ratio.
 Let's fix this:
 
 ```c++
