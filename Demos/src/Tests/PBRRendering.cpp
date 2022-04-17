@@ -58,13 +58,17 @@ PBRRendering::PBRRendering()
 	m_HDRMap = Texture2D::Create("assets/textures/hdr/MonValley_G_DirtRoad_3k.hdr");
 	m_HDRCubeMap = Cubemap::Create(512, 512);
 
-	m_Shader = Shader::Create("assets/shaders/PBR.glsl");
-	m_Shader->Attach();
-	m_Shader->SetMat4("u_Model", glm::mat4(1.0f));
-	m_Shader->SetInt("u_AlbedoMap",           0);
-	m_Shader->SetInt("u_NormalMap",           1);
-	m_Shader->SetInt("u_MetallicMap",         2);
-	m_Shader->SetInt("u_RoughnessMap",        3);
+	m_PBRShader = Shader::Create("assets/shaders/PBR.glsl");
+	m_IrradianceShader = Shader::Create("assets/shaders/irradiance.glsl");
+	m_EquirectangleToCubemap = Shader::Create("assets/shaders/equirectangleToCubemap.glsl");
+
+	m_PBRShader->Attach();
+	m_PBRShader->SetMat4("u_Model", glm::mat4(1.0f));
+	m_PBRShader->SetInt("u_AlbedoMap",           0);
+	m_PBRShader->SetInt("u_NormalMap",           1);
+	m_PBRShader->SetInt("u_MetallicMap",         2);
+	m_PBRShader->SetInt("u_RoughnessMap",        3);
+	m_PBRShader->SetInt("u_IrradianceMap",       4);
 
 	static constexpr float lightPower = 50.0f;
 	static constexpr glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f) * lightPower;
@@ -75,15 +79,34 @@ PBRRendering::PBRRendering()
 		{  2.0f,  2.0f, -2.0f }
 	};
 
-	m_Shader->SetFloat3("u_LightColors[0]", lightColor);
-	m_Shader->SetFloat3("u_LightColors[1]", lightColor);
-	m_Shader->SetFloat3("u_LightColors[2]", lightColor);
-	m_Shader->SetFloat3("u_LightColors[3]", lightColor);
+	m_PBRShader->SetFloat3("u_LightColors[0]", lightColor);
+	m_PBRShader->SetFloat3("u_LightColors[1]", lightColor);
+	m_PBRShader->SetFloat3("u_LightColors[2]", lightColor);
+	m_PBRShader->SetFloat3("u_LightColors[3]", lightColor);
 
-	m_Shader->SetFloat3("u_LightPositions[0]", lightPositions[0]);
-	m_Shader->SetFloat3("u_LightPositions[1]", lightPositions[1]);
-	m_Shader->SetFloat3("u_LightPositions[2]", lightPositions[2]);
-	m_Shader->SetFloat3("u_LightPositions[3]", lightPositions[3]);
+	m_PBRShader->SetFloat3("u_LightPositions[0]", lightPositions[0]);
+	m_PBRShader->SetFloat3("u_LightPositions[1]", lightPositions[1]);
+	m_PBRShader->SetFloat3("u_LightPositions[2]", lightPositions[2]);
+	m_PBRShader->SetFloat3("u_LightPositions[3]", lightPositions[3]);
+
+	{
+		FramebufferAttachmentSpecification colorAttachmentSpec;
+		colorAttachmentSpec.Attachment = FramebufferAttachment::ColorAttachment0;
+		colorAttachmentSpec.InternalFormat = TextureInternalFormat::RGB16f;
+
+		FramebufferSpecification spec;
+		spec.Width = 512;
+		spec.Height = 512;
+		spec.Attachments = { colorAttachmentSpec };
+		m_IrradianceFramebuffer = Framebuffer::Create(spec);
+	}
+
+	m_IrradianceFramebuffer->Attach();
+	m_IrradianceFramebuffer->Detach();
+
+	// Due to the lack of a render pipeline, we must reset the viewport after detaching the fbo
+	auto& window = GetWindow();
+	RenderCommand::SetViewport(0, 0, window.GetWidth(), window.GetHeight());
 }
 
 void PBRRendering::OnUpdate(Timestep elapsedTime)
@@ -100,9 +123,10 @@ void PBRRendering::OnUpdate(Timestep elapsedTime)
 	m_Normal->Attach(1);
 	m_Metallic->Attach(2);
 	m_Roughness->Attach(3);
+	// TODO: attach irradiance map
 
-	m_Shader->Attach();
-	m_Shader->SetFloat3("u_CameraPos", transform.Position);
+	m_PBRShader->Attach();
+	m_PBRShader->SetFloat3("u_CameraPos", transform.Position);
 
 	RenderCommand::DrawIndexed(m_Body.GetVertexArray());
 

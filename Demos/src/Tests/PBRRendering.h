@@ -31,7 +31,10 @@ private:
 
 	Ref<Texture2D> m_HDRMap;
 	Ref<Cubemap> m_HDRCubeMap;
+	Ref<Framebuffer> m_IrradianceFramebuffer;
 
-	Ref<Shader> m_Shader;
+	Ref<Shader> m_PBRShader;
+	Ref<Shader> m_IrradianceShader;
+	Ref<Shader> m_EquirectangleToCubemap;
 	Mesh m_Body;
 };

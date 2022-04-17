@@ -7,32 +7,38 @@
 
 namespace Quark {
 
-	struct FramebufferTextureSpecification
+	enum class FramebufferAttachment
 	{
-		FramebufferTextureSpecification() = default;
-		FramebufferTextureSpecification(TextureDataFormat textureFormat,
-			TextureRenderModes modes = {})
-			: Format(textureFormat), RenderModes(modes) {}
+		None = 0,
 
-		TextureDataFormat     Format{};
-		TextureInternalFormat InternalFormat{};
-		TextureRenderModes    RenderModes;
+		// Color attachments
+		ColorAttachment0,
+		ColorAttachment1,
+		ColorAttachment2,
+		ColorAttachment3,
+
+		// Depth and stencil attachments
+		DepthAttachment,
+		DepthStencilAttachment
 	};
 
 	struct FramebufferAttachmentSpecification
 	{
 		FramebufferAttachmentSpecification() = default;
-		FramebufferAttachmentSpecification(std::initializer_list<FramebufferTextureSpecification> attachments)
-			: Attachments(attachments) {}
+		FramebufferAttachmentSpecification(FramebufferAttachment attachment,
+			TextureRenderModes modes = {})
+			: Attachment(attachment), RenderModes(modes) {}
 
-		std::vector<FramebufferTextureSpecification> Attachments;
+		FramebufferAttachment Attachment{};
+		TextureInternalFormat InternalFormat{};
+		TextureRenderModes    RenderModes;
 	};
 
 	struct FramebufferSpecification
 	{
 		uint32_t Width = 0, Height = 0;
 		uint32_t Samples = 1;
-		FramebufferAttachmentSpecification Attachments;
+		std::vector<FramebufferAttachmentSpecification> Attachments;
 		bool SwapChainTarget = false;
 	};
 
