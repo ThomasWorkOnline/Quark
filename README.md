@@ -76,7 +76,7 @@ Redefining `main()` will cause a duplicate symbol linking error.
 
 Use `Quark::Main()` as shown in this snippet below:
 
-Note: *On Windows distribution builds, the app with launch without the console using the builtin WinMain() entry point (see [EntryPoint.h](https://github.com/ThomasWorkOnline/Quark/blob/main/Quark/src/EntryPoint.h) for details)*
+Note: *On Windows distribution builds, the app with launch without the console using the builtin WinMain() entry point (see [EntryPoint.cpp](https://github.com/ThomasWorkOnline/Quark/blob/main/Quark/src/EntryPoint.cpp) for details)*
 
 ```c++
 namespace Quark {
