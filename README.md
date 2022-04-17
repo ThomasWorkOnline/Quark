@@ -300,6 +300,9 @@ private:
 };
 ```
 
+## Corrected Output:
+![BasicRenderingCorrected](Demos/docs/Example1/BasicRenderingCorrected.PNG)
+
 It's also trivial to render a colored sprite using a different overload of the DrawSprite() function:
 
 ```c++
