@@ -56,10 +56,20 @@ project "Quark"
 		runtime "Release"
 		optimize "On"
 
+		flags
+		{
+			"LinkTimeOptimization"
+		}
+
 	filter "configurations:Dist"
 		defines "QK_DIST"
 		runtime "Release"
 		optimize "On"
+
+		flags
+		{
+			"LinkTimeOptimization"
+		}
 
 	filter "system:windows"
 		systemversion "latest"

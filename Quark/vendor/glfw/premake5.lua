@@ -18,11 +18,53 @@ project "GLFW"
 		"src/window.c"
 	}
 
+	filter "system:windows"
+		systemversion "latest"
+
+		files
+		{
+			"src/win32_init.c",
+			"src/win32_joystick.c",
+			"src/win32_monitor.c",
+			"src/win32_time.c",
+			"src/win32_thread.c",
+			"src/win32_window.c",
+			"src/wgl_context.c",
+			"src/egl_context.c",
+			"src/osmesa_context.c"
+		}
+
+		defines 
+		{ 
+			"_GLFW_WIN32",
+			"_CRT_SECURE_NO_WARNINGS"
+		}
+
+	filter "system:macosx"
+		pic "On"
+
+		files
+		{
+			"src/cocoa_init.m",
+			"src/cocoa_joystick.m",
+			"src/cocoa_monitor.m",
+			"src/cocoa_window.m",
+			"src/cocoa_time.c",
+			"src/posix_thread.c",
+			"src/nsgl_context.m",
+			"src/egl_context.c",
+			"src/osmesa_context.c"
+		}
+
+		defines
+		{
+			"_GLFW_COCOA"
+		}
+
 	filter "system:linux"
 		pic "On"
 
 		systemversion "latest"
-		staticruntime "On"
 
 		files
 		{
@@ -43,53 +85,14 @@ project "GLFW"
 			"_GLFW_X11"
 		}
 
-	filter "system:windows"
-		systemversion "latest"
-		staticruntime "On"
-
-		files
-		{
-			"src/win32_init.c",
-			"src/win32_joystick.c",
-			"src/win32_monitor.c",
-			"src/win32_time.c",
-			"src/win32_thread.c",
-			"src/win32_window.c",
-			"src/wgl_context.c",
-			"src/egl_context.c",
-			"src/osmesa_context.c"
-		}
-
-		defines 
-		{ 
-			"_GLFW_WIN32",
-			"_CRT_SECURE_NO_WARNINGS"
-		}
-	
-	filter "system:macosx"
-		files
-		{
-			"src/cocoa_init.m",
-			"src/cocoa_monitor.m",
-			"src/cocoa_window.m",
-			"src/xkb_unicode.c",
-			"src/cocoa_time.c",
-			"src/posix_thread.c",
-			"src/nsgl_context.m",
-			"src/egl_context.c",
-			"src/osmesa_context.c",
-			"src/cocoa_joystick.m"
-		}
-
-		defines
-		{
-			"_GLFW_COCOA"
-		}
-
 	filter "configurations:Debug"
 		runtime "Debug"
 		symbols "on"
 
 	filter "configurations:Release"
+		runtime "Release"
+		optimize "on"
+
+	filter "configurations:Dist"
 		runtime "Release"
 		optimize "on"

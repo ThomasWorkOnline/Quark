@@ -38,10 +38,20 @@ project "Demos"
 		runtime "Release"
 		optimize "On"
 
+		flags
+		{
+			"LinkTimeOptimization"
+		}
+
 	filter "configurations:Dist"
 		defines "QK_DIST"
 		runtime "Release"
 		optimize "On"
+
+		flags
+		{
+			"LinkTimeOptimization"
+		}
 
 	filter { "configurations:Debug or configurations:Release", "system:windows" }
 		kind "ConsoleApp"
