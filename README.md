@@ -326,6 +326,9 @@ public:
 };
 ```
 
+## Colored Quad Output:
+![BasicRenderingSingleColor](Demos/docs/Example1/BasicRenderingSingleColor.PNG)
+
 # Dependencies
 glm: https://github.com/g-truc/glm<br />
 entt: https://github.com/skypjack/entt<br />
