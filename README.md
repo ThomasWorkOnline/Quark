@@ -236,6 +236,7 @@ private:
 };
 ```
 
+## Example 1 Outputs:
 ![BasicRendering](Demos/docs/Example1/BasicRendering.PNG)
 
 <ins>**5. Handling window size**</ins>
