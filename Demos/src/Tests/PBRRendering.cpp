@@ -56,8 +56,8 @@ PBRRendering::PBRRendering()
 
 	{
 		FramebufferSpecification spec;
-		spec.Width = 512;
-		spec.Height = 512;
+		spec.Width = 1024;
+		spec.Height = 1024;
 
 		m_EnvironmentFramebuffer = Framebuffer::Create(spec);
 	}
@@ -102,7 +102,7 @@ PBRRendering::PBRRendering()
 		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3( 0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
 	};
 
-	m_HDRCubemap = Cubemap::Create(512, 512);
+	m_HDRCubemap = Cubemap::Create(1024, 1024);
 	m_Irradiance = Cubemap::Create(32, 32);
 
 	m_EnvironmentFramebuffer->Attach();
@@ -148,7 +148,6 @@ PBRRendering::PBRRendering()
 	// Due to the lack of a render pipeline, we must reset the viewport after detaching the fbo
 	auto& window = GetWindow();
 	RenderCommand::SetViewport(0, 0, window.GetWidth(), window.GetHeight());
-	RenderCommand::SetClearColor({ 0.0f, 0.0f, 1.0f, 1.0f });
 	RenderCommand::SetCullFace(RenderCullFace::Default);
 	RenderCommand::SetDepthFunction(RenderDepthFunction::Default);
 }
@@ -185,7 +184,7 @@ void PBRRendering::OnUpdate(Timestep elapsedTime)
 		m_SkyboxShader->Attach();
 		m_SkyboxShader->SetMat4("u_View", view);
 		m_SkyboxShader->SetMat4("u_Projection", camera.GetProjection());
-		m_Irradiance->Attach(0);
+		m_HDRCubemap->Attach(0);
 
 		RenderCommand::DrawIndexed(m_CubemapVAO);
 
