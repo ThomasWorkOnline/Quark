@@ -31,6 +31,22 @@ namespace Quark {
 		}
 	}
 
+	constexpr uint32_t GetComponentCount(TextureDataFormat format)
+	{
+		switch (format)
+		{
+			case TextureDataFormat::RGB:   return 3;
+			case TextureDataFormat::RGBA:  return 4;
+			case TextureDataFormat::BGR:   return 3;
+			case TextureDataFormat::BGRA:  return 4;
+			case TextureDataFormat::Red:   return 1;
+			case TextureDataFormat::Depth: return 1;
+			default:
+				QK_CORE_FATAL("Invalid texture data format");
+				return 0;
+		}
+	}
+
 	constexpr GLenum GetTextureFormat(TextureDataFormat format)
 	{
 		switch (format)

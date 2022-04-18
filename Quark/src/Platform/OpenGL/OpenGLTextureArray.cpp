@@ -39,9 +39,8 @@ namespace Quark {
 
 	void OpenGLTexture2DArray::SetData(const void* data, size_t size, uint32_t layer)
 	{
-		bool alpha = IsTextureAlphaFormat(m_Spec.DataFormat);
-		uint32_t bpp = alpha ? 4 : 3;
-		QK_CORE_ASSERT(size == m_Spec.Width * m_Spec.Height * bpp, "Data must be entire texture");
+		uint32_t bpp = GetComponentCount(m_Spec.DataFormat);
+		QK_CORE_ASSERT(size == m_Spec.Width * m_Spec.Height * bpp /* * GL_UNSIGNED_BYTE  */, "Data must be entire texture");
 
 		GLenum target = m_Spec.Samples > 1 ? GL_TEXTURE_2D_MULTISAMPLE_ARRAY : GL_TEXTURE_2D_ARRAY;
 		glBindTexture(target, m_RendererID);

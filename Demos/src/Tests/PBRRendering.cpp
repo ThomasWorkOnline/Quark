@@ -9,7 +9,7 @@ PBRRendering::PBRRendering()
 	m_Controller = { m_Player };
 
 #if 0
-	m_Body.LoadOBJFromFile("assets/meshes/arrow.obj");
+	m_Body.LoadOBJFromFile("assets/meshes/poly_sphere.obj");
 #else
 	m_Body.GenerateUnitCube();
 #endif
@@ -17,7 +17,7 @@ PBRRendering::PBRRendering()
 	m_Cube.GenerateUnitCube();
 	m_CubemapVAO = m_Cube.GetVertexArray();
 
-#define MATERIAL 0
+#define MATERIAL 2
 
 	{
 		TextureDescriptor descriptor;
@@ -56,19 +56,19 @@ PBRRendering::PBRRendering()
 
 	{
 		FramebufferSpecification spec;
-		spec.Width = 1024;
-		spec.Height = 1024;
+		spec.Width = 2048;
+		spec.Height = 2048;
 
 		m_EnvironmentFramebuffer = Framebuffer::Create(spec);
 	}
 
-	static constexpr float lightPower = 50.0f;
+	static constexpr float lightPower = 10.0f;
 	static constexpr glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f) * lightPower;
 	static constexpr glm::vec3 lightPositions[4] = {
 		{  0.0f,  0.0f, -3.0f },
 		{  0.0f,  2.0f,  3.0f },
-		{  1.7f,  0.3f, -0.5f },
-		{  2.0f,  2.0f, -2.0f }
+		{ -1.7f,  0.3f, -0.5f },
+		{ -2.0f,  2.0f,  2.0f }
 	};
 
 	m_PBRShader->Attach();
@@ -102,7 +102,7 @@ PBRRendering::PBRRendering()
 		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3( 0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
 	};
 
-	m_HDRCubemap = Cubemap::Create(1024, 1024);
+	m_HDRCubemap = Cubemap::Create(2048, 2048);
 	m_Irradiance = Cubemap::Create(32, 32);
 
 	m_EnvironmentFramebuffer->Attach();
