@@ -189,7 +189,7 @@ public:
 	YourApplication()
 	{
 		// Loading our texture
-		m_Texture = Quark::Texture2D::Create("assets/textures/example.png");
+		m_Texture = Quark::Texture2D::Create("assets/textures/Example1_BasicRendering.png");
 	}
 
 private:
