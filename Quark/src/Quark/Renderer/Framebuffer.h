@@ -50,6 +50,8 @@ namespace Quark {
 		virtual void Attach() = 0;
 		virtual void Detach() = 0;
 
+		virtual void AttachColorTextureTarget(uint32_t target, uint32_t textureRendererID) = 0;
+
 		virtual void AttachColorAttachment(uint32_t textureSlot, uint32_t index = 0) = 0;
 		virtual void AttachDepthAttachment(uint32_t textureSlot) = 0;
 

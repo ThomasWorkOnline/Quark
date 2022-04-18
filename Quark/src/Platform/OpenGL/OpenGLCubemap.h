@@ -13,6 +13,8 @@ namespace Quark {
 		void Attach(uint32_t textureSlot = 0) const override;
 		void Detach() const override;
 
+		void SetData(uint32_t index, const void* data, size_t size) override;
+
 		uint32_t GetRendererID() const override { return m_RendererID; }
 
 		bool operator==(const Cubemap& other) const override

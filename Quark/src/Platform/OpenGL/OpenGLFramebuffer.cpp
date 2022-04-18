@@ -21,12 +21,22 @@ namespace Quark {
 		}
 	}
 
+	static constexpr bool IsDepthAttachment(FramebufferAttachment attachment)
+	{
+		switch (attachment)
+		{
+			case Quark::FramebufferAttachment::DepthAttachment:
+			case Quark::FramebufferAttachment::DepthStencilAttachment: return true;
+			default:                                                   return false;
+		}
+	}
+
 	OpenGLFramebuffer::OpenGLFramebuffer(const FramebufferSpecification& spec)
 		: m_Spec(spec)
 	{
 		for (const auto& s : m_Spec.Attachments)
 		{
-			if (IsTextureDepthFormat(s.InternalFormat))
+			if (IsDepthAttachment(s.Attachment))
 				m_DepthSpec = s;
 			else
 				m_ColorSpecs.emplace_back(s);
@@ -44,6 +54,7 @@ namespace Quark {
 		glDeleteFramebuffers(1, &m_RendererID);
 		glDeleteTextures(m_ColorAttachments.size(), m_ColorAttachments.data());
 		glDeleteTextures(1, &m_DepthAttachment);
+		glDeleteRenderbuffers(1, &m_RenderBuffer);
 	}
 
 	void OpenGLFramebuffer::Attach()
@@ -55,6 +66,12 @@ namespace Quark {
 	void OpenGLFramebuffer::Detach()
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+
+	void OpenGLFramebuffer::AttachColorTextureTarget(uint32_t target, uint32_t textureRendererID)
+	{
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, target, textureRendererID, 0);
+		QK_CORE_ASSERT(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE, "Framebuffer is invalid");
 	}
 
 	void OpenGLFramebuffer::AttachColorAttachment(uint32_t textureSlot, uint32_t index)
@@ -84,9 +101,11 @@ namespace Quark {
 			glDeleteFramebuffers(1, &m_RendererID);
 			glDeleteTextures(m_ColorAttachments.size(), m_ColorAttachments.data());
 			glDeleteTextures(1, &m_DepthAttachment);
+			glDeleteRenderbuffers(1, &m_RenderBuffer);
 
 			m_ColorAttachments.clear();
 			m_DepthAttachment = 0;
+			m_RenderBuffer = 0;
 		}
 
 		glGenFramebuffers(1, &m_RendererID);
@@ -151,6 +170,14 @@ namespace Quark {
 
 			GLenum attachmentTarget = GetAttachmentTarget(m_DepthSpec.Attachment);
 			glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentTarget, target, m_DepthAttachment, 0);
+		}
+
+		if (m_ColorSpecs.empty() && m_DepthSpec.Attachment == FramebufferAttachment::None)
+		{
+			glGenRenderbuffers(1, &m_RenderBuffer);
+			glBindRenderbuffer(GL_RENDERBUFFER, m_RenderBuffer);
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, m_Spec.Width, m_Spec.Height);
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_RenderBuffer);
 		}
 
 #if 0

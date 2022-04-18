@@ -1,4 +1,5 @@
 #include "OpenGLCubemap.h"
+#include "OpenGLTextureFormats.h"
 
 #include <glad/glad.h>
 
@@ -36,5 +37,11 @@ namespace Quark {
 	void OpenGLCubemap::Detach() const
 	{
 		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+	}
+
+	void OpenGLCubemap::SetData(uint32_t index, const void* data, size_t size)
+	{
+		QK_CORE_ASSERT(size == m_Width * m_Height * 3 * sizeof(float), "Data must be entire texture");
+		glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + index, 0, 0, 0, m_Width, m_Height, GL_RGB, GL_FLOAT, data);
 	}
 }

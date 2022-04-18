@@ -67,7 +67,7 @@ void main()
     vec3  albedo    = texture(u_AlbedoMap,           v_Input.TexCoord).rgb;
     float metallic  = texture(u_MetallicMap,         v_Input.TexCoord).r;
     float roughness = texture(u_RoughnessMap,        v_Input.TexCoord).r;
-    float ao        = 0.6;
+    float ao        = 1.0;
 
     vec3 N = v_Input.Normal;
     vec3 V = normalize(u_CameraPos - v_Input.Position);
@@ -95,7 +95,7 @@ void main()
         vec3 F            = FresnelSchlick(max(dot(H, V), 0.0), F0);
         
         vec3 numerator    = NDF * G * F;
-        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001; // + 0.0001 to prevent divide by zero
+        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0001);
         vec3 specular     = numerator / denominator;
         
         // kS is equal to Fresnel
@@ -117,9 +117,9 @@ void main()
     }   
     
     // ambient lighting (we now use IBL as the ambient term)
-    vec3 kS = FresnelSchlick(max(dot(N, V), 0.0), F0);
-    vec3 kD = 1.0 - kS;
-    kD                   *= 1.0 - metallic;
+    vec3 kS               = FresnelSchlick(max(dot(N, V), 0.0), F0);
+    vec3 kD               = 1.0 - kS;
+    //kD                   *= 1.0 - metallic;
     vec3 irradiance       = texture(u_IrradianceMap, N).rgb;
     vec3 diffuse          = irradiance * albedo;
     vec3 ambient          = (kD * diffuse) * ao;
@@ -129,7 +129,7 @@ void main()
     // HDR tonemapping
     color = color / (color + vec3(1.0));
 
-    o_Color = vec4(color , 1.0);
+    o_Color = vec4(color, 1.0);
 }
 
 vec3 GetNormalFromMap()

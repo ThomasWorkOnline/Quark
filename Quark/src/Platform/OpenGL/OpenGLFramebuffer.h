@@ -13,6 +13,8 @@ namespace Quark {
 		void Attach() override;
 		void Detach() override;
 
+		void AttachColorTextureTarget(uint32_t target, uint32_t textureRendererID) override;
+
 		void AttachColorAttachment(uint32_t textureSlot, uint32_t index) override;
 		void AttachDepthAttachment(uint32_t textureSlot) override;
 
@@ -43,5 +45,6 @@ namespace Quark {
 
 		std::vector<uint32_t> m_ColorAttachments;
 		uint32_t m_DepthAttachment = 0;
+		uint32_t m_RenderBuffer = 0;
 	};
 }

@@ -29,12 +29,16 @@ private:
 	Ref<Texture2D> m_Roughness;
 	Ref<Texture2D> m_AmbiantOcclusion;
 
-	Ref<Texture2D> m_HDRMap;
-	Ref<Cubemap> m_HDRCubeMap;
-	Ref<Framebuffer> m_IrradianceFramebuffer;
+	Ref<Texture2D> m_HDRTexture;
+	Ref<Cubemap> m_HDRCubemap;
+	Ref<Cubemap> m_Irradiance;
+	Ref<Framebuffer> m_EnvironmentFramebuffer;
 
 	Ref<Shader> m_PBRShader;
 	Ref<Shader> m_IrradianceShader;
-	Ref<Shader> m_EquirectangleToCubemap;
+	Ref<Shader> m_EquirectangleToCubemapShader;
+	Ref<Shader> m_SkyboxShader;
 	Mesh m_Body;
+	Mesh m_Cube;
+	Ref<VertexArray> m_CubemapVAO;
 };

@@ -23,6 +23,7 @@ namespace Quark {
 			case TextureInternalFormat::Red8:            return GL_R8;
 			case TextureInternalFormat::RGB16f:          return GL_RGB16F;
 			case TextureInternalFormat::RGB32f:          return GL_RGB32F;
+			case TextureInternalFormat::Depth24:         return GL_DEPTH_COMPONENT24;
 			case TextureInternalFormat::Depth24Stencil8: return GL_DEPTH24_STENCIL8;
 			default:
 				QK_CORE_FATAL("Invalid internal texture format");
@@ -34,11 +35,12 @@ namespace Quark {
 	{
 		switch (format)
 		{
-			case TextureDataFormat::RGB:  return GL_RGB;
-			case TextureDataFormat::RGBA: return GL_RGBA;
-			case TextureDataFormat::BGR:  return GL_BGR;
-			case TextureDataFormat::BGRA: return GL_BGRA;
-			case TextureDataFormat::Red:  return GL_RED;
+			case TextureDataFormat::RGB:   return GL_RGB;
+			case TextureDataFormat::RGBA:  return GL_RGBA;
+			case TextureDataFormat::BGR:   return GL_BGR;
+			case TextureDataFormat::BGRA:  return GL_BGRA;
+			case TextureDataFormat::Red:   return GL_RED;
+			case TextureDataFormat::Depth: return GL_DEPTH_COMPONENT;
 			default:
 				QK_CORE_FATAL("Invalid texture data format");
 				return GL_NONE;
@@ -59,6 +61,7 @@ namespace Quark {
 		case TextureInternalFormat::SRGB8:
 		case TextureInternalFormat::SRGBA8:
 		case TextureInternalFormat::Red8:
+		case TextureInternalFormat::Depth24:
 		case TextureInternalFormat::Depth24Stencil8: return GL_UNSIGNED_BYTE;
 		case TextureInternalFormat::RGB16f:
 		case TextureInternalFormat::RGB32f:          return GL_FLOAT;
@@ -97,21 +100,13 @@ namespace Quark {
 		}
 	}
 
-	constexpr bool IsTextureDepthFormat(TextureInternalFormat format)
-	{
-		switch (format)
-		{
-			case TextureInternalFormat::Depth24Stencil8: return true;
-			default:                                     return false;
-		}
-	}
-
 	constexpr bool IsTextureAlphaFormat(TextureDataFormat format)
 	{
 		switch (format)
 		{
-			case TextureDataFormat::RGBA: return true;
-			default:                       return false;
+			case TextureDataFormat::RGBA:
+			case TextureDataFormat::BGRA: return true;
+			default:                      return false;
 		}
 	}
 

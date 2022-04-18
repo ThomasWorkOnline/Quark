@@ -1,9 +1,9 @@
 #type vertex
-#version 420 core
+#version 330 core
 layout (location = 0) in vec3 a_Position;
 
-mat4 u_View;
-mat4 u_Projection;
+uniform mat4 u_View;
+uniform mat4 u_Projection;
 
 out VertexOutput
 {
@@ -24,8 +24,6 @@ in VertexOutput
     vec3 Position;
 } v_Input;
 
-out vec4 o_Color;
-
 uniform sampler2D u_EquirectangularMap;
 
 const vec2 invAtan = vec2(0.1591, 0.3183);
@@ -37,10 +35,12 @@ vec2 SampleSphericalMap(vec3 v)
     return uv;
 }
 
+out vec4 o_Color;
+
 void main()
 {		
     vec2 uv = SampleSphericalMap(normalize(v_Input.Position));
     vec3 color = texture(u_EquirectangularMap, uv).rgb;
-    
+
     o_Color = vec4(color, 1.0);
 }

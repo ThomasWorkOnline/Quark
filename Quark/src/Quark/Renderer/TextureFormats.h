@@ -13,7 +13,9 @@ namespace Quark {
 		BGR,
 		BGRA,
 
-		Red
+		Red,
+
+		Depth
 	};
 
 	enum class TextureInternalFormat
@@ -40,6 +42,7 @@ namespace Quark {
 		Red8,
 
 		// Depth formats
+		Depth24,
 		Depth24Stencil8
 	};
 
