@@ -419,7 +419,8 @@ namespace Quark {
 
 			void main()
 			{
-				vec4 color = texture(u_Samplers[v_Input.TexIndex], v_Input.TexCoord.xy);
+				int lvalueIndex = v_Input.TexIndex;
+				vec4 color = texture(u_Samplers[lvalueIndex], v_Input.TexCoord.xy);
 				o_Color = color * v_Input.Tint;
 			}
 		)";
@@ -502,7 +503,8 @@ namespace Quark {
 			void main()
 			{
 				// Glyph information is encoded in the red channel
-				float texel = texture(u_Samplers[v_Input.TexIndex], v_Input.TexCoord.xy, 0).r;
+				int lvalueIndex = v_Input.TexIndex;
+				float texel = texture(u_Samplers[lvalueIndex], v_Input.TexCoord.xy, 0).r;
 				
 				if (texel == 0)
 					discard;

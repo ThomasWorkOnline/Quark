@@ -9,12 +9,12 @@ namespace Quark {
 	{
 		switch (attachment)
 		{
-			case Quark::FramebufferAttachment::ColorAttachment0:       return GL_COLOR_ATTACHMENT0;
-			case Quark::FramebufferAttachment::ColorAttachment1:       return GL_COLOR_ATTACHMENT1;
-			case Quark::FramebufferAttachment::ColorAttachment2:       return GL_COLOR_ATTACHMENT2;
-			case Quark::FramebufferAttachment::ColorAttachment3:       return GL_COLOR_ATTACHMENT3;
-			case Quark::FramebufferAttachment::DepthAttachment:        return GL_DEPTH_ATTACHMENT;
-			case Quark::FramebufferAttachment::DepthStencilAttachment: return GL_DEPTH_STENCIL_ATTACHMENT;
+			case FramebufferAttachment::ColorAttachment0:       return GL_COLOR_ATTACHMENT0;
+			case FramebufferAttachment::ColorAttachment1:       return GL_COLOR_ATTACHMENT1;
+			case FramebufferAttachment::ColorAttachment2:       return GL_COLOR_ATTACHMENT2;
+			case FramebufferAttachment::ColorAttachment3:       return GL_COLOR_ATTACHMENT3;
+			case FramebufferAttachment::DepthAttachment:        return GL_DEPTH_ATTACHMENT;
+			case FramebufferAttachment::DepthStencilAttachment: return GL_DEPTH_STENCIL_ATTACHMENT;
 			default:
 				QK_CORE_FATAL("Invalid framebuffer attachment");
 				return GL_NONE;
@@ -32,14 +32,18 @@ namespace Quark {
 				m_ColorSpecs.emplace_back(s);
 		}
 
+		int32_t maxColorAttachments;
+		glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &maxColorAttachments);
+		QK_CORE_ASSERT(m_ColorSpecs.size() <= maxColorAttachments, "Framebuffer contains too many color attachments");
+
 		Invalidate();
 	}
 
 	OpenGLFramebuffer::~OpenGLFramebuffer()
 	{
 		glDeleteFramebuffers(1, &m_RendererID);
-		glDeleteRenderbuffers(m_ColorAttachments.size(), m_ColorAttachments.data());
-		glDeleteRenderbuffers(1, &m_DepthAttachment);
+		glDeleteTextures(m_ColorAttachments.size(), m_ColorAttachments.data());
+		glDeleteTextures(1, &m_DepthAttachment);
 	}
 
 	void OpenGLFramebuffer::Attach()
@@ -56,13 +60,13 @@ namespace Quark {
 	void OpenGLFramebuffer::AttachColorAttachment(uint32_t textureSlot, uint32_t index)
 	{
 		glActiveTexture(GL_TEXTURE0 + textureSlot);
-		glBindRenderbuffer(GL_RENDERBUFFER, m_ColorAttachments[index]);
+		glBindTexture(GL_TEXTURE_2D, m_ColorAttachments[index]);
 	}
 
 	void OpenGLFramebuffer::AttachDepthAttachment(uint32_t textureSlot)
 	{
 		glActiveTexture(GL_TEXTURE0 + textureSlot);
-		glBindRenderbuffer(GL_RENDERBUFFER, m_DepthAttachment);
+		glBindTexture(GL_TEXTURE_2D, m_DepthAttachment);
 	}
 
 	void OpenGLFramebuffer::Resize(uint32_t width, uint32_t height)
@@ -78,8 +82,8 @@ namespace Quark {
 		if (m_RendererID)
 		{
 			glDeleteFramebuffers(1, &m_RendererID);
-			glDeleteRenderbuffers(m_ColorAttachments.size(), m_ColorAttachments.data());
-			glDeleteRenderbuffers(1, &m_DepthAttachment);
+			glDeleteTextures(m_ColorAttachments.size(), m_ColorAttachments.data());
+			glDeleteTextures(1, &m_DepthAttachment);
 
 			m_ColorAttachments.clear();
 			m_DepthAttachment = 0;
@@ -92,50 +96,66 @@ namespace Quark {
 		if (m_ColorSpecs.size())
 		{
 			m_ColorAttachments.resize(m_ColorSpecs.size());
-			glGenRenderbuffers(m_ColorAttachments.size(), m_ColorAttachments.data());
+			glGenTextures(m_ColorAttachments.size(), m_ColorAttachments.data());
 
 			for (size_t i = 0; i < m_ColorAttachments.size(); i++)
 			{
 				bool multisampled = m_Spec.Samples > 1;
+				GLenum target = multisampled ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
+				glBindTexture(target, m_ColorAttachments[i]);
+
 				if (multisampled)
 				{
-					glBindRenderbuffer(GL_RENDERBUFFER, m_ColorAttachments[i]);
-					glRenderbufferStorageMultisample(GL_RENDERBUFFER, m_Spec.Samples, GetTextureInternalFormat(m_ColorSpecs[i].InternalFormat), m_Spec.Width, m_Spec.Height);
+					glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Spec.Samples,
+						GetTextureInternalFormat(m_ColorSpecs[i].InternalFormat), m_Spec.Width, m_Spec.Height, GL_FALSE);
 				}
 				else
 				{
-					glBindRenderbuffer(GL_RENDERBUFFER, m_ColorAttachments[i]);
-					glRenderbufferStorage(GL_RENDERBUFFER, GetTextureInternalFormat(m_ColorSpecs[i].InternalFormat), m_Spec.Width, m_Spec.Height);
+					glTexImage2D(GL_TEXTURE_2D, 0, GetTextureInternalFormat(m_ColorSpecs[i].InternalFormat), m_Spec.Width, m_Spec.Height, 0,
+						GetTextureFormat(m_ColorSpecs[i].Format), GL_UNSIGNED_BYTE, nullptr);
+
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 				}
 
-				glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_RENDERBUFFER, m_ColorAttachments[i]);
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GetAttachmentTarget(m_ColorSpecs[i].Attachment), target, m_ColorAttachments[i], 0);
 			}
 		}
 
 		// Depth stencil format
 		if (m_DepthSpec.Attachment != FramebufferAttachment::None)
 		{
-			glGenRenderbuffers(1, &m_DepthAttachment);
+			glGenTextures(1, &m_DepthAttachment);
 
 			bool multisampled = m_Spec.Samples > 1;
+			GLenum target = multisampled ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
+			glBindTexture(target, m_DepthAttachment);
+
 			if (multisampled)
 			{
-				glBindRenderbuffer(GL_RENDERBUFFER, m_DepthAttachment);
-				glRenderbufferStorageMultisample(GL_RENDERBUFFER, m_Spec.Samples, GetTextureInternalFormat(m_DepthSpec.InternalFormat), m_Spec.Width, m_Spec.Height);
+				glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Spec.Samples,
+					GetTextureInternalFormat(m_DepthSpec.InternalFormat), m_Spec.Width, m_Spec.Height, GL_FALSE);
 			}
 			else
 			{
-				glBindRenderbuffer(GL_RENDERBUFFER, m_DepthAttachment);
-				glRenderbufferStorage(GL_RENDERBUFFER, GetTextureInternalFormat(m_DepthSpec.InternalFormat), m_Spec.Width, m_Spec.Height);
+				glTexImage2D(GL_TEXTURE_2D, 0, GetTextureInternalFormat(m_DepthSpec.InternalFormat), m_Spec.Width, m_Spec.Height, 0,
+					GetTextureFormat(m_DepthSpec.Format), GL_UNSIGNED_BYTE, nullptr);
+
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 			}
 
-			GLenum target = GetAttachmentTarget(m_DepthSpec.Attachment);
-			glFramebufferRenderbuffer(GL_FRAMEBUFFER, target, GL_RENDERBUFFER, m_DepthAttachment);
+			GLenum attachmentTarget = GetAttachmentTarget(m_DepthSpec.Attachment);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentTarget, target, m_DepthAttachment, 0);
 		}
 
+#if 0
 		if (m_ColorAttachments.size() > 1)
 		{
-			QK_CORE_ASSERT(m_ColorAttachments.size() <= 4, "Framebuffer contains too many color attachments (maximum is 4)");
 			GLenum buffers[4] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
 			glDrawBuffers(m_ColorAttachments.size(), buffers);
 		}
@@ -143,6 +163,7 @@ namespace Quark {
 		{
 			glDrawBuffer(GL_NONE);
 		}
+#endif
 
 		QK_CORE_ASSERT(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE, "Framebuffer is invalid");
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);

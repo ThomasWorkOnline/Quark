@@ -29,7 +29,8 @@ namespace Quark {
 		else
 		{
 			glBindTexture(GL_TEXTURE_2D, m_RendererID);
-			glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Spec.Width, m_Spec.Height, 0, m_DataFormat, GL_UNSIGNED_BYTE, nullptr);
+			glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Spec.Width, m_Spec.Height, 0, m_DataFormat,
+				GetDataTypeBasedOnInternalFormat(m_Spec.InternalFormat), nullptr);
 
 			GLenum tilingMode = GetTextureTilingMode(m_Spec.RenderModes.TilingMode);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetTextureFilteringMode(m_Spec.RenderModes.MinFilteringMode));

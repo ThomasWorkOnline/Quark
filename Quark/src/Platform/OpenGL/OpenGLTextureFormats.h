@@ -45,6 +45,29 @@ namespace Quark {
 		}
 	}
 
+	constexpr GLenum GetDataTypeBasedOnInternalFormat(TextureInternalFormat format)
+	{
+		switch (format)
+		{
+		case TextureInternalFormat::RGB8:
+		case TextureInternalFormat::RGB10:
+		case TextureInternalFormat::RGB12:
+		case TextureInternalFormat::RGB16:
+		case TextureInternalFormat::RGBA8:
+		case TextureInternalFormat::RGBA12:
+		case TextureInternalFormat::RGBA16:
+		case TextureInternalFormat::SRGB8:
+		case TextureInternalFormat::SRGBA8:
+		case TextureInternalFormat::Red8:
+		case TextureInternalFormat::Depth24Stencil8: return GL_UNSIGNED_BYTE;
+		case TextureInternalFormat::RGB16f:
+		case TextureInternalFormat::RGB32f:          return GL_FLOAT;
+		default:
+			QK_CORE_FATAL("Invalid internal texture format");
+			return GL_NONE;
+		}
+	}
+
 	constexpr GLenum GetTextureFilteringMode(TextureFilteringMode mode)
 	{
 		switch (mode)
