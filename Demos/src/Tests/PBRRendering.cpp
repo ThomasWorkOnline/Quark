@@ -8,7 +8,12 @@ PBRRendering::PBRRendering()
 	m_Player.AddComponent<PerspectiveCameraComponent>((float)GetWindow().GetWidth() / GetWindow().GetHeight(), 70.0f);
 	m_Controller = { m_Player };
 
+#if 1
+	m_Body.LoadOBJFromFile("assets/meshes/arrow.obj");
+#else
 	m_Body.GenerateUnitCube();
+#endif
+
 	m_Cube.GenerateUnitCube();
 	m_CubemapVAO = m_Cube.GetVertexArray();
 
@@ -180,7 +185,7 @@ void PBRRendering::OnUpdate(Timestep elapsedTime)
 		m_SkyboxShader->Attach();
 		m_SkyboxShader->SetMat4("u_View", view);
 		m_SkyboxShader->SetMat4("u_Projection", camera.GetProjection());
-		m_HDRCubemap->Attach(0);
+		m_Irradiance->Attach(0);
 
 		RenderCommand::DrawIndexed(m_CubemapVAO);
 

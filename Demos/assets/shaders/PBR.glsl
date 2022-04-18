@@ -69,7 +69,7 @@ void main()
     float roughness = texture(u_RoughnessMap,        v_Input.TexCoord).r;
     float ao        = 1.0;
 
-    vec3 N = v_Input.Normal;
+    vec3 N = GetNormalFromMap();
     vec3 V = normalize(u_CameraPos - v_Input.Position);
     vec3 R = reflect(-V, N); 
 
