@@ -8,7 +8,7 @@ PBRRendering::PBRRendering()
 	m_Player.AddComponent<PerspectiveCameraComponent>((float)GetWindow().GetWidth() / GetWindow().GetHeight(), 70.0f);
 	m_Controller = { m_Player };
 
-#if 1
+#if 0
 	m_Body.LoadOBJFromFile("assets/meshes/arrow.obj");
 #else
 	m_Body.GenerateUnitCube();
