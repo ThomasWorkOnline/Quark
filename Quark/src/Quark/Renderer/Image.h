@@ -8,8 +8,7 @@ namespace Quark {
 	enum class ImageExtensionFormat
 	{
 		None = 0,
-		Linear,
-		SRGB,
+		Int,
 		HDR
 	};
 
@@ -36,7 +35,7 @@ namespace Quark {
 
 	private:
 		void* m_Data = nullptr;
-		int32_t m_Width = 0, m_Height = 0, m_Channels = 0;
+		int32_t m_Width = 0, m_Height = 0, m_Channels = 0, m_BPC = 0;
 		ImageExtensionFormat m_ExtFormat{};
 	};
 }
