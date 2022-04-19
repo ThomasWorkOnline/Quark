@@ -13,7 +13,11 @@ namespace Quark {
 		stbi_set_flip_vertically_on_load_thread(descriptor.FlipVertically);
 
 		FILE* file = fopen(filepath.data(), "rb");
-		QK_CORE_ASSERT(file, "Could not open file at: {0}", filepath);
+		if (!file)
+		{
+			fclose(file);
+			QK_CORE_ASSERT(false, "Could not open file at: {0}", filepath);
+		}
 
 		stbi_is_16_bit_from_file(file) ? m_BPC = 4 : m_BPC = 1;
 		bool hdr = stbi_is_hdr_from_file(file);
