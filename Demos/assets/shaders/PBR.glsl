@@ -128,7 +128,6 @@ void main()
 
     // HDR tonemapping
     color = color / (color + vec3(1.0));
-
     o_Color = vec4(color, 1.0);
 }
 

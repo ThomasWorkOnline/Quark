@@ -1,8 +1,17 @@
 #pragma once
 
 #include "Quark/Core/Core.h"
+#include "TextureFormats.h"
 
 namespace Quark {
+
+	enum class ImageExtensionFormat
+	{
+		None = 0,
+		Linear,
+		SRGB,
+		HDR
+	};
 
 	struct ImageDescriptor
 	{
@@ -23,29 +32,11 @@ namespace Quark {
 		size_t Size() const;
 
 		void* operator*() const { return m_Data; }
+		bool IsHDR() const;
 
 	private:
 		void* m_Data = nullptr;
-		int32_t m_Width, m_Height, m_Channels;
-	};
-
-	class HDRImage
-	{
-	public:
-		HDRImage(std::string_view filepath, const ImageDescriptor& descriptor = {});
-		~HDRImage();
-
-		int32_t Width() const { return m_Width; }
-		int32_t Height() const { return m_Height; }
-		int32_t Channels() const { return m_Channels; }
-
-		void* Data() const { return m_Data; }
-		size_t Size() const;
-
-		void* operator*() const { return m_Data; }
-
-	private:
-		void* m_Data = nullptr;
-		int32_t m_Width, m_Height, m_Channels;
+		int32_t m_Width = 0, m_Height = 0, m_Channels = 0;
+		ImageExtensionFormat m_ExtFormat{};
 	};
 }

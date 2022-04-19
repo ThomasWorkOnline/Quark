@@ -7,7 +7,7 @@ namespace Quark {
 	class OpenGLCubemap : public Cubemap
 	{
 	public:
-		OpenGLCubemap(uint32_t width, uint32_t height);
+		OpenGLCubemap(const CubemapSpecification& spec);
 		~OpenGLCubemap() override;
 
 		void Attach(uint32_t textureSlot = 0) const override;
@@ -24,6 +24,6 @@ namespace Quark {
 
 	private:
 		uint32_t m_RendererID = 0;
-		uint32_t m_Width, m_Height;
+		CubemapSpecification m_Spec;
 	};
 }

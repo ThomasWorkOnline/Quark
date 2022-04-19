@@ -9,7 +9,7 @@ namespace Quark {
 		: m_Spec(spec)
 	{
 		m_InternalFormat = GetTextureInternalFormat(m_Spec.InternalFormat);
-		m_DataFormat = GetTextureFormat(m_Spec.DataFormat);
+		m_DataFormat = GetTextureDataFormat(m_Spec.DataFormat);
 
 		glGenTextures(1, &m_RendererID);
 
@@ -39,8 +39,8 @@ namespace Quark {
 
 	void OpenGLTexture2DArray::SetData(const void* data, size_t size, uint32_t layer)
 	{
-		uint32_t bpp = GetComponentCount(m_Spec.DataFormat);
-		QK_CORE_ASSERT(size == m_Spec.Width * m_Spec.Height * bpp /* * GL_UNSIGNED_BYTE  */, "Data must be entire texture");
+		size_t pSize = GetPixelFormatSize(m_Spec.InternalFormat);
+		QK_CORE_ASSERT(size == m_Spec.Width * m_Spec.Height * pSize, "Data must be entire texture");
 
 		GLenum target = m_Spec.Samples > 1 ? GL_TEXTURE_2D_MULTISAMPLE_ARRAY : GL_TEXTURE_2D_ARRAY;
 		glBindTexture(target, m_RendererID);

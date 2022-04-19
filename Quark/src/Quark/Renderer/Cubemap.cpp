@@ -7,12 +7,12 @@
 
 namespace Quark {
 
-	Ref<Cubemap> Cubemap::Create(uint32_t width, uint32_t height)
+	Ref<Cubemap> Cubemap::Create(const CubemapSpecification& spec)
 	{
 		switch (RenderingAPI::GetAPI())
 		{
 			case RenderingAPI::API::OpenGL:
-				return CreateRef<OpenGLCubemap>(width, height);
+				return CreateRef<OpenGLCubemap>(spec);
 			default:
 				QK_CORE_FATAL("Rendering API not supported");
 				return nullptr;

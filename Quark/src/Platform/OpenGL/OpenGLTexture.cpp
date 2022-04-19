@@ -15,8 +15,10 @@ namespace Quark {
 	OpenGLTexture2D::OpenGLTexture2D(const TextureSpecification& spec)
 		: m_Spec(spec)
 	{
+		QK_SCOPE_TIMER(OpenGLTexture2D::OpenGLTexture2D);
+
 		m_InternalFormat = GetTextureInternalFormat(m_Spec.InternalFormat);
-		m_DataFormat = GetTextureFormat(m_Spec.DataFormat);
+		m_DataFormat = GetTextureDataFormat(m_Spec.DataFormat);
 
 		glGenTextures(1, &m_RendererID);
 
@@ -42,59 +44,61 @@ namespace Quark {
 
 	OpenGLTexture2D::OpenGLTexture2D(std::string_view filepath, const TextureDescriptor& descriptor)
 	{
-		size_t extensionStart = filepath.find_last_of('.');
-		std::string_view extension = filepath.substr(extensionStart);
+		QK_SCOPE_TIMER(OpenGLTexture2D::OpenGLTexture2D);
 
-		if (extension == ".hdr")
+		ImageDescriptor imageDescriptor;
+		Image image(filepath, imageDescriptor);
+
+		m_Spec.Width       = image.Width();
+		m_Spec.Height      = image.Height();
+		m_Spec.RenderModes = descriptor.RenderModes;
+
+		if (image.IsHDR())
 		{
-			ImageDescriptor imageDescriptor;
-			HDRImage image(filepath, imageDescriptor);
-
-			m_Spec.Width       = image.Width();
-			m_Spec.Height      = image.Height();
-			m_Spec.RenderModes = descriptor.RenderModes;
-
-			m_InternalFormat = GL_RGB16F;
-			m_DataFormat = GL_RGB;
-
-			glGenTextures(1, &m_RendererID);
-			glBindTexture(GL_TEXTURE_2D, m_RendererID);
-			glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Spec.Width, m_Spec.Height, 0, m_DataFormat, GL_FLOAT, *image);
+			m_DataType = GL_FLOAT;
+			switch (image.Channels())
+			{
+				case 3:
+					m_InternalFormat = GL_RGB16F;
+					m_DataFormat = GL_RGB;
+					break;
+				case 4:
+					m_InternalFormat = GL_RGBA16F;
+					m_DataFormat = GL_RGBA;
+					break;
+				default:
+					QK_CORE_ASSERT(false, "Image format not supported");
+					break;
+			}
 		}
 		else
 		{
-			ImageDescriptor imageDescriptor;
-			Image image(filepath, imageDescriptor);
-
-			m_Spec.Width       = image.Width();
-			m_Spec.Height      = image.Height();
-			m_Spec.RenderModes = descriptor.RenderModes;
-
-			GLenum internalFormat = 0, dataFormat = 0;
+			m_DataType = GL_UNSIGNED_BYTE;
 			switch (image.Channels())
 			{
-			case 1:
-				internalFormat = GL_R8;
-				dataFormat = GL_RED;
-				break;
-			case 3:
-				internalFormat = descriptor.SRGB ? GL_SRGB8 : GL_RGB8;
-				dataFormat = GL_RGB;
-				break;
-			case 4:
-				internalFormat = descriptor.SRGB ? GL_SRGB8_ALPHA8 : GL_RGBA8;
-				dataFormat = GL_RGBA;
-				break;
+				case 1:
+					m_InternalFormat = GL_R8;
+					m_DataFormat = GL_RED;
+					break;
+				case 3:
+					m_InternalFormat = descriptor.SRGB ? GL_SRGB8 : GL_RGB8;
+					m_DataFormat = GL_RGB;
+					break;
+				case 4:
+					m_InternalFormat = descriptor.SRGB ? GL_SRGB8_ALPHA8 : GL_RGBA8;
+					m_DataFormat = GL_RGBA;
+					break;
+				default:
+					QK_CORE_ASSERT(false, "Image format not supported");
+					break;
 			}
-
-			m_InternalFormat = internalFormat;
-			m_DataFormat = dataFormat;
-			QK_CORE_ASSERT(internalFormat & dataFormat, "Image format not supported");
-
-			glGenTextures(1, &m_RendererID);
-			glBindTexture(GL_TEXTURE_2D, m_RendererID);
-			glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, m_Spec.Width, m_Spec.Height, 0, dataFormat, GL_UNSIGNED_BYTE, *image);
 		}
+
+		QK_CORE_ASSERT(m_InternalFormat & m_DataFormat, "Image format not supported");
+
+		glGenTextures(1, &m_RendererID);
+		glBindTexture(GL_TEXTURE_2D, m_RendererID);
+		glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Spec.Width, m_Spec.Height, 0, m_DataFormat, m_DataType, *image);
 
 		GLenum tilingMode = GetTextureTilingMode(m_Spec.RenderModes.TilingMode);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetTextureFilteringMode(m_Spec.RenderModes.MinFilteringMode));
@@ -110,17 +114,20 @@ namespace Quark {
 
 	OpenGLTexture2D::~OpenGLTexture2D()
 	{
+		QK_SCOPE_TIMER(OpenGLTexture2D::~OpenGLTexture2D);
+
 		glDeleteTextures(1, &m_RendererID);
 	}
 
 	void OpenGLTexture2D::SetData(const void* data, size_t size)
 	{
-		uint32_t bpp = GetComponentCount(m_Spec.DataFormat);
-		QK_CORE_ASSERT(size == m_Spec.Width * m_Spec.Height * bpp /* * GL_UNSIGNED_BYTE  */, "Data must be entire texture");
+		size_t pSize = GetPixelFormatSize(m_Spec.InternalFormat);
+		QK_CORE_ASSERT(size == m_Spec.Width * m_Spec.Height * pSize, "Data must be entire texture");
 
 		GLenum target = m_Spec.Samples > 1 ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
 		glBindTexture(target, m_RendererID);
-		glTexSubImage2D(target, 0, 0, 0, m_Spec.Width, m_Spec.Height, m_DataFormat, GL_UNSIGNED_BYTE, data);
+		glTexSubImage2D(target, 0, 0, 0, m_Spec.Width, m_Spec.Height, m_DataFormat,
+			GetDataTypeBasedOnInternalFormat(m_Spec.InternalFormat), data);
 	}
 
 	void OpenGLTexture2D::Attach(uint32_t textureSlot) const

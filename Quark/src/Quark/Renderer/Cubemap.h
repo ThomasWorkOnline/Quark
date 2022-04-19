@@ -1,10 +1,18 @@
 #pragma once
 
 #include "Quark/Core/Core.h"
+#include "TextureFormats.h"
 
 #include <array>
 
 namespace Quark {
+
+	struct CubemapSpecification
+	{
+		uint32_t              Width = 0, Height = 0;
+		TextureDataFormat     DataFormat     = TextureDataFormat::RGB;
+		TextureInternalFormat InternalFormat = TextureInternalFormat::RGB16f;
+	};
 
 	class Cubemap
 	{
@@ -20,6 +28,6 @@ namespace Quark {
 
 		virtual bool operator==(const Cubemap& other) const = 0;
 
-		static Ref<Cubemap> Create(uint32_t width, uint32_t height);
+		static Ref<Cubemap> Create(const CubemapSpecification& spec);
 	};
 }

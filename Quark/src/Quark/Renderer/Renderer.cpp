@@ -23,7 +23,7 @@ namespace Quark {
 		Ref<UniformBuffer> CameraUniformBuffer;
 	};
 
-	static RendererData s_Data;
+	static RendererData* s_Data;
 
 	void Renderer::Initialize()
 	{
@@ -32,6 +32,8 @@ namespace Quark {
 		RenderCommand::Init();
 		RenderCommand::SetClearColor({ 0.01f, 0.01f, 0.01f, 1.0f });
 		QK_CORE_INFO(RenderCommand::GetSpecification());
+
+		s_Data = new RendererData();
 
 		Renderer2D::Initialize();
 
@@ -42,16 +44,17 @@ namespace Quark {
 			TextureFilteringMode::Nearest, TextureFilteringMode::Nearest, TextureTilingMode::Repeat
 		};
 
-		s_Data.DefaultTexture = Texture2D::Create(spec);
-		s_Data.DefaultTexture->SetData(&textureColor, sizeof(uint32_t));
+		s_Data->DefaultTexture = Texture2D::Create(spec);
+		s_Data->DefaultTexture->SetData(&textureColor, sizeof(uint32_t));
 
-		s_Data.MaxUniformBuffers = RenderCommand::GetMaxUniformBufferBindings();
-		s_Data.CameraUniformBuffer = UniformBuffer::Create(sizeof(RendererData::CameraData), 0);
+		s_Data->MaxUniformBuffers = RenderCommand::GetMaxUniformBufferBindings();
+		s_Data->CameraUniformBuffer = UniformBuffer::Create(sizeof(RendererData::CameraData), 0);
 	}
 
 	void Renderer::Dispose()
 	{
 		Renderer2D::Dispose();
+		delete s_Data;
 	}
 
 	void Renderer::BeginScene(const Camera& sceneCamera, const Transform3DComponent& cameraTransform)
@@ -64,9 +67,9 @@ namespace Quark {
 
 	void Renderer::BeginScene(const glm::mat4& cameraProjection, const glm::mat4& cameraView)
 	{
-		s_Data.CameraBufferData.ViewProjection = cameraProjection * cameraView;
-		s_Data.CameraUniformBuffer->Attach();
-		s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBufferData, sizeof(RendererData::CameraData));
+		s_Data->CameraBufferData.ViewProjection = cameraProjection * cameraView;
+		s_Data->CameraUniformBuffer->Attach();
+		s_Data->CameraUniformBuffer->SetData(&s_Data->CameraBufferData, sizeof(RendererData::CameraData));
 
 		Renderer2D::BeginScene();
 	}
@@ -78,7 +81,7 @@ namespace Quark {
 
 	void Renderer::Submit(const Ref<Shader>& shader, const Ref<VertexArray>& va, const glm::mat4& transform)
 	{
-		s_Data.DefaultTexture->Attach();
+		s_Data->DefaultTexture->Attach();
 
 		shader->Attach();
 		shader->SetMat4("u_Model", transform);

@@ -34,6 +34,8 @@ namespace Quark {
 	OpenGLFramebuffer::OpenGLFramebuffer(const FramebufferSpecification& spec)
 		: m_Spec(spec)
 	{
+		QK_SCOPE_TIMER(OpenGLFramebuffer::OpenGLFramebuffer);
+
 		for (const auto& s : m_Spec.Attachments)
 		{
 			if (IsDepthAttachment(s.Attachment))
@@ -51,6 +53,8 @@ namespace Quark {
 
 	OpenGLFramebuffer::~OpenGLFramebuffer()
 	{
+		QK_SCOPE_TIMER(OpenGLFramebuffer::~OpenGLFramebuffer);
+
 		glDeleteFramebuffers(1, &m_RendererID);
 		glDeleteTextures(m_ColorAttachments.size(), m_ColorAttachments.data());
 		glDeleteTextures(1, &m_DepthAttachment);
@@ -96,6 +100,8 @@ namespace Quark {
 
 	void OpenGLFramebuffer::Invalidate()
 	{
+		QK_SCOPE_TIMER(OpenGLFramebuffer::Invalidate);
+
 		if (m_RendererID)
 		{
 			glDeleteFramebuffers(1, &m_RendererID);
@@ -131,7 +137,7 @@ namespace Quark {
 				else
 				{
 					glTexImage2D(GL_TEXTURE_2D, 0, GetTextureInternalFormat(m_ColorSpecs[i].InternalFormat), m_Spec.Width, m_Spec.Height, 0,
-						GetTextureFormat(m_ColorSpecs[i].Format), GL_UNSIGNED_BYTE, nullptr);
+						GetTextureDataFormat(m_ColorSpecs[i].Format), GL_UNSIGNED_BYTE, nullptr);
 
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -160,7 +166,7 @@ namespace Quark {
 			else
 			{
 				glTexImage2D(GL_TEXTURE_2D, 0, GetTextureInternalFormat(m_DepthSpec.InternalFormat), m_Spec.Width, m_Spec.Height, 0,
-					GetTextureFormat(m_DepthSpec.Format), GL_UNSIGNED_BYTE, nullptr);
+					GetTextureDataFormat(m_DepthSpec.Format), GL_UNSIGNED_BYTE, nullptr);
 
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

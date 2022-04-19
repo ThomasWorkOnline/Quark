@@ -76,7 +76,7 @@ namespace Quark {
 
 	Renderer2DStats Renderer2D::s_Stats;
 
-	static Renderer2DData s_Data;
+	static Renderer2DData* s_Data;
 	struct Renderer2D::Renderer2DSetupData
 	{
 		uint32_t* Indices = nullptr;
@@ -85,8 +85,8 @@ namespace Quark {
 		Renderer2DSetupData()
 		{
 			// Samplers
-			Samplers = new int32_t[s_Data.MaxSamplers];
-			for (uint32_t i = 0; i < s_Data.MaxSamplers; i++)
+			Samplers = new int32_t[s_Data->MaxSamplers];
+			for (uint32_t i = 0; i < s_Data->MaxSamplers; i++)
 				Samplers[i] = i;
 
 			// Indices
@@ -127,7 +127,7 @@ namespace Quark {
 	void Renderer2D::DrawSprite(const Ref<Texture2D>& texture, const glm::vec2* texCoords, const glm::mat4& transform)
 	{
 		// Check if buffer is full
-		if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices)
+		if (s_Data->QuadIndexCount >= Renderer2DData::MaxIndices)
 		{
 			PushBatch();
 			StartBatch();
@@ -135,9 +135,9 @@ namespace Quark {
 
 		// Check if texture exists in samplers
 		uint32_t textureIndex = 0;
-		for (uint32_t i = 1; i < s_Data.QuadSamplerIndex; i++)
+		for (uint32_t i = 1; i < s_Data->QuadSamplerIndex; i++)
 		{
-			if (*s_Data.Textures[i] == *texture)
+			if (*s_Data->Textures[i] == *texture)
 			{
 				textureIndex = i;
 				break;
@@ -148,35 +148,35 @@ namespace Quark {
 		if (textureIndex == 0)
 		{
 			// If not enough space to attach new texture
-			if (s_Data.QuadSamplerIndex >= s_Data.MaxSamplers)
+			if (s_Data->QuadSamplerIndex >= s_Data->MaxSamplers)
 			{
 				PushBatch();
 				StartBatch();
 			}
 
-			textureIndex = s_Data.QuadSamplerIndex;
-			s_Data.Textures[textureIndex] = texture;
-			s_Data.QuadSamplerIndex++;
+			textureIndex = s_Data->QuadSamplerIndex;
+			s_Data->Textures[textureIndex] = texture;
+			s_Data->QuadSamplerIndex++;
 		}
 
 		for (uint8_t i = 0; i < 4; i++)
 		{
-			s_Data.QuadVertexPtr->Position = transform * s_SpriteVertexPositions[i];
-			s_Data.QuadVertexPtr->TexCoord = texCoords[i];
-			s_Data.QuadVertexPtr->Color = { 1.0f, 1.0f, 1.0f, 1.0f };
-			s_Data.QuadVertexPtr->TexIndex = textureIndex;
+			s_Data->QuadVertexPtr->Position = transform * s_SpriteVertexPositions[i];
+			s_Data->QuadVertexPtr->TexCoord = texCoords[i];
+			s_Data->QuadVertexPtr->Color = { 1.0f, 1.0f, 1.0f, 1.0f };
+			s_Data->QuadVertexPtr->TexIndex = textureIndex;
 
-			s_Data.QuadVertexPtr++;
+			s_Data->QuadVertexPtr++;
 		}
 
-		s_Data.QuadIndexCount += 6;
+		s_Data->QuadIndexCount += 6;
 		s_Stats.QuadsDrawn++;
 	}
 
 	void Renderer2D::DrawSprite(const glm::vec4& color, const glm::mat4& transform)
 	{
 		// Check if buffer is full
-		if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices)
+		if (s_Data->QuadIndexCount >= Renderer2DData::MaxIndices)
 		{
 			PushBatch();
 			StartBatch();
@@ -184,15 +184,15 @@ namespace Quark {
 
 		for (uint8_t i = 0; i < 4; i++)
 		{
-			s_Data.QuadVertexPtr->Position = transform * s_SpriteVertexPositions[i];
-			s_Data.QuadVertexPtr->TexCoord = { 0.0f, 0.0f };
-			s_Data.QuadVertexPtr->Color = color;
-			s_Data.QuadVertexPtr->TexIndex = 0;
+			s_Data->QuadVertexPtr->Position = transform * s_SpriteVertexPositions[i];
+			s_Data->QuadVertexPtr->TexCoord = { 0.0f, 0.0f };
+			s_Data->QuadVertexPtr->Color = color;
+			s_Data->QuadVertexPtr->TexIndex = 0;
 
-			s_Data.QuadVertexPtr++;
+			s_Data->QuadVertexPtr++;
 		}
 
-		s_Data.QuadIndexCount += 6;
+		s_Data->QuadIndexCount += 6;
 		s_Stats.QuadsDrawn++;
 	}
 
@@ -204,7 +204,7 @@ namespace Quark {
 	void Renderer2D::DrawText(const Ref<Font>& font, std::string_view text, const glm::vec4& color, const glm::ivec2& origin)
 	{
 		// Check if buffer is full
-		if (s_Data.FontIndexCount >= Renderer2DData::MaxIndices)
+		if (s_Data->FontIndexCount >= Renderer2DData::MaxIndices)
 		{
 			PushBatch();
 			StartBatch();
@@ -212,9 +212,9 @@ namespace Quark {
 
 		// Check if texture exists in samplers
 		uint32_t textureIndex = 0;
-		for (uint32_t i = 1; i < s_Data.FontSamplerIndex; i++)
+		for (uint32_t i = 1; i < s_Data->FontSamplerIndex; i++)
 		{
-			if (*s_Data.Fonts[i] == *font)
+			if (*s_Data->Fonts[i] == *font)
 			{
 				textureIndex = i;
 				break;
@@ -225,15 +225,15 @@ namespace Quark {
 		if (textureIndex == 0)
 		{
 			// If not enough space to attach new font texture
-			if (s_Data.FontSamplerIndex >= s_Data.MaxSamplers)
+			if (s_Data->FontSamplerIndex >= s_Data->MaxSamplers)
 			{
 				PushBatch();
 				StartBatch();
 			}
 
-			textureIndex = s_Data.FontSamplerIndex;
-			s_Data.Fonts[textureIndex] = font;
-			s_Data.FontSamplerIndex++;
+			textureIndex = s_Data->FontSamplerIndex;
+			s_Data->Fonts[textureIndex] = font;
+			s_Data->FontSamplerIndex++;
 		}
 
 		int32_t x = origin.x;
@@ -258,31 +258,31 @@ namespace Quark {
 			if (!w || !h)
 				continue;
 
-			s_Data.FontVertexPtr->Position = glm::vec4(xpos + w, -ypos, 0.0f, 1.0f);
-			s_Data.FontVertexPtr->TexCoord = { tx + g.Size.x / atlasWidth, 0.0f };
-			s_Data.FontVertexPtr->Color = color;
-			s_Data.FontVertexPtr->TexIndex = textureIndex;
-			s_Data.FontVertexPtr++;
+			s_Data->FontVertexPtr->Position = glm::vec4(xpos + w, -ypos, 0.0f, 1.0f);
+			s_Data->FontVertexPtr->TexCoord = { tx + g.Size.x / atlasWidth, 0.0f };
+			s_Data->FontVertexPtr->Color = color;
+			s_Data->FontVertexPtr->TexIndex = textureIndex;
+			s_Data->FontVertexPtr++;
 
-			s_Data.FontVertexPtr->Position = glm::vec4(xpos, -ypos, 0.0f, 1.0f);
-			s_Data.FontVertexPtr->TexCoord = { tx, 0.0f };
-			s_Data.FontVertexPtr->Color = color;
-			s_Data.FontVertexPtr->TexIndex = textureIndex;
-			s_Data.FontVertexPtr++;
+			s_Data->FontVertexPtr->Position = glm::vec4(xpos, -ypos, 0.0f, 1.0f);
+			s_Data->FontVertexPtr->TexCoord = { tx, 0.0f };
+			s_Data->FontVertexPtr->Color = color;
+			s_Data->FontVertexPtr->TexIndex = textureIndex;
+			s_Data->FontVertexPtr++;
 
-			s_Data.FontVertexPtr->Position = glm::vec4(xpos, -ypos - h, 0.0f, 1.0f);
-			s_Data.FontVertexPtr->TexCoord = { tx, g.Size.y / atlasHeight };
-			s_Data.FontVertexPtr->Color = color;
-			s_Data.FontVertexPtr->TexIndex = textureIndex;
-			s_Data.FontVertexPtr++;
+			s_Data->FontVertexPtr->Position = glm::vec4(xpos, -ypos - h, 0.0f, 1.0f);
+			s_Data->FontVertexPtr->TexCoord = { tx, g.Size.y / atlasHeight };
+			s_Data->FontVertexPtr->Color = color;
+			s_Data->FontVertexPtr->TexIndex = textureIndex;
+			s_Data->FontVertexPtr++;
 
-			s_Data.FontVertexPtr->Position = glm::vec4(xpos + w, -ypos - h, 0.0f, 1.0f);
-			s_Data.FontVertexPtr->TexCoord = { tx + g.Size.x / atlasWidth, g.Size.y / atlasHeight };
-			s_Data.FontVertexPtr->Color = color;
-			s_Data.FontVertexPtr->TexIndex = textureIndex;
-			s_Data.FontVertexPtr++;
+			s_Data->FontVertexPtr->Position = glm::vec4(xpos + w, -ypos - h, 0.0f, 1.0f);
+			s_Data->FontVertexPtr->TexCoord = { tx + g.Size.x / atlasWidth, g.Size.y / atlasHeight };
+			s_Data->FontVertexPtr->Color = color;
+			s_Data->FontVertexPtr->TexIndex = textureIndex;
+			s_Data->FontVertexPtr++;
 
-			s_Data.FontIndexCount += 6;
+			s_Data->FontIndexCount += 6;
 			s_Stats.QuadsDrawn++;
 		}
 	}
@@ -290,20 +290,20 @@ namespace Quark {
 	void Renderer2D::DrawLine(const glm::vec3& p1, const glm::vec3& p2, const glm::vec4& beginColor, const glm::vec4& endColor)
 	{
 		// Check if buffer is full
-		size_t count = s_Data.LineVertexPtr - s_Data.LineVertices;
+		size_t count = s_Data->LineVertexPtr - s_Data->LineVertices;
 		if (count >= Renderer2DData::MaxVertices)
 		{
 			PushBatch();
 			StartBatch();
 		}
 
-		s_Data.LineVertexPtr->Position = p1;
-		s_Data.LineVertexPtr->Color = beginColor;
-		s_Data.LineVertexPtr++;
+		s_Data->LineVertexPtr->Position = p1;
+		s_Data->LineVertexPtr->Color = beginColor;
+		s_Data->LineVertexPtr++;
 
-		s_Data.LineVertexPtr->Position = p2;
-		s_Data.LineVertexPtr->Color = endColor;
-		s_Data.LineVertexPtr++;
+		s_Data->LineVertexPtr->Position = p2;
+		s_Data->LineVertexPtr->Color = endColor;
+		s_Data->LineVertexPtr++;
 
 		s_Stats.LinesDrawn++;
 	}
@@ -312,7 +312,8 @@ namespace Quark {
 	{
 		QK_SCOPE_TIMER(Renderer2D::Initialize);
 
-		s_Data.MaxSamplers = RenderCommand::GetMaxTextureSlots();
+		s_Data = new Renderer2DData();
+		s_Data->MaxSamplers = RenderCommand::GetMaxTextureSlots();
 
 		Renderer2DSetupData setupData;
 
@@ -325,37 +326,38 @@ namespace Quark {
 	{
 		QK_SCOPE_TIMER(Renderer2D::Dispose);
 
-		delete[] s_Data.QuadVertices;
-		delete[] s_Data.FontVertices;
-		delete[] s_Data.LineVertices;
-		delete[] s_Data.Textures;
-		delete[] s_Data.Fonts;
+		delete[] s_Data->QuadVertices;
+		delete[] s_Data->FontVertices;
+		delete[] s_Data->LineVertices;
+		delete[] s_Data->Textures;
+		delete[] s_Data->Fonts;
+		delete s_Data;
 	}
 
 	void Renderer2D::SetupQuadRenderer(Renderer2DSetupData& setupData)
 	{
 		QK_SCOPE_TIMER(Renderer2D::SetupQuadRenderer);
 
-		s_Data.QuadVertexArray = VertexArray::Create();
+		s_Data->QuadVertexArray = VertexArray::Create();
 
-		s_Data.QuadVertexBuffer = VertexBuffer::Create(Renderer2DData::MaxVertices * sizeof(QuadVertex));
-		s_Data.QuadVertexBuffer->SetLayout({
+		s_Data->QuadVertexBuffer = VertexBuffer::Create(Renderer2DData::MaxVertices * sizeof(QuadVertex));
+		s_Data->QuadVertexBuffer->SetLayout({
 			{ ShaderDataType::Float3, "a_Position" },
 			{ ShaderDataType::Float2, "a_TexCoord" },
 			{ ShaderDataType::Float4, "a_Tint"     },
 			{ ShaderDataType::Int,    "a_TexIndex" }
 		});
-		s_Data.QuadVertexArray->AddVertexBuffer(s_Data.QuadVertexBuffer);
+		s_Data->QuadVertexArray->AddVertexBuffer(s_Data->QuadVertexBuffer);
 
 		// Indices
-		s_Data.QuadIndexBuffer = IndexBuffer::Create(setupData.Indices, Renderer2DData::MaxIndices);
-		s_Data.QuadVertexArray->SetIndexBuffer(s_Data.QuadIndexBuffer);
+		s_Data->QuadIndexBuffer = IndexBuffer::Create(setupData.Indices, Renderer2DData::MaxIndices);
+		s_Data->QuadVertexArray->SetIndexBuffer(s_Data->QuadIndexBuffer);
 
 		// Vertices
-		s_Data.QuadVertices = new QuadVertex[Renderer2DData::MaxVertices];
+		s_Data->QuadVertices = new QuadVertex[Renderer2DData::MaxVertices];
 
 		// Textures
-		s_Data.Textures = new Ref<Texture2D>[s_Data.MaxSamplers];
+		s_Data->Textures = new Ref<Texture2D>[s_Data->MaxSamplers];
 
 		uint32_t textureColor = 0xffffffff;
 		TextureSpecification spec = { 1, 1, 1,
@@ -364,10 +366,10 @@ namespace Quark {
 			TextureFilteringMode::Nearest, TextureFilteringMode::Nearest, TextureTilingMode::Repeat
 		};
 
-		s_Data.DefaultTexture = Texture2D::Create(spec);
-		s_Data.DefaultTexture->SetData(&textureColor, sizeof(uint32_t));
+		s_Data->DefaultTexture = Texture2D::Create(spec);
+		s_Data->DefaultTexture->SetData(&textureColor, sizeof(uint32_t));
 
-		s_Data.Textures[0] = s_Data.DefaultTexture;
+		s_Data->Textures[0] = s_Data->DefaultTexture;
 
 		const char* spriteVertexSource = R"(
 			#version 420 core
@@ -405,7 +407,7 @@ namespace Quark {
 			uniform sampler2D u_Samplers[
 		)";
 
-		spriteFragmentSource << s_Data.MaxSamplers;
+		spriteFragmentSource << s_Data->MaxSamplers;
 		spriteFragmentSource << R"(];
 
 			in VertexOutput
@@ -425,32 +427,32 @@ namespace Quark {
 			}
 		)";
 
-		s_Data.QuadShader = Shader::Create("defaultSprite", spriteVertexSource, spriteFragmentSource.str());
-		s_Data.QuadShader->Attach();
-		s_Data.QuadShader->SetIntArray("u_Samplers", setupData.Samplers, s_Data.MaxSamplers);
+		s_Data->QuadShader = Shader::Create("defaultSprite", spriteVertexSource, spriteFragmentSource.str());
+		s_Data->QuadShader->Attach();
+		s_Data->QuadShader->SetIntArray("u_Samplers", setupData.Samplers, s_Data->MaxSamplers);
 	}
 
 	void Renderer2D::SetupFontRenderer(Renderer2DSetupData& setupData)
 	{
 		QK_SCOPE_TIMER(Renderer2D::SetupFontRenderer);
 
-		s_Data.FontVertexArray = VertexArray::Create();
+		s_Data->FontVertexArray = VertexArray::Create();
 
-		s_Data.FontVertexBuffer = VertexBuffer::Create(Renderer2DData::MaxVertices * sizeof(QuadVertex));
-		s_Data.FontVertexBuffer->SetLayout({
+		s_Data->FontVertexBuffer = VertexBuffer::Create(Renderer2DData::MaxVertices * sizeof(QuadVertex));
+		s_Data->FontVertexBuffer->SetLayout({
 			{ ShaderDataType::Float3, "a_Position" },
 			{ ShaderDataType::Float2, "a_TexCoord" },
 			{ ShaderDataType::Float4, "a_Color"    },
 			{ ShaderDataType::Int,    "a_TexIndex" }
 		});
-		s_Data.FontVertexArray->AddVertexBuffer(s_Data.FontVertexBuffer);
+		s_Data->FontVertexArray->AddVertexBuffer(s_Data->FontVertexBuffer);
 
 		// Indices
-		s_Data.FontVertexArray->SetIndexBuffer(s_Data.QuadIndexBuffer);
+		s_Data->FontVertexArray->SetIndexBuffer(s_Data->QuadIndexBuffer);
 
 		// Vertices
-		s_Data.FontVertices = new QuadVertex[Renderer2DData::MaxVertices];
-		s_Data.Fonts = new Ref<Font>[s_Data.MaxSamplers];
+		s_Data->FontVertices = new QuadVertex[Renderer2DData::MaxVertices];
+		s_Data->Fonts = new Ref<Font>[s_Data->MaxSamplers];
 
 		const char* fontVertexSource = R"(
 			#version 420 core
@@ -488,7 +490,7 @@ namespace Quark {
 			uniform sampler2D u_Samplers[
 		)";
 			
-		fontFragmentSource << s_Data.MaxSamplers;
+		fontFragmentSource << s_Data->MaxSamplers;
 		fontFragmentSource << R"(];
 
 			in VertexOutput
@@ -513,26 +515,26 @@ namespace Quark {
 			}
 		)";
 
-		s_Data.FontShader = Shader::Create("defaultFont", fontVertexSource, fontFragmentSource.str());
-		s_Data.FontShader->Attach();
-		s_Data.FontShader->SetIntArray("u_Samplers", setupData.Samplers, s_Data.MaxSamplers);
+		s_Data->FontShader = Shader::Create("defaultFont", fontVertexSource, fontFragmentSource.str());
+		s_Data->FontShader->Attach();
+		s_Data->FontShader->SetIntArray("u_Samplers", setupData.Samplers, s_Data->MaxSamplers);
 	}
 
 	void Renderer2D::SetupLineRenderer()
 	{
 		QK_SCOPE_TIMER(Renderer2D::SetupLineRenderer);
 
-		s_Data.LineVertexArray = VertexArray::Create();
+		s_Data->LineVertexArray = VertexArray::Create();
 
-		s_Data.LineVertexBuffer = VertexBuffer::Create(Renderer2DData::MaxVertices * sizeof(LineVertex));
-		s_Data.LineVertexBuffer->SetLayout({
+		s_Data->LineVertexBuffer = VertexBuffer::Create(Renderer2DData::MaxVertices * sizeof(LineVertex));
+		s_Data->LineVertexBuffer->SetLayout({
 			{ ShaderDataType::Float3, "a_Position" },
 			{ ShaderDataType::Float4, "a_Color"    }
 		});
-		s_Data.LineVertexArray->AddVertexBuffer(s_Data.LineVertexBuffer);
+		s_Data->LineVertexArray->AddVertexBuffer(s_Data->LineVertexBuffer);
 
 		// Vertices
-		s_Data.LineVertices = new LineVertex[Renderer2DData::MaxVertices];
+		s_Data->LineVertices = new LineVertex[Renderer2DData::MaxVertices];
 
 		const char* lineVertexSource = R"(
 			#version 420 core
@@ -566,7 +568,7 @@ namespace Quark {
 			}
 		)";
 
-		s_Data.LineShader = Shader::Create("defaultLine", lineVertexSource, lineFragmentSource);
+		s_Data->LineShader = Shader::Create("defaultLine", lineVertexSource, lineFragmentSource);
 	}
 
 	void Renderer2D::BeginScene()
@@ -582,55 +584,55 @@ namespace Quark {
 
 	void Renderer2D::StartBatch()
 	{
-		s_Data.QuadVertexPtr    = s_Data.QuadVertices;
-		s_Data.QuadIndexCount   = 0;
-		s_Data.QuadSamplerIndex = 1; // 0 is reserved for default texture
+		s_Data->QuadVertexPtr    = s_Data->QuadVertices;
+		s_Data->QuadIndexCount   = 0;
+		s_Data->QuadSamplerIndex = 1; // 0 is reserved for default texture
 		
-		s_Data.FontVertexPtr    = s_Data.FontVertices;
-		s_Data.FontIndexCount   = 0;
-		s_Data.FontSamplerIndex = 0;
+		s_Data->FontVertexPtr    = s_Data->FontVertices;
+		s_Data->FontIndexCount   = 0;
+		s_Data->FontSamplerIndex = 0;
 
-		s_Data.LineVertexPtr    = s_Data.LineVertices;
+		s_Data->LineVertexPtr    = s_Data->LineVertices;
 	}
 
 	void Renderer2D::PushBatch()
 	{
-		if (s_Data.QuadIndexCount > 0)
+		if (s_Data->QuadIndexCount > 0)
 		{
-			size_t size = ((uint8_t*)s_Data.QuadVertexPtr - (uint8_t*)s_Data.QuadVertices);
-			s_Data.QuadVertexBuffer->SetData(s_Data.QuadVertices, size);
+			size_t size = ((uint8_t*)s_Data->QuadVertexPtr - (uint8_t*)s_Data->QuadVertices);
+			s_Data->QuadVertexBuffer->SetData(s_Data->QuadVertices, size);
 
-			for (uint32_t i = 0; i < s_Data.QuadSamplerIndex; i++)
-				s_Data.Textures[i]->Attach(i);
+			for (uint32_t i = 0; i < s_Data->QuadSamplerIndex; i++)
+				s_Data->Textures[i]->Attach(i);
 
-			s_Data.QuadShader->Attach();
-			RenderCommand::DrawIndexed(s_Data.QuadVertexArray, s_Data.QuadIndexCount);
+			s_Data->QuadShader->Attach();
+			RenderCommand::DrawIndexed(s_Data->QuadVertexArray, s_Data->QuadIndexCount);
 
 			s_Stats.DrawCalls++;
 		}
 
-		if (s_Data.FontIndexCount > 0)
+		if (s_Data->FontIndexCount > 0)
 		{
-			size_t size = ((uint8_t*)s_Data.FontVertexPtr - (uint8_t*)s_Data.FontVertices);
-			s_Data.FontVertexBuffer->SetData(s_Data.FontVertices, size);
+			size_t size = ((uint8_t*)s_Data->FontVertexPtr - (uint8_t*)s_Data->FontVertices);
+			s_Data->FontVertexBuffer->SetData(s_Data->FontVertices, size);
 
-			for (uint32_t i = 0; i < s_Data.FontSamplerIndex; i++)
-				s_Data.Fonts[i]->Attach(i);
+			for (uint32_t i = 0; i < s_Data->FontSamplerIndex; i++)
+				s_Data->Fonts[i]->Attach(i);
 
-			s_Data.FontShader->Attach();
-			RenderCommand::DrawIndexed(s_Data.FontVertexArray, s_Data.FontIndexCount);
+			s_Data->FontShader->Attach();
+			RenderCommand::DrawIndexed(s_Data->FontVertexArray, s_Data->FontIndexCount);
 
 			s_Stats.DrawCalls++;
 		}
 
 		{
-			size_t count = s_Data.LineVertexPtr - s_Data.LineVertices;
+			size_t count = s_Data->LineVertexPtr - s_Data->LineVertices;
 			if (count > 0)
 			{
-				s_Data.LineVertexBuffer->SetData(s_Data.LineVertices, count * sizeof(LineVertex));
+				s_Data->LineVertexBuffer->SetData(s_Data->LineVertices, count * sizeof(LineVertex));
 
-				s_Data.LineShader->Attach();
-				RenderCommand::DrawLines(s_Data.LineVertexArray, count);
+				s_Data->LineShader->Attach();
+				RenderCommand::DrawLines(s_Data->LineVertexArray, count);
 
 				s_Stats.DrawCalls++;
 			}

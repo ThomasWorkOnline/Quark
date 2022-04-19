@@ -102,8 +102,16 @@ PBRRendering::PBRRendering()
 		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3( 0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
 	};
 
-	m_HDRCubemap = Cubemap::Create(2048, 2048);
-	m_Irradiance = Cubemap::Create(32, 32);
+	{
+		CubemapSpecification spec;
+		spec.Width          = 2048;
+		spec.Height         = 2048;
+		m_HDRCubemap = Cubemap::Create(spec);
+
+		spec.Width          = 32;
+		spec.Height         = 32;
+		m_Irradiance = Cubemap::Create(spec);
+	}
 
 	m_EnvironmentFramebuffer->Attach();
 

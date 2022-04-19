@@ -8,9 +8,9 @@ namespace Quark {
 
 	struct TextureArraySpecification
 	{
-		uint32_t Width = 0, Height = 0, Layers = 0;
-		uint32_t Samples = 1;
-		uint8_t Levels   = 1;
+		uint32_t              Width = 0, Height = 0, Layers = 0;
+		uint32_t              Samples = 1;
+		uint8_t               Levels  = 1;
 
 		TextureDataFormat     DataFormat{};
 		TextureInternalFormat InternalFormat{};

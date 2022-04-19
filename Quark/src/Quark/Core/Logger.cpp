@@ -5,6 +5,8 @@
 
 namespace Quark {
 
+	Ref<Logger> Logger::s_Instance = CreateRef<Logger>();
+
 	Logger::Logger()
 	{
 		std::vector<spdlog::sink_ptr> sinks;
@@ -33,11 +35,5 @@ namespace Quark {
 		spdlog::register_logger(m_CoreLogger);
 		spdlog::register_logger(m_ClientLogger);
 		spdlog::register_logger(m_ProfilerLogger);
-	}
-
-	Logger& Logger::GetInstance()
-	{
-		static Logger s_Instance;
-		return s_Instance;
 	}
 }
