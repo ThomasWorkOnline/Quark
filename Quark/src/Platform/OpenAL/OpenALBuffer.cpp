@@ -44,13 +44,19 @@ namespace Quark {
 		WavHeader header{};
 		std::ifstream in(filepath.data(), std::ios::in | std::ios::binary);
 		QK_CORE_ASSERT(in.is_open(), "Could not open audio file: '{0}'", filepath);
-		
-		// TODO: use a memory mapped file for performance
+
+		in.seekg(0, std::ios::end);
+		size_t size = in.tellg();
+		in.seekg(0, std::ios::beg);
+
+		QK_CORE_ASSERT(size >= sizeof(WavHeader), "Error parsing file: DataChunkSize is set to zero");
 
 		// Read the header
 		in.read((char*)&header, sizeof(WavHeader));
 
-		QK_CORE_ASSERT(header.AudioFormat == 1, "Quark does not support audio formats other than PCM!");
+		size_t dataSize = size - sizeof(WavHeader);
+		QK_CORE_ASSERT(dataSize != 0, "Invalid file contains no data");
+		QK_CORE_ASSERT(header.AudioFormat == 1, "Quark does not support audio formats other than PCM");
 
 		// Read the data
 		char* data = new char[header.DataChunkSize];
