@@ -276,7 +276,7 @@ public:
 	void OnUpdate(Quark::Timestep elapsedTime) override
 	{
 		// Starting a fresh scene
-		Quark::Renderer::BeginScene(m_Camera.GetProjection(), glm::mat4(1.0f)); // < --This is the camera view matrix, we'll stick to a unit matrix
+		Quark::Renderer::BeginScene(m_Camera.GetProjection(), glm::mat4(1.0f)); // <-- This is the camera view matrix, we'll stick to a unit matrix
 
 		// Submitting a unit sprite with our given texture
 		Quark::Renderer2D::DrawSprite(m_Texture);
@@ -318,7 +318,7 @@ public:
 	void OnUpdate(Quark::Timestep elapsedTime) override
 	{
 		// Starting a fresh scene
-		Quark::Renderer::BeginScene(m_Camera.GetProjection(), glm::mat4(1.0f)); // < --This is the camera view matrix, we'll stick to a unit matrix
+		Quark::Renderer::BeginScene(m_Camera.GetProjection(), glm::mat4(1.0f)); // <-- This is the camera view matrix, we'll stick to a unit matrix
 
 		// Submitting a colored sprite
 		Quark::Renderer2D::DrawSprite(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
