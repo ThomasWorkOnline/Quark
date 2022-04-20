@@ -13,6 +13,10 @@ namespace Quark {
 			case FramebufferAttachment::ColorAttachment1:       return GL_COLOR_ATTACHMENT1;
 			case FramebufferAttachment::ColorAttachment2:       return GL_COLOR_ATTACHMENT2;
 			case FramebufferAttachment::ColorAttachment3:       return GL_COLOR_ATTACHMENT3;
+			case FramebufferAttachment::ColorAttachment4:       return GL_COLOR_ATTACHMENT4;
+			case FramebufferAttachment::ColorAttachment5:       return GL_COLOR_ATTACHMENT5;
+			case FramebufferAttachment::ColorAttachment6:       return GL_COLOR_ATTACHMENT6;
+			case FramebufferAttachment::ColorAttachment7:       return GL_COLOR_ATTACHMENT7;
 			case FramebufferAttachment::DepthAttachment:        return GL_DEPTH_ATTACHMENT;
 			case FramebufferAttachment::DepthStencilAttachment: return GL_DEPTH_STENCIL_ATTACHMENT;
 			default:

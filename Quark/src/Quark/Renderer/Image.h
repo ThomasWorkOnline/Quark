@@ -5,13 +5,6 @@
 
 namespace Quark {
 
-	enum class ImageExtensionFormat
-	{
-		None = 0,
-		Int,
-		HDR
-	};
-
 	struct ImageDescriptor
 	{
 		bool FlipVertically = true;
@@ -31,11 +24,11 @@ namespace Quark {
 		size_t Size() const;
 
 		void* operator*() const { return m_Data; }
-		bool IsHDR() const;
+		bool IsHDR() const { return m_HDR; }
 
 	private:
 		void* m_Data = nullptr;
 		int32_t m_Width = 0, m_Height = 0, m_Channels = 0, m_BPC = 0;
-		ImageExtensionFormat m_ExtFormat{};
+		bool m_HDR = false;
 	};
 }

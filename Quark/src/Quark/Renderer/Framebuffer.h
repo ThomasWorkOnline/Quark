@@ -16,6 +16,10 @@ namespace Quark {
 		ColorAttachment1,
 		ColorAttachment2,
 		ColorAttachment3,
+		ColorAttachment4,
+		ColorAttachment5,
+		ColorAttachment6,
+		ColorAttachment7,
 
 		// Depth and stencil attachments
 		DepthAttachment,
