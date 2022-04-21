@@ -51,6 +51,7 @@ uniform sampler2D u_AlbedoMap;
 uniform sampler2D u_NormalMap;
 uniform sampler2D u_MetallicMap;
 uniform sampler2D u_RoughnessMap;
+uniform sampler2D u_AmbiantOcclusionMap;
 
 uniform samplerCube u_IrradianceMap;
 
@@ -67,7 +68,7 @@ void main()
     vec3  albedo    = texture(u_AlbedoMap,           v_Input.TexCoord).rgb;
     float metallic  = texture(u_MetallicMap,         v_Input.TexCoord).r;
     float roughness = texture(u_RoughnessMap,        v_Input.TexCoord).r;
-    float ao        = 1.0;
+    float ao        = texture(u_AmbiantOcclusionMap, v_Input.TexCoord).r;
 
     vec3 N = GetNormalFromMap();
     vec3 V = normalize(u_CameraPos - v_Input.Position);
@@ -119,7 +120,7 @@ void main()
     // ambient lighting (we now use IBL as the ambient term)
     vec3 kS               = FresnelSchlick(max(dot(N, V), 0.0), F0);
     vec3 kD               = 1.0 - kS;
-    //kD                   *= 1.0 - metallic;
+    kD                   *= 1.0 - metallic;
     vec3 irradiance       = texture(u_IrradianceMap, N).rgb;
     vec3 diffuse          = irradiance * albedo;
     vec3 ambient          = (kD * diffuse) * ao;

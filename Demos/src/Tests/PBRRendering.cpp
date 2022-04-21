@@ -8,7 +8,7 @@ PBRRendering::PBRRendering()
 	m_Player.AddComponent<PerspectiveCameraComponent>((float)GetWindow().GetWidth() / GetWindow().GetHeight(), 70.0f);
 	m_Controller = { m_Player };
 
-#if 0
+#if 1
 	m_Body.LoadOBJFromFile("assets/meshes/poly_sphere.obj");
 #else
 	m_Body.GenerateUnitCube();
@@ -17,7 +17,7 @@ PBRRendering::PBRRendering()
 	m_Cube.GenerateUnitCube();
 	m_CubemapVAO = m_Cube.GetVertexArray();
 
-#define MATERIAL 2
+#define MATERIAL 4
 
 	{
 		TextureDescriptor descriptor;
@@ -26,24 +26,40 @@ PBRRendering::PBRRendering()
 		descriptor.RenderModes.MinFilteringMode = TextureFilteringMode::LinearMipmapLinear;
 
 #if MATERIAL == 0
-		m_Albedo           = Texture2D::Create("assets/textures/pbr/greasy-pan/greasy-pan-2-albedo.png", descriptor);
-		m_Metallic         = Texture2D::Create("assets/textures/pbr/greasy-pan/greasy-pan-2-metal.png");
-		m_Normal           = Texture2D::Create("assets/textures/pbr/greasy-pan/greasy-pan-2-normal.png");
-		m_Roughness        = Texture2D::Create("assets/textures/pbr/greasy-pan/greasy-pan-2-roughness.png");
+		m_Albedo    = Texture2D::Create("assets/textures/pbr/greasy-pan/greasy-pan-2-albedo.png", descriptor);
+		m_Metallic  = Texture2D::Create("assets/textures/pbr/greasy-pan/greasy-pan-2-metal.png");
+		m_Normal    = Texture2D::Create("assets/textures/pbr/greasy-pan/greasy-pan-2-normal.png");
+		m_Roughness = Texture2D::Create("assets/textures/pbr/greasy-pan/greasy-pan-2-roughness.png");
 #endif
 
 #if MATERIAL == 1
-		m_Albedo           = Texture2D::Create("assets/textures/pbr/streaked-metal/albedo.png", descriptor);
-		m_Metallic         = Texture2D::Create("assets/textures/pbr/streaked-metal/metalness.png");
-		m_Normal           = Texture2D::Create("assets/textures/pbr/streaked-metal/normal-dx.png");
-		m_Roughness        = Texture2D::Create("assets/textures/pbr/streaked-metal/rough.png");
+		m_Albedo    = Texture2D::Create("assets/textures/pbr/streaked-metal/albedo.png", descriptor);
+		m_Metallic  = Texture2D::Create("assets/textures/pbr/streaked-metal/metalness.png");
+		m_Normal    = Texture2D::Create("assets/textures/pbr/streaked-metal/normal-dx.png");
+		m_Roughness = Texture2D::Create("assets/textures/pbr/streaked-metal/rough.png");
 #endif
 
 #if MATERIAL == 2
-		m_Albedo           = Texture2D::Create("assets/textures/pbr/rustediron/rustediron2_basecolor.png", descriptor);
-		m_Metallic         = Texture2D::Create("assets/textures/pbr/rustediron/rustediron2_metallic.png");
-		m_Normal           = Texture2D::Create("assets/textures/pbr/rustediron/rustediron2_normal.png");
-		m_Roughness        = Texture2D::Create("assets/textures/pbr/rustediron/rustediron2_roughness.png");
+		m_Albedo    = Texture2D::Create("assets/textures/pbr/rustediron/rustediron2_basecolor.png", descriptor);
+		m_Metallic  = Texture2D::Create("assets/textures/pbr/rustediron/rustediron2_metallic.png");
+		m_Normal    = Texture2D::Create("assets/textures/pbr/rustediron/rustediron2_normal.png");
+		m_Roughness = Texture2D::Create("assets/textures/pbr/rustediron/rustediron2_roughness.png");
+#endif
+
+#if MATERIAL == 3
+		m_Albedo           = Texture2D::Create("assets/textures/pbr/gray-granite/gray-granite-flecks-albedo.png", descriptor);
+		m_AmbiantOcclusion = Texture2D::Create("assets/textures/pbr/gray-granite/gray-granite-flecks-ao.png");
+		m_Metallic         = Texture2D::Create("assets/textures/pbr/gray-granite/gray-granite-flecks-Metallic.png");
+		m_Normal           = Texture2D::Create("assets/textures/pbr/gray-granite/gray-granite-flecks-Normal-dx.png");
+		m_Roughness        = Texture2D::Create("assets/textures/pbr/gray-granite/gray-granite-flecks-Roughness.png");
+#endif
+
+#if MATERIAL == 4
+		m_Albedo           = Texture2D::Create("assets/textures/pbr/marble-speckled/marble-speckled-albedo.png", descriptor);
+		m_AmbiantOcclusion = Texture2D::Create("assets/textures/pbr/gray-granite/gray-granite-flecks-ao.png");
+		m_Metallic         = Texture2D::Create("assets/textures/pbr/marble-speckled/marble-speckled-metalness.png");
+		m_Normal           = Texture2D::Create("assets/textures/pbr/marble-speckled/marble-speckled-normal.png");
+		m_Roughness        = Texture2D::Create("assets/textures/pbr/marble-speckled/marble-speckled-roughness.png");
 #endif
 	}
 
@@ -77,7 +93,8 @@ PBRRendering::PBRRendering()
 	m_PBRShader->SetInt("u_NormalMap", 1);
 	m_PBRShader->SetInt("u_MetallicMap", 2);
 	m_PBRShader->SetInt("u_RoughnessMap", 3);
-	m_PBRShader->SetInt("u_IrradianceMap", 4);
+	m_PBRShader->SetInt("u_AmbiantOcclusionMap", 4);
+	m_PBRShader->SetInt("u_IrradianceMap", 5);
 
 	m_PBRShader->SetFloat3("u_LightColors[0]", lightColor);
 	m_PBRShader->SetFloat3("u_LightColors[1]", lightColor);
@@ -174,7 +191,8 @@ void PBRRendering::OnUpdate(Timestep elapsedTime)
 	m_Normal->Attach(1);
 	m_Metallic->Attach(2);
 	m_Roughness->Attach(3);
-	m_Irradiance->Attach(4);
+	m_AmbiantOcclusion->Attach(4);
+	m_Irradiance->Attach(5);
 
 	m_PBRShader->Attach();
 	m_PBRShader->SetFloat3("u_CameraPos", transform.Position);

@@ -5,7 +5,7 @@ namespace Quark {
 
 	int Main(int argc, char** argv)
 	{
-		auto test = CreateScope<FontTest>();
+		auto test = CreateScope<PBRRendering>();
 		test->Run();
 
 		return 0;
