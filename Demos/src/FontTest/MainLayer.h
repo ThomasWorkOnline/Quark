@@ -23,6 +23,7 @@ private:
 	Ref<Texture2D> m_Texture;
 	Text m_Text;
 	Text m_Text2;
+	TextInput m_Input;
 
 	glm::vec4 m_Color1 = { 1.0f, 1.0f, 0.0f, 1.0f };
 	glm::vec4 m_Color2 = { 1.0f, 0.0f, 1.0f, 0.5f };
@@ -30,4 +31,3 @@ private:
 
 	OrthographicCamera m_Camera;
 };
- 

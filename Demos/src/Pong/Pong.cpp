@@ -107,10 +107,10 @@ bool Pong::OnKeyPressed(KeyPressedEvent& e)
 {
 	switch (e.GetKeyCode())
 	{
-		case Key::Escape:
+		case KeyCode::Escape:
 			GetWindow().EnableCursor();
 			break;
-		case Key::Enter:
+		case KeyCode::Enter:
 		{
 			if (m_AudioPlaying)
 				m_AudioSource->Pause();

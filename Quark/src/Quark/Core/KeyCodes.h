@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Core.h"
+
 namespace Quark
 {
 	typedef enum class KeyCode : uint16_t
@@ -135,7 +137,23 @@ namespace Quark
 		RightAlt            = 346,
 		RightSuper          = 347,
 		Menu                = 348
-	} Key;
+	};
+
+	enum ModifierKey : uint8_t
+	{
+		ModifierKeyNone     = 0,
+		ModifierKeyShift    = BIT(0),
+		ModifierKeyControl  = BIT(1),
+		ModifierKeyAlt      = BIT(2),
+		ModifierKeySuper    = BIT(3),
+		ModifierKeyCapsLock = BIT(4),
+		ModifierKeyNumLock  = BIT(5)
+	};
+
+	inline constexpr uint16_t KeyCodeToInt(KeyCode key)
+	{
+		return (uint16_t)key;
+	}
 
 	inline std::ostream& operator<<(std::ostream& os, KeyCode keyCode)
 	{

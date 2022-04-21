@@ -119,17 +119,6 @@ namespace Quark {
 		glDeleteTextures(1, &m_RendererID);
 	}
 
-	void OpenGLTexture2D::SetData(const void* data, size_t size)
-	{
-		size_t pSize = GetPixelFormatSize(m_Spec.InternalFormat);
-		QK_CORE_ASSERT(size == m_Spec.Width * m_Spec.Height * pSize, "Data must be entire texture");
-
-		GLenum target = m_Spec.Samples > 1 ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
-		glBindTexture(target, m_RendererID);
-		glTexSubImage2D(target, 0, 0, 0, m_Spec.Width, m_Spec.Height, m_DataFormat,
-			GetDataTypeBasedOnInternalFormat(m_Spec.InternalFormat), data);
-	}
-
 	void OpenGLTexture2D::Attach(uint32_t textureSlot) const
 	{
 		GLenum target = m_Spec.Samples > 1 ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
@@ -141,5 +130,16 @@ namespace Quark {
 	{
 		GLenum target = m_Spec.Samples > 1 ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
 		glBindTexture(target, 0);
+	}
+
+	void OpenGLTexture2D::SetData(const void* data, size_t size)
+	{
+		size_t pSize = GetPixelFormatSize(m_Spec.InternalFormat);
+		QK_CORE_ASSERT(size == m_Spec.Width * m_Spec.Height * pSize, "Data must be entire texture");
+
+		GLenum target = m_Spec.Samples > 1 ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
+		glBindTexture(target, m_RendererID);
+		glTexSubImage2D(target, 0, 0, 0, m_Spec.Width, m_Spec.Height, m_DataFormat,
+			GetDataTypeBasedOnInternalFormat(m_Spec.InternalFormat), data);
 	}
 }

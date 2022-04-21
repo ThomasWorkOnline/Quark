@@ -14,14 +14,14 @@ namespace Quark {
 		uint32_t GetWidth() const override { return m_Spec.Width; }
 		uint32_t GetHeight() const override { return m_Spec.Height; }
 
-		void SetData(const void* data, size_t size) override;
-
 		void Attach(uint32_t textureSlot = 0) const override;
 		void Detach() const override;
 
+		void SetData(const void* data, size_t size) override;
+
 		uint32_t GetRendererID() const override { return m_RendererID; }
 
-		bool operator==(const Texture& other) const override
+		bool operator==(const Texture2D& other) const override
 		{
 			return m_RendererID == ((OpenGLTexture2D&)other).m_RendererID;
 		}

@@ -28,6 +28,7 @@
 // Input
 #include "Quark/Input/OrthographicCameraController.h"
 #include "Quark/Input/PerspectiveCameraController.h"
+#include "Quark/Input/TextInput.h"
 
 // Rendering
 #include "Quark/Renderer/Renderer.h"

@@ -9,21 +9,25 @@ namespace Quark {
 	{
 	public:
 		KeyCode GetKeyCode() const { return m_KeyCode; }
+		ModifierKey GetModifierKeys() const { return m_Mods; }
+
+		bool WasModifierKeyPressed(ModifierKey key) { return m_Mods & key; }
 
 		EVENT_CLASS_CATEGORY(EventCategoryKeyboard | EventCategoryInput);
 
 	protected:
-		KeyEvent(KeyCode keycode)
-			: m_KeyCode(keycode) {}
+		KeyEvent(KeyCode keycode, ModifierKey mods)
+			: m_KeyCode(keycode), m_Mods(mods) {}
 
 		KeyCode m_KeyCode;
+		ModifierKey m_Mods;
 	};
 
     class KeyPressedEvent : public KeyEvent
 	{
 	public:
-		KeyPressedEvent(KeyCode keycode, int32_t repeatCount)
-			: KeyEvent(keycode), m_RepeatCount(repeatCount) {}
+		KeyPressedEvent(KeyCode keycode, ModifierKey mods, int32_t repeatCount)
+			: KeyEvent(keycode, mods), m_RepeatCount(repeatCount) {}
 
 		int32_t GetRepeatCount() const { return m_RepeatCount; }
 
@@ -43,8 +47,8 @@ namespace Quark {
     class KeyReleasedEvent : public KeyEvent
 	{
 	public:
-		KeyReleasedEvent(KeyCode keycode)
-			: KeyEvent(keycode) {}
+		KeyReleasedEvent(KeyCode keycode, ModifierKey mods)
+			: KeyEvent(keycode, mods) {}
 
 		std::string ToString() const override
 		{
@@ -60,7 +64,7 @@ namespace Quark {
 	{
 	public:
 		KeyTypedEvent(KeyCode keycode)
-			: KeyEvent(keycode) {}
+			: KeyEvent(keycode, ModifierKeyNone) {}
 
 		std::string ToString() const override
 		{

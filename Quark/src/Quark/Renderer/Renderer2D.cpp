@@ -196,97 +196,6 @@ namespace Quark {
 		s_Stats.QuadsDrawn++;
 	}
 
-	void Renderer2D::DrawText(const Text& text)
-	{
-		DrawText(text.GetFont(), text.GetString(), text.GetColor(), text.GetOrigin());
-	}
-
-	void Renderer2D::DrawText(const Ref<Font>& font, std::string_view text, const glm::vec4& color, const glm::ivec2& origin)
-	{
-		// Check if buffer is full
-		if (s_Data->FontIndexCount >= Renderer2DData::MaxIndices)
-		{
-			PushBatch();
-			StartBatch();
-		}
-
-		// Check if texture exists in samplers
-		uint32_t textureIndex = 0;
-		for (uint32_t i = 1; i < s_Data->FontSamplerIndex; i++)
-		{
-			if (*s_Data->Fonts[i] == *font)
-			{
-				textureIndex = i;
-				break;
-			}
-		}
-
-		// If texture was not found in samplers
-		if (textureIndex == 0)
-		{
-			// If not enough space to attach new font texture
-			if (s_Data->FontSamplerIndex >= s_Data->MaxSamplers)
-			{
-				PushBatch();
-				StartBatch();
-			}
-
-			textureIndex = s_Data->FontSamplerIndex;
-			s_Data->Fonts[textureIndex] = font;
-			s_Data->FontSamplerIndex++;
-		}
-
-		int32_t x = origin.x;
-		int32_t y = origin.y;
-
-		float atlasWidth = font->GetAtlasWidth();
-		float atlasHeight = font->GetAtlasHeight();
-
-		for (auto it = text.begin(); it != text.end(); it++)
-		{
-			auto& g = font->GetGlyph(*it);
-
-			int32_t xpos = (x + g.Bearing.x);
-			int32_t ypos = (-y - g.Bearing.y);
-			int32_t w = g.Size.x;
-			int32_t h = g.Size.y;
-			float tx = (float)g.OffsetX / atlasWidth;
-
-			x += (g.Advance.x >> 6);
-			y += (g.Advance.y >> 6);
-
-			if (!w || !h)
-				continue;
-
-			s_Data->FontVertexPtr->Position = glm::vec4(xpos + w, -ypos, 0.0f, 1.0f);
-			s_Data->FontVertexPtr->TexCoord = { tx + g.Size.x / atlasWidth, 0.0f };
-			s_Data->FontVertexPtr->Color = color;
-			s_Data->FontVertexPtr->TexIndex = textureIndex;
-			s_Data->FontVertexPtr++;
-
-			s_Data->FontVertexPtr->Position = glm::vec4(xpos, -ypos, 0.0f, 1.0f);
-			s_Data->FontVertexPtr->TexCoord = { tx, 0.0f };
-			s_Data->FontVertexPtr->Color = color;
-			s_Data->FontVertexPtr->TexIndex = textureIndex;
-			s_Data->FontVertexPtr++;
-
-			s_Data->FontVertexPtr->Position = glm::vec4(xpos, -ypos - h, 0.0f, 1.0f);
-			s_Data->FontVertexPtr->TexCoord = { tx, g.Size.y / atlasHeight };
-			s_Data->FontVertexPtr->Color = color;
-			s_Data->FontVertexPtr->TexIndex = textureIndex;
-			s_Data->FontVertexPtr++;
-
-			s_Data->FontVertexPtr->Position = glm::vec4(xpos + w, -ypos - h, 0.0f, 1.0f);
-			s_Data->FontVertexPtr->TexCoord = { tx + g.Size.x / atlasWidth, g.Size.y / atlasHeight };
-			s_Data->FontVertexPtr->Color = color;
-			s_Data->FontVertexPtr->TexIndex = textureIndex;
-			s_Data->FontVertexPtr++;
-
-			s_Data->FontIndexCount += 6;
-			s_Stats.QuadsDrawn++;
-		}
-	}
-
 	void Renderer2D::DrawLine(const glm::vec3& p1, const glm::vec3& p2, const glm::vec4& beginColor, const glm::vec4& endColor)
 	{
 		// Check if buffer is full
@@ -306,6 +215,101 @@ namespace Quark {
 		s_Data->LineVertexPtr++;
 
 		s_Stats.LinesDrawn++;
+	}
+
+	void Renderer2D::DrawText(std::string_view text, const TextRenderTraits& traits)
+	{
+		// Check if buffer is full
+		if (s_Data->FontIndexCount >= Renderer2DData::MaxIndices)
+		{
+			PushBatch();
+			StartBatch();
+		}
+
+		// Check if texture exists in samplers
+		uint32_t textureIndex = 0;
+		for (uint32_t i = 1; i < s_Data->FontSamplerIndex; i++)
+		{
+			if (*s_Data->Fonts[i] == *traits.FontStyle)
+			{
+				textureIndex = i;
+				break;
+			}
+		}
+
+		// If texture was not found in samplers
+		if (textureIndex == 0)
+		{
+			// If not enough space to attach new font texture
+			if (s_Data->FontSamplerIndex >= s_Data->MaxSamplers)
+			{
+				PushBatch();
+				StartBatch();
+			}
+
+			textureIndex = s_Data->FontSamplerIndex;
+			s_Data->Fonts[textureIndex] = traits.FontStyle;
+			s_Data->FontSamplerIndex++;
+		}
+
+		auto [x, y] = traits.GetOrigin();
+
+		float atlasWidth = traits.FontStyle->GetAtlasWidth();
+		float atlasHeight = traits.FontStyle->GetAtlasHeight();
+
+		for (auto it = text.begin(); it != text.end(); it++)
+		{
+			auto& g = traits.FontStyle->GetGlyph(*it);
+
+			int32_t xpos = (x + g.Bearing.x);
+			int32_t ypos = (-y - g.Bearing.y);
+			int32_t w = g.Size.x;
+			int32_t h = g.Size.y;
+			float tx = (float)g.OffsetX / atlasWidth;
+
+			x += (g.Advance.x >> 6);
+			y += (g.Advance.y >> 6);
+
+			if (!w || !h)
+				continue;
+
+			s_Data->FontVertexPtr->Position = glm::vec4(xpos + w, -ypos, 0.0f, 1.0f);
+			s_Data->FontVertexPtr->TexCoord = { tx + g.Size.x / atlasWidth, 0.0f };
+			s_Data->FontVertexPtr->Color    = traits.Color;
+			s_Data->FontVertexPtr->TexIndex = textureIndex;
+			s_Data->FontVertexPtr++;
+
+			s_Data->FontVertexPtr->Position = glm::vec4(xpos, -ypos, 0.0f, 1.0f);
+			s_Data->FontVertexPtr->TexCoord = { tx, 0.0f };
+			s_Data->FontVertexPtr->Color    = traits.Color;
+			s_Data->FontVertexPtr->TexIndex = textureIndex;
+			s_Data->FontVertexPtr++;
+
+			s_Data->FontVertexPtr->Position = glm::vec4(xpos, -ypos - h, 0.0f, 1.0f);
+			s_Data->FontVertexPtr->TexCoord = { tx, g.Size.y / atlasHeight };
+			s_Data->FontVertexPtr->Color    = traits.Color;
+			s_Data->FontVertexPtr->TexIndex = textureIndex;
+			s_Data->FontVertexPtr++;
+
+			s_Data->FontVertexPtr->Position = glm::vec4(xpos + w, -ypos - h, 0.0f, 1.0f);
+			s_Data->FontVertexPtr->TexCoord = { tx + g.Size.x / atlasWidth, g.Size.y / atlasHeight };
+			s_Data->FontVertexPtr->Color    = traits.Color;
+			s_Data->FontVertexPtr->TexIndex = textureIndex;
+			s_Data->FontVertexPtr++;
+
+			s_Data->FontIndexCount += 6;
+			s_Stats.QuadsDrawn++;
+		}
+	}
+
+	void Renderer2D::DrawText(const Text& text)
+	{
+		DrawText(text.GetText(), text.GetRenderTraits());
+	}
+
+	void Renderer2D::DrawTextInput(const TextInput& input)
+	{
+		DrawText(input.GetText(), input.GetRenderTraits());
 	}
 
 	void Renderer2D::Initialize()

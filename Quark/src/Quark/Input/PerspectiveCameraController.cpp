@@ -26,8 +26,8 @@ namespace Quark {
 			auto& physics = m_CameraEntity.GetComponent<PhysicsComponent>();
 			auto& camera = m_CameraEntity.GetComponent<PerspectiveCameraComponent>().Camera;
 
-			// Boost key
-			if (Input::IsKeyPressed(Key::LeftControl))
+			// Boost Key
+			if (Input::IsKeyPressed(KeyCode::LeftControl))
 			{
 				m_MovementSpeed = 100.0f;
 				m_RollSensitivity = 5.0f;
@@ -39,47 +39,47 @@ namespace Quark {
 			}
 
 			// Controls
-			if (Input::IsKeyPressed(Key::W))
+			if (Input::IsKeyPressed(KeyCode::W))
 			{
 				physics.Velocity += transform.GetFrontVector() * (Float)(elapsedTime * m_MovementSpeed);
 			}
 
-			if (Input::IsKeyPressed(Key::S))
+			if (Input::IsKeyPressed(KeyCode::S))
 			{
 				physics.Velocity -= transform.GetFrontVector() * (Float)(elapsedTime * m_MovementSpeed);
 			}
 
-			if (Input::IsKeyPressed(Key::D))
+			if (Input::IsKeyPressed(KeyCode::D))
 			{
 				physics.Velocity += transform.GetRightVector() * (Float)(elapsedTime * m_MovementSpeed);
 			}
 
-			if (Input::IsKeyPressed(Key::A))
+			if (Input::IsKeyPressed(KeyCode::A))
 			{
 				physics.Velocity -= transform.GetRightVector() * (Float)(elapsedTime * m_MovementSpeed);
 			}
 
-			if (Input::IsKeyPressed(Key::Space))
+			if (Input::IsKeyPressed(KeyCode::Space))
 			{
 				physics.Velocity += transform.GetTopVector() * (Float)(elapsedTime * m_MovementSpeed);
 			}
 
-			if (Input::IsKeyPressed(Key::LeftShift))
+			if (Input::IsKeyPressed(KeyCode::LeftShift))
 			{
 				physics.Velocity -= transform.GetTopVector() * (Float)(elapsedTime * m_MovementSpeed);
 			}
 
-			if (Input::IsKeyPressed(Key::Q))
+			if (Input::IsKeyPressed(KeyCode::Q))
 			{
 				transform.Rotate(elapsedTime * m_RollSensitivity, -transform.GetFrontVector());
 			}
 
-			if (Input::IsKeyPressed(Key::E))
+			if (Input::IsKeyPressed(KeyCode::E))
 			{
 				transform.Rotate(elapsedTime * m_RollSensitivity, transform.GetFrontVector());
 			}
 
-			if (Input::IsKeyPressed(Key::D0))
+			if (Input::IsKeyPressed(KeyCode::D0))
 			{
 				physics.Velocity = { 0.0f, 0.0f, 0.0f };
 				transform.Position = { 0.0f, 0.0f, 0.0f };

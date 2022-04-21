@@ -6,6 +6,22 @@
 
 namespace Quark {
 
+	static constexpr ModifierKey GetModKey(int mod)
+	{
+		uint8_t keys{};
+		switch (mod)
+		{
+			case GLFW_MOD_SHIFT:     keys |= ModifierKeyShift;
+			case GLFW_MOD_CONTROL:   keys |= ModifierKeyControl;
+			case GLFW_MOD_ALT:       keys |= ModifierKeyAlt;
+			case GLFW_MOD_SUPER:     keys |= ModifierKeySuper;
+			case GLFW_MOD_CAPS_LOCK: keys |= ModifierKeyCapsLock;
+			case GLFW_MOD_NUM_LOCK:  keys |= ModifierKeyNumLock;
+		}
+
+		return static_cast<ModifierKey>(keys);
+	}
+
 	static uint32_t s_WindowCount = 0;
 
 	static void GLFWErrorCallback(int32_t error, const char* description)
@@ -165,24 +181,25 @@ namespace Quark {
 		glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
 			{
 				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+				ModifierKey modKeys = GetModKey(mods);
 
 				switch (action)
 				{
 					case GLFW_PRESS:
 					{
-						KeyPressedEvent event(static_cast<KeyCode>(key), 0);
+						KeyPressedEvent event(static_cast<KeyCode>(key), modKeys, 0);
 						data.EventCallback(event);
 						break;
 					}
 					case GLFW_RELEASE:
 					{
-						KeyReleasedEvent event(static_cast<KeyCode>(key));
+						KeyReleasedEvent event(static_cast<KeyCode>(key), modKeys);
 						data.EventCallback(event);
 						break;
 					}
 					case GLFW_REPEAT:
 					{
-						KeyPressedEvent event(static_cast<KeyCode>(key), 1);
+						KeyPressedEvent event(static_cast<KeyCode>(key), modKeys, 1);
 						data.EventCallback(event);
 						break;
 					}
