@@ -63,7 +63,6 @@ project "GLFW"
 
 	filter "system:linux"
 		pic "On"
-
 		systemversion "latest"
 
 		files
