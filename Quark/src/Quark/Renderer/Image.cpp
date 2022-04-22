@@ -1,3 +1,4 @@
+#include "qkpch.h"
 #include "Image.h"
 
 #define STB_IMAGE_STATIC

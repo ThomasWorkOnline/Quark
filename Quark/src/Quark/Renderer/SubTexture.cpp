@@ -1,3 +1,4 @@
+#include "qkpch.h"
 #include "SubTexture.h"
 
 namespace Quark {

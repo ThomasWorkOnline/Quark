@@ -1,3 +1,4 @@
+#include "qkpch.h"
 #include "Quark/Core/Application.h"
 
 #if defined(QK_PLATFORM_WINDOWS) && defined(QK_DIST)

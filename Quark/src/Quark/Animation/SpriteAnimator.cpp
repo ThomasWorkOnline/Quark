@@ -1,3 +1,4 @@
+#include "qkpch.h"
 #include "SpriteAnimator.h"
 
 namespace Quark {

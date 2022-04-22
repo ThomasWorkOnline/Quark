@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Quark/Core/Core.h"
-
 #include <random>
 
 namespace Quark {

@@ -4,7 +4,7 @@
 
 namespace Quark
 {
-	typedef enum class KeyCode : uint16_t
+	enum class KeyCode : uint16_t
 	{
 		// Code from glfw3.h
 		Space               = 32,

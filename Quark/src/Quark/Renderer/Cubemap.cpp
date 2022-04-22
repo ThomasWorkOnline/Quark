@@ -1,3 +1,4 @@
+#include "qkpch.h"
 #include "Cubemap.h"
 
 #include "RenderingAPI.h"

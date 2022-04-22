@@ -1,3 +1,4 @@
+#include "qkpch.h"
 #include "Colorimetry.h"
 
 namespace Quark {

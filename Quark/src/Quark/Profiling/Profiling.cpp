@@ -1,3 +1,4 @@
+#include "qkpch.h"
 #include "Profiling.h"
 
 #include <mutex>

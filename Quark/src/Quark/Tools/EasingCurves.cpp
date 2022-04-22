@@ -1,3 +1,4 @@
+#include "qkpch.h"
 #include "EasingCurves.h"
 
 namespace Quark {

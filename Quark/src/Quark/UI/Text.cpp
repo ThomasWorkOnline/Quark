@@ -1,3 +1,4 @@
+#include "qkpch.h"
 #include "Text.h"
 
 namespace Quark {

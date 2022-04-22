@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Quark/Core/Core.h"
 #include "Quark/Events/Event.h"
 
 namespace Quark {

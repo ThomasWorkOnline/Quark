@@ -1,3 +1,4 @@
+#include "qkpch.h"
 #include "RenderCommand.h"
 
 namespace Quark {

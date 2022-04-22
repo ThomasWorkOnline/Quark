@@ -1,3 +1,4 @@
+#include "qkpch.h"
 #include "MemoryMetrics.h"
 
 #ifdef QK_MEMORY_METRICS

@@ -1,3 +1,4 @@
+#include "qkpch.h"
 #include "OrthographicCamera.h"
 
 namespace Quark {

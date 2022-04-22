@@ -1,3 +1,4 @@
+#include "qkpch.h"
 #include "Entity.h"
 
 namespace Quark {

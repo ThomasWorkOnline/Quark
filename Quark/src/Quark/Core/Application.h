@@ -2,7 +2,6 @@
 
 #include "Core.h"
 
-#include "AppOptions.h"
 #include "Layer.h"
 #include "Window.h"
 
@@ -18,6 +17,30 @@ namespace Quark {
 	/// Client entry point: must be defined by client
 	///
 	extern int Main(int argc, char** argv);
+
+	enum ApplicationFlag
+	{
+		ApplicationNoFlags = 0,
+		ShowApiInWindowTitle = BIT(0)
+	};
+
+	struct ApplicationOptions
+	{
+		uint32_t Width = 1280, Height = 720;
+		std::string Title = "Quark Engine";
+		ApplicationFlag Flags = ApplicationNoFlags;
+
+		bool HasFlag(ApplicationFlag flag) const { return Flags & flag; }
+
+		ApplicationOptions() = default;
+		ApplicationOptions(
+			uint32_t width, uint32_t height,
+			const std::string& title,
+			ApplicationFlag flags = ApplicationNoFlags
+		)
+			: Width(width), Height(height),
+			Title(title), Flags(flags) {}
+	};
 
 	class Application
 	{

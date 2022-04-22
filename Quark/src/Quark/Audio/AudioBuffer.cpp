@@ -1,3 +1,4 @@
+#include "qkpch.h"
 #include "AudioBuffer.h"
 
 #include "Platform/OpenAL/OpenALBuffer.h"

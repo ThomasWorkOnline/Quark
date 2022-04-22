@@ -1,10 +1,10 @@
+#include "qkpch.h"
 #include "Mesh.h"
-#include "Baked/Cube.h"
 
+#include "Baked/Cube.h"
 #include "Quark/Filesystem/Filesystem.h"
 
 #include <charconv>
-#include <string_view>
 #include <vector>
 
 namespace Quark {
