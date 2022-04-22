@@ -1,3 +1,4 @@
+#include "qkpch.h"
 #include "OpenGLTextureArray.h"
 #include "OpenGLTextureFormats.h"
 

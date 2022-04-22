@@ -1,3 +1,4 @@
+#include "qkpch.h"
 #include "OpenALAudioSource.h"
 
 #include "OpenALCore.h"

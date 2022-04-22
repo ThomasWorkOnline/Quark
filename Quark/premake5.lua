@@ -15,7 +15,7 @@ project "Quark"
 	objdir ("%{wks.location}/bin-int/" .. outputdir .. "/%{prj.name}")
 
 	pchheader "qkpch.h"
-	pchsource "qkpch.cpp"
+	pchsource "src/qkpch.cpp"
 
 	files
 	{
