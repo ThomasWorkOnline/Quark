@@ -34,3 +34,13 @@
 #else
 #error "Unknown platform is not supported by default"
 #endif
+
+#ifdef QK_DEBUG
+#	define QK_CONFIG "debug"
+#elif defined(QK_RELEASE)
+#	define QK_CONFIG "release"
+#elif defined(QK_DIST)
+#	define QK_CONFIG "dist"
+#else
+#	error "Undefined build configuration"
+#endif

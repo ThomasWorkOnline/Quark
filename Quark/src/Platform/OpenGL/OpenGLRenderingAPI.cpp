@@ -28,7 +28,7 @@ namespace Quark {
 
     void OpenGLRenderingAPI::Init()
     {
-        QK_SCOPE_TIMER(OpenGLRenderingAPI::Init);
+        QK_PROFILE_FUNCTION();
 
 #ifdef QK_DEBUG
         if (GLVersion.major >= 4 && GLVersion.minor >= 3)

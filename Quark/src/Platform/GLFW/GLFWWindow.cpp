@@ -48,7 +48,7 @@ namespace Quark {
 
 	void GLFWWindow::Init(const WindowSpecification& spec)
 	{
-		QK_SCOPE_TIMER(GLFWWindow::Init);
+		QK_PROFILE_FUNCTION();
 
 		m_Data.Width	= spec.Width;
 		m_Data.Height	= spec.Height;
@@ -261,7 +261,7 @@ namespace Quark {
 
 	void GLFWWindow::Shutdown()
 	{
-		QK_SCOPE_TIMER(GLFWWindow::Shutdown);
+		QK_PROFILE_FUNCTION();
 
 		m_Context.reset();
 		glfwDestroyWindow(m_Window);

@@ -39,7 +39,7 @@ namespace Quark {
 	OpenGLFramebuffer::OpenGLFramebuffer(const FramebufferSpecification& spec)
 		: m_Spec(spec)
 	{
-		QK_SCOPE_TIMER(OpenGLFramebuffer::OpenGLFramebuffer);
+		QK_PROFILE_FUNCTION();
 
 		for (const auto& s : m_Spec.Attachments)
 		{
@@ -58,7 +58,7 @@ namespace Quark {
 
 	OpenGLFramebuffer::~OpenGLFramebuffer()
 	{
-		QK_SCOPE_TIMER(OpenGLFramebuffer::~OpenGLFramebuffer);
+		QK_PROFILE_FUNCTION();
 
 		glDeleteFramebuffers(1, &m_RendererID);
 		glDeleteTextures(m_ColorAttachments.size(), m_ColorAttachments.data());
@@ -105,7 +105,7 @@ namespace Quark {
 
 	void OpenGLFramebuffer::Invalidate()
 	{
-		QK_SCOPE_TIMER(OpenGLFramebuffer::Invalidate);
+		QK_PROFILE_FUNCTION();
 
 		if (m_RendererID)
 		{

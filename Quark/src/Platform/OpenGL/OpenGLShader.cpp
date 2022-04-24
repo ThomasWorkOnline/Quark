@@ -27,7 +27,7 @@ namespace Quark {
 
 	OpenGLShader::OpenGLShader(std::string_view filepath)
 	{
-		QK_SCOPE_TIMER(OpenGLShader::OpenGLShader);
+		QK_PROFILE_FUNCTION();
 
 		std::string source = Filesystem::ReadTextFile(filepath);
 		auto shaderSources = PreProcess(source);
@@ -44,7 +44,7 @@ namespace Quark {
 	OpenGLShader::OpenGLShader(const std::string& name, std::string_view vertexSource, std::string_view fragmentSource)
 		: m_Name(name)
 	{
-		QK_SCOPE_TIMER(OpenGLShader::OpenGLShader);
+		QK_PROFILE_FUNCTION();
 
 		std::unordered_map<GLenum, std::string_view> sources;
 		sources[GL_VERTEX_SHADER]   = vertexSource;
@@ -55,7 +55,7 @@ namespace Quark {
 	OpenGLShader::OpenGLShader(const std::string& name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource)
 		: m_Name(name)
 	{
-		QK_SCOPE_TIMER(OpenGLShader::OpenGLShader);
+		QK_PROFILE_FUNCTION();
 
 		std::unordered_map<GLenum, std::string_view> sources;
 		sources[GL_VERTEX_SHADER]   = vertexSource;

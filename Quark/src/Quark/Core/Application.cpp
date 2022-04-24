@@ -19,8 +19,9 @@ namespace Quark {
 
 	Application::~Application()
 	{
+		QK_PROFILE_FUNCTION();
+
 		QK_CORE_TRACE("Initiating shutdown...");
-		QK_SCOPE_TIMER(Application::~Application);
 
 		for (size_t i = 0; i < m_Layers.size(); i++)
 			delete m_Layers[i];
@@ -40,26 +41,36 @@ namespace Quark {
 
 		while (m_Running)
 		{
-			RenderCommand::Clear();
+			{
+				QK_PROFILE_SCOPE(RenderCommand::Clear);
+				RenderCommand::Clear();
+			}
 
 			auto tNow = std::chrono::steady_clock::now();
 			float elapsedTime = std::chrono::duration<float>(tNow - tStart).count();
 			tStart = tNow;
 
 			m_TotalTime += elapsedTime;
-			OnUpdate(elapsedTime);
 
-			// Don't use iterator based for loops; we might modify the layer stack in OnUpdate()
-			for (size_t i = 0; i < m_Layers.size(); i++)
-				m_Layers[i]->OnUpdate(elapsedTime);
+			{
+				QK_PROFILE_SCOPE(Application::OnUpdate);
+				OnUpdate(elapsedTime);
 
-			m_Window->OnUpdate();
+				// Don't use iterator based for loops; we might modify the layer stack in OnUpdate()
+				for (size_t i = 0; i < m_Layers.size(); i++)
+					m_Layers[i]->OnUpdate(elapsedTime);
+			}
+
+			{
+				QK_PROFILE_SCOPE(Window::OnUpdate);
+				m_Window->OnUpdate();
+			}
 		}
 	}
 
 	void Application::Initialize()
 	{
-		QK_SCOPE_TIMER(Application::Initialize);
+		QK_PROFILE_FUNCTION();
 
 		s_Instance = this;
 		m_AppMainThreadId = std::this_thread::get_id();
@@ -86,6 +97,8 @@ namespace Quark {
 
 	void Application::OnEventInternal(Event& e)
 	{
+		QK_PROFILE_FUNCTION();
+
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowClosedEvent>(ATTACH_EVENT_FN(Application::OnWindowClosed));
 		dispatcher.Dispatch<WindowResizedEvent>(ATTACH_EVENT_FN(Application::OnWindowResized));

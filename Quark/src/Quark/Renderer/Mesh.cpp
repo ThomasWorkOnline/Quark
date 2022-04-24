@@ -190,7 +190,7 @@ namespace Quark {
 
 	void Mesh::LoadOBJFromFile(std::string_view filepath, const MeshDescriptor& descriptor)
 	{
-		QK_SCOPE_TIMER(Mesh::LoadOBJFromFile);
+		QK_PROFILE_FUNCTION();
 
 		OBJData data;
 		ReadOBJData(filepath, data, descriptor);

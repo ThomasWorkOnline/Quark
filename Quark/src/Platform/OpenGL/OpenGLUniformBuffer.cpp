@@ -7,6 +7,8 @@ namespace Quark {
 
 	OpenGLUniformBuffer::OpenGLUniformBuffer(size_t size, uint32_t binding)
 	{
+		QK_PROFILE_FUNCTION();
+
 		glGenBuffers(1, &m_RendererID);
 		glBindBuffer(GL_UNIFORM_BUFFER, m_RendererID);
 		glBufferData(GL_UNIFORM_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);

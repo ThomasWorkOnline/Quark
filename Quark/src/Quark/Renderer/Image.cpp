@@ -9,7 +9,7 @@ namespace Quark {
 
 	Image::Image(std::string_view filepath, const ImageDescriptor& descriptor)
 	{
-		QK_SCOPE_TIMER(Image::Image);
+		QK_PROFILE_FUNCTION();
 
 		stbi_set_flip_vertically_on_load_thread(descriptor.FlipVertically);
 
@@ -30,7 +30,7 @@ namespace Quark {
 
 	Image::~Image()
 	{
-		QK_SCOPE_TIMER(Image::~Image);
+		QK_PROFILE_FUNCTION();
 
 		stbi_image_free(m_Data);
 	}

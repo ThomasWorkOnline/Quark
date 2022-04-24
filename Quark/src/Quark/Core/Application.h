@@ -13,11 +13,6 @@
 
 namespace Quark {
 
-	///
-	/// Client entry point: must be defined by client
-	///
-	extern int Main(int argc, char** argv);
-
 	enum ApplicationFlag
 	{
 		ApplicationNoFlags = 0,
@@ -87,4 +82,9 @@ namespace Quark {
 		float m_TotalTime = 0.0f;
 		bool m_Running = false;
 	};
+
+	///
+	/// Client entry point: must be defined by client
+	///
+	extern Application* CreateApplication();
 }

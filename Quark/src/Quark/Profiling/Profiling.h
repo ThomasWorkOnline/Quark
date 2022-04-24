@@ -1,41 +1,77 @@
 #pragma once
 
 #include "Quark/Core/Core.h"
-
-#if defined(QK_DEBUG) || defined(QK_RELEASE)
-#	define QK_ENABLE_PROFILING
-#endif
-
-#ifdef QK_ENABLE_PROFILING
-#	define QK_SCOPE_TIMER(scope) Quark::ScopeTimer scopeTimer(#scope)
-#else
-#	define QK_SCOPE_TIMER(scope)
-#endif
+#include "Quark/Core/FuncSig.h"
 
 #include <chrono>
+#include <fstream>
+#include <mutex>
+
+#if defined(QK_DEBUG) || defined(QK_RELEASE)
+#	define QK_ENABLE_PROFILING // <--- define QK_ENABLE_PROFILING before including quark to force profiling
+#endif
+
+//                                   vvv--- set this to true to enable verbose signatures
+#define QK_VERBOSE_FUNCTION_SIG     false
+#define QK_ENABLE_PROFILE_LOG       false
 
 namespace Quark {
 
-	class Timer
-	{
-	public:
-		void Start();
-		void Stop();
+	namespace Profiling {
 
-		double Milliseconds() const { return m_Elapsed.count() * 1000.0; }
+		struct InstrumentorProfile
+		{
+			const char* Scope;
+			std::chrono::microseconds Start;
+			std::chrono::microseconds Duration;
+			std::thread::id ThreadID;
+		};
 
-	protected:
-		std::chrono::steady_clock::time_point m_Start;
-		std::chrono::duration<double> m_Elapsed{};
-	};
+		class Instrumentor
+		{
+		public:
+			void BeginSession(const std::string& sessionName);
+			void EndSession();
+			void WriteProfile(const InstrumentorProfile& result);
 
-	class ScopeTimer : public Timer
-	{
-	public:
-		ScopeTimer(const char* scope);
-		~ScopeTimer();
+			static Instrumentor& Get();
 
-	private:
-		const char* m_Scope;
-	};
+		private:
+			void WriteHeader();
+			void WriteFooter();
+
+			std::mutex m_OutputMutex;
+			std::ofstream m_Output;
+		};
+
+		class Timer
+		{
+		public:
+			Timer(const char* scope);
+			~Timer();
+
+			void Stop();
+
+		private:
+			std::chrono::steady_clock::time_point m_Start;
+			const char* m_Scope;
+		};
+	}
 }
+
+#define CONCAT_IMPL(a, b) a ## b
+#define CONCAT(a, b) CONCAT_IMPL(a, b)
+
+#ifdef QK_ENABLE_PROFILING
+#	define QK_PROFILE_SCOPE(scope) ::Quark::Profiling::Timer CONCAT(profiler, __LINE__)(#scope)
+#	define QK_PROFILE_FUNCTION()   ::Quark::Profiling::Timer CONCAT(profiler, __LINE__)(QK_FUNCTION_SIG)
+
+#	define QK_BEGIN_PROFILE_SESSION(sessionName) ::Quark::Profiling::Instrumentor::Get().BeginSession(sessionName);
+#	define QK_END_PROFILE_SESSION()              ::Quark::Profiling::Instrumentor::Get().EndSession();
+#else
+#	define QK_PROFILE_SCOPE(scope)
+#	define QK_PROFILE_FUNCTION()
+
+#	define QK_BEGIN_PROFILE_SESSION(sessionName)
+#	define QK_END_PROFILE_SESSION()
+#endif

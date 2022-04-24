@@ -22,3 +22,6 @@ include
 lib
 bin
 bin-int
+
+# Instrumentation
+instrumentor

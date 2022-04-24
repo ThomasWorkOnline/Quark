@@ -14,7 +14,7 @@ namespace Quark {
 
 	OpenGLGraphicsContext::~OpenGLGraphicsContext()
 	{
-		QK_SCOPE_TIMER(OpenGLGraphicsContext::~OpenGLGraphicsContext);
+		QK_PROFILE_FUNCTION();
 
 		// Detaching the current context
 		glfwMakeContextCurrent(nullptr);
@@ -22,7 +22,7 @@ namespace Quark {
 
 	void OpenGLGraphicsContext::Init()
 	{
-		QK_SCOPE_TIMER(OpenGLGraphicsContext::Init);
+		QK_PROFILE_FUNCTION();
 
 		// Make the context before init OpenGL
 		glfwMakeContextCurrent(static_cast<GLFWwindow*>(m_WindowHandle));

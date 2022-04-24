@@ -19,7 +19,7 @@ namespace Quark {
 	OpenGLFont::OpenGLFont(std::string_view filepath, uint32_t fontSize)
 		: m_FontSize(fontSize)
 	{
-		QK_SCOPE_TIMER(OpenGLFont::OpenGLFont);
+		QK_PROFILE_FUNCTION();
 
 		if (s_FontCount == 0)
 			Init();
@@ -90,7 +90,7 @@ namespace Quark {
 
 	OpenGLFont::~OpenGLFont()
 	{
-		QK_SCOPE_TIMER(OpenGLFont::~OpenGLFont);
+		QK_PROFILE_FUNCTION();
 
 		glDeleteTextures(1, &m_RendererID);
 
@@ -119,7 +119,7 @@ namespace Quark {
 
 	void OpenGLFont::Init()
 	{
-		QK_SCOPE_TIMER(OpenGLFont::Init);
+		QK_PROFILE_FUNCTION();
 
 		FT_Error error = FT_Init_FreeType(&s_Library);
 		QK_CORE_ASSERT(error == FT_Err_Ok, "Could not initialize freetype!");
@@ -127,7 +127,7 @@ namespace Quark {
 
 	void OpenGLFont::Shutdown()
 	{
-		QK_SCOPE_TIMER(OpenGLFont::Shutdown);
+		QK_PROFILE_FUNCTION();
 
 		FT_Done_FreeType(s_Library);
 	}

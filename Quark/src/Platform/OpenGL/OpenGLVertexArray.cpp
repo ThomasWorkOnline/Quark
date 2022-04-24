@@ -35,6 +35,8 @@ namespace Quark {
 
 	OpenGLVertexArray::OpenGLVertexArray()
 	{
+		QK_PROFILE_FUNCTION();
+
         glGenVertexArrays(1, &m_RendererID);
 	}
 
@@ -55,6 +57,8 @@ namespace Quark {
 
 	void OpenGLVertexArray::AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer)
 	{
+		QK_PROFILE_FUNCTION();
+
 		QK_CORE_ASSERT(vertexBuffer, "Vertex Buffer is empty");
 		QK_CORE_ASSERT(vertexBuffer->GetLayout().GetElements().size() != 0, "Vertex buffer has no layout");
 

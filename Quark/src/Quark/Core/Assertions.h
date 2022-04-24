@@ -17,8 +17,7 @@
 #	elif defined(QK_PLATFORM_APPLE)
 #		define QK_DEBUGBREAK() abort()
 #	else
-		// Missing debugbreak implementation for platform
-#		define QK_DEBUGBREAK()
+#		error "Missing debugbreak implementation for platform"
 #	endif
 #else
 #	define QK_DEBUGBREAK()

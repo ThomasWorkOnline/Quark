@@ -9,6 +9,8 @@ namespace Quark {
 	OpenGLTexture2DArray::OpenGLTexture2DArray(const TextureArraySpecification& spec)
 		: m_Spec(spec)
 	{
+		QK_PROFILE_FUNCTION();
+
 		m_InternalFormat = GetTextureInternalFormat(m_Spec.InternalFormat);
 		m_DataFormat = GetTextureDataFormat(m_Spec.DataFormat);
 
@@ -50,6 +52,8 @@ namespace Quark {
 
 	void OpenGLTexture2DArray::GenerateMipmaps()
 	{
+		QK_PROFILE_FUNCTION();
+
 		QK_ASSERT(m_Spec.Samples == 1, "Texture is multisampled. Mipmaps are not intended");
 
 		glBindTexture(GL_TEXTURE_2D_ARRAY, m_RendererID);

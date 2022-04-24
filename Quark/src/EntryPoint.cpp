@@ -1,5 +1,26 @@
 #include "qkpch.h"
 #include "Quark/Core/Application.h"
+#include "Quark/Profiling/Profiling.h"
+
+namespace Quark {
+
+	static int Main(int argc, char** argv)
+	{
+		QK_BEGIN_PROFILE_SESSION("startup.json");
+		auto app = Quark::CreateApplication();
+		QK_END_PROFILE_SESSION();
+
+		QK_BEGIN_PROFILE_SESSION("runtime.json");
+		app->Run();
+		QK_END_PROFILE_SESSION();
+
+		QK_BEGIN_PROFILE_SESSION("shutdown.json");
+		delete app;
+		QK_END_PROFILE_SESSION();
+
+		return 0;
+	}
+}
 
 #if defined(QK_PLATFORM_WINDOWS) && defined(QK_DIST)
 #include <Windows.h>

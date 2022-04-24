@@ -315,7 +315,7 @@ namespace Quark {
 
 	void Renderer2D::Initialize()
 	{
-		QK_SCOPE_TIMER(Renderer2D::Initialize);
+		QK_PROFILE_FUNCTION();
 
 		s_Data = new Renderer2DData();
 		s_Data->MaxSamplers = RenderCommand::GetMaxTextureSlots();
@@ -329,7 +329,7 @@ namespace Quark {
 
 	void Renderer2D::Dispose()
 	{
-		QK_SCOPE_TIMER(Renderer2D::Dispose);
+		QK_PROFILE_FUNCTION();
 
 		delete[] s_Data->QuadVertices;
 		delete[] s_Data->FontVertices;
@@ -341,7 +341,7 @@ namespace Quark {
 
 	void Renderer2D::SetupQuadRenderer(Renderer2DSetupData& setupData)
 	{
-		QK_SCOPE_TIMER(Renderer2D::SetupQuadRenderer);
+		QK_PROFILE_FUNCTION();
 
 		s_Data->QuadVertexArray = VertexArray::Create();
 
@@ -439,7 +439,7 @@ namespace Quark {
 
 	void Renderer2D::SetupFontRenderer(Renderer2DSetupData& setupData)
 	{
-		QK_SCOPE_TIMER(Renderer2D::SetupFontRenderer);
+		QK_PROFILE_FUNCTION();
 
 		s_Data->FontVertexArray = VertexArray::Create();
 
@@ -527,7 +527,7 @@ namespace Quark {
 
 	void Renderer2D::SetupLineRenderer()
 	{
-		QK_SCOPE_TIMER(Renderer2D::SetupLineRenderer);
+		QK_PROFILE_FUNCTION();
 
 		s_Data->LineVertexArray = VertexArray::Create();
 

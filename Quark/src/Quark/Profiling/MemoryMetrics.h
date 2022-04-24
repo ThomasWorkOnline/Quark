@@ -3,8 +3,8 @@
 #include "Quark/Core/Core.h"
 #include <atomic>
 
-//          v--- define ENABLE_METRICS to enable memory profiling
-#if defined(ENABLE_METRICS) || defined(QK_DEBUG)
+//          v--- define QK_ENABLE_METRICS to enable memory profiling
+#if defined(QK_ENABLE_METRICS) || defined(QK_DEBUG)
 #	define QK_MEMORY_METRICS
 #endif
 

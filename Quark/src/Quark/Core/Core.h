@@ -37,9 +37,10 @@ namespace Quark {
 // GLM standards configuration
 #include "Quark/Math/Types.h"
 
-#include "Logger.h"
 #include "Assertions.h"
+#include "FuncSig.h"
+#include "Logger.h"
 #include "Timestep.h"
 
-#include "Quark/Metrics/MemoryMetrics.h"
+#include "Quark/Profiling/MemoryMetrics.h"
 #include "Quark/Profiling/Profiling.h"

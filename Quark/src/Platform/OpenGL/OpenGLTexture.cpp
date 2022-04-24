@@ -16,7 +16,7 @@ namespace Quark {
 	OpenGLTexture2D::OpenGLTexture2D(const TextureSpecification& spec)
 		: m_Spec(spec)
 	{
-		QK_SCOPE_TIMER(OpenGLTexture2D::OpenGLTexture2D);
+		QK_PROFILE_FUNCTION();
 
 		m_InternalFormat = GetTextureInternalFormat(m_Spec.InternalFormat);
 		m_DataFormat = GetTextureDataFormat(m_Spec.DataFormat);
@@ -45,7 +45,7 @@ namespace Quark {
 
 	OpenGLTexture2D::OpenGLTexture2D(std::string_view filepath, const TextureDescriptor& descriptor)
 	{
-		QK_SCOPE_TIMER(OpenGLTexture2D::OpenGLTexture2D);
+		QK_PROFILE_FUNCTION();
 
 		ImageDescriptor imageDescriptor;
 		Image image(filepath, imageDescriptor);
@@ -115,8 +115,6 @@ namespace Quark {
 
 	OpenGLTexture2D::~OpenGLTexture2D()
 	{
-		QK_SCOPE_TIMER(OpenGLTexture2D::~OpenGLTexture2D);
-
 		glDeleteTextures(1, &m_RendererID);
 	}
 

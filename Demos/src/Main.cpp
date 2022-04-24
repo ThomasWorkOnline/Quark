@@ -3,11 +3,8 @@
 
 namespace Quark {
 
-	int Main(int argc, char** argv)
+	Application* CreateApplication()
 	{
-		auto test = CreateScope<PBRRendering>();
-		test->Run();
-
-		return 0;
+		return new PBRRendering();
 	}
 }

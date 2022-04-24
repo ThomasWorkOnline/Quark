@@ -7,6 +7,8 @@ namespace Quark {
 
     OpenGLVertexBuffer::OpenGLVertexBuffer(size_t size)
     {
+        QK_PROFILE_FUNCTION();
+
         glGenBuffers(1, &m_RendererID);
         glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
         glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
@@ -14,6 +16,8 @@ namespace Quark {
 
     OpenGLVertexBuffer::OpenGLVertexBuffer(const void* vertices, size_t size)
     {
+        QK_PROFILE_FUNCTION();
+
         glGenBuffers(1, &m_RendererID);
         glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
         glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
@@ -43,6 +47,8 @@ namespace Quark {
     OpenGLIndexBuffer::OpenGLIndexBuffer(uint32_t count)
         : m_Count(count)
     {
+        QK_PROFILE_FUNCTION();
+
         glGenBuffers(1, &m_RendererID);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), nullptr, GL_DYNAMIC_DRAW);
@@ -51,6 +57,8 @@ namespace Quark {
     OpenGLIndexBuffer::OpenGLIndexBuffer(const uint32_t* indices, uint32_t count)
         : m_Count(count)
     {
+        QK_PROFILE_FUNCTION();
+
         glGenBuffers(1, &m_RendererID);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), indices, GL_STATIC_DRAW);

@@ -39,7 +39,8 @@ namespace Quark {
 
 	OpenALAudioBuffer::OpenALAudioBuffer(std::string_view filepath)
 	{
-		QK_SCOPE_TIMER(OpenALAudioBuffer::OpenALAudioBuffer);
+		QK_PROFILE_FUNCTION();
+
 		QK_CORE_ASSERT(filepath.rfind(".wav") != std::string::npos, "Quark only supports .wav formats");
 
 		WavHeader header{};
@@ -76,7 +77,7 @@ namespace Quark {
 	OpenALAudioBuffer::OpenALAudioBuffer(const AudioBufferSpecification& spec, const void* data)
 		: m_Spec(spec)
 	{
-		QK_SCOPE_TIMER(OpenALAudioBuffer::OpenALAudioBuffer);
+		QK_PROFILE_FUNCTION();
 
 		ALCALL(alGenBuffers(1, &m_BufferID));
 		ALCALL(alBufferData(m_BufferID, GetAudioFormat(spec.Format), data, spec.Size, spec.Samplerate));
@@ -86,6 +87,8 @@ namespace Quark {
 
 	OpenALAudioBuffer::~OpenALAudioBuffer()
 	{
+		QK_PROFILE_FUNCTION();
+
 		ALCALL(alDeleteBuffers(1, &m_BufferID));
 	}
 }

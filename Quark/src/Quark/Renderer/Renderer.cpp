@@ -28,7 +28,7 @@ namespace Quark {
 
 	void Renderer::Initialize()
 	{
-		QK_SCOPE_TIMER(Renderer::Initialize);
+		QK_PROFILE_FUNCTION();
 
 		RenderCommand::Init();
 		RenderCommand::SetClearColor({ 0.01f, 0.01f, 0.01f, 1.0f });
@@ -54,6 +54,8 @@ namespace Quark {
 
 	void Renderer::Dispose()
 	{
+		QK_PROFILE_FUNCTION();
+
 		Renderer2D::Dispose();
 		delete s_Data;
 	}

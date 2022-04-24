@@ -14,7 +14,7 @@ namespace Quark {
 
 	OpenALAudioContext::~OpenALAudioContext()
 	{
-		QK_SCOPE_TIMER(OpenALAudioContext::~OpenALAudioContext);
+		QK_PROFILE_FUNCTION();
 
 		ALCALL(alcMakeContextCurrent(nullptr));
 		ALCALL(alcDestroyContext(m_Context));
@@ -22,7 +22,7 @@ namespace Quark {
 
 	void OpenALAudioContext::Init()
 	{
-		QK_SCOPE_TIMER(OpenALAudioContext::Init);
+		QK_PROFILE_FUNCTION();
 
 		m_Context = ALCALL(alcCreateContext(static_cast<ALCdevice*>(m_DeviceHandle), nullptr));
 

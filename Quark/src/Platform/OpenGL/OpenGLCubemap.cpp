@@ -9,7 +9,7 @@ namespace Quark {
 	OpenGLCubemap::OpenGLCubemap(const CubemapSpecification& spec)
 		: m_Spec(spec)
 	{
-		QK_SCOPE_TIMER(OpenGLCubemap::OpenGLCubemap);
+		QK_PROFILE_FUNCTION();
 
 		glGenTextures(1, &m_RendererID);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, m_RendererID);
@@ -31,8 +31,6 @@ namespace Quark {
 	
 	OpenGLCubemap::~OpenGLCubemap()
 	{
-		QK_SCOPE_TIMER(OpenGLCubemap::~OpenGLCubemap);
-
 		glDeleteTextures(1, &m_RendererID);
 	}
 	
