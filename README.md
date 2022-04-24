@@ -75,30 +75,26 @@ class YourApplication : public Quark::Application
 Quark already provides the default entry point for launching your program.
 Redefining `main()` will cause a duplicate symbol linking error.
 
-Use `Quark::Main()` as shown in this snippet below:
+Use `Quark::CreateApplication()` as shown in this snippet below:
 
 Note: *On Windows distribution builds, the app with launch without the console using the builtin WinMain() entry point (see [EntryPoint.cpp](https://github.com/ThomasWorkOnline/Quark/blob/main/Quark/src/EntryPoint.cpp) for details)*
 
 ```c++
 namespace Quark {
 
-	int Main(int argc, char** argv)
+	Application* CreateApplication()
 	{
-		auto app = CreateScope<YourApplication>();
-		app->Run();
-		return 0;
+		return new YourApplication();
 	}
 };
 ```
 
-Make sure to define `Main()` inside the Quark namespace.
+Make sure to define `CreateApplication()` inside the Quark namespace.
 
 Allocating an instance of your application can potentially be very memory heavy.
 Therefore, instantiating your application on the stack is not adviced.
-I suggest you dynamically allocate your app to prevent high stack usage which can lead to bugs and crashes.
-This is done using the `CreateScope<>` function that returns a `Scope<>` of your class type.
+By dynamically allocating your app, you prevent high stack usage which can lead to bugs and crashes.
 
-*A Scope will automatically manage the memory and call delete when the object is out of scope.*
 *If you wan't full details, see [Core.h](https://github.com/ThomasWorkOnline/Quark/blob/main/Quark/src/Quark/Core/Core.h)*
 
 <ins>**3. Implementing some functionality**</ins>
