@@ -20,7 +20,6 @@ namespace Quark {
 	{
 	public:
 		using EventCallbackFn = std::function<void(Event&)>;
-
 		virtual ~Window() = default;
 
 		virtual void SetEventCallback(const EventCallbackFn& callback) = 0;

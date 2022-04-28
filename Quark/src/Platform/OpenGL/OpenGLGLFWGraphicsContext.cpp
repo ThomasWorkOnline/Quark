@@ -1,18 +1,18 @@
 #include "qkpch.h"
-#include "OpenGLGraphicsContext.h"
+#include "OpenGLGLFWGraphicsContext.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 namespace Quark {
 
-	OpenGLGraphicsContext::OpenGLGraphicsContext(void* windowHandle)
-		: m_WindowHandle(windowHandle)
+	OpenGLGLFWGraphicsContext::OpenGLGLFWGraphicsContext(void* windowHandle)
+		: m_WindowHandle(static_cast<GLFWwindow*>(windowHandle))
 	{
-		QK_CORE_ASSERT(windowHandle, "Window handle is null");
+		QK_CORE_ASSERT(windowHandle, "Window handle is nullptr");
 	}
 
-	OpenGLGraphicsContext::~OpenGLGraphicsContext()
+	OpenGLGLFWGraphicsContext::~OpenGLGLFWGraphicsContext()
 	{
 		QK_PROFILE_FUNCTION();
 
@@ -20,20 +20,20 @@ namespace Quark {
 		glfwMakeContextCurrent(nullptr);
 	}
 
-	void OpenGLGraphicsContext::Init()
+	void OpenGLGLFWGraphicsContext::Init()
 	{
 		QK_PROFILE_FUNCTION();
 
 		// Make the context before init OpenGL
-		glfwMakeContextCurrent(static_cast<GLFWwindow*>(m_WindowHandle));
+		glfwMakeContextCurrent(m_WindowHandle);
 
 		int errorCode = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 		QK_CORE_ASSERT(errorCode == 1, "Failed to initialize OpenGL context");
 		QK_CORE_TRACE("Created OpenGL graphics context!");
 	}
 
-	void OpenGLGraphicsContext::SwapBuffers()
+	void OpenGLGLFWGraphicsContext::SwapBuffers()
 	{
-		glfwSwapBuffers(static_cast<GLFWwindow*>(m_WindowHandle));
+		glfwSwapBuffers(m_WindowHandle);
 	}
 }

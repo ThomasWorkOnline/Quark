@@ -25,7 +25,8 @@ project "Demos"
 		"Quark",
 		"freetype",
 		"Glad",
-		"GLFW"
+		"GLFW",
+		"spdlog"
 	}
 
 	filter "configurations:Debug"

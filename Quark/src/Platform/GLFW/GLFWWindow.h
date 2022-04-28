@@ -3,7 +3,7 @@
 #include "Quark/Core/Window.h"
 #include "Quark/Renderer/GraphicsContext.h"
 
-struct GLFWwindow;
+typedef struct GLFWwindow GLFWwindow;
 
 namespace Quark {
 
@@ -55,7 +55,7 @@ namespace Quark {
 			int32_t Xpos, Ypos;
 
 			bool VSync;
-			double CursorXpos = 0, CursorYpos = 0;
+			double CursorXpos, CursorYpos;
 
 			EventCallbackFn EventCallback;
 		};

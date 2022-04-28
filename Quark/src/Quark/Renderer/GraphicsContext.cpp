@@ -4,7 +4,12 @@
 #include "RenderingAPI.h"
 
 // Include all supported API's graphics context implementations
-#include "Platform/OpenGL/OpenGLGraphicsContext.h"
+
+#if defined(QK_PLATFORM_WINDOWS) && QK_USE_NATIVE_APIS
+#	include "Platform/OpenGL/OpenGLWin32GraphicsContext.h"
+#else
+#	include "Platform/OpenGL/OpenGLGLFWGraphicsContext.h"
+#endif
 
 namespace Quark {
 
@@ -13,7 +18,13 @@ namespace Quark {
 		switch (RenderingAPI::GetAPI())
 		{
 			case RenderingAPI::API::OpenGL:
-				return CreateScope<OpenGLGraphicsContext>(window);
+			{
+#if defined(QK_PLATFORM_WINDOWS) && QK_USE_NATIVE_APIS
+				return CreateScope<OpenGLWin32GraphicsContext>(window);
+#else
+				return CreateScope<OpenGLGLFWGraphicsContext>(window);
+#endif
+			}
 			default:
 				QK_CORE_FATAL("Rendering API not supported");
 				return nullptr;

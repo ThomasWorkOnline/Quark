@@ -337,4 +337,3 @@ GLFWAPI GLFWerrorfun glfwSetErrorCallback(GLFWerrorfun cbfun)
     _GLFW_SWAP_POINTERS(_glfwErrorCallback, cbfun);
     return cbfun;
 }
-

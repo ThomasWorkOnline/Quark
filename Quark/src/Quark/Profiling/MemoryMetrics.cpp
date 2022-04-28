@@ -1,7 +1,7 @@
 #include "qkpch.h"
 #include "MemoryMetrics.h"
 
-#ifdef QK_MEMORY_METRICS
+#if QK_ENABLE_MEMORY_METRICS
 
 void* operator new(size_t size)
 {

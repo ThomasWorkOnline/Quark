@@ -8,12 +8,8 @@
 #include <mutex>
 
 #if defined(QK_DEBUG) || defined(QK_RELEASE)
-#	define QK_ENABLE_PROFILING // <--- define QK_ENABLE_PROFILING before including quark to force profiling
+#	define QK_ENABLE_PROFILING // <--- define QK_ENABLE_PROFILING to force profiling (see Core/Tweaks.h)
 #endif
-
-//                                   vvv--- set this to true to enable verbose signatures
-#define QK_VERBOSE_FUNCTION_SIG     false
-#define QK_ENABLE_PROFILE_LOG       false
 
 namespace Quark {
 

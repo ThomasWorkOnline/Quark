@@ -41,10 +41,8 @@ namespace Quark {
 
 		while (m_Running)
 		{
-			{
-				QK_PROFILE_SCOPE(RenderCommand::Clear);
-				RenderCommand::Clear();
-			}
+			QK_PROFILE_SCOPE(Application::NewFrame);
+			RenderCommand::Clear();
 
 			auto tNow = std::chrono::steady_clock::now();
 			float elapsedTime = std::chrono::duration<float>(tNow - tStart).count();

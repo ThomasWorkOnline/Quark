@@ -3,6 +3,7 @@ group "Dependencies"
 	include "vendor/freetype"
 	include "vendor/glad"
 	include "vendor/glfw"
+	include "vendor/spdlog"
 group ""
 
 project "Quark"
@@ -46,7 +47,8 @@ project "Quark"
 	{
 		"freetype",
 		"Glad",
-		"GLFW"
+		"GLFW",
+		"spdlog"
 	}
 
 	filter "configurations:Debug"

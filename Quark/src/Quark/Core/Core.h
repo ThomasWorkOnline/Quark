@@ -2,6 +2,7 @@
 
 // Platform detection
 #include "Platform.h"
+#include "Tweaks.h"
 
 #include <functional>
 #include <memory>

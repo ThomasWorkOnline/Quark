@@ -3,9 +3,9 @@
 #include "Quark/Core/Core.h"
 #include <atomic>
 
-//          v--- define QK_ENABLE_METRICS to enable memory profiling
-#if defined(QK_ENABLE_METRICS) || defined(QK_DEBUG)
-#	define QK_MEMORY_METRICS
+//          v--- define QK_ENABLE_ALL_METRICS to enable memory profiling
+#if defined(QK_ENABLE_ALL_METRICS) || defined(QK_DEBUG)
+#	define QK_ENABLE_MEMORY_METRICS 1
 #endif
 
 namespace Quark {
@@ -22,7 +22,7 @@ namespace Quark {
 	};
 }
 
-#ifdef QK_MEMORY_METRICS
+#if QK_ENABLE_MEMORY_METRICS
 
 [[nodiscard]]
 void* operator new(size_t size);
