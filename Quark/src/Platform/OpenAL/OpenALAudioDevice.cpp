@@ -8,6 +8,8 @@ namespace Quark {
 
 	OpenALAudioOutputDevice::OpenALAudioOutputDevice()
 	{
+		QK_PROFILE_FUNCTION();
+
 		m_Device = ALCALL(alcOpenDevice(nullptr));
 
 		m_Context = AudioContext::Create(m_Device);
@@ -16,6 +18,8 @@ namespace Quark {
 
 	OpenALAudioOutputDevice::OpenALAudioOutputDevice(std::string_view deviceName)
 	{
+		QK_PROFILE_FUNCTION();
+
 		m_Device = ALCALL(alcOpenDevice(deviceName.data()));
 
 		m_Context = AudioContext::Create(m_Device);
@@ -24,25 +28,31 @@ namespace Quark {
 
 	OpenALAudioOutputDevice::~OpenALAudioOutputDevice()
 	{
+		QK_PROFILE_FUNCTION();
+
 		m_Context.reset();
 		ALCALL(alcCloseDevice(m_Device));
 	}
 
 	const char* OpenALAudioOutputDevice::GetDeviceName() const
 	{
-		const char* name = nullptr;
+		QK_PROFILE_FUNCTION();
+
+		if (m_DeviceName)
+			return m_DeviceName;
+
 		ALCALL(bool extension = alcIsExtensionPresent(m_Device, "ALC_ENUMERATE_ALL_EXT"));
 
 		if (extension)
 		{
-			name = ALCALL(alcGetString(m_Device, ALC_ALL_DEVICES_SPECIFIER));
+			m_DeviceName = ALCALL(alcGetString(m_Device, ALC_ALL_DEVICES_SPECIFIER));
 		}
 		else
 		{
-			name = ALCALL(alcGetString(m_Device, ALC_DEVICE_SPECIFIER));
+			m_DeviceName = ALCALL(alcGetString(m_Device, ALC_DEVICE_SPECIFIER));
 		}
 
-		QK_CORE_ASSERT(name, "Could not get audio device name!");
-		return name;
+		QK_CORE_ASSERT(m_DeviceName, "Could not get output device name!");
+		return m_DeviceName;
 	}
 }

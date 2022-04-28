@@ -7,7 +7,7 @@
 
 namespace Quark {
 
-	namespace Profiling {
+	namespace Profile {
 
 		struct InstrumentorSettings
 		{
@@ -34,8 +34,8 @@ namespace Quark {
 			json << std::setprecision(3) << std::fixed;
 			json << ",{";
 			json << "\"cat\":\"function\",";
-			json << "\"dur\":" << (result.Duration.count()) << ',';
-			json << "\"name\":\"" << result.Scope << "\",";
+			json << "\"dur\":" << result.Duration.count() << ',';
+			json << "\"name\":\"" << result.ScopeName << "\",";
 			json << "\"ph\":\"X\",";
 			json << "\"pid\":0,";
 			json << "\"tid\":" << result.ThreadID << ',';
@@ -84,7 +84,7 @@ namespace Quark {
 			auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - m_Start);
 
 			InstrumentorProfile result;
-			result.Scope = m_Scope;
+			result.ScopeName = m_Scope;
 			result.Start = std::chrono::time_point_cast<std::chrono::microseconds>(m_Start).time_since_epoch();
 			result.Duration = elapsed;
 			result.ThreadID = std::this_thread::get_id();

@@ -20,5 +20,7 @@ namespace Quark {
 	private:
 		ALCdevice* m_Device;
 		Scope<AudioContext> m_Context;
+
+		mutable const char* m_DeviceName = nullptr; // ptr only is mutable
 	};
 }

@@ -17,11 +17,11 @@
 
 namespace Quark {
 
-	namespace Profiling {
+	namespace Profile {
 
 		struct InstrumentorProfile
 		{
-			const char* Scope;
+			const char* ScopeName;
 			std::chrono::microseconds Start;
 			std::chrono::microseconds Duration;
 			std::thread::id ThreadID;
@@ -63,11 +63,11 @@ namespace Quark {
 #define CONCAT(a, b) CONCAT_IMPL(a, b)
 
 #ifdef QK_ENABLE_PROFILING
-#	define QK_PROFILE_SCOPE(scope) ::Quark::Profiling::Timer CONCAT(profiler, __LINE__)(#scope)
-#	define QK_PROFILE_FUNCTION()   ::Quark::Profiling::Timer CONCAT(profiler, __LINE__)(QK_FUNCTION_SIG)
+#	define QK_PROFILE_SCOPE(scope) ::Quark::Profile::Timer CONCAT(profiler, __LINE__)(#scope)
+#	define QK_PROFILE_FUNCTION()   ::Quark::Profile::Timer CONCAT(profiler, __LINE__)(QK_FUNCTION_SIG)
 
-#	define QK_BEGIN_PROFILE_SESSION(sessionName) ::Quark::Profiling::Instrumentor::Get().BeginSession(sessionName);
-#	define QK_END_PROFILE_SESSION()              ::Quark::Profiling::Instrumentor::Get().EndSession();
+#	define QK_BEGIN_PROFILE_SESSION(sessionName) ::Quark::Profile::Instrumentor::Get().BeginSession(sessionName);
+#	define QK_END_PROFILE_SESSION()              ::Quark::Profile::Instrumentor::Get().EndSession();
 #else
 #	define QK_PROFILE_SCOPE(scope)
 #	define QK_PROFILE_FUNCTION()
