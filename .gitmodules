@@ -3,4 +3,4 @@
 	url = https://github.com/g-truc/glm
 [submodule "Quark/vendor/spdlog"]
 	path = Quark/vendor/spdlog
-	url = https://github.com/gabime/spdlog.git
+	url = https://github.com/ThomasWorkOnline/spdlog.git
