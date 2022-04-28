@@ -5,7 +5,7 @@ Designed for learning purposes.
 Official support for macOS and Linux is on it's way!
 
 ***
-![Splash](Demos/docs/Splash.PNG)
+![Splash](Quark/docs/Splash.PNG)
 
 # Installation & Setup
 
@@ -77,7 +77,7 @@ Redefining `main()` will cause a duplicate symbol linking error.
 
 Use `Quark::CreateApplication()` as shown in this snippet below:
 
-Note: *On Windows distribution builds, the app with launch without the console using the builtin WinMain() entry point (see [EntryPoint.cpp](https://github.com/ThomasWorkOnline/Quark/blob/main/Quark/src/EntryPoint.cpp) for details)*
+Note: *On Windows distribution builds, the app with launch without the console using the builtin WinMain() entry point (see [EntryPoint.cpp](Quark/src/EntryPoint.cpp) for details)*
 
 ```c++
 namespace Quark {
@@ -95,7 +95,7 @@ Allocating an instance of your application can potentially be very memory heavy.
 Therefore, instantiating your application on the stack is not adviced.
 By dynamically allocating your app, you prevent high stack usage which can lead to bugs and crashes.
 
-*If you wan't full details, see [Core.h](https://github.com/ThomasWorkOnline/Quark/blob/main/Quark/src/Quark/Core/Core.h)*
+*If you wan't full details, see [Core.h](Quark/src/Quark/Core/Core.h)*
 
 <ins>**3. Implementing some functionality**</ins>
 ```c++
@@ -197,8 +197,8 @@ In order for Quark to render objects, we have to give it information about our s
 Let's start by creating a camera object that will hold our scene projection.
 
 ## Camera types
-[OrthographicCamera](https://github.com/ThomasWorkOnline/Quark/blob/main/Quark/src/Quark/Renderer/OrthographicCamera.h)
-[PerspectiveCamera](https://github.com/ThomasWorkOnline/Quark/blob/main/Quark/src/Quark/Renderer/PerspectiveCamera.h)
+[OrthographicCamera](Quark/src/Quark/Renderer/OrthographicCamera.h)
+[PerspectiveCamera](Quark/src/Quark/Renderer/PerspectiveCamera.h)
 
 For our simple 2D needs, I'll be using an orthographic camera.
 Finally, we can start drawing things to the screen:
@@ -235,7 +235,7 @@ private:
 ```
 
 ## Example 1 Outputs:
-![BasicRendering](Demos/docs/Example1/BasicRendering.PNG)
+![BasicRendering](Quark/docs/Example1/BasicRendering.PNG)
 
 <ins>**5. Handling window size**</ins>
 
@@ -299,7 +299,7 @@ private:
 ```
 
 ## Corrected Output:
-![BasicRenderingCorrected](Demos/docs/Example1/BasicRenderingCorrected.PNG)
+![BasicRenderingCorrected](Quark/docs/Example1/BasicRenderingCorrected.PNG)
 
 It's also trivial to render a colored sprite using a different overload of the DrawSprite() function:
 
@@ -329,10 +329,10 @@ public:
 ```
 
 ## Colored Quad Output:
-![BasicRenderingSingleColor](Demos/docs/Example1/BasicRenderingSingleColor.PNG)
+![BasicRenderingSingleColor](Quark/docs/Example1/BasicRenderingSingleColor.PNG)
 
 ## Source Code
-[See this example source](https://github.com/ThomasWorkOnline/Quark/blob/main/Demos/src/Example1_BasicRendering.h)
+[See this example source](Demos/src/Example1_BasicRendering.h)
 
 # Dependencies
 glm: https://github.com/g-truc/glm<br />
