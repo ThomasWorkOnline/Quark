@@ -33,7 +33,7 @@ project "Quark"
 	includedirs
 	{
 		"src",
-		"vendor/entt/include",
+		"vendor/entt/single_include",
 		"vendor/freetype/include",
 		"vendor/glad/include",
 		"vendor/glfw/include",

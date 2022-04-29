@@ -3,7 +3,7 @@
 #include "Quark/Core/Core.h"
 #include "Quark/Core/Timestep.h"
 
-#include <entt.hpp>
+#include <entt/entt.hpp>
 
 namespace Quark {
 
