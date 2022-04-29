@@ -232,7 +232,7 @@ namespace Quark {
 			{
 				WindowData& data = *(WindowData*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
-				SHORT scroll = (SHORT)HIWORD(wParam) / (float)WHEEL_DELTA;
+				SHORT scroll = (SHORT)HIWORD(wParam) / WHEEL_DELTA;
 				MouseScrolledEvent event(scroll, 0.0f);
 				if (data.EventCallback)
 					data.EventCallback(event);
@@ -244,7 +244,7 @@ namespace Quark {
 			{
 				WindowData& data = *(WindowData*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
-				SHORT scroll = -(SHORT)HIWORD(wParam) / (float)WHEEL_DELTA;
+				SHORT scroll = -(SHORT)HIWORD(wParam) / WHEEL_DELTA;
 				MouseScrolledEvent event(0.0f, scroll);
 				if (data.EventCallback)
 					data.EventCallback(event);

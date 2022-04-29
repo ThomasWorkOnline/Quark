@@ -80,7 +80,7 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		ALCALL(alGenBuffers(1, &m_BufferID));
-		ALCALL(alBufferData(m_BufferID, GetAudioFormat(spec.Format), data, spec.Size, spec.Samplerate));
+		ALCALL(alBufferData(m_BufferID, GetAudioFormat(spec.Format), data, (ALsizei)spec.Size, spec.Samplerate));
 
 		QK_CORE_ASSERT(alIsBuffer(m_BufferID), "Audio buffer is invalid");
 	}

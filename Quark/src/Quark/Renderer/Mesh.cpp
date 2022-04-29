@@ -42,7 +42,7 @@ namespace Quark {
 		std::vector<IndexPack> FacesIndices;
 		bool SmoothShaded = true;
 
-		size_t VertexCount() const { return FacesIndices.size(); }
+		uint32_t VertexCount() const { return (uint32_t)FacesIndices.size(); }
 	};
 
 	static void Tokenize(std::string_view str, std::vector<std::string_view>& out)
@@ -97,7 +97,7 @@ namespace Quark {
 		std::string_view file = fileRaw;
 		std::vector<std::string_view> tokens;
 
-		float Zflip = descriptor.ZFlip ? -1 : 1;
+		float Zflip = descriptor.ZFlip ? -1.0f : 1.0f;
 
 		size_t pos = 0;
 		size_t eol;
@@ -195,7 +195,7 @@ namespace Quark {
 		OBJData data;
 		ReadOBJData(filepath, data, descriptor);
 
-		size_t vertexCount = data.VertexCount();
+		uint32_t vertexCount = data.VertexCount();
 		if (vertexCount == 0)
 			return;
 

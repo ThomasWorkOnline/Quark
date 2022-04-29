@@ -61,7 +61,7 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		glDeleteFramebuffers(1, &m_RendererID);
-		glDeleteTextures(m_ColorAttachments.size(), m_ColorAttachments.data());
+		glDeleteTextures((GLsizei)m_ColorAttachments.size(), m_ColorAttachments.data());
 		glDeleteTextures(1, &m_DepthAttachment);
 		glDeleteRenderbuffers(1, &m_RenderBuffer);
 	}
@@ -110,7 +110,7 @@ namespace Quark {
 		if (m_RendererID)
 		{
 			glDeleteFramebuffers(1, &m_RendererID);
-			glDeleteTextures(m_ColorAttachments.size(), m_ColorAttachments.data());
+			glDeleteTextures((GLsizei)m_ColorAttachments.size(), m_ColorAttachments.data());
 			glDeleteTextures(1, &m_DepthAttachment);
 			glDeleteRenderbuffers(1, &m_RenderBuffer);
 
@@ -126,7 +126,7 @@ namespace Quark {
 		if (m_ColorSpecs.size())
 		{
 			m_ColorAttachments.resize(m_ColorSpecs.size());
-			glGenTextures(m_ColorAttachments.size(), m_ColorAttachments.data());
+			glGenTextures((GLsizei)m_ColorAttachments.size(), m_ColorAttachments.data());
 
 			for (size_t i = 0; i < m_ColorAttachments.size(); i++)
 			{

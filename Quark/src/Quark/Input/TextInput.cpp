@@ -45,7 +45,7 @@ namespace Quark {
 	bool TextInput::OnKeyTyped(KeyTypedEvent& e)
 	{
 		uint16_t keyCode = KeyCodeToInt(e.GetKeyCode());
-		m_Input.push_back(keyCode);
+		m_Input.push_back(static_cast<char>(keyCode));
 		m_RenderTraits.CalculateLabelDimensions(m_Input);
 
 		return false;

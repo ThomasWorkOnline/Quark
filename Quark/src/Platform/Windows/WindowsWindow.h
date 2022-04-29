@@ -3,7 +3,7 @@
 #include "Quark/Core/Window.h"
 #include "Quark/Renderer/GraphicsContext.h"
 
-typedef HWND;
+typedef HWND HWND;
 
 namespace Quark {
 

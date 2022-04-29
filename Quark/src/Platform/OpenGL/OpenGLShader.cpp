@@ -116,7 +116,7 @@ namespace Quark {
 			GLuint shader = glCreateShader(type);
 
 			const GLchar* sourceData = source.data();
-			GLint lengths = source.size();
+			GLint lengths = (GLint)source.size();
 			glShaderSource(shader, 1, &sourceData, &lengths);
 
 			glCompileShader(shader);

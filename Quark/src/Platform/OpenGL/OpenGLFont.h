@@ -19,7 +19,7 @@ namespace Quark {
 		void Detach() const override;
 
 		const Glyph& GetGlyph(uint8_t charcode) const override;
-		uint32_t GetGlyphCount() const override { return m_Glyphs.size(); }
+		uint32_t GetGlyphCount() const override { return static_cast<uint32_t>(m_Glyphs.size()); }
 
 		uint32_t GetFontSize() const override { return m_FontSize; }
 		uint32_t GetAtlasWidth() const override { return m_AtlasWidth; }

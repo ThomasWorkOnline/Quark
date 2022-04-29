@@ -10,6 +10,7 @@ project "freetype"
 	{
 		"_LIB",
 		"FT2_BUILD_LIBRARY",
+		"_CRT_SECURE_NO_WARNINGS"
 	}
 
 	includedirs

@@ -2,9 +2,9 @@
 
 #include "Quark/Renderer/GraphicsContext.h"
 
-typedef HWND;
-typedef HDC;
-typedef HGLRC;
+typedef HWND HWND;
+typedef HDC HDC;
+typedef HGLRC HGLRC;
 
 namespace Quark {
 

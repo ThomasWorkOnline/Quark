@@ -119,7 +119,7 @@ namespace Quark {
 	bool OrthographicCameraController::OnWindowResized(WindowResizedEvent& e)
 	{
 		if (m_CameraEntity)
-			m_CameraEntity.GetComponent<OrthographicCameraComponent>().Camera.SetProjection(0, 0, e.GetWidth(), e.GetHeight());
+			m_CameraEntity.GetComponent<OrthographicCameraComponent>().Camera.SetProjection(0, 0, (float)e.GetWidth(), (float)e.GetHeight());
 
 		return false;
 	}
