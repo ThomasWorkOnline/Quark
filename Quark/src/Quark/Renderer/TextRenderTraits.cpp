@@ -9,10 +9,10 @@ namespace Quark {
 		{
 			case Quark::HorizontalTextAlignment::Left:   return -Width;
 			case Quark::HorizontalTextAlignment::Right:  return 0;
-			case Quark::HorizontalTextAlignment::Center: return -Width / 2.0f;
+			case Quark::HorizontalTextAlignment::Center: return -Width / 2;
 			default:
 				QK_CORE_ASSERT(false, "No alignment mode was specified.");
-				return 0.0f;
+				return 0;
 		}
 	}
 
@@ -20,12 +20,12 @@ namespace Quark {
 	{
 		switch (VAlign)
 		{
-			case Quark::VerticalTextAlignment::Bottom: return 0.0f;
+			case Quark::VerticalTextAlignment::Bottom: return 0;
 			case Quark::VerticalTextAlignment::Top:    return Height;
-			case Quark::VerticalTextAlignment::Center: return Height / 2.0f;
+			case Quark::VerticalTextAlignment::Center: return Height / 2;
 			default:
 				QK_CORE_ASSERT(false, "No alignment mode was specified.");
-				return 0.0f;
+				return 0;
 		}
 	}
 

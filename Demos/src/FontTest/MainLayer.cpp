@@ -23,8 +23,8 @@ MainLayer::MainLayer()
 	m_Texture = Texture2D::Create("assets/textures/pbr/streaked-metal/normal-dx.png", descriptor);
 
 	auto& window = Application::Get().GetWindow();
-	float width  = window.GetWidth();
-	float height = window.GetHeight();
+	float width  = (float)window.GetWidth();
+	float height = (float)window.GetHeight();
 
 	m_Camera.SetProjection(-width / 2, width / 2, -height / 2, height / 2);
 }
@@ -48,8 +48,8 @@ void MainLayer::OnEvent(Event& e)
 
 bool MainLayer::OnWindowResized(WindowResizedEvent& e)
 {
-	float width = e.GetWidth();
-	float height = e.GetHeight();
+	float width = (float)e.GetWidth();
+	float height = (float)e.GetHeight();
 
 	m_Camera.SetProjection(-width / 2, width / 2, -height / 2, height / 2);
 	return false;

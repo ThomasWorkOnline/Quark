@@ -5,7 +5,10 @@
 
 //          v--- define QK_ENABLE_ALL_METRICS to enable memory profiling
 #if defined(QK_ENABLE_ALL_METRICS) || defined(QK_DEBUG)
-#	define QK_ENABLE_MEMORY_METRICS 1
+#	ifdef QK_ENABLE_MEMORY_METRICS
+#		undef QK_ENABLE_MEMORY_METRICS
+#		define QK_ENABLE_MEMORY_METRICS 1
+#	endif
 #endif
 
 namespace Quark {

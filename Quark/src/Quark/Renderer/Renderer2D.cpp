@@ -65,6 +65,7 @@ namespace Quark {
 
 		LineVertex* LineVertexPtr = nullptr;
 		LineVertex* LineVertices  = nullptr;
+		uint32_t LineIndexCount   = 0;
 
 		Ref<Shader> LineShader;
 		Ref<VertexArray> LineVertexArray;
@@ -215,6 +216,7 @@ namespace Quark {
 		s_Data->LineVertexPtr->Color = endColor;
 		s_Data->LineVertexPtr++;
 
+		s_Data->LineIndexCount += 2;
 		s_Stats.LinesDrawn++;
 	}
 
@@ -255,8 +257,8 @@ namespace Quark {
 
 		auto [x, y] = traits.GetOrigin();
 
-		float atlasWidth = traits.FontStyle->GetAtlasWidth();
-		float atlasHeight = traits.FontStyle->GetAtlasHeight();
+		float atlasWidth = (float)traits.FontStyle->GetAtlasWidth();
+		float atlasHeight = (float)traits.FontStyle->GetAtlasHeight();
 
 		for (auto it = text.begin(); it != text.end(); it++)
 		{
@@ -598,6 +600,7 @@ namespace Quark {
 		s_Data->FontSamplerIndex = 0;
 
 		s_Data->LineVertexPtr    = s_Data->LineVertices;
+		s_Data->LineIndexCount   = 0;
 	}
 
 	void Renderer2D::PushBatch()
@@ -630,17 +633,15 @@ namespace Quark {
 			s_Stats.DrawCalls++;
 		}
 
+		if (s_Data->LineIndexCount > 0)
 		{
-			size_t count = s_Data->LineVertexPtr - s_Data->LineVertices;
-			if (count > 0)
-			{
-				s_Data->LineVertexBuffer->SetData(s_Data->LineVertices, count * sizeof(LineVertex));
+			size_t size = ((uint8_t*)s_Data->LineVertexPtr - (uint8_t*)s_Data->LineVertices);
+			s_Data->LineVertexBuffer->SetData(s_Data->LineVertices, size);
 
-				s_Data->LineShader->Attach();
-				RenderCommand::DrawLines(s_Data->LineVertexArray, count);
+			s_Data->LineShader->Attach();
+			RenderCommand::DrawLines(s_Data->LineVertexArray, s_Data->LineIndexCount);
 
-				s_Stats.DrawCalls++;
-			}
+			s_Stats.DrawCalls++;
 		}
 	}
 

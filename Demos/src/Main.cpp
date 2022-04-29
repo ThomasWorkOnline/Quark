@@ -5,6 +5,6 @@ namespace Quark {
 
 	Application* CreateApplication()
 	{
-		return new PBRRendering();
+		return new FontTest();
 	}
 }
