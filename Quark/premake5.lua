@@ -20,8 +20,11 @@ project "Quark"
 
 	files
 	{
-		"src/**.h",
-		"src/**.cpp"
+		"src/Quark/**.h",
+		"src/Quark/**.cpp",
+		"src/Quark/Quark.h",
+		"src/Platform/Standalone/**.h",
+		"src/Platform/Standalone/**.cpp"
 	}
 
 	defines
@@ -52,6 +55,46 @@ project "Quark"
 		"spdlog"
 	}
 
+	filter "system:windows"
+		systemversion "latest"
+
+		files
+		{
+			"src/Platform/Windows/**.h",
+			"src/Platform/Windows/**.cpp"
+		}
+
+		libdirs
+		{
+			"vendor/openal/libs/Win64"
+		}
+
+		links
+		{
+			"OpenAL32.lib",
+			"opengl32.lib"
+		}
+	
+	filter "system:macosx"
+	
+		links
+		{
+			"Cocoa.framework",
+			"CoreVideo.framework",
+			"IOKit.framework",
+			"OpenAL.framework",
+			"OpenGL.framework"
+		}
+
+	filter "system:linux"
+
+		links
+		{
+			"GL",
+			"X11",
+			"openal"
+		}
+
 	filter "configurations:Debug"
 		defines "QK_DEBUG"
 		runtime "Debug"
@@ -75,36 +118,4 @@ project "Quark"
 		flags
 		{
 			"LinkTimeOptimization"
-		}
-
-	filter "system:windows"
-		systemversion "latest"
-
-		libdirs
-		{
-			"vendor/openal/libs/Win64"
-		}
-
-		links
-		{
-			"OpenAL32.lib",
-			"opengl32.lib"
-		}
-	
-	filter "system:macosx"
-		links
-		{
-			"Cocoa.framework",
-			"CoreVideo.framework",
-			"IOKit.framework",
-			"OpenAL.framework",
-			"OpenGL.framework"
-		}
-
-	filter "system:linux"
-		links
-		{
-			"GL",
-			"X11",
-			"openal"
 		}

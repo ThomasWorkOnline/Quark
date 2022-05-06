@@ -14,7 +14,7 @@
 #	elif defined(QK_PLATFORM_LINUX)
 #		include <signal.h>
 #		define QK_DEBUGBREAK() raise(SIGTRAP)
-#	elif defined(QK_PLATFORM_APPLE)
+#	elif defined(QK_PLATFORM_MACOS)
 #		define QK_DEBUGBREAK() abort()
 #	else
 #		error "Missing debugbreak implementation for platform"

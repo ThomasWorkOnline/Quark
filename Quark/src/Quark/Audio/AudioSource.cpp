@@ -1,7 +1,7 @@
 #include "qkpch.h"
 #include "AudioSource.h"
 
-#include "Platform/OpenAL/OpenALAudioSource.h"
+#include "Platform/Standalone/OpenAL/OpenALAudioSource.h"
 
 namespace Quark {
 

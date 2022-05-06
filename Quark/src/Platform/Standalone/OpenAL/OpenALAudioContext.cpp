@@ -7,7 +7,7 @@
 namespace Quark {
 
 	OpenALAudioContext::OpenALAudioContext(void* device)
-		: m_DeviceHandle(device), m_Context(nullptr)
+		: m_DeviceHandle(static_cast<ALCdevice*>(device)), m_Context(nullptr)
 	{
 		QK_CORE_ASSERT(device, "Audio device is nullptr!");
 	}
@@ -24,7 +24,7 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		m_Context = ALCALL(alcCreateContext(static_cast<ALCdevice*>(m_DeviceHandle), nullptr));
+		m_Context = ALCALL(alcCreateContext(m_DeviceHandle, nullptr));
 
 		ALCboolean result = ALCALL(alcMakeContextCurrent(m_Context));
 		QK_CORE_ASSERT(result, "Failed to initialize OpenAL context");

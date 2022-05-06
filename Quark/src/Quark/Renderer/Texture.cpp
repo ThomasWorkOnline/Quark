@@ -4,7 +4,7 @@
 #include "RenderingAPI.h"
 
 // Include all supported API's texture implementations
-#include "Platform/OpenGL/OpenGLTexture.h"
+#include "Platform/Standalone/OpenGL/OpenGLTexture.h"
 
 namespace Quark {
 

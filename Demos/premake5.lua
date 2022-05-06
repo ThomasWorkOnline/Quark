@@ -1,4 +1,5 @@
 project "Demos"
+	kind "ConsoleApp"
 	language "C++"
 	cppdialect "C++17"
 	staticruntime "Off"
@@ -29,6 +30,30 @@ project "Demos"
 		"spdlog"
 	}
 
+	filter { "configurations:Dist", "system:windows" }
+		kind "WindowedApp"
+
+	filter "system:macosx"
+		kind "WindowedApp"
+		
+		links
+		{
+			"Cocoa.framework",
+			"CoreVideo.framework",
+			"IOKit.framework",
+			"OpenAL.framework",
+			"OpenGL.framework"
+		}
+	
+	filter "system:linux"
+	
+		links
+		{
+			"GL",
+			"X11",
+			"openal"
+		}
+
 	filter "configurations:Debug"
 		defines "QK_DEBUG"
 		runtime "Debug"
@@ -53,32 +78,3 @@ project "Demos"
 		{
 			"LinkTimeOptimization"
 		}
-
-	filter { "configurations:Debug or configurations:Release", "system:windows" }
-		kind "ConsoleApp"
-
-	filter { "configurations:Dist", "system:windows" }
-		kind "WindowedApp"
-
-	filter "system:macosx"
-		kind "WindowedApp"
-		
-		links
-		{
-			"Cocoa.framework",
-			"CoreVideo.framework",
-			"IOKit.framework",
-			"OpenAL.framework",
-			"OpenGL.framework"
-		}
-	
-	filter "system:linux"
-		kind "ConsoleApp"
-
-		links
-		{
-			"GL",
-			"X11",
-			"openal"
-		}
-		

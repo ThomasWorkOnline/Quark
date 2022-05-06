@@ -6,7 +6,7 @@
 #if defined(QK_PLATFORM_WINDOWS) && QK_USE_NATIVE_APIS
 #	include "Platform/Windows/WindowsWindow.h"
 #else
-#	include "Platform/GLFW/GLFWWindow.h"
+#	include "Platform/Standalone/GLFW/GLFWWindow.h"
 #endif
 
 namespace Quark {

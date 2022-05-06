@@ -1,7 +1,7 @@
 #include "qkpch.h"
 #include "AudioBuffer.h"
 
-#include "Platform/OpenAL/OpenALBuffer.h"
+#include "Platform/Standalone/OpenAL/OpenALBuffer.h"
 
 namespace Quark {
 

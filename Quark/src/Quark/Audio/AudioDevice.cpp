@@ -1,7 +1,7 @@
 #include "qkpch.h"
 #include "AudioDevice.h"
 
-#include "Platform/OpenAL/OpenALAudioDevice.h"
+#include "Platform/Standalone/OpenAL/OpenALAudioDevice.h"
 
 namespace Quark {
 

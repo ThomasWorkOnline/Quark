@@ -4,7 +4,7 @@
 #include "RenderingAPI.h"
 
 // Include all supported API's frame buffer implementations
-#include "Platform/OpenGL/OpenGLFramebuffer.h"
+#include "Platform/Standalone/OpenGL/OpenGLFramebuffer.h"
 
 namespace Quark {
 

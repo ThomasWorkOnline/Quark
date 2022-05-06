@@ -4,7 +4,7 @@
 #include "RenderingAPI.h"
 
 // Include all supported API's uniform buffer implementations
-#include "Platform/OpenGL/OpenGLUniformBuffer.h"
+#include "Platform/Standalone/OpenGL/OpenGLUniformBuffer.h"
 
 namespace Quark {
 

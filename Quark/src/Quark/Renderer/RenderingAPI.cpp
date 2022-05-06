@@ -2,7 +2,7 @@
 #include "RenderingAPI.h"
 
 // Include all supported APIs here
-#include "Platform/OpenGL/OpenGLRenderingAPI.h"
+#include "Platform/Standalone/OpenGL/OpenGLRenderingAPI.h"
 
 namespace Quark {
 

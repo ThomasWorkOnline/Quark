@@ -1,6 +1,6 @@
 #include "qkpch.h"
+#include "Quark/Core/Core.h"
 #include "Quark/Core/Application.h"
-#include "Quark/Profiling/Profiling.h"
 
 namespace Quark {
 

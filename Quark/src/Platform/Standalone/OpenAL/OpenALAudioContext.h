@@ -3,6 +3,7 @@
 #include "Quark/Audio/AudioContext.h"
 
 typedef struct ALCcontext ALCcontext;
+typedef struct ALCdevice  ALCdevice;
 
 namespace Quark {
 
@@ -15,7 +16,7 @@ namespace Quark {
 		void Init() override;
 
 	private:
-		void* m_DeviceHandle;
+		ALCdevice* m_DeviceHandle;
 		ALCcontext* m_Context;
 	};
 }

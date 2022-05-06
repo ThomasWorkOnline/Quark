@@ -4,7 +4,7 @@
 #include "RenderingAPI.h"
 
 // Include all supported API's vertex arrays implementations
-#include "Platform/OpenGL/OpenGLVertexArray.h"
+#include "Platform/Standalone/OpenGL/OpenGLVertexArray.h"
 
 namespace Quark {
 
