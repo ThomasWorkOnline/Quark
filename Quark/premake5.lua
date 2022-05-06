@@ -22,7 +22,10 @@ project "Quark"
 	{
 		"src/Quark/**.h",
 		"src/Quark/**.cpp",
-		"src/Quark/Quark.h",
+		"src/Quark.h",
+		"src/qkpch.h",
+		"src/qkpch.cpp",
+		"src/EntryPoint.cpp",
 		"src/Platform/Standalone/**.h",
 		"src/Platform/Standalone/**.cpp"
 	}
