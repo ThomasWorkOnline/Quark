@@ -4,7 +4,7 @@
 #include <atomic>
 
 //          v--- define QK_ENABLE_ALL_METRICS to enable memory profiling
-#if defined(QK_ENABLE_ALL_METRICS) || defined(QK_DEBUG)
+#if defined(QK_ENABLE_ALL_METRICS) || defined(QK_DEBUG) || defined(QK_RELEASE)
 #	ifdef QK_ENABLE_MEMORY_METRICS
 #		undef QK_ENABLE_MEMORY_METRICS
 #		define QK_ENABLE_MEMORY_METRICS 1

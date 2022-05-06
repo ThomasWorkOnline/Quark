@@ -8,9 +8,8 @@ void* operator new(size_t size)
 	void* block = malloc(size);
 	if (block)
 	{
-		using Metrics = ::Quark::MemoryMetrics;
-		Metrics::Allocations++;
-		Metrics::MemoryAllocated += size;
+		::Quark::MemoryMetrics::Allocations++;
+		::Quark::MemoryMetrics::MemoryAllocated += size;
 
 		return block;
 	}
@@ -20,9 +19,8 @@ void* operator new(size_t size)
 
 void operator delete(void* block, size_t size) noexcept
 {
-	using Metrics = ::Quark::MemoryMetrics;
-	Metrics::Deallocations++;
-	Metrics::MemoryFreed += size;
+	::Quark::MemoryMetrics::Deallocations++;
+	::Quark::MemoryMetrics::MemoryFreed += size;
 
 	free(block);
 }
@@ -32,9 +30,8 @@ void* operator new[](size_t size)
 	void* block = malloc(size);
 	if (block)
 	{
-		using Metrics = ::Quark::MemoryMetrics;
-		Metrics::Allocations++;
-		Metrics::MemoryAllocated += size;
+		::Quark::MemoryMetrics::Allocations++;
+		::Quark::MemoryMetrics::MemoryAllocated += size;
 
 		return block;
 	}
@@ -44,9 +41,8 @@ void* operator new[](size_t size)
 
 void operator delete[](void* block, size_t size) noexcept
 {
-	using Metrics = ::Quark::MemoryMetrics;
-	Metrics::Deallocations++;
-	Metrics::MemoryFreed += size;
+	::Quark::MemoryMetrics::Deallocations++;
+	::Quark::MemoryMetrics::MemoryFreed += size;
 
 	free(block);
 }

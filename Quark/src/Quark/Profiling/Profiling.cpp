@@ -91,9 +91,16 @@ namespace Quark {
 
 			Instrumentor::Get().WriteProfile(result);
 
+			if (std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count() > 10)
+			{
+				Logger::GetProfilerLogger()->warn("'{0}'\t took: {1}us ({2}ms)", m_Scope, elapsed.count(), elapsed.count() / 1000.f);
+			}
+			else
+			{
 #if QK_ENABLE_PROFILE_LOG
-			Logger::GetProfilerLogger()->debug("'{0}'\t took: {1}us ({2}ms)", m_Scope, elapsed.count(), elapsed.count() / 1000.f);
+				Logger::GetProfilerLogger()->debug("'{0}'\t took: {1}us ({2}ms)", m_Scope, elapsed.count(), elapsed.count() / 1000.f);
 #endif
+			}
 		}
 	}
 }

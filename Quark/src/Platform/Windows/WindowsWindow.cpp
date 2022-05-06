@@ -2,13 +2,29 @@
 #include "WindowsWindow.h"
 
 #include <Windows.h>
+#include <windowsx.h>
 
 namespace Quark {
 
 	static constexpr wchar_t s_ClassName[] = L"QuarkApp";
 	static uint32_t s_WindowCount = 0;
 
-	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	static void OnWindowMoved(HWND hWnd, int32_t x, int32_t y);
+	static void OnWindowSizeChanged(HWND hWnd, WPARAM wParam, LPARAM lParam);
+
+	static std::wstring ConvertToWideString(const std::string& narrow)
+	{
+		std::wstring wide;
+		wide.reserve(narrow.size());
+
+		for (char c : narrow)
+			wide.push_back(c);
+
+		return wide;
+	}
+
+	using WindowData = WindowsWindow::WindowData;
 
 	WindowsWindow::WindowsWindow(const WindowSpecification& spec)
 	{
@@ -17,13 +33,13 @@ namespace Quark {
 		if (s_WindowCount == 0)
 			Init();
 
-		m_Data.Title  = spec.Title;
+		m_Data.Title = spec.Title;
 
 		m_WindowHandle = CreateWindowEx(
 			0,                                           // Optional window styles.
 			s_ClassName,                                 // Window class
-			L"Quark",                                    // Window text
-			WS_OVERLAPPEDWINDOW | WS_VISIBLE | CS_OWNDC, // Window style
+			ConvertToWideString(spec.Title).c_str(),     // Window text
+			WS_OVERLAPPEDWINDOW | WS_VISIBLE,            // Window style
 
 			// Size and position
 			CW_USEDEFAULT, CW_USEDEFAULT, spec.Width, spec.Height,
@@ -59,7 +75,7 @@ namespace Quark {
 		m_Context->SwapBuffers();
 
 		MSG msg{};
-		if (GetMessage(&msg, NULL, 0, 0) > 0)
+		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE) > 0)
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
@@ -74,6 +90,7 @@ namespace Quark {
 		wc.lpfnWndProc   = WindowProc;
 		wc.hInstance     = hInstance;
 		wc.lpszClassName = s_ClassName;
+		wc.style         = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
 
 		RegisterClass(&wc);
 	}
@@ -84,10 +101,8 @@ namespace Quark {
 		UnregisterClass(s_ClassName, hInstance);
 	}
 
-	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+	static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
-		using WindowData = WindowsWindow::WindowData;
-
 		// NOTE: Mouse movement event are currently unsupported
 		// TODO: register input devices
 
@@ -98,12 +113,14 @@ namespace Quark {
 				CREATESTRUCT* pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
 				// store the pointer in the instance data of the window
 				// so it could always be retrieved by using GetWindowLongPtr(hwnd, GWLP_USERDATA)
-				SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)pCreate->lpCreateParams);
+				SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)pCreate->lpCreateParams);
+
+				EnableNonClientDpiScaling(hWnd);
 
 				WindowData& data = *(WindowData*)pCreate->lpCreateParams;
 
 				WINDOWPLACEMENT p{};
-				GetWindowPlacement(hwnd, &p);
+				GetWindowPlacement(hWnd, &p);
 
 				data.Xpos = p.rcNormalPosition.left;
 				data.Ypos = p.rcNormalPosition.top;
@@ -113,7 +130,7 @@ namespace Quark {
 
 			case WM_CLOSE:
 			{
-				WindowData& data = *(WindowData*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+				WindowData& data = *(WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 
 				WindowClosedEvent event;
 				if (data.EventCallback)
@@ -130,85 +147,19 @@ namespace Quark {
 
 			case WM_SIZE:
 			{
-				WindowData& data = *(WindowData*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-
-				bool minimized = wParam == SIZE_MINIMIZED;
-				bool maximized = wParam == SIZE_MAXIMIZED;
-
-				if ((data.Minimized) && wParam == SIZE_RESTORED)
-				{
-					WindowRestoredEvent event;
-					if (data.EventCallback)
-						data.EventCallback(event);
-				}
-				else
-				{
-					switch (wParam)
-					{
-						case SIZE_MINIMIZED:
-						{
-							WindowMinimizedEvent event;
-							if (data.EventCallback)
-								data.EventCallback(event);
-
-							break;
-						}
-
-						case SIZE_MAXIMIZED:
-						{
-							WindowMaximizedEvent event;
-							if (data.EventCallback)
-								data.EventCallback(event);
-
-							break;
-						}
-
-						default:
-						{
-							UINT width = LOWORD(lParam);
-							UINT height = HIWORD(lParam);
-
-							data.Width = width;
-							data.Height = height;
-
-							WindowResizedEvent event(data.Width, data.Height);
-							if (data.EventCallback)
-								data.EventCallback(event);
-
-							break;
-						}
-					}
-				}
-
-				data.Minimized = minimized;
-				data.Maximized = maximized;
-
+				OnWindowSizeChanged(hWnd, wParam, lParam);
 				break;
 			}
 
 			case WM_MOVE:
 			{
-				WindowData& data = *(WindowData*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-
-				WINDOWPLACEMENT p{};
-				GetWindowPlacement(hwnd, &p);
-
-				int32_t xOffset = p.rcNormalPosition.left - data.Xpos;
-				int32_t yOffset = p.rcNormalPosition.top - data.Ypos;
-
-				data.Xpos = p.rcNormalPosition.left;
-				data.Ypos = p.rcNormalPosition.top;
-
-				WindowMovedEvent event(data.Xpos, data.Ypos, xOffset, yOffset);
-				if (data.EventCallback)
-					data.EventCallback(event);
-
+				OnWindowMoved(hWnd, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 				break;
 			}
 
 			case WM_SETFOCUS:
 			{
-				WindowData& data = *(WindowData*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+				WindowData& data = *(WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 
 				WindowFocusedEvent event;
 				if (data.EventCallback)
@@ -219,7 +170,7 @@ namespace Quark {
 
 			case WM_KILLFOCUS:
 			{
-				WindowData& data = *(WindowData*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+				WindowData& data = *(WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 
 				WindowLostFocusEvent event;
 				if (data.EventCallback)
@@ -230,7 +181,7 @@ namespace Quark {
 
 			case WM_MOUSEWHEEL:
 			{
-				WindowData& data = *(WindowData*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+				WindowData& data = *(WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 
 				SHORT scroll = (SHORT)HIWORD(wParam) / WHEEL_DELTA;
 				MouseScrolledEvent event(scroll, 0.0f);
@@ -242,7 +193,7 @@ namespace Quark {
 
 			case WM_MOUSEHWHEEL:
 			{
-				WindowData& data = *(WindowData*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+				WindowData& data = *(WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 
 				SHORT scroll = -(SHORT)HIWORD(wParam) / WHEEL_DELTA;
 				MouseScrolledEvent event(0.0f, scroll);
@@ -253,6 +204,78 @@ namespace Quark {
 			}
 		}
 
-		return DefWindowProc(hwnd, uMsg, wParam, lParam);
+		return DefWindowProc(hWnd, uMsg, wParam, lParam);
+	}
+
+	void OnWindowMoved(HWND hWnd, int32_t x, int32_t y)
+	{
+		WindowData& data = *(WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+
+		WINDOWPLACEMENT p{};
+		GetWindowPlacement(hWnd, &p);
+
+		int32_t xOffset = p.rcNormalPosition.left - data.Xpos;
+		int32_t yOffset = p.rcNormalPosition.top - data.Ypos;
+
+		data.Xpos = p.rcNormalPosition.left;
+		data.Ypos = p.rcNormalPosition.top;
+
+		WindowMovedEvent event(data.Xpos, data.Ypos, xOffset, yOffset);
+		if (data.EventCallback)
+			data.EventCallback(event);
+	}
+
+	void OnWindowSizeChanged(HWND hWnd, WPARAM wParam, LPARAM lParam)
+	{
+		WindowData& data = *(WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+
+		bool minimized = wParam == SIZE_MINIMIZED;
+		bool maximized = wParam == SIZE_MAXIMIZED;
+
+		if ((data.Minimized) && wParam == SIZE_RESTORED)
+		{
+			WindowRestoredEvent event;
+			if (data.EventCallback)
+				data.EventCallback(event);
+		}
+		else
+		{
+			switch (wParam)
+			{
+				case SIZE_MINIMIZED:
+				{
+					WindowMinimizedEvent event;
+					if (data.EventCallback)
+						data.EventCallback(event);
+
+					break;
+				}
+
+				case SIZE_MAXIMIZED:
+				{
+					WindowMaximizedEvent event;
+					if (data.EventCallback)
+						data.EventCallback(event);
+
+					break;
+				}
+
+				default:
+					break;
+			}
+		}
+
+		UINT width = LOWORD(lParam);
+		UINT height = HIWORD(lParam);
+
+		data.Width = width;
+		data.Height = height;
+
+		WindowResizedEvent event(data.Width, data.Height);
+		if (data.EventCallback)
+			data.EventCallback(event);
+
+		data.Minimized = minimized;
+		data.Maximized = maximized;
 	}
 }
