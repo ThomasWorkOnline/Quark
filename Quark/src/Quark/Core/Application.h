@@ -82,9 +82,4 @@ namespace Quark {
 		float m_TotalTime = 0.0f;
 		bool m_Running = false;
 	};
-
-	///
-	/// Client entry point: must be defined by client
-	///
-	extern Application* CreateApplication();
 }

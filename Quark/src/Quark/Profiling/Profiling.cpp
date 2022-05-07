@@ -9,9 +9,22 @@ namespace Quark {
 
 	namespace Profile {
 
+		static std::string GetConfigName()
+		{
+#ifdef QK_DEBUG
+			return "debug";
+#elif defined(QK_RELEASE)
+			return "release";
+#elif defined(QK_DIST)
+			return "dist";
+#else
+#	error "Undefined build configuration"
+#endif
+		}
+
 		struct InstrumentorSettings
 		{
-			static constexpr char* OutputDir = "instrumentor/" QK_CONFIG "/";
+			static inline std::string OutputDir = "instrumentor/" + GetConfigName() + "/";
 		};
 
 		void Instrumentor::BeginSession(const std::string& sessionName)
