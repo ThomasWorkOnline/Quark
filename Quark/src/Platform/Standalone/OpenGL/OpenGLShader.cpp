@@ -104,8 +104,8 @@ namespace Quark {
 
 	void OpenGLShader::Compile(const std::unordered_map<GLenum, std::string_view>& shaderSources)
 	{
-		constexpr uint32_t maxShaders = 3;
-		QK_CORE_ASSERT(shaderSources.size() <= maxShaders, "Maximum shader count supported is 3");
+		static constexpr uint32_t maxShaders = 3;
+		QK_CORE_ASSERT(shaderSources.size() <= maxShaders, "Maximum number of shaders per program is 3");
 
 		GLuint program = glCreateProgram();
 
@@ -133,10 +133,7 @@ namespace Quark {
 
 				glDeleteShader(shader);
 
-				std::stringstream ss;
-				ss << infoLog.data();
-				QK_CORE_ERROR(ss.str());
-				QK_CORE_FATAL("Shader compilation failure");
+				QK_CORE_FATAL("Shader compilation failure:\n{0}", infoLog.data());
 				break;
 			}
 
@@ -161,20 +158,20 @@ namespace Quark {
 			std::vector<GLchar> infoLog(maxLength);
 			glGetProgramInfoLog(program, maxLength, &maxLength, infoLog.data());
 
+			for (uint32_t i = 0; i < glShaderIDIndex; i++)
+			{
+				glDetachShader(program, glShaderIDs[i]);
+				glDeleteShader(glShaderIDs[i]);
+			}
+
 			// We don't need the program anymore.
 			glDeleteProgram(program);
 
-			for (auto id : glShaderIDs)
-				glDeleteShader(id);
-
-			std::stringstream ss;
-			ss << infoLog.data();
-			QK_CORE_ERROR(ss.str());
-			QK_CORE_FATAL("Shader link failure");
+			QK_CORE_FATAL("Shader link failure:\n{0}", infoLog.data());
 			return;
 		}
 
-		for (uint32_t i = 0; i < shaderSources.size(); i++)
+		for (uint32_t i = 0; i < glShaderIDIndex; i++)
 		{
 			glDetachShader(program, glShaderIDs[i]);
 			glDeleteShader(glShaderIDs[i]);

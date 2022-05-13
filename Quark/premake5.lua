@@ -76,7 +76,7 @@ project "Quark"
 			"OpenAL32.lib",
 			"opengl32.lib"
 		}
-	
+
 	filter "system:macosx"
 	
 		links
