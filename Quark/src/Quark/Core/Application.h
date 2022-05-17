@@ -43,6 +43,9 @@ namespace Quark {
 		Application(const ApplicationOptions& options = {});
 		virtual ~Application();
 
+		Application(const Application&) = delete;
+		Application& operator=(const Application&) = delete;
+
 		virtual void OnUpdate(Timestep elapsedTime) {}
 		virtual void OnRender() {}
 		virtual void OnEvent(Event& e) {}

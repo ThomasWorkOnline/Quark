@@ -41,8 +41,6 @@ namespace Quark {
 
 		while (m_Running)
 		{
-			RenderCommand::Clear();
-
 			{
 				auto tNow = std::chrono::steady_clock::now();
 				float elapsedTime = std::chrono::duration<float>(tNow - tStart).count();
@@ -58,6 +56,7 @@ namespace Quark {
 			}
 			
 			{
+				RenderCommand::Clear();
 				OnRender();
 
 				for (size_t i = 0; i < m_Layers.size(); i++)

@@ -11,16 +11,21 @@ namespace Quark {
 
 	struct WindowSpecification
 	{
-		uint32_t Width, Height;
+		uint32_t    Width, Height;
 		std::string Title;
-		uint32_t Samples = 1;
+		uint32_t    Samples = 1;
 	};
 
 	class Window
 	{
 	public:
 		using EventCallbackFn = std::function<void(Event&)>;
+
+		Window() = default;
 		virtual ~Window() = default;
+
+		Window(const Window&) = delete;
+		Window& operator=(const Window&) = delete;
 
 		virtual void SetEventCallback(const EventCallbackFn& callback) = 0;
 		virtual void OnUpdate() = 0;
