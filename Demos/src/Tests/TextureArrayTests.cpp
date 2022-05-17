@@ -57,16 +57,18 @@ TextureArrayTest::TextureArrayTest()
 
 void TextureArrayTest::OnUpdate(Timestep elapsedTime)
 {
+	m_Transform = glm::rotate(m_Transform, elapsedTime * 0.1f, glm::vec3(1.0f, 0.0f, 0.0f));
+}
+
+void TextureArrayTest::OnRender()
+{
 	Renderer::BeginScene(m_Camera.GetProjection(), m_CameraView);
 
 	static constexpr glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
 	Renderer2D::DrawLine(glm::vec3(-1, -1, 0), glm::vec3(1, 1, 0), color, color);
 
-	static glm::mat4 transform = glm::mat4(1.0f);
-	transform = glm::rotate(transform, elapsedTime * 0.1f, glm::vec3(1.0f, 0.0f, 0.0f));
-
 	m_Shader->Attach();
-	m_Shader->SetMat4("u_Model", transform);
+	m_Shader->SetMat4("u_Model", m_Transform);
 
 	m_TextureArray->Attach();
 	RenderCommand::DrawIndexed(m_VertexArray);

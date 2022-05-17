@@ -51,12 +51,10 @@ namespace Quark {
 		virtual int32_t GetMaxUniformBufferSize() const = 0;
 
 		static API GetAPI() { return s_API; }
-		static std::thread::id GetThreadId() { return s_ThreadId; }
 
 		static Scope<RenderingAPI> Create(API api);
 
 	private:
 		static API s_API;
-		static std::thread::id s_ThreadId;
 	};
 }

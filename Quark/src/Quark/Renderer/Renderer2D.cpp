@@ -128,6 +128,8 @@ namespace Quark {
 
 	void Renderer2D::DrawSprite(const Ref<Texture2D>& texture, const glm::vec2* texCoords, const glm::mat4& transform)
 	{
+		QK_ASSERT_RENDER_THREAD();
+
 		// Check if buffer is full
 		if (s_Data->QuadIndexCount >= Renderer2DData::MaxIndices)
 		{
@@ -177,6 +179,8 @@ namespace Quark {
 
 	void Renderer2D::DrawSprite(const glm::vec4& color, const glm::mat4& transform)
 	{
+		QK_ASSERT_RENDER_THREAD();
+
 		// Check if buffer is full
 		if (s_Data->QuadIndexCount >= Renderer2DData::MaxIndices)
 		{
@@ -200,6 +204,8 @@ namespace Quark {
 
 	void Renderer2D::DrawLine(const glm::vec3& p1, const glm::vec3& p2, const glm::vec4& beginColor, const glm::vec4& endColor)
 	{
+		QK_ASSERT_RENDER_THREAD();
+
 		// Check if buffer is full
 		size_t count = s_Data->LineVertexPtr - s_Data->LineVertices;
 		if (count >= Renderer2DData::MaxVertices)
@@ -222,6 +228,8 @@ namespace Quark {
 
 	void Renderer2D::DrawText(std::string_view text, const TextRenderTraits& traits)
 	{
+		QK_ASSERT_RENDER_THREAD();
+
 		// Check if buffer is full
 		if (s_Data->FontIndexCount >= Renderer2DData::MaxIndices)
 		{

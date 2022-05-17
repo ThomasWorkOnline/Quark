@@ -39,7 +39,10 @@ void Pong::OnUpdate(Timestep elapsedTime)
 	ProcessCollision();
 	ProcessCollisionResolution();
 #endif
+}
 
+void Pong::OnRender()
+{
 	const auto& camera = m_Entity.GetComponent<PerspectiveCameraComponent>().Camera;
 	const auto& transform = m_Entity.GetComponent<Transform3DComponent>();
 

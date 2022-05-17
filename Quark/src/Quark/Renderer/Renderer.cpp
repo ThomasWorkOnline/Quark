@@ -70,6 +70,8 @@ namespace Quark {
 
 	void Renderer::BeginScene(const glm::mat4& cameraProjection, const glm::mat4& cameraView)
 	{
+		QK_ASSERT_RENDER_THREAD();
+
 		s_Data->CameraBufferData.ViewProjection = cameraProjection * cameraView;
 		s_Data->CameraUniformBuffer->Attach();
 		s_Data->CameraUniformBuffer->SetData(&s_Data->CameraBufferData, sizeof(RendererData::CameraData));
@@ -79,11 +81,15 @@ namespace Quark {
 
 	void Renderer::EndScene()
 	{
+		QK_ASSERT_RENDER_THREAD();
+
 		Renderer2D::EndScene();
 	}
 
 	void Renderer::Submit(const Ref<Shader>& shader, const Ref<VertexArray>& va, const glm::mat4& transform)
 	{
+		QK_ASSERT_RENDER_THREAD();
+
 		s_Data->DefaultTexture->Attach();
 
 		shader->Attach();
@@ -94,6 +100,8 @@ namespace Quark {
 
 	void Renderer::Submit(const Ref<Shader>& shader, const Ref<Texture2D>& texture, const Ref<VertexArray>& va, const glm::mat4& transform)
 	{
+		QK_ASSERT_RENDER_THREAD();
+
 		texture->Attach();
 
 		shader->Attach();
@@ -104,6 +112,8 @@ namespace Quark {
 
 	void Renderer::Submit(const Ref<Shader>& shader, const Ref<Framebuffer>& framebuffer, const Ref<VertexArray>& va, const glm::mat4& transform)
 	{
+		QK_ASSERT_RENDER_THREAD();
+
 		framebuffer->AttachColorAttachment(0);
 
 		shader->Attach();
@@ -114,6 +124,7 @@ namespace Quark {
 
 	void Renderer::OnWindowResized(uint32_t width, uint32_t height)
 	{
+		QK_ASSERT_RENDER_THREAD();
 		RenderCommand::SetViewport(0, 0, width, height);
 	}
 }

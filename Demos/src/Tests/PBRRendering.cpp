@@ -181,7 +181,10 @@ void PBRRendering::OnUpdate(Timestep elapsedTime)
 {
 	m_Controller.OnUpdate(elapsedTime);
 	m_Scene.OnUpdate(elapsedTime);
-	
+}
+
+void PBRRendering::OnRender()
+{
 	const auto& camera = m_Player.GetComponent<PerspectiveCameraComponent>().Camera;
 	const auto& transform = m_Player.GetComponent<Transform3DComponent>();
 

@@ -41,26 +41,28 @@ namespace Quark {
 
 		while (m_Running)
 		{
-			QK_PROFILE_SCOPE(Application::NewFrame);
 			RenderCommand::Clear();
 
-			auto tNow = std::chrono::steady_clock::now();
-			float elapsedTime = std::chrono::duration<float>(tNow - tStart).count();
-			tStart = tNow;
-
-			m_TotalTime += elapsedTime;
-
 			{
-				QK_PROFILE_SCOPE(Application::OnUpdate);
+				auto tNow = std::chrono::steady_clock::now();
+				float elapsedTime = std::chrono::duration<float>(tNow - tStart).count();
+				tStart = tNow;
+
+				m_TotalTime += elapsedTime;
+
 				OnUpdate(elapsedTime);
 
 				// Don't use iterator based for loops; we might modify the layer stack in OnUpdate()
 				for (size_t i = 0; i < m_Layers.size(); i++)
 					m_Layers[i]->OnUpdate(elapsedTime);
 			}
-
+			
 			{
-				QK_PROFILE_SCOPE(Window::OnUpdate);
+				OnRender();
+
+				for (size_t i = 0; i < m_Layers.size(); i++)
+					m_Layers[i]->OnRender();
+
 				m_Window->OnUpdate();
 			}
 		}

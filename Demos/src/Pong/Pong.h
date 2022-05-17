@@ -10,6 +10,7 @@ public:
 	Pong();
 
 	void OnUpdate(Timestep elapsedTime) override;
+	void OnRender() override;
 	void OnEvent(Event& e) override;
 
 private:

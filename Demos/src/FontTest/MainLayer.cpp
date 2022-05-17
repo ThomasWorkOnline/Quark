@@ -31,6 +31,10 @@ MainLayer::MainLayer()
 
 void MainLayer::OnUpdate(Timestep elapsedTime)
 {
+}
+
+void MainLayer::OnRender()
+{
 	Renderer::BeginScene(m_Camera.GetProjection(), glm::mat4(1.0f));
 	Renderer2D::DrawTextInput(m_Input);
 	Renderer::EndScene();

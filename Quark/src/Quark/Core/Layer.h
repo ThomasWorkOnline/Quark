@@ -11,6 +11,7 @@ namespace Quark {
 		virtual ~Layer() = default;
 
 		virtual void OnUpdate(Timestep elapsedTime) {}
+		virtual void OnRender() {}
 		virtual void OnEvent(Event& e) {}
 	};
 }

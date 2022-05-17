@@ -1,4 +1,3 @@
-#include "Tests/PBRRendering.h"
 #include "FontTest/FontTest.h"
 
 #include <Quark/EntryPoint.h>

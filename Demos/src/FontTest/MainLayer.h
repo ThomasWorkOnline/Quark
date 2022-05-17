@@ -10,6 +10,7 @@ public:
 	MainLayer();
 
 	virtual void OnUpdate(Timestep elapsedTime) override;
+	virtual void OnRender() override;
 	virtual void OnEvent(Event& e) override;
 
 private:
