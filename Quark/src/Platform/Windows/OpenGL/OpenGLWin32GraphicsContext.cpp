@@ -19,7 +19,6 @@ namespace Quark {
 
 		// unbind the current context
 		wglMakeCurrent(NULL, NULL);
-
 		wglDeleteContext(m_Context);
 	}
 

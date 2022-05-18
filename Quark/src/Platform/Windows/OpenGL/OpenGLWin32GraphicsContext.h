@@ -2,8 +2,8 @@
 
 #include "Quark/Renderer/GraphicsContext.h"
 
-typedef HWND  HWND;
-typedef HGLRC HGLRC;
+typedef struct HWND__* HWND;
+typedef struct HGLRC__* HGLRC;
 
 namespace Quark {
 

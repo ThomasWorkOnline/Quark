@@ -1,4 +1,4 @@
-#include "FontTest/FontTest.h"
+#include "Tests/PBRRendering.h"
 
 #include <Quark/EntryPoint.h>
 
@@ -6,6 +6,6 @@ namespace Quark {
 
 	Application* CreateApplication()
 	{
-		return new FontTest();
+		return new PBRRendering();
 	}
 }

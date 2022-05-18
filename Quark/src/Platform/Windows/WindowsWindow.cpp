@@ -4,6 +4,11 @@
 #include <Windows.h>
 #include <windowsx.h>
 
+// Conflicts with WindowsWindow::IsMinimized()/IsMaximized()
+// From Windows.h
+#undef IsMinimized(hwnd)
+#undef IsMaximized(hwnd)
+
 namespace Quark {
 
 	static constexpr wchar_t s_ClassName[] = L"QuarkApp";
@@ -34,7 +39,6 @@ namespace Quark {
 			Init();
 
 		m_Data.Title = spec.Title;
-
 		m_WindowHandle = CreateWindowEx(
 			0,                                           // Optional window styles.
 			s_ClassName,                                 // Window class
@@ -50,8 +54,8 @@ namespace Quark {
 			&m_Data     // Additional application data
 		);
 
-		++s_WindowCount;
 		QK_CORE_ASSERT(m_WindowHandle, "Window handle is nullptr");
+		++s_WindowCount;
 
 		m_Context = GraphicsContext::Create(m_WindowHandle);
 		m_Context->Init();
@@ -80,6 +84,61 @@ namespace Quark {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
+	}
+
+	void WindowsWindow::SetTitle(const std::string& title)
+	{
+		SetWindowText(m_WindowHandle, ConvertToWideString(title).c_str());
+		m_Data.Title = title;
+	}
+
+	void WindowsWindow::AppendTitle(const std::string& title)
+	{
+		SetTitle(m_Data.Title + title);
+	}
+
+	void WindowsWindow::Focus()
+	{
+		SetFocus(m_WindowHandle);
+	}
+
+	void WindowsWindow::Minimize()
+	{
+		ShowWindow(m_WindowHandle, SW_MINIMIZE);
+	}
+
+	void WindowsWindow::Maximize()
+	{
+		ShowWindow(m_WindowHandle, SW_MAXIMIZE);
+	}
+
+	void WindowsWindow::Restore()
+	{
+		ShowWindow(m_WindowHandle, SW_RESTORE);
+	}
+
+	void WindowsWindow::RequestAttention()
+	{
+		FlashWindow(m_WindowHandle, TRUE);
+	}
+
+	void WindowsWindow::SetVSync(bool enabled)
+	{
+	}
+
+	bool WindowsWindow::IsFocused() const
+	{
+		return GetFocus() == m_WindowHandle;
+	}
+
+	bool WindowsWindow::IsMinimized() const
+	{
+		return IsIconic(m_WindowHandle);
+	}
+
+	bool WindowsWindow::IsMaximized() const
+	{
+		return IsZoomed(m_WindowHandle);
 	}
 
 	void WindowsWindow::Init()

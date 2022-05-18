@@ -4,9 +4,11 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 
-namespace Quark {
+#ifdef QK_PLATFORM_WINDOWS
+#	include <Windows.h>
+#endif
 
-	Ref<Logger> Logger::s_Instance = CreateRef<Logger>();
+namespace Quark {
 
 	Logger::Logger()
 	{
@@ -36,5 +38,11 @@ namespace Quark {
 		spdlog::register_logger(m_CoreLogger);
 		spdlog::register_logger(m_ClientLogger);
 		spdlog::register_logger(m_ProfilerLogger);
+	}
+
+	Logger& Logger::GetInstance()
+	{
+		static Logger instance;
+		return instance;
 	}
 }

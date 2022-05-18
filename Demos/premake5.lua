@@ -33,13 +33,6 @@ project "Demos"
 	filter { "configurations:Dist", "system:windows" }
 		kind "WindowedApp"
 
-	filter "system:windows"
-		prebuildcommands
-		{
-			"mkdir -p %{wks.location}/bin/" .. outputdir .. "/%{prj.name}/assets",
-			"copy %{wks.location}/Quark/assets/* %{wks.location}/bin/" .. outputdir .. "/%{prj.name}/assets/"
-		}
-
 	filter "system:macosx"
 		kind "WindowedApp"
 		
@@ -51,26 +44,13 @@ project "Demos"
 			"OpenAL.framework",
 			"OpenGL.framework"
 		}
-
-		prebuildcommands
-		{
-			"mkdir -p %{wks.location}/bin/" .. outputdir .. "/%{prj.name}/assets",
-			"cp -r %{wks.location}/Quark/assets/* %{wks.location}/bin/" .. outputdir .. "/%{prj.name}/assets/"
-		}
 	
 	filter "system:linux"
-	
 		links
 		{
 			"GL",
 			"X11",
 			"openal"
-		}
-
-		prebuildcommands
-		{
-			"mkdir -p %{wks.location}/bin/" .. outputdir .. "/%{prj.name}/assets",
-			"cp -r %{wks.location}/Quark/assets/* %{wks.location}/bin/" .. outputdir .. "/%{prj.name}/assets/"
 		}
 
 	filter "configurations:Debug"
