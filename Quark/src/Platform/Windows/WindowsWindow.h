@@ -18,7 +18,7 @@ namespace Quark {
 
 		uint32_t GetWidth() const override { return m_Data.Width; }
 		uint32_t GetHeight() const override { return m_Data.Height; }
-		const std::string& GetTitle() const override { return m_Data.Title; }
+		std::string_view GetTitle() const override { return m_Data.Title; }
 
 		void SetTitle(const std::string& title) override;
 		void AppendTitle(const std::string& title) override;

@@ -45,7 +45,6 @@ namespace Quark {
 			0, 0, 0
 		};
 
-
 		HDC hdc = GetDC(m_WindowHandle);
 		QK_CORE_ASSERT(hdc, "Could not get a device context!");
 
