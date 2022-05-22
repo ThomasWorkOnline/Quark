@@ -9,7 +9,7 @@
 
 #if defined(QK_DEBUG) || defined(QK_RELEASE)
 #	ifndef QK_ENABLE_PROFILING
-#	define QK_ENABLE_PROFILING // <--- define QK_ENABLE_PROFILING to force profiling (see Core/Tweaks.h)
+#		define QK_ENABLE_PROFILING // <--- define QK_ENABLE_PROFILING to force profiling (see Core/Tweaks.h)
 #	endif
 #endif
 

@@ -2,7 +2,7 @@
 
 #include "Quark/Core/Core.h"
 #include "Quark/UI/Text.h"
-#include "Quark/Input/TextInput.h"
+#include "Quark/UI/TextInput.h"
 
 #include "Quark/Scene/Components.h"
 #include "Quark/Scene/Entity.h"

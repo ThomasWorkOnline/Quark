@@ -4,7 +4,6 @@
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
-
 #include <ostream>
 
 template<typename OStream, glm::length_t L, typename T, glm::qualifier Q>

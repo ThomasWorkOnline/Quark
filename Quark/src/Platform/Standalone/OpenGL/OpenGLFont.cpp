@@ -1,9 +1,11 @@
 #include "qkpch.h"
 #include "OpenGLFont.h"
 
+#pragma warning(push, 0)
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
+#pragma warning(pop)
 
 #include <glad/glad.h>
 

@@ -139,15 +139,15 @@ namespace Quark
 		Menu                = 348
 	};
 
-	enum ModifierKey : uint8_t
+	enum class ModifierKey : uint8_t
 	{
-		ModifierKeyNone     = 0,
-		ModifierKeyShift    = BIT(0),
-		ModifierKeyControl  = BIT(1),
-		ModifierKeyAlt      = BIT(2),
-		ModifierKeySuper    = BIT(3),
-		ModifierKeyCapsLock = BIT(4),
-		ModifierKeyNumLock  = BIT(5)
+		None     = 0,
+		Shift    = BIT(0),
+		Control  = BIT(1),
+		Alt      = BIT(2),
+		Super    = BIT(3),
+		CapsLock = BIT(4),
+		NumLock  = BIT(5)
 	};
 
 	inline constexpr uint16_t KeyCodeToInt(KeyCode key)

@@ -1,10 +1,9 @@
 #pragma once
 
-#include <ostream>
-#include <utility>
-
 #include "KeyCodes.h"
 #include "MouseCodes.h"
+
+#include <utility>
 
 namespace Quark {
 

@@ -4,11 +4,6 @@
 #include <Windows.h>
 #include <windowsx.h>
 
-// Conflicts with WindowsWindow::IsMinimized()/IsMaximized()
-// From Windows.h
-#undef IsMinimized(hwnd)
-#undef IsMaximized(hwnd)
-
 namespace Quark {
 
 	static constexpr wchar_t s_ClassName[] = L"QuarkApp";
@@ -131,6 +126,12 @@ namespace Quark {
 		return GetFocus() == m_WindowHandle;
 	}
 
+// Conflicts with IsMinimized()/IsMaximized()
+// From Windows.h
+#pragma push_macro("DisableIsMinimizedMaximized")
+#undef IsMinimized
+#undef IsMaximized
+
 	bool WindowsWindow::IsMinimized() const
 	{
 		return IsIconic(m_WindowHandle);
@@ -140,6 +141,8 @@ namespace Quark {
 	{
 		return IsZoomed(m_WindowHandle);
 	}
+
+#pragma pop_macro("DisableIsMinimizedMaximized")
 
 	void WindowsWindow::Init()
 	{

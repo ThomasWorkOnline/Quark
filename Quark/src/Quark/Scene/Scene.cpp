@@ -17,6 +17,10 @@ namespace Quark {
 		}
 	}
 
+	void Scene::OnRender()
+	{
+	}
+
 	Entity Scene::CreateEntity()
 	{
 		return { m_Registry.create(), *this };

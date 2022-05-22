@@ -1,8 +1,8 @@
 #include "qkpch.h"
 #include "OpenGLWin32GraphicsContext.h"
 
-#include <glad/glad.h>
 #include <Windows.h>
+#include <glad/glad.h>
 
 namespace Quark {
 

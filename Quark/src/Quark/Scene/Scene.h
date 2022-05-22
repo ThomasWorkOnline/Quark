@@ -13,6 +13,7 @@ namespace Quark {
 	{
 	public:
 		void OnUpdate(Timestep elapsedTime);
+		void OnRender();
 
 		Entity CreateEntity();
 		void DeleteEntity(Entity entity);

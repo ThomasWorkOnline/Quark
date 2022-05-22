@@ -2,8 +2,10 @@
 
 #include "Core.h"
 
+#pragma warning(push, 0)
 #define SPDLOG_COMPILED_LIB
 #include <spdlog/spdlog.h>
+#pragma warning(pop)
 
 namespace Quark {
 

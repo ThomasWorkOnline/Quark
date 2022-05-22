@@ -11,7 +11,7 @@ namespace Quark {
 		KeyCode GetKeyCode() const { return m_KeyCode; }
 		ModifierKey GetModifierKeys() const { return m_Mods; }
 
-		bool WasModifierKeyPressed(ModifierKey key) { return m_Mods & key; }
+		bool WasModifierKeyPressed(ModifierKey key) { return (uint8_t)m_Mods & (uint8_t)key; }
 
 		EVENT_CLASS_CATEGORY(EventCategoryKeyboard | EventCategoryInput);
 
@@ -64,7 +64,7 @@ namespace Quark {
 	{
 	public:
 		KeyTypedEvent(KeyCode keycode)
-			: KeyEvent(keycode, ModifierKeyNone) {}
+			: KeyEvent(keycode, ModifierKey::None) {}
 
 		std::string ToString() const override
 		{

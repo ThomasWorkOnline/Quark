@@ -110,7 +110,7 @@ namespace Quark {
 			}
 			else
 			{
-#if QK_ENABLE_PROFILE_LOG
+#ifdef QK_ENABLE_PROFILE_LOG
 				Logger::GetProfilerLogger()->debug("'{0}'\t took: {1}us ({2}ms)", m_Scope, elapsed.count(), elapsed.count() / 1000.f);
 #endif
 			}

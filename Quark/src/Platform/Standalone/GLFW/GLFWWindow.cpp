@@ -12,12 +12,12 @@ namespace Quark {
 		uint8_t keys{};
 		switch (mod)
 		{
-			case GLFW_MOD_SHIFT:     keys |= ModifierKeyShift;
-			case GLFW_MOD_CONTROL:   keys |= ModifierKeyControl;
-			case GLFW_MOD_ALT:       keys |= ModifierKeyAlt;
-			case GLFW_MOD_SUPER:     keys |= ModifierKeySuper;
-			case GLFW_MOD_CAPS_LOCK: keys |= ModifierKeyCapsLock;
-			case GLFW_MOD_NUM_LOCK:  keys |= ModifierKeyNumLock;
+			case GLFW_MOD_SHIFT:     (uint8_t)keys |= (uint8_t)ModifierKey::Shift;
+			case GLFW_MOD_CONTROL:   (uint8_t)keys |= (uint8_t)ModifierKey::Control;
+			case GLFW_MOD_ALT:       (uint8_t)keys |= (uint8_t)ModifierKey::Alt;
+			case GLFW_MOD_SUPER:     (uint8_t)keys |= (uint8_t)ModifierKey::Super;
+			case GLFW_MOD_CAPS_LOCK: (uint8_t)keys |= (uint8_t)ModifierKey::CapsLock;
+			case GLFW_MOD_NUM_LOCK:  (uint8_t)keys |= (uint8_t)ModifierKey::NumLock;
 		}
 
 		return static_cast<ModifierKey>(keys);

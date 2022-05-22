@@ -5,7 +5,7 @@
 
 // Include all supported API's graphics context implementations
 
-#if defined(QK_PLATFORM_WINDOWS) && QK_USE_NATIVE_APIS
+#if defined(QK_PLATFORM_WINDOWS) && defined(QK_USE_NATIVE_APIS)
 #	include "Platform/Windows/OpenGL/OpenGLWin32GraphicsContext.h"
 #else
 #	include "Platform/Standalone/OpenGL/OpenGLGraphicsContext.h"
@@ -19,7 +19,7 @@ namespace Quark {
 		{
 			case RenderingAPI::API::OpenGL:
 			{
-#if defined(QK_PLATFORM_WINDOWS) && QK_USE_NATIVE_APIS
+#if defined(QK_PLATFORM_WINDOWS) && defined(QK_USE_NATIVE_APIS)
 				return CreateScope<OpenGLWin32GraphicsContext>(window);
 #else
 				return CreateScope<OpenGLGLFWGraphicsContext>(window);

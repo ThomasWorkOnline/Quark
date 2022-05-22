@@ -43,5 +43,5 @@ namespace Quark {
 #include "Logger.h"
 #include "Timestep.h"
 
-#include "Quark/Profiling/MemoryMetrics.h"
-#include "Quark/Profiling/Profiling.h"
+#include "Quark/Metrics/MemoryMetrics.h"
+#include "Quark/Metrics/Profiling.h"

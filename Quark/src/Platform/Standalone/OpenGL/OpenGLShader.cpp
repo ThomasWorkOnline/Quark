@@ -110,7 +110,7 @@ namespace Quark {
 		GLuint program = glCreateProgram();
 
 		GLenum glShaderIDs[maxShaders]{};
-		int32_t glShaderIDIndex = 0;
+		uint32_t glShaderIDIndex = 0;
 		for (auto& [type, source] : shaderSources)
 		{
 			GLuint shader = glCreateShader(type);
