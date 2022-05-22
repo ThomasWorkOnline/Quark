@@ -9,4 +9,4 @@
 	url = https://github.com/skypjack/entt.git
 [submodule "lodepng"]
 	path = Quark/vendor/lodepng
-	url = https://github.com/ThomasWorkOnline/lodepng.git
+	url = https://github.com/ThomasWorkOnline/lodepng
