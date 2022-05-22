@@ -15,11 +15,20 @@ namespace Quark {
 	 *  0 -> 3      0    3
 	 */
 
-	static constexpr glm::vec4 s_SpriteVertexPositions[] = {
+	static constexpr glm::vec4 s_SpriteVertexPositions[4] = {
 		{ -0.5f, -0.5f, 0.0f, 1.0f },
 		{  0.5f, -0.5f, 0.0f, 1.0f },
 		{  0.5f,  0.5f, 0.0f, 1.0f },
 		{ -0.5f,  0.5f, 0.0f, 1.0f }
+	};
+
+	// NOTE: UVs are flipped vertically since the image loader
+	// does not provide any way to flip it while loading
+	static constexpr glm::vec2 s_TextureCoords[4] = {
+		{ 0.0f, 1.0f },
+		{ 1.0f, 1.0f },
+		{ 1.0f, 0.0f },
+		{ 0.0f, 0.0f }
 	};
 
 	struct QuadVertex
@@ -117,8 +126,7 @@ namespace Quark {
 	
 	void Renderer2D::DrawSprite(const Ref<Texture2D>& texture, const glm::mat4& transform)
 	{
-		static constexpr glm::vec2 textureCoords[4] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
-		DrawSprite(texture, textureCoords, transform);
+		DrawSprite(texture, s_TextureCoords, transform);
 	}
 
 	void Renderer2D::DrawSprite(const SubTexture2D& subTexture, const glm::mat4& transform)

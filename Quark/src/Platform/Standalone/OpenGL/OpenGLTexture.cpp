@@ -47,16 +47,16 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		Ref<Image> image = Image::Create(filepath);
+		Image image = filepath;
 
-		m_Spec.Width       = image->Width();
-		m_Spec.Height      = image->Height();
+		m_Spec.Width       = image.Width();
+		m_Spec.Height      = image.Height();
 		m_Spec.RenderModes = descriptor.RenderModes;
 
-		if (image->IsHDR())
+		if (image.IsHDR())
 		{
 			m_DataType = GL_FLOAT;
-			switch (image->Channels())
+			switch (image.Channels())
 			{
 				case 3:
 					m_InternalFormat = GL_RGB16F;
@@ -74,7 +74,7 @@ namespace Quark {
 		else
 		{
 			m_DataType = GL_UNSIGNED_BYTE;
-			switch (image->Channels())
+			switch (image.Channels())
 			{
 				case 1:
 					m_InternalFormat = GL_R8;
@@ -98,7 +98,7 @@ namespace Quark {
 
 		glGenTextures(1, &m_RendererID);
 		glBindTexture(GL_TEXTURE_2D, m_RendererID);
-		glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Spec.Width, m_Spec.Height, 0, m_DataFormat, m_DataType, image->Data());
+		glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Spec.Width, m_Spec.Height, 0, m_DataFormat, m_DataType, *image);
 
 		GLenum tilingMode = GetTextureTilingMode(m_Spec.RenderModes.TilingMode);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetTextureFilteringMode(m_Spec.RenderModes.MinFilteringMode));

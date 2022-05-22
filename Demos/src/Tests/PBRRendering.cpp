@@ -26,7 +26,7 @@ PBRRendering::PBRRendering()
 		m_CubemapVAO = cube.GetVertexArray();
 	}
 
-#define MATERIAL 2
+#define MATERIAL 0
 
 	{
 		const char* albedoFilepath    = nullptr;
@@ -76,8 +76,24 @@ PBRRendering::PBRRendering()
 		m_MetallicFuture  = std::async(std::launch::async, Image::Create, metallicFilepath);
 		m_NormalFuture    = std::async(std::launch::async, Image::Create, normalFilepath);
 		m_RoughnessFuture = std::async(std::launch::async, Image::Create, roughnessFilepath);
+
 		if (aoFilepath)
+		{
 			m_AOFuture    = std::async(std::launch::async, Image::Create, aoFilepath);
+		}
+		else
+		{
+			Texture2DSpecification spec;
+			spec.Width = 1;
+			spec.Height = 1;
+			spec.DataFormat = TextureDataFormat::Red;
+			spec.InternalFormat = TextureInternalFormat::Red8;
+
+			uint8_t data = 0xff;
+
+			m_AO = Texture2D::Create(spec);
+			m_AO->SetData(&data, sizeof(uint8_t));
+		}
 	}
 
 	m_HDRTexture       = Texture2D::Create("assets/textures/hdr/MonValley_G_DirtRoad_3k.hdr");
@@ -212,8 +228,8 @@ void PBRRendering::OnRender()
 	if (m_Metallic) m_Metallic->Attach(2);
 	if (m_Roughness) m_Roughness->Attach(3);
 	if (m_AO) m_AO->Attach(4);
-
 	m_Irradiance->Attach(5);
+
 	m_PBRShader->Attach();
 	m_PBRShader->SetFloat3("u_CameraPos", transform.Position);
 

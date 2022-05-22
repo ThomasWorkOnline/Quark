@@ -65,7 +65,6 @@ namespace Quark {
 
 	void Image::DecodeHDR(std::string_view filepath)
 	{
-		stbi_set_flip_vertically_on_load_thread(true);
 		FILE* file = fopen(filepath.data(), "rb");
 		QK_CORE_ASSERT(file, "Could not open file at: {0}", filepath);
 

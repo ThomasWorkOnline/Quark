@@ -9,21 +9,20 @@ struct Vertex
 
 TextureArrayTest::TextureArrayTest()
 {
+	Ref<Image> texture1 = Image::Create("assets/textures/Example1_BasicRendering.png");
+
 	TextureArraySpecification spec;
 	spec.DataFormat     = TextureDataFormat::RGBA;
 	spec.InternalFormat = TextureInternalFormat::SRGBA8;
-	spec.Width = 16;
-	spec.Height = 16;
+	spec.Width = texture1->Width();
+	spec.Height = texture1->Height();
 	spec.Layers = 2;
 	spec.RenderModes.MinFilteringMode = TextureFilteringMode::NearestMipmapLinear;
 	spec.RenderModes.MagFilteringMode = TextureFilteringMode::Nearest;
 
-	Ref<Image> defaultTexture   = Image::Create("assets/textures/blocks/default_texture.png");
-	Ref<Image> oakLeavesTexture = Image::Create("assets/textures/blocks/oak_leaves.png");
-
 	m_TextureArray = Texture2DArray::Create(spec);
-	m_TextureArray->SetData(defaultTexture->Data(), defaultTexture->Size(), 0);
-	m_TextureArray->SetData(oakLeavesTexture->Data(), oakLeavesTexture->Size(), 1);
+	m_TextureArray->SetData(texture1->Data(), texture1->Size(), 0);
+	m_TextureArray->SetData(texture1->Data(), texture1->Size(), 1);
 	m_TextureArray->GenerateMipmaps();
 
 	m_Shader = Shader::Create("assets/shaders/textureArray.glsl");
@@ -31,10 +30,10 @@ TextureArrayTest::TextureArrayTest()
 	m_Shader->SetInt("u_Sampler", 0);
 
 	static constexpr Vertex vertices[] = {
-		{ { 0.0f, 0.0f, 1.0f },  { 0.0f, 0.0f }, 0 },
-		{ { 1.0f, 0.0f, 1.0f },  { 1.0f, 0.0f }, 0 },
-		{ { 1.0f, 1.0f, 1.0f },  { 1.0f, 1.0f }, 1 },
-		{ { 0.0f, 1.0f, 1.0f },  { 0.0f, 1.0f }, 0 }
+		{ { 0.0f, 0.0f, 1.0f },  { 0.0f, 1.0f }, 0 },
+		{ { 1.0f, 0.0f, 1.0f },  { 1.0f, 1.0f }, 0 },
+		{ { 1.0f, 1.0f, 1.0f },  { 1.0f, 0.0f }, 1 },
+		{ { 0.0f, 1.0f, 1.0f },  { 0.0f, 0.0f }, 0 }
 	};
 
 	static constexpr uint32_t indices[] = {

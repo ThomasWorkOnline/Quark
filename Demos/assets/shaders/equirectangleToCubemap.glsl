@@ -13,7 +13,9 @@ out VertexOutput
 void main()
 {
     gl_Position = u_Projection * u_View * vec4(a_Position, 1.0);
-    v_Output.Position = a_Position;
+    v_Output.Position.x =  a_Position.x;
+    v_Output.Position.y = -a_Position.y;
+    v_Output.Position.z =  a_Position.z;
 }
 
 #type fragment

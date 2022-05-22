@@ -17,7 +17,6 @@ namespace Quark {
 	class Image
 	{
 	public:
-		Image() = default;
 		Image(std::string_view filepath);
 		~Image();
 
