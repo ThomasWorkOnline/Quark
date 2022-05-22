@@ -27,6 +27,7 @@ project "Demos"
 		"freetype",
 		"Glad",
 		"GLFW",
+		"lodepng",
 		"spdlog"
 	}
 
