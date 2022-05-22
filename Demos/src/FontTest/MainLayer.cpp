@@ -18,7 +18,7 @@ MainLayer::MainLayer()
 	m_Text2 = Text("Hello quad", m_Font2, m_Color1, HorizontalTextAlignment::Right, VerticalTextAlignment::Bottom);
 	m_Input = TextInput(m_Font1, HorizontalTextAlignment::Center);
 
-	TextureDescriptor descriptor;
+	TextureFormatDescriptor descriptor;
 	descriptor.SRGB = true;
 	m_Texture = Texture2D::Create("assets/textures/pbr/streaked-metal/normal-dx.png", descriptor);
 

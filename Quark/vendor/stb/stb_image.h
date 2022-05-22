@@ -831,7 +831,8 @@ static int stbi__stdio_eof(void *user)
    return feof((FILE*) user) || ferror((FILE *) user);
 }
 
-static stbi_io_callbacks stbi__stdio_callbacks =
+// FIX: (add thread_local specifier)
+static thread_local stbi_io_callbacks stbi__stdio_callbacks =
 {
    stbi__stdio_read,
    stbi__stdio_skip,

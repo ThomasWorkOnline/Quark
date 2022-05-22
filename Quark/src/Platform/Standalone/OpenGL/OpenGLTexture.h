@@ -7,8 +7,8 @@ namespace Quark {
 	class OpenGLTexture2D : public Texture2D
 	{
 	public:
-		OpenGLTexture2D(const TextureSpecification& spec);
-		OpenGLTexture2D(std::string_view filepath, const TextureDescriptor& descriptor);
+		OpenGLTexture2D(const Texture2DSpecification& spec);
+		OpenGLTexture2D(std::string_view filepath, const TextureFormatDescriptor& descriptor);
 		~OpenGLTexture2D() override;
 
 		uint32_t GetWidth() const override { return m_Spec.Width; }
@@ -18,6 +18,7 @@ namespace Quark {
 		void Detach() const override;
 
 		void SetData(const void* data, size_t size) override;
+		virtual void GenerateMipmaps() override;
 
 		uint32_t GetRendererID() const override { return m_RendererID; }
 
@@ -28,7 +29,7 @@ namespace Quark {
 
 	private:
 		uint32_t m_RendererID = 0;
-		TextureSpecification m_Spec;
+		Texture2DSpecification m_Spec;
 		uint32_t m_InternalFormat = 0, m_DataFormat = 0, m_DataType = 0;
 	};
 }

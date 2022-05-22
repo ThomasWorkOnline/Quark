@@ -375,7 +375,7 @@ namespace Quark {
 		s_Data->Textures = new Ref<Texture2D>[s_Data->MaxSamplers];
 
 		uint32_t textureColor = 0xffffffff;
-		TextureSpecification spec = { 1, 1, 1,
+		Texture2DSpecification spec = { 1, 1, 1,
 			TextureDataFormat::RGBA,
 			TextureInternalFormat::RGBA8,
 			TextureFilteringMode::Nearest, TextureFilteringMode::Nearest, TextureTilingMode::Repeat

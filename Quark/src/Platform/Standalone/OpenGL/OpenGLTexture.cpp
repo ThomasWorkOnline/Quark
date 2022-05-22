@@ -13,7 +13,7 @@ namespace Quark {
 		return (x & (x - 1)) == 0;
 	}
 
-	OpenGLTexture2D::OpenGLTexture2D(const TextureSpecification& spec)
+	OpenGLTexture2D::OpenGLTexture2D(const Texture2DSpecification& spec)
 		: m_Spec(spec)
 	{
 		QK_PROFILE_FUNCTION();
@@ -43,21 +43,20 @@ namespace Quark {
 		}
 	}
 
-	OpenGLTexture2D::OpenGLTexture2D(std::string_view filepath, const TextureDescriptor& descriptor)
+	OpenGLTexture2D::OpenGLTexture2D(std::string_view filepath, const TextureFormatDescriptor& descriptor)
 	{
 		QK_PROFILE_FUNCTION();
 
-		ImageDescriptor imageDescriptor;
-		Image image(filepath, imageDescriptor);
+		Ref<Image> image = Image::Create(filepath);
 
-		m_Spec.Width       = image.Width();
-		m_Spec.Height      = image.Height();
+		m_Spec.Width       = image->Width();
+		m_Spec.Height      = image->Height();
 		m_Spec.RenderModes = descriptor.RenderModes;
 
-		if (image.IsHDR())
+		if (image->IsHDR())
 		{
 			m_DataType = GL_FLOAT;
-			switch (image.Channels())
+			switch (image->Channels())
 			{
 				case 3:
 					m_InternalFormat = GL_RGB16F;
@@ -75,7 +74,7 @@ namespace Quark {
 		else
 		{
 			m_DataType = GL_UNSIGNED_BYTE;
-			switch (image.Channels())
+			switch (image->Channels())
 			{
 				case 1:
 					m_InternalFormat = GL_R8;
@@ -99,7 +98,7 @@ namespace Quark {
 
 		glGenTextures(1, &m_RendererID);
 		glBindTexture(GL_TEXTURE_2D, m_RendererID);
-		glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Spec.Width, m_Spec.Height, 0, m_DataFormat, m_DataType, *image);
+		glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Spec.Width, m_Spec.Height, 0, m_DataFormat, m_DataType, image->Data());
 
 		GLenum tilingMode = GetTextureTilingMode(m_Spec.RenderModes.TilingMode);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetTextureFilteringMode(m_Spec.RenderModes.MinFilteringMode));
@@ -133,6 +132,8 @@ namespace Quark {
 
 	void OpenGLTexture2D::SetData(const void* data, size_t size)
 	{
+		QK_PROFILE_FUNCTION();
+
 		size_t pSize = GetPixelFormatSize(m_Spec.InternalFormat);
 		QK_CORE_ASSERT(size == m_Spec.Width * m_Spec.Height * pSize, "Data must be entire texture");
 
@@ -140,5 +141,13 @@ namespace Quark {
 		glBindTexture(target, m_RendererID);
 		glTexSubImage2D(target, 0, 0, 0, m_Spec.Width, m_Spec.Height, m_DataFormat,
 			GetDataTypeBasedOnInternalFormat(m_Spec.InternalFormat), data);
+	}
+
+	void OpenGLTexture2D::GenerateMipmaps()
+	{
+		QK_CORE_ASSERT(TextureHasMips(m_Spec.RenderModes.MinFilteringMode) || TextureHasMips(m_Spec.RenderModes.MagFilteringMode),
+			"Invalid texture specification for mipmaps");
+
+		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 }

@@ -18,12 +18,12 @@ TextureArrayTest::TextureArrayTest()
 	spec.RenderModes.MinFilteringMode = TextureFilteringMode::NearestMipmapLinear;
 	spec.RenderModes.MagFilteringMode = TextureFilteringMode::Nearest;
 
-	Image defaultTexture("assets/textures/blocks/default_texture.png");
-	Image oakLeavesTexture("assets/textures/blocks/oak_leaves.png");
+	Ref<Image> defaultTexture   = Image::Create("assets/textures/blocks/default_texture.png");
+	Ref<Image> oakLeavesTexture = Image::Create("assets/textures/blocks/oak_leaves.png");
 
 	m_TextureArray = Texture2DArray::Create(spec);
-	m_TextureArray->SetData(defaultTexture.Data(), defaultTexture.Size(), 0);
-	m_TextureArray->SetData(oakLeavesTexture.Data(), oakLeavesTexture.Size(), 1);
+	m_TextureArray->SetData(defaultTexture->Data(), defaultTexture->Size(), 0);
+	m_TextureArray->SetData(oakLeavesTexture->Data(), oakLeavesTexture->Size(), 1);
 	m_TextureArray->GenerateMipmaps();
 
 	m_Shader = Shader::Create("assets/shaders/textureArray.glsl");

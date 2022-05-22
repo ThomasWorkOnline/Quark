@@ -12,7 +12,7 @@ namespace Quark {
 	{
 		Vector3 Position;
 		Vector3 Scale;
-		Quat Orientation;
+		Quat    Orientation;
 
 		Transform3DComponent(const Transform3DComponent& other)
 			: Position(other.Position), Scale(other.Scale), Orientation(other.Orientation) {}
@@ -52,7 +52,7 @@ namespace Quark {
 	struct PhysicsComponent
 	{
 		Vector3 Velocity;
-		Float Friction;
+		Float   Friction;
 
 		PhysicsComponent(const Vector3& initVelocity = Vector3(0.f), Float coeffFriction = 0.f)
 			: Velocity(initVelocity), Friction(coeffFriction) {}
@@ -63,8 +63,6 @@ namespace Quark {
 		Mesh MeshInstance;
 
 		MeshComponent() = default;
-		MeshComponent(std::string_view filepath, const MeshDescriptor& descriptor)
-			: MeshInstance(filepath, descriptor) { }
 	};
 
 	struct PerspectiveCameraComponent

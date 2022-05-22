@@ -1,12 +1,11 @@
 #pragma once
 
 #include "Quark/Core/Core.h"
-
 #include "TextureFormats.h"
 
 namespace Quark {
 
-	struct TextureSpecification
+	struct Texture2DSpecification
 	{
 		uint32_t              Width = 0, Height = 0;
 		uint32_t              Samples = 1;
@@ -16,7 +15,7 @@ namespace Quark {
 		TextureRenderModes    RenderModes;
 	};
 
-	struct TextureDescriptor
+	struct TextureFormatDescriptor
 	{
 		bool SRGB = false;
 		TextureRenderModes RenderModes;
@@ -34,12 +33,13 @@ namespace Quark {
 		virtual void Detach() const = 0;
 
 		virtual void SetData(const void* data, size_t size) = 0;
+		virtual void GenerateMipmaps() = 0;
 
 		virtual uint32_t GetRendererID() const = 0;
 
 		virtual bool operator==(const Texture2D& other) const = 0;
 
-		static Ref<Texture2D> Create(const TextureSpecification& spec);
-		static Ref<Texture2D> Create(std::string_view filepath, const TextureDescriptor& descriptor = {});
+		static Ref<Texture2D> Create(const Texture2DSpecification& spec);
+		static Ref<Texture2D> Create(std::string_view filepath, const TextureFormatDescriptor& descriptor = {});
 	};
 }

@@ -1,80 +1,95 @@
 #include "PBRRendering.h"
 
+static Ref<Texture2D> CreateTextureFromImage(const Ref<Image>& image, const Texture2DSpecification& spec)
+{
+	auto texture = Texture2D::Create(spec);
+	texture->SetData(image->Data(), image->Size());
+	texture->GenerateMipmaps();
+	return texture;
+}
+
 PBRRendering::PBRRendering()
 {
 	m_Player = m_Scene.CreateEntity();
 	m_Player.AddComponent<Transform3DComponent>().Position = { 0.0f, 0.0f, -2.0f };
 	m_Player.AddComponent<PhysicsComponent>().Friction = 4.0f;
 	m_Player.AddComponent<PerspectiveCameraComponent>((float)GetWindow().GetWidth() / GetWindow().GetHeight(), 70.0f);
-	m_Controller = { m_Player };
-
-#if 1
-	m_Body.LoadOBJFromFile("assets/meshes/poly_sphere.obj");
-#else
-	m_Body.GenerateUnitCube();
-#endif
-
-	m_Cube.GenerateUnitCube();
-	m_CubemapVAO = m_Cube.GetVertexArray();
-
-#define MATERIAL 4
+	m_Controller = m_Player;
 
 	{
-		TextureDescriptor descriptor;
-		descriptor.SRGB = true;
-		descriptor.RenderModes.MagFilteringMode = TextureFilteringMode::Linear;
-		descriptor.RenderModes.MinFilteringMode = TextureFilteringMode::LinearMipmapLinear;
+		MeshFormatDescriptor md;
+		m_MeshDataFuture = std::async(std::launch::async, Mesh::ReadOBJData, "assets/meshes/poly_sphere.obj", md);
+	}
+
+	{
+		Mesh cube = Mesh::GenerateUnitCube();
+		m_CubemapVAO = cube.GetVertexArray();
+	}
+
+#define MATERIAL 2
+
+	{
+		const char* albedoFilepath    = nullptr;
+		const char* metallicFilepath  = nullptr;
+		const char* normalFilepath    = nullptr;
+		const char* roughnessFilepath = nullptr;
+		const char* aoFilepath        = nullptr;
 
 #if MATERIAL == 0
-		m_Albedo    = Texture2D::Create("assets/textures/pbr/greasy-pan/greasy-pan-2-albedo.png", descriptor);
-		m_Metallic  = Texture2D::Create("assets/textures/pbr/greasy-pan/greasy-pan-2-metal.png");
-		m_Normal    = Texture2D::Create("assets/textures/pbr/greasy-pan/greasy-pan-2-normal.png");
-		m_Roughness = Texture2D::Create("assets/textures/pbr/greasy-pan/greasy-pan-2-roughness.png");
+		albedoFilepath    = "assets/textures/pbr/greasy-pan/greasy-pan-2-albedo.png";
+		metallicFilepath  = "assets/textures/pbr/greasy-pan/greasy-pan-2-metal.png";
+		normalFilepath    = "assets/textures/pbr/greasy-pan/greasy-pan-2-normal.png";
+		roughnessFilepath = "assets/textures/pbr/greasy-pan/greasy-pan-2-roughness.png";
 #endif
 
 #if MATERIAL == 1
-		m_Albedo    = Texture2D::Create("assets/textures/pbr/streaked-metal/albedo.png", descriptor);
-		m_Metallic  = Texture2D::Create("assets/textures/pbr/streaked-metal/metalness.png");
-		m_Normal    = Texture2D::Create("assets/textures/pbr/streaked-metal/normal-dx.png");
-		m_Roughness = Texture2D::Create("assets/textures/pbr/streaked-metal/rough.png");
+		albedoFilepath    = "assets/textures/pbr/streaked-metal/albedo.png";
+		metallicFilepath  = "assets/textures/pbr/streaked-metal/metalness.png";
+		normalFilepath    = "assets/textures/pbr/streaked-metal/normal-dx.png";
+		roughnessFilepath = "assets/textures/pbr/streaked-metal/rough.png";
 #endif
 
 #if MATERIAL == 2
-		m_Albedo    = Texture2D::Create("assets/textures/pbr/rustediron/rustediron2_basecolor.png", descriptor);
-		m_Metallic  = Texture2D::Create("assets/textures/pbr/rustediron/rustediron2_metallic.png");
-		m_Normal    = Texture2D::Create("assets/textures/pbr/rustediron/rustediron2_normal.png");
-		m_Roughness = Texture2D::Create("assets/textures/pbr/rustediron/rustediron2_roughness.png");
+		albedoFilepath    = "assets/textures/pbr/rustediron/rustediron2_basecolor.png";
+		metallicFilepath  = "assets/textures/pbr/rustediron/rustediron2_metallic.png";
+		normalFilepath    = "assets/textures/pbr/rustediron/rustediron2_normal.png";
+		roughnessFilepath = "assets/textures/pbr/rustediron/rustediron2_roughness.png";
 #endif
 
 #if MATERIAL == 3
-		m_Albedo           = Texture2D::Create("assets/textures/pbr/gray-granite/gray-granite-flecks-albedo.png", descriptor);
-		m_AmbiantOcclusion = Texture2D::Create("assets/textures/pbr/gray-granite/gray-granite-flecks-ao.png");
-		m_Metallic         = Texture2D::Create("assets/textures/pbr/gray-granite/gray-granite-flecks-Metallic.png");
-		m_Normal           = Texture2D::Create("assets/textures/pbr/gray-granite/gray-granite-flecks-Normal-dx.png");
-		m_Roughness        = Texture2D::Create("assets/textures/pbr/gray-granite/gray-granite-flecks-Roughness.png");
+		albedoFilepath    = "assets/textures/pbr/gray-granite/gray-granite-flecks-albedo.png";
+		metallicFilepath  = "assets/textures/pbr/gray-granite/gray-granite-flecks-Metallic.png";
+		normalFilepath    = "assets/textures/pbr/gray-granite/gray-granite-flecks-Normal-dx.png";
+		roughnessFilepath = "assets/textures/pbr/gray-granite/gray-granite-flecks-Roughness.png";
+		aoFilepath        = "assets/textures/pbr/gray-granite/gray-granite-flecks-ao.png";
 #endif
 
 #if MATERIAL == 4
-		m_Albedo           = Texture2D::Create("assets/textures/pbr/marble-speckled/marble-speckled-albedo.png", descriptor);
-		m_AmbiantOcclusion = Texture2D::Create("assets/textures/pbr/gray-granite/gray-granite-flecks-ao.png");
-		m_Metallic         = Texture2D::Create("assets/textures/pbr/marble-speckled/marble-speckled-metalness.png");
-		m_Normal           = Texture2D::Create("assets/textures/pbr/marble-speckled/marble-speckled-normal.png");
-		m_Roughness        = Texture2D::Create("assets/textures/pbr/marble-speckled/marble-speckled-roughness.png");
+		albedoFilepath    = "assets/textures/pbr/marble-speckled/marble-speckled-albedo.png";
+		metallicFilepath  = "assets/textures/pbr/marble-speckled/marble-speckled-metalness.png";
+		normalFilepath    = "assets/textures/pbr/marble-speckled/marble-speckled-normal.png";
+		roughnessFilepath = "assets/textures/pbr/marble-speckled/marble-speckled-roughness.png";
+		aoFilepath        = "assets/textures/pbr/gray-granite/gray-granite-flecks-ao.png";
 #endif
+
+		m_AlbedoFuture    = std::async(std::launch::async, Image::Create, albedoFilepath);
+		m_MetallicFuture  = std::async(std::launch::async, Image::Create, metallicFilepath);
+		m_NormalFuture    = std::async(std::launch::async, Image::Create, normalFilepath);
+		m_RoughnessFuture = std::async(std::launch::async, Image::Create, roughnessFilepath);
+		if (aoFilepath)
+			m_AOFuture    = std::async(std::launch::async, Image::Create, aoFilepath);
 	}
 
-	m_HDRTexture = Texture2D::Create("assets/textures/hdr/MonValley_G_DirtRoad_3k.hdr");
-
-	m_PBRShader = Shader::Create("assets/shaders/PBR.glsl");
+	m_HDRTexture       = Texture2D::Create("assets/textures/hdr/MonValley_G_DirtRoad_3k.hdr");
+	m_PBRShader        = Shader::Create("assets/shaders/PBR.glsl");
 	m_IrradianceShader = Shader::Create("assets/shaders/irradiance.glsl");
 	m_EquirectangleToCubemapShader = Shader::Create("assets/shaders/equirectangleToCubemap.glsl");
-	m_SkyboxShader = Shader::Create("assets/shaders/cubemap.glsl");
+	m_SkyboxShader     = Shader::Create("assets/shaders/cubemap.glsl");
 
 	{
 		FramebufferSpecification spec;
 		spec.Width = 2048;
 		spec.Height = 2048;
-
 		m_EnvironmentFramebuffer = Framebuffer::Create(spec);
 	}
 
@@ -170,7 +185,7 @@ PBRRendering::PBRRendering()
 
 	m_EnvironmentFramebuffer->Detach();
 
-	// Due to the lack of a render pipeline, we must reset the viewport after detaching the fbo
+	// Due to the lack of a render pipeline, we reset the viewport after detaching the fbo
 	auto& window = GetWindow();
 	RenderCommand::SetViewport(0, 0, window.GetWidth(), window.GetHeight());
 	RenderCommand::SetCullFace(RenderCullFace::Default);
@@ -185,22 +200,27 @@ void PBRRendering::OnUpdate(Timestep elapsedTime)
 
 void PBRRendering::OnRender()
 {
+	UploadAssets();
+
 	const auto& camera = m_Player.GetComponent<PerspectiveCameraComponent>().Camera;
 	const auto& transform = m_Player.GetComponent<Transform3DComponent>();
 
 	Renderer::BeginScene(camera, transform);
 
-	m_Albedo->Attach(0);
-	m_Normal->Attach(1);
-	m_Metallic->Attach(2);
-	m_Roughness->Attach(3);
-	m_AmbiantOcclusion->Attach(4);
-	m_Irradiance->Attach(5);
+	if (m_Albedo) m_Albedo->Attach(0);
+	if (m_Normal) m_Normal->Attach(1);
+	if (m_Metallic) m_Metallic->Attach(2);
+	if (m_Roughness) m_Roughness->Attach(3);
+	if (m_AO) m_AO->Attach(4);
 
+	m_Irradiance->Attach(5);
 	m_PBRShader->Attach();
 	m_PBRShader->SetFloat3("u_CameraPos", transform.Position);
 
-	RenderCommand::DrawIndexed(m_Body.GetVertexArray());
+	if (m_Body)
+	{
+		RenderCommand::DrawIndexed(m_Body.GetVertexArray());
+	}
 
 	// Skybox
 	{
@@ -216,7 +236,6 @@ void PBRRendering::OnRender()
 		m_HDRCubemap->Attach(0);
 
 		RenderCommand::DrawIndexed(m_CubemapVAO);
-
 		RenderCommand::SetCullFace(RenderCullFace::Default);
 		RenderCommand::SetDepthFunction(RenderDepthFunction::Default);
 	}
@@ -264,4 +283,88 @@ bool PBRRendering::OnMouseButtonPressed(MouseButtonPressedEvent& e)
 bool PBRRendering::OnMouseButtonReleased(MouseButtonReleasedEvent& e)
 {
 	return false;
+}
+
+void PBRRendering::UploadAssets()
+{
+	if (m_MeshDataFuture.valid() && m_MeshDataFuture.wait_for(std::chrono::microseconds(0)) == std::future_status::ready)
+	{
+		OBJMeshData meshData = std::move(m_MeshDataFuture.get());
+		m_Body = meshData;
+	}
+
+	if (m_AlbedoFuture.valid() && m_AlbedoFuture.wait_for(std::chrono::microseconds(0)) == std::future_status::ready)
+	{
+		Ref<Image> image = m_AlbedoFuture.get();
+
+		Texture2DSpecification spec;
+		spec.Width = image->Width();
+		spec.Height = image->Height();
+		spec.DataFormat = image->Channels() == 4 ? TextureDataFormat::RGBA : TextureDataFormat::RGB;
+		spec.InternalFormat = image->Channels() == 4 ? TextureInternalFormat::SRGBA8 : TextureInternalFormat::SRGB8;
+		spec.RenderModes.MagFilteringMode = TextureFilteringMode::Linear;
+		spec.RenderModes.MinFilteringMode = TextureFilteringMode::LinearMipmapLinear;
+
+		m_Albedo = CreateTextureFromImage(image, spec);
+	}
+
+	if (m_MetallicFuture.valid() && m_MetallicFuture.wait_for(std::chrono::microseconds(0)) == std::future_status::ready)
+	{
+		Ref<Image> image = m_MetallicFuture.get();
+
+		Texture2DSpecification spec;
+		spec.Width = image->Width();
+		spec.Height = image->Height();
+		spec.DataFormat = image->Channels() == 4 ? TextureDataFormat::RGBA : TextureDataFormat::RGB;
+		spec.InternalFormat = image->Channels() == 4 ? TextureInternalFormat::RGBA8 : TextureInternalFormat::RGB8;
+		spec.RenderModes.MagFilteringMode = TextureFilteringMode::Linear;
+		spec.RenderModes.MinFilteringMode = TextureFilteringMode::LinearMipmapLinear;
+
+		m_Metallic = CreateTextureFromImage(image, spec);
+	}
+
+	if (m_NormalFuture.valid() && m_NormalFuture.wait_for(std::chrono::microseconds(0)) == std::future_status::ready)
+	{
+		Ref<Image> image = m_NormalFuture.get();
+
+		Texture2DSpecification spec;
+		spec.Width = image->Width();
+		spec.Height = image->Height();
+		spec.DataFormat = image->Channels() == 4 ? TextureDataFormat::RGBA : TextureDataFormat::RGB;
+		spec.InternalFormat = image->Channels() == 4 ? TextureInternalFormat::RGBA8 : TextureInternalFormat::RGB8;
+		spec.RenderModes.MagFilteringMode = TextureFilteringMode::Linear;
+		spec.RenderModes.MinFilteringMode = TextureFilteringMode::LinearMipmapLinear;
+
+		m_Normal = CreateTextureFromImage(image, spec);
+	}
+
+	if (m_RoughnessFuture.valid() && m_RoughnessFuture.wait_for(std::chrono::microseconds(0)) == std::future_status::ready)
+	{
+		Ref<Image> image = m_RoughnessFuture.get();
+
+		Texture2DSpecification spec;
+		spec.Width = image->Width();
+		spec.Height = image->Height();
+		spec.DataFormat = image->Channels() == 4 ? TextureDataFormat::RGBA : TextureDataFormat::RGB;
+		spec.InternalFormat = image->Channels() == 4 ? TextureInternalFormat::RGBA8 : TextureInternalFormat::RGB8;
+		spec.RenderModes.MagFilteringMode = TextureFilteringMode::Linear;
+		spec.RenderModes.MinFilteringMode = TextureFilteringMode::LinearMipmapLinear;
+
+		m_Roughness = CreateTextureFromImage(image, spec);
+	}
+
+	if (m_AOFuture.valid() && m_AOFuture.wait_for(std::chrono::microseconds(0)) == std::future_status::ready)
+	{
+		Ref<Image> image = m_AOFuture.get();
+
+		Texture2DSpecification spec;
+		spec.Width = image->Width();
+		spec.Height = image->Height();
+		spec.DataFormat = image->Channels() == 4 ? TextureDataFormat::RGBA : TextureDataFormat::RGB;
+		spec.InternalFormat = image->Channels() == 4 ? TextureInternalFormat::RGBA8 : TextureInternalFormat::RGB8;
+		spec.RenderModes.MagFilteringMode = TextureFilteringMode::Linear;
+		spec.RenderModes.MinFilteringMode = TextureFilteringMode::LinearMipmapLinear;
+
+		m_AO = CreateTextureFromImage(image, spec);
+	}
 }

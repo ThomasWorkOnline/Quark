@@ -8,7 +8,7 @@
 
 namespace Quark {
 
-	Ref<Texture2D> Texture2D::Create(const TextureSpecification& spec)
+	Ref<Texture2D> Texture2D::Create(const Texture2DSpecification& spec)
 	{
 		switch (RenderingAPI::GetAPI())
 		{
@@ -20,7 +20,7 @@ namespace Quark {
 		}
 	}
 
-	Ref<Texture2D> Texture2D::Create(std::string_view filepath, const TextureDescriptor& descriptor)
+	Ref<Texture2D> Texture2D::Create(std::string_view filepath, const TextureFormatDescriptor& descriptor)
 	{
 		switch (RenderingAPI::GetAPI())
 		{

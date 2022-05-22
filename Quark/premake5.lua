@@ -3,6 +3,7 @@ group "Dependencies"
 	include "vendor/freetype"
 	include "vendor/glad"
 	include "vendor/glfw"
+	include "vendor/lodepng"
 	include "vendor/spdlog"
 group ""
 
@@ -44,6 +45,7 @@ project "Quark"
 		"vendor/glad/include",
 		"vendor/glfw/include",
 		"vendor/glm",
+		"vendor/lodepng",
 		"vendor/openal/include",
 		"vendor/spdlog/include",
 		"vendor/stb"
@@ -54,6 +56,7 @@ project "Quark"
 		"freetype",
 		"Glad",
 		"GLFW",
+		"lodepng",
 		"spdlog"
 	}
 
