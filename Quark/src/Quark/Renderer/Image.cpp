@@ -10,8 +10,6 @@ namespace Quark {
 
 	Image::Image(std::string_view filepath)
 	{
-		QK_PROFILE_FUNCTION();
-
 		m_Metadata.HDR = filepath.rfind(".hdr") != std::string::npos;
 		if (m_Metadata.HDR)
 			DecodeHDR(filepath);
@@ -38,7 +36,9 @@ namespace Quark {
 	}
 
 	void Image::DecodePNG(std::string_view filepath)
-	{
+	{	
+		QK_PROFILE_FUNCTION();
+
 		LodePNGState state;
 		lodepng_state_init(&state);
 
@@ -52,24 +52,26 @@ namespace Quark {
 		error = lodepng_decode(&imageData, &width, &height, &state, filedata, filesize);
 		QK_CORE_ASSERT(!error, "Failed to decode image at path: '{0}', {1}", filepath, lodepng_error_text(error));
 
-		free(filedata);
-
 		m_ImageData = imageData;
 		m_Metadata.Width = width;
 		m_Metadata.Height = height;
 		m_Metadata.Channels = lodepng_get_channels(&state.info_raw);
 		m_Metadata.BPP = lodepng_get_bpp(&state.info_raw) >> 3;
 
+		free(filedata);
 		lodepng_state_cleanup(&state);
 	}
 
 	void Image::DecodeHDR(std::string_view filepath)
 	{
+		QK_PROFILE_FUNCTION();
+
 		FILE* file = fopen(filepath.data(), "rb");
 		QK_CORE_ASSERT(file, "Could not open file at: {0}", filepath);
 
 		int width, height, channels;
 		m_ImageData = stbi_loadf_from_file(file, &width, &height, &channels, 0);
+		QK_CORE_ASSERT(m_ImageData, "Failed to load image at path: {0}", filepath);
 
 		uint32_t bpc;
 		stbi_is_16_bit_from_file(file) ? bpc = 4 : bpc = 1;
@@ -80,6 +82,5 @@ namespace Quark {
 		m_Metadata.BPP = channels * bpc;
 
 		fclose(file);
-		QK_CORE_ASSERT(m_ImageData, "Failed to load image at path: {0}", filepath);
 	}
 }

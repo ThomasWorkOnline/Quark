@@ -72,14 +72,68 @@ PBRRendering::PBRRendering()
 		aoFilepath        = "assets/textures/pbr/gray-granite/gray-granite-flecks-ao.png";
 #endif
 
+#if 1
 		m_AlbedoFuture    = std::async(std::launch::async, Image::Create, albedoFilepath);
 		m_MetallicFuture  = std::async(std::launch::async, Image::Create, metallicFilepath);
 		m_NormalFuture    = std::async(std::launch::async, Image::Create, normalFilepath);
 		m_RoughnessFuture = std::async(std::launch::async, Image::Create, roughnessFilepath);
+#else
+		{
+			Texture2DSpecification spec;
+			spec.Width = 1;
+			spec.Height = 1;
+			spec.DataFormat = TextureDataFormat::RGBA;
+			spec.InternalFormat = TextureInternalFormat::RGBA8;
+
+			uint32_t data = 0xff0000ff;
+
+			m_Albedo = Texture2D::Create(spec);
+			m_Albedo->SetData(&data, sizeof(uint32_t));
+		}
+
+		{
+			Texture2DSpecification spec;
+			spec.Width = 1;
+			spec.Height = 1;
+			spec.DataFormat = TextureDataFormat::Red;
+			spec.InternalFormat = TextureInternalFormat::Red8;
+
+			uint8_t data = 0xff;
+
+			m_Metallic = Texture2D::Create(spec);
+			m_Metallic->SetData(&data, sizeof(uint8_t));
+		}
+
+		{
+			Texture2DSpecification spec;
+			spec.Width = 1;
+			spec.Height = 1;
+			spec.DataFormat = TextureDataFormat::Red;
+			spec.InternalFormat = TextureInternalFormat::Red8;
+
+			uint8_t data = 0x20;
+
+			m_Roughness = Texture2D::Create(spec);
+			m_Roughness->SetData(&data, sizeof(uint8_t));
+		}
+
+		{
+			Texture2DSpecification spec;
+			spec.Width = 1;
+			spec.Height = 1;
+			spec.DataFormat = TextureDataFormat::RGB;
+			spec.InternalFormat = TextureInternalFormat::RGB8;
+
+			uint8_t data[3] = { 0x00, 0x00, 0xff };
+
+			m_Normal = Texture2D::Create(spec);
+			m_Normal->SetData(&data, 3 * sizeof(uint8_t));
+		}
+#endif
 
 		if (aoFilepath)
 		{
-			m_AOFuture    = std::async(std::launch::async, Image::Create, aoFilepath);
+			m_AOFuture = std::async(std::launch::async, Image::Create, aoFilepath);
 		}
 		else
 		{
@@ -303,14 +357,15 @@ bool PBRRendering::OnMouseButtonReleased(MouseButtonReleasedEvent& e)
 
 void PBRRendering::UploadAssets()
 {
-	if (m_MeshDataFuture.valid() && m_MeshDataFuture.wait_for(std::chrono::microseconds(0)) == std::future_status::ready)
+	// NOTE: std::future::_Is_ready() is MSVC exclusive
+	if (m_MeshDataFuture.valid() && m_MeshDataFuture._Is_ready())
 	{
 		OBJMeshData meshData = std::move(m_MeshDataFuture.get());
 		m_Body = meshData;
 	}
 
-	if (m_AlbedoFuture.valid() && m_AlbedoFuture.wait_for(std::chrono::microseconds(0)) == std::future_status::ready)
-	{
+	if (m_AlbedoFuture.valid() && m_AlbedoFuture._Is_ready())
+	{	
 		Ref<Image> image = m_AlbedoFuture.get();
 
 		Texture2DSpecification spec;
@@ -324,7 +379,7 @@ void PBRRendering::UploadAssets()
 		m_Albedo = CreateTextureFromImage(image, spec);
 	}
 
-	if (m_MetallicFuture.valid() && m_MetallicFuture.wait_for(std::chrono::microseconds(0)) == std::future_status::ready)
+	if (m_MetallicFuture.valid() && m_MetallicFuture._Is_ready())
 	{
 		Ref<Image> image = m_MetallicFuture.get();
 
@@ -339,7 +394,7 @@ void PBRRendering::UploadAssets()
 		m_Metallic = CreateTextureFromImage(image, spec);
 	}
 
-	if (m_NormalFuture.valid() && m_NormalFuture.wait_for(std::chrono::microseconds(0)) == std::future_status::ready)
+	if (m_NormalFuture.valid() && m_NormalFuture._Is_ready())
 	{
 		Ref<Image> image = m_NormalFuture.get();
 
@@ -354,7 +409,7 @@ void PBRRendering::UploadAssets()
 		m_Normal = CreateTextureFromImage(image, spec);
 	}
 
-	if (m_RoughnessFuture.valid() && m_RoughnessFuture.wait_for(std::chrono::microseconds(0)) == std::future_status::ready)
+	if (m_RoughnessFuture.valid() && m_RoughnessFuture._Is_ready())
 	{
 		Ref<Image> image = m_RoughnessFuture.get();
 
@@ -369,7 +424,7 @@ void PBRRendering::UploadAssets()
 		m_Roughness = CreateTextureFromImage(image, spec);
 	}
 
-	if (m_AOFuture.valid() && m_AOFuture.wait_for(std::chrono::microseconds(0)) == std::future_status::ready)
+	if (m_AOFuture.valid() && m_AOFuture._Is_ready())
 	{
 		Ref<Image> image = m_AOFuture.get();
 

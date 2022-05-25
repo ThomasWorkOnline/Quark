@@ -73,7 +73,7 @@ namespace Quark {
 			{
 				physics.Velocity = { 0.0f, 0.0f, 0.0f };
 				transform.Position = { 0.0f, 0.0f, 0.0f };
-				transform.Orientation = glm::angleAxis<Float>(0.0f, Vector3(0.0f, 0.0f, 1.0f));
+				transform.Orientation = glm::angleAxis<Float>(0.0f, Vec3(0.0f, 0.0f, 1.0f));
 				QK_CORE_TRACE("Teleported to world origin");
 			}
 

@@ -83,7 +83,7 @@ namespace Quark {
 			{
 				physics.Velocity = { 0.0f, 0.0f, 0.0f };
 				transform.Position = { 0.0f, 0.0f, 0.0f };
-				transform.Orientation = glm::angleAxis<Float>(0.0f, Vector3(0.0f, 0.0f, 1.0f));
+				transform.Orientation = glm::angleAxis<Float>(0.0f, Vec3(0.0f, 0.0f, 1.0f));
 				QK_CORE_TRACE("Teleported to world origin");
 			}
 
@@ -139,9 +139,9 @@ namespace Quark {
 			auto& transform = m_CameraEntity.GetComponent<Transform3DComponent>();
 			auto& camera = m_CameraEntity.GetComponent<PerspectiveCameraComponent>().Camera;
 
-			Vector2 mouseMove = { e.GetXOffset(), e.GetYOffset() };
-			Quat qYaw = glm::angleAxis(-mouseMove.x * m_MouseSensitivity * camera.GetFov() / 90.0f, Vector3(0.0f, 1.0f, 0.0f) * transform.Orientation);
-			Quat qPitch = glm::angleAxis(-mouseMove.y * m_MouseSensitivity * camera.GetFov() / 90.0f, Vector3(1.0f, 0.0f, 0.0f) * transform.Orientation);
+			Vec2 mouseMove = { e.GetXOffset(), e.GetYOffset() };
+			Quat qYaw = glm::angleAxis(-mouseMove.x * m_MouseSensitivity * camera.GetFov() / 90.0f, Vec3(0.0f, 1.0f, 0.0f) * transform.Orientation);
+			Quat qPitch = glm::angleAxis(-mouseMove.y * m_MouseSensitivity * camera.GetFov() / 90.0f, Vec3(1.0f, 0.0f, 0.0f) * transform.Orientation);
 
 			transform.Rotate(qPitch * qYaw);
 		}

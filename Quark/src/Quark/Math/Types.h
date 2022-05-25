@@ -20,23 +20,23 @@ namespace Quark {
 
 	/// Vector types
 	template<uint32_t L, typename T>
-	using Vector   = glm::vec<L, T>;
+	using Vec   = glm::vec<L, T>;
 
-	using Vector2f = Vector<2, float>;
-	using Vector3f = Vector<3, float>;
-	using Vector4f = Vector<4, float>;
+	using Vec2f = Vec<2, float>;
+	using Vec3f = Vec<3, float>;
+	using Vec4f = Vec<4, float>;
 
-	using Vector2d = Vector<2, double>;
-	using Vector3d = Vector<3, double>;
-	using Vector4d = Vector<4, double>;
+	using Vec2d = Vec<2, double>;
+	using Vec3d = Vec<3, double>;
+	using Vec4d = Vec<4, double>;
 
-	using Vector2i = Vector<2, int>;
-	using Vector3i = Vector<3, int>;
-	using Vector4i = Vector<4, int>;
+	using Vec2i = Vec<2, int>;
+	using Vec3i = Vec<3, int>;
+	using Vec4i = Vec<4, int>;
 
-	using Vector2  = Vector<2, Float>;
-	using Vector3  = Vector<3, Float>;
-	using Vector4  = Vector<4, Float>;
+	using Vec2  = Vec<2, Float>;
+	using Vec3  = Vec<3, Float>;
+	using Vec4  = Vec<4, Float>;
 
 	/// Quaternion type
 	template<typename T>

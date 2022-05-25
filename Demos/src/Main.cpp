@@ -1,6 +1,6 @@
 #include "Tests/PBRRendering.h"
 
-#include <Quark/Core/EntryPoint.h>
+#include <Quark/EntryPoint.h>
 
 namespace Quark {
 

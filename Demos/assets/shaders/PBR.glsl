@@ -72,7 +72,7 @@ void main()
 
     vec3 N = GetNormalFromMap();
     vec3 V = normalize(u_CameraPos - v_Input.Position);
-    vec3 R = reflect(-V, N); 
+    vec3 R = reflect(-V, N);
 
     // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0
     // of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)
@@ -124,8 +124,8 @@ void main()
     vec3 irradiance       = texture(u_IrradianceMap, N).rgb;
     vec3 diffuse          = irradiance * albedo;
     vec3 ambient          = (kD * diffuse) * ao;
-    
-    vec3 color = ambient + Lo;
+
+    vec3 color = diffuse + Lo; // <-- TODO: replace diffuse component with ambiant
 
     // HDR tonemapping
     color = color / (color + vec3(1.0));
