@@ -26,6 +26,8 @@ project "Quark"
 		"src/Quark.h",
 		"src/qkpch.h",
 		"src/qkpch.cpp",
+		"src/Quark/EntryPoint.h",
+		"src/Quark/EntryPoint.cpp",
 		"src/Platform/Standalone/**.h",
 		"src/Platform/Standalone/**.cpp"
 	}
