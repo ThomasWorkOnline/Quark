@@ -7,13 +7,13 @@ typedef struct ALCdevice  ALCdevice;
 
 namespace Quark {
 
-	class OpenALAudioContext : public AudioContext
+	class OpenALAudioContext final : public AudioContext
 	{
 	public:
 		OpenALAudioContext(void* device);
-		~OpenALAudioContext() override;
+		virtual ~OpenALAudioContext() override;
 
-		void Init() override;
+		virtual void Init() override;
 
 	private:
 		ALCdevice* m_DeviceHandle;

@@ -4,14 +4,14 @@
 
 namespace Quark {
 
-	class OpenALAudioBuffer : public AudioBuffer
+	class OpenALAudioBuffer final : public AudioBuffer
 	{
 	public:
 		OpenALAudioBuffer(std::string_view filepath);
 		OpenALAudioBuffer(const AudioBufferSpecification& spec, const void* data);
-		~OpenALAudioBuffer() override;
+		virtual ~OpenALAudioBuffer() override;
 
-		uint32_t GetBufferID() const override { return m_BufferID; }
+		virtual uint32_t GetBufferID() const override { return m_BufferID; }
 
 	private:
 		uint32_t m_BufferID = 0;

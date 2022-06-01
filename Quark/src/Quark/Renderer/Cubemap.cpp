@@ -4,7 +4,7 @@
 #include "RenderingAPI.h"
 
 // Include all supported API's environment maps implementations
-#include "Platform/Standalone/OpenGL/OpenGLCubemap.h"
+#include "Platform/OpenGL/OpenGLCubemap.h"
 
 namespace Quark {
 

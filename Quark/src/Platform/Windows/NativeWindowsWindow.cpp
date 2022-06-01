@@ -1,5 +1,5 @@
 #include "qkpch.h"
-#include "WindowsWindow.h"
+#include "NativeWindowsWindow.h"
 
 #include <Windows.h>
 #include <windowsx.h>
@@ -24,9 +24,9 @@ namespace Quark {
 		return wide;
 	}
 
-	using WindowData = WindowsWindow::WindowData;
+	using WindowData = NativeWindowsWindow::WindowData;
 
-	WindowsWindow::WindowsWindow(const WindowSpecification& spec)
+	NativeWindowsWindow::NativeWindowsWindow(const WindowSpecification& spec)
 	{
 		QK_PROFILE_FUNCTION();
 
@@ -56,7 +56,7 @@ namespace Quark {
 		m_Context->Init();
 	}
 
-	WindowsWindow::~WindowsWindow()
+	NativeWindowsWindow::~NativeWindowsWindow()
 	{
 		QK_PROFILE_FUNCTION();
 
@@ -69,7 +69,7 @@ namespace Quark {
 			Shutdown();
 	}
 
-	void WindowsWindow::OnUpdate()
+	void NativeWindowsWindow::OnUpdate()
 	{
 		m_Context->SwapBuffers();
 
@@ -81,47 +81,47 @@ namespace Quark {
 		}
 	}
 
-	void WindowsWindow::SetTitle(const std::string& title)
+	void NativeWindowsWindow::SetTitle(const std::string& title)
 	{
 		SetWindowText(m_WindowHandle, ConvertToWideString(title).c_str());
 		m_Data.Title = title;
 	}
 
-	void WindowsWindow::AppendTitle(const std::string& title)
+	void NativeWindowsWindow::AppendTitle(const std::string& title)
 	{
 		SetTitle(m_Data.Title + title);
 	}
 
-	void WindowsWindow::Focus()
+	void NativeWindowsWindow::Focus()
 	{
 		SetFocus(m_WindowHandle);
 	}
 
-	void WindowsWindow::Minimize()
+	void NativeWindowsWindow::Minimize()
 	{
 		ShowWindow(m_WindowHandle, SW_MINIMIZE);
 	}
 
-	void WindowsWindow::Maximize()
+	void NativeWindowsWindow::Maximize()
 	{
 		ShowWindow(m_WindowHandle, SW_MAXIMIZE);
 	}
 
-	void WindowsWindow::Restore()
+	void NativeWindowsWindow::Restore()
 	{
 		ShowWindow(m_WindowHandle, SW_RESTORE);
 	}
 
-	void WindowsWindow::RequestAttention()
+	void NativeWindowsWindow::RequestAttention()
 	{
 		FlashWindow(m_WindowHandle, TRUE);
 	}
 
-	void WindowsWindow::SetVSync(bool enabled)
+	void NativeWindowsWindow::SetVSync(bool enabled)
 	{
 	}
 
-	bool WindowsWindow::IsFocused() const
+	bool NativeWindowsWindow::IsFocused() const
 	{
 		return GetFocus() == m_WindowHandle;
 	}
@@ -132,19 +132,19 @@ namespace Quark {
 #undef IsMinimized
 #undef IsMaximized
 
-	bool WindowsWindow::IsMinimized() const
+	bool NativeWindowsWindow::IsMinimized() const
 	{
 		return IsIconic(m_WindowHandle);
 	}
 
-	bool WindowsWindow::IsMaximized() const
+	bool NativeWindowsWindow::IsMaximized() const
 	{
 		return IsZoomed(m_WindowHandle);
 	}
 
 #pragma pop_macro("DisableIsMinimizedMaximized")
 
-	void WindowsWindow::Init()
+	void NativeWindowsWindow::Init()
 	{
 		HINSTANCE hInstance = GetModuleHandle(NULL);
 
@@ -157,7 +157,7 @@ namespace Quark {
 		RegisterClass(&wc);
 	}
 
-	void WindowsWindow::Shutdown()
+	void NativeWindowsWindow::Shutdown()
 	{
 		HINSTANCE hInstance = GetModuleHandle(NULL);
 		UnregisterClass(s_ClassName, hInstance);

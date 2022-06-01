@@ -2,6 +2,7 @@
 
 #include "Quark/Core/Core.h"
 #include "TextureFormats.h"
+#include "RenderCommand.h"
 
 namespace Quark {
 
@@ -26,14 +27,14 @@ namespace Quark {
 	public:
 		virtual ~Texture2D() = default;
 
-		virtual uint32_t GetWidth() const = 0;
-		virtual uint32_t GetHeight() const = 0;
-
 		virtual void Attach(uint32_t textureSlot = 0) const = 0;
 		virtual void Detach() const = 0;
 
 		virtual void SetData(const void* data, size_t size) = 0;
 		virtual void GenerateMipmaps() = 0;
+
+		virtual uint32_t GetWidth() const = 0;
+		virtual uint32_t GetHeight() const = 0;
 
 		virtual uint32_t GetRendererID() const = 0;
 
@@ -41,5 +42,10 @@ namespace Quark {
 
 		static Ref<Texture2D> Create(const Texture2DSpecification& spec);
 		static Ref<Texture2D> Create(std::string_view filepath, const TextureFormatDescriptor& descriptor = {});
+
+		static const TextureHardwareConstraints& GetConstraints()
+		{
+			return RenderCommand::GetHardwareConstraints().TextureConstraints;
+		}
 	};
 }

@@ -336,7 +336,7 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		s_Data = new Renderer2DData();
-		s_Data->MaxSamplers = RenderCommand::GetMaxTextureSlots();
+		s_Data->MaxSamplers = RenderCommand::GetHardwareConstraints().TextureConstraints.MaxTextureSlots;
 
 		Renderer2DSetupData setupData;
 

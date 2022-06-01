@@ -48,7 +48,7 @@ namespace Quark {
 		s_Data->DefaultTexture = Texture2D::Create(spec);
 		s_Data->DefaultTexture->SetData(&textureColor, sizeof(uint32_t));
 
-		s_Data->MaxUniformBuffers = RenderCommand::GetMaxUniformBufferBindings();
+		s_Data->MaxUniformBuffers = RenderCommand::GetHardwareConstraints().UniformBufferConstraints.MaxBindings;
 		s_Data->CameraUniformBuffer = UniformBuffer::Create(sizeof(RendererData::CameraData), 0);
 	}
 

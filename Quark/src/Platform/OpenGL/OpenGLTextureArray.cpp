@@ -40,6 +40,19 @@ namespace Quark {
 		glDeleteTextures(1, &m_RendererID);
 	}
 
+	void OpenGLTexture2DArray::Attach(uint32_t textureSlot) const
+	{
+		GLenum target = m_Spec.Samples > 1 ? GL_TEXTURE_2D_MULTISAMPLE_ARRAY : GL_TEXTURE_2D_ARRAY;
+		glActiveTexture(GL_TEXTURE0 + textureSlot);
+		glBindTexture(target, m_RendererID);
+	}
+
+	void OpenGLTexture2DArray::Detach() const
+	{
+		GLenum target = m_Spec.Samples > 1 ? GL_TEXTURE_2D_MULTISAMPLE_ARRAY : GL_TEXTURE_2D_ARRAY;
+		glBindTexture(target, 0);
+	}
+
 	void OpenGLTexture2DArray::SetData(const void* data, size_t size, uint32_t layer)
 	{
 		size_t pSize = GetPixelFormatSize(m_Spec.InternalFormat);
@@ -58,18 +71,5 @@ namespace Quark {
 
 		glBindTexture(GL_TEXTURE_2D_ARRAY, m_RendererID);
 		glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
-	}
-
-	void OpenGLTexture2DArray::Attach(uint32_t textureSlot) const
-	{
-		GLenum target = m_Spec.Samples > 1 ? GL_TEXTURE_2D_MULTISAMPLE_ARRAY : GL_TEXTURE_2D_ARRAY;
-		glActiveTexture(GL_TEXTURE0 + textureSlot);
-		glBindTexture(target, m_RendererID);
-	}
-
-	void OpenGLTexture2DArray::Detach() const
-	{
-		GLenum target = m_Spec.Samples > 1 ? GL_TEXTURE_2D_MULTISAMPLE_ARRAY : GL_TEXTURE_2D_ARRAY;
-		glBindTexture(target, 0);
 	}
 }

@@ -77,6 +77,17 @@ namespace Quark {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
+	void OpenGLFramebuffer::Resize(uint32_t width, uint32_t height)
+	{
+		auto& constraints = GetConstraints();
+		QK_CORE_ASSERT(width <= constraints.MaxWidth && height <= constraints.MaxHeight, "Invalid framebuffer dimensions: too large");
+
+		m_Spec.Width = width;
+		m_Spec.Height = height;
+
+		Invalidate();
+	}
+
 	void OpenGLFramebuffer::AttachColorTextureTarget(uint32_t target, uint32_t textureRendererID)
 	{
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, target, textureRendererID, 0);
@@ -93,14 +104,6 @@ namespace Quark {
 	{
 		glActiveTexture(GL_TEXTURE0 + textureSlot);
 		glBindTexture(GL_TEXTURE_2D, m_DepthAttachment);
-	}
-
-	void OpenGLFramebuffer::Resize(uint32_t width, uint32_t height)
-	{
-		m_Spec.Width = width;
-		m_Spec.Height = height;
-
-		Invalidate();
 	}
 
 	void OpenGLFramebuffer::Invalidate()

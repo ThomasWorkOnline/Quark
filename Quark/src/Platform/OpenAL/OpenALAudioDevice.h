@@ -7,20 +7,20 @@ typedef struct ALCdevice ALCdevice;
 
 namespace Quark {
 
-	class OpenALAudioOutputDevice : public AudioOutputDevice
+	class OpenALAudioOutputDevice final : public AudioOutputDevice
 	{
 	public:
 		OpenALAudioOutputDevice();
 		OpenALAudioOutputDevice(std::string_view deviceName);
-		~OpenALAudioOutputDevice() override;
+		virtual ~OpenALAudioOutputDevice() override;
 
-		const char* GetDeviceName() const override;
-		void* GetNativeDevice() const override { return m_Device; }
+		virtual const char* GetDeviceName() const override;
+		virtual void* GetNativeDevice() const override { return m_Device; }
 
 	private:
 		ALCdevice* m_Device;
 		Scope<AudioContext> m_Context;
 
-		mutable const char* m_DeviceName = nullptr; // ptr only is mutable
+		mutable const char* m_DeviceName = nullptr;
 	};
 }

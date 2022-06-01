@@ -2,6 +2,7 @@
 
 #include "Quark/Core/Core.h"
 #include "TextureFormats.h"
+#include "RenderCommand.h"
 
 #include <vector>
 
@@ -54,16 +55,11 @@ namespace Quark {
 		virtual void Attach() = 0;
 		virtual void Detach() = 0;
 
-		virtual void AttachColorTextureTarget(uint32_t target, uint32_t textureRendererID) = 0;
-
-		virtual void AttachColorAttachment(uint32_t textureSlot, uint32_t index = 0) = 0;
-		virtual void AttachDepthAttachment(uint32_t textureSlot) = 0;
-
 		virtual void Resize(uint32_t width, uint32_t height) = 0;
 
-		virtual uint32_t GetRendererID() const = 0;
-
-		virtual bool operator==(const Framebuffer& other) const = 0;
+		virtual void AttachColorTextureTarget(uint32_t target, uint32_t textureRendererID) = 0;
+		virtual void AttachColorAttachment(uint32_t textureSlot, uint32_t index = 0) = 0;
+		virtual void AttachDepthAttachment(uint32_t textureSlot) = 0;
 
 		virtual uint32_t GetColorAttachmentRendererID(uint32_t index = 0) const = 0;
 		virtual uint32_t GetDepthAttachmentRendererID() const = 0;
@@ -71,6 +67,15 @@ namespace Quark {
 		virtual uint32_t GetWidth() const = 0;
 		virtual uint32_t GetHeight() const = 0;
 
+		virtual uint32_t GetRendererID() const = 0;
+
+		virtual bool operator==(const Framebuffer& other) const = 0;
+
 		static Ref<Framebuffer> Create(const FramebufferSpecification& spec);
+
+		static const FramebufferHardwareConstraints& GetConstraints()
+		{
+			return RenderCommand::GetHardwareConstraints().FramebufferConstraints;
+		}
 	};
 }

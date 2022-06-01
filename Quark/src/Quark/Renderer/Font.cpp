@@ -4,7 +4,7 @@
 #include "RenderingAPI.h"
 
 // Include all supported API's font implementations
-#include "Platform/Standalone/OpenGL/OpenGLFont.h"
+#include "Platform/OpenGL/OpenGLFont.h"
 
 namespace Quark {
 

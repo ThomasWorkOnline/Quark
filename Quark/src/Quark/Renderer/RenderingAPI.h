@@ -3,6 +3,7 @@
 #include "Quark/Core/Core.h"
 
 #include "RenderModes.h"
+#include "RendererConstraints.h"
 #include "VertexArray.h"
 
 namespace Quark {
@@ -24,7 +25,9 @@ namespace Quark {
 
 		virtual ~RenderingAPI() = default;
 		virtual void Init() = 0;
+
 		virtual Version GetVersion() const = 0;
+		virtual const HardwareConstraints& GetHardwareConstraints() const = 0;
 
 		virtual void SetClearColor(const glm::vec4& rgba) = 0;
 		virtual void Clear() = 0;
@@ -43,12 +46,6 @@ namespace Quark {
 
 		virtual const char* GetName() const = 0;
 		virtual std::string GetSpecification() const = 0;
-
-		virtual int32_t GetMaxTextureSlots() const = 0;
-		virtual int32_t GetMaxTextureSize() const = 0;
-		virtual int32_t GetMaxTextureLayers() const = 0;
-		virtual int32_t GetMaxUniformBufferBindings() const = 0;
-		virtual int32_t GetMaxUniformBufferSize() const = 0;
 
 		static API GetAPI() { return s_API; }
 

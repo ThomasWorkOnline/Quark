@@ -20,12 +20,6 @@ namespace Quark {
 		glDeleteBuffers(1, &m_RendererID);
 	}
 
-	void OpenGLUniformBuffer::SetData(const void* data, size_t size, size_t offset)
-	{
-		glBindBuffer(GL_UNIFORM_BUFFER, m_RendererID);
-		glBufferSubData(GL_UNIFORM_BUFFER, offset, size, data);
-	}
-
 	void OpenGLUniformBuffer::Attach(uint32_t binding) const
 	{
 		glBindBuffer(GL_UNIFORM_BUFFER, m_RendererID);
@@ -35,5 +29,11 @@ namespace Quark {
 	void OpenGLUniformBuffer::Detach() const
 	{
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	}
+
+	void OpenGLUniformBuffer::SetData(const void* data, size_t size, size_t offset)
+	{
+		glBindBuffer(GL_UNIFORM_BUFFER, m_RendererID);
+		glBufferSubData(GL_UNIFORM_BUFFER, offset, size, data);
 	}
 }

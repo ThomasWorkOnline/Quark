@@ -28,8 +28,12 @@ project "Quark"
 		"src/qkpch.cpp",
 		"src/Quark/EntryPoint.h",
 		"src/Quark/EntryPoint.cpp",
-		"src/Platform/Standalone/**.h",
-		"src/Platform/Standalone/**.cpp"
+		"src/Platform/GLFW/**.h",
+		"src/Platform/GLFW/**.cpp",
+		"src/Platform/OpenAL/**.h",
+		"src/Platform/OpenAL/**.cpp",
+		"src/Platform/OpenGL/**.h",
+		"src/Platform/OpenGL/**.cpp"
 	}
 
 	defines

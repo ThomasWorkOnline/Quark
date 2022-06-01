@@ -8,7 +8,7 @@
 #if defined(QK_PLATFORM_WINDOWS) && defined(QK_USE_NATIVE_APIS)
 #	include "Platform/Windows/OpenGL/OpenGLWin32GraphicsContext.h"
 #else
-#	include "Platform/Standalone/OpenGL/OpenGLGraphicsContext.h"
+#	include "Platform/GLFW/OpenGL/OpenGLGraphicsContext.h"
 #endif
 
 namespace Quark {

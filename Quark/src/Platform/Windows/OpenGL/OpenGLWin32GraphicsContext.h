@@ -7,14 +7,14 @@ typedef struct HGLRC__* HGLRC;
 
 namespace Quark {
 
-	class OpenGLWin32GraphicsContext : public GraphicsContext
+	class OpenGLWin32GraphicsContext final : public GraphicsContext
 	{
 	public:
 		OpenGLWin32GraphicsContext(void* windowHandle);
-		~OpenGLWin32GraphicsContext() override;
+		virtual ~OpenGLWin32GraphicsContext() override;
 
-		void Init() override;
-		void SwapBuffers() override;
+		virtual void Init() override;
+		virtual void SwapBuffers() override;
 
 	private:
 		HWND m_WindowHandle;
