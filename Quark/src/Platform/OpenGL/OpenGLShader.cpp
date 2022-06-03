@@ -113,6 +113,7 @@ namespace Quark {
 		for (auto& [type, source] : shaderSources)
 		{
 			GLuint shader = glCreateShader(type);
+			glShaderIDs[glShaderIDIndex++] = shader;
 
 			const GLchar* sourceData = source.data();
 			GLint lengths = (GLint)source.size();
@@ -142,7 +143,6 @@ namespace Quark {
 			}
 
 			glAttachShader(program, shader);
-			glShaderIDs[glShaderIDIndex++] = shader;
 		}
 
 		glLinkProgram(program);
