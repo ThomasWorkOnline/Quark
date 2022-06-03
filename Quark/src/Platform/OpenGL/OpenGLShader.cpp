@@ -21,8 +21,7 @@ namespace Quark {
 		else if (type == "geometry")
 			return GL_GEOMETRY_SHADER;
 
-		QK_CORE_FATAL("Unknown shader type");
-		return 0;
+		return GL_NONE;
 	}
 
 	OpenGLShader::OpenGLShader(std::string_view filepath)
@@ -85,7 +84,7 @@ namespace Quark {
 			size_t begin = pos + typeTokenLength + 1; // Start of shader type name (after "#type " keyword)
 			std::string_view type = source.substr(begin, eol - begin);
 			GLenum shaderType = ShaderTypeFromString(type);
-			if (!shaderType)
+			if (shaderType == GL_NONE)
 				QK_CORE_FATAL("Invalid shader type specified");
 
 			size_t nextLinePos = source.find_first_not_of("\r\n", eol); // Start of shader code after shader type declaration line
@@ -118,7 +117,6 @@ namespace Quark {
 			const GLchar* sourceData = source.data();
 			GLint lengths = (GLint)source.size();
 			glShaderSource(shader, 1, &sourceData, &lengths);
-
 			glCompileShader(shader);
 
 			GLint isCompiled = 0;
@@ -131,22 +129,24 @@ namespace Quark {
 				std::vector<GLchar> infoLog(maxLength);
 				glGetShaderInfoLog(shader, maxLength, &maxLength, &infoLog[0]);
 
-				glDeleteShader(shader);
+				for (uint32_t i = 0; i < glShaderIDIndex; i++)
+				{
+					glDetachShader(program, glShaderIDs[i]);
+					glDeleteShader(glShaderIDs[i]);
+				}
+
+				glDeleteProgram(program);
 
 				QK_CORE_FATAL("Shader compilation failure:\n{0}", infoLog.data());
-				break;
+				return;
 			}
 
 			glAttachShader(program, shader);
 			glShaderIDs[glShaderIDIndex++] = shader;
 		}
 
-		m_RendererID = program;
-
-		// Link our program
 		glLinkProgram(program);
 
-		// Note the different functions here: glGetProgram* instead of glGetShader*.
 		GLint isLinked = 0;
 		glGetProgramiv(program, GL_LINK_STATUS, &isLinked);
 		if (isLinked == GL_FALSE)
@@ -154,7 +154,6 @@ namespace Quark {
 			GLint maxLength = 0;
 			glGetProgramiv(program, GL_INFO_LOG_LENGTH, &maxLength);
 
-			// The maxLength includes the NULL character
 			std::vector<GLchar> infoLog(maxLength);
 			glGetProgramInfoLog(program, maxLength, &maxLength, infoLog.data());
 
@@ -164,7 +163,6 @@ namespace Quark {
 				glDeleteShader(glShaderIDs[i]);
 			}
 
-			// We don't need the program anymore.
 			glDeleteProgram(program);
 
 			QK_CORE_FATAL("Shader link failure:\n{0}", infoLog.data());
@@ -176,6 +174,8 @@ namespace Quark {
 			glDetachShader(program, glShaderIDs[i]);
 			glDeleteShader(glShaderIDs[i]);
 		}
+
+		m_RendererID = program;
 	}
 
 	void OpenGLShader::Attach() const
