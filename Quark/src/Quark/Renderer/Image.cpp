@@ -34,6 +34,7 @@ namespace Quark {
 				{
 					case 8: return TextureInternalFormat::Red8;
 				}
+				break;
 			}
 			case 3:
 			{
@@ -43,6 +44,7 @@ namespace Quark {
 					case 48: return fp ? TextureInternalFormat::RGB16f : TextureInternalFormat::RGB16;
 					case 96: return fp ? TextureInternalFormat::RGB32f : TextureInternalFormat::RGB32;
 				}
+				break;
 			}
 			case 4:
 			{
@@ -51,6 +53,7 @@ namespace Quark {
 					case 32: return srgb ? TextureInternalFormat::SRGBA8 : TextureInternalFormat::RGBA8;
 					case 64: return fp ? TextureInternalFormat::RGBA16f : TextureInternalFormat::RGBA16;
 				}
+				break;
 			}
 		}
 

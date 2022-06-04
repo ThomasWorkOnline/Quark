@@ -18,7 +18,7 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		QK_CORE_ASSERT(m_Spec.Width <= GetConstraints().MaxPixelSize && m_Spec.Height <= GetConstraints().MaxPixelSize);
+		QK_CORE_ASSERT(m_Spec.Width <= GetConstraints().MaxPixelSize && m_Spec.Height <= GetConstraints().MaxPixelSize, "Texture dimensions too large");
 
 		m_InternalFormat = GetTextureInternalFormat(m_Spec.InternalFormat);
 		m_DataFormat = GetTextureDataFormat(m_Spec.DataFormat);
@@ -59,7 +59,7 @@ namespace Quark {
 		m_Spec.InternalFormat = metadata.InternalFormat;
 		m_Spec.RenderModes    = descriptor.RenderModes;
 
-		QK_CORE_ASSERT(m_Spec.Width <= GetConstraints().MaxPixelSize && m_Spec.Height <= GetConstraints().MaxPixelSize);
+		QK_CORE_ASSERT(m_Spec.Width <= GetConstraints().MaxPixelSize && m_Spec.Height <= GetConstraints().MaxPixelSize, "Texture dimensions too large");
 
 		m_DataFormat = GetTextureDataFormat(m_Spec.DataFormat);
 		m_InternalFormat = GetTextureInternalFormat(m_Spec.InternalFormat);
