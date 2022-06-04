@@ -17,10 +17,10 @@ namespace Quark {
 	{
 		switch (severity)
 		{
-		case GL_DEBUG_SEVERITY_HIGH:         QK_CORE_FATAL(message); return;
-		case GL_DEBUG_SEVERITY_MEDIUM:       QK_CORE_WARN(message); return;
-		case GL_DEBUG_SEVERITY_LOW:          QK_CORE_INFO(message); return;
-		case GL_DEBUG_SEVERITY_NOTIFICATION: QK_CORE_TRACE(message); return;
+			case GL_DEBUG_SEVERITY_HIGH:         QK_CORE_FATAL(message); return;
+			case GL_DEBUG_SEVERITY_MEDIUM:       QK_CORE_WARN(message);  return;
+			case GL_DEBUG_SEVERITY_LOW:          QK_CORE_INFO(message);  return;
+			case GL_DEBUG_SEVERITY_NOTIFICATION: QK_CORE_TRACE(message); return;
 		}
 
 		QK_CORE_ASSERT(false, "OnOpenGLMessage had an unknown severity level");
@@ -74,6 +74,10 @@ namespace Quark {
 			glGetIntegerv(GL_MAX_FRAMEBUFFER_HEIGHT, &maxHeight);
 			m_Constraints.FramebufferConstraints.MaxWidth = maxWidth;
 			m_Constraints.FramebufferConstraints.MaxHeight = maxHeight;
+
+			GLint maxAttachments;
+			glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &maxAttachments);
+			m_Constraints.FramebufferConstraints.MaxAttachments = maxAttachments;
 		}
 
 		{

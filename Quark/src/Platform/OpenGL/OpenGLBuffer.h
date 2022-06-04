@@ -14,10 +14,10 @@ namespace Quark {
         virtual void Attach() const override;
         virtual void Detach() const override;
 
+        virtual void SetData(const void* data, size_t size, size_t offset) override;
+
         virtual const BufferLayout& GetLayout() const override { return m_layout; }
         virtual void SetLayout(const BufferLayout& layout) override { m_layout = layout; }
-
-        virtual void SetData(const void* data, size_t size, size_t offset) override;
 
         virtual uint32_t GetRendererID() const override { return m_RendererID; };
 
@@ -44,7 +44,6 @@ namespace Quark {
         virtual void SetData(const uint32_t* data, uint32_t count, size_t offset) override;
 
         virtual uint32_t GetCount() const override { return m_Count; };
-
         virtual uint32_t GetRendererID() const override { return m_RendererID; };
 
         virtual bool operator==(const IndexBuffer& other) const override

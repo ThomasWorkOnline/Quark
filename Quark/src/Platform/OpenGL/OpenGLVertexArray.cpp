@@ -155,6 +155,7 @@ namespace Quark {
 			}
 		}
 
+		glBindVertexArray(0);
 		m_VertexBuffers.push_back(vertexBuffer);
 	}
 
@@ -164,6 +165,7 @@ namespace Quark {
 
 		glBindVertexArray(m_RendererID);
 		indexBuffer->Attach();
+		glBindVertexArray(0);
 
 		m_IndexBuffer = indexBuffer;
 	}

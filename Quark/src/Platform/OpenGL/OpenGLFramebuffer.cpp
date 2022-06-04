@@ -6,32 +6,32 @@
 
 namespace Quark {
 
-	static constexpr GLenum GetAttachmentTarget(FramebufferAttachment attachment)
+	static constexpr GLenum GetAttachmentTarget(FramebufferAttachmentFormat attachment)
 	{
 		switch (attachment)
 		{
-			case FramebufferAttachment::ColorAttachment0:       return GL_COLOR_ATTACHMENT0;
-			case FramebufferAttachment::ColorAttachment1:       return GL_COLOR_ATTACHMENT1;
-			case FramebufferAttachment::ColorAttachment2:       return GL_COLOR_ATTACHMENT2;
-			case FramebufferAttachment::ColorAttachment3:       return GL_COLOR_ATTACHMENT3;
-			case FramebufferAttachment::ColorAttachment4:       return GL_COLOR_ATTACHMENT4;
-			case FramebufferAttachment::ColorAttachment5:       return GL_COLOR_ATTACHMENT5;
-			case FramebufferAttachment::ColorAttachment6:       return GL_COLOR_ATTACHMENT6;
-			case FramebufferAttachment::ColorAttachment7:       return GL_COLOR_ATTACHMENT7;
-			case FramebufferAttachment::DepthAttachment:        return GL_DEPTH_ATTACHMENT;
-			case FramebufferAttachment::DepthStencilAttachment: return GL_DEPTH_STENCIL_ATTACHMENT;
+			case FramebufferAttachmentFormat::ColorAttachment0:       return GL_COLOR_ATTACHMENT0;
+			case FramebufferAttachmentFormat::ColorAttachment1:       return GL_COLOR_ATTACHMENT1;
+			case FramebufferAttachmentFormat::ColorAttachment2:       return GL_COLOR_ATTACHMENT2;
+			case FramebufferAttachmentFormat::ColorAttachment3:       return GL_COLOR_ATTACHMENT3;
+			case FramebufferAttachmentFormat::ColorAttachment4:       return GL_COLOR_ATTACHMENT4;
+			case FramebufferAttachmentFormat::ColorAttachment5:       return GL_COLOR_ATTACHMENT5;
+			case FramebufferAttachmentFormat::ColorAttachment6:       return GL_COLOR_ATTACHMENT6;
+			case FramebufferAttachmentFormat::ColorAttachment7:       return GL_COLOR_ATTACHMENT7;
+			case FramebufferAttachmentFormat::DepthAttachment:        return GL_DEPTH_ATTACHMENT;
+			case FramebufferAttachmentFormat::DepthStencilAttachment: return GL_DEPTH_STENCIL_ATTACHMENT;
 			default:
 				QK_CORE_FATAL("Invalid framebuffer attachment");
 				return GL_NONE;
 		}
 	}
 
-	static constexpr bool IsDepthAttachment(FramebufferAttachment attachment)
+	static constexpr bool IsDepthAttachment(FramebufferAttachmentFormat attachment)
 	{
 		switch (attachment)
 		{
-			case Quark::FramebufferAttachment::DepthAttachment:
-			case Quark::FramebufferAttachment::DepthStencilAttachment: return true;
+			case Quark::FramebufferAttachmentFormat::DepthAttachment:
+			case Quark::FramebufferAttachmentFormat::DepthStencilAttachment: return true;
 			default:                                                   return false;
 		}
 	}
@@ -40,6 +40,7 @@ namespace Quark {
 		: m_Spec(spec)
 	{
 		QK_PROFILE_FUNCTION();
+		QK_CORE_ASSERT(m_Spec.Attachments.size() <= GetConstraints().MaxAttachments, "Framebuffer contains too many attachments");
 
 		for (const auto& s : m_Spec.Attachments)
 		{
@@ -48,10 +49,6 @@ namespace Quark {
 			else
 				m_ColorSpecs.emplace_back(s);
 		}
-
-		int32_t maxColorAttachments;
-		glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &maxColorAttachments);
-		QK_CORE_ASSERT(m_ColorSpecs.size() <= maxColorAttachments, "Framebuffer contains too many color attachments");
 
 		Invalidate();
 	}
@@ -69,7 +66,6 @@ namespace Quark {
 	void OpenGLFramebuffer::Attach()
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
-		glViewport(0, 0, m_Spec.Width, m_Spec.Height);
 	}
 
 	void OpenGLFramebuffer::Detach()
@@ -124,6 +120,7 @@ namespace Quark {
 
 		glGenFramebuffers(1, &m_RendererID);
 		glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
+		glViewport(0, 0, m_Spec.Width, m_Spec.Height);
 
 		// Color format
 		if (m_ColorSpecs.size())
@@ -145,7 +142,7 @@ namespace Quark {
 				else
 				{
 					glTexImage2D(GL_TEXTURE_2D, 0, GetTextureInternalFormat(m_ColorSpecs[i].InternalFormat), m_Spec.Width, m_Spec.Height, 0,
-						GetTextureDataFormat(m_ColorSpecs[i].Format), GL_UNSIGNED_BYTE, nullptr);
+						GetTextureDataFormat(m_ColorSpecs[i].DataFormat), GL_UNSIGNED_BYTE, nullptr);
 
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -158,7 +155,7 @@ namespace Quark {
 		}
 
 		// Depth stencil format
-		if (m_DepthSpec.Attachment != FramebufferAttachment::None)
+		if (m_DepthSpec.Attachment != FramebufferAttachmentFormat::None)
 		{
 			glGenTextures(1, &m_DepthAttachment);
 
@@ -174,7 +171,7 @@ namespace Quark {
 			else
 			{
 				glTexImage2D(GL_TEXTURE_2D, 0, GetTextureInternalFormat(m_DepthSpec.InternalFormat), m_Spec.Width, m_Spec.Height, 0,
-					GetTextureDataFormat(m_DepthSpec.Format), GL_UNSIGNED_BYTE, nullptr);
+					GetTextureDataFormat(m_DepthSpec.DataFormat), GL_UNSIGNED_BYTE, nullptr);
 
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -186,13 +183,15 @@ namespace Quark {
 			glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentTarget, target, m_DepthAttachment, 0);
 		}
 
-		if (m_ColorSpecs.empty() && m_DepthSpec.Attachment == FramebufferAttachment::None)
+#if 1
+		if (m_ColorSpecs.empty() && m_DepthSpec.Attachment == FramebufferAttachmentFormat::None)
 		{
 			glGenRenderbuffers(1, &m_RenderBuffer);
 			glBindRenderbuffer(GL_RENDERBUFFER, m_RenderBuffer);
 			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, m_Spec.Width, m_Spec.Height);
 			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_RenderBuffer);
 		}
+#endif
 
 #if 0
 		if (m_ColorAttachments.size() > 1)

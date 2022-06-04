@@ -89,11 +89,6 @@ namespace Quark {
 			return s_RenderingApi->GetLineThickness();
 		}
 
-		static const HardwareConstraints& GetHardwareConstraints()
-		{
-			return s_RenderingApi->GetHardwareConstraints();
-		}
-
 		static const char* GetAPIName()
 		{
 			QK_ASSERT_RENDER_THREAD();
@@ -104,6 +99,11 @@ namespace Quark {
 		{
 			QK_ASSERT_RENDER_THREAD();
 			return s_RenderingApi->GetSpecification();
+		}
+
+		static const HardwareConstraints& GetHardwareConstraints()
+		{
+			return s_RenderingApi->GetHardwareConstraints();
 		}
 
 		static std::thread::id GetThreadId() { return s_ThreadId; }

@@ -18,8 +18,11 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
+		QK_CORE_ASSERT(m_Spec.Width <= GetConstraints().MaxPixelSize && m_Spec.Height <= GetConstraints().MaxPixelSize);
+
 		m_InternalFormat = GetTextureInternalFormat(m_Spec.InternalFormat);
 		m_DataFormat = GetTextureDataFormat(m_Spec.DataFormat);
+		QK_CORE_ASSERT(m_InternalFormat & m_DataFormat, "Image format not supported");
 
 		glGenTextures(1, &m_RendererID);
 
@@ -48,57 +51,25 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		Image image = filepath;
+		auto& metadata = image.GetMetadata();
 
-		m_Spec.Width       = image.Width();
-		m_Spec.Height      = image.Height();
-		m_Spec.RenderModes = descriptor.RenderModes;
+		m_Spec.Width          = metadata.Width;
+		m_Spec.Height         = metadata.Height;
+		m_Spec.DataFormat     = metadata.DataFormat;
+		m_Spec.InternalFormat = metadata.InternalFormat;
+		m_Spec.RenderModes    = descriptor.RenderModes;
 
-		if (image.IsHDR())
-		{
-			m_DataType = GL_FLOAT;
-			switch (image.Channels())
-			{
-				case 3:
-					m_InternalFormat = GL_RGB16F;
-					m_DataFormat = GL_RGB;
-					break;
-				case 4:
-					m_InternalFormat = GL_RGBA16F;
-					m_DataFormat = GL_RGBA;
-					break;
-				default:
-					QK_CORE_ASSERT(false, "Image format not supported");
-					break;
-			}
-		}
-		else
-		{
-			m_DataType = GL_UNSIGNED_BYTE;
-			switch (image.Channels())
-			{
-				case 1:
-					m_InternalFormat = GL_R8;
-					m_DataFormat = GL_RED;
-					break;
-				case 3:
-					m_InternalFormat = descriptor.SRGB ? GL_SRGB8 : GL_RGB8;
-					m_DataFormat = GL_RGB;
-					break;
-				case 4:
-					m_InternalFormat = descriptor.SRGB ? GL_SRGB8_ALPHA8 : GL_RGBA8;
-					m_DataFormat = GL_RGBA;
-					break;
-				default:
-					QK_CORE_ASSERT(false, "Image format not supported");
-					break;
-			}
-		}
+		QK_CORE_ASSERT(m_Spec.Width <= GetConstraints().MaxPixelSize && m_Spec.Height <= GetConstraints().MaxPixelSize);
 
+		m_DataFormat = GetTextureDataFormat(m_Spec.DataFormat);
+		m_InternalFormat = GetTextureInternalFormat(m_Spec.InternalFormat);
 		QK_CORE_ASSERT(m_InternalFormat & m_DataFormat, "Image format not supported");
 
 		glGenTextures(1, &m_RendererID);
 		glBindTexture(GL_TEXTURE_2D, m_RendererID);
-		glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Spec.Width, m_Spec.Height, 0, m_DataFormat, m_DataType, *image);
+		glTexImage2D(GL_TEXTURE_2D, 0,
+			m_InternalFormat, m_Spec.Width, m_Spec.Height, 0, m_DataFormat,
+			GetDataTypeBasedOnInternalFormat(m_Spec.InternalFormat), *image);
 
 		GLenum tilingMode = GetTextureTilingMode(m_Spec.RenderModes.TilingMode);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetTextureFilteringMode(m_Spec.RenderModes.MinFilteringMode));
@@ -106,7 +77,7 @@ namespace Quark {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, tilingMode);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, tilingMode);
 
-		if (TextureHasMips(m_Spec.RenderModes.MinFilteringMode) || TextureHasMips(m_Spec.RenderModes.MagFilteringMode))
+		if (IsformatUsingMips(m_Spec.RenderModes.MinFilteringMode) || IsformatUsingMips(m_Spec.RenderModes.MagFilteringMode))
 		{
 			glGenerateMipmap(GL_TEXTURE_2D);
 		}
@@ -145,7 +116,7 @@ namespace Quark {
 
 	void OpenGLTexture2D::GenerateMipmaps()
 	{
-		QK_CORE_ASSERT(TextureHasMips(m_Spec.RenderModes.MinFilteringMode) || TextureHasMips(m_Spec.RenderModes.MagFilteringMode),
+		QK_CORE_ASSERT(IsformatUsingMips(m_Spec.RenderModes.MinFilteringMode) || IsformatUsingMips(m_Spec.RenderModes.MagFilteringMode),
 			"Invalid texture specification for mipmaps");
 
 		glGenerateMipmap(GL_TEXTURE_2D);

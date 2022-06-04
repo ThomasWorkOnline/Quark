@@ -150,18 +150,11 @@ PBRRendering::PBRRendering()
 		}
 	}
 
-	m_HDRTexture       = Texture2D::Create("assets/textures/hdr/MonValley_G_DirtRoad_3k.hdr");
+	m_HDRTexture       = Texture2D::Create("assets/textures/hdr/studio_small_09_8k.hdr");
 	m_PBRShader        = Shader::Create("assets/shaders/PBR.glsl");
 	m_IrradianceShader = Shader::Create("assets/shaders/irradiance.glsl");
 	m_EquirectangleToCubemapShader = Shader::Create("assets/shaders/equirectangleToCubemap.glsl");
 	m_SkyboxShader     = Shader::Create("assets/shaders/cubemap.glsl");
-
-	{
-		FramebufferSpecification spec;
-		spec.Width = 2048;
-		spec.Height = 2048;
-		m_EnvironmentFramebuffer = Framebuffer::Create(spec);
-	}
 
 	static constexpr float lightPower = 10.0f;
 	static constexpr glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f) * lightPower;
@@ -213,6 +206,14 @@ PBRRendering::PBRRendering()
 		spec.Width          = 32;
 		spec.Height         = 32;
 		m_Irradiance = Cubemap::Create(spec);
+	}
+
+	{
+		FramebufferSpecification spec;
+		spec.Width = 2048;
+		spec.Height = 2048;
+		spec.Attachments = {  };
+		m_EnvironmentFramebuffer = Framebuffer::Create(spec);
 	}
 
 	m_EnvironmentFramebuffer->Attach();

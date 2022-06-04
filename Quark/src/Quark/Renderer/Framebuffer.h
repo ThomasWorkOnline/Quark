@@ -8,7 +8,7 @@
 
 namespace Quark {
 
-	enum class FramebufferAttachment
+	enum class FramebufferAttachmentFormat
 	{
 		None = 0,
 
@@ -29,14 +29,9 @@ namespace Quark {
 
 	struct FramebufferAttachmentSpecification
 	{
-		FramebufferAttachmentSpecification() = default;
-		FramebufferAttachmentSpecification(FramebufferAttachment attachment,
-			TextureRenderModes modes = {})
-			: Attachment(attachment) {}
-
-		FramebufferAttachment Attachment{};
-		TextureDataFormat     Format{};
-		TextureInternalFormat InternalFormat{};
+		FramebufferAttachmentFormat Attachment{};
+		TextureDataFormat           DataFormat{};
+		TextureInternalFormat       InternalFormat{};
 	};
 
 	struct FramebufferSpecification

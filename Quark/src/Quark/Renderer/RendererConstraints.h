@@ -8,6 +8,7 @@ namespace Quark {
 	{
 		uint32_t MaxWidth;
 		uint32_t MaxHeight;
+		uint32_t MaxAttachments;
 	};
 
 	struct UniformBufferHardwareConstraints

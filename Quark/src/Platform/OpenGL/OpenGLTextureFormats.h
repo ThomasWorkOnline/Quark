@@ -47,6 +47,7 @@ namespace Quark {
 			case TextureInternalFormat::RGB10:           return GL_RGB10;
 			case TextureInternalFormat::RGB12:           return GL_RGB12;
 			case TextureInternalFormat::RGB16:           return GL_RGB16;
+			case TextureInternalFormat::RGB32:           return GL_RGB32I;
 			case TextureInternalFormat::RGBA8:           return GL_RGBA8;
 			case TextureInternalFormat::RGBA12:          return GL_RGBA12;
 			case TextureInternalFormat::RGBA16:          return GL_RGBA16;
@@ -55,6 +56,8 @@ namespace Quark {
 			case TextureInternalFormat::Red8:            return GL_R8;
 			case TextureInternalFormat::RGB16f:          return GL_RGB16F;
 			case TextureInternalFormat::RGB32f:          return GL_RGB32F;
+			case TextureInternalFormat::RGBA16f:         return GL_RGBA16F;
+			case TextureInternalFormat::RGBA32f:         return GL_RGBA32F;
 			case TextureInternalFormat::Depth24:         return GL_DEPTH_COMPONENT24;
 			case TextureInternalFormat::Depth24Stencil8: return GL_DEPTH24_STENCIL8;
 			default:
@@ -71,6 +74,7 @@ namespace Quark {
 			case TextureInternalFormat::RGB10:           return 4;
 			case TextureInternalFormat::RGB12:           return 5;
 			case TextureInternalFormat::RGB16:           return 6;
+			case TextureInternalFormat::RGB32:           return 12;
 			case TextureInternalFormat::RGBA8:           return 4;
 			case TextureInternalFormat::RGBA12:          return 6;
 			case TextureInternalFormat::RGBA16:          return 8;
@@ -79,6 +83,8 @@ namespace Quark {
 			case TextureInternalFormat::Red8:            return 1;
 			case TextureInternalFormat::RGB16f:          return 6;
 			case TextureInternalFormat::RGB32f:          return 12;
+			case TextureInternalFormat::RGBA16f:         return 8;
+			case TextureInternalFormat::RGBA32f:         return 16;
 			case TextureInternalFormat::Depth24:         return 3;
 			case TextureInternalFormat::Depth24Stencil8: return 4;
 			default:
@@ -95,6 +101,7 @@ namespace Quark {
 			case TextureInternalFormat::RGB10:
 			case TextureInternalFormat::RGB12:
 			case TextureInternalFormat::RGB16:
+			case TextureInternalFormat::RGB32:
 			case TextureInternalFormat::RGBA8:
 			case TextureInternalFormat::RGBA12:
 			case TextureInternalFormat::RGBA16:
@@ -104,7 +111,9 @@ namespace Quark {
 			case TextureInternalFormat::Depth24:
 			case TextureInternalFormat::Depth24Stencil8: return GL_UNSIGNED_BYTE;
 			case TextureInternalFormat::RGB16f:
-			case TextureInternalFormat::RGB32f:          return GL_FLOAT;
+			case TextureInternalFormat::RGB32f:
+			case TextureInternalFormat::RGBA16f:
+			case TextureInternalFormat::RGBA32f:         return GL_FLOAT;
 			default:
 				QK_CORE_FATAL("Invalid internal texture format");
 				return GL_NONE;
@@ -147,22 +156,6 @@ namespace Quark {
 			case TextureDataFormat::RGBA:
 			case TextureDataFormat::BGRA: return true;
 			default:                      return false;
-		}
-	}
-
-	constexpr bool TextureHasMips(TextureFilteringMode mode)
-	{
-		switch (mode)
-		{
-			case TextureFilteringMode::Nearest:
-			case TextureFilteringMode::Linear:               return false;
-			case TextureFilteringMode::NearestMipmapNearest:
-			case TextureFilteringMode::NearestMipmapLinear:
-			case TextureFilteringMode::LinearMipmapNearest:
-			case TextureFilteringMode::LinearMipmapLinear:   return true;
-			default:
-				QK_CORE_FATAL("Invalid texture filtering mode");
-				return false;
 		}
 	}
 }

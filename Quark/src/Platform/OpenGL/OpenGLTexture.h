@@ -30,6 +30,6 @@ namespace Quark {
 	private:
 		uint32_t m_RendererID = 0;
 		Texture2DSpecification m_Spec;
-		uint32_t m_InternalFormat = 0, m_DataFormat = 0, m_DataType = 0;
+		uint32_t m_InternalFormat = 0, m_DataFormat = 0;
 	};
 }

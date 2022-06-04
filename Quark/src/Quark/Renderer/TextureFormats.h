@@ -26,6 +26,7 @@ namespace Quark {
 		RGB10,
 		RGB12,
 		RGB16,
+		RGB32,
 
 		RGBA8,
 		RGBA12,
@@ -38,10 +39,12 @@ namespace Quark {
 		// HDR formats
 		RGB16f,
 		RGB32f,
+		RGBA16f,
+		RGBA32f,
 
 		Red8,
 
-		// Depth formats
+		// Depth stencil formats
 		Depth24,
 		Depth24Stencil8
 	};
@@ -82,12 +85,14 @@ namespace Quark {
 	{
 		switch (mode)
 		{
-			case TextureFilteringMode::LinearMipmapLinear:
-			case TextureFilteringMode::LinearMipmapNearest:
-			case TextureFilteringMode::NearestMipmapLinear:
+			case TextureFilteringMode::Nearest:
+			case TextureFilteringMode::Linear:               return false;
 			case TextureFilteringMode::NearestMipmapNearest:
-				return true;
+			case TextureFilteringMode::NearestMipmapLinear:
+			case TextureFilteringMode::LinearMipmapNearest:
+			case TextureFilteringMode::LinearMipmapLinear:   return true;
 			default:
+				QK_CORE_FATAL("Invalid texture filtering mode");
 				return false;
 		}
 	}
