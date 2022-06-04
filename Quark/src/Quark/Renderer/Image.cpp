@@ -19,7 +19,7 @@ namespace Quark {
 			case 4: return TextureDataFormat::RGBA;
 		}
 
-		QK_CORE_FATAL("Unknown internal texture format");
+		QK_CORE_FATAL("Unknown texture data format");
 		return TextureDataFormat::None;
 	}
 
@@ -57,13 +57,13 @@ namespace Quark {
 			}
 		}
 
-		QK_CORE_FATAL("Unknown internal texture format");
+		QK_CORE_FATAL("Unknown texture internal format");
 		return TextureInternalFormat::None;
 	}
 
 	Image::Image(std::string_view filepath)
 	{
-		QK_CORE_ASSERT(std::filesystem::exists(filepath), "No file exists at filepath");
+		QK_CORE_ASSERT(std::filesystem::exists(filepath), "No file exists at filepath: '{0}'", filepath);
 
 		if (stbi_is_hdr(filepath.data()))
 			DecodeHDR(filepath);

@@ -5,26 +5,23 @@
 #include <iomanip>
 #include <sstream>
 
+#ifdef QK_DEBUG
+#	define CONFIG_NAME "debug"
+#elif defined(QK_RELEASE)
+#	define CONFIG_NAME "release"
+#elif defined(QK_DIST)
+#	define CONFIG_NAME "dist"
+#else
+#	error "Undefined build configuration"
+#endif
+
 namespace Quark {
 
 	namespace Profile {
 
-		static std::string GetConfigName()
-		{
-#ifdef QK_DEBUG
-			return "debug";
-#elif defined(QK_RELEASE)
-			return "release";
-#elif defined(QK_DIST)
-			return "dist";
-#else
-#	error "Undefined build configuration"
-#endif
-		}
-
 		struct InstrumentorSettings
 		{
-			static inline std::string OutputDir = "instrumentor/" + GetConfigName() + "/";
+			static inline const char* OutputDir = "instrumentor/" CONFIG_NAME "/";
 		};
 
 		void Instrumentor::BeginSession(const std::string& sessionName)

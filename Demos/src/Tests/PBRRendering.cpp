@@ -10,6 +10,8 @@ static Ref<Texture2D> CreateTextureFromImage(const Ref<Image>& image, const Text
 
 PBRRendering::PBRRendering()
 {
+	QK_PROFILE_FUNCTION();
+
 	GetWindow().SetVSync(true);
 
 	m_Player = m_Scene.CreateEntity();
