@@ -10,6 +10,8 @@ static Ref<Texture2D> CreateTextureFromImage(const Ref<Image>& image, const Text
 
 PBRRendering::PBRRendering()
 {
+	GetWindow().SetVSync(true);
+
 	m_Player = m_Scene.CreateEntity();
 	m_Player.AddComponent<Transform3DComponent>().Position = { 0.0f, 0.0f, -2.0f };
 	m_Player.AddComponent<PhysicsComponent>().Friction = 4.0f;
@@ -186,6 +188,7 @@ PBRRendering::PBRRendering()
 
 	m_SkyboxShader->Attach();
 	m_SkyboxShader->SetInt("u_EnvironmentMap", 0);
+	m_SkyboxShader->SetFloat("u_Exposure", 1.0f);
 
 	glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
 	glm::mat4 captureViews[] = {
@@ -271,6 +274,9 @@ void PBRRendering::OnUpdate(Timestep elapsedTime)
 
 void PBRRendering::OnRender()
 {
+	Profile::Timer t;
+	t.Start();
+
 	UploadAssets();
 
 	const auto& camera = m_Player.GetComponent<PerspectiveCameraComponent>().Camera;
@@ -312,6 +318,10 @@ void PBRRendering::OnRender()
 	}
 
 	Renderer::EndScene();
+
+	t.Stop();
+	auto ms = t.Microseconds().count() / 1000.0f;
+	QK_CORE_INFO("Frametime: {0}ms", ms);
 }
 
 void PBRRendering::OnEvent(Event& e)

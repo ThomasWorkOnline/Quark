@@ -45,13 +45,25 @@ namespace Quark {
 		class Timer
 		{
 		public:
-			Timer(const char* scope);
-			~Timer();
+			void Start();
+			void Stop();
+
+			std::chrono::microseconds Microseconds() const;
+
+		protected:
+			std::chrono::steady_clock::time_point m_Start;
+			std::chrono::steady_clock::time_point m_End;
+		};
+
+		class ScopeTimer : public Timer
+		{
+		public:
+			ScopeTimer(const char* scope);
+			~ScopeTimer();
 
 			void Stop();
 
 		private:
-			std::chrono::steady_clock::time_point m_Start;
 			const char* m_Scope;
 		};
 	}
@@ -61,8 +73,8 @@ namespace Quark {
 #define CONCAT(a, b) CONCAT_IMPL(a, b)
 
 #ifdef QK_ENABLE_PROFILING
-#	define QK_PROFILE_SCOPE(scope) ::Quark::Profile::Timer CONCAT(profiler, __LINE__)(#scope)
-#	define QK_PROFILE_FUNCTION()   ::Quark::Profile::Timer CONCAT(profiler, __LINE__)(QK_FUNCTION_SIG)
+#	define QK_PROFILE_SCOPE(scope) ::Quark::Profile::ScopeTimer CONCAT(profiler, __LINE__)(#scope)
+#	define QK_PROFILE_FUNCTION()   ::Quark::Profile::ScopeTimer CONCAT(profiler, __LINE__)(QK_FUNCTION_SIG)
 
 #	define QK_BEGIN_PROFILE_SESSION(sessionName) ::Quark::Profile::Instrumentor::Get().BeginSession(sessionName);
 #	define QK_END_PROFILE_SESSION()              ::Quark::Profile::Instrumentor::Get().EndSession();

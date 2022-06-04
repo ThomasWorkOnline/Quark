@@ -28,6 +28,7 @@ in VertexOutput
 } v_Input;
   
 uniform samplerCube u_EnvironmentMap;
+uniform float u_Exposure;
 
 out vec4 o_Color;
   
@@ -36,5 +37,5 @@ void main()
     vec3 envColor = texture(u_EnvironmentMap, v_Input.Position).rgb;
     envColor = envColor / (envColor + vec3(1.0));
   
-    o_Color = vec4(envColor, 1.0);
+    o_Color = vec4(envColor * u_Exposure, 1.0);
 }

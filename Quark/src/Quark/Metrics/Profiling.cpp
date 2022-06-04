@@ -80,21 +80,37 @@ namespace Quark {
 			m_Output.flush();
 		}
 
-		Timer::Timer(const char* scope)
-			: m_Scope(scope)
+		void Timer::Start()
 		{
 			m_Start = std::chrono::steady_clock::now();
 		}
 
-		Timer::~Timer()
+		void Timer::Stop()
+		{
+			m_End = std::chrono::steady_clock::now();
+		}
+
+		std::chrono::microseconds Timer::Microseconds() const
+		{
+			return std::chrono::duration_cast<std::chrono::microseconds>(m_End - m_Start);
+		}
+
+		ScopeTimer::ScopeTimer(const char* scope)
+			: m_Scope(scope)
+		{
+			Start();
+		}
+
+		ScopeTimer::~ScopeTimer()
 		{
 			Stop();
 		}
 
-		void Timer::Stop()
+		void ScopeTimer::Stop()
 		{
-			auto end = std::chrono::steady_clock::now();
-			auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - m_Start);
+			Timer::Stop();
+
+			auto elapsed = Microseconds();
 
 			InstrumentorProfile result;
 			result.ScopeName = m_Scope;
@@ -104,7 +120,7 @@ namespace Quark {
 
 			Instrumentor::Get().WriteProfile(result);
 
-			if (std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count() > 10)
+			if (elapsed.count() > 10000) // > 10ms
 			{
 				Logger::GetProfilerLogger()->warn("'{0}'\t took: {1}us ({2}ms)", m_Scope, elapsed.count(), elapsed.count() / 1000.f);
 			}
