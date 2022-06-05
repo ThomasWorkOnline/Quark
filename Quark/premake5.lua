@@ -87,7 +87,6 @@ project "Quark"
 		}
 
 	filter "system:macosx"
-	
 		files
 		{
 			"src/Platform/Metal/**.h",
@@ -96,9 +95,6 @@ project "Quark"
 
 		defines
 		{
-			"NS_PRIVATE_IMPLEMENTATION",
-			"CA_PRIVATE_IMPLEMENTATION",
-			"MTL_PRIVATE_IMPLEMENTATION"
 		}
 		
 		includedirs
