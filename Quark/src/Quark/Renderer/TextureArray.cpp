@@ -1,7 +1,7 @@
 #include "qkpch.h"
 #include "TextureArray.h"
 
-#include "RenderingAPI.h"
+#include "GraphicsAPI.h"
 
 // Include all supported API's texture array implementations
 #include "Platform/OpenGL/OpenGLTextureArray.h"
@@ -10,12 +10,12 @@ namespace Quark {
 
 	Ref<Texture2DArray> Texture2DArray::Create(const TextureArraySpecification& spec)
 	{
-		switch (RenderingAPI::GetAPI())
+		switch (GraphicsAPI::GetAPI())
 		{
-			case RenderingAPI::API::OpenGL:
+			case GraphicsAPI::API::OpenGL:
 				return CreateRef<OpenGLTexture2DArray>(spec);
 			default:
-				QK_CORE_FATAL("Rendering API not supported");
+				QK_CORE_FATAL("Graphics API not supported");
 				return nullptr;
 		}
 	}

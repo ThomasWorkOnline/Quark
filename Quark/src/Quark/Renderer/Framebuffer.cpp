@@ -1,7 +1,7 @@
 #include "qkpch.h"
 #include "Framebuffer.h"
 
-#include "RenderingAPI.h"
+#include "GraphicsAPI.h"
 
 // Include all supported API's frame buffer implementations
 #include "Platform/OpenGL/OpenGLFramebuffer.h"
@@ -10,12 +10,12 @@ namespace Quark {
 
 	Ref<Framebuffer> Framebuffer::Create(const FramebufferSpecification& spec)
 	{
-		switch (RenderingAPI::GetAPI())
+		switch (GraphicsAPI::GetAPI())
 		{
-			case RenderingAPI::API::OpenGL:
+			case GraphicsAPI::API::OpenGL:
 				return CreateRef<OpenGLFramebuffer>(spec);
 			default:
-				QK_CORE_FATAL("Rendering API not supported");
+				QK_CORE_FATAL("Graphics API not supported");
 				return nullptr;
 		}
 	}

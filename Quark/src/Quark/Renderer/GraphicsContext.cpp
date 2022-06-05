@@ -1,7 +1,7 @@
 #include "qkpch.h"
 #include "GraphicsContext.h"
 
-#include "RenderingAPI.h"
+#include "GraphicsAPI.h"
 
 // Include all supported API's graphics context implementations
 
@@ -15,9 +15,9 @@ namespace Quark {
 
 	Scope<GraphicsContext> GraphicsContext::Create(void* window)
 	{
-		switch (RenderingAPI::GetAPI())
+		switch (GraphicsAPI::GetAPI())
 		{
-			case RenderingAPI::API::OpenGL:
+			case GraphicsAPI::API::OpenGL:
 			{
 #if defined(QK_PLATFORM_WINDOWS) && defined(QK_USE_NATIVE_APIS)
 				return CreateScope<OpenGLWin32GraphicsContext>(window);
@@ -26,7 +26,7 @@ namespace Quark {
 #endif
 			}
 			default:
-				QK_CORE_FATAL("Rendering API not supported");
+				QK_CORE_FATAL("Graphics API not supported");
 				return nullptr;
 		}
 	}

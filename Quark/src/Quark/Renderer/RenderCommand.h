@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Quark/Core/Core.h"
-#include "RenderingAPI.h"
+#include "GraphicsAPI.h"
 
 #include <thread>
 #define QK_ASSERT_RENDER_THREAD() QK_CORE_ASSERT(std::this_thread::get_id() == ::Quark::RenderCommand::GetThreadId(), "Function must be called from the render thread!")
@@ -110,6 +110,6 @@ namespace Quark {
 
 	private:
 		static std::thread::id s_ThreadId;
-		static Scope<RenderingAPI> s_RenderingApi;
+		static Scope<GraphicsAPI> s_RenderingApi;
 	};
 }

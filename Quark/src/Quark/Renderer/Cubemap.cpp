@@ -1,7 +1,7 @@
 #include "qkpch.h"
 #include "Cubemap.h"
 
-#include "RenderingAPI.h"
+#include "GraphicsAPI.h"
 
 // Include all supported API's environment maps implementations
 #include "Platform/OpenGL/OpenGLCubemap.h"
@@ -10,12 +10,12 @@ namespace Quark {
 
 	Ref<Cubemap> Cubemap::Create(const CubemapSpecification& spec)
 	{
-		switch (RenderingAPI::GetAPI())
+		switch (GraphicsAPI::GetAPI())
 		{
-			case RenderingAPI::API::OpenGL:
+			case GraphicsAPI::API::OpenGL:
 				return CreateRef<OpenGLCubemap>(spec);
 			default:
-				QK_CORE_FATAL("Rendering API not supported");
+				QK_CORE_FATAL("Graphics API not supported");
 				return nullptr;
 		}
 	}

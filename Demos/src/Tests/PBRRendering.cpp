@@ -371,13 +371,13 @@ bool PBRRendering::OnMouseButtonReleased(MouseButtonReleasedEvent& e)
 void PBRRendering::UploadAssets()
 {
 	// NOTE: std::future::_Is_ready() is MSVC exclusive
-	if (m_MeshDataFuture.valid() && m_MeshDataFuture._Is_ready())
+	if (m_MeshDataFuture.valid() && m_MeshDataFuture.wait_for(std::chrono::microseconds(0)) == std::future_status::ready)
 	{
 		OBJMeshData meshData = std::move(m_MeshDataFuture.get());
 		m_Body = meshData;
 	}
 
-	if (m_AlbedoFuture.valid() && m_AlbedoFuture._Is_ready())
+	if (m_AlbedoFuture.valid() && m_AlbedoFuture.wait_for(std::chrono::microseconds(0)) == std::future_status::ready)
 	{	
 		Ref<Image> image = m_AlbedoFuture.get();
 
@@ -392,7 +392,7 @@ void PBRRendering::UploadAssets()
 		m_Albedo = CreateTextureFromImage(image, spec);
 	}
 
-	if (m_MetallicFuture.valid() && m_MetallicFuture._Is_ready())
+	if (m_MetallicFuture.valid() && m_MetallicFuture.wait_for(std::chrono::microseconds(0)) == std::future_status::ready)
 	{
 		Ref<Image> image = m_MetallicFuture.get();
 
@@ -407,7 +407,7 @@ void PBRRendering::UploadAssets()
 		m_Metallic = CreateTextureFromImage(image, spec);
 	}
 
-	if (m_NormalFuture.valid() && m_NormalFuture._Is_ready())
+	if (m_NormalFuture.valid() && m_NormalFuture.wait_for(std::chrono::microseconds(0)) == std::future_status::ready)
 	{
 		Ref<Image> image = m_NormalFuture.get();
 
@@ -422,7 +422,7 @@ void PBRRendering::UploadAssets()
 		m_Normal = CreateTextureFromImage(image, spec);
 	}
 
-	if (m_RoughnessFuture.valid() && m_RoughnessFuture._Is_ready())
+	if (m_RoughnessFuture.valid() && m_RoughnessFuture.wait_for(std::chrono::microseconds(0)) == std::future_status::ready)
 	{
 		Ref<Image> image = m_RoughnessFuture.get();
 
@@ -437,7 +437,7 @@ void PBRRendering::UploadAssets()
 		m_Roughness = CreateTextureFromImage(image, spec);
 	}
 
-	if (m_AOFuture.valid() && m_AOFuture._Is_ready())
+	if (m_AOFuture.valid() && m_AOFuture.wait_for(std::chrono::microseconds(0)) == std::future_status::ready)
 	{
 		Ref<Image> image = m_AOFuture.get();
 

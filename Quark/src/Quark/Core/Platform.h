@@ -9,6 +9,8 @@
 #	endif
 #elif defined(__APPLE__) && defined(__MACH__)
 #	include <TargetConditionals.h>
+	// Base platform for any Apple device
+#	define QK_PLATFORM_APPLE
 
 #	if TARGET_IPHONE_SIMULATOR == 1
 		// We're on an iPhone Simulator

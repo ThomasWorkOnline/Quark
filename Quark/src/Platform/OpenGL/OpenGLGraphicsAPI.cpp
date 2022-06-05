@@ -1,5 +1,5 @@
 #include "qkpch.h"
-#include "OpenGLRenderingAPI.h"
+#include "OpenGLGraphicsAPI.h"
 
 #include <glad/glad.h>
 #include <sstream>
@@ -26,7 +26,7 @@ namespace Quark {
 		QK_CORE_ASSERT(false, "OnOpenGLMessage had an unknown severity level");
 	}
 
-	void OpenGLRenderingAPI::Init()
+	void OpenGLGraphicsAPI::Init()
 	{
 		QK_PROFILE_FUNCTION();
 
@@ -105,12 +105,12 @@ namespace Quark {
 		}
 	}
 
-	void OpenGLRenderingAPI::Clear()
+	void OpenGLGraphicsAPI::Clear()
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
-	void OpenGLRenderingAPI::SetCullFace(RenderCullFace face)
+	void OpenGLGraphicsAPI::SetCullFace(RenderCullFace face)
 	{
 		switch (face)
 		{
@@ -132,7 +132,7 @@ namespace Quark {
 		}
 	}
 
-	void OpenGLRenderingAPI::SetDepthFunction(RenderDepthFunction func)
+	void OpenGLGraphicsAPI::SetDepthFunction(RenderDepthFunction func)
 	{
 		switch (func)
 		{
@@ -160,66 +160,66 @@ namespace Quark {
 		}
 	}
 
-	RenderingAPI::Version OpenGLRenderingAPI::GetVersion() const
+	GraphicsAPI::Version OpenGLGraphicsAPI::GetVersion() const
 	{
 		return { GLVersion.major, GLVersion.minor };
 	}
 
-	void OpenGLRenderingAPI::SetClearColor(const glm::vec4& rgba)
+	void OpenGLGraphicsAPI::SetClearColor(const glm::vec4& rgba)
 	{
 		glClearColor(rgba.x, rgba.y, rgba.z, rgba.w);
 	}
 
-	void OpenGLRenderingAPI::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
+	void OpenGLGraphicsAPI::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 	{
 		glViewport(x, y, width, height);
 	}
 
-	void OpenGLRenderingAPI::Draw(uint32_t offset, uint32_t count)
+	void OpenGLGraphicsAPI::Draw(uint32_t offset, uint32_t count)
 	{
 		glDrawArrays(GL_TRIANGLES, offset, count);
 	}
 
-	void OpenGLRenderingAPI::DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount)
+	void OpenGLGraphicsAPI::DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount)
 	{
 		vertexArray->Attach();
 		uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer() ? vertexArray->GetIndexBuffer()->GetCount() : 0;
 		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
 	}
 
-	void OpenGLRenderingAPI::DrawIndexedInstanced(const Ref<VertexArray>& vertexArray, uint32_t repeatCount, uint32_t indexCount)
+	void OpenGLGraphicsAPI::DrawIndexedInstanced(const Ref<VertexArray>& vertexArray, uint32_t repeatCount, uint32_t indexCount)
 	{
 		vertexArray->Attach();
 		uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer() ? vertexArray->GetIndexBuffer()->GetCount() : 0;
 		glDrawElementsInstanced(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr, repeatCount);
 	}
 
-	void OpenGLRenderingAPI::DrawLines(const Ref<VertexArray>& vertexArray, uint32_t count)
+	void OpenGLGraphicsAPI::DrawLines(const Ref<VertexArray>& vertexArray, uint32_t count)
 	{
 		vertexArray->Attach();
 		glDrawArrays(GL_LINES, 0, count);
 	}
 
-	void OpenGLRenderingAPI::DrawIndexedLines(const Ref<VertexArray>& vertexArray, uint32_t indexCount)
+	void OpenGLGraphicsAPI::DrawIndexedLines(const Ref<VertexArray>& vertexArray, uint32_t indexCount)
 	{
 		vertexArray->Attach();
 		uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer() ? vertexArray->GetIndexBuffer()->GetCount() : 0;
 		glDrawElements(GL_LINES, count, GL_UNSIGNED_INT, nullptr);
 	}
 
-	void OpenGLRenderingAPI::SetLineThickness(float thickness)
+	void OpenGLGraphicsAPI::SetLineThickness(float thickness)
 	{
 		glLineWidth(thickness);
 	}
 
-	float OpenGLRenderingAPI::GetLineThickness() const
+	float OpenGLGraphicsAPI::GetLineThickness() const
 	{
 		float thickness;
 		glGetFloatv(GL_LINE_WIDTH, &thickness);
 		return thickness;
 	}
 
-	std::string OpenGLRenderingAPI::GetSpecification() const
+	std::string OpenGLGraphicsAPI::GetSpecification() const
 	{
 		std::stringstream ss;
 		ss << "OpenGL Info:\n";

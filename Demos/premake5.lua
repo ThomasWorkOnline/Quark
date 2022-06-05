@@ -41,9 +41,12 @@ project "Demos"
 		{
 			"Cocoa.framework",
 			"CoreVideo.framework",
+			"Foundation.framework",
 			"IOKit.framework",
+			"Metal.framework",
 			"OpenAL.framework",
-			"OpenGL.framework"
+			"OpenGL.framework",
+			"QuartzCore.framework"
 		}
 	
 	filter "system:linux"

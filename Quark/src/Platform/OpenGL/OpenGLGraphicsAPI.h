@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Quark/Renderer/RenderingAPI.h"
+#include "Quark/Renderer/GraphicsAPI.h"
 
 namespace Quark {
 
-	class OpenGLRenderingAPI final : public RenderingAPI
+	class OpenGLGraphicsAPI final : public GraphicsAPI
 	{
 	public:
 		virtual void Init() override;

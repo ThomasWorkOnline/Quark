@@ -88,17 +88,37 @@ project "Quark"
 
 	filter "system:macosx"
 	
+		files
+		{
+			"src/Platform/Metal/**.h",
+			"src/Platform/Metal/**.cpp"
+		}
+
+		defines
+		{
+			"NS_PRIVATE_IMPLEMENTATION",
+			"CA_PRIVATE_IMPLEMENTATION",
+			"MTL_PRIVATE_IMPLEMENTATION"
+		}
+		
+		includedirs
+		{
+			"vendor/metal"
+		}
+
 		links
 		{
 			"Cocoa.framework",
 			"CoreVideo.framework",
+			"Foundation.framework",
 			"IOKit.framework",
+			"Metal.framework",
 			"OpenAL.framework",
-			"OpenGL.framework"
+			"OpenGL.framework",
+			"QuartzCore.framework"
 		}
 
 	filter "system:linux"
-
 		links
 		{
 			"GL",

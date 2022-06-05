@@ -8,13 +8,15 @@
 
 namespace Quark {
 
-	class RenderingAPI
+	class GraphicsAPI
 	{
 	public:
 		// Supported APIs
 		enum class API
 		{
-			None = 0, OpenGL = 1
+			None = 0,
+			Metal,
+			OpenGL
 		};
 
 		struct Version
@@ -23,7 +25,7 @@ namespace Quark {
 			int Minor;
 		};
 
-		virtual ~RenderingAPI() = default;
+		virtual ~GraphicsAPI() = default;
 		virtual void Init() = 0;
 
 		virtual Version GetVersion() const = 0;
@@ -47,9 +49,10 @@ namespace Quark {
 		virtual const char* GetName() const = 0;
 		virtual std::string GetSpecification() const = 0;
 
+		static API GetDefaultForPlatform();
 		static API GetAPI() { return s_API; }
 
-		static Scope<RenderingAPI> Create(API api);
+		static Scope<GraphicsAPI> Create(API api);
 
 	private:
 		static API s_API;

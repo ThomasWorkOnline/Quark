@@ -4,5 +4,5 @@
 namespace Quark {
 
 	std::thread::id RenderCommand::s_ThreadId;
-	Scope<RenderingAPI> RenderCommand::s_RenderingApi = RenderingAPI::Create(RenderingAPI::API::OpenGL);
+	Scope<GraphicsAPI> RenderCommand::s_RenderingApi = GraphicsAPI::Create(GraphicsAPI::GetDefaultForPlatform());
 }
