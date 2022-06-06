@@ -93,10 +93,6 @@ project "Quark"
 			"src/Platform/Metal/**.cpp"
 		}
 
-		defines
-		{
-		}
-		
 		includedirs
 		{
 			"vendor/metal"

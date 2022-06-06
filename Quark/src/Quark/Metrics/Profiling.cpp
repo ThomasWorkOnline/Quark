@@ -5,14 +5,14 @@
 #include <iomanip>
 #include <sstream>
 
-#ifdef QK_DEBUG
+#if defined(QK_DEBUG)
 #	define CONFIG_NAME "debug"
 #elif defined(QK_RELEASE)
 #	define CONFIG_NAME "release"
 #elif defined(QK_DIST)
 #	define CONFIG_NAME "dist"
 #else
-#	error "Undefined build configuration"
+#	warning "Undefined build configuration assuming debug"
 #endif
 
 namespace Quark {
