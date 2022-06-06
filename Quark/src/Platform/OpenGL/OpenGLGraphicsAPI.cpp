@@ -224,7 +224,7 @@ namespace Quark {
 
 	float OpenGLGraphicsAPI::GetLineThickness() const
 	{
-		float thickness;
+		GLfloat thickness;
 		glGetFloatv(GL_LINE_WIDTH, &thickness);
 		return thickness;
 	}

@@ -2,8 +2,7 @@
 
 #include "Quark/Renderer/GraphicsContext.h"
 
-typedef struct HWND__* HWND;
-typedef struct HGLRC__* HGLRC;
+#include <Windows.h>
 
 namespace Quark {
 
@@ -18,6 +17,7 @@ namespace Quark {
 
 	private:
 		HWND m_WindowHandle;
+		HDC m_DeviceContext;
 		HGLRC m_Context;
 	};
 }

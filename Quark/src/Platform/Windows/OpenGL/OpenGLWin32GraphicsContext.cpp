@@ -1,13 +1,13 @@
 #include "qkpch.h"
 #include "OpenGLWin32GraphicsContext.h"
 
-#include <Windows.h>
 #include <glad/glad.h>
 
 namespace Quark {
 
 	OpenGLWin32GraphicsContext::OpenGLWin32GraphicsContext(void* windowHandle)
 		: m_WindowHandle(static_cast<HWND>(windowHandle))
+		, m_DeviceContext(nullptr)
 		, m_Context(nullptr)
 	{
 		QK_CORE_ASSERT(windowHandle, "Window handle is nullptr");
@@ -45,17 +45,17 @@ namespace Quark {
 			0, 0, 0
 		};
 
-		HDC hdc = GetDC(m_WindowHandle);
-		QK_CORE_ASSERT(hdc, "Could not get a device context!");
+		m_DeviceContext = GetDC(m_WindowHandle);
+		QK_CORE_ASSERT(m_DeviceContext, "Could not get a device context!");
 
-		int format = ChoosePixelFormat(hdc, &pfd);
-		SetPixelFormat(hdc, format, &pfd);
+		int format = ChoosePixelFormat(m_DeviceContext, &pfd);
+		SetPixelFormat(m_DeviceContext, format, &pfd);
 
-		m_Context = wglCreateContext(hdc);
+		m_Context = wglCreateContext(m_DeviceContext);
 		QK_CORE_ASSERT(m_Context, "Could not create a graphics context!");
 
 		// Make the context before init OpenGL
-		BOOL success = wglMakeCurrent(hdc, m_Context);
+		BOOL success = wglMakeCurrent(m_DeviceContext, m_Context);
 		QK_CORE_ASSERT(success, "Could not set the current context!");
 
 		int errorCode = gladLoadGL();
@@ -65,6 +65,6 @@ namespace Quark {
 
 	void OpenGLWin32GraphicsContext::SwapBuffers()
 	{
-		::SwapBuffers(wglGetCurrentDC());
+		::SwapBuffers(m_DeviceContext);
 	}
 }

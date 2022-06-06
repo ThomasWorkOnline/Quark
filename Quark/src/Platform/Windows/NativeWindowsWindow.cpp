@@ -1,7 +1,6 @@
 #include "qkpch.h"
 #include "NativeWindowsWindow.h"
 
-#include <Windows.h>
 #include <windowsx.h>
 
 namespace Quark {
