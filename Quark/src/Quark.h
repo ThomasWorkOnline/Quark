@@ -36,6 +36,7 @@
 #include "Quark/Renderer/Font.h"
 #include "Quark/Renderer/Framebuffer.h"
 #include "Quark/Renderer/Image.h"
+#include "Quark/Renderer/Material.h"
 #include "Quark/Renderer/Mesh.h"
 #include "Quark/Renderer/OrthographicCamera.h"
 #include "Quark/Renderer/PerspectiveCamera.h"

@@ -27,7 +27,7 @@ namespace Quark {
 #ifdef QK_PLATFORM_APPLE
 				return CreateScope<MetalGLFWGraphicsContext>(window);
 #else
-				#error "Metal API is not supported on this platform"
+				return nullptr;
 #endif
 			}
 			case GraphicsAPI::API::OpenGL:

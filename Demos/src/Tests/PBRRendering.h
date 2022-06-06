@@ -2,7 +2,6 @@
 
 #include <Quark.h>
 #include <future>
-#include <queue>
 
 using namespace Quark;
 
