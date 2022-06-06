@@ -40,7 +40,7 @@ namespace Quark {
 		m_Name = filepath.substr(lastSlash, count);
 	}
 
-	OpenGLShader::OpenGLShader(const std::string& name, std::string_view vertexSource, std::string_view fragmentSource)
+	OpenGLShader::OpenGLShader(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource)
 		: m_Name(name)
 	{
 		QK_PROFILE_FUNCTION();
@@ -51,7 +51,7 @@ namespace Quark {
 		Compile(sources);
 	}
 
-	OpenGLShader::OpenGLShader(const std::string& name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource)
+	OpenGLShader::OpenGLShader(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource)
 		: m_Name(name)
 	{
 		QK_PROFILE_FUNCTION();

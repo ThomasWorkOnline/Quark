@@ -3,8 +3,6 @@
 #include "Quark/Core/Core.h"
 #include "TextureFormats.h"
 
-#include <array>
-
 namespace Quark {
 
 	struct CubemapSpecification

@@ -2,7 +2,6 @@
 
 #include "Quark/Core/Core.h"
 #include "TextureFormats.h"
-#include "RenderCommand.h"
 
 #include <vector>
 
@@ -67,10 +66,5 @@ namespace Quark {
 		virtual bool operator==(const Framebuffer& other) const = 0;
 
 		static Ref<Framebuffer> Create(const FramebufferSpecification& spec);
-
-		static const FramebufferHardwareConstraints& GetConstraints()
-		{
-			return RenderCommand::GetHardwareConstraints().FramebufferConstraints;
-		}
 	};
 }

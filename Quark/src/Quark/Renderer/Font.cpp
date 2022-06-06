@@ -1,23 +1,13 @@
 #include "qkpch.h"
 #include "Font.h"
 
-#include "GraphicsAPI.h"
-
-// Include all supported API's font implementations
-#include "Platform/OpenGL/OpenGLFont.h"
+#include "RenderCommand.h"
 
 namespace Quark {
 
 	Ref<Font> Font::Create(std::string_view filepath, uint32_t fontSize)
 	{
-		switch (GraphicsAPI::GetAPI())
-		{
-			case GraphicsAPI::API::OpenGL:
-				return CreateRef<OpenGLFont>(filepath, fontSize);
-			default:
-				QK_CORE_FATAL("Graphics API not supported");
-				return nullptr;
-		}
+		return RenderCommand::CreateFont(filepath, fontSize);
 	}
 
 	Ref<Font> FontLibrary::Load(const std::string& name, std::string_view filepath, uint32_t fontSize)

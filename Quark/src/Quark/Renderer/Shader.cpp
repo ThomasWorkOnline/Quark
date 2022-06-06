@@ -1,47 +1,23 @@
 #include "qkpch.h"
 #include "Shader.h"
 
-#include "GraphicsAPI.h"
-
-// Include all supported API's shader implementations
-#include "Platform/OpenGL/OpenGLShader.h"
+#include "RenderCommand.h"
 
 namespace Quark {
 
 	Ref<Shader> Shader::Create(std::string_view filepath)
 	{
-		switch (GraphicsAPI::GetAPI())
-		{
-			case GraphicsAPI::API::OpenGL:
-				return CreateRef<OpenGLShader>(filepath);
-			default:
-				QK_CORE_FATAL("Graphics API not supported");
-				return nullptr;
-		}
+		return RenderCommand::CreateShader(filepath);
 	}
 
-	Ref<Shader> Shader::Create(const std::string& name, std::string_view vertexSource, std::string_view fragmentSource)
+	Ref<Shader> Shader::Create(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource)
 	{
-		switch (GraphicsAPI::GetAPI())
-		{
-			case GraphicsAPI::API::OpenGL:
-				return CreateRef<OpenGLShader>(name, vertexSource, fragmentSource);
-			default:
-				QK_CORE_FATAL("Graphics API not supported");
-				return nullptr;
-		}
+		return RenderCommand::CreateShader(name, vertexSource, fragmentSource);
 	}
 
-	Ref<Shader> Shader::Create(const std::string& name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource)
+	Ref<Shader> Shader::Create(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource)
 	{
-		switch (GraphicsAPI::GetAPI())
-		{
-			case GraphicsAPI::API::OpenGL:
-				return CreateRef<OpenGLShader>(name, vertexSource, geometrySource, fragmentSource);
-			default:
-				QK_CORE_FATAL("Graphics API not supported");
-				return nullptr;
-		}
+		return RenderCommand::CreateShader(name, vertexSource, geometrySource, fragmentSource);
 	}
 
 	static size_t GetHashedName(std::string_view name)

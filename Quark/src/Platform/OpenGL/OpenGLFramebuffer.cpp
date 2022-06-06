@@ -2,6 +2,8 @@
 #include "OpenGLFramebuffer.h"
 #include "OpenGLTextureFormats.h"
 
+#include "Quark/Renderer/RenderCommand.h"
+
 #include <glad/glad.h>
 
 namespace Quark {
@@ -40,7 +42,7 @@ namespace Quark {
 		: m_Spec(spec)
 	{
 		QK_PROFILE_FUNCTION();
-		QK_CORE_ASSERT(m_Spec.Attachments.size() <= GetConstraints().MaxAttachments, "Framebuffer contains too many attachments");
+		QK_CORE_ASSERT(m_Spec.Attachments.size() <= RenderCommand::GetHardwareConstraints().FramebufferConstraints.MaxAttachments, "Framebuffer contains too many attachments");
 
 		for (const auto& s : m_Spec.Attachments)
 		{
@@ -75,8 +77,8 @@ namespace Quark {
 
 	void OpenGLFramebuffer::Resize(uint32_t width, uint32_t height)
 	{
-		auto& constraints = GetConstraints();
-		QK_CORE_ASSERT(width <= constraints.MaxWidth && height <= constraints.MaxHeight, "Invalid framebuffer dimensions: too large");
+		auto& constraints = RenderCommand::GetHardwareConstraints();
+		QK_CORE_ASSERT(width <= constraints.FramebufferConstraints.MaxWidth && height <= constraints.FramebufferConstraints.MaxHeight, "Invalid framebuffer dimensions: too large");
 
 		m_Spec.Width = width;
 		m_Spec.Height = height;

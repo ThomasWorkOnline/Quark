@@ -2,7 +2,6 @@
 
 #include "Quark/Core/Core.h"
 #include "TextureFormats.h"
-#include "RenderCommand.h"
 
 namespace Quark {
 
@@ -42,10 +41,5 @@ namespace Quark {
 
 		static Ref<Texture2D> Create(const Texture2DSpecification& spec);
 		static Ref<Texture2D> Create(std::string_view filepath, const TextureFormatDescriptor& descriptor = {});
-
-		static const TextureHardwareConstraints& GetConstraints()
-		{
-			return RenderCommand::GetHardwareConstraints().TextureConstraints;
-		}
 	};
 }

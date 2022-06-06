@@ -89,6 +89,96 @@ namespace Quark {
 			return s_GraphicsAPI->GetLineThickness();
 		}
 
+		static Ref<VertexBuffer> CreateVertexBuffer(const void* vertices, size_t size)
+		{
+			QK_ASSERT_RENDER_THREAD();
+			return s_GraphicsAPI->CreateVertexBuffer(vertices, size);
+		}
+
+		static Ref<VertexBuffer> CreateVertexBuffer(size_t size)
+		{
+			QK_ASSERT_RENDER_THREAD();
+			return s_GraphicsAPI->CreateVertexBuffer(size);
+		}
+
+		static Ref<IndexBuffer> CreateIndexBuffer(const uint32_t* indices, uint32_t count)
+		{
+			QK_ASSERT_RENDER_THREAD();
+			return s_GraphicsAPI->CreateIndexBuffer(indices, count);
+		}
+
+		static Ref<IndexBuffer> CreateIndexBuffer(uint32_t count)
+		{
+			QK_ASSERT_RENDER_THREAD();
+			return s_GraphicsAPI->CreateIndexBuffer(count);
+		}
+
+		static Ref<Cubemap> CreateCubemap(const CubemapSpecification& spec)
+		{
+			QK_ASSERT_RENDER_THREAD();
+			return s_GraphicsAPI->CreateCubemap(spec);
+		}
+
+		static Ref<Font> CreateFont(std::string_view filepath, uint32_t fontSize)
+		{
+			QK_ASSERT_RENDER_THREAD();
+			return s_GraphicsAPI->CreateFont(filepath, fontSize);
+		}
+
+		static Ref<Framebuffer> CreateFramebuffer(const FramebufferSpecification& spec)
+		{
+			QK_ASSERT_RENDER_THREAD();
+			return s_GraphicsAPI->CreateFramebuffer(spec);
+		}
+
+		static Ref<Shader> CreateShader(std::string_view filepath)
+		{
+			QK_ASSERT_RENDER_THREAD();
+			return s_GraphicsAPI->CreateShader(filepath);
+		}
+
+		static Ref<Shader> CreateShader(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource)
+		{
+			QK_ASSERT_RENDER_THREAD();
+			return s_GraphicsAPI->CreateShader(name, vertexSource, fragmentSource);
+		}
+
+		static Ref<Shader> CreateShader(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource)
+		{
+			QK_ASSERT_RENDER_THREAD();
+			return s_GraphicsAPI->CreateShader(name, vertexSource, geometrySource, fragmentSource);
+		}
+
+		static Ref<Texture2D> CreateTexture2D(const Texture2DSpecification& spec)
+		{
+			QK_ASSERT_RENDER_THREAD();
+			return s_GraphicsAPI->CreateTexture2D(spec);
+		}
+
+		static Ref<Texture2D> CreateTexture2D(std::string_view filepath, const TextureFormatDescriptor& descriptor = {})
+		{
+			QK_ASSERT_RENDER_THREAD();
+			return s_GraphicsAPI->CreateTexture2D(filepath, descriptor);
+		}
+
+		static Ref<Texture2DArray> CreateTexture2DArray(const TextureArraySpecification& spec)
+		{
+			QK_ASSERT_RENDER_THREAD();
+			return s_GraphicsAPI->CreateTexture2DArray(spec);
+		}
+
+		static Ref<UniformBuffer> CreateUniformBuffer(size_t size, uint32_t binding)
+		{
+			QK_ASSERT_RENDER_THREAD();
+			return s_GraphicsAPI->CreateUniformBuffer(size, binding);
+		}
+
+		static Ref<VertexArray> CreateVertexArray()
+		{
+			QK_ASSERT_RENDER_THREAD();
+			return s_GraphicsAPI->CreateVertexArray();
+		}
+
 		static const char* GetAPIName()
 		{
 			QK_ASSERT_RENDER_THREAD();

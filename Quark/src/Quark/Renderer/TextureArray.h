@@ -2,7 +2,6 @@
 
 #include "Quark/Core/Core.h"
 #include "TextureFormats.h"
-#include "RenderCommand.h"
 
 namespace Quark {
 
@@ -17,10 +16,10 @@ namespace Quark {
 		TextureRenderModes    RenderModes;
 	};
 
-	class TextureArray
+	class Texture2DArray
 	{
 	public:
-		virtual ~TextureArray() = default;
+		virtual ~Texture2DArray() = default;
 
 		virtual void Attach(uint32_t textureSlot = 0) const = 0;
 		virtual void Detach() const = 0;
@@ -34,17 +33,8 @@ namespace Quark {
 
 		virtual uint32_t GetRendererID() const = 0;
 
-		virtual bool operator==(const TextureArray& other) const = 0;
+		virtual bool operator==(const Texture2DArray& other) const = 0;
 
-		static const TextureHardwareConstraints& GetConstraints()
-		{
-			return RenderCommand::GetHardwareConstraints().TextureConstraints;
-		}
-	};
-
-	class Texture2DArray : public TextureArray
-	{
-	public:
 		static Ref<Texture2DArray> Create(const TextureArraySpecification& spec);
 	};
 }
