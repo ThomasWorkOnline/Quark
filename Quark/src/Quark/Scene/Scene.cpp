@@ -28,7 +28,7 @@ namespace Quark {
 				if (!nsComponent.ScriptInstance)
 				{
 					nsComponent.ScriptInstance = Scope<NativeScriptEntity>(nsComponent.InstanciateScript());
-					nsComponent.ScriptInstance->m_Entity = Entity{ entity, this };
+					nsComponent.ScriptInstance->m_Entity = Entity{ entity, &m_Registry };
 					nsComponent.ScriptInstance->OnCreate();
 				}
 
@@ -63,7 +63,7 @@ namespace Quark {
 
 	Entity Scene::CreateEntity()
 	{
-		return { m_Registry.create(), this };
+		return { m_Registry.create(), &m_Registry };
 	}
 
 	void Scene::DeleteEntity(Entity entity)

@@ -9,8 +9,6 @@
 
 namespace Quark {
 
-	class Entity;
-
 	class Scene
 	{
 	public:
@@ -34,7 +32,6 @@ namespace Quark {
 		entt::registry m_Registry;
 		Entity m_CameraEntity;
 
-		friend class Entity;
 		friend class SceneRenderer;
 	};
 }
