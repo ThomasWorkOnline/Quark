@@ -36,6 +36,6 @@ namespace Quark {
 
     void MetalGLFWGraphicsContext::SwapBuffers()
 	{
-		// TODO(Metal): swap buffers
+		glfwSwapBuffers(m_WindowHandle);
 	}
 }
