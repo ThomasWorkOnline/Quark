@@ -22,9 +22,8 @@ private:
 	void UploadAssets();
 
 private:
-	Scene m_Scene;
+	Ref<Scene> m_Scene;
 	Entity m_Player;
-	PerspectiveCameraController m_Controller;
 
 	Ref<Texture2D> m_Albedo;
 	Ref<Texture2D> m_Metallic;
@@ -32,17 +31,8 @@ private:
 	Ref<Texture2D> m_Roughness;
 	Ref<Texture2D> m_AO;
 
-	Ref<Texture2D> m_HDRTexture;
-	Ref<Cubemap> m_HDRCubemap;
-	Ref<Cubemap> m_Irradiance;
-	Ref<Framebuffer> m_EnvironmentFramebuffer;
-
 	Ref<Shader> m_PBRShader;
-	Ref<Shader> m_IrradianceShader;
-	Ref<Shader> m_EquirectangleToCubemapShader;
-	Ref<Shader> m_SkyboxShader;
 	Mesh m_Body;
-	Ref<VertexArray> m_CubemapVAO;
 
 	std::future<OBJMeshData> m_MeshDataFuture;
 	std::future<Ref<Image>> m_AlbedoFuture;

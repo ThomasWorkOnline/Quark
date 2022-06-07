@@ -13,21 +13,19 @@ PBRRendering::PBRRendering()
 	QK_PROFILE_FUNCTION();
 
 	GetWindow().SetVSync(true);
+	SetAssetDir("../Quark");
 
-	m_Player = m_Scene.CreateEntity();
+	m_Scene = Scene::Create();
+	m_Player = m_Scene->CreateEntity();
 	m_Player.AddComponent<Transform3DComponent>().Position = { 0.0f, 0.0f, -2.0f };
 	m_Player.AddComponent<PhysicsComponent>().Friction = 4.0f;
-	m_Player.AddComponent<PerspectiveCameraComponent>((float)GetWindow().GetWidth() / GetWindow().GetHeight(), 70.0f);
-	m_Controller = m_Player;
+	m_Player.AddComponent<CameraComponent>().Camera.SetPerspective(70.0f);
+
+	m_Scene->SetPrimaryCamera(m_Player);
 
 	{
 		MeshFormatDescriptor md;
 		m_MeshDataFuture = std::async(std::launch::async, Mesh::ReadOBJData, "assets/meshes/poly_sphere.obj", md);
-	}
-
-	{
-		Mesh cube = Mesh::GenerateUnitCube();
-		m_CubemapVAO = cube.GetVertexArray();
 	}
 
 #define MATERIAL 0
@@ -154,11 +152,7 @@ PBRRendering::PBRRendering()
 		}
 	}
 
-	m_HDRTexture       = Texture2D::Create("assets/textures/hdr/studio_small_09_8k.hdr");
-	m_PBRShader        = Shader::Create("assets/shaders/PBR.glsl");
-	m_IrradianceShader = Shader::Create("assets/shaders/irradiance.glsl");
-	m_EquirectangleToCubemapShader = Shader::Create("assets/shaders/equirectangleToCubemap.glsl");
-	m_SkyboxShader     = Shader::Create("assets/shaders/cubemap.glsl");
+	m_PBRShader = Shader::Create("assets/shaders/PBR.glsl");
 
 	static constexpr float lightPower = 10.0f;
 	static constexpr glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f) * lightPower;
@@ -188,90 +182,13 @@ PBRRendering::PBRRendering()
 	m_PBRShader->SetFloat3("u_LightPositions[2]", lightPositions[2]);
 	m_PBRShader->SetFloat3("u_LightPositions[3]", lightPositions[3]);
 
-	m_SkyboxShader->Attach();
-	m_SkyboxShader->SetInt("u_EnvironmentMap", 0);
-	m_SkyboxShader->SetFloat("u_Exposure", 1.0f);
-
-	glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
-	glm::mat4 captureViews[] = {
-		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3( 1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
-		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
-		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3( 0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)),
-		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3( 0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)),
-		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3( 0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
-		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3( 0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
-	};
-
-	{
-		CubemapSpecification spec;
-		spec.Width          = 2048;
-		spec.Height         = 2048;
-		m_HDRCubemap = Cubemap::Create(spec);
-
-		spec.Width          = 32;
-		spec.Height         = 32;
-		m_Irradiance = Cubemap::Create(spec);
-	}
-
-	{
-		FramebufferSpecification spec;
-		spec.Width = 2048;
-		spec.Height = 2048;
-		spec.Attachments = {  };
-		m_EnvironmentFramebuffer = Framebuffer::Create(spec);
-	}
-
-	m_EnvironmentFramebuffer->Attach();
-
-	m_EquirectangleToCubemapShader->Attach();
-	m_EquirectangleToCubemapShader->SetInt("u_EquirectangularMap", 0);
-	m_EquirectangleToCubemapShader->SetMat4("u_Projection", captureProjection);
-	m_HDRTexture->Attach(0);
-
-	RenderCommand::SetClearColor({ 1.0f, 0.0f, 1.0f, 1.0f });
-	RenderCommand::SetCullFace(RenderCullFace::Front);
-	RenderCommand::SetDepthFunction(RenderDepthFunction::LessEqual);
-
-	for (uint8_t i = 0; i < 6; i++)
-	{
-		m_EquirectangleToCubemapShader->SetMat4("u_View", captureViews[i]);
-		m_EnvironmentFramebuffer->AttachColorTextureTarget(0x8515 + i, m_HDRCubemap->GetRendererID());
-
-		RenderCommand::Clear();
-		RenderCommand::DrawIndexed(m_CubemapVAO);
-	}
-
-	m_EnvironmentFramebuffer->Detach();
-	m_EnvironmentFramebuffer->Resize(32, 32);
-	m_EnvironmentFramebuffer->Attach();
-
-	m_IrradianceShader->Attach();
-	m_IrradianceShader->SetInt("u_EnvironmentMap", 0);
-	m_IrradianceShader->SetMat4("u_Projection", captureProjection);
-	m_HDRCubemap->Attach(0);
-
-	for (uint8_t i = 0; i < 6; i++)
-	{
-		m_IrradianceShader->SetMat4("u_View", captureViews[i]);
-		m_EnvironmentFramebuffer->AttachColorTextureTarget(0x8515 + i, m_Irradiance->GetRendererID());
-
-		RenderCommand::Clear();
-		RenderCommand::DrawIndexed(m_CubemapVAO);
-	}
-
-	m_EnvironmentFramebuffer->Detach();
-
-	// Due to the lack of a render pipeline, we reset the viewport after detaching the fbo
-	auto& window = GetWindow();
-	RenderCommand::SetViewport(0, 0, window.GetWidth(), window.GetHeight());
-	RenderCommand::SetCullFace(RenderCullFace::Default);
-	RenderCommand::SetDepthFunction(RenderDepthFunction::Default);
+	SceneRenderer::SetActiveScene(m_Scene);
+	SceneRenderer::SetEnvironment("assets/textures/hdr/studio_small_09_8k.hdr");
 }
 
 void PBRRendering::OnUpdate(Timestep elapsedTime)
 {
-	m_Controller.OnUpdate(elapsedTime);
-	m_Scene.OnUpdate(elapsedTime);
+	m_Scene->OnUpdate(elapsedTime);
 }
 
 void PBRRendering::OnRender()
@@ -281,7 +198,7 @@ void PBRRendering::OnRender()
 
 	UploadAssets();
 
-	const auto& camera = m_Player.GetComponent<PerspectiveCameraComponent>().Camera;
+	const auto& camera = m_Player.GetComponent<CameraComponent>().Camera;
 	const auto& transform = m_Player.GetComponent<Transform3DComponent>();
 
 	Renderer::BeginScene(camera, transform);
@@ -291,7 +208,6 @@ void PBRRendering::OnRender()
 	if (m_Metallic) m_Metallic->Attach(2);
 	if (m_Roughness) m_Roughness->Attach(3);
 	if (m_AO) m_AO->Attach(4);
-	m_Irradiance->Attach(5);
 
 	m_PBRShader->Attach();
 	m_PBRShader->SetFloat3("u_CameraPos", transform.Position);
@@ -299,24 +215,6 @@ void PBRRendering::OnRender()
 	if (m_Body)
 	{
 		RenderCommand::DrawIndexed(m_Body.GetVertexArray());
-	}
-
-	// Skybox
-	{
-		RenderCommand::SetCullFace(RenderCullFace::Front);
-		RenderCommand::SetDepthFunction(RenderDepthFunction::LessEqual);
-
-		glm::mat4 rotate = glm::toMat4(transform.Orientation);
-		glm::mat4 view = glm::translate(rotate, (glm::vec3)-transform.Position);
-
-		m_SkyboxShader->Attach();
-		m_SkyboxShader->SetMat4("u_View", view);
-		m_SkyboxShader->SetMat4("u_Projection", camera.GetProjection());
-		m_HDRCubemap->Attach(0);
-
-		RenderCommand::DrawIndexed(m_CubemapVAO);
-		RenderCommand::SetCullFace(RenderCullFace::Default);
-		RenderCommand::SetDepthFunction(RenderDepthFunction::Default);
 	}
 
 	Renderer::EndScene();
@@ -335,9 +233,6 @@ void PBRRendering::OnEvent(Event& e)
 	dispatcher.Dispatch<MouseButtonReleasedEvent>(ATTACH_EVENT_FN(PBRRendering::OnMouseButtonReleased));
 
 	e.Handled = e.IsInCategory(EventCategoryInput) && GetWindow().IsCursorEnabled();
-
-	if (!e.Handled)
-		m_Controller.OnEvent(e);
 }
 
 bool PBRRendering::OnKeyPressed(KeyPressedEvent& e)
@@ -370,7 +265,6 @@ bool PBRRendering::OnMouseButtonReleased(MouseButtonReleasedEvent& e)
 
 void PBRRendering::UploadAssets()
 {
-	// NOTE: std::future::_Is_ready() is MSVC exclusive
 	if (m_MeshDataFuture.valid() && m_MeshDataFuture.wait_for(std::chrono::microseconds(0)) == std::future_status::ready)
 	{
 		OBJMeshData meshData = std::move(m_MeshDataFuture.get());

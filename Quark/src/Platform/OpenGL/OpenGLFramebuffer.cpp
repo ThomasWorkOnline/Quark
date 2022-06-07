@@ -78,7 +78,11 @@ namespace Quark {
 	void OpenGLFramebuffer::Resize(uint32_t width, uint32_t height)
 	{
 		auto& constraints = RenderCommand::GetHardwareConstraints();
-		QK_CORE_ASSERT(width <= constraints.FramebufferConstraints.MaxWidth && height <= constraints.FramebufferConstraints.MaxHeight, "Invalid framebuffer dimensions: too large");
+		if (width > constraints.FramebufferConstraints.MaxWidth || height > constraints.FramebufferConstraints.MaxHeight)
+		{
+			QK_CORE_WARN("Attempted to resize a framebuffer with dimensions too large: {0}, {1}", width, height);
+			return;
+		}
 
 		m_Spec.Width = width;
 		m_Spec.Height = height;

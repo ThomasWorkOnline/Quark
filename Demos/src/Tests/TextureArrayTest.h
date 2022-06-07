@@ -17,7 +17,7 @@ private:
 	bool OnWindowResized(WindowResizedEvent& e);
 
 private:
-	PerspectiveCamera m_Camera = { 16.0f / 9.0f, 70.0f };
+	SceneCamera m_Camera;
 	glm::mat4 m_CameraView = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	glm::mat4 m_Transform = glm::mat4(1.0f);
 

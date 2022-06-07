@@ -2,9 +2,8 @@
 
 #include "Quark/Core/Core.h"
 
+#include "SceneCamera.h"
 #include "Quark/Renderer/Mesh.h"
-#include "Quark/Renderer/PerspectiveCamera.h"
-#include "Quark/Renderer/OrthographicCamera.h"
 
 namespace Quark {
 
@@ -12,7 +11,7 @@ namespace Quark {
 	{
 		Vec3 Position;
 		Vec3 Scale;
-		Quat    Orientation;
+		Quat Orientation;
 
 		Transform3DComponent(const Transform3DComponent& other)
 			: Position(other.Position), Scale(other.Scale), Orientation(other.Orientation) {}
@@ -51,8 +50,8 @@ namespace Quark {
 
 	struct PhysicsComponent
 	{
-		Vec3 Velocity;
-		Float   Friction;
+		Vec3  Velocity;
+		Float Friction;
 
 		PhysicsComponent(const Vec3& initVelocity = Vec3(0.f), Float coeffFriction = 0.f)
 			: Velocity(initVelocity), Friction(coeffFriction) {}
@@ -65,27 +64,16 @@ namespace Quark {
 		MeshComponent() = default;
 	};
 
-	struct PerspectiveCameraComponent
+	struct CameraComponent
 	{
-		PerspectiveCamera Camera;
-
-		PerspectiveCameraComponent(float aspectRatio, float fov)
-			: Camera(aspectRatio, fov) {}
-	};
-
-	struct OrthographicCameraComponent
-	{
-		OrthographicCamera Camera;
-
-		OrthographicCameraComponent(float left, float right, float bottom, float top)
-			: Camera(left, right, bottom, top) {}
+		SceneCamera Camera;
 	};
 
 	struct TagComponent
 	{
 		std::string Name;
 
-		TagComponent(const std::string& name)
-			: Name(name) {}
+		TagComponent(std::string name)
+			: Name(std::move(name)) {}
 	};
 }

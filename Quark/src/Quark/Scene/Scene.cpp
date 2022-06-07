@@ -1,14 +1,12 @@
 #include "qkpch.h"
 #include "Scene.h"
-
-#include "Entity.h"
 #include "Components.h"
 
 namespace Quark {
 
 	void Scene::OnUpdate(Timestep elapsedTime)
 	{
-		auto entities = m_Registry.view<Transform3DComponent, PhysicsComponent>();
+		auto entities = m_Registry.group<Transform3DComponent, PhysicsComponent>();
 		for (auto entity : entities)
 		{
 			auto [transformComponent, physicsComponent] = entities.get<Transform3DComponent, PhysicsComponent>(entity);
@@ -25,5 +23,15 @@ namespace Quark {
 	void Scene::DeleteEntity(Entity entity)
 	{
 		m_Registry.destroy(entity);
+	}
+
+	void Scene::SetPrimaryCamera(Entity cameraEntity)
+	{
+		m_CameraEntity = cameraEntity;
+	}
+
+	Ref<Scene> Scene::Create()
+	{
+		return CreateRef<Scene>();
 	}
 }

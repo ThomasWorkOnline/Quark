@@ -9,9 +9,8 @@ Pong::Pong()
 	m_Entity = m_Scene.CreateEntity();
 	m_Entity.AddComponent<Transform3DComponent>();
 	m_Entity.AddComponent<PhysicsComponent>().Friction = 4.0f;
-	m_Entity.AddComponent<PerspectiveCameraComponent>(aspectRatio, 70.0f);
+	m_Entity.AddComponent<CameraComponent>().Camera.SetPerspective(70.0f);
 
-	m_Controller = { m_Entity };
 	m_BallTransform.Position = glm::vec3(0.0f, 0.0f, 10.0f);
 
 	m_Shader = Shader::Create("assets/shaders/PBR.glsl");
@@ -29,7 +28,6 @@ Pong::Pong()
 
 void Pong::OnUpdate(Timestep elapsedTime)
 {
-	m_Controller.OnUpdate(elapsedTime);
 	m_Scene.OnUpdate(elapsedTime);
 
 #if 0
@@ -43,7 +41,7 @@ void Pong::OnUpdate(Timestep elapsedTime)
 
 void Pong::OnRender()
 {
-	const auto& camera = m_Entity.GetComponent<PerspectiveCameraComponent>().Camera;
+	const auto& camera = m_Entity.GetComponent<CameraComponent>().Camera;
 	const auto& transform = m_Entity.GetComponent<Transform3DComponent>();
 
 	Renderer::BeginScene(camera, transform);
@@ -58,9 +56,6 @@ void Pong::OnEvent(Event& e)
 	dispatcher.Dispatch<MouseButtonPressedEvent>(ATTACH_EVENT_FN(OnMouseButtonPressed));
 
 	e.Handled = e.IsInCategory(EventCategoryInput) && GetWindow().IsCursorEnabled();
-
-	if (!e.Handled)
-		m_Controller.OnEvent(e);
 }
 
 void Pong::FaceOff()

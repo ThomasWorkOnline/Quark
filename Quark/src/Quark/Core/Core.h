@@ -33,6 +33,9 @@ namespace Quark {
 	{
 		return std::shared_ptr<T>(new T(std::forward<Args>(args)...), Deleter());
 	}
+
+	template<typename T>
+	using WeakRef = std::weak_ptr<T>;
 }
 
 // GLM standards configuration

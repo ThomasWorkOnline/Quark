@@ -20,6 +20,7 @@ TextureArrayTest::TextureArrayTest()
 	spec.RenderModes.MinFilteringMode = TextureFilteringMode::NearestMipmapLinear;
 	spec.RenderModes.MagFilteringMode = TextureFilteringMode::Nearest;
 
+
 	m_TextureArray = Texture2DArray::Create(spec);
 	m_TextureArray->SetData(texture1->Data(), texture1->Size(), 0);
 	m_TextureArray->SetData(texture1->Data(), texture1->Size(), 1);
@@ -52,6 +53,8 @@ TextureArrayTest::TextureArrayTest()
 
 	m_IndexBuffer = IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
 	m_VertexArray->SetIndexBuffer(m_IndexBuffer);
+
+	m_Camera.SetPerspective(70.0f);
 }
 
 void TextureArrayTest::OnUpdate(Timestep elapsedTime)
@@ -83,6 +86,6 @@ void TextureArrayTest::OnEvent(Event& e)
 
 bool TextureArrayTest::OnWindowResized(WindowResizedEvent& e)
 {
-	m_Camera.SetAspectRatio((float)e.GetWidth() / e.GetHeight());
+	m_Camera.Resize(e.GetWidth(), e.GetHeight());
 	return false;
 }

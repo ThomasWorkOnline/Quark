@@ -11,7 +11,6 @@
 #include "Font.h"
 #include "Framebuffer.h"
 #include "Mesh.h"
-#include "OrthographicCamera.h"
 #include "Shader.h"
 #include "SubTexture.h"
 #include "Texture.h"

@@ -24,7 +24,6 @@ private:
 private:
 	Scene m_Scene;
 	Entity m_Entity;
-	PerspectiveCameraController m_Controller;
 
 	Ref<Shader> m_Shader;
 	Mesh m_Ball;

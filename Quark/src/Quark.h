@@ -17,6 +17,8 @@
 #include "Quark/Scene/Components.h"
 #include "Quark/Scene/Entity.h"
 #include "Quark/Scene/Scene.h"
+#include "Quark/Scene/SceneCamera.h"
+#include "Quark/Scene/SceneRenderer.h"
 
 // Events
 #include "Quark/Events/Event.h"
@@ -25,9 +27,8 @@
 #include "Quark/Events/MouseEvent.h"
 #include "Quark/Events/WindowEvents.h"
 
-// Input
-#include "Quark/Input/OrthographicCameraController.h"
-#include "Quark/Input/PerspectiveCameraController.h"
+// Filesystem
+#include "Quark/Filesystem/Filesystem.h"
 
 // Rendering
 #include "Quark/Renderer/Renderer.h"
@@ -38,8 +39,6 @@
 #include "Quark/Renderer/Image.h"
 #include "Quark/Renderer/Material.h"
 #include "Quark/Renderer/Mesh.h"
-#include "Quark/Renderer/OrthographicCamera.h"
-#include "Quark/Renderer/PerspectiveCamera.h"
 #include "Quark/Renderer/Shader.h"
 #include "Quark/Renderer/SubTexture.h"
 #include "Quark/Renderer/Texture.h"

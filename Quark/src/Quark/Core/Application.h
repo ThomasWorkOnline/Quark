@@ -10,6 +10,7 @@
 #include "Quark/Renderer/GraphicsAPI.h"
 
 #include <thread>
+#include <filesystem>
 
 namespace Quark {
 
@@ -23,6 +24,7 @@ namespace Quark {
 	{
 		uint32_t Width = 1280, Height = 720;
 		std::string Title = "Quark Engine";
+		std::string AssetDir;
 		ApplicationFlag Flags = ApplicationNoFlags;
 
 		bool HasFlag(ApplicationFlag flag) const { return Flags & flag; }
@@ -33,8 +35,7 @@ namespace Quark {
 			const std::string& title,
 			ApplicationFlag flags = ApplicationNoFlags
 		)
-			: Width(width), Height(height),
-			Title(title), Flags(flags) {}
+			: Width(width), Height(height), Title(title), Flags(flags) {}
 	};
 
 	class Application
@@ -56,8 +57,12 @@ namespace Quark {
 		void PushLayer(Layer* layer);
 		void PopLayer(Layer* layer);
 
+		void SetAssetDir(std::string_view directory) { m_Options.AssetDir = directory; }
+
 		float GetAppRunningTime() const { return m_TotalTime; }
 		std::thread::id GetThreadId() const { return m_AppMainThreadId; }
+
+		const ApplicationOptions& GetOptions() const { return m_Options; }
 
 		const Window& GetWindow() const { return *m_Window; }
 		Window& GetWindow() { return *m_Window; }

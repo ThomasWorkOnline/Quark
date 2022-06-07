@@ -4,6 +4,7 @@
 #include "Core.h"
 #include "Quark/Renderer/Renderer.h"
 #include "Quark/Renderer/RenderCommand.h"
+#include "Quark/Scene/SceneRenderer.h"
 
 #include <ctime>
 
@@ -57,10 +58,13 @@ namespace Quark {
 			
 			{
 				RenderCommand::Clear();
+
 				OnRender();
 
 				for (size_t i = 0; i < m_Layers.size(); i++)
 					m_Layers[i]->OnRender();
+
+				SceneRenderer::OnRender();
 
 				m_Window->OnUpdate();
 			}
@@ -85,7 +89,8 @@ namespace Quark {
 		QK_CORE_INFO("Opened audio device: {0}", m_AudioOutputDevice->GetDeviceName());
 
 		Renderer::Initialize();
-		Renderer::OnWindowResized(m_Window->GetWidth(), m_Window->GetHeight());
+		Renderer::OnViewportResized(m_Window->GetWidth(), m_Window->GetHeight());
+		SceneRenderer::OnViewportResized(m_Window->GetWidth(), m_Window->GetHeight());
 
 		if (m_Options.HasFlag(ShowApiInWindowTitle))
 		{
@@ -136,7 +141,8 @@ namespace Quark {
 
 	bool Application::OnWindowResized(WindowResizedEvent& e)
 	{
-		Renderer::OnWindowResized(e.GetWidth(), e.GetHeight());
+		Renderer::OnViewportResized(e.GetWidth(), e.GetHeight());
+		SceneRenderer::OnViewportResized(e.GetWidth(), e.GetHeight());
 		return false;
 	}
 }

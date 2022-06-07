@@ -26,7 +26,7 @@ MainLayer::MainLayer()
 	float width  = (float)window.GetWidth();
 	float height = (float)window.GetHeight();
 
-	m_Camera.SetProjection(-width / 2, width / 2, -height / 2, height / 2);
+	m_Camera.SetOrthographic(1.0f);
 }
 
 void MainLayer::OnUpdate(Timestep elapsedTime)
@@ -52,10 +52,7 @@ void MainLayer::OnEvent(Event& e)
 
 bool MainLayer::OnWindowResized(WindowResizedEvent& e)
 {
-	float width = (float)e.GetWidth();
-	float height = (float)e.GetHeight();
-
-	m_Camera.SetProjection(-width / 2, width / 2, -height / 2, height / 2);
+	m_Camera.Resize(e.GetWidth(), e.GetHeight());
 	return false;
 }
 

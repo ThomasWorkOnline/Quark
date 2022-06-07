@@ -30,5 +30,5 @@ private:
 	glm::vec4 m_Color2 = { 1.0f, 0.0f, 1.0f, 0.5f };
 	glm::mat4 m_Transform = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
-	OrthographicCamera m_Camera;
+	SceneCamera m_Camera;
 };

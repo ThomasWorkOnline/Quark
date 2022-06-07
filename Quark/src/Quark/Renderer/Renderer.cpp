@@ -1,7 +1,7 @@
 #include "qkpch.h"
 #include "Renderer.h"
-#include "RenderCommand.h"
 
+#include "Quark/Scene/SceneRenderer.h"
 #include "UniformBuffer.h"
 
 namespace Quark {
@@ -24,7 +24,7 @@ namespace Quark {
 		Ref<UniformBuffer> CameraUniformBuffer;
 	};
 
-	static RendererData* s_Data;
+	static Scope<RendererData> s_Data;
 
 	void Renderer::Initialize()
 	{
@@ -34,9 +34,7 @@ namespace Quark {
 		RenderCommand::SetClearColor({ 0.01f, 0.01f, 0.01f, 1.0f });
 		QK_CORE_INFO(RenderCommand::GetSpecification());
 
-		s_Data = new RendererData();
-
-		Renderer2D::Initialize();
+		s_Data = CreateScope<RendererData>();
 
 		uint32_t textureColor = 0xffffffff;
 		Texture2DSpecification spec = { 1, 1, 1,
@@ -50,6 +48,8 @@ namespace Quark {
 
 		s_Data->MaxUniformBuffers = RenderCommand::GetHardwareConstraints().UniformBufferConstraints.MaxBindings;
 		s_Data->CameraUniformBuffer = UniformBuffer::Create(sizeof(RendererData::CameraData), 0);
+
+		Renderer2D::Initialize();
 	}
 
 	void Renderer::Dispose()
@@ -57,15 +57,15 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		Renderer2D::Dispose();
-		delete s_Data;
+		s_Data.reset();
 	}
 
-	void Renderer::BeginScene(const Camera& sceneCamera, const Transform3DComponent& cameraTransform)
+	void Renderer::BeginScene(const Camera& camera, const Transform3DComponent& cameraTransform)
 	{
 		glm::mat4 rotate = glm::toMat4(cameraTransform.Orientation);
 		glm::mat4 view = glm::translate(rotate, (glm::vec3)-cameraTransform.Position);
 
-		BeginScene(sceneCamera.GetProjection(), view);
+		BeginScene(camera.GetProjection(), view);
 	}
 
 	void Renderer::BeginScene(const glm::mat4& cameraProjection, const glm::mat4& cameraView)
@@ -122,9 +122,10 @@ namespace Quark {
 		RenderCommand::DrawIndexed(va);
 	}
 
-	void Renderer::OnWindowResized(uint32_t width, uint32_t height)
+	void Renderer::OnViewportResized(uint32_t width, uint32_t height)
 	{
 		QK_ASSERT_RENDER_THREAD();
+
 		RenderCommand::SetViewport(0, 0, width, height);
 	}
 }
