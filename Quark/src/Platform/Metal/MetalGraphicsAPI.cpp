@@ -1,6 +1,8 @@
 #include "qkpch.h"
 #include "MetalGraphicsAPI.h"
 
+#include "MetalGLFWGraphicsContext.h"
+
 // We need to define these once to link the static symbols inside Metal
 #define NS_PRIVATE_IMPLEMENTATION
 #define CA_PRIVATE_IMPLEMENTATION
@@ -24,5 +26,10 @@ namespace Quark {
 	void MetalGraphicsAPI::Clear()
 	{
 		
+	}
+
+	Scope<GraphicsContext> MetalGraphicsAPI::CreateGraphicsContext(void* windowHandle)
+	{
+		return CreateScope<MetalGLFWGraphicsContext>(windowHandle);
 	}
 }

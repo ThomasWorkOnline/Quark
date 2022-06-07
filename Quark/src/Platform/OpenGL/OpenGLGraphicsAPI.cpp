@@ -11,6 +11,13 @@
 #include "OpenGLUniformBuffer.h"
 #include "OpenGLVertexArray.h"
 
+#if defined(QK_PLATFORM_WINDOWS) && defined(QK_USE_NATIVE_APIS)
+	// Windows specific graphics context
+#	include "Platform/Windows/OpenGL/OpenGLWin32GraphicsContext.h"
+#endif
+
+#include "OpenGLGraphicsContext.h"
+
 #include <glad/glad.h>
 #include <sstream>
 
@@ -46,7 +53,7 @@ namespace Quark {
 			glEnable(GL_DEBUG_OUTPUT);
 			glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 
-			glDebugMessageCallback(OnOpenGLMessage, nullptr); // <-- This is not supported on OpenGL 4.3 or lower
+			glDebugMessageCallback(OnOpenGLMessage, nullptr); // <-- This is not supported on OpenGL 4.2 or lower
 			glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
 		}
 #endif
@@ -227,6 +234,15 @@ namespace Quark {
 		GLfloat thickness;
 		glGetFloatv(GL_LINE_WIDTH, &thickness);
 		return thickness;
+	}
+
+	Scope<GraphicsContext> OpenGLGraphicsAPI::CreateGraphicsContext(void* windowHandle)
+	{
+#if defined(QK_PLATFORM_WINDOWS) && defined(QK_USE_NATIVE_APIS)
+		return CreateScope<OpenGLWin32GraphicsContext>(windowHandle);
+#else
+		return CreateScope<OpenGLGLFWGraphicsContext>(windowHandle);
+#endif
 	}
 
 	Ref<VertexBuffer> OpenGLGraphicsAPI::CreateVertexBuffer(const void* vertices, size_t size)

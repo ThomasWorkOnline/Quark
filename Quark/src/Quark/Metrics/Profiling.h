@@ -50,6 +50,7 @@ namespace Quark {
 			void Stop();
 
 			std::chrono::microseconds Microseconds() const;
+			std::chrono::milliseconds Milliseconds() const;
 
 		protected:
 			std::chrono::steady_clock::time_point m_Start;

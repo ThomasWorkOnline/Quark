@@ -92,6 +92,11 @@ namespace Quark {
 			return std::chrono::duration_cast<std::chrono::microseconds>(m_End - m_Start);
 		}
 
+		std::chrono::milliseconds Timer::Milliseconds() const
+		{
+			return std::chrono::duration_cast<std::chrono::milliseconds>(m_End - m_Start);
+		}
+
 		ScopeTimer::ScopeTimer(const char* scope)
 			: m_Scope(scope)
 		{

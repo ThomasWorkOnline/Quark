@@ -201,19 +201,19 @@ void PBRRendering::OnRender()
 
 	UploadAssets();
 
-	const auto& camera = m_Player.GetComponent<CameraComponent>().Camera;
-	const auto& transform = m_Player.GetComponent<Transform3DComponent>();
-
-	Renderer::BeginScene(camera, transform);
-
 	if (m_Albedo) m_Albedo->Attach(0);
 	if (m_Normal) m_Normal->Attach(1);
 	if (m_Metallic) m_Metallic->Attach(2);
 	if (m_Roughness) m_Roughness->Attach(3);
 	if (m_AO) m_AO->Attach(4);
 
+	const auto& camera = m_Player.GetComponent<CameraComponent>().Camera;
+	const auto& transform = m_Player.GetComponent<Transform3DComponent>();
+
 	m_PBRShader->Attach();
 	m_PBRShader->SetFloat3("u_CameraPos", transform.Position);
+
+	Renderer::BeginScene(camera, transform);
 
 	if (m_Body)
 	{

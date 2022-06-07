@@ -89,6 +89,11 @@ namespace Quark {
 			return s_GraphicsAPI->GetLineThickness();
 		}
 
+		static Scope<GraphicsContext> CreateGraphicsContext(void* windowHandle)
+		{
+			return s_GraphicsAPI->CreateGraphicsContext(windowHandle);
+		}
+
 		static Ref<VertexBuffer> CreateVertexBuffer(const void* vertices, size_t size)
 		{
 			QK_ASSERT_RENDER_THREAD();
@@ -181,7 +186,6 @@ namespace Quark {
 
 		static const char* GetAPIName()
 		{
-			QK_ASSERT_RENDER_THREAD();
 			return s_GraphicsAPI->GetName();
 		}
 
