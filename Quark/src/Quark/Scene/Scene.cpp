@@ -4,20 +4,66 @@
 
 namespace Quark {
 
+	Scene::~Scene()
+	{
+		// Destroy native scripts
+		{
+			auto view = m_Registry.view<NativeScriptComponent>();
+			for (auto entity : view)
+			{
+				auto& nsComponent = view.get<NativeScriptComponent>(entity);
+				nsComponent.ScriptInstance->OnDestroy();
+			}
+		}
+	}
+
 	void Scene::OnUpdate(Timestep elapsedTime)
 	{
-		auto entities = m_Registry.group<Transform3DComponent, PhysicsComponent>();
-		for (auto entity : entities)
+		// Native scripts
 		{
-			auto [transformComponent, physicsComponent] = entities.get<Transform3DComponent, PhysicsComponent>(entity);
-			physicsComponent.Velocity -= physicsComponent.Velocity * physicsComponent.Friction * (Float)elapsedTime;
-			transformComponent.Position += physicsComponent.Velocity * (Float)elapsedTime;
+			auto view = m_Registry.view<NativeScriptComponent>();
+			for (auto entity : view)
+			{
+				auto& nsComponent = view.get<NativeScriptComponent>(entity);
+				if (!nsComponent.ScriptInstance)
+				{
+					nsComponent.ScriptInstance = Scope<NativeScriptEntity>(nsComponent.InstanciateScript());
+					nsComponent.ScriptInstance->m_Entity = Entity{ entity, this };
+					nsComponent.ScriptInstance->OnCreate();
+				}
+
+				nsComponent.ScriptInstance->OnUpdate(elapsedTime);
+			}
+		}
+
+		// Physics
+		{
+			auto group = m_Registry.group<Transform3DComponent, PhysicsComponent>();
+			for (auto entity : group)
+			{
+				auto [transformComponent, physicsComponent] = group.get<Transform3DComponent, PhysicsComponent>(entity);
+				physicsComponent.Velocity -= physicsComponent.Velocity * physicsComponent.Friction * (Float)elapsedTime;
+				transformComponent.Position += physicsComponent.Velocity * (Float)elapsedTime;
+			}
+		}
+	}
+
+	void Scene::OnEvent(Event& e)
+	{
+		// Events on native scripts
+		{
+			auto view = m_Registry.view<NativeScriptComponent>();
+			for (auto entity : view)
+			{
+				auto& nsComponent = view.get<NativeScriptComponent>(entity);
+				nsComponent.ScriptInstance->OnEvent(e);
+			}
 		}
 	}
 
 	Entity Scene::CreateEntity()
 	{
-		return { m_Registry.create(), *this };
+		return { m_Registry.create(), this };
 	}
 
 	void Scene::DeleteEntity(Entity entity)

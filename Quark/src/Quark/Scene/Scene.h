@@ -2,6 +2,7 @@
 
 #include "Quark/Core/Core.h"
 #include "Quark/Core/Timestep.h"
+#include "Quark/Events/Event.h"
 #include "Quark/Scene/Entity.h"
 
 #include <entt/entt.hpp>
@@ -13,7 +14,11 @@ namespace Quark {
 	class Scene
 	{
 	public:
+		Scene() = default;
+		~Scene();
+
 		void OnUpdate(Timestep elapsedTime);
+		void OnEvent(Event& e);
 
 		Entity CreateEntity();
 		void DeleteEntity(Entity entity);

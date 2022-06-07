@@ -19,6 +19,9 @@ namespace Quark {
 		void SetOrthographic(float size, float near = -1.0f, float far = 1.0f);
 		void SetPerspective(float fov, float nearPlane = 0.1f);
 
+		float GetFov() const { return m_PerspectiveFov; }
+		void SetFov(float fov) { m_PerspectiveFov = fov; CalculateProjection(); }
+
 	private:
 		void CalculateProjection();
 

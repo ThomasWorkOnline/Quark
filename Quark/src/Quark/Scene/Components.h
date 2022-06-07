@@ -3,9 +3,23 @@
 #include "Quark/Core/Core.h"
 
 #include "SceneCamera.h"
+#include "NativeScriptEntity.h"
 #include "Quark/Renderer/Mesh.h"
 
 namespace Quark {
+
+	struct CameraComponent
+	{
+		SceneCamera Camera;
+	};
+
+	struct TagComponent
+	{
+		std::string Name;
+
+		TagComponent(std::string name)
+			: Name(std::move(name)) {}
+	};
 
 	struct Transform3DComponent
 	{
@@ -64,16 +78,18 @@ namespace Quark {
 		MeshComponent() = default;
 	};
 
-	struct CameraComponent
+	struct NativeScriptComponent
 	{
-		SceneCamera Camera;
-	};
+		Scope<NativeScriptEntity> ScriptInstance;
+		NativeScriptEntity* (*InstanciateScript)();
 
-	struct TagComponent
-	{
-		std::string Name;
+		template<typename T>
+		void Bind()
+		{
+			static_assert(std::is_base_of_v<NativeScriptEntity, T>,
+				"Template argument must be a subtype of NativeScriptEntity");
 
-		TagComponent(std::string name)
-			: Name(std::move(name)) {}
+			InstanciateScript = []() { return (NativeScriptEntity*)(new T()); };
+		}
 	};
 }

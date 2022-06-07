@@ -1,5 +1,7 @@
 #include "PBRRendering.h"
 
+#include <Quark/Scripts/CameraController.h>
+
 static Ref<Texture2D> CreateTextureFromImage(const Ref<Image>& image, const Texture2DSpecification& spec)
 {
 	auto texture = Texture2D::Create(spec);
@@ -20,6 +22,7 @@ PBRRendering::PBRRendering()
 	m_Player.AddComponent<Transform3DComponent>().Position = { 0.0f, 0.0f, -2.0f };
 	m_Player.AddComponent<PhysicsComponent>().Friction = 4.0f;
 	m_Player.AddComponent<CameraComponent>().Camera.SetPerspective(70.0f);
+	m_Player.AddComponent<NativeScriptComponent>().Bind<CameraController>();
 
 	m_Scene->SetPrimaryCamera(m_Player);
 
@@ -233,6 +236,9 @@ void PBRRendering::OnEvent(Event& e)
 	dispatcher.Dispatch<MouseButtonReleasedEvent>(ATTACH_EVENT_FN(PBRRendering::OnMouseButtonReleased));
 
 	e.Handled = e.IsInCategory(EventCategoryInput) && GetWindow().IsCursorEnabled();
+
+	if (!e.Handled)
+		m_Scene->OnEvent(e);
 }
 
 bool PBRRendering::OnKeyPressed(KeyPressedEvent& e)
