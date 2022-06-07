@@ -14,38 +14,19 @@ namespace Quark {
 		Entity(entt::entity entity, Scene* scene);
 
 		template<typename T, typename... Args>
-		T& AddComponent(Args&&... args)
-		{
-			QK_CORE_ASSERT(!HasComponent<T>(), "Entity already has component!");
-			return m_Scene->m_Registry.emplace<T>(m_Entity, std::forward<Args>(args)...);
-		}
+		inline T& AddComponent(Args&&... args);
 
 		template<typename T>
-		void RemoveComponent()
-		{
-			QK_CORE_ASSERT(HasComponent<T>(), "Entity does not have component!");
-			m_Scene->m_Registry.remove<T>(m_Entity);
-		}
+		void RemoveComponent();
 
 		template<typename T>
-		bool HasComponent() const
-		{
-			return m_Scene->m_Registry.any_of<T>(m_Entity);
-		}
+		bool HasComponent() const;
 
 		template<typename T>
-		T& GetComponent()
-		{
-			QK_CORE_ASSERT(HasComponent<T>(), "Entity does not have component!");
-			return m_Scene->m_Registry.get<T>(m_Entity);
-		}
+		T& GetComponent();
 
 		template<typename T>
-		const T& GetComponent() const
-		{
-			QK_CORE_ASSERT(HasComponent<T>(), "Entity does not have component!");
-			return m_Scene->m_Registry.get<T>(m_Entity);
-		}
+		const T& GetComponent() const;
 
 		bool operator==(Entity other) const { return m_Entity == other; }
 		bool operator!=(Entity other) const { return m_Entity != other; }
@@ -59,4 +40,43 @@ namespace Quark {
 		entt::entity m_Entity = { entt::null };
 		Scene* m_Scene = nullptr;
 	};
+}
+
+#include "Scene.h"
+
+namespace Quark {
+
+	template<typename T, typename ...Args>
+	inline T& Entity::AddComponent(Args && ...args)
+	{
+		QK_CORE_ASSERT(!HasComponent<T>(), "Entity already has component!");
+		return m_Scene->m_Registry.emplace<T>(m_Entity, std::forward<Args>(args)...);
+	}
+
+	template<typename T>
+	inline void Entity::RemoveComponent()
+	{
+		QK_CORE_ASSERT(HasComponent<T>(), "Entity does not have component!");
+		m_Scene->m_Registry.remove<T>(m_Entity);
+	}
+
+	template<typename T>
+	inline bool Entity::HasComponent() const
+	{
+		return m_Scene->m_Registry.any_of<T>(m_Entity);
+	}
+
+	template<typename T>
+	inline T& Entity::GetComponent()
+	{
+		QK_CORE_ASSERT(HasComponent<T>(), "Entity does not have component!");
+		return m_Scene->m_Registry.get<T>(m_Entity);
+	}
+
+	template<typename T>
+	inline const T& Entity::GetComponent() const
+	{
+		QK_CORE_ASSERT(HasComponent<T>(), "Entity does not have component!");
+		return m_Scene->m_Registry.get<T>(m_Entity);
+	}
 }
