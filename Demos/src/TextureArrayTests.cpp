@@ -53,7 +53,10 @@ TextureArrayTest::TextureArrayTest()
 	m_IndexBuffer = IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
 	m_VertexArray->SetIndexBuffer(m_IndexBuffer);
 
+	auto& window = GetWindow();
+
 	m_Camera.SetPerspective(70.0f);
+	m_Camera.Resize(window.GetWidth(), window.GetHeight());
 }
 
 void TextureArrayTest::OnUpdate(Timestep elapsedTime)

@@ -1,4 +1,4 @@
-#include "PBRRendering.h"
+#include "PBRRenderingDemo.h"
 
 #include <Quark/Scripts/CameraController.h>
 
@@ -10,7 +10,7 @@ static Ref<Texture2D> CreateTextureFromImage(const Ref<Image>& image, const Text
 	return texture;
 }
 
-PBRRendering::PBRRendering()
+PBRRenderingDemo::PBRRenderingDemo()
 {
 	QK_PROFILE_FUNCTION();
 
@@ -190,12 +190,12 @@ PBRRendering::PBRRendering()
 	SceneRenderer::SetEnvironment("assets/textures/hdr/studio_small_09_8k.hdr");
 }
 
-void PBRRendering::OnUpdate(Timestep elapsedTime)
+void PBRRenderingDemo::OnUpdate(Timestep elapsedTime)
 {
 	m_Scene->OnUpdate(elapsedTime);
 }
 
-void PBRRendering::OnRender()
+void PBRRenderingDemo::OnRender()
 {
 	Profile::Timer t;
 	t.Start();
@@ -228,13 +228,13 @@ void PBRRendering::OnRender()
 	QK_CORE_INFO("Frametime: {0}ms", ms);
 }
 
-void PBRRendering::OnEvent(Event& e)
+void PBRRenderingDemo::OnEvent(Event& e)
 {
 	EventDispatcher dispatcher(e);
-	dispatcher.Dispatch<KeyPressedEvent>(ATTACH_EVENT_FN(PBRRendering::OnKeyPressed));
-	dispatcher.Dispatch<MouseMovedEvent>(ATTACH_EVENT_FN(PBRRendering::OnMouseMoved));
-	dispatcher.Dispatch<MouseButtonPressedEvent>(ATTACH_EVENT_FN(PBRRendering::OnMouseButtonPressed));
-	dispatcher.Dispatch<MouseButtonReleasedEvent>(ATTACH_EVENT_FN(PBRRendering::OnMouseButtonReleased));
+	dispatcher.Dispatch<KeyPressedEvent>(ATTACH_EVENT_FN(PBRRenderingDemo::OnKeyPressed));
+	dispatcher.Dispatch<MouseMovedEvent>(ATTACH_EVENT_FN(PBRRenderingDemo::OnMouseMoved));
+	dispatcher.Dispatch<MouseButtonPressedEvent>(ATTACH_EVENT_FN(PBRRenderingDemo::OnMouseButtonPressed));
+	dispatcher.Dispatch<MouseButtonReleasedEvent>(ATTACH_EVENT_FN(PBRRenderingDemo::OnMouseButtonReleased));
 
 	e.Handled = e.IsInCategory(EventCategoryInput) && GetWindow().IsCursorEnabled();
 
@@ -242,7 +242,7 @@ void PBRRendering::OnEvent(Event& e)
 		m_Scene->OnEvent(e);
 }
 
-bool PBRRendering::OnKeyPressed(KeyPressedEvent& e)
+bool PBRRenderingDemo::OnKeyPressed(KeyPressedEvent& e)
 {
 	switch (e.GetKeyCode())
 	{
@@ -254,23 +254,23 @@ bool PBRRendering::OnKeyPressed(KeyPressedEvent& e)
 	return false;
 }
 
-bool PBRRendering::OnMouseMoved(MouseMovedEvent& e)
+bool PBRRenderingDemo::OnMouseMoved(MouseMovedEvent& e)
 {
 	return !GetWindow().IsCursorEnabled();
 }
 
-bool PBRRendering::OnMouseButtonPressed(MouseButtonPressedEvent& e)
+bool PBRRenderingDemo::OnMouseButtonPressed(MouseButtonPressedEvent& e)
 {
 	GetWindow().DisableCursor();
 	return false;
 }
 
-bool PBRRendering::OnMouseButtonReleased(MouseButtonReleasedEvent& e)
+bool PBRRenderingDemo::OnMouseButtonReleased(MouseButtonReleasedEvent& e)
 {
 	return false;
 }
 
-void PBRRendering::UploadAssets()
+void PBRRenderingDemo::UploadAssets()
 {
 	if (m_MeshDataFuture.valid() && m_MeshDataFuture.wait_for(std::chrono::microseconds(0)) == std::future_status::ready)
 	{

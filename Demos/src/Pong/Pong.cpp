@@ -4,12 +4,13 @@ Pong::Pong()
 	: Application(ApplicationOptions(1280, 720, "Pong"))
 {
 	auto& window = GetWindow();
-	float aspectRatio = (float)window.GetWidth() / window.GetHeight();
 
 	m_Entity = m_Scene.CreateEntity();
 	m_Entity.AddComponent<Transform3DComponent>();
 	m_Entity.AddComponent<PhysicsComponent>().Friction = 4.0f;
-	m_Entity.AddComponent<CameraComponent>().Camera.SetPerspective(70.0f);
+	auto& camera = m_Entity.AddComponent<CameraComponent>().Camera;
+	camera.SetPerspective(70.0f);
+	camera.Resize(window.GetWidth(), window.GetHeight());
 
 	m_BallTransform.Position = glm::vec3(0.0f, 0.0f, 10.0f);
 

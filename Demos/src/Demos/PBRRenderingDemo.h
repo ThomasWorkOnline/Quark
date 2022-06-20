@@ -5,10 +5,10 @@
 
 using namespace Quark;
 
-class PBRRendering : public Application
+class PBRRenderingDemo : public Application
 {
 public:
-	PBRRendering();
+	PBRRenderingDemo();
 
 	void OnUpdate(Timestep elapsedTime) override;
 	void OnRender() override;
