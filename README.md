@@ -74,12 +74,7 @@ class YourApplication : public Application
 	
 <ins>**2. Launching your app**</ins>
 
-Quark already provides the default entry point for launching your program.
-Redefining `main()` will cause a duplicate symbol linking error.
-
 Use `Quark::CreateApplication()` as shown in this snippet below:
-
-Note: *On Windows distribution builds, the app with launch without the console using the builtin WinMain() entry point (see [EntryPoint.cpp](Quark/src/EntryPoint.cpp) for details)*
 
 ```c++
 #include <Quark/EntryPoint.h>
@@ -93,11 +88,15 @@ namespace Quark {
 };
 ```
 
+Quark already provides the default entry point for launching your program.
+Redefining `main()` will cause a duplicate symbol linking error.
 Make sure to define `CreateApplication()` inside the Quark namespace.
 
 Allocating an instance of your application can potentially be very memory heavy.
 Therefore, instantiating your application on the stack is not adviced.
 By dynamically allocating your app, you prevent high stack usage which can lead to bugs and crashes.
+
+Note: *On Windows distribution builds, the app with launch without the console using the builtin WinMain() entry point (see [EntryPoint.cpp](Quark/src/Quark/EntryPoint.cpp) for details)*
 
 *If you wan't full details, see [Core.h](Quark/src/Quark/Core/Core.h)*
 
