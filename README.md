@@ -63,8 +63,10 @@ The following examples will guide you in learning the Quark API.
 // Single header include
 #include <Quark.h>
 
+using namespace Quark;
+
 // Create a class extending `Quark::Application`
-class YourApplication : public Quark::Application
+class YourApplication : public Application
 {
 	...
 };
@@ -80,6 +82,8 @@ Use `Quark::CreateApplication()` as shown in this snippet below:
 Note: *On Windows distribution builds, the app with launch without the console using the builtin WinMain() entry point (see [EntryPoint.cpp](Quark/src/EntryPoint.cpp) for details)*
 
 ```c++
+#include <Quark/EntryPoint.h>
+
 namespace Quark {
 
 	Application* CreateApplication()
@@ -99,14 +103,21 @@ By dynamically allocating your app, you prevent high stack usage which can lead 
 
 <ins>**3. Implementing some functionality**</ins>
 ```c++
-class YourApplication : public Quark::Application
+class YourApplication : public Application
 {
 public:
-	// Called each frame
-	// Elapsed time holds the time delta in seconds between frames
-	void OnUpdate(Quark::Timestep elapsedTime) override
+	// Called each tick
+	// Elapsed time holds the time delta in seconds between each update ticks
+	virtual void OnUpdate(Timestep elapsedTime) override
 	{
-		// Run your app logic and rendering here:
+		// Run your app logic here:
+		...
+	}
+	
+	// Called each frame
+	virtual void OnRender()
+	{
+		// Render here:
 		...
 	}
 };
@@ -119,13 +130,13 @@ mouse and keyboard inputs, window moved, resized, minimized, maximized and much 
 The following examples will guide you through using Quark events:
 
 ```c++
-class YourApplication : public Quark::Application
+class YourApplication : public Application
 {
 public:
-	void OnEvent(Quark::Event& e) override
+	virtual void OnEvent(Event& e) override
 	{
 		// Create an dispatcher object with the given event reference
-		Quark::EventDispatcher dispatcher(e);
+		EventDispatcher dispatcher(e);
 	
 		...
 	}
@@ -142,21 +153,21 @@ If the function you are linking to is a class member function, you'll have to us
 For instance, let's write a function that handles keyboard input.
 
 ```c++
-class YourApplication : public Quark::Application
+class YourApplication : public Application
 {
 public:
-	void OnEvent(Quark::Event& e) override
+	virtual void OnEvent(Event& e) override
 	{
 		// Create an dispatcher object with the given event reference
-		Quark::EventDispatcher dispatcher(e);
+		EventDispatcher dispatcher(e);
 	
 		// Route all `KeyPressedEvent` to `YourApplication::OnKeyPressed`
-		dispatcher.Dispatch<Quark::KeyPressedEvent>(ATTACH_EVENT_FN(YourApplication::OnKeyPressed));
+		dispatcher.Dispatch<KeyPressedEvent>(ATTACH_EVENT_FN(YourApplication::OnKeyPressed));
 	}
 	
 private:
 	// Our custom KeyPressedEvent handler
-	bool OnKeyPressed(Quark::KeyPressedEvent& e)
+	bool OnKeyPressed(KeyPressedEvent& e)
 	{       //               ^
 		// Note that the event has been cast to the right type
 		std::cout << e.GetKeyCode() << std::endl;
@@ -179,58 +190,60 @@ Let's render a basic textured quad to the screen using it.
 First, we'll have to load a texture:
 
 ```c++
-class YourApplication : public Quark::Application
+class YourApplication : public Application
 {
 public:
 	YourApplication()
 	{
 		// Loading our texture
-		m_Texture = Quark::Texture2D::Create("assets/textures/Example1_BasicRendering.png");
+		// This returns a smart reference to a newly created texture object
+		m_Texture = Texture2D::Create("assets/textures/Example1_BasicRendering.png");
 	}
 
 private:
-	Quark::Ref<Quark::Texture2D> m_Texture;
+	Ref<Texture2D> m_Texture;
 };
 ```
 
-In order for Quark to render objects, we have to give it information about our scene.
+In order for Quark to render objects, we have to give it context about our scene.
 Let's start by creating a camera object that will hold our scene projection.
 
 ## Camera types
-[OrthographicCamera](Quark/src/Quark/Renderer/OrthographicCamera.h)
-[PerspectiveCamera](Quark/src/Quark/Renderer/PerspectiveCamera.h)
+[SceneCamera](Quark/src/Quark/Scene/SceneCamera.h)
 
 For our simple 2D needs, I'll be using an orthographic camera.
 Finally, we can start drawing things to the screen:
 
 ```c++
-class YourApplication : public Quark::Application
+class YourApplication : public Application
 {
 public:
 	YourApplication()
 	{
 		// Loading our texture
-		m_Texture = Quark::Texture2D::Create("assets/textures/Example1_BasicRendering.png");
+		m_Texture = Texture2D::Create("assets/textures/Example1_BasicRendering.png");
+		
+		// Setting the projection type to be orthographic in screen space [-1, 1]
+		m_Camera.SetOrthographic(1.0f);
 	}
 	
 	// Called each frame
-	// Elapsed time holds the time delta in seconds between frames
-	void OnUpdate(Quark::Timestep elapsedTime) override
+	virtual void OnRender() override
 	{
-		// Starting a fresh scene
-		Quark::Renderer::BeginScene(m_Camera.GetProjection(), glm::mat4(1.0f)); // <-- This is the camera view matrix, we'll stick to a unit matrix
-		
+		// Starting a fresh 2D scene
+		Renderer2D::BeginScene(m_Camera.GetProjection(), Mat4f(1.0f)); // <-- This is the camera view matrix, we'll stick to a unit matrix
+
 		// Submitting a unit sprite with our given texture
-		Quark::Renderer2D::DrawSprite(m_Texture);
-		
+		Renderer2D::DrawSprite(m_Texture);
+
 		// Telling Quark we are done with the current scene
 		// The renderer will optimize and draw the geometry here
-		Quark::Renderer::EndScene();
+		Renderer2D::EndScene();
 	}
 
 private:
-	Quark::Ref<Quark::Texture2D> m_Texture;
-	Quark::OrthographicCamera m_Camera;
+	Ref<Texture2D> m_Texture;
+	SceneCamera m_Camera;
 };
 ```
 
@@ -245,56 +258,57 @@ This doesn't give us the result we wan't since we don't take into consideration 
 Let's fix this:
 
 ```c++
-class YourApplication : public Quark::Application
+class YourApplication : public Application
 {
 public:
 	YourApplication()
 	{
 		// Loading our texture
-		m_Texture = Quark::Texture2D::Create("assets/textures/Example1_BasicRendering.png");
+		m_Texture = Texture2D::Create("assets/textures/Example1_BasicRendering.png");
 
+		// Setting the projection type to be orthographic in screen space [-1, 1]
+		m_Camera.SetOrthographic(1.0f);
+
+		// Initial resize of the camera with the viewport size
 		auto& window = GetWindow();
-		float aspectRatio = (float)window.GetWidth() / window.GetHeight();
-
-		// Updating the projection with the screen's aspect ratio
-		m_Camera.SetProjection(-aspectRatio, aspectRatio, -1, 1);
+		m_Camera.Resize(window.GetWidth(), window.GetHeight());
+		
+		// Note: We'll see how to automate this in a future example
 	}
 
-	void OnEvent(Quark::Event& e) override
+	virtual void OnEvent(Event& e) override
 	{
-		Quark::EventDispatcher dispatcher(e);
+		EventDispatcher dispatcher(e);
 		// Binding our events
-		dispatcher.Dispatch<Quark::WindowResizedEvent>(ATTACH_EVENT_FN(YourApplication::OnWindowResized));
+		dispatcher.Dispatch<WindowResizedEvent>(ATTACH_EVENT_FN(YourApplication::OnWindowResized));
 	}
 
 	// Called each frame
-	// Elapsed time holds the time delta in seconds between frames
-	void OnUpdate(Quark::Timestep elapsedTime) override
+	virtual void OnRender() override
 	{
-		// Starting a fresh scene
-		Quark::Renderer::BeginScene(m_Camera.GetProjection(), glm::mat4(1.0f)); // <-- This is the camera view matrix, we'll stick to a unit matrix
+		// Starting a fresh 2D scene
+		Renderer2D::BeginScene(m_Camera.GetProjection(), Mat4f(1.0f)); // <-- This is the camera view matrix, we'll stick to a unit matrix
 
 		// Submitting a unit sprite with our given texture
-		Quark::Renderer2D::DrawSprite(m_Texture);
+		Renderer2D::DrawSprite(m_Texture);
 
 		// Telling Quark we are done with the current scene
 		// The renderer will optimize and draw the geometry here
-		Quark::Renderer::EndScene();
+		Renderer2D::EndScene();
 	}
 
 private:
 	// This method does the camera update when the window is resized
-	bool OnWindowResized(Quark::WindowResizedEvent& e)
+	bool OnWindowResized(WindowResizedEvent& e)
 	{
 		// Updating the camera projection every time the window is resized
-		float aspectRatio = (float)e.GetWidth() / e.GetHeight();
-		m_Camera.SetProjection(-aspectRatio, aspectRatio, -1, 1);
+		m_Camera.Resize(e.GetWidth(), e.GetHeight());
 		return false;
 	}
 
 private:
-	Quark::Ref<Quark::Texture2D> m_Texture;
-	Quark::OrthographicCamera m_Camera;
+	Ref<Texture2D> m_Texture;
+	SceneCamera m_Camera;
 };
 ```
 
@@ -304,24 +318,23 @@ private:
 It's also trivial to render a colored sprite using a different overload of the DrawSprite() function:
 
 ```c++
-class YourApplication : public Quark::Application
+class YourApplication : public Application
 {
 public:
 	[...]
 
 	// Called each frame
-	// Elapsed time holds the time delta in seconds between frames
-	void OnUpdate(Quark::Timestep elapsedTime) override
+	virtual void OnRender() override
 	{
-		// Starting a fresh scene
-		Quark::Renderer::BeginScene(m_Camera.GetProjection(), glm::mat4(1.0f)); // <-- This is the camera view matrix, we'll stick to a unit matrix
+		// Starting a fresh 2D scene
+		Renderer2D::BeginScene(m_Camera.GetProjection(), Mat4f(1.0f)); // <-- This is the camera view matrix, we'll stick to a unit matrix
 
 		// Submitting a colored sprite
-		Quark::Renderer2D::DrawSprite(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+		Renderer2D::DrawSprite({ 1.0f, 0.0f, 0.0f, 1.0f });
 
 		// Telling Quark we are done with the current scene
 		// The renderer will optimize and draw the geometry here
-		Quark::Renderer::EndScene();
+		Renderer2D::EndScene();
 	}
 	
 	[...]
