@@ -78,11 +78,12 @@ PBRRendering::PBRRendering()
 #endif
 
 #if 1
-		m_AlbedoFuture    = std::async(std::launch::async, Image::Create, albedoFilepath);
-		m_MetallicFuture  = std::async(std::launch::async, Image::Create, metallicFilepath);
-		m_NormalFuture    = std::async(std::launch::async, Image::Create, normalFilepath);
-		m_RoughnessFuture = std::async(std::launch::async, Image::Create, roughnessFilepath);
+		m_AlbedoFuture    = std::async(std::launch::async, Image::Shared, albedoFilepath);
+		m_MetallicFuture  = std::async(std::launch::async, Image::Shared, metallicFilepath);
+		m_NormalFuture    = std::async(std::launch::async, Image::Shared, normalFilepath);
+		m_RoughnessFuture = std::async(std::launch::async, Image::Shared, roughnessFilepath);
 #else
+
 		{
 			Texture2DSpecification spec;
 			spec.Width = 1;
@@ -138,7 +139,7 @@ PBRRendering::PBRRendering()
 
 		if (aoFilepath)
 		{
-			m_AOFuture = std::async(std::launch::async, Image::Create, aoFilepath);
+			m_AOFuture = std::async(std::launch::async, Image::Shared, aoFilepath);
 		}
 		else
 		{

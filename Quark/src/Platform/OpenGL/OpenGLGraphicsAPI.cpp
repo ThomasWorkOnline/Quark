@@ -182,7 +182,7 @@ namespace Quark {
 		return { GLVersion.major, GLVersion.minor };
 	}
 
-	void OpenGLGraphicsAPI::SetClearColor(const glm::vec4& rgba)
+	void OpenGLGraphicsAPI::SetClearColor(const Vec4f& rgba)
 	{
 		glClearColor(rgba.x, rgba.y, rgba.z, rgba.w);
 	}

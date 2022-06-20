@@ -23,7 +23,7 @@ namespace Quark {
 			s_GraphicsAPI->SetViewport(x, y, width, height);
 		}
 
-		static void SetClearColor(const glm::vec4& color)
+		static void SetClearColor(const Vec4f& color)
 		{
 			QK_ASSERT_RENDER_THREAD();
 			s_GraphicsAPI->SetClearColor(color);

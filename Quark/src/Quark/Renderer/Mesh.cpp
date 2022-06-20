@@ -197,19 +197,19 @@ namespace Quark {
 
 		if (data.Positions.empty())
 		{
-			data.Positions.push_back(glm::vec3(0.0f));
+			data.Positions.emplace_back(0.0f);
 			QK_CORE_WARN("Invalid mesh: does not contain position information.");
 		}
 
 		if (data.TexCoords.empty())
 		{
-			data.TexCoords.push_back(glm::vec2(0.0f));
+			data.TexCoords.emplace_back(0.0f);
 			QK_CORE_WARN("Invalid mesh: does not contain texCoord information.");
 		}
 
 		if (data.Normals.empty())
 		{
-			data.Normals.push_back(glm::vec3(0.0f));
+			data.Normals.emplace_back(0.0f);
 			QK_CORE_WARN("Invalid mesh: does not contain normal information.");
 		}
 

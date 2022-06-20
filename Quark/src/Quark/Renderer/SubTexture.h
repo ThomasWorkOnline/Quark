@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Quark/Core/Core.h"
-
 #include "Texture.h"
 
 namespace Quark {
@@ -9,13 +8,13 @@ namespace Quark {
 	class SubTexture2D
 	{
 	public:
-		SubTexture2D(const Ref<Texture2D>& texture, const glm::vec2& coord, const glm::vec2& subTextureSize);
+		SubTexture2D(const Ref<Texture2D>& texture, const Vec2f& coord, const Vec2f& subTextureSize);
 
 		const Ref<Texture2D>& GetTexture() const { return m_Texture; }
-		const glm::vec2* GetCoords() const { return m_TextureCoords; }
+		const Vec2f* GetCoords() const { return m_TextureCoords; }
 
 	private:
 		Ref<Texture2D> m_Texture;
-		glm::vec2 m_TextureCoords[4];
+		Vec2f m_TextureCoords[4];
 	};
 }

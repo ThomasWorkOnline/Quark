@@ -26,7 +26,7 @@ namespace Quark {
 	struct TextRenderTraits
 	{
 		Ref<Font> FontStyle;
-		glm::vec4 Color = glm::vec4(1.0f);
+		Vec4f Color = Vec4f(1.0f);
 
 		int32_t Width = 0, Height = 0;
 		HorizontalTextAlignment HAlign{};

@@ -193,17 +193,17 @@ namespace Quark {
 		UploadUniformInt(name, value);
 	}
 
-	void OpenGLShader::SetInt2(std::string_view name, const glm::ivec2& value)
+	void OpenGLShader::SetInt2(std::string_view name, const Vec2i& value)
 	{
 		UploadUniformInt2(name, value);
 	}
 
-	void OpenGLShader::SetInt3(std::string_view name, const glm::ivec3& value)
+	void OpenGLShader::SetInt3(std::string_view name, const Vec3i& value)
 	{
 		UploadUniformInt3(name, value);
 	}
 
-	void OpenGLShader::SetInt4(std::string_view name, const glm::ivec4& value)
+	void OpenGLShader::SetInt4(std::string_view name, const Vec4i& value)
 	{
 		UploadUniformInt4(name, value);
 	}
@@ -218,17 +218,17 @@ namespace Quark {
 		UploadUniformFloat(name, value);
 	}
 
-	void OpenGLShader::SetFloat2(std::string_view name, const glm::vec2& value)
+	void OpenGLShader::SetFloat2(std::string_view name, const Vec2f& value)
 	{
 		UploadUniformFloat2(name, value);
 	}
 
-	void OpenGLShader::SetFloat3(std::string_view name, const glm::vec3& value)
+	void OpenGLShader::SetFloat3(std::string_view name, const Vec3f& value)
 	{
 		UploadUniformFloat3(name, value);
 	}
 
-	void OpenGLShader::SetFloat4(std::string_view name, const glm::vec4& value)
+	void OpenGLShader::SetFloat4(std::string_view name, const Vec4f& value)
 	{
 		UploadUniformFloat4(name, value);
 	}
@@ -243,17 +243,17 @@ namespace Quark {
 		UploadUniformDouble(name, value);
 	}
 
-	void OpenGLShader::SetDouble2(std::string_view name, const glm::dvec2& value)
+	void OpenGLShader::SetDouble2(std::string_view name, const Vec2d& value)
 	{
 		UploadUniformDouble2(name, value);
 	}
 
-	void OpenGLShader::SetDouble3(std::string_view name, const glm::dvec3& value)
+	void OpenGLShader::SetDouble3(std::string_view name, const Vec3d& value)
 	{
 		UploadUniformDouble3(name, value);
 	}
 
-	void OpenGLShader::SetDouble4(std::string_view name, const glm::dvec4& value)
+	void OpenGLShader::SetDouble4(std::string_view name, const Vec4d& value)
 	{
 		UploadUniformDouble4(name, value);
 	}
@@ -263,22 +263,22 @@ namespace Quark {
 		UploadUniformDoubleArray(name, values, count);
 	}
 
-	void OpenGLShader::SetMat3(std::string_view name, const glm::mat3& matrix)
+	void OpenGLShader::SetMat3(std::string_view name, const Mat3f& matrix)
 	{
 		UploadUniformMat3(name, matrix);
 	}
 
-	void OpenGLShader::SetMat4(std::string_view name, const glm::mat4& matrix)
+	void OpenGLShader::SetMat4(std::string_view name, const Mat4f& matrix)
 	{
 		UploadUniformMat4(name, matrix);
 	}
 
-	void OpenGLShader::SetMat3d(std::string_view name, const glm::dmat3& matrix)
+	void OpenGLShader::SetMat3d(std::string_view name, const Mat3d& matrix)
 	{
 		UploadUniformMat3d(name, matrix);
 	}
 
-	void OpenGLShader::SetMat4d(std::string_view name, const glm::dmat4& matrix)
+	void OpenGLShader::SetMat4d(std::string_view name, const Mat4d& matrix)
 	{
 		UploadUniformMat4d(name, matrix);
 	}
@@ -289,19 +289,19 @@ namespace Quark {
 		glUniform1i(location, value);
 	}
 
-	void OpenGLShader::UploadUniformInt2(std::string_view name, const glm::ivec2& value)
+	void OpenGLShader::UploadUniformInt2(std::string_view name, const Vec2i& value)
 	{
 		GLint location = GetUniformLocation(name);
 		glUniform2i(location, value.x, value.y);
 	}
 
-	void OpenGLShader::UploadUniformInt3(std::string_view name, const glm::ivec3& value)
+	void OpenGLShader::UploadUniformInt3(std::string_view name, const Vec3i& value)
 	{
 		GLint location = GetUniformLocation(name);
 		glUniform3i(location, value.x, value.y, value.z);
 	}
 
-	void OpenGLShader::UploadUniformInt4(std::string_view name, const glm::ivec4& value)
+	void OpenGLShader::UploadUniformInt4(std::string_view name, const Vec4i& value)
 	{
 		GLint location = GetUniformLocation(name);
 		glUniform4i(location, value.x, value.y, value.z, value.w);
@@ -319,19 +319,19 @@ namespace Quark {
 		glUniform1f(location, value);
 	}
 
-	void OpenGLShader::UploadUniformFloat2(std::string_view name, const glm::vec2& value)
+	void OpenGLShader::UploadUniformFloat2(std::string_view name, const Vec2f& value)
 	{
 		GLint location = GetUniformLocation(name);
 		glUniform2f(location, value.x, value.y);
 	}
 
-	void OpenGLShader::UploadUniformFloat3(std::string_view name, const glm::vec3& value)
+	void OpenGLShader::UploadUniformFloat3(std::string_view name, const Vec3f& value)
 	{
 		GLint location = GetUniformLocation(name);
 		glUniform3f(location, value.x, value.y, value.z);
 	}
 
-	void OpenGLShader::UploadUniformFloat4(std::string_view name, const glm::vec4& value)
+	void OpenGLShader::UploadUniformFloat4(std::string_view name, const Vec4f& value)
 	{
 		GLint location = GetUniformLocation(name);
 		glUniform4f(location, value.x, value.y, value.z, value.w);
@@ -349,19 +349,19 @@ namespace Quark {
 		glUniform1d(location, value);
 	}
 
-	void OpenGLShader::UploadUniformDouble2(std::string_view name, const glm::dvec2& value)
+	void OpenGLShader::UploadUniformDouble2(std::string_view name, const Vec2d& value)
 	{
 		GLint location = GetUniformLocation(name);
 		glUniform2d(location, value.x, value.y);
 	}
 
-	void OpenGLShader::UploadUniformDouble3(std::string_view name, const glm::dvec3& value)
+	void OpenGLShader::UploadUniformDouble3(std::string_view name, const Vec3d& value)
 	{
 		GLint location = GetUniformLocation(name);
 		glUniform3d(location, value.x, value.y, value.z);
 	}
 
-	void OpenGLShader::UploadUniformDouble4(std::string_view name, const glm::dvec4& value)
+	void OpenGLShader::UploadUniformDouble4(std::string_view name, const Vec4d& value)
 	{
 		GLint location = GetUniformLocation(name);
 		glUniform4d(location, value.x, value.y, value.z, value.w);
@@ -373,25 +373,25 @@ namespace Quark {
 		glUniform1dv(location, count, values);
 	}
 
-	void OpenGLShader::UploadUniformMat3(std::string_view name, const glm::mat3& matrix)
+	void OpenGLShader::UploadUniformMat3(std::string_view name, const Mat3f& matrix)
 	{
 		GLint location = GetUniformLocation(name);
 		glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 
-	void OpenGLShader::UploadUniformMat4(std::string_view name, const glm::mat4& matrix)
+	void OpenGLShader::UploadUniformMat4(std::string_view name, const Mat4f& matrix)
 	{
 		GLint location = GetUniformLocation(name);
 		glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 
-	void OpenGLShader::UploadUniformMat3d(std::string_view name, const glm::dmat3& matrix)
+	void OpenGLShader::UploadUniformMat3d(std::string_view name, const Mat3d& matrix)
 	{
 		GLint location = GetUniformLocation(name);
 		glUniformMatrix3dv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 
-	void OpenGLShader::UploadUniformMat4d(std::string_view name, const glm::dmat4& matrix)
+	void OpenGLShader::UploadUniformMat4d(std::string_view name, const Mat4d& matrix)
 	{
 		GLint location = GetUniformLocation(name);
 		glUniformMatrix4dv(location, 1, GL_FALSE, glm::value_ptr(matrix));

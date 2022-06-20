@@ -6,9 +6,6 @@
 #include "Quark/Scene/Entity.h"
 #include "Quark/Scene/Scene.h"
 
-#include "Renderer2D.h"
-#include "RenderCommand.h"
-
 #include "Camera.h"
 #include "Framebuffer.h"
 #include "Shader.h"
@@ -22,9 +19,6 @@ namespace Quark {
 		Renderer() = delete;
 		Renderer& operator=(const Renderer&) = delete;
 
-		static void Initialize();
-		static void Dispose();
-
 		static void BeginScene(const Camera& camera, const Transform3DComponent& cameraTransform);
 
 		/// <summary>
@@ -34,18 +28,21 @@ namespace Quark {
 		/// </summary>
 		/// <param name="cameraProjection">Camera projection matrix</param>
 		/// <param name="cameraView">Camera view matrix</param>
-		static void BeginScene(const glm::mat4& cameraProjection, const glm::mat4& cameraView);
+		static void BeginScene(const Mat4f& cameraProjection, const Mat4f& cameraView);
 		static void EndScene();
 
-		static void Submit(const Ref<Shader>& shader, const Ref<VertexArray>& va, const glm::mat4& transform = glm::mat4(1.0f));
-		static void Submit(const Ref<Shader>& shader, const Ref<Texture2D>& texture, const Ref<VertexArray>& va, const glm::mat4& transform = glm::mat4(1.0f));
-		static void Submit(const Ref<Shader>& shader, const Ref<Framebuffer>& framebuffer, const Ref<VertexArray>& va, const glm::mat4& transform = glm::mat4(1.0f));
+		static void Submit(const Ref<Shader>& shader, const Ref<VertexArray>& va, const Mat4f& transform = Mat4f(1.0f));
+		static void Submit(const Ref<Shader>& shader, const Ref<Texture2D>& texture, const Ref<VertexArray>& va, const Mat4f& transform = Mat4f(1.0f));
+		static void Submit(const Ref<Shader>& shader, const Ref<Framebuffer>& framebuffer, const Ref<VertexArray>& va, const Mat4f& transform = Mat4f(1.0f));
 
 		static void OnViewportResized(uint32_t width, uint32_t height);
 
-		static ShaderLibrary& GetShaderLibrary() { return s_ShaderLibrary; }
+		static ShaderLibrary& GetShaderLibrary();
 
 	private:
-		static ShaderLibrary s_ShaderLibrary;
+		static void Initialize();
+		static void Dispose();
+
+		friend class Application;
 	};
 }

@@ -21,28 +21,28 @@ namespace Quark {
 		virtual void Detach() const override;
 
 		virtual void SetInt(std::string_view name, int32_t value) override;
-		virtual void SetInt2(std::string_view name, const glm::ivec2& value) override;
-		virtual void SetInt3(std::string_view name, const glm::ivec3& value) override;
-		virtual void SetInt4(std::string_view name, const glm::ivec4& value) override;
+		virtual void SetInt2(std::string_view name, const Vec2i& value) override;
+		virtual void SetInt3(std::string_view name, const Vec3i& value) override;
+		virtual void SetInt4(std::string_view name, const Vec4i& value) override;
 		virtual void SetIntArray(std::string_view name, int32_t* values, uint32_t count) override;
 
 		virtual void SetFloat(std::string_view name, float value) override;
-		virtual void SetFloat2(std::string_view name, const glm::vec2& value) override;
-		virtual void SetFloat3(std::string_view name, const glm::vec3& value) override;
-		virtual void SetFloat4(std::string_view name, const glm::vec4& value) override;
+		virtual void SetFloat2(std::string_view name, const Vec2f& value) override;
+		virtual void SetFloat3(std::string_view name, const Vec3f& value) override;
+		virtual void SetFloat4(std::string_view name, const Vec4f& value) override;
 		virtual void SetFloatArray(std::string_view name, float* values, uint32_t count) override;
 
 		virtual void SetDouble(std::string_view name, double value) override;
-		virtual void SetDouble2(std::string_view name, const glm::dvec2& value) override;
-		virtual void SetDouble3(std::string_view name, const glm::dvec3& value) override;
-		virtual void SetDouble4(std::string_view name, const glm::dvec4& value) override;
+		virtual void SetDouble2(std::string_view name, const Vec2d& value) override;
+		virtual void SetDouble3(std::string_view name, const Vec3d& value) override;
+		virtual void SetDouble4(std::string_view name, const Vec4d& value) override;
 		virtual void SetDoubleArray(std::string_view name, double* values, uint32_t count) override;
 
-		virtual void SetMat3(std::string_view name, const glm::mat3& matrix) override;
-		virtual void SetMat4(std::string_view name, const glm::mat4& matrix) override;
+		virtual void SetMat3(std::string_view name, const Mat3f& matrix) override;
+		virtual void SetMat4(std::string_view name, const Mat4f& matrix) override;
 
-		virtual void SetMat3d(std::string_view name, const glm::dmat3& matrix) override;
-		virtual void SetMat4d(std::string_view name, const glm::dmat4& matrix) override;
+		virtual void SetMat3d(std::string_view name, const Mat3d& matrix) override;
+		virtual void SetMat4d(std::string_view name, const Mat4d& matrix) override;
 
 		virtual uint32_t GetRendererID() const override { return m_RendererID; }
 		virtual const std::string& GetName() const override { return m_Name; }
@@ -54,27 +54,27 @@ namespace Quark {
 
 	private:
 		void UploadUniformInt(std::string_view name, int32_t value);
-		void UploadUniformInt2(std::string_view name, const glm::ivec2& value);
-		void UploadUniformInt3(std::string_view name, const glm::ivec3& value);
-		void UploadUniformInt4(std::string_view name, const glm::ivec4& value);
+		void UploadUniformInt2(std::string_view name, const Vec2i& value);
+		void UploadUniformInt3(std::string_view name, const Vec3i& value);
+		void UploadUniformInt4(std::string_view name, const Vec4i& value);
 		void UploadUniformIntArray(std::string_view name, int32_t* values, uint32_t count);
 
 		void UploadUniformFloat(std::string_view name, float value);
-		void UploadUniformFloat2(std::string_view name, const glm::vec2& value);
-		void UploadUniformFloat3(std::string_view name, const glm::vec3& value);
-		void UploadUniformFloat4(std::string_view name, const glm::vec4& value);
+		void UploadUniformFloat2(std::string_view name, const Vec2f& value);
+		void UploadUniformFloat3(std::string_view name, const Vec3f& value);
+		void UploadUniformFloat4(std::string_view name, const Vec4f& value);
 		void UploadUniformFloatArray(std::string_view name, float* values, uint32_t count);
 
 		void UploadUniformDouble(std::string_view name, double value);
-		void UploadUniformDouble2(std::string_view name, const glm::dvec2& value);
-		void UploadUniformDouble3(std::string_view name, const glm::dvec3& value);
-		void UploadUniformDouble4(std::string_view name, const glm::dvec4& value);
+		void UploadUniformDouble2(std::string_view name, const Vec2d& value);
+		void UploadUniformDouble3(std::string_view name, const Vec3d& value);
+		void UploadUniformDouble4(std::string_view name, const Vec4d& value);
 		void UploadUniformDoubleArray(std::string_view name, double* values, uint32_t count);
 
-		void UploadUniformMat3(std::string_view name, const glm::mat3& matrix);
-		void UploadUniformMat4(std::string_view name, const glm::mat4& matrix);
-		void UploadUniformMat3d(std::string_view name, const glm::dmat3& matrix);
-		void UploadUniformMat4d(std::string_view name, const glm::dmat4& matrix);
+		void UploadUniformMat3(std::string_view name, const Mat3f& matrix);
+		void UploadUniformMat4(std::string_view name, const Mat4f& matrix);
+		void UploadUniformMat3d(std::string_view name, const Mat3d& matrix);
+		void UploadUniformMat4d(std::string_view name, const Mat4d& matrix);
 
 		GLint GetUniformLocation(std::string_view name);
 

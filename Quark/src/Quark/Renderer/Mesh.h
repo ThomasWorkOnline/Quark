@@ -9,9 +9,9 @@ namespace Quark {
 
 	struct MeshVertex
 	{
-		glm::vec3 Position;
-		glm::vec2 TexCoord;
-		glm::vec3 Normal;
+		Vec3f Position;
+		Vec2f TexCoord;
+		Vec3f Normal;
 	};
 
 	struct IndexPack
@@ -28,9 +28,9 @@ namespace Quark {
 
 	struct OBJMeshData
 	{
-		std::vector<glm::vec3> Positions;
-		std::vector<glm::vec2> TexCoords;
-		std::vector<glm::vec3> Normals;
+		std::vector<Vec3f> Positions;
+		std::vector<Vec2f> TexCoords;
+		std::vector<Vec3f> Normals;
 		std::vector<IndexPack> FacesIndices;
 		bool SmoothShaded = true;
 

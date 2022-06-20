@@ -23,7 +23,7 @@ namespace Quark {
 
 		static void InitEnvironment(std::string_view environmentFilepath);
 
-		static glm::ivec2 s_ViewportSize;
+		static Vec2i s_ViewportSize;
 		static Ref<Scene> s_ActiveScene;
 	};
 }

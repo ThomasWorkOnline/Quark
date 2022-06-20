@@ -3,6 +3,7 @@
 
 #include "Quark/Core/Application.h"
 #include "Quark/Renderer/Cubemap.h"
+#include "Quark/Renderer/RenderCommand.h"
 
 namespace Quark {
 
@@ -25,7 +26,7 @@ namespace Quark {
 
 	static SceneRendererData s_Data;
 
-	glm::ivec2 SceneRenderer::s_ViewportSize{};
+	Vec2i SceneRenderer::s_ViewportSize{};
 	Ref<Scene> SceneRenderer::s_ActiveScene = nullptr;
 
 	void SceneRenderer::SetActiveScene(const Ref<Scene>& scene)
@@ -56,8 +57,8 @@ namespace Quark {
 					RenderCommand::SetCullFace(RenderCullFace::Front);
 					RenderCommand::SetDepthFunction(RenderDepthFunction::LessEqual);
 
-					glm::mat4 rotate = glm::toMat4(cameraTransform.Orientation);
-					glm::mat4 view = glm::translate(rotate, (glm::vec3)-cameraTransform.Position);
+					Mat4f rotate = glm::toMat4(cameraTransform.Orientation);
+					Mat4f view = glm::translate(rotate, (Vec3f)-cameraTransform.Position);
 
 					s_Data.Env->SkyboxShader->Attach();
 					s_Data.Env->SkyboxShader->SetMat4("u_View", view);

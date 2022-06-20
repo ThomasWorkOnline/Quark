@@ -18,7 +18,7 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 	}
 
-	void MetalGraphicsAPI::SetClearColor(const glm::vec4& rgba)
+	void MetalGraphicsAPI::SetClearColor(const Vec4f& rgba)
 	{
 		
 	}

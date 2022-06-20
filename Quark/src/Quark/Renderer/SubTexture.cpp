@@ -3,11 +3,11 @@
 
 namespace Quark {
 
-	SubTexture2D::SubTexture2D(const Ref<Texture2D>& texture, const glm::vec2& coord, const glm::vec2& subTextureSize)
+	SubTexture2D::SubTexture2D(const Ref<Texture2D>& texture, const Vec2f& coord, const Vec2f& subTextureSize)
 		: m_Texture(texture)
 	{
-		glm::vec2 start = glm::vec2(coord.x * subTextureSize.x / texture->GetWidth(), coord.y * subTextureSize.y / texture->GetHeight());
-		glm::vec2 end = glm::vec2(subTextureSize.x / texture->GetWidth(), subTextureSize.y / texture->GetHeight());
+		auto start = Vec2f(coord.x * subTextureSize.x / texture->GetWidth(), coord.y * subTextureSize.y / texture->GetHeight());
+		auto end = Vec2f(subTextureSize.x / texture->GetWidth(), subTextureSize.y / texture->GetHeight());
 
 		m_TextureCoords[0] = { start };
 		m_TextureCoords[1] = { start.x + end.x, start.y };

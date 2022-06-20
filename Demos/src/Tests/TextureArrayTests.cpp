@@ -2,28 +2,27 @@
 
 struct Vertex
 {
-	glm::vec3 Position;
-	glm::vec2 TexCoord;
+	Vec3f Position;
+	Vec2f TexCoord;
 	uint32_t TexIndex;
 };
 
 TextureArrayTest::TextureArrayTest()
 {
-	Ref<Image> texture1 = Image::Create("assets/textures/Example1_BasicRendering.png");
+	Image texture1 = "assets/textures/Example1_BasicRendering.png";
 
 	TextureArraySpecification spec;
 	spec.DataFormat     = TextureDataFormat::RGBA;
 	spec.InternalFormat = TextureInternalFormat::SRGBA8;
-	spec.Width = texture1->Width();
-	spec.Height = texture1->Height();
+	spec.Width = texture1.Width();
+	spec.Height = texture1.Height();
 	spec.Layers = 2;
 	spec.RenderModes.MinFilteringMode = TextureFilteringMode::NearestMipmapLinear;
 	spec.RenderModes.MagFilteringMode = TextureFilteringMode::Nearest;
 
-
 	m_TextureArray = Texture2DArray::Create(spec);
-	m_TextureArray->SetData(texture1->Data(), texture1->Size(), 0);
-	m_TextureArray->SetData(texture1->Data(), texture1->Size(), 1);
+	m_TextureArray->SetData(texture1.Data(), texture1.Size(), 0);
+	m_TextureArray->SetData(texture1.Data(), texture1.Size(), 1);
 	m_TextureArray->GenerateMipmaps();
 
 	m_Shader = Shader::Create("assets/shaders/textureArray.glsl");
@@ -59,23 +58,18 @@ TextureArrayTest::TextureArrayTest()
 
 void TextureArrayTest::OnUpdate(Timestep elapsedTime)
 {
-	m_Transform = glm::rotate(m_Transform, elapsedTime * 0.1f, glm::vec3(1.0f, 0.0f, 0.0f));
+	m_ModelTransform = glm::rotate(m_ModelTransform, elapsedTime * 0.1f, Vec3f(1.0f, 0.0f, 0.0f));
 }
 
 void TextureArrayTest::OnRender()
 {
-	Renderer::BeginScene(m_Camera.GetProjection(), m_CameraView);
-
-	static constexpr glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
-	Renderer2D::DrawLine(glm::vec3(-1, -1, 0), glm::vec3(1, 1, 0), color, color);
-
-	m_Shader->Attach();
-	m_Shader->SetMat4("u_Model", m_Transform);
+	static constexpr Vec4f color = { 1.0f, 1.0f, 1.0f, 1.0f };
+	Renderer2D::BeginScene(m_Camera.GetProjection(), m_CameraTransform);
+	Renderer2D::DrawLine(Vec3f(-1, -1, 0), Vec3f(1, 1, 0), color, color);
+	Renderer2D::EndScene();
 
 	m_TextureArray->Attach();
-	RenderCommand::DrawIndexed(m_VertexArray);
-
-	Renderer::EndScene();
+	Renderer::Submit(m_Shader, m_VertexArray, m_ModelTransform);
 }
 
 void TextureArrayTest::OnEvent(Event& e)

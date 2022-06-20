@@ -3,7 +3,7 @@
 
 namespace Quark {
 
-	Text::Text(std::string text, const Ref<Font>& font, const glm::vec4& color, HorizontalTextAlignment hAlign, VerticalTextAlignment vAlign)
+	Text::Text(std::string text, const Ref<Font>& font, const Vec4f& color, HorizontalTextAlignment hAlign, VerticalTextAlignment vAlign)
 		: m_Text(std::move(text))
 	{
 		m_RenderTraits.FontStyle = font;

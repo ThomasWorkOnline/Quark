@@ -18,8 +18,8 @@ private:
 
 private:
 	SceneCamera m_Camera;
-	glm::mat4 m_CameraView = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	glm::mat4 m_Transform = glm::mat4(1.0f);
+	Mat4f m_CameraTransform = glm::translate(Mat4f(1.0f), Vec3f(0.0f, 0.0f, 1.0f));
+	Mat4f m_ModelTransform = Mat4f(1.0f);
 
 	Ref<Texture2DArray> m_TextureArray;
 	Ref<Shader> m_Shader;

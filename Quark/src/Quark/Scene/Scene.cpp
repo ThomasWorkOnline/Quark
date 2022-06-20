@@ -73,6 +73,7 @@ namespace Quark {
 
 	void Scene::SetPrimaryCamera(Entity cameraEntity)
 	{
+		QK_CORE_ASSERT(cameraEntity.HasComponent<CameraComponent>(), "Entity must have a camera component");
 		m_CameraEntity = cameraEntity;
 	}
 

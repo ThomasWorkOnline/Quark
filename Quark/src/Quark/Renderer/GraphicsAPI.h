@@ -41,7 +41,7 @@ namespace Quark {
 		virtual                        Version GetVersion() const = 0;
 		virtual const                  HardwareConstraints& GetHardwareConstraints() const = 0;
 
-		virtual void                   SetClearColor(const glm::vec4& rgba) = 0;
+		virtual void                   SetClearColor(const Vec4f& rgba) = 0;
 		virtual void                   Clear() = 0;
 		virtual void                   SetCullFace(RenderCullFace face) = 0;
 		virtual void                   SetDepthFunction(RenderDepthFunction func) = 0;

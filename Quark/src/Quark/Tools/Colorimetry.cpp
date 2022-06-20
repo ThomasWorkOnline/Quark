@@ -3,23 +3,23 @@
 
 namespace Quark {
 
-	glm::vec4 EncodeSRGB(const glm::vec4& color)
+	Vec4 EncodeSRGB(const Vec4& color)
 	{
-		static constexpr float gamma = 1.0f / 2.2f;
-		return glm::vec4(
-			pow(color.r, gamma),
-			pow(color.g, gamma),
-			pow(color.b, gamma),
+		static constexpr decltype(color.r) gamma = 1.0f / 2.2f;
+		return Vec4(
+			glm::pow(color.r, gamma),
+			glm::pow(color.g, gamma),
+			glm::pow(color.b, gamma),
 			color.a);
 	}
 
-	glm::vec4 DecodeSRGB(const glm::vec4& color)
+	Vec4 DecodeSRGB(const Vec4& color)
 	{
-		static constexpr float gamma = 2.2f;
-		return glm::vec4(
-			pow(color.r, gamma),
-			pow(color.g, gamma),
-			pow(color.b, gamma),
+		static constexpr decltype(color.r) gamma = 2.2f;
+		return Vec4(
+			glm::pow(color.r, gamma),
+			glm::pow(color.g, gamma),
+			glm::pow(color.b, gamma),
 			color.a);
 	}
 }

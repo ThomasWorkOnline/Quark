@@ -84,7 +84,7 @@ namespace Quark {
 		return (size_t)m_Metadata.Width * m_Metadata.Height * (m_Metadata.BPP >> 3);
 	}
 
-	Ref<Image> Image::Create(std::string_view filepath)
+	Ref<Image> Image::Shared(std::string_view filepath)
 	{
 		return CreateRef<Image>(filepath);
 	}

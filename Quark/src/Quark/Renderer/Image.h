@@ -35,7 +35,7 @@ namespace Quark {
 
 		size_t Size() const;
 
-		static Ref<Image> Create(std::string_view filepath);
+		static Ref<Image> Shared(std::string_view filepath);
 
 	private:
 		void DecodePNG(std::string_view filepath);

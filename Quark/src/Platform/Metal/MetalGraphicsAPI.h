@@ -12,7 +12,7 @@ namespace Quark {
 		virtual                        Version GetVersion() const override { return Version{}; }
 		virtual const                  HardwareConstraints& GetHardwareConstraints() const override { return m_Constraints; }
 
-		virtual void                   SetClearColor(const glm::vec4& rgba) override;
+		virtual void                   SetClearColor(const Vec4f& rgba) override;
 		virtual void                   Clear() override;
 		virtual void                   SetCullFace(RenderCullFace face) override {}
 		virtual void                   SetDepthFunction(RenderDepthFunction func) override {}

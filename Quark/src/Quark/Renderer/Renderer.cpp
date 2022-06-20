@@ -1,27 +1,25 @@
 #include "qkpch.h"
 #include "Renderer.h"
 
-#include "Quark/Scene/SceneRenderer.h"
 #include "UniformBuffer.h"
+#include "RenderCommand.h"
 
 namespace Quark {
-
-	ShaderLibrary Renderer::s_ShaderLibrary;
 
 	struct RendererData
 	{
 		uint32_t MaxUniformBuffers = 0;
-
 		Ref<Texture2D> DefaultTexture;
 
 		// Ensure std140 layout
 		struct CameraData
 		{
-			glm::mat4 ViewProjection;
+			Mat4f ViewProjection;
 		};
 
 		CameraData CameraBufferData{};
 		Ref<UniformBuffer> CameraUniformBuffer;
+		ShaderLibrary ShaderLib;
 	};
 
 	static Scope<RendererData> s_Data;
@@ -29,10 +27,6 @@ namespace Quark {
 	void Renderer::Initialize()
 	{
 		QK_PROFILE_FUNCTION();
-
-		RenderCommand::Init();
-		RenderCommand::SetClearColor({ 0.01f, 0.01f, 0.01f, 1.0f });
-		QK_CORE_INFO(RenderCommand::GetSpecification());
 
 		s_Data = CreateScope<RendererData>();
 
@@ -48,45 +42,36 @@ namespace Quark {
 
 		s_Data->MaxUniformBuffers = RenderCommand::GetHardwareConstraints().UniformBufferConstraints.MaxBindings;
 		s_Data->CameraUniformBuffer = UniformBuffer::Create(sizeof(RendererData::CameraData), 0);
-
-		Renderer2D::Initialize();
 	}
 
 	void Renderer::Dispose()
 	{
 		QK_PROFILE_FUNCTION();
-
-		Renderer2D::Dispose();
 		s_Data.reset();
 	}
 
 	void Renderer::BeginScene(const Camera& camera, const Transform3DComponent& cameraTransform)
 	{
-		glm::mat4 rotate = glm::toMat4(cameraTransform.Orientation);
-		glm::mat4 view = glm::translate(rotate, (glm::vec3)-cameraTransform.Position);
+		Mat4f rotate = glm::toMat4(cameraTransform.Orientation);
+		Mat4f view = glm::translate(rotate, (Vec3f)-cameraTransform.Position);
 
 		BeginScene(camera.GetProjection(), view);
 	}
 
-	void Renderer::BeginScene(const glm::mat4& cameraProjection, const glm::mat4& cameraView)
+	void Renderer::BeginScene(const Mat4f& cameraProjection, const Mat4f& cameraView)
 	{
 		QK_ASSERT_RENDER_THREAD();
 
 		s_Data->CameraBufferData.ViewProjection = cameraProjection * cameraView;
 		s_Data->CameraUniformBuffer->Attach();
 		s_Data->CameraUniformBuffer->SetData(&s_Data->CameraBufferData, sizeof(RendererData::CameraData));
-
-		Renderer2D::BeginScene();
 	}
 
 	void Renderer::EndScene()
 	{
-		QK_ASSERT_RENDER_THREAD();
-
-		Renderer2D::EndScene();
 	}
 
-	void Renderer::Submit(const Ref<Shader>& shader, const Ref<VertexArray>& va, const glm::mat4& transform)
+	void Renderer::Submit(const Ref<Shader>& shader, const Ref<VertexArray>& va, const Mat4f& transform)
 	{
 		QK_ASSERT_RENDER_THREAD();
 
@@ -98,7 +83,7 @@ namespace Quark {
 		RenderCommand::DrawIndexed(va);
 	}
 
-	void Renderer::Submit(const Ref<Shader>& shader, const Ref<Texture2D>& texture, const Ref<VertexArray>& va, const glm::mat4& transform)
+	void Renderer::Submit(const Ref<Shader>& shader, const Ref<Texture2D>& texture, const Ref<VertexArray>& va, const Mat4f& transform)
 	{
 		QK_ASSERT_RENDER_THREAD();
 
@@ -110,7 +95,7 @@ namespace Quark {
 		RenderCommand::DrawIndexed(va);
 	}
 
-	void Renderer::Submit(const Ref<Shader>& shader, const Ref<Framebuffer>& framebuffer, const Ref<VertexArray>& va, const glm::mat4& transform)
+	void Renderer::Submit(const Ref<Shader>& shader, const Ref<Framebuffer>& framebuffer, const Ref<VertexArray>& va, const Mat4f& transform)
 	{
 		QK_ASSERT_RENDER_THREAD();
 
@@ -125,7 +110,11 @@ namespace Quark {
 	void Renderer::OnViewportResized(uint32_t width, uint32_t height)
 	{
 		QK_ASSERT_RENDER_THREAD();
-
 		RenderCommand::SetViewport(0, 0, width, height);
+	}
+
+	ShaderLibrary& Renderer::GetShaderLibrary()
+	{
+		return s_Data->ShaderLib;
 	}
 }

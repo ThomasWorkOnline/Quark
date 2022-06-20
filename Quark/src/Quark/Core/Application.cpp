@@ -3,6 +3,7 @@
 
 #include "Core.h"
 #include "Quark/Renderer/Renderer.h"
+#include "Quark/Renderer/Renderer2D.h"
 #include "Quark/Renderer/RenderCommand.h"
 #include "Quark/Scene/SceneRenderer.h"
 
@@ -28,6 +29,7 @@ namespace Quark {
 			delete m_Layers[i];
 
 		Renderer::Dispose();
+		Renderer2D::Dispose();
 	}
 
 	void Application::Stop()
@@ -88,7 +90,13 @@ namespace Quark {
 		m_AudioOutputDevice = AudioOutputDevice::Create();
 		QK_CORE_INFO("Opened audio device: {0}", m_AudioOutputDevice->GetDeviceName());
 
+		RenderCommand::Init();
+		RenderCommand::SetClearColor({ 0.01f, 0.01f, 0.01f, 1.0f });
+		QK_CORE_INFO(RenderCommand::GetSpecification());
+
 		Renderer::Initialize();
+		Renderer2D::Initialize();
+
 		Renderer::OnViewportResized(m_Window->GetWidth(), m_Window->GetHeight());
 		SceneRenderer::OnViewportResized(m_Window->GetWidth(), m_Window->GetHeight());
 

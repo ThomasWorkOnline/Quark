@@ -89,7 +89,7 @@ namespace Quark {
 			static_assert(std::is_base_of_v<NativeScriptEntity, T>,
 				"Template argument must be a subtype of NativeScriptEntity");
 
-			InstanciateScript = []() { return (NativeScriptEntity*)(new T()); };
+			InstanciateScript = []() { return static_cast<NativeScriptEntity*>(new T()); };
 		}
 	};
 }
