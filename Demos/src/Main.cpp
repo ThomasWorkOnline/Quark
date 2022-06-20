@@ -1,5 +1,5 @@
 #include "Tests/PBRRendering.h"
-#include "Example1_BasicRendering.h"
+#include "FontTest/FontTest.h"
 
 #include <Quark/EntryPoint.h>
 
@@ -7,6 +7,6 @@ namespace Quark {
 
 	Application* CreateApplication()
 	{
-		return new YourApplication();
+		return new FontTest();
 	}
 }

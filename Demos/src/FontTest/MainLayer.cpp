@@ -23,10 +23,9 @@ MainLayer::MainLayer()
 	m_Texture = Texture2D::Create("assets/textures/pbr/streaked-metal/normal-dx.png", descriptor);
 
 	auto& window = Application::Get().GetWindow();
-	float width  = (float)window.GetWidth();
-	float height = (float)window.GetHeight();
 
-	m_Camera.SetOrthographic(1.0f);
+	m_Camera.SetOrthographic(window.GetWidth());
+	m_Camera.Resize(window.GetWidth(), window.GetHeight());
 }
 
 void MainLayer::OnUpdate(Timestep elapsedTime)
@@ -35,9 +34,9 @@ void MainLayer::OnUpdate(Timestep elapsedTime)
 
 void MainLayer::OnRender()
 {
-	Renderer::BeginScene(m_Camera.GetProjection(), glm::mat4(1.0f));
+	Renderer2D::BeginScene(m_Camera.GetProjection(), Mat4f(1.0f));
 	Renderer2D::DrawTextInput(m_Input);
-	Renderer::EndScene();
+	Renderer2D::EndScene();
 }
 
 void MainLayer::OnEvent(Event& e)
