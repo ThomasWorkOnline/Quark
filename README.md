@@ -252,8 +252,8 @@ private:
 
 <ins>**5. Handling window size**</ins>
 
-So far, we've created our camera using the default constructor;
-This default initialization sets the projection matrix to a [-1, 1] orthographic projection.
+So far, we've created our camera using the SetOrthographic() method;
+This initialization sets the projection matrix to a [-size/2, size/2] sized orthographic projection.
 This doesn't give us the result we wan't since we don't take into consideration the screen aspect ratio.
 Let's fix this:
 
