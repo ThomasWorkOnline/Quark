@@ -7,6 +7,7 @@
 #endif
 
 #include "Platform/OpenGL/OpenGLGraphicsAPI.h"
+#include "Platform/Vulkan/VulkanGraphicsAPI.h"
 
 namespace Quark {
 
@@ -35,8 +36,8 @@ namespace Quark {
 				return nullptr;
 #endif
 			}
-			case GraphicsAPI::API::OpenGL:
-				return CreateScope<OpenGLGraphicsAPI>();
+			case GraphicsAPI::API::OpenGL: return CreateScope<OpenGLGraphicsAPI>();
+			case GraphicsAPI::API::Vulkan: return CreateScope<VulkanGraphicsAPI>();
 			default:
 				QK_CORE_FATAL("Graphics API not supported");
 				return nullptr;

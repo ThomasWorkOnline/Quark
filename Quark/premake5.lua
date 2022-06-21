@@ -33,7 +33,9 @@ project "Quark"
 		"src/Platform/OpenAL/**.h",
 		"src/Platform/OpenAL/**.cpp",
 		"src/Platform/OpenGL/**.h",
-		"src/Platform/OpenGL/**.cpp"
+		"src/Platform/OpenGL/**.cpp",
+		"src/Platform/Vulkan/**.h",
+		"src/Platform/Vulkan/**.cpp"
 	}
 
 	defines
@@ -46,15 +48,16 @@ project "Quark"
 	includedirs
 	{
 		"src",
-		"vendor/entt/single_include",
-		"vendor/freetype/include",
-		"vendor/glad/include",
-		"vendor/glfw/include",
-		"vendor/glm",
-		"vendor/lodepng",
-		"vendor/openal/include",
-		"vendor/spdlog/include",
-		"vendor/stb"
+		"%{IncludeDir.entt}",
+		"%{IncludeDir.freetype}",
+		"%{IncludeDir.glad}",
+		"%{IncludeDir.glfw}",
+		"%{IncludeDir.glm}",
+		"%{IncludeDir.lodepng}",
+		"%{IncludeDir.openal}",
+		"%{IncludeDir.spdlog}",
+		"%{IncludeDir.stb}",
+		"%{IncludeDir.VulkanSDK}"
 	}
 
 	links
@@ -63,7 +66,8 @@ project "Quark"
 		"Glad",
 		"GLFW",
 		"lodepng",
-		"spdlog"
+		"spdlog",
+		"%{Library.Vulkan}"
 	}
 
 	filter "system:windows"
@@ -95,7 +99,7 @@ project "Quark"
 
 		includedirs
 		{
-			"vendor/metal"
+			"%{IncludeDir.Metal}"
 		}
 
 		links

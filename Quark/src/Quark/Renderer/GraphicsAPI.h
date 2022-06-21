@@ -26,7 +26,8 @@ namespace Quark {
 		{
 			None = 0,
 			Metal,
-			OpenGL
+			OpenGL,
+			Vulkan
 		};
 
 		struct Version

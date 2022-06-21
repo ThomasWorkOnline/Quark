@@ -1,3 +1,5 @@
+include "Dependencies.lua"
+
 workspace "Quark"
 	architecture "x86_64"
 	startproject "Demos"

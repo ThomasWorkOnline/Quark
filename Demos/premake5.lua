@@ -15,10 +15,11 @@ project "Demos"
 
 	includedirs
 	{
+		"src",
 		"%{wks.location}/Quark/src",
-		"%{wks.location}/Quark/vendor/glm",
-		"%{wks.location}/Quark/vendor/entt/single_include",
-		"%{wks.location}/Quark/vendor/spdlog/include"
+		"%{IncludeDir.entt}",
+		"%{IncludeDir.glm}",
+		"%{IncludeDir.spdlog}"
 	}
 
 	links
