@@ -2,7 +2,6 @@
 #include "GLFWWindow.h"
 
 #include "Quark/Renderer/GraphicsAPI.h"
-
 #include <GLFW/glfw3.h>
 
 namespace Quark {
@@ -12,12 +11,13 @@ namespace Quark {
 		uint8_t keys{};
 		switch (mod)
 		{
-			case GLFW_MOD_SHIFT:     keys = (uint8_t)keys | (uint8_t)ModifierKey::Shift;
-			case GLFW_MOD_CONTROL:   keys = (uint8_t)keys | (uint8_t)ModifierKey::Control;
-			case GLFW_MOD_ALT:       keys = (uint8_t)keys | (uint8_t)ModifierKey::Alt;
-			case GLFW_MOD_SUPER:     keys = (uint8_t)keys | (uint8_t)ModifierKey::Super;
-			case GLFW_MOD_CAPS_LOCK: keys = (uint8_t)keys | (uint8_t)ModifierKey::CapsLock;
-			case GLFW_MOD_NUM_LOCK:  keys = (uint8_t)keys | (uint8_t)ModifierKey::NumLock;
+			// TODO: rethink this when multiple mod keys are pressed
+			case GLFW_MOD_SHIFT:     keys = (uint8_t)keys | (uint8_t)ModifierKey::Shift;    break;
+			case GLFW_MOD_CONTROL:   keys = (uint8_t)keys | (uint8_t)ModifierKey::Control;  break;
+			case GLFW_MOD_ALT:       keys = (uint8_t)keys | (uint8_t)ModifierKey::Alt;      break;
+			case GLFW_MOD_SUPER:     keys = (uint8_t)keys | (uint8_t)ModifierKey::Super;    break;
+			case GLFW_MOD_CAPS_LOCK: keys = (uint8_t)keys | (uint8_t)ModifierKey::CapsLock; break;
+			case GLFW_MOD_NUM_LOCK:  keys = (uint8_t)keys | (uint8_t)ModifierKey::NumLock;  break;
 		}
 
 		return static_cast<ModifierKey>(keys);
@@ -61,9 +61,12 @@ namespace Quark {
 			QK_CORE_ASSERT(initCode == GLFW_TRUE, "Could not initialize GLFW!");
 
 			glfwSetErrorCallback(GLFWErrorCallback);
+			glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
 			if (GraphicsAPI::GetAPI() == GraphicsAPI::API::OpenGL)
 			{
+				glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
+
 #ifdef QK_DEBUG
 				glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT,     GLFW_TRUE);
 #endif

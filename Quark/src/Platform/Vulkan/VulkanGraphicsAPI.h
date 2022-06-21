@@ -1,20 +1,15 @@
 #pragma once
 
 #include "Quark/Renderer/GraphicsAPI.h"
-#include <vulkan/vulkan.hpp>
-
-#ifdef QK_DEBUG
-#	define QK_ENABLE_VULKAN_VALIDATION_LAYERS
-#endif
+#include "VulkanCore.h"
 
 namespace Quark {
 
-	class VulkanGraphicsAPI : public GraphicsAPI
+	class VulkanGraphicsAPI final : public GraphicsAPI
 	{
 	public:
-		                               VulkanGraphicsAPI();
 		virtual                       ~VulkanGraphicsAPI() override;
-		virtual void                   Init() override {}
+		virtual void                   Init() override;
 
 		virtual                        Version GetVersion() const override { return Version{}; }
 		virtual const                  HardwareConstraints& GetHardwareConstraints() const override { return m_Constraints; }
@@ -34,7 +29,7 @@ namespace Quark {
 		virtual void                   SetLineThickness(float thickness) override {}
 		virtual float                  GetLineThickness() const override { return 0; }
 
-		virtual Scope<GraphicsContext> CreateGraphicsContext(void* windowHandle) override { return nullptr; }
+		virtual Scope<GraphicsContext> CreateGraphicsContext(void* windowHandle) override;
 
 		virtual Ref<VertexBuffer>      CreateVertexBuffer(const void* vertices, size_t size) override { return nullptr; };
 		virtual Ref<VertexBuffer>      CreateVertexBuffer(size_t size) override { return nullptr; }
@@ -66,11 +61,5 @@ namespace Quark {
 
 	private:
 		HardwareConstraints m_Constraints{};
-
-		vk::Instance m_VkInstance;
-
-#ifdef QK_ENABLE_VULKAN_VALIDATION_LAYERS
-		vk::DebugUtilsMessengerEXT m_VkDebugMessenger;
-#endif
 	};
 }
