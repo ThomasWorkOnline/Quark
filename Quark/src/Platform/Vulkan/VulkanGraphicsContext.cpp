@@ -91,9 +91,6 @@ namespace Quark {
 #endif
 		vkDestroySurfaceKHR(m_VkInstance, m_VkSurface, nullptr);
 		m_VkInstance.destroy();
-
-		// Detaching the current context
-		//glfwMakeContextCurrent(nullptr);
 	}
 
 	void VulkanGraphicsContext::Init()
@@ -219,8 +216,7 @@ namespace Quark {
 			m_SwapChain = CreateScope<VulkanSwapChain>(m_VkDevice, m_VkSurface, scSpec);
 		}
 
-		//glfwMakeContextCurrent(m_WindowHandle);
-		//QK_CORE_TRACE("Created Vulkan graphics context!");
+		QK_CORE_TRACE("Created Vulkan graphics context!");
 	}
 
 	void VulkanGraphicsContext::SwapBuffers()
