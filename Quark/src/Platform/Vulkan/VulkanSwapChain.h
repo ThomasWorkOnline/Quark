@@ -29,6 +29,7 @@ namespace Quark {
 
 		vk::SwapchainKHR m_VkSwapChain;
 		std::vector<vk::Image> m_VkSwapChainImages;
+		std::vector<vk::ImageView> m_VkSwapChainImageViews;
 
 		VulkanSwapChainSpecification m_Spec;
 	};

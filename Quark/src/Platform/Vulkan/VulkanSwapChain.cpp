@@ -41,11 +41,30 @@ namespace Quark {
 
 		m_VkSwapChain = m_VkDevice.createSwapchainKHR(createInfo, nullptr);
 		m_VkSwapChainImages = m_VkDevice.getSwapchainImagesKHR(m_VkSwapChain);
+
+		m_VkSwapChainImageViews.resize(m_VkSwapChainImages.size());
+		for (size_t i = 0; i < m_VkSwapChainImages.size(); i++)
+		{
+			vk::ImageViewCreateInfo createInfo;
+			createInfo.setImage(m_VkSwapChainImages[i]);
+			createInfo.setViewType(vk::ImageViewType::e2D);
+			createInfo.setFormat(m_Spec.SurfaceFormat.format);
+			createInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
+			createInfo.subresourceRange.baseMipLevel = 0;
+			createInfo.subresourceRange.levelCount = 1;
+			createInfo.subresourceRange.baseArrayLayer = 0;
+			createInfo.subresourceRange.layerCount = 1;
+
+			m_VkSwapChainImageViews[i] = m_VkDevice.createImageView(createInfo, nullptr);
+		}
 	}
 
 	VulkanSwapChain::~VulkanSwapChain()
 	{
 		QK_PROFILE_FUNCTION();
+
+		for (auto& imageView : m_VkSwapChainImageViews)
+			vkDestroyImageView(m_VkDevice, imageView, nullptr);
 
 		vkDestroySwapchainKHR(m_VkDevice, m_VkSwapChain, nullptr);
 	}
