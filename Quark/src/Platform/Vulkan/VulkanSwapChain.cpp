@@ -57,11 +57,23 @@ namespace Quark {
 
 			m_VkSwapChainImageViews[i] = m_VkDevice.createImageView(createInfo, nullptr);
 		}
+
+		vk::SemaphoreCreateInfo semaphoreInfo;
+		m_VkImageAvailableSemaphore = m_VkDevice.createSemaphore(semaphoreInfo, nullptr);
+		m_VkRenderFinishedSemaphore = m_VkDevice.createSemaphore(semaphoreInfo, nullptr);
+
+		vk::FenceCreateInfo fenceInfo;
+		fenceInfo.setFlags(vk::FenceCreateFlagBits::eSignaled);
+		m_VkInFlightFence = m_VkDevice.createFence(fenceInfo, nullptr);
 	}
 
 	VulkanSwapChain::~VulkanSwapChain()
 	{
 		QK_PROFILE_FUNCTION();
+
+		vkDestroySemaphore(m_VkDevice, m_VkImageAvailableSemaphore, nullptr);
+		vkDestroySemaphore(m_VkDevice, m_VkRenderFinishedSemaphore, nullptr);
+		vkDestroyFence(m_VkDevice, m_VkInFlightFence, nullptr);
 
 		for (auto& imageView : m_VkSwapChainImageViews)
 			vkDestroyImageView(m_VkDevice, imageView, nullptr);
@@ -71,5 +83,25 @@ namespace Quark {
 
 	void VulkanSwapChain::SwapBuffers()
 	{
+		vk::Result vkRes = m_VkDevice.waitForFences(m_VkInFlightFence, VK_TRUE, UINT64_MAX);
+		QK_CORE_ASSERT(vkRes == vk::Result::eSuccess, "Could not wait for fences");
+		m_VkDevice.resetFences(m_VkInFlightFence);
+
+		vkRes = m_VkDevice.acquireNextImageKHR(m_VkSwapChain, UINT64_MAX, m_VkImageAvailableSemaphore, VK_NULL_HANDLE, &m_NextFrameIndex);
+		QK_CORE_ASSERT(vkRes == vk::Result::eSuccess, "Could not acquire next image in swap chain");
+	}
+
+	void VulkanSwapChain::Present(vk::Queue queue)
+	{
+		vk::PresentInfoKHR presentInfo;
+		presentInfo.setWaitSemaphoreCount(1);
+		presentInfo.setPWaitSemaphores(&m_VkRenderFinishedSemaphore);
+
+		presentInfo.setSwapchainCount(1);
+		presentInfo.setPSwapchains(&m_VkSwapChain);
+		presentInfo.setPImageIndices(&m_NextFrameIndex);
+
+		vk::Result vkRes = queue.presentKHR(presentInfo);
+		QK_CORE_ASSERT(vkRes == vk::Result::eSuccess, "Could not present");
 	}
 }

@@ -28,8 +28,8 @@ namespace Quark {
 		for (size_t i = 0; i < m_Layers.size(); i++)
 			delete m_Layers[i];
 
-		Renderer::Dispose();
-		Renderer2D::Dispose();
+		//Renderer::Dispose();
+		//Renderer2D::Dispose();
 	}
 
 	void Application::Stop()
@@ -60,14 +60,12 @@ namespace Quark {
 			
 			{
 				RenderCommand::Clear();
-
 				OnRender();
 
 				for (size_t i = 0; i < m_Layers.size(); i++)
 					m_Layers[i]->OnRender();
 
 				SceneRenderer::OnRender();
-
 				m_Window->OnUpdate();
 			}
 		}
@@ -94,11 +92,11 @@ namespace Quark {
 		RenderCommand::SetClearColor({ 0.01f, 0.01f, 0.01f, 1.0f });
 		QK_CORE_INFO(RenderCommand::GetSpecification());
 
-		Renderer::Initialize();
+		/*Renderer::Initialize();
 		Renderer2D::Initialize();
 
 		Renderer::OnViewportResized(m_Window->GetWidth(), m_Window->GetHeight());
-		SceneRenderer::OnViewportResized(m_Window->GetWidth(), m_Window->GetHeight());
+		SceneRenderer::OnViewportResized(m_Window->GetWidth(), m_Window->GetHeight());*/
 
 		if (m_Options.HasFlag(ShowApiInWindowTitle))
 		{
