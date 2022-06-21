@@ -86,7 +86,7 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		m_VkDevice.waitIdle();
+		m_SwapChain.reset();
 		vkDestroyCommandPool(m_VkDevice, m_VkCommandPool, nullptr);
 
 		for (auto& framebuffer : m_VkSwapChainFramebuffers)
@@ -96,7 +96,6 @@ namespace Quark {
 		vkDestroyPipelineLayout(m_VkDevice, m_VkPipelineLayout, nullptr);
 		vkDestroyRenderPass(m_VkDevice, m_VkRenderPass, nullptr);
 
-		m_SwapChain.reset();
 		m_VkDevice.destroy();
 
 #ifdef QK_ENABLE_VULKAN_VALIDATION_LAYERS

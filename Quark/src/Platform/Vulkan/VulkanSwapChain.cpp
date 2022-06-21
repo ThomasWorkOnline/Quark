@@ -71,6 +71,8 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
+		// Wait until all operations on the swap chain are completed
+		m_VkDevice.waitIdle();
 		vkDestroySemaphore(m_VkDevice, m_VkImageAvailableSemaphore, nullptr);
 		vkDestroySemaphore(m_VkDevice, m_VkRenderFinishedSemaphore, nullptr);
 		vkDestroyFence(m_VkDevice, m_VkInFlightFence, nullptr);
