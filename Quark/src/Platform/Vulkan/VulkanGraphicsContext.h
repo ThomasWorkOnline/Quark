@@ -1,10 +1,10 @@
 #pragma once
 
 #include "Quark/Renderer/GraphicsContext.h"
-#include "VulkanCore.h"
-#include "VulkanSwapChain.h"
 
-#include <vector>
+#include "VulkanCore.h"
+#include "VulkanRenderPass.h"
+#include "VulkanSwapChain.h"
 
 typedef struct GLFWwindow GLFWwindow;
 
@@ -20,7 +20,7 @@ namespace Quark {
 		virtual void SwapBuffers() override;
 
 	private:
-		void RecordCommandBuffer(vk::CommandBuffer commandBuffer, uint32_t imageIndex);
+		void RecordCommandBuffer(uint32_t imageIndex);
 
 	private:
 		GLFWwindow* m_WindowHandle;
@@ -36,8 +36,8 @@ namespace Quark {
 
 		vk::Queue m_VkPresentQueue;
 		Scope<VulkanSwapChain> m_SwapChain;
+		Scope<VulkanRenderPass> m_RenderPass; // TODO: not allocate them on the heap
 
-		vk::RenderPass m_VkRenderPass;
 		vk::PipelineLayout m_VkPipelineLayout;
 		vk::Pipeline m_VkGraphicsPipeline;
 		std::vector<vk::Framebuffer> m_VkSwapChainFramebuffers;

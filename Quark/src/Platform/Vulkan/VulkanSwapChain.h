@@ -17,7 +17,6 @@ namespace Quark {
 	class VulkanSwapChain
 	{
 	public:
-		VulkanSwapChain() = default;
 		VulkanSwapChain(vk::Device device, vk::SurfaceKHR surface, const VulkanSwapChainSpecification& spec);
 		~VulkanSwapChain();
 

@@ -87,6 +87,8 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		m_SwapChain.reset();
+		m_RenderPass.reset();
+
 		vkDestroyCommandPool(m_VkDevice, m_VkCommandPool, nullptr);
 
 		for (auto& framebuffer : m_VkSwapChainFramebuffers)
@@ -94,7 +96,6 @@ namespace Quark {
 
 		vkDestroyPipeline(m_VkDevice, m_VkGraphicsPipeline, nullptr);
 		vkDestroyPipelineLayout(m_VkDevice, m_VkPipelineLayout, nullptr);
-		vkDestroyRenderPass(m_VkDevice, m_VkRenderPass, nullptr);
 
 		m_VkDevice.destroy();
 
@@ -232,45 +233,8 @@ namespace Quark {
 
 		// Render pass
 		{
-			QK_PROFILE_SCOPE(VulkanGraphicsContext::RenderPass);
-
 			vk::Format swapChainImageFormat = m_SwapChain->GetSpecification().SurfaceFormat.format;
-
-			vk::AttachmentDescription colorAttachment;
-			colorAttachment.setFormat(swapChainImageFormat);
-			colorAttachment.setSamples(vk::SampleCountFlagBits::e1);
-			colorAttachment.setLoadOp(vk::AttachmentLoadOp::eClear);
-			colorAttachment.setStoreOp(vk::AttachmentStoreOp::eStore);
-
-			colorAttachment.setInitialLayout(vk::ImageLayout::eUndefined);
-			colorAttachment.setFinalLayout(vk::ImageLayout::ePresentSrcKHR);
-
-			vk::AttachmentReference colorAttachmentRef;
-			colorAttachmentRef.setAttachment(0);
-			colorAttachmentRef.setLayout(vk::ImageLayout::eColorAttachmentOptimal);
-
-			vk::SubpassDescription subpass;
-			subpass.setPipelineBindPoint(vk::PipelineBindPoint::eGraphics);
-			subpass.setColorAttachmentCount(1);
-			subpass.setPColorAttachments(&colorAttachmentRef);
-
-			vk::SubpassDependency dependency;
-			dependency.setSrcSubpass(VK_SUBPASS_EXTERNAL);
-			dependency.setDstSubpass(0);
-			dependency.setSrcStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput);
-			dependency.setSrcAccessMask(vk::AccessFlagBits::eNone);
-			dependency.setDstStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput);
-			dependency.setDstAccessMask(vk::AccessFlagBits::eColorAttachmentWrite);
-
-			vk::RenderPassCreateInfo renderPassInfo;
-			renderPassInfo.setAttachmentCount(1);
-			renderPassInfo.setPAttachments(&colorAttachment);
-			renderPassInfo.setSubpassCount(1);
-			renderPassInfo.setPSubpasses(&subpass);
-			renderPassInfo.setDependencyCount(1);
-			renderPassInfo.setPDependencies(&dependency);
-
-			m_VkRenderPass = m_VkDevice.createRenderPass(renderPassInfo, nullptr);
+			m_RenderPass = CreateScope<VulkanRenderPass>(m_VkDevice, swapChainImageFormat);
 		}
 
 		// Create graphics pipeline
@@ -377,7 +341,7 @@ namespace Quark {
 
 			pipelineInfo.setLayout(m_VkPipelineLayout);
 
-			pipelineInfo.setRenderPass(m_VkRenderPass);
+			pipelineInfo.setRenderPass(m_RenderPass->GetNativeHandle());
 			pipelineInfo.setSubpass(0);
 
 			auto pipelineStatusPair = m_VkDevice.createGraphicsPipeline(VK_NULL_HANDLE, pipelineInfo, nullptr);
@@ -400,7 +364,7 @@ namespace Quark {
 				};
 
 				vk::FramebufferCreateInfo framebufferInfo;
-				framebufferInfo.renderPass = m_VkRenderPass;
+				framebufferInfo.renderPass = m_RenderPass->GetNativeHandle();
 				framebufferInfo.setAttachmentCount(1);
 				framebufferInfo.setPAttachments(attachments);
 				framebufferInfo.setWidth(extent.width);
@@ -438,7 +402,7 @@ namespace Quark {
 
 		uint32_t imageIndex = m_SwapChain->GetNextImageIndex();
 		m_VkCommandBuffer.reset();
-		RecordCommandBuffer(m_VkCommandBuffer, imageIndex);
+		RecordCommandBuffer(imageIndex);
 
 		{
 			vk::PipelineStageFlags waitStages[] = { vk::PipelineStageFlagBits::eColorAttachmentOutput };
@@ -459,13 +423,13 @@ namespace Quark {
 		}
 	}
 
-	void VulkanGraphicsContext::RecordCommandBuffer(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
+	void VulkanGraphicsContext::RecordCommandBuffer(uint32_t imageIndex)
 	{
 		vk::CommandBufferBeginInfo beginInfo;
-		commandBuffer.begin(beginInfo);
+		m_VkCommandBuffer.begin(beginInfo);
 
 		vk::RenderPassBeginInfo renderPassInfo;
-		renderPassInfo.setRenderPass(m_VkRenderPass);
+		renderPassInfo.setRenderPass(m_RenderPass->GetNativeHandle());
 		renderPassInfo.setFramebuffer(m_VkSwapChainFramebuffers[imageIndex]);
 
 		renderPassInfo.renderArea.offset = vk::Offset2D{ 0, 0 };
@@ -479,12 +443,12 @@ namespace Quark {
 		renderPassInfo.setClearValueCount(1);
 		renderPassInfo.setPClearValues(&clearColor);
 
-		commandBuffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
-		commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, m_VkGraphicsPipeline);
+		m_VkCommandBuffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
+		m_VkCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, m_VkGraphicsPipeline);
 
-		commandBuffer.draw(3, 1, 0, 0);
+		m_VkCommandBuffer.draw(3, 1, 0, 0);
 
-		commandBuffer.endRenderPass();
-		commandBuffer.end();
+		m_VkCommandBuffer.endRenderPass();
+		m_VkCommandBuffer.end();
 	}
 }
