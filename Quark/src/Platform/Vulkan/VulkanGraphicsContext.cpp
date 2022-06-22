@@ -174,4 +174,16 @@ namespace Quark {
 	{
 		m_SwapChain->Present();
 	}
+
+	VulkanGraphicsContext& VulkanGraphicsContext::Get()
+	{
+		QK_CORE_ASSERT(s_Instance, "Vulkan context is not initialized");
+		return *s_Instance;
+	}
+
+	VulkanDevice& VulkanGraphicsContext::GetCurrentDevice()
+	{
+		QK_CORE_ASSERT(s_Instance, "Vulkan context is not initialized");
+		return *s_Instance->m_Device;
+	}
 }

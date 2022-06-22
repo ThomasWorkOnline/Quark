@@ -8,7 +8,7 @@ namespace Quark {
 	class VulkanShader
 	{
 	public:
-		VulkanShader(vk::Device device, vk::ShaderStageFlagBits stage, std::string_view filepath);
+		VulkanShader(vk::ShaderStageFlagBits stage, std::string_view filepath);
 		~VulkanShader();
 
 		vk::PipelineShaderStageCreateInfo GetStageInfo() const { return m_VkStageInfo; }

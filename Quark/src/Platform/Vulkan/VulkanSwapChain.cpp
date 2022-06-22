@@ -63,19 +63,15 @@ namespace Quark {
 		vk::SemaphoreCreateInfo semaphoreInfo;
 		m_VkRenderFinishedSemaphore = m_VkDevice.createSemaphore(semaphoreInfo, nullptr);
 		m_VkImageAvailableSemaphore = m_VkDevice.createSemaphore(semaphoreInfo, nullptr);
-
-		vk::FenceCreateInfo fenceInfo;
-		fenceInfo.setFlags(vk::FenceCreateFlagBits::eSignaled);
-		m_VkInFlightFence = m_VkDevice.createFence(fenceInfo, nullptr);
 	}
 
 	VulkanSwapChain::~VulkanSwapChain()
 	{
 		QK_PROFILE_FUNCTION();
 
+		m_VkPresentQueue.waitIdle();
 		vkDestroySemaphore(m_VkDevice, m_VkRenderFinishedSemaphore, nullptr);
 		vkDestroySemaphore(m_VkDevice, m_VkImageAvailableSemaphore, nullptr);
-		vkDestroyFence(m_VkDevice, m_VkInFlightFence, nullptr);
 
 		for (auto& imageView : m_VkSwapChainImageViews)
 			vkDestroyImageView(m_VkDevice, imageView, nullptr);

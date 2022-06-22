@@ -16,15 +16,8 @@ VulkanApp::VulkanApp()
 
 	// Create graphics pipeline
 	{
-		QK_PROFILE_SCOPE(Pipeline);
-
-		VulkanShader vertShader = { device.GetVkHandle(), vk::ShaderStageFlagBits::eVertex, "../Quark/assets/shaders/version/4.50/bin/vert.spv"};
-		VulkanShader fragShader = { device.GetVkHandle(), vk::ShaderStageFlagBits::eFragment, "../Quark/assets/shaders/version/4.50/bin/frag.spv" };
-
-		vk::PipelineShaderStageCreateInfo shaderStages[] = {
-			vertShader.GetStageInfo(),
-			fragShader.GetStageInfo()
-		};
+		VulkanShader vertShader = { vk::ShaderStageFlagBits::eVertex, "../Quark/assets/shaders/version/4.50/bin/vert.spv"};
+		VulkanShader fragShader = { vk::ShaderStageFlagBits::eFragment, "../Quark/assets/shaders/version/4.50/bin/frag.spv" };
 
 		vk::PipelineVertexInputStateCreateInfo vertexInputInfo;
 		vertexInputInfo.setVertexBindingDescriptionCount(0);
@@ -66,19 +59,19 @@ VulkanApp::VulkanApp()
 		vk::PipelineMultisampleStateCreateInfo multisampling;
 		multisampling.setSampleShadingEnable(VK_FALSE);
 		multisampling.setRasterizationSamples(vk::SampleCountFlagBits::e1);
-		multisampling.setMinSampleShading(1.0f);
+		/*multisampling.setMinSampleShading(1.0f);
 		multisampling.setAlphaToCoverageEnable(VK_FALSE);
-		multisampling.setAlphaToOneEnable(VK_FALSE);
+		multisampling.setAlphaToOneEnable(VK_FALSE);*/
 
 		vk::PipelineColorBlendAttachmentState colorBlendAttachment;
 		colorBlendAttachment.setColorWriteMask(vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA);
-		colorBlendAttachment.setBlendEnable(VK_TRUE);
-		colorBlendAttachment.setSrcColorBlendFactor(vk::BlendFactor::eSrcAlpha);
+		colorBlendAttachment.setBlendEnable(VK_FALSE);
+		/*colorBlendAttachment.setSrcColorBlendFactor(vk::BlendFactor::eSrcAlpha);
 		colorBlendAttachment.setDstColorBlendFactor(vk::BlendFactor::eOneMinusSrcAlpha);
 		colorBlendAttachment.setColorBlendOp(vk::BlendOp::eAdd);
 		colorBlendAttachment.setSrcAlphaBlendFactor(vk::BlendFactor::eOne);
 		colorBlendAttachment.setDstAlphaBlendFactor(vk::BlendFactor::eZero);
-		colorBlendAttachment.setAlphaBlendOp(vk::BlendOp::eAdd);
+		colorBlendAttachment.setAlphaBlendOp(vk::BlendOp::eAdd);*/
 
 		vk::PipelineColorBlendStateCreateInfo colorBlending;
 		colorBlending.setLogicOpEnable(VK_FALSE);
@@ -86,22 +79,25 @@ VulkanApp::VulkanApp()
 		colorBlending.setAttachmentCount(1);
 		colorBlending.setPAttachments(&colorBlendAttachment);
 
-		vk::DynamicState dynamicStates[] = {
+		/*vk::DynamicState dynamicStates[] = {
 			vk::DynamicState::eViewport,
 			vk::DynamicState::eLineWidth
 		};
 
 		vk::PipelineDynamicStateCreateInfo dynamicState;
 		dynamicState.setDynamicStateCount(static_cast<uint32_t>(sizeof(dynamicStates)));
-		dynamicState.setPDynamicStates(dynamicStates);
+		dynamicState.setPDynamicStates(dynamicStates);*/
 
 		vk::PipelineLayoutCreateInfo pipelineLayoutInfo;
 		pipelineLayoutInfo.setSetLayoutCount(0);
-		pipelineLayoutInfo.setPSetLayouts(nullptr);
 		pipelineLayoutInfo.setPushConstantRangeCount(0);
-		pipelineLayoutInfo.setPPushConstantRanges(nullptr);
 
 		m_VkPipelineLayout = device.GetVkHandle().createPipelineLayout(pipelineLayoutInfo, nullptr);
+
+		vk::PipelineShaderStageCreateInfo shaderStages[] = {
+			vertShader.GetStageInfo(),
+			fragShader.GetStageInfo()
+		};
 
 		vk::GraphicsPipelineCreateInfo pipelineInfo;
 		pipelineInfo.setStageCount(2);
@@ -112,9 +108,7 @@ VulkanApp::VulkanApp()
 		pipelineInfo.setPViewportState(&viewportState);
 		pipelineInfo.setPRasterizationState(&rasterizer);
 		pipelineInfo.setPMultisampleState(&multisampling);
-		pipelineInfo.setPDepthStencilState(nullptr);
 		pipelineInfo.setPColorBlendState(&colorBlending);
-		pipelineInfo.setPDynamicState(nullptr);
 
 		pipelineInfo.setLayout(m_VkPipelineLayout);
 
@@ -128,8 +122,6 @@ VulkanApp::VulkanApp()
 
 	// Framebuffer
 	{
-		QK_PROFILE_SCOPE(Framebuffer);
-
 		uint32_t imageCount = swapChain.GetSpecification().ImageCount;
 		vk::Extent2D extent = swapChain.GetSpecification().Extent;
 
@@ -151,6 +143,10 @@ VulkanApp::VulkanApp()
 			m_VkSwapChainFramebuffers[i] = device.GetVkHandle().createFramebuffer(framebufferInfo, nullptr);
 		}
 	}
+
+	vk::FenceCreateInfo fenceInfo;
+	fenceInfo.setFlags(vk::FenceCreateFlagBits::eSignaled);
+	m_VkInFlightFence = device.GetVkHandle().createFence(fenceInfo, nullptr);
 }
 
 VulkanApp::~VulkanApp()
@@ -161,6 +157,7 @@ VulkanApp::~VulkanApp()
 
 	// Wait until all operations on the swap chain are completed
 	device.GetVkHandle().waitIdle();
+	vkDestroyFence(device.GetVkHandle(), m_VkInFlightFence, nullptr);
 
 	for (auto& framebuffer : m_VkSwapChainFramebuffers)
 		vkDestroyFramebuffer(device.GetVkHandle(), framebuffer, nullptr);
@@ -175,9 +172,9 @@ void VulkanApp::OnRender()
 	auto& device = VulkanGraphicsContext::GetCurrentDevice();
 	auto& swapChain = VulkanGraphicsContext::Get().GetSwapChain();
 
-	vk::Result vkRes = device.GetVkHandle().waitForFences(swapChain.GetInFlightFence(), VK_TRUE, UINT64_MAX);
+	vk::Result vkRes = device.GetVkHandle().waitForFences(m_VkInFlightFence, VK_TRUE, UINT64_MAX);
 	QK_CORE_ASSERT(vkRes == vk::Result::eSuccess, "Could not wait for fences");
-	device.GetVkHandle().resetFences(swapChain.GetInFlightFence());
+	device.GetVkHandle().resetFences(m_VkInFlightFence);
 
 	uint32_t nextImageIndex = swapChain.AcquireNextImageIndex();
 
@@ -197,7 +194,7 @@ void VulkanApp::OnRender()
 	submitInfo.setSignalSemaphoreCount(1);
 	submitInfo.setPSignalSemaphores(&swapChain.GetRenderFinishedSemaphore());
 
-	swapChain.GetPresentQueue().submit(submitInfo, swapChain.GetInFlightFence());
+	swapChain.GetPresentQueue().submit(submitInfo, m_VkInFlightFence);
 }
 
 void VulkanApp::RecordCommandBuffer(uint32_t imageIndex)
@@ -219,7 +216,7 @@ void VulkanApp::RecordCommandBuffer(uint32_t imageIndex)
 
 	vk::ClearValue clearColor;
 	vk::ClearColorValue colorValue;
-	colorValue.setFloat32({ 0.0f, 0.0f, 0.0f, 1.0f });
+	colorValue.setFloat32({ 1.0f, 0.0f, 0.0f, 1.0f });
 	clearColor.setColor(colorValue);
 
 	renderPassInfo.setClearValueCount(1);

@@ -23,6 +23,7 @@ private:
 
 	vk::PipelineLayout m_VkPipelineLayout;
 	vk::Pipeline m_VkGraphicsPipeline;
+	vk::Fence m_VkInFlightFence;
 
 	std::vector<vk::Framebuffer> m_VkSwapChainFramebuffers;
 };

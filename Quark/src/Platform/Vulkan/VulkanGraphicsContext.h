@@ -21,8 +21,8 @@ namespace Quark {
 
 		VulkanSwapChain& GetSwapChain() { return *m_SwapChain; }
 		
-		static VulkanGraphicsContext& Get() { return *s_Instance; }
-		static VulkanDevice& GetCurrentDevice() { return *s_Instance->m_Device; }
+		static VulkanGraphicsContext& Get();
+		static VulkanDevice& GetCurrentDevice();
 
 	private:
 		GLFWwindow* m_WindowHandle;

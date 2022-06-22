@@ -2,7 +2,7 @@
 
 #include "Quark/Core/Core.h"
 
-#ifdef QK_DEBUG
+#if defined(QK_DEBUG) || defined (QK_RELEASE)
 #	define QK_ENABLE_VULKAN_VALIDATION_LAYERS
 #endif
 

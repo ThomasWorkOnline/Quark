@@ -28,7 +28,6 @@ namespace Quark {
 
 		vk::Semaphore GetRenderFinishedSemaphore() const { return m_VkRenderFinishedSemaphore; }
 		vk::Semaphore GetImageAvailableSemaphore() const { return m_VkImageAvailableSemaphore; }
-		vk::Fence GetInFlightFence() const { return m_VkInFlightFence; }
 
 		const VulkanSwapChainSpecification& GetSpecification() const { return m_Spec; }
 
@@ -40,7 +39,6 @@ namespace Quark {
 
 		vk::Semaphore m_VkRenderFinishedSemaphore;
 		vk::Semaphore m_VkImageAvailableSemaphore;
-		vk::Fence m_VkInFlightFence;
 
 		std::vector<vk::Image> m_VkSwapChainImages;
 		std::vector<vk::ImageView> m_VkSwapChainImageViews;

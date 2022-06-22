@@ -1,5 +1,6 @@
 #include "qkpch.h"
 #include "VulkanShader.h"
+#include "VulkanGraphicsContext.h"
 
 namespace Quark {
 
@@ -21,8 +22,8 @@ namespace Quark {
 		}
 	}
 
-	VulkanShader::VulkanShader(vk::Device device, vk::ShaderStageFlagBits stage, std::string_view filepath)
-		: m_VkDevice(device)
+	VulkanShader::VulkanShader(vk::ShaderStageFlagBits stage, std::string_view filepath)
+		: m_VkDevice(VulkanGraphicsContext::GetCurrentDevice().GetVkHandle())
 	{
 		auto byteCode = Utils::ReadByteCode(filepath);
 
