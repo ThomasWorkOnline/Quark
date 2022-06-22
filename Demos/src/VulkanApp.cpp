@@ -182,17 +182,20 @@ void VulkanApp::OnRender()
 	RecordCommandBuffer(nextImageIndex);
 
 	vk::PipelineStageFlags waitStages[] = { vk::PipelineStageFlagBits::eColorAttachmentOutput };
+	vk::Semaphore waitSemaphores[] = { swapChain.GetImageAvailableSemaphore() };
 
 	vk::SubmitInfo submitInfo;
 	submitInfo.setWaitSemaphoreCount(1);
-	submitInfo.setPWaitSemaphores(&swapChain.GetImageAvailableSemaphore());
+	submitInfo.setPWaitSemaphores(waitSemaphores);
 	submitInfo.setPWaitDstStageMask(waitStages);
 
+	vk::CommandBuffer commandBuffers[] = { device.GetCommandBuffer() };
 	submitInfo.setCommandBufferCount(1);
-	submitInfo.setPCommandBuffers(&device.GetCommandBuffer());
+	submitInfo.setPCommandBuffers(commandBuffers);
 
+	vk::Semaphore signalSemaphores[] = {swapChain.GetRenderFinishedSemaphore()};
 	submitInfo.setSignalSemaphoreCount(1);
-	submitInfo.setPSignalSemaphores(&swapChain.GetRenderFinishedSemaphore());
+	submitInfo.setPSignalSemaphores(signalSemaphores);
 
 	swapChain.GetPresentQueue().submit(submitInfo, m_VkInFlightFence);
 }

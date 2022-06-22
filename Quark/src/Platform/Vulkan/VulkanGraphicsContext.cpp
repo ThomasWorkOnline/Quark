@@ -149,8 +149,6 @@ namespace Quark {
 
 		// Swap chain creation
 		{
-			QK_PROFILE_SCOPE(VulkanGraphicsContext::SwapChain);
-
 			Utils::SwapChainSupportDetails swapChainSupport = Utils::QuerySwapChainSupport(m_Device->GetPhysicalDevice(), m_VkSurface);
 
 			uint32_t imageCount = swapChainSupport.Capabilities.minImageCount + 1;
