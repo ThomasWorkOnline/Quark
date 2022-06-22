@@ -10,17 +10,20 @@ namespace Quark {
 	VulkanGraphicsContext* VulkanGraphicsContext::s_Instance = nullptr;
 
 	static VKAPI_ATTR VkBool32 VKAPI_CALL VkDebugCallback(
-		VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-		VkDebugUtilsMessageTypeFlagsEXT messageType,
-		const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+		vk::DebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+		vk::DebugUtilsMessageTypeFlagsEXT messageType,
+		const vk::DebugUtilsMessengerCallbackDataEXT* pCallbackData,
 		void* pUserData)
 	{
+		if (messageType == vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral)
+			return VK_FALSE;
+
 		switch (messageSeverity)
 		{
-			case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT: QK_CORE_TRACE(pCallbackData->pMessage); return VK_FALSE;
-			case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:	  QK_CORE_INFO(pCallbackData->pMessage);  return VK_FALSE;
-			case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT: QK_CORE_WARN(pCallbackData->pMessage);  return VK_FALSE;
-			case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:	  QK_CORE_ERROR(pCallbackData->pMessage); return VK_FALSE;
+			case vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose: QK_CORE_TRACE(pCallbackData->pMessage); return VK_FALSE;
+			case vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo:    QK_CORE_INFO(pCallbackData->pMessage);  return VK_FALSE;
+			case vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning: QK_CORE_WARN(pCallbackData->pMessage);  return VK_FALSE;
+			case vk::DebugUtilsMessageSeverityFlagBitsEXT::eError:   QK_CORE_FATAL(pCallbackData->pMessage); return VK_FALSE;
 		}
 
 		QK_CORE_FATAL("Unknown severity level in Vulkan message callback");
@@ -71,7 +74,7 @@ namespace Quark {
 				vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance
 			);
 
-			vkMessengerCreateInfo.setPfnUserCallback(VkDebugCallback);
+			vkMessengerCreateInfo.setPfnUserCallback((PFN_vkDebugUtilsMessengerCallbackEXT)VkDebugCallback);
 			return vkMessengerCreateInfo;
 		}
 	}
