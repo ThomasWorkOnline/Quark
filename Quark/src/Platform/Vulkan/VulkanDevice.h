@@ -11,7 +11,6 @@ namespace Quark {
 		~VulkanDevice();
 
 		vk::Device GetVkHandle() const { return m_VkDevice; }
-		vk::CommandBuffer GetCommandBuffer() const { return m_VkCommandBuffer; }
 		vk::PhysicalDevice GetPhysicalDevice() const { return m_VkPhysicalDevice; }
 
 		const Utils::QueueFamilyIndices& GetQueueFamilyIndices() const { return m_QueueFamilyIndices; }
@@ -21,9 +20,6 @@ namespace Quark {
 	private:
 		vk::Device m_VkDevice;
 		vk::PhysicalDevice m_VkPhysicalDevice;
-
-		vk::CommandPool m_VkCommandPool;
-		vk::CommandBuffer m_VkCommandBuffer;
 
 		Utils::QueueFamilyIndices m_QueueFamilyIndices;
 	};

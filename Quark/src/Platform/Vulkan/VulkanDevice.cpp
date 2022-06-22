@@ -10,28 +10,10 @@ namespace Quark {
 		m_VkPhysicalDevice(vkPhysicalDevice),
 		m_QueueFamilyIndices(queueFamilyIndices)
 	{
-		QK_PROFILE_FUNCTION();
-
-		// Command pool and buffers
-		{
-			vk::CommandPoolCreateInfo poolInfo;
-			poolInfo.setFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer);
-			poolInfo.setQueueFamilyIndex(*m_QueueFamilyIndices.GraphicsFamily);
-
-			m_VkCommandPool = m_VkDevice.createCommandPool(poolInfo, nullptr);
-
-			vk::CommandBufferAllocateInfo allocInfo;
-			allocInfo.setCommandPool(m_VkCommandPool);
-			allocInfo.setLevel(vk::CommandBufferLevel::ePrimary);
-			allocInfo.setCommandBufferCount(1);
-
-			m_VkCommandBuffer = m_VkDevice.allocateCommandBuffers(allocInfo)[0];
-		}
 	}
 
 	VulkanDevice::~VulkanDevice()
 	{
-		vkDestroyCommandPool(m_VkDevice, m_VkCommandPool, nullptr);
 		m_VkDevice.destroy();
 	}
 

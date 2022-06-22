@@ -16,14 +16,17 @@ public:
 	virtual void OnRender() override;
 
 private:
-	void RecordCommandBuffer(uint32_t imageIndex);
+	void RecordCommandBuffer(vk::CommandBuffer commandBuffer, uint32_t imageIndex);
 
 private:
 	Scope<VulkanRenderPass> m_RenderPass;
 
 	vk::PipelineLayout m_VkPipelineLayout;
 	vk::Pipeline m_VkGraphicsPipeline;
-	vk::Fence m_VkInFlightFence;
+	vk::CommandPool m_VkCommandPool;
 
+	std::vector<vk::CommandBuffer> m_VkCommandBuffers;
 	std::vector<vk::Framebuffer> m_VkSwapChainFramebuffers;
+	std::vector<vk::Fence> m_VkInFlightFences;
+	uint32_t m_CurrentFrameIndex = 0;
 };

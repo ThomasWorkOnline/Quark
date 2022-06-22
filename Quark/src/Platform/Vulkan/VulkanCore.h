@@ -14,6 +14,8 @@
 
 namespace Quark {
 
+	static constexpr uint32_t g_FramesInFlight = 2;
+
 	static inline const std::vector<const char*> g_ValidationLayers = {
 		"VK_LAYER_KHRONOS_validation"
 	};

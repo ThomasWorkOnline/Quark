@@ -144,9 +144,29 @@ VulkanApp::VulkanApp()
 		}
 	}
 
+	// Command pool and buffers
+	{
+		vk::CommandPoolCreateInfo poolInfo;
+		poolInfo.setFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer);
+		poolInfo.setQueueFamilyIndex(*device.GetQueueFamilyIndices().GraphicsFamily);
+
+		m_VkCommandPool = device.GetVkHandle().createCommandPool(poolInfo, nullptr);
+
+		vk::CommandBufferAllocateInfo allocInfo;
+		allocInfo.setCommandPool(m_VkCommandPool);
+		allocInfo.setLevel(vk::CommandBufferLevel::ePrimary);
+		allocInfo.setCommandBufferCount(g_FramesInFlight);
+
+		m_VkCommandBuffers.resize(g_FramesInFlight);
+		m_VkCommandBuffers = device.GetVkHandle().allocateCommandBuffers(allocInfo);
+	}
+
 	vk::FenceCreateInfo fenceInfo;
 	fenceInfo.setFlags(vk::FenceCreateFlagBits::eSignaled);
-	m_VkInFlightFence = device.GetVkHandle().createFence(fenceInfo, nullptr);
+
+	m_VkInFlightFences.resize(g_FramesInFlight);
+	for (uint32_t i = 0; i < g_FramesInFlight; i++)
+		m_VkInFlightFences[i] = device.GetVkHandle().createFence(fenceInfo, nullptr);
 }
 
 VulkanApp::~VulkanApp()
@@ -157,7 +177,10 @@ VulkanApp::~VulkanApp()
 
 	// Wait until all operations on the swap chain are completed
 	device.GetVkHandle().waitIdle();
-	vkDestroyFence(device.GetVkHandle(), m_VkInFlightFence, nullptr);
+	vkDestroyCommandPool(device.GetVkHandle(), m_VkCommandPool, nullptr);
+
+	for (uint32_t i = 0; i < m_VkInFlightFences.size(); i++)
+		vkDestroyFence(device.GetVkHandle(), m_VkInFlightFences[i], nullptr);
 
 	for (auto& framebuffer : m_VkSwapChainFramebuffers)
 		vkDestroyFramebuffer(device.GetVkHandle(), framebuffer, nullptr);
@@ -172,40 +195,40 @@ void VulkanApp::OnRender()
 	auto& device = VulkanGraphicsContext::GetCurrentDevice();
 	auto& swapChain = VulkanGraphicsContext::Get().GetSwapChain();
 
-	vk::Result vkRes = device.GetVkHandle().waitForFences(m_VkInFlightFence, VK_TRUE, UINT64_MAX);
+	vk::Result vkRes = device.GetVkHandle().waitForFences(m_VkInFlightFences[m_CurrentFrameIndex], VK_TRUE, UINT64_MAX);
 	QK_CORE_ASSERT(vkRes == vk::Result::eSuccess, "Could not wait for fences");
-	device.GetVkHandle().resetFences(m_VkInFlightFence);
+	device.GetVkHandle().resetFences(m_VkInFlightFences[m_CurrentFrameIndex]);
 
-	uint32_t nextImageIndex = swapChain.AcquireNextImageIndex();
+	uint32_t imageIndex = swapChain.AcquireNextImageIndex(m_CurrentFrameIndex);
 
-	device.GetCommandBuffer().reset();
-	RecordCommandBuffer(nextImageIndex);
+	m_VkCommandBuffers[m_CurrentFrameIndex].reset();
+	RecordCommandBuffer(m_VkCommandBuffers[m_CurrentFrameIndex], imageIndex);
 
 	vk::PipelineStageFlags waitStages[] = { vk::PipelineStageFlagBits::eColorAttachmentOutput };
-	vk::Semaphore waitSemaphores[] = { swapChain.GetImageAvailableSemaphore() };
+	vk::Semaphore waitSemaphores[] = { swapChain.GetImageAvailableSemaphore(m_CurrentFrameIndex) };
 
 	vk::SubmitInfo submitInfo;
 	submitInfo.setWaitSemaphoreCount(1);
 	submitInfo.setPWaitSemaphores(waitSemaphores);
 	submitInfo.setPWaitDstStageMask(waitStages);
 
-	vk::CommandBuffer commandBuffers[] = { device.GetCommandBuffer() };
+	vk::CommandBuffer commandBuffers[] = { m_VkCommandBuffers[m_CurrentFrameIndex] };
 	submitInfo.setCommandBufferCount(1);
 	submitInfo.setPCommandBuffers(commandBuffers);
 
-	vk::Semaphore signalSemaphores[] = {swapChain.GetRenderFinishedSemaphore()};
+	vk::Semaphore signalSemaphores[] = { swapChain.GetRenderFinishedSemaphore(m_CurrentFrameIndex) };
 	submitInfo.setSignalSemaphoreCount(1);
 	submitInfo.setPSignalSemaphores(signalSemaphores);
 
-	swapChain.GetPresentQueue().submit(submitInfo, m_VkInFlightFence);
+	swapChain.GetPresentQueue().submit(submitInfo, m_VkInFlightFences[m_CurrentFrameIndex]);
+
+	m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % g_FramesInFlight;
 }
 
-void VulkanApp::RecordCommandBuffer(uint32_t imageIndex)
+void VulkanApp::RecordCommandBuffer(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
 {
 	auto& device = VulkanGraphicsContext::GetCurrentDevice();
 	auto& swapChain = VulkanGraphicsContext::Get().GetSwapChain();
-	
-	auto commandBuffer = device.GetCommandBuffer();
 
 	vk::CommandBufferBeginInfo beginInfo;
 	commandBuffer.begin(beginInfo);

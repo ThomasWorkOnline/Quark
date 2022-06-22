@@ -60,9 +60,15 @@ namespace Quark {
 			m_VkSwapChainImageViews[i] = m_VkDevice.createImageView(createInfo, nullptr);
 		}
 
+		m_VkRenderFinishedSemaphores.resize(g_FramesInFlight);
+		m_VkImageAvailableSemaphores.resize(g_FramesInFlight);
+
 		vk::SemaphoreCreateInfo semaphoreInfo;
-		m_VkRenderFinishedSemaphore = m_VkDevice.createSemaphore(semaphoreInfo, nullptr);
-		m_VkImageAvailableSemaphore = m_VkDevice.createSemaphore(semaphoreInfo, nullptr);
+		for (uint32_t i = 0; i < g_FramesInFlight; i++)
+		{
+			m_VkRenderFinishedSemaphores[i] = m_VkDevice.createSemaphore(semaphoreInfo, nullptr);
+			m_VkImageAvailableSemaphores[i] = m_VkDevice.createSemaphore(semaphoreInfo, nullptr);
+		}
 	}
 
 	VulkanSwapChain::~VulkanSwapChain()
@@ -70,8 +76,12 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		m_VkPresentQueue.waitIdle();
-		vkDestroySemaphore(m_VkDevice, m_VkRenderFinishedSemaphore, nullptr);
-		vkDestroySemaphore(m_VkDevice, m_VkImageAvailableSemaphore, nullptr);
+
+		for (uint32_t i = 0; i < g_FramesInFlight; i++)
+		{
+			vkDestroySemaphore(m_VkDevice, m_VkRenderFinishedSemaphores[i], nullptr);
+			vkDestroySemaphore(m_VkDevice, m_VkImageAvailableSemaphores[i], nullptr);
+		}
 
 		for (auto& imageView : m_VkSwapChainImageViews)
 			vkDestroyImageView(m_VkDevice, imageView, nullptr);
@@ -83,20 +93,22 @@ namespace Quark {
 	{
 		vk::PresentInfoKHR presentInfo;
 		presentInfo.setWaitSemaphoreCount(1);
-		presentInfo.setPWaitSemaphores(&m_VkRenderFinishedSemaphore);
+		presentInfo.setPWaitSemaphores(&m_VkRenderFinishedSemaphores[m_CurrentFrameIndex]);
 
 		presentInfo.setSwapchainCount(1);
 		presentInfo.setPSwapchains(&m_VkSwapChain);
-		presentInfo.setPImageIndices(&m_NextFrameIndex);
+		presentInfo.setPImageIndices(&m_ImageIndex);
 
 		vk::Result vkRes = m_VkPresentQueue.presentKHR(presentInfo);
 		QK_CORE_ASSERT(vkRes == vk::Result::eSuccess, "Could not present");
 	}
 
-	uint32_t VulkanSwapChain::AcquireNextImageIndex()
+	uint32_t VulkanSwapChain::AcquireNextImageIndex(uint32_t frameIndex)
 	{
-		vk::Result vkRes = m_VkDevice.acquireNextImageKHR(m_VkSwapChain, UINT64_MAX, m_VkImageAvailableSemaphore, VK_NULL_HANDLE, &m_NextFrameIndex);
+		m_CurrentFrameIndex = frameIndex;
+		vk::Result vkRes = m_VkDevice.acquireNextImageKHR(m_VkSwapChain, UINT64_MAX, m_VkImageAvailableSemaphores[frameIndex], VK_NULL_HANDLE, &m_ImageIndex);
 		QK_CORE_ASSERT(vkRes == vk::Result::eSuccess, "Could not acquire next image in swap chain");
-		return m_NextFrameIndex;
+
+		return m_ImageIndex;
 	}
 }
