@@ -188,7 +188,7 @@ namespace Quark {
 			return details;
 		}
 
-		static bool IsVkSwapChainSuitable(vk::PhysicalDevice device, vk::SurfaceKHR surface, const QueueFamilyIndices& indices)
+		static bool IsVkDeviceSuitable(vk::PhysicalDevice device, vk::SurfaceKHR surface, const QueueFamilyIndices& indices)
 		{
 			bool extensionsSupported = CheckVkDeviceExtensionSupport(device);
 

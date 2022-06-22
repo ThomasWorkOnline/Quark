@@ -1,4 +1,4 @@
-#include "Demos/PBRRenderingDemo.h"
+#include "VulkanApp.h"
 
 #include <Quark/EntryPoint.h>
 
@@ -6,6 +6,6 @@ namespace Quark {
 
 	Application* CreateApplication()
 	{
-		return new Application();
+		return new VulkanApp();
 	}
 }

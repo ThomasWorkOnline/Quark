@@ -57,7 +57,7 @@ namespace Quark {
 				for (size_t i = 0; i < m_Layers.size(); i++)
 					m_Layers[i]->OnUpdate(elapsedTime);
 			}
-			
+
 			{
 				RenderCommand::Clear();
 				OnRender();
@@ -66,8 +66,9 @@ namespace Quark {
 					m_Layers[i]->OnRender();
 
 				SceneRenderer::OnRender();
-				m_Window->OnUpdate();
 			}
+
+			m_Window->OnUpdate();
 		}
 	}
 

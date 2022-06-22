@@ -20,14 +20,14 @@ namespace Quark {
 		VulkanSwapChain(vk::Device device, vk::SurfaceKHR surface, const VulkanSwapChainSpecification& spec);
 		~VulkanSwapChain();
 
-		void SwapBuffers();
-		void Present(vk::Queue queue);
+		void Present();
+		uint32_t AcquireNextImageIndex();
 
-		uint32_t GetNextImageIndex() const { return m_NextFrameIndex; }
 		vk::ImageView GetImageView(uint32_t i) const { return m_VkSwapChainImageViews[i]; }
+		vk::Queue GetPresentQueue() const { return m_VkPresentQueue; }
 
-		vk::Semaphore GetImageAvailableSemaphore() const { return m_VkImageAvailableSemaphore; }
 		vk::Semaphore GetRenderFinishedSemaphore() const { return m_VkRenderFinishedSemaphore; }
+		vk::Semaphore GetImageAvailableSemaphore() const { return m_VkImageAvailableSemaphore; }
 		vk::Fence GetInFlightFence() const { return m_VkInFlightFence; }
 
 		const VulkanSwapChainSpecification& GetSpecification() const { return m_Spec; }
@@ -35,15 +35,16 @@ namespace Quark {
 	private:
 		vk::Device m_VkDevice;
 		vk::SurfaceKHR m_VkSurface;
-
 		vk::SwapchainKHR m_VkSwapChain;
+		vk::Queue m_VkPresentQueue;
+
+		vk::Semaphore m_VkRenderFinishedSemaphore;
+		vk::Semaphore m_VkImageAvailableSemaphore;
+		vk::Fence m_VkInFlightFence;
+
 		std::vector<vk::Image> m_VkSwapChainImages;
 		std::vector<vk::ImageView> m_VkSwapChainImageViews;
 		uint32_t m_NextFrameIndex = 0;
-
-		vk::Semaphore m_VkImageAvailableSemaphore;
-		vk::Semaphore m_VkRenderFinishedSemaphore;
-		vk::Fence m_VkInFlightFence;
 
 		VulkanSwapChainSpecification m_Spec;
 	};

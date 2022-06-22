@@ -19,7 +19,10 @@ project "Demos"
 		"%{wks.location}/Quark/src",
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.glm}",
-		"%{IncludeDir.spdlog}"
+		"%{IncludeDir.spdlog}",
+
+		"%{IncludeDir.glfw}",
+		"%{IncludeDir.VulkanSDK}"
 	}
 
 	links
@@ -29,7 +32,9 @@ project "Demos"
 		"Glad",
 		"GLFW",
 		"lodepng",
-		"spdlog"
+		"spdlog",
+
+		"%{Library.Vulkan}"
 	}
 
 	filter { "configurations:Dist", "system:windows" }

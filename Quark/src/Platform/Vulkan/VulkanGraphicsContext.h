@@ -3,7 +3,7 @@
 #include "Quark/Renderer/GraphicsContext.h"
 
 #include "VulkanCore.h"
-#include "VulkanRenderPass.h"
+#include "VulkanDevice.h"
 #include "VulkanSwapChain.h"
 
 typedef struct GLFWwindow GLFWwindow;
@@ -19,30 +19,23 @@ namespace Quark {
 		virtual void Init() override;
 		virtual void SwapBuffers() override;
 
-	private:
-		void RecordCommandBuffer(uint32_t imageIndex);
+		VulkanSwapChain& GetSwapChain() { return *m_SwapChain; }
+		
+		static VulkanGraphicsContext& Get() { return *s_Instance; }
+		static VulkanDevice& GetCurrentDevice() { return *s_Instance->m_Device; }
 
 	private:
 		GLFWwindow* m_WindowHandle;
 
 		vk::Instance m_VkInstance;
+		vk::SurfaceKHR m_VkSurface;
 
 #ifdef QK_ENABLE_VULKAN_VALIDATION_LAYERS
 		vk::DebugUtilsMessengerEXT m_VkDebugMessenger;
 #endif
-		vk::SurfaceKHR m_VkSurface;
-		vk::PhysicalDevice m_VkPhysicalDevice;
-		vk::Device m_VkDevice;
-
-		vk::Queue m_VkPresentQueue;
+		Scope<VulkanDevice> m_Device;
 		Scope<VulkanSwapChain> m_SwapChain;
-		Scope<VulkanRenderPass> m_RenderPass; // TODO: not allocate them on the heap
 
-		vk::PipelineLayout m_VkPipelineLayout;
-		vk::Pipeline m_VkGraphicsPipeline;
-		std::vector<vk::Framebuffer> m_VkSwapChainFramebuffers;
-
-		vk::CommandPool m_VkCommandPool;
-		vk::CommandBuffer m_VkCommandBuffer;
+		static VulkanGraphicsContext* s_Instance;
 	};
 }

@@ -7,6 +7,7 @@ namespace Quark {
 	class VulkanRenderPass
 	{
 	public:
+		VulkanRenderPass() = default;
 		VulkanRenderPass(vk::Device device, vk::Format swapChainImageFormat);
 		~VulkanRenderPass();
 

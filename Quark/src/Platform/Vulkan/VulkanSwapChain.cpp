@@ -11,23 +11,23 @@ namespace Quark {
 		vk::SwapchainCreateInfoKHR createInfo;
 		createInfo.setClipped(VK_TRUE);
 		createInfo.setCompositeAlpha(vk::CompositeAlphaFlagBitsKHR::eOpaque);
-		createInfo.setImageExtent(spec.Extent);
-		createInfo.setImageFormat(spec.SurfaceFormat.format);
-		createInfo.setImageColorSpace(spec.SurfaceFormat.colorSpace);
+		createInfo.setImageExtent(m_Spec.Extent);
+		createInfo.setImageFormat(m_Spec.SurfaceFormat.format);
+		createInfo.setImageColorSpace(m_Spec.SurfaceFormat.colorSpace);
 		createInfo.setImageArrayLayers(1);
 		createInfo.setImageUsage(vk::ImageUsageFlagBits::eColorAttachment);
-		createInfo.setMinImageCount(spec.ImageCount);
+		createInfo.setMinImageCount(m_Spec.ImageCount);
 		createInfo.setOldSwapchain(VK_NULL_HANDLE);
-		createInfo.setPresentMode(spec.PresentMode);
+		createInfo.setPresentMode(m_Spec.PresentMode);
 		createInfo.setPreTransform(vk::SurfaceTransformFlagBitsKHR::eIdentity);
 		createInfo.setSurface(m_VkSurface);
 
 		uint32_t queueFamilyIndices[] = {
-			*spec.FamilyIndices.GraphicsFamily,
-			*spec.FamilyIndices.PresentFamily
+			*m_Spec.FamilyIndices.GraphicsFamily,
+			*m_Spec.FamilyIndices.PresentFamily
 		};
 
-		if (spec.FamilyIndices.GraphicsFamily != spec.FamilyIndices.PresentFamily)
+		if (m_Spec.FamilyIndices.GraphicsFamily != m_Spec.FamilyIndices.PresentFamily)
 		{
 			createInfo.setImageSharingMode(vk::SharingMode::eConcurrent);
 			createInfo.setQueueFamilyIndexCount(sizeof(queueFamilyIndices));
@@ -38,6 +38,8 @@ namespace Quark {
 			createInfo.setImageSharingMode(vk::SharingMode::eExclusive);
 			createInfo.setQueueFamilyIndexCount(0);
 		}
+
+		m_VkPresentQueue = m_VkDevice.getQueue(*m_Spec.FamilyIndices.PresentFamily, 0);
 
 		m_VkSwapChain = m_VkDevice.createSwapchainKHR(createInfo, nullptr);
 		m_VkSwapChainImages = m_VkDevice.getSwapchainImagesKHR(m_VkSwapChain);
@@ -59,8 +61,8 @@ namespace Quark {
 		}
 
 		vk::SemaphoreCreateInfo semaphoreInfo;
-		m_VkImageAvailableSemaphore = m_VkDevice.createSemaphore(semaphoreInfo, nullptr);
 		m_VkRenderFinishedSemaphore = m_VkDevice.createSemaphore(semaphoreInfo, nullptr);
+		m_VkImageAvailableSemaphore = m_VkDevice.createSemaphore(semaphoreInfo, nullptr);
 
 		vk::FenceCreateInfo fenceInfo;
 		fenceInfo.setFlags(vk::FenceCreateFlagBits::eSignaled);
@@ -71,10 +73,8 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		// Wait until all operations on the swap chain are completed
-		m_VkDevice.waitIdle();
-		vkDestroySemaphore(m_VkDevice, m_VkImageAvailableSemaphore, nullptr);
 		vkDestroySemaphore(m_VkDevice, m_VkRenderFinishedSemaphore, nullptr);
+		vkDestroySemaphore(m_VkDevice, m_VkImageAvailableSemaphore, nullptr);
 		vkDestroyFence(m_VkDevice, m_VkInFlightFence, nullptr);
 
 		for (auto& imageView : m_VkSwapChainImageViews)
@@ -83,17 +83,7 @@ namespace Quark {
 		vkDestroySwapchainKHR(m_VkDevice, m_VkSwapChain, nullptr);
 	}
 
-	void VulkanSwapChain::SwapBuffers()
-	{
-		vk::Result vkRes = m_VkDevice.waitForFences(m_VkInFlightFence, VK_TRUE, UINT64_MAX);
-		QK_CORE_ASSERT(vkRes == vk::Result::eSuccess, "Could not wait for fences");
-		m_VkDevice.resetFences(m_VkInFlightFence);
-
-		vkRes = m_VkDevice.acquireNextImageKHR(m_VkSwapChain, UINT64_MAX, m_VkImageAvailableSemaphore, VK_NULL_HANDLE, &m_NextFrameIndex);
-		QK_CORE_ASSERT(vkRes == vk::Result::eSuccess, "Could not acquire next image in swap chain");
-	}
-
-	void VulkanSwapChain::Present(vk::Queue queue)
+	void VulkanSwapChain::Present()
 	{
 		vk::PresentInfoKHR presentInfo;
 		presentInfo.setWaitSemaphoreCount(1);
@@ -103,7 +93,14 @@ namespace Quark {
 		presentInfo.setPSwapchains(&m_VkSwapChain);
 		presentInfo.setPImageIndices(&m_NextFrameIndex);
 
-		vk::Result vkRes = queue.presentKHR(presentInfo);
+		vk::Result vkRes = m_VkPresentQueue.presentKHR(presentInfo);
 		QK_CORE_ASSERT(vkRes == vk::Result::eSuccess, "Could not present");
+	}
+
+	uint32_t VulkanSwapChain::AcquireNextImageIndex()
+	{
+		vk::Result vkRes = m_VkDevice.acquireNextImageKHR(m_VkSwapChain, UINT64_MAX, m_VkImageAvailableSemaphore, VK_NULL_HANDLE, &m_NextFrameIndex);
+		QK_CORE_ASSERT(vkRes == vk::Result::eSuccess, "Could not acquire next image in swap chain");
+		return m_NextFrameIndex;
 	}
 }
