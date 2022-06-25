@@ -2,7 +2,7 @@
 
 #include "Quark/Core/Core.h"
 
-#if defined(QK_DEBUG) || defined (QK_RELEASE)
+#if defined(QK_DEBUG) || defined(QK_RELEASE)
 #	define QK_ENABLE_VULKAN_VALIDATION_LAYERS
 #endif
 
@@ -87,7 +87,7 @@ namespace Quark {
 				bool layerFound = false;
 				for (const auto& layerProperties : availableLayers)
 				{
-					if (strcmp(layerName, layerProperties.layerName) == 0)
+					if (std::strcmp(layerName, layerProperties.layerName) == 0)
 					{
 						layerFound = true;
 						break;
@@ -116,7 +116,7 @@ namespace Quark {
 				bool extensionFound = false;
 				for (const auto& extension : availableExtensions)
 				{
-					if (strcmp(extensionName, extension.extensionName) == 0)
+					if (std::strcmp(extensionName, extension.extensionName) == 0)
 					{
 						extensionFound = true;
 						break;

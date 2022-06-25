@@ -7,8 +7,7 @@ namespace Quark {
 	class VulkanRenderPass
 	{
 	public:
-		VulkanRenderPass() = default;
-		VulkanRenderPass(vk::Device device, vk::Format swapChainImageFormat);
+		VulkanRenderPass(vk::Format swapChainImageFormat);
 		~VulkanRenderPass();
 
 		vk::RenderPass GetNativeHandle() const { return m_VkRenderPass; }

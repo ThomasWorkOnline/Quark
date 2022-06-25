@@ -1,10 +1,11 @@
 #include "qkpch.h"
 #include "VulkanRenderPass.h"
+#include "VulkanGraphicsContext.h"
 
 namespace Quark {
 
-	VulkanRenderPass::VulkanRenderPass(vk::Device device, vk::Format swapChainImageFormat)
-		: m_VkDevice(device)
+	VulkanRenderPass::VulkanRenderPass(vk::Format swapChainImageFormat)
+		: m_VkDevice(VulkanGraphicsContext::GetCurrentDevice().GetVkHandle())
 	{
 		QK_PROFILE_FUNCTION();
 
@@ -42,11 +43,11 @@ namespace Quark {
 		renderPassInfo.setDependencyCount(1);
 		renderPassInfo.setPDependencies(&dependency);
 
-		m_VkRenderPass = m_VkDevice.createRenderPass(renderPassInfo, nullptr);
+		m_VkRenderPass = m_VkDevice.createRenderPass(renderPassInfo);
 	}
 
 	VulkanRenderPass::~VulkanRenderPass()
 	{
-		vkDestroyRenderPass(m_VkDevice, m_VkRenderPass, nullptr);
+		m_VkDevice.destroyRenderPass(m_VkRenderPass);
 	}
 }

@@ -17,10 +17,11 @@ namespace Quark {
 	class VulkanSwapChain
 	{
 	public:
-		VulkanSwapChain(vk::Device device, vk::SurfaceKHR surface, const VulkanSwapChainSpecification& spec);
+		VulkanSwapChain(vk::SurfaceKHR surface, const VulkanSwapChainSpecification& spec);
 		~VulkanSwapChain();
 
 		void Present();
+		void Resize(uint32_t viewportWidth, uint32_t viewportHeight);
 
 		uint32_t AcquireNextImageIndex(uint32_t frameIndex);
 
@@ -33,6 +34,9 @@ namespace Quark {
 		const VulkanSwapChainSpecification& GetSpecification() const { return m_Spec; }
 
 	private:
+		void Invalidate(uint32_t viewportWidth, uint32_t viewportHeight);
+
+	private:
 		vk::Device m_VkDevice;
 		vk::SurfaceKHR m_VkSurface;
 		vk::SwapchainKHR m_VkSwapChain;
@@ -40,6 +44,7 @@ namespace Quark {
 
 		std::vector<vk::Image> m_VkSwapChainImages;
 		std::vector<vk::ImageView> m_VkSwapChainImageViews;
+
 		std::vector<vk::Semaphore> m_VkRenderFinishedSemaphores;
 		std::vector<vk::Semaphore> m_VkImageAvailableSemaphores;
 

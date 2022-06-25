@@ -95,7 +95,7 @@ namespace Quark {
 #ifdef QK_ENABLE_VULKAN_VALIDATION_LAYERS
 		Utils::DestroyVkDebugUtilsMessengerEXT(m_VkInstance, m_VkDebugMessenger, nullptr);
 #endif
-		vkDestroySurfaceKHR(m_VkInstance, m_VkSurface, nullptr);
+		m_VkInstance.destroySurfaceKHR(m_VkSurface);
 		m_VkInstance.destroy();
 		s_Instance = nullptr;
 	}
@@ -142,7 +142,7 @@ namespace Quark {
 		}
 
 		// Window surface creation
-		glfwCreateWindowSurface(m_VkInstance, m_WindowHandle, nullptr, (vk::SurfaceKHR::CType*)&m_VkSurface);
+		glfwCreateWindowSurface(m_VkInstance, m_WindowHandle, nullptr, reinterpret_cast<vk::SurfaceKHR::CType*>(&m_VkSurface));
 
 		// Device creation
 		m_Device = VulkanDevice::CreateDefaultForSurface(m_VkInstance, m_VkSurface);
@@ -162,7 +162,7 @@ namespace Quark {
 			scSpec.FamilyIndices = m_Device->GetQueueFamilyIndices();
 			scSpec.ImageCount = imageCount;
 
-			m_SwapChain = CreateScope<VulkanSwapChain>(m_Device->GetVkHandle(), m_VkSurface, scSpec);
+			m_SwapChain = CreateScope<VulkanSwapChain>(m_VkSurface, scSpec);
 		}
 
 		QK_CORE_TRACE("Created Vulkan graphics context!");
