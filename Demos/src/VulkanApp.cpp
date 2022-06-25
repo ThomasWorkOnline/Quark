@@ -10,6 +10,10 @@ VulkanApp::VulkanApp()
 	auto& swapChain = VulkanGraphicsContext::Get().GetSwapChain();
 	auto& device = VulkanGraphicsContext::GetCurrentDevice();
 
+	// Render pass
+	vk::Format swapChainImageFormat = swapChain.GetSpecification().SurfaceFormat.format;
+	m_RenderPass = CreateScope<VulkanRenderPass>(swapChainImageFormat);
+
 	RecreateGraphicsPipeline();
 	RecreateFramebuffers();
 
@@ -166,10 +170,6 @@ void VulkanApp::RecreateGraphicsPipeline()
 {
 	auto& swapChain = VulkanGraphicsContext::Get().GetSwapChain();
 	auto vkDevice = VulkanGraphicsContext::GetCurrentDevice().GetVkHandle();
-
-	// Render pass
-	vk::Format swapChainImageFormat = swapChain.GetSpecification().SurfaceFormat.format;
-	m_RenderPass = CreateScope<VulkanRenderPass>(swapChainImageFormat);
 
 	vk::PipelineVertexInputStateCreateInfo vertexInputInfo;
 	vertexInputInfo.setVertexBindingDescriptionCount(0);
