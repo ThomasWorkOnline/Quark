@@ -91,6 +91,8 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
+		m_VkPresentQueue.waitIdle();
+
 		m_SwapChain.reset();
 		m_Device.reset();
 
