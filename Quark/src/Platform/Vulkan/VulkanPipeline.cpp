@@ -2,7 +2,48 @@
 #include "VulkanPipeline.h"
 #include "VulkanGraphicsContext.h"
 
+#include <array>
+
 namespace Quark {
+
+	struct Vertex
+	{
+		glm::vec2 Position;
+		glm::vec3 Color;
+
+		static vk::VertexInputBindingDescription GetBindingDescription()
+		{
+			vk::VertexInputBindingDescription bindingDescription;
+			bindingDescription.binding = 0;
+			bindingDescription.stride = sizeof(Vertex);
+			bindingDescription.inputRate = vk::VertexInputRate::eVertex;
+
+			return bindingDescription;
+		}
+
+		static std::array<vk::VertexInputAttributeDescription, 2> GetAttributeDescriptions()
+		{
+			std::array<vk::VertexInputAttributeDescription, 2> attributeDescriptions{};
+
+			attributeDescriptions[0].binding = 0;
+			attributeDescriptions[0].location = 0;
+			attributeDescriptions[0].format = vk::Format::eR32G32Sfloat;
+			attributeDescriptions[0].offset = offsetof(Vertex, Position);
+
+			attributeDescriptions[1].binding = 0;
+			attributeDescriptions[1].location = 1;
+			attributeDescriptions[1].format = vk::Format::eR32G32B32Sfloat;
+			attributeDescriptions[1].offset = offsetof(Vertex, Color);
+
+			return attributeDescriptions;
+		}
+	};
+
+	static constexpr Vertex s_Vertices[] = {
+		{ {  0.0f, -0.5f }, { 1.0f, 0.0f, 0.0f } },
+		{ {  0.5f,  0.5f }, { 0.0f, 1.0f, 0.0f } },
+		{ { -0.5f,  0.5f }, { 0.0f, 0.0f, 1.0f } }
+	};
 
 	VulkanPipeline::VulkanPipeline()
 		: m_VertShader(vk::ShaderStageFlagBits::eVertex, "../Quark/assets/shaders/version/4.50/bin/vert.spv"),
@@ -61,6 +102,17 @@ namespace Quark {
 
 		RecreateGraphicsPipeline();
 		RecreateFramebuffers();
+
+		// Vertex Buffer
+		{
+			BufferLayout layout = {
+				{ ShaderDataType::Float2, "a_Position" },
+				{ ShaderDataType::Float3, "a_Color"    }
+			};
+
+			m_VertexBuffer = VertexBuffer::Create(s_Vertices, sizeof(s_Vertices));
+			m_VertexBuffer->SetLayout(layout);
+		}
 
 		auto& device = VulkanContext::GetCurrentDevice();
 
@@ -190,6 +242,15 @@ namespace Quark {
 		renderPassInfo.setPClearValues(&clearColor);
 
 		m_ActiveCommandBuffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
+
+		// VERTEX BUFFERS --------------------------
+		vk::Buffer vertexBuffers[] = { ((VulkanVertexBuffer&)*m_VertexBuffer).GetVkHandle() };
+		vk::DeviceSize offsets[] = { 0 };
+
+		m_ActiveCommandBuffer.bindVertexBuffers(0, 1, vertexBuffers, offsets);
+		m_ActiveCommandBuffer.draw(sizeof(s_Vertices) / sizeof(Vertex), 1, 0, 0);
+
+		//m_ActiveCommandBuffer.draw(3, 1, 0, 0);
 	}
 
 	void VulkanPipeline::EndRenderPass()
@@ -260,16 +321,20 @@ namespace Quark {
 
 	void VulkanPipeline::RecreateGraphicsPipeline()
 	{
-		auto& swapChain = VulkanContext::GetSwapChain();
+		auto bindingDescription = Vertex::GetBindingDescription();
+		auto attributeDescriptions = Vertex::GetAttributeDescriptions();
 
 		vk::PipelineVertexInputStateCreateInfo vertexInputInfo;
-		vertexInputInfo.setVertexBindingDescriptionCount(0);
-		vertexInputInfo.setVertexAttributeDescriptionCount(0);
+		vertexInputInfo.setVertexBindingDescriptionCount(1);
+		vertexInputInfo.setVertexAttributeDescriptionCount(static_cast<uint32_t>(attributeDescriptions.size()));
+		vertexInputInfo.setPVertexBindingDescriptions(&bindingDescription);
+		vertexInputInfo.setPVertexAttributeDescriptions(attributeDescriptions.data());
 
 		vk::PipelineInputAssemblyStateCreateInfo inputAssembly;
 		inputAssembly.setTopology(vk::PrimitiveTopology::eTriangleList);
 		inputAssembly.setPrimitiveRestartEnable(VK_FALSE);
 
+		auto& swapChain = VulkanContext::GetSwapChain();
 		vk::Extent2D extent = swapChain.GetSpecification().Extent;
 
 		vk::Viewport viewport;

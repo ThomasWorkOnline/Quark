@@ -31,8 +31,8 @@ namespace Quark {
 
 		virtual Scope<GraphicsContext> CreateGraphicsContext(void* windowHandle) override;
 
-		virtual Ref<VertexBuffer>      CreateVertexBuffer(const void* vertices, size_t size) override { return nullptr; };
-		virtual Ref<VertexBuffer>      CreateVertexBuffer(size_t size) override { return nullptr; }
+		virtual Ref<VertexBuffer>      CreateVertexBuffer(const void* vertices, size_t size) override;
+		virtual Ref<VertexBuffer>      CreateVertexBuffer(size_t size) override;
 
 		virtual Ref<IndexBuffer>       CreateIndexBuffer(const uint32_t * indices, uint32_t count) override { return nullptr; }
 		virtual Ref<IndexBuffer>       CreateIndexBuffer(uint32_t count) override { return nullptr; }

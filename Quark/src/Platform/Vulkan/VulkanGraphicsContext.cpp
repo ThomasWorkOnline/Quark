@@ -167,9 +167,9 @@ namespace Quark {
 			scSpec.ImageCount = imageCount;
 
 			m_SwapChain = CreateScope<VulkanSwapChain>(m_VkSurface, scSpec);
+			m_VkPresentQueue = m_Device->GetVkHandle().getQueue(scSpec.FamilyIndices.PresentFamily.value(), 0);
 		}
 
-		m_VkPresentQueue = m_Device->GetVkHandle().getQueue(m_Device->GetQueueFamilyIndices().PresentFamily.value(), 0);
 
 		QK_CORE_TRACE("Created Vulkan graphics context!");
 	}

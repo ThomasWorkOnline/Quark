@@ -1,5 +1,6 @@
 #pragma once
 
+#include "VulkanBuffer.h"
 #include "VulkanFramebuffer.h"
 #include "VulkanShader.h"
 
@@ -29,6 +30,8 @@ namespace Quark {
 	private:
 		VulkanShader m_VertShader;
 		VulkanShader m_FragShader;
+
+		Ref<VertexBuffer> m_VertexBuffer;
 
 		vk::PipelineLayout m_VkPipelineLayout;
 		vk::Pipeline m_VkGraphicsPipeline;
