@@ -40,9 +40,15 @@ namespace Quark {
 	};
 
 	static constexpr Vertex s_Vertices[] = {
-		{ {  0.0f, -0.5f }, { 1.0f, 1.0f, 1.0f } },
-		{ {  0.5f,  0.5f }, { 0.0f, 1.0f, 0.0f } },
-		{ { -0.5f,  0.5f }, { 0.0f, 0.0f, 1.0f } }
+		{ { -0.5f, -0.5f}, { 1.0f,  0.0f,  0.0f } },
+		{ {  0.5f, -0.5f}, { 0.0f,  1.0f,  0.0f } },
+		{ {  0.5f,  0.5f}, { 0.0f,  0.0f,  1.0f } },
+		{ { -0.5f,  0.5f}, { 1.0f,  1.0f,  1.0f } }
+	};
+
+	static constexpr uint32_t s_Indices[] = {
+		0, 1, 2,
+		2, 3, 0
 	};
 
 	VulkanPipeline::VulkanPipeline()
@@ -112,6 +118,8 @@ namespace Quark {
 
 			m_VertexBuffer = VertexBuffer::Create(s_Vertices, sizeof(s_Vertices));
 			m_VertexBuffer->SetLayout(layout);
+
+			m_IndexBuffer = IndexBuffer::Create(s_Indices, sizeof(s_Indices) / sizeof(uint32_t));
 		}
 
 		auto& device = VulkanContext::GetCurrentDevice();
@@ -238,10 +246,13 @@ namespace Quark {
 
 		// VERTEX BUFFERS --------------------------
 		vk::Buffer vertexBuffers[] = { ((VulkanVertexBuffer&)*m_VertexBuffer).GetVkHandle() };
+		vk::Buffer indexBuffers    = ((VulkanIndexBuffer&)*m_IndexBuffer).GetVkHandle();
 		vk::DeviceSize offsets[] = { 0 };
 
 		m_ActiveCommandBuffer.bindVertexBuffers(0, 1, vertexBuffers, offsets);
-		m_ActiveCommandBuffer.draw(sizeof(s_Vertices) / sizeof(Vertex), 1, 0, 0);
+		m_ActiveCommandBuffer.bindIndexBuffer(indexBuffers, 0, vk::IndexType::eUint32);
+
+		m_ActiveCommandBuffer.drawIndexed(sizeof(s_Indices) / sizeof(uint32_t), 1, 0, 0, 0);
 	}
 
 	void VulkanPipeline::EndRenderPass()

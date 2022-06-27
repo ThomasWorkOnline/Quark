@@ -35,4 +35,31 @@ namespace Quark {
 
 		BufferLayout m_Layout;
 	};
+
+	class VulkanIndexBuffer final : public IndexBuffer
+	{
+	public:
+		VulkanIndexBuffer(const uint32_t* indices, uint32_t count);
+		VulkanIndexBuffer(uint32_t count);
+		virtual ~VulkanIndexBuffer() override;
+
+		virtual void Attach() const override {}
+		virtual void Detach() const override {}
+
+		virtual void SetData(const uint32_t* data, uint32_t count, size_t offset = 0) override;
+
+		virtual uint32_t GetCount() const override { return 0; }
+		virtual uint32_t GetRendererID() const override { return 0; }
+
+		vk::Buffer GetVkHandle() const { return m_VkBuffer; }
+
+		virtual bool operator==(const IndexBuffer& other) const override
+		{
+			return m_VkBuffer == ((VulkanIndexBuffer&)other).m_VkBuffer;
+		}
+
+	private:
+		vk::Buffer m_VkBuffer;
+		vk::DeviceMemory m_VkBufferMemory;
+	};
 }

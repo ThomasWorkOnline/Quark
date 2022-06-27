@@ -32,4 +32,14 @@ namespace Quark {
 	{
 		return CreateRef<VulkanVertexBuffer>(size);
 	}
+
+	Ref<IndexBuffer> VulkanGraphicsAPI::CreateIndexBuffer(const uint32_t* indices, uint32_t count)
+	{
+		return CreateRef<VulkanIndexBuffer>(indices, count);
+	}
+
+	Ref<IndexBuffer> VulkanGraphicsAPI::CreateIndexBuffer(uint32_t count)
+	{
+		return CreateRef<VulkanIndexBuffer>(count);
+	}
 }

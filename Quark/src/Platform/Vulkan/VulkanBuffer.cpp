@@ -131,7 +131,80 @@ namespace Quark {
 	void VulkanVertexBuffer::SetData(const void* data, size_t size, size_t offset)
 	{
 		QK_PROFILE_FUNCTION();
+		QK_CORE_ASSERT(offset == 0, "offsets are currently not supported");
 
+		vk::DeviceMemory stagingBufferMemory;
+		vk::Buffer stagingBuffer = Utils::AllocateBuffer(size,
+			vk::BufferUsageFlagBits::eTransferSrc,
+			vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+			stagingBufferMemory
+		);
+
+		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
+
+		void* mappedMemory = vkDevice.mapMemory(stagingBufferMemory, 0, size);
+		std::memcpy(mappedMemory, data, size);
+		vkDevice.unmapMemory(stagingBufferMemory);
+
+		Utils::CopyBuffer(m_VkBuffer, stagingBuffer, size);
+
+		vkDevice.destroyBuffer(stagingBuffer);
+		vkDevice.freeMemory(stagingBufferMemory);
+	}
+
+	VulkanIndexBuffer::VulkanIndexBuffer(const uint32_t* indices, uint32_t count)
+	{
+		QK_PROFILE_FUNCTION();
+
+		size_t size = count * sizeof(uint32_t);
+		vk::DeviceMemory stagingBufferMemory;
+		vk::Buffer stagingBuffer = Utils::AllocateBuffer(size,
+			vk::BufferUsageFlagBits::eTransferSrc,
+			vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+			stagingBufferMemory
+		);
+
+		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
+
+		void* mappedMemory = vkDevice.mapMemory(stagingBufferMemory, 0, size);
+		std::memcpy(mappedMemory, indices, size);
+		vkDevice.unmapMemory(stagingBufferMemory);
+
+		m_VkBuffer = Utils::AllocateBuffer(size,
+			vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer,
+			vk::MemoryPropertyFlagBits::eDeviceLocal, m_VkBufferMemory);
+
+		Utils::CopyBuffer(m_VkBuffer, stagingBuffer, size);
+
+		vkDevice.destroyBuffer(stagingBuffer);
+		vkDevice.freeMemory(stagingBufferMemory);
+	}
+
+	VulkanIndexBuffer::VulkanIndexBuffer(uint32_t count)
+	{
+		QK_PROFILE_FUNCTION();
+
+		size_t size = count * sizeof(uint32_t);
+		m_VkBuffer = Utils::AllocateBuffer(size,
+			vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer,
+			vk::MemoryPropertyFlagBits::eDeviceLocal, m_VkBufferMemory);
+	}
+
+	VulkanIndexBuffer::~VulkanIndexBuffer()
+	{
+		QK_PROFILE_FUNCTION();
+
+		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
+		vkDevice.destroyBuffer(m_VkBuffer);
+		vkDevice.freeMemory(m_VkBufferMemory);
+	}
+
+	void VulkanIndexBuffer::SetData(const uint32_t* data, uint32_t count, size_t offset)
+	{
+		QK_PROFILE_FUNCTION();
+		QK_CORE_ASSERT(offset == 0, "offsets are currently not supported");
+
+		size_t size = count * sizeof(uint32_t);
 		vk::DeviceMemory stagingBufferMemory;
 		vk::Buffer stagingBuffer = Utils::AllocateBuffer(size,
 			vk::BufferUsageFlagBits::eTransferSrc,

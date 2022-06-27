@@ -34,8 +34,8 @@ namespace Quark {
 		virtual Ref<VertexBuffer>      CreateVertexBuffer(const void* vertices, size_t size) override;
 		virtual Ref<VertexBuffer>      CreateVertexBuffer(size_t size) override;
 
-		virtual Ref<IndexBuffer>       CreateIndexBuffer(const uint32_t * indices, uint32_t count) override { return nullptr; }
-		virtual Ref<IndexBuffer>       CreateIndexBuffer(uint32_t count) override { return nullptr; }
+		virtual Ref<IndexBuffer>       CreateIndexBuffer(const uint32_t* indices, uint32_t count) override;
+		virtual Ref<IndexBuffer>       CreateIndexBuffer(uint32_t count) override;
 
 		virtual Ref<Cubemap>           CreateCubemap(const CubemapSpecification & spec) override { return nullptr; }
 

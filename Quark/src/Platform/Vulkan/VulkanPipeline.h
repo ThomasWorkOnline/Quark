@@ -32,6 +32,7 @@ namespace Quark {
 		VulkanShader m_FragShader;
 
 		Ref<VertexBuffer> m_VertexBuffer;
+		Ref<IndexBuffer> m_IndexBuffer;
 
 		vk::PipelineLayout m_VkPipelineLayout;
 		vk::Pipeline m_VkGraphicsPipeline;
