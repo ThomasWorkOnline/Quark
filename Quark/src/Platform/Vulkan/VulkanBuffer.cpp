@@ -79,7 +79,7 @@ namespace Quark {
 			graphicsQueue.submit(submitInfo);
 			graphicsQueue.waitIdle();
 
-			vkDevice.freeCommandBuffers(commandPool, commandBuffer);
+			vkDevice.freeCommandBuffers(commandPool, 1, &commandBuffer);
 		}
 	}
 
