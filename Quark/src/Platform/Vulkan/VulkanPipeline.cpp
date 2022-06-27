@@ -40,7 +40,7 @@ namespace Quark {
 	};
 
 	static constexpr Vertex s_Vertices[] = {
-		{ {  0.0f, -0.5f }, { 1.0f, 0.0f, 0.0f } },
+		{ {  0.0f, -0.5f }, { 1.0f, 1.0f, 1.0f } },
 		{ {  0.5f,  0.5f }, { 0.0f, 1.0f, 0.0f } },
 		{ { -0.5f,  0.5f }, { 0.0f, 0.0f, 1.0f } }
 	};
@@ -116,16 +116,10 @@ namespace Quark {
 
 		auto& device = VulkanContext::GetCurrentDevice();
 
-		// Command pool and buffers
+		// Command buffers
 		{
-			vk::CommandPoolCreateInfo poolInfo;
-			poolInfo.setFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer);
-			poolInfo.setQueueFamilyIndex(*device.GetQueueFamilyIndices().GraphicsFamily);
-
-			m_VkCommandPool = device.GetVkHandle().createCommandPool(poolInfo);
-
 			vk::CommandBufferAllocateInfo allocInfo;
-			allocInfo.setCommandPool(m_VkCommandPool);
+			allocInfo.setCommandPool(device.GetCommandPool());
 			allocInfo.setLevel(vk::CommandBufferLevel::ePrimary);
 			allocInfo.setCommandBufferCount(g_FramesInFlight);
 
@@ -170,7 +164,6 @@ namespace Quark {
 
 		vkDevice.destroyPipeline(m_VkGraphicsPipeline);
 		vkDevice.destroyPipelineLayout(m_VkPipelineLayout);
-		vkDevice.destroyCommandPool(m_VkCommandPool);
 		vkDevice.destroyRenderPass(m_VkRenderPass);
 	}
 
@@ -221,7 +214,7 @@ namespace Quark {
 		submitInfo.setSignalSemaphoreCount(1);
 		submitInfo.setPSignalSemaphores(signalSemaphores);
 
-		VulkanContext::GetPresentQueue().submit(submitInfo, m_VkInFlightFences[m_ActiveFrameIndex]);
+		VulkanContext::GetCurrentDevice().GetGraphicsQueue().submit(submitInfo, m_VkInFlightFences[m_ActiveFrameIndex]);
 	}
 
 	void VulkanPipeline::BeginRenderPass()
@@ -235,7 +228,7 @@ namespace Quark {
 
 		vk::ClearValue clearColor;
 		vk::ClearColorValue colorValue;
-		colorValue.setFloat32({ 1.0f, 0.0f, 0.0f, 1.0f });
+		colorValue.setFloat32({ 0.0f, 0.0f, 0.0f, 1.0f });
 		clearColor.setColor(colorValue);
 
 		renderPassInfo.setClearValueCount(1);
@@ -249,8 +242,6 @@ namespace Quark {
 
 		m_ActiveCommandBuffer.bindVertexBuffers(0, 1, vertexBuffers, offsets);
 		m_ActiveCommandBuffer.draw(sizeof(s_Vertices) / sizeof(Vertex), 1, 0, 0);
-
-		//m_ActiveCommandBuffer.draw(3, 1, 0, 0);
 	}
 
 	void VulkanPipeline::EndRenderPass()

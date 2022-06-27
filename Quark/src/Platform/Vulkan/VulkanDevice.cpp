@@ -10,10 +10,23 @@ namespace Quark {
 		m_VkPhysicalDevice(vkPhysicalDevice),
 		m_QueueFamilyIndices(queueFamilyIndices)
 	{
+		QK_PROFILE_FUNCTION();
+
+		vk::CommandPoolCreateInfo poolInfo;
+		poolInfo.setFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer);
+		poolInfo.setQueueFamilyIndex(*m_QueueFamilyIndices.GraphicsFamily);
+
+		m_VkCommandPool = m_VkDevice.createCommandPool(poolInfo);
+
+		m_VkGraphicsQueue = m_VkDevice.getQueue(m_QueueFamilyIndices.GraphicsFamily.value(), 0);
+		m_VkPresentQueue = m_VkDevice.getQueue(m_QueueFamilyIndices.PresentFamily.value(), 0);
 	}
 
 	VulkanDevice::~VulkanDevice()
 	{
+		QK_PROFILE_FUNCTION();
+
+		m_VkDevice.destroyCommandPool(m_VkCommandPool);
 		m_VkDevice.destroy();
 	}
 

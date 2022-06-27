@@ -19,7 +19,6 @@ namespace Quark {
 		virtual void Init() override;
 		virtual void SwapBuffers() override;
 
-		static vk::Queue GetPresentQueue();
 		static VulkanDevice& GetCurrentDevice();
 		static VulkanSwapChain& GetSwapChain();
 
@@ -28,7 +27,6 @@ namespace Quark {
 
 		vk::Instance m_VkInstance;
 		vk::SurfaceKHR m_VkSurface;
-		vk::Queue m_VkPresentQueue;
 
 #ifdef QK_ENABLE_VULKAN_VALIDATION_LAYERS
 		vk::DebugUtilsMessengerEXT m_VkDebugMessenger;

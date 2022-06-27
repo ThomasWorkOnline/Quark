@@ -6,7 +6,7 @@ namespace Quark {
 
 	namespace Utils {
 
-		uint32_t GetBufferMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties)
+		static uint32_t GetBufferMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties)
 		{
 			auto vkPhysicalDevice = VulkanContext::GetCurrentDevice().GetPhysicalDevice();
 			vk::PhysicalDeviceMemoryProperties memProperties = vkPhysicalDevice.getMemoryProperties();
@@ -19,56 +19,110 @@ namespace Quark {
 
 			QK_CORE_ASSERT(false, "Unable to find suitable memory type for buffer");
 		}
+
+		static vk::Buffer AllocateBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties, vk::DeviceMemory& bufferMemory)
+		{
+			QK_PROFILE_FUNCTION();
+
+			vk::BufferCreateInfo bufferInfo;
+			bufferInfo.setSize(size);
+			bufferInfo.setUsage(usage);
+			bufferInfo.setSharingMode(vk::SharingMode::eExclusive);
+
+			auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
+			vk::Buffer buffer = vkDevice.createBuffer(bufferInfo);
+
+			vk::MemoryRequirements memRequirements = vkDevice.getBufferMemoryRequirements(buffer);
+			uint32_t memoryTypeIndex = Utils::GetBufferMemoryType(memRequirements.memoryTypeBits, properties);
+
+			vk::MemoryAllocateInfo allocInfo;
+			allocInfo.setAllocationSize(memRequirements.size);
+			allocInfo.setMemoryTypeIndex(memoryTypeIndex);
+
+			bufferMemory = vkDevice.allocateMemory(allocInfo);
+			vkDevice.bindBufferMemory(buffer, bufferMemory, 0);
+
+			return buffer;
+		}
+
+		// TODO: copy allocator
+		static void CopyBuffer(vk::Buffer dstBuffer, vk::Buffer srcBuffer, size_t size)
+		{
+			QK_PROFILE_FUNCTION();
+
+			auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
+			auto commandPool = VulkanContext::GetCurrentDevice().GetCommandPool();
+
+			vk::CommandBufferAllocateInfo allocInfo;
+			allocInfo.setLevel(vk::CommandBufferLevel::ePrimary);
+			allocInfo.setCommandPool(commandPool);
+			allocInfo.setCommandBufferCount(1);
+
+			vk::CommandBuffer commandBuffer = vkDevice.allocateCommandBuffers(allocInfo)[0];
+
+			vk::CommandBufferBeginInfo beginInfo;
+			beginInfo.setFlags(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
+
+			vk::BufferCopy copyRegion;
+			copyRegion.setSize(size);
+
+			commandBuffer.begin(beginInfo);
+			commandBuffer.copyBuffer(srcBuffer, dstBuffer, copyRegion);
+			commandBuffer.end();
+
+			vk::SubmitInfo submitInfo;
+			submitInfo.setCommandBufferCount(1);
+			submitInfo.setPCommandBuffers(&commandBuffer);
+
+			auto graphicsQueue = VulkanContext::GetCurrentDevice().GetGraphicsQueue();
+
+			graphicsQueue.submit(submitInfo);
+			graphicsQueue.waitIdle();
+
+			vkDevice.freeCommandBuffers(commandPool, commandBuffer);
+		}
 	}
 
 	VulkanVertexBuffer::VulkanVertexBuffer(const void* vertices, size_t size)
 	{
-		vk::BufferCreateInfo bufferInfo;
-		bufferInfo.setSize(size);
-		bufferInfo.setUsage(vk::BufferUsageFlagBits::eVertexBuffer);
-		bufferInfo.setSharingMode(vk::SharingMode::eExclusive);
+		QK_PROFILE_FUNCTION();
+
+		vk::DeviceMemory stagingBufferMemory;
+		vk::Buffer stagingBuffer = Utils::AllocateBuffer(size,
+			vk::BufferUsageFlagBits::eTransferSrc,
+			vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+			stagingBufferMemory
+		);
 
 		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
-		m_VkBuffer = vkDevice.createBuffer(bufferInfo);
 
-		vk::MemoryRequirements memRequirements = vkDevice.getBufferMemoryRequirements(m_VkBuffer);
-		uint32_t memoryTypeIndex = Utils::GetBufferMemoryType(memRequirements.memoryTypeBits, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
-
-		vk::MemoryAllocateInfo allocInfo;
-		allocInfo.setAllocationSize(memRequirements.size);
-		allocInfo.setMemoryTypeIndex(memoryTypeIndex);
-
-		m_VkBufferMemory = vkDevice.allocateMemory(allocInfo);
-		vkDevice.bindBufferMemory(m_VkBuffer, m_VkBufferMemory, 0);
-
-		void* mappedMemory = vkDevice.mapMemory(m_VkBufferMemory, 0, size);
+		void* mappedMemory = vkDevice.mapMemory(stagingBufferMemory, 0, size);
 		std::memcpy(mappedMemory, vertices, size);
-		vkDevice.unmapMemory(m_VkBufferMemory);
+		vkDevice.unmapMemory(stagingBufferMemory);
+
+		m_VkBuffer = Utils::AllocateBuffer(size,
+			vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer,
+			vk::MemoryPropertyFlagBits::eDeviceLocal, m_VkBufferMemory);
+
+		Utils::CopyBuffer(m_VkBuffer, stagingBuffer, size);
+
+		vkDevice.destroyBuffer(stagingBuffer);
+		vkDevice.freeMemory(stagingBufferMemory);
 	}
 
 	VulkanVertexBuffer::VulkanVertexBuffer(size_t size)
 	{
-		vk::BufferCreateInfo bufferInfo;
-		bufferInfo.setSize(size);
-		bufferInfo.setUsage(vk::BufferUsageFlagBits::eVertexBuffer);
-		bufferInfo.setSharingMode(vk::SharingMode::eExclusive);
+		QK_PROFILE_FUNCTION();
 
-		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
-		m_VkBuffer = vkDevice.createBuffer(bufferInfo);
-
-		vk::MemoryRequirements memRequirements = vkDevice.getBufferMemoryRequirements(m_VkBuffer);
-		uint32_t memoryTypeIndex = Utils::GetBufferMemoryType(memRequirements.memoryTypeBits, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
-
-		vk::MemoryAllocateInfo allocInfo;
-		allocInfo.setAllocationSize(memRequirements.size);
-		allocInfo.setMemoryTypeIndex(memoryTypeIndex);
-
-		m_VkBufferMemory = vkDevice.allocateMemory(allocInfo);
-		vkDevice.bindBufferMemory(m_VkBuffer, m_VkBufferMemory, 0);
+		m_VkBuffer = Utils::AllocateBuffer(size,
+			vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer,
+			vk::MemoryPropertyFlagBits::eDeviceLocal, m_VkBufferMemory);
 	}
 
 	VulkanVertexBuffer::~VulkanVertexBuffer()
 	{
+		QK_PROFILE_FUNCTION();
+
 		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
 		vkDevice.destroyBuffer(m_VkBuffer);
 		vkDevice.freeMemory(m_VkBufferMemory);
@@ -76,11 +130,24 @@ namespace Quark {
 
 	void VulkanVertexBuffer::SetData(const void* data, size_t size, size_t offset)
 	{
+		QK_PROFILE_FUNCTION();
+
+		vk::DeviceMemory stagingBufferMemory;
+		vk::Buffer stagingBuffer = Utils::AllocateBuffer(size,
+			vk::BufferUsageFlagBits::eTransferSrc,
+			vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+			stagingBufferMemory
+		);
+
 		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
 
-		// TODO: flush memory?
-		void* mappedMemory = vkDevice.mapMemory(m_VkBufferMemory, offset, size);
+		void* mappedMemory = vkDevice.mapMemory(stagingBufferMemory, 0, size);
 		std::memcpy(mappedMemory, data, size);
-		vkDevice.unmapMemory(m_VkBufferMemory);
+		vkDevice.unmapMemory(stagingBufferMemory);
+
+		Utils::CopyBuffer(m_VkBuffer, stagingBuffer, size);
+
+		vkDevice.destroyBuffer(stagingBuffer);
+		vkDevice.freeMemory(stagingBufferMemory);
 	}
 }

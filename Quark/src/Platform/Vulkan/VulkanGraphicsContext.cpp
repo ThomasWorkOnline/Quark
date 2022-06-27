@@ -91,7 +91,8 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		m_VkPresentQueue.waitIdle();
+		m_Device->GetPresentQueue().waitIdle();
+		m_Device->GetGraphicsQueue().waitIdle();
 
 		m_SwapChain.reset();
 		m_Device.reset();
@@ -167,7 +168,6 @@ namespace Quark {
 			scSpec.ImageCount = imageCount;
 
 			m_SwapChain = CreateScope<VulkanSwapChain>(m_VkSurface, scSpec);
-			m_VkPresentQueue = m_Device->GetVkHandle().getQueue(scSpec.FamilyIndices.PresentFamily.value(), 0);
 		}
 
 
@@ -176,13 +176,8 @@ namespace Quark {
 
 	void VulkanContext::SwapBuffers()
 	{
-		m_SwapChain->Present(m_VkPresentQueue);
-	}
-
-	vk::Queue VulkanContext::GetPresentQueue()
-	{
-		QK_CORE_ASSERT(s_Instance, "Vulkan context is not initialized");
-		return s_Instance->m_VkPresentQueue;
+		auto presentQueue = m_Device->GetPresentQueue();
+		m_SwapChain->Present(presentQueue);
 	}
 
 	VulkanDevice& VulkanContext::GetCurrentDevice()

@@ -35,7 +35,6 @@ namespace Quark {
 
 		vk::PipelineLayout m_VkPipelineLayout;
 		vk::Pipeline m_VkGraphicsPipeline;
-		vk::CommandPool m_VkCommandPool;
 		vk::RenderPass m_VkRenderPass;
 
 		std::vector<vk::CommandBuffer> m_VkCommandBuffers;
