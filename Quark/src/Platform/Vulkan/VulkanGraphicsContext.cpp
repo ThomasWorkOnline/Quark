@@ -167,23 +167,31 @@ namespace Quark {
 			m_SwapChain = CreateScope<VulkanSwapChain>(m_VkSurface, scSpec);
 		}
 
+		m_VkPresentQueue = m_Device->GetVkHandle().getQueue(m_Device->GetQueueFamilyIndices().PresentFamily.value(), 0);
+
 		QK_CORE_TRACE("Created Vulkan graphics context!");
 	}
 
 	void VulkanContext::SwapBuffers()
 	{
-		m_SwapChain->Present();
+		m_SwapChain->Present(m_VkPresentQueue);
 	}
 
-	VulkanContext& VulkanContext::Get()
+	vk::Queue VulkanContext::GetPresentQueue()
 	{
 		QK_CORE_ASSERT(s_Instance, "Vulkan context is not initialized");
-		return *s_Instance;
+		return s_Instance->m_VkPresentQueue;
 	}
 
 	VulkanDevice& VulkanContext::GetCurrentDevice()
 	{
 		QK_CORE_ASSERT(s_Instance, "Vulkan context is not initialized");
 		return *s_Instance->m_Device;
+	}
+
+	VulkanSwapChain& VulkanContext::GetSwapChain()
+	{
+		QK_CORE_ASSERT(s_Instance, "Vulkan context is not initialized");
+		return *s_Instance->m_SwapChain;
 	}
 }

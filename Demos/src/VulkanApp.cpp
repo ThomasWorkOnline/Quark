@@ -16,6 +16,14 @@ void VulkanApp::OnEvent(Event& e)
 
 void VulkanApp::OnRender()
 {
+	m_Pipeline.Begin();
+	m_Pipeline.BeginRenderPass();
+
+	// Render here:
+
+	m_Pipeline.EndRenderPass();
+	m_Pipeline.End();
+
 	m_Pipeline.Submit();
 }
 

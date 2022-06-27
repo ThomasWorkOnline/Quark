@@ -15,12 +15,8 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
-
-		m_VkPresentQueue.waitIdle();
 		for (uint32_t i = 0; i < g_FramesInFlight; i++)
-		{
 			vkDevice.destroySemaphore(m_VkRenderFinishedSemaphores[i]);
-		}
 
 		for (uint32_t i = 0; i < m_VkSwapChainImageViews.size(); i++)
 			vkDevice.destroyImageView(m_VkSwapChainImageViews[i]);
@@ -28,7 +24,7 @@ namespace Quark {
 		vkDevice.destroySwapchainKHR(m_VkSwapChain);
 	}
 
-	void VulkanSwapChain::Present()
+	void VulkanSwapChain::Present(vk::Queue presentQueue)
 	{
 		vk::PresentInfoKHR presentInfo;
 		presentInfo.setWaitSemaphoreCount(1);
@@ -38,7 +34,7 @@ namespace Quark {
 		presentInfo.setPSwapchains(&m_VkSwapChain);
 		presentInfo.setPImageIndices(&m_ImageIndex);
 
-		vk::Result vkRes = m_VkPresentQueue.presentKHR(presentInfo);
+		vk::Result vkRes = presentQueue.presentKHR(presentInfo);
 		QK_CORE_ASSERT(vkRes == vk::Result::eSuccess, "Could not present");
 	}
 
@@ -67,7 +63,6 @@ namespace Quark {
 		// FIX: this will fail if extent dimensions is zero
 		if (m_Spec.Extent.width != viewportWidth || m_Spec.Extent.height != viewportHeight)
 		{
-			m_VkPresentQueue.waitIdle();
 			for (uint32_t i = 0; i < m_VkSwapChainImageViews.size(); i++)
 				vkDevice.destroyImageView(m_VkSwapChainImageViews[i]);
 
@@ -82,9 +77,7 @@ namespace Quark {
 
 			vk::SemaphoreCreateInfo semaphoreInfo;
 			for (uint32_t i = 0; i < g_FramesInFlight; i++)
-			{
 				m_VkRenderFinishedSemaphores[i] = vkDevice.createSemaphore(semaphoreInfo);
-			}
 		}
 
 		vk::SwapchainCreateInfoKHR createInfo;
@@ -117,8 +110,6 @@ namespace Quark {
 			createInfo.setImageSharingMode(vk::SharingMode::eExclusive);
 			createInfo.setQueueFamilyIndexCount(0);
 		}
-
-		m_VkPresentQueue = vkDevice.getQueue(*m_Spec.FamilyIndices.PresentFamily, 0);
 
 		m_VkSwapChain = vkDevice.createSwapchainKHR(createInfo);
 		m_VkSwapChainImages = vkDevice.getSwapchainImagesKHR(m_VkSwapChain);

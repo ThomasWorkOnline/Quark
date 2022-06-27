@@ -13,17 +13,16 @@ namespace Quark {
 		VulkanPipeline();
 		~VulkanPipeline();
 
-		void Submit();
-
 		void Begin();
 		void End();
+
+		void Submit();
+		void BeginRenderPass();
+		void EndRenderPass();
 
 		void OnViewportResized(uint32_t viewportWidth, uint32_t viewportHeight);
 
 	private:
-		void BeginRenderPass();
-		void EndRenderPass();
-
 		void RecreateFramebuffers();
 		void RecreateGraphicsPipeline();
 
@@ -43,7 +42,7 @@ namespace Quark {
 
 		vk::CommandBuffer m_ActiveCommandBuffer;
 
-		uint32_t m_ActiveFrameIndex = 0;
+		uint32_t m_ActiveFrameIndex = std::numeric_limits<uint32_t>::max();
 		uint32_t m_NextImageIndex = 0;
 
 		uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;

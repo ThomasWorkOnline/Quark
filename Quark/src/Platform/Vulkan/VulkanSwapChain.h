@@ -21,13 +21,12 @@ namespace Quark {
 		VulkanSwapChain(vk::SurfaceKHR surface, const VulkanSwapChainSpecification& spec);
 		~VulkanSwapChain();
 
-		void Present();
+		void Present(vk::Queue presentQueue);
 		void Resize(uint32_t viewportWidth, uint32_t viewportHeight);
 
 		uint32_t AcquireNextImageIndex(vk::Semaphore imageAvailableSemaphore, uint32_t frameIndex);
 
 		vk::ImageView GetImageView(uint32_t i) const { return m_VkSwapChainImageViews[i]; }
-		vk::Queue GetPresentQueue() const { return m_VkPresentQueue; }
 		vk::Semaphore GetRenderFinishedSemaphore(uint32_t i) const { return m_VkRenderFinishedSemaphores[i]; }
 
 		const VulkanSwapChainSpecification& GetSpecification() const { return m_Spec; }
@@ -38,7 +37,6 @@ namespace Quark {
 	private:
 		vk::SurfaceKHR m_VkSurface;
 		vk::SwapchainKHR m_VkSwapChain;
-		vk::Queue m_VkPresentQueue;
 
 		std::vector<vk::Image> m_VkSwapChainImages;
 		std::vector<vk::ImageView> m_VkSwapChainImageViews;
