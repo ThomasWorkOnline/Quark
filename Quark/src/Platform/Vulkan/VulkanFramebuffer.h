@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Quark/Renderer/Framebuffer.h"
-#include "VulkanCore.h"
+#include <vulkan/vulkan.hpp>
 
 namespace Quark {
 
@@ -17,9 +17,7 @@ namespace Quark {
 		void Invalidate();
 
 	private:
-		vk::Device m_VkDevice;
 		vk::Framebuffer m_VkFramebuffer;
-
 		FramebufferSpecification m_Spec;
 	};
 }

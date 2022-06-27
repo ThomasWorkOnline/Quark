@@ -5,15 +5,15 @@
 namespace Quark {
 
 	VulkanFramebuffer::VulkanFramebuffer(const FramebufferSpecification& spec)
-		: m_VkDevice(VulkanGraphicsContext::GetCurrentDevice().GetVkHandle()),
-		m_Spec(spec)
+		: m_Spec(spec)
 	{
 		Invalidate();
 	}
 
 	VulkanFramebuffer::~VulkanFramebuffer()
 	{
-		m_VkDevice.destroyFramebuffer(m_VkFramebuffer);
+		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
+		vkDevice.destroyFramebuffer(m_VkFramebuffer);
 	}
 
 	void VulkanFramebuffer::Resize(uint32_t width, uint32_t height)
@@ -26,9 +26,10 @@ namespace Quark {
 
 	void VulkanFramebuffer::Invalidate()
 	{
-		if (m_VkDevice)
+		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
+		if (m_VkFramebuffer)
 		{
-			m_VkDevice.destroyFramebuffer(m_VkFramebuffer);
+			vkDevice.destroyFramebuffer(m_VkFramebuffer);
 		}
 	}
 }

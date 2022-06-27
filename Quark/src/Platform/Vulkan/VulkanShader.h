@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Quark/Renderer/Shader.h"
-#include "VulkanCore.h"
+#include <vulkan/vulkan.hpp>
 
 namespace Quark {
 
@@ -14,7 +14,6 @@ namespace Quark {
 		vk::PipelineShaderStageCreateInfo GetStageInfo() const { return m_VkStageInfo; }
 
 	private:
-		vk::Device m_VkDevice;
 		vk::ShaderModule m_VkShaderModule;
 		vk::PipelineShaderStageCreateInfo m_VkStageInfo;
 	};

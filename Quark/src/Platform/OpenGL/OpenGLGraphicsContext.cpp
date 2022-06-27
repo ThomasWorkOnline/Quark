@@ -6,13 +6,13 @@
 
 namespace Quark {
 
-	OpenGLGLFWGraphicsContext::OpenGLGLFWGraphicsContext(void* windowHandle)
+	OpenGLContext::OpenGLContext(void* windowHandle)
 		: m_WindowHandle(static_cast<GLFWwindow*>(windowHandle))
 	{
 		QK_CORE_ASSERT(windowHandle, "Window handle is nullptr");
 	}
 
-	OpenGLGLFWGraphicsContext::~OpenGLGLFWGraphicsContext()
+	OpenGLContext::~OpenGLContext()
 	{
 		QK_PROFILE_FUNCTION();
 
@@ -20,7 +20,7 @@ namespace Quark {
 		glfwMakeContextCurrent(nullptr);
 	}
 
-	void OpenGLGLFWGraphicsContext::Init()
+	void OpenGLContext::Init()
 	{
 		QK_PROFILE_FUNCTION();
 
@@ -32,7 +32,7 @@ namespace Quark {
 		QK_CORE_TRACE("Created OpenGL graphics context!");
 	}
 
-	void OpenGLGLFWGraphicsContext::SwapBuffers()
+	void OpenGLContext::SwapBuffers()
 	{
 		glfwSwapBuffers(m_WindowHandle);
 	}

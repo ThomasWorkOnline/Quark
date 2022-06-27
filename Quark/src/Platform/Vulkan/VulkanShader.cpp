@@ -2,6 +2,8 @@
 #include "VulkanShader.h"
 #include "VulkanGraphicsContext.h"
 
+#include <vector>
+
 namespace Quark {
 
 	namespace Utils {
@@ -23,7 +25,6 @@ namespace Quark {
 	}
 
 	VulkanShader::VulkanShader(vk::ShaderStageFlagBits stage, std::string_view filepath)
-		: m_VkDevice(VulkanGraphicsContext::GetCurrentDevice().GetVkHandle())
 	{
 		auto byteCode = Utils::ReadByteCode(filepath);
 
@@ -31,7 +32,8 @@ namespace Quark {
 		createInfo.setCodeSize(byteCode.size());
 		createInfo.setPCode(reinterpret_cast<const uint32_t*>(byteCode.data()));
 
-		m_VkShaderModule = m_VkDevice.createShaderModule(createInfo);
+		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
+		m_VkShaderModule = vkDevice.createShaderModule(createInfo);
 
 		m_VkStageInfo.setStage(stage);
 		m_VkStageInfo.setModule(m_VkShaderModule);
@@ -40,6 +42,7 @@ namespace Quark {
 
 	VulkanShader::~VulkanShader()
 	{
-		m_VkDevice.destroyShaderModule(m_VkShaderModule);
+		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
+		vkDevice.destroyShaderModule(m_VkShaderModule);
 	}
 }

@@ -6,11 +6,11 @@ typedef struct GLFWwindow GLFWwindow;
 
 namespace Quark {
 
-	class OpenGLGLFWGraphicsContext final : public GraphicsContext
+	class OpenGLContext final : public GraphicsContext
 	{
 	public:
-		OpenGLGLFWGraphicsContext(void* windowHandle);
-		virtual ~OpenGLGLFWGraphicsContext() override;
+		OpenGLContext(void* windowHandle);
+		virtual ~OpenGLContext() override;
 
 		virtual void Init() override;
 		virtual void SwapBuffers() override;

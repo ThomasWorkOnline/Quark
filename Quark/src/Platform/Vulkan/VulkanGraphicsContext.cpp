@@ -1,13 +1,15 @@
 #include "qkpch.h"
 #include "VulkanGraphicsContext.h"
 
+#include "VulkanUtils.h"
+
 #include <fstream>
 #include <set>
 #include <sstream>
 
 namespace Quark {
 
-	VulkanGraphicsContext* VulkanGraphicsContext::s_Instance = nullptr;
+	VulkanContext* VulkanContext::s_Instance = nullptr;
 
 	static VKAPI_ATTR VkBool32 VKAPI_CALL VkDebugCallback(
 		vk::DebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
@@ -79,13 +81,13 @@ namespace Quark {
 		}
 	}
 
-	VulkanGraphicsContext::VulkanGraphicsContext(void* windowHandle)
+	VulkanContext::VulkanContext(void* windowHandle)
 		: m_WindowHandle(static_cast<GLFWwindow*>(windowHandle))
 	{
 		QK_CORE_ASSERT(windowHandle, "Window handle is nullptr");
 	}
 
-	VulkanGraphicsContext::~VulkanGraphicsContext()
+	VulkanContext::~VulkanContext()
 	{
 		QK_PROFILE_FUNCTION();
 
@@ -100,7 +102,7 @@ namespace Quark {
 		s_Instance = nullptr;
 	}
 
-	void VulkanGraphicsContext::Init()
+	void VulkanContext::Init()
 	{
 		QK_PROFILE_FUNCTION();
 
@@ -108,7 +110,7 @@ namespace Quark {
 
 		// Instance creation
 		{
-			QK_PROFILE_SCOPE(VulkanGraphicsContext::Instance);
+			QK_PROFILE_SCOPE(VulkanContext::Instance);
 
 #ifdef QK_ENABLE_VULKAN_VALIDATION_LAYERS
 			QK_CORE_ASSERT(Utils::CheckVkValidationLayerSupport(), "Some Vulkan validation layers are not supported");
@@ -168,18 +170,18 @@ namespace Quark {
 		QK_CORE_TRACE("Created Vulkan graphics context!");
 	}
 
-	void VulkanGraphicsContext::SwapBuffers()
+	void VulkanContext::SwapBuffers()
 	{
 		m_SwapChain->Present();
 	}
 
-	VulkanGraphicsContext& VulkanGraphicsContext::Get()
+	VulkanContext& VulkanContext::Get()
 	{
 		QK_CORE_ASSERT(s_Instance, "Vulkan context is not initialized");
 		return *s_Instance;
 	}
 
-	VulkanDevice& VulkanGraphicsContext::GetCurrentDevice()
+	VulkanDevice& VulkanContext::GetCurrentDevice()
 	{
 		QK_CORE_ASSERT(s_Instance, "Vulkan context is not initialized");
 		return *s_Instance->m_Device;

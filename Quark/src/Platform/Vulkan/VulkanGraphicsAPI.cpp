@@ -18,6 +18,6 @@ namespace Quark {
 
 	Scope<GraphicsContext> VulkanGraphicsAPI::CreateGraphicsContext(void* windowHandle)
 	{
-		return CreateScope<VulkanGraphicsContext>(windowHandle);
+		return CreateScope<VulkanContext>(windowHandle);
 	}
 }

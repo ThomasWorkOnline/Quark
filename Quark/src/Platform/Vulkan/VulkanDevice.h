@@ -1,6 +1,7 @@
 #pragma once
 
-#include "VulkanCore.h"
+#include "VulkanUtils.h"
+#include <vulkan/vulkan.hpp>
 
 namespace Quark {
 

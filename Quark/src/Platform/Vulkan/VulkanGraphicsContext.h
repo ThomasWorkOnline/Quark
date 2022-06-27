@@ -2,26 +2,26 @@
 
 #include "Quark/Renderer/GraphicsContext.h"
 
-#include "VulkanCore.h"
 #include "VulkanDevice.h"
 #include "VulkanSwapChain.h"
+#include <vulkan/vulkan.hpp>
 
 typedef struct GLFWwindow GLFWwindow;
 
 namespace Quark {
 
-	class VulkanGraphicsContext final : public GraphicsContext
+	class VulkanContext final : public GraphicsContext
 	{
 	public:
-		VulkanGraphicsContext(void* windowHandle);
-		virtual ~VulkanGraphicsContext() override;
+		VulkanContext(void* windowHandle);
+		virtual ~VulkanContext() override;
 
 		virtual void Init() override;
 		virtual void SwapBuffers() override;
 
 		VulkanSwapChain& GetSwapChain() { return *m_SwapChain; }
 		
-		static VulkanGraphicsContext& Get();
+		static VulkanContext& Get();
 		static VulkanDevice& GetCurrentDevice();
 
 	private:
@@ -36,6 +36,6 @@ namespace Quark {
 		Scope<VulkanDevice> m_Device;
 		Scope<VulkanSwapChain> m_SwapChain;
 
-		static VulkanGraphicsContext* s_Instance;
+		static VulkanContext* s_Instance;
 	};
 }

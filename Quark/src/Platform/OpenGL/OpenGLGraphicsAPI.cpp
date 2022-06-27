@@ -241,7 +241,7 @@ namespace Quark {
 #if defined(QK_PLATFORM_WINDOWS) && defined(QK_USE_NATIVE_APIS)
 		return CreateScope<OpenGLWin32GraphicsContext>(windowHandle);
 #else
-		return CreateScope<OpenGLGLFWGraphicsContext>(windowHandle);
+		return CreateScope<OpenGLContext>(windowHandle);
 #endif
 	}
 
