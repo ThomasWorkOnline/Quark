@@ -8,13 +8,13 @@
 
 namespace Quark {
 
-	MetalGLFWGraphicsContext::MetalGLFWGraphicsContext(void* windowHandle)
+	MetalContext::MetalContext(void* windowHandle)
     	: m_WindowHandle(static_cast<GLFWwindow*>(windowHandle))
 	{
 		QK_CORE_ASSERT(windowHandle, "Window handle is nullptr");
 	}
 
-	MetalGLFWGraphicsContext::~MetalGLFWGraphicsContext()
+	MetalContext::~MetalContext()
 	{
 		QK_PROFILE_FUNCTION();
 
@@ -22,7 +22,7 @@ namespace Quark {
 		glfwMakeContextCurrent(nullptr);
 	}
 
-	void MetalGLFWGraphicsContext::Init()
+	void MetalContext::Init()
 	{
 		QK_PROFILE_FUNCTION();
 
@@ -34,7 +34,7 @@ namespace Quark {
 		QK_CORE_TRACE("Created Metal graphics context!");
 	}
 
-    void MetalGLFWGraphicsContext::SwapBuffers()
+    void MetalContext::SwapBuffers()
 	{
 		glfwSwapBuffers(m_WindowHandle);
 	}

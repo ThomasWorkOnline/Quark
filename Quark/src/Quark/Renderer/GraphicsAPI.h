@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Quark/Core/Core.h"
+
 #include "RenderModes.h"
 #include "RendererConstraints.h"
-#include "GraphicsContext.h"
 
 #include "Buffer.h"
 #include "Cubemap.h"
@@ -21,6 +21,8 @@ namespace Quark {
 	class GraphicsAPI
 	{
 	public:
+		static Scope<GraphicsAPI> Instance;
+
 		// Supported APIs
 		enum class API
 		{
@@ -57,8 +59,6 @@ namespace Quark {
 		virtual void                   SetLineThickness(float thickness) = 0;
 		virtual float                  GetLineThickness() const = 0;
 
-		virtual Scope<GraphicsContext> CreateGraphicsContext(void* windowHandle) = 0;
-
 		virtual Ref<VertexBuffer>      CreateVertexBuffer(const void* vertices, size_t size) = 0;
 		virtual Ref<VertexBuffer>      CreateVertexBuffer(size_t size) = 0;
 
@@ -89,7 +89,7 @@ namespace Quark {
 
 		static API                     GetDefaultForPlatform();
 		static API                     GetAPI() { return s_API; }
-		static Scope<GraphicsAPI>      Create(API api);
+		static Scope<GraphicsAPI>      Instantiate(API api);
 
 	private:
 		static API s_API;

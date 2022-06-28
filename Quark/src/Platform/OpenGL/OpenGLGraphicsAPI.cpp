@@ -11,13 +11,6 @@
 #include "OpenGLUniformBuffer.h"
 #include "OpenGLVertexArray.h"
 
-#if defined(QK_PLATFORM_WINDOWS) && defined(QK_USE_NATIVE_APIS)
-	// Windows specific graphics context
-#	include "Platform/Windows/OpenGL/OpenGLWin32GraphicsContext.h"
-#endif
-
-#include "OpenGLGraphicsContext.h"
-
 #include <glad/glad.h>
 #include <sstream>
 
@@ -234,15 +227,6 @@ namespace Quark {
 		GLfloat thickness;
 		glGetFloatv(GL_LINE_WIDTH, &thickness);
 		return thickness;
-	}
-
-	Scope<GraphicsContext> OpenGLGraphicsAPI::CreateGraphicsContext(void* windowHandle)
-	{
-#if defined(QK_PLATFORM_WINDOWS) && defined(QK_USE_NATIVE_APIS)
-		return CreateScope<OpenGLWin32GraphicsContext>(windowHandle);
-#else
-		return CreateScope<OpenGLContext>(windowHandle);
-#endif
 	}
 
 	Ref<VertexBuffer> OpenGLGraphicsAPI::CreateVertexBuffer(const void* vertices, size_t size)

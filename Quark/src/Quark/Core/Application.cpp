@@ -91,7 +91,7 @@ namespace Quark {
 
 		RenderCommand::Init();
 		RenderCommand::SetClearColor({ 0.01f, 0.01f, 0.01f, 1.0f });
-		QK_CORE_INFO(RenderCommand::GetSpecification());
+		QK_CORE_INFO(GraphicsAPI::Instance->GetSpecification());
 
 		/*Renderer::Initialize();
 		Renderer2D::Initialize();
@@ -101,7 +101,7 @@ namespace Quark {
 
 		if (m_Options.HasFlag(ShowApiInWindowTitle))
 		{
-			std::string appendedTitle = " - " + std::string(RenderCommand::GetAPIName());
+			std::string appendedTitle = " - " + std::string(GraphicsAPI::Instance->GetName());
 			m_Window->AppendTitle(appendedTitle);
 		}
 	}

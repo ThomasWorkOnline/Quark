@@ -12,6 +12,7 @@
 namespace Quark {
 
 	GraphicsAPI::API GraphicsAPI::s_API = GraphicsAPI::API::None;
+	Scope<GraphicsAPI> GraphicsAPI::Instance = Instantiate(GetDefaultForPlatform());
 
 	GraphicsAPI::API GraphicsAPI::GetDefaultForPlatform()
 	{
@@ -24,7 +25,7 @@ namespace Quark {
 #endif
 	}
 
-	Scope<GraphicsAPI> GraphicsAPI::Create(API api)
+	Scope<GraphicsAPI> GraphicsAPI::Instantiate(API api)
 	{
 		s_API = api;
 		switch (api)
@@ -34,13 +35,14 @@ namespace Quark {
 #ifdef QK_PLATFORM_APPLE
 				return CreateScope<MetalGraphicsAPI>();
 #else
+				QK_CORE_FATAL("Metal is not supported on this platform");
 				return nullptr;
 #endif
 			}
 			case GraphicsAPI::API::OpenGL: return CreateScope<OpenGLGraphicsAPI>();
 			case GraphicsAPI::API::Vulkan: return CreateScope<VulkanGraphicsAPI>();
 			default:
-				QK_CORE_FATAL("Graphics API not supported");
+				QK_CORE_FATAL("Unknown graphics API");
 				return nullptr;
 		}
 	}

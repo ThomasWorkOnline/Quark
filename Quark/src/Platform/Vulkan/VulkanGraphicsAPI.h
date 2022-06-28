@@ -28,8 +28,6 @@ namespace Quark {
 		virtual void                   SetLineThickness(float thickness) override {}
 		virtual float                  GetLineThickness() const override { return 0; }
 
-		virtual Scope<GraphicsContext> CreateGraphicsContext(void* windowHandle) override;
-
 		virtual Ref<VertexBuffer>      CreateVertexBuffer(const void* vertices, size_t size) override;
 		virtual Ref<VertexBuffer>      CreateVertexBuffer(size_t size) override;
 
