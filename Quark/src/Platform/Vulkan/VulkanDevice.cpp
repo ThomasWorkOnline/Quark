@@ -16,16 +16,25 @@ namespace Quark {
 		poolInfo.setFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer);
 		poolInfo.setQueueFamilyIndex(*m_QueueFamilyIndices.GraphicsFamily);
 
-		m_VkCommandPool = m_VkDevice.createCommandPool(poolInfo);
-
 		m_VkGraphicsQueue = m_VkDevice.getQueue(m_QueueFamilyIndices.GraphicsFamily.value(), 0);
 		m_VkPresentQueue = m_VkDevice.getQueue(m_QueueFamilyIndices.PresentFamily.value(), 0);
+
+		m_VkCommandPool = m_VkDevice.createCommandPool(poolInfo);
+
+		vk::CommandBufferAllocateInfo allocInfo;
+		allocInfo.setCommandPool(m_VkCommandPool);
+		allocInfo.setLevel(vk::CommandBufferLevel::ePrimary);
+		allocInfo.setCommandBufferCount(g_FramesInFlight);
+
+		m_VkCommandBuffers.resize(g_FramesInFlight);
+		m_VkCommandBuffers = m_VkDevice.allocateCommandBuffers(allocInfo);
 	}
 
 	VulkanDevice::~VulkanDevice()
 	{
 		QK_PROFILE_FUNCTION();
 
+		m_VkDevice.waitIdle();
 		m_VkDevice.destroyCommandPool(m_VkCommandPool);
 		m_VkDevice.destroy();
 	}

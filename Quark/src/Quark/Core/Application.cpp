@@ -108,8 +108,6 @@ namespace Quark {
 
 	void Application::OnEventInternal(Event& e)
 	{
-		QK_PROFILE_FUNCTION();
-
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowClosedEvent>(ATTACH_EVENT_FN(Application::OnWindowClosed));
 		dispatcher.Dispatch<WindowResizedEvent>(ATTACH_EVENT_FN(Application::OnWindowResized));

@@ -1,6 +1,8 @@
 #include "qkpch.h"
 #include "Logger.h"
 
+#ifdef QK_ENABLE_CONSOLE_LOG
+
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 
@@ -25,19 +27,17 @@ namespace Quark {
 
 		m_CoreLogger = std::make_shared<spdlog::logger>("Core", sinks.begin(), sinks.end());
 		m_ClientLogger = std::make_shared<spdlog::logger>("Client", sinks.begin(), sinks.end());
-		m_ProfilerLogger = std::make_shared<spdlog::logger>("Profiler", sinks.begin(), sinks.end());
 		
 #if defined(QK_DEBUG)
 		m_CoreLogger->set_level(spdlog::level::trace);
 		m_ClientLogger->set_level(spdlog::level::trace);
-		m_ProfilerLogger->set_level(spdlog::level::trace);
-#elif defined(QK_RELEASE)
-		m_ProfilerLogger->set_level(spdlog::level::trace);
+#else
+		m_CoreLogger->set_level(spdlog::level::info);
+		m_ClientLogger->set_level(spdlog::level::info);
 #endif
 
 		spdlog::register_logger(m_CoreLogger);
 		spdlog::register_logger(m_ClientLogger);
-		spdlog::register_logger(m_ProfilerLogger);
 	}
 
 	Logger& Logger::GetInstance()
@@ -46,3 +46,5 @@ namespace Quark {
 		return instance;
 	}
 }
+
+#endif /*QK_ENABLE_CONSOLE_LOG*/

@@ -197,7 +197,7 @@ void PBRRenderingDemo::OnUpdate(Timestep elapsedTime)
 
 void PBRRenderingDemo::OnRender()
 {
-	Profile::Timer t;
+	Timer t;
 	t.Start();
 
 	UploadAssets();

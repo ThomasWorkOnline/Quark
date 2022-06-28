@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Core.h"
-#include "Logger.h"
 
 #if defined(QK_DEBUG)
 #   define QK_ENABLE_ASSERTIONS

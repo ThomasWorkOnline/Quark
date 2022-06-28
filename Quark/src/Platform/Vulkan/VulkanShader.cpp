@@ -2,8 +2,6 @@
 #include "VulkanShader.h"
 #include "VulkanGraphicsContext.h"
 
-#include <vector>
-
 namespace Quark {
 
 	namespace Utils {

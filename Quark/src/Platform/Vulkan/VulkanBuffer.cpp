@@ -128,6 +128,14 @@ namespace Quark {
 		vkDevice.freeMemory(m_VkBufferMemory);
 	}
 
+	void VulkanVertexBuffer::Attach() const
+	{
+		vk::DeviceSize offsets[] = { 0 };
+
+		auto commandBuffer = VulkanContext::GetCurrentDevice().GetCommandBuffer();
+		commandBuffer.bindVertexBuffers(0, 1, &m_VkBuffer, offsets);
+	}
+
 	void VulkanVertexBuffer::SetData(const void* data, size_t size, size_t offset)
 	{
 		QK_PROFILE_FUNCTION();
@@ -197,6 +205,12 @@ namespace Quark {
 		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
 		vkDevice.destroyBuffer(m_VkBuffer);
 		vkDevice.freeMemory(m_VkBufferMemory);
+	}
+
+	void VulkanIndexBuffer::Attach() const
+	{
+		auto commandBuffer = VulkanContext::GetCurrentDevice().GetCommandBuffer();
+		commandBuffer.bindIndexBuffer(m_VkBuffer, 0, vk::IndexType::eUint32);
 	}
 
 	void VulkanIndexBuffer::SetData(const uint32_t* data, uint32_t count, size_t offset)

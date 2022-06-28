@@ -1,10 +1,6 @@
 #include "qkpch.h"
 #include "Profiling.h"
 
-#include <filesystem>
-#include <iomanip>
-#include <sstream>
-
 #if defined(QK_DEBUG)
 #	define CONFIG_NAME "debug"
 #elif defined(QK_RELEASE)
@@ -77,26 +73,6 @@ namespace Quark {
 			m_Output.flush();
 		}
 
-		void Timer::Start()
-		{
-			m_Start = std::chrono::steady_clock::now();
-		}
-
-		void Timer::Stop()
-		{
-			m_End = std::chrono::steady_clock::now();
-		}
-
-		std::chrono::microseconds Timer::Microseconds() const
-		{
-			return std::chrono::duration_cast<std::chrono::microseconds>(m_End - m_Start);
-		}
-
-		std::chrono::milliseconds Timer::Milliseconds() const
-		{
-			return std::chrono::duration_cast<std::chrono::milliseconds>(m_End - m_Start);
-		}
-
 		ScopeTimer::ScopeTimer(const char* scope)
 			: m_Scope(scope)
 		{
@@ -114,6 +90,7 @@ namespace Quark {
 
 			auto elapsed = Microseconds();
 
+#if defined(QK_ENABLE_PROFILE_DUMP) && defined(QK_ENABLE_PROFILING)
 			InstrumentorProfile result;
 			result.ScopeName = m_Scope;
 			result.Start = std::chrono::time_point_cast<std::chrono::microseconds>(m_Start).time_since_epoch();
@@ -121,17 +98,11 @@ namespace Quark {
 			result.ThreadID = std::this_thread::get_id();
 
 			Instrumentor::Get().WriteProfile(result);
-
-			if (elapsed.count() > 10000) // > 10ms
-			{
-				Logger::GetProfilerLogger()->warn("'{0}'\t took: {1}us ({2}ms)", m_Scope, elapsed.count(), elapsed.count() / 1000.f);
-			}
-			else
-			{
-#ifdef QK_ENABLE_PROFILE_LOG
-				Logger::GetProfilerLogger()->debug("'{0}'\t took: {1}us ({2}ms)", m_Scope, elapsed.count(), elapsed.count() / 1000.f);
 #endif
-			}
+
+#if defined(QK_ENABLE_PROFILE_LOG) && defined(QK_ENABLE_PROFILING)
+			QK_CORE_INFO("'{0}'\t took: {1}us ({2}ms)", m_Scope, elapsed.count(), elapsed.count() / 1000.f);
+#endif
 		}
 	}
 }

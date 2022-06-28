@@ -62,8 +62,8 @@ project "GLFW"
 		}
 
 	filter "system:linux"
-		pic "On"
 		systemversion "latest"
+		pic "On"
 
 		files
 		{
@@ -86,12 +86,24 @@ project "GLFW"
 
 	filter "configurations:Debug"
 		runtime "Debug"
-		symbols "on"
+		symbols "On"
 
 	filter "configurations:Release"
 		runtime "Release"
-		optimize "on"
+		optimize "On"
+		symbols	"Off"
+
+		flags
+		{
+			"LinkTimeOptimization"
+		}
 
 	filter "configurations:Dist"
 		runtime "Release"
-		optimize "on"
+		optimize "On"
+		symbols	"Off"
+
+		flags
+		{
+			"LinkTimeOptimization"
+		}

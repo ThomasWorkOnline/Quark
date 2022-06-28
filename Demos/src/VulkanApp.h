@@ -18,5 +18,8 @@ private:
 	bool OnWindowResized(WindowResizedEvent& e);
 
 private:
+	Ref<VertexBuffer> m_VertexBuffer;
+	Ref<IndexBuffer> m_IndexBuffer;
+
 	VulkanPipeline m_Pipeline;
 };

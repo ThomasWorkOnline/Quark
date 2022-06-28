@@ -6,51 +6,6 @@
 
 namespace Quark {
 
-	struct Vertex
-	{
-		glm::vec2 Position;
-		glm::vec3 Color;
-
-		static vk::VertexInputBindingDescription GetBindingDescription()
-		{
-			vk::VertexInputBindingDescription bindingDescription;
-			bindingDescription.binding = 0;
-			bindingDescription.stride = sizeof(Vertex);
-			bindingDescription.inputRate = vk::VertexInputRate::eVertex;
-
-			return bindingDescription;
-		}
-
-		static std::array<vk::VertexInputAttributeDescription, 2> GetAttributeDescriptions()
-		{
-			std::array<vk::VertexInputAttributeDescription, 2> attributeDescriptions{};
-
-			attributeDescriptions[0].binding = 0;
-			attributeDescriptions[0].location = 0;
-			attributeDescriptions[0].format = vk::Format::eR32G32Sfloat;
-			attributeDescriptions[0].offset = offsetof(Vertex, Position);
-
-			attributeDescriptions[1].binding = 0;
-			attributeDescriptions[1].location = 1;
-			attributeDescriptions[1].format = vk::Format::eR32G32B32Sfloat;
-			attributeDescriptions[1].offset = offsetof(Vertex, Color);
-
-			return attributeDescriptions;
-		}
-	};
-
-	static constexpr Vertex s_Vertices[] = {
-		{ { -0.5f, -0.5f}, { 1.0f,  0.0f,  0.0f } },
-		{ {  0.5f, -0.5f}, { 0.0f,  1.0f,  0.0f } },
-		{ {  0.5f,  0.5f}, { 0.0f,  0.0f,  1.0f } },
-		{ { -0.5f,  0.5f}, { 1.0f,  1.0f,  1.0f } }
-	};
-
-	static constexpr uint32_t s_Indices[] = {
-		0, 1, 2,
-		2, 3, 0
-	};
-
 	VulkanPipeline::VulkanPipeline()
 		: m_VertShader(vk::ShaderStageFlagBits::eVertex, "../Quark/assets/shaders/version/4.50/bin/vert.spv"),
 		m_FragShader(vk::ShaderStageFlagBits::eFragment, "../Quark/assets/shaders/version/4.50/bin/frag.spv")
@@ -109,31 +64,7 @@ namespace Quark {
 		RecreateGraphicsPipeline();
 		RecreateFramebuffers();
 
-		// Vertex Buffer
-		{
-			BufferLayout layout = {
-				{ ShaderDataType::Float2, "a_Position" },
-				{ ShaderDataType::Float3, "a_Color"    }
-			};
-
-			m_VertexBuffer = VertexBuffer::Create(s_Vertices, sizeof(s_Vertices));
-			m_VertexBuffer->SetLayout(layout);
-
-			m_IndexBuffer = IndexBuffer::Create(s_Indices, sizeof(s_Indices) / sizeof(uint32_t));
-		}
-
 		auto& device = VulkanContext::GetCurrentDevice();
-
-		// Command buffers
-		{
-			vk::CommandBufferAllocateInfo allocInfo;
-			allocInfo.setCommandPool(device.GetCommandPool());
-			allocInfo.setLevel(vk::CommandBufferLevel::ePrimary);
-			allocInfo.setCommandBufferCount(g_FramesInFlight);
-
-			m_VkCommandBuffers.resize(g_FramesInFlight);
-			m_VkCommandBuffers = device.GetVkHandle().allocateCommandBuffers(allocInfo);
-		}
 
 		vk::FenceCreateInfo fenceInfo;
 		fenceInfo.setFlags(vk::FenceCreateFlagBits::eSignaled);
@@ -156,7 +87,7 @@ namespace Quark {
 		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
 
 		{
-			Profile::Timer t;
+			Timer t;
 			vkDevice.waitIdle();
 			QK_CORE_INFO("Waiting for device to finish: {0}ms", t.Milliseconds().count());
 		}
@@ -191,7 +122,7 @@ namespace Quark {
 		auto& swapChain = VulkanContext::GetSwapChain();
 		m_NextImageIndex = swapChain.AcquireNextImageIndex(m_VkImageAvailableSemaphores[m_ActiveFrameIndex], m_ActiveFrameIndex);
 
-		m_ActiveCommandBuffer = m_VkCommandBuffers[m_ActiveFrameIndex];
+		m_ActiveCommandBuffer = VulkanContext::GetCurrentDevice().SwitchCommandBuffer(m_ActiveFrameIndex);
 		m_ActiveCommandBuffer.reset();
 
 		vk::CommandBufferBeginInfo beginInfo;
@@ -243,16 +174,6 @@ namespace Quark {
 		renderPassInfo.setPClearValues(&clearColor);
 
 		m_ActiveCommandBuffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
-
-		// VERTEX BUFFERS --------------------------
-		vk::Buffer vertexBuffers[] = { ((VulkanVertexBuffer&)*m_VertexBuffer).GetVkHandle() };
-		vk::Buffer indexBuffers    = ((VulkanIndexBuffer&)*m_IndexBuffer).GetVkHandle();
-		vk::DeviceSize offsets[] = { 0 };
-
-		m_ActiveCommandBuffer.bindVertexBuffers(0, 1, vertexBuffers, offsets);
-		m_ActiveCommandBuffer.bindIndexBuffer(indexBuffers, 0, vk::IndexType::eUint32);
-
-		m_ActiveCommandBuffer.drawIndexed(sizeof(s_Indices) / sizeof(uint32_t), 1, 0, 0, 0);
 	}
 
 	void VulkanPipeline::EndRenderPass()
@@ -268,7 +189,7 @@ namespace Quark {
 		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
 
 		{
-			Profile::Timer t;
+			Timer t;
 			vkDevice.waitIdle();
 			QK_CORE_INFO("Waiting for device to finish: {0}ms", t.Milliseconds().count());
 		}

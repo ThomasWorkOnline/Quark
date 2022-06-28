@@ -1,17 +1,21 @@
 #pragma once
 
 /////////////////////////////////////////////////////
+/// Logging & Profiling
+/////////////////////////////////////////////////////
+
+//#define QK_ENABLE_PROFILING
+  #define QK_ENABLE_PROFILE_LOG
+  #define QK_ENABLE_PROFILE_DUMP
+//#define QK_ENABLE_CONSOLE_LOG
+//#define QK_VERBOSE_FUNCTION_SIG
+
+//#define QK_ENABLE_ALL_METRICS
+//#define QK_ENABLE_MEMORY_METRICS
+
+/////////////////////////////////////////////////////
 /// MISC
 /////////////////////////////////////////////////////
 
 // On Windows, it will use the default Win32 API for the Window and Graphics API
 //#define QK_USE_NATIVE_APIS
-
-/////////////////////////////////////////////////////
-/// Profiling
-/////////////////////////////////////////////////////
-    
-//#define QK_VERBOSE_FUNCTION_SIG
-//#define QK_ENABLE_PROFILE_LOG
-//#define QK_ENABLE_ALL_METRICS
-//#define QK_ENABLE_MEMORY_METRICS

@@ -8,14 +8,21 @@
 
 namespace Quark {
 
-	VulkanGraphicsAPI::~VulkanGraphicsAPI()
+	void VulkanGraphicsAPI::Init()
 	{
 		QK_PROFILE_FUNCTION();
 	}
 
-	void VulkanGraphicsAPI::Init()
+	void VulkanGraphicsAPI::Draw(uint32_t offset, uint32_t count)
 	{
-		QK_PROFILE_FUNCTION();
+		auto commandBuffer = VulkanContext::GetCurrentDevice().GetCommandBuffer();
+		commandBuffer.draw(count, 1, offset, 0);
+	}
+
+	void VulkanGraphicsAPI::DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount)
+	{
+		auto commandBuffer = VulkanContext::GetCurrentDevice().GetCommandBuffer();
+		commandBuffer.drawIndexed(indexCount, 1, 0, 0, 0);
 	}
 
 	Scope<GraphicsContext> VulkanGraphicsAPI::CreateGraphicsContext(void* windowHandle)

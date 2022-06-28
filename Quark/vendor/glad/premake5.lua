@@ -28,7 +28,19 @@ project "Glad"
 	filter "configurations:Release"
 		runtime "Release"
 		optimize "On"
+		symbols	"Off"
+
+		flags
+		{
+			"LinkTimeOptimization"
+		}
 	
 	filter "configurations:Dist"
 		runtime "Release"
 		optimize "On"
+		symbols	"Off"
+
+		flags
+		{
+			"LinkTimeOptimization"
+		}

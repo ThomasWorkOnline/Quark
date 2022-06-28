@@ -42,9 +42,10 @@ namespace Quark {
 #include "Quark/Math/Types.h"
 
 #include "Assertions.h"
-#include "FuncSig.h"
-#include "Logger.h"
+#include "LogUtils.h"
+#include "Timer.h"
 #include "Timestep.h"
 
-#include "Quark/Metrics/MemoryMetrics.h"
-#include "Quark/Metrics/Profiling.h"
+#include "Quark/Debug/Logger.h"
+#include "Quark/Debug/Profiling.h"
+#include "Quark/Debug/MemoryMetrics.h"

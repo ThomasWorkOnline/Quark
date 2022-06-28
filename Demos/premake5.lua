@@ -72,6 +72,7 @@ project "Demos"
 		defines "QK_RELEASE"
 		runtime "Release"
 		optimize "On"
+		symbols	"Off"
 
 		flags
 		{
@@ -82,6 +83,7 @@ project "Demos"
 		defines "QK_DIST"
 		runtime "Release"
 		optimize "On"
+		symbols "Off"
 
 		flags
 		{
