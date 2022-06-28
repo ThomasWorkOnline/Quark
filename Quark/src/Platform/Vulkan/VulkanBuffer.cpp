@@ -161,6 +161,7 @@ namespace Quark {
 	}
 
 	VulkanIndexBuffer::VulkanIndexBuffer(const uint32_t* indices, uint32_t count)
+		: m_Count(count)
 	{
 		QK_PROFILE_FUNCTION();
 
@@ -189,6 +190,7 @@ namespace Quark {
 	}
 
 	VulkanIndexBuffer::VulkanIndexBuffer(uint32_t count)
+		: m_Count(count)
 	{
 		QK_PROFILE_FUNCTION();
 

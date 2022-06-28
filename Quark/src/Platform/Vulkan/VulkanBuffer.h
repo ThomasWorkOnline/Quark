@@ -46,7 +46,7 @@ namespace Quark {
 
 		virtual void SetData(const uint32_t* data, uint32_t count, size_t offset = 0) override;
 
-		virtual uint32_t GetCount() const override { return 0; }
+		virtual uint32_t GetCount() const override { return m_Count; }
 		virtual uint32_t GetRendererID() const override { return 0; }
 
 		virtual bool operator==(const IndexBuffer& other) const override
@@ -57,5 +57,6 @@ namespace Quark {
 	private:
 		vk::Buffer m_VkBuffer;
 		vk::DeviceMemory m_VkBufferMemory;
+		uint32_t m_Count;
 	};
 }
