@@ -7,7 +7,7 @@ namespace Quark {
 	class OpenGLTexture2DArray final : public Texture2DArray
 	{
 	public:
-		OpenGLTexture2DArray(const TextureArraySpecification& spec);
+		OpenGLTexture2DArray(const Texture2DArraySpecification& spec);
 		virtual ~OpenGLTexture2DArray() override;
 
 		virtual void Attach(uint32_t textureSlot = 0) const override;
@@ -29,7 +29,7 @@ namespace Quark {
 
 	private:
 		uint32_t m_RendererID = 0;
-		TextureArraySpecification m_Spec;
+		Texture2DArraySpecification m_Spec;
 		uint32_t m_InternalFormat, m_DataFormat;
 	};
 }

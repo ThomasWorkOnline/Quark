@@ -1,5 +1,5 @@
 #include "qkpch.h"
-#include "VulkanGraphicsContext.h"
+#include "VulkanContext.h"
 
 #include "VulkanUtils.h"
 
@@ -169,7 +169,6 @@ namespace Quark {
 
 			m_SwapChain = CreateScope<VulkanSwapChain>(m_Surface, scSpec);
 		}
-
 
 		QK_CORE_TRACE("Created Vulkan graphics context!");
 	}

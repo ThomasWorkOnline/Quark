@@ -20,8 +20,8 @@ namespace Quark {
 		return GraphicsAPI::API::Metal;
 #else
 		// Default
-		return GraphicsAPI::API::OpenGL;
-		//return GraphicsAPI::API::Vulkan;
+		//return GraphicsAPI::API::OpenGL;
+		return GraphicsAPI::API::Vulkan;
 #endif
 	}
 

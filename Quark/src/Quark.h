@@ -33,6 +33,7 @@
 #include "Quark/Renderer/Renderer.h"
 #include "Quark/Renderer/Renderer2D.h"
 #include "Quark/Renderer/RenderCommand.h"
+#include "Quark/Renderer/RenderPipeline.h"
 #include "Quark/Renderer/Cubemap.h"
 #include "Quark/Renderer/Font.h"
 #include "Quark/Renderer/Framebuffer.h"

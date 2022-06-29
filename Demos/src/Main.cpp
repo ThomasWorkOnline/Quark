@@ -7,6 +7,6 @@ namespace Quark {
 
 	Application* CreateApplication()
 	{
-		return new PBRRenderingDemo();
+		return new VulkanApp();
 	}
 }

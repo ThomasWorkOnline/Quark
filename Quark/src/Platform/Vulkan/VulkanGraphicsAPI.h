@@ -34,20 +34,22 @@ namespace Quark {
 		virtual Ref<IndexBuffer>       CreateIndexBuffer(const uint32_t* indices, uint32_t count) override;
 		virtual Ref<IndexBuffer>       CreateIndexBuffer(uint32_t count) override;
 
-		virtual Ref<Cubemap>           CreateCubemap(const CubemapSpecification & spec) override { return nullptr; }
+		virtual Ref<Cubemap>           CreateCubemap(const CubemapSpecification& spec) override;
 
-		virtual Ref<Font>              CreateFont(std::string_view filepath, uint32_t fontSize) override { return nullptr; }
+		virtual Ref<Font>              CreateFont(std::string_view filepath, uint32_t fontSize) override;
 
-		virtual Ref<Framebuffer>       CreateFramebuffer(const FramebufferSpecification & spec) override { return nullptr; }
+		virtual Ref<Framebuffer>       CreateFramebuffer(const FramebufferSpecification& spec) override;
 
-		virtual Ref<Shader>            CreateShader(std::string_view filepath) override { return nullptr; }
-		virtual Ref<Shader>            CreateShader(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource) override { return nullptr; }
-		virtual Ref<Shader>            CreateShader(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource) override { return nullptr; }
+		virtual Scope<RenderPipeline>  CreateRenderPipeline() override;
 
-		virtual Ref<Texture2D>         CreateTexture2D(const Texture2DSpecification & spec) override { return nullptr; }
-		virtual Ref<Texture2D>         CreateTexture2D(std::string_view filepath, const TextureFormatDescriptor & descriptor = {}) override { return nullptr; }
+		virtual Ref<Shader>            CreateShader(std::string_view filepath) override;
+		virtual Ref<Shader>            CreateShader(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource) override;
+		virtual Ref<Shader>            CreateShader(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource) override;
 
-		virtual Ref<Texture2DArray>    CreateTexture2DArray(const TextureArraySpecification & spec) override { return nullptr; }
+		virtual Ref<Texture2D>         CreateTexture2D(const Texture2DSpecification& spec) override;
+		virtual Ref<Texture2D>         CreateTexture2D(std::string_view filepath, const TextureFormatDescriptor& descriptor = {}) override;
+
+		virtual Ref<Texture2DArray>    CreateTexture2DArray(const Texture2DArraySpecification& spec) override;
 
 		virtual Ref<UniformBuffer>     CreateUniformBuffer(size_t size, uint32_t binding) override;
 

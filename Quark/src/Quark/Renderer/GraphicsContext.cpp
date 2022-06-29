@@ -3,16 +3,16 @@
 #include "GraphicsAPI.h"
 
 #ifdef QK_PLATFORM_APPLE
-#	include "Platform/Metal/MetalGLFWGraphicsContext.h"
+#	include "Platform/Metal/MetalContext.h"
 #endif
 
 #if defined(QK_PLATFORM_WINDOWS) && defined(QK_USE_NATIVE_APIS)
 	// Windows specific graphics context
-#	include "Platform/Windows/OpenGL/OpenGLWin32GraphicsContext.h"
+#	include "Platform/Windows/OpenGL/OpenGLWin32Context.h"
 #endif
 
-#include "Platform/OpenGL/OpenGLGraphicsContext.h"
-#include "Platform/Vulkan/VulkanGraphicsContext.h"
+#include "Platform/OpenGL/OpenGLContext.h"
+#include "Platform/Vulkan/VulkanContext.h"
 
 namespace Quark {
 

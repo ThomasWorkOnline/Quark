@@ -28,9 +28,12 @@ namespace Quark {
 		for (size_t i = 0; i < m_Layers.size(); i++)
 			delete m_Layers[i];
 
-		Renderer::Dispose();
-		Renderer2D::Dispose();
-		SceneRenderer::Dispose();
+		if (GraphicsAPI::GetAPI() == GraphicsAPI::API::OpenGL)
+		{
+			Renderer::Dispose();
+			Renderer2D::Dispose();
+			SceneRenderer::Dispose();
+		}
 	}
 
 	void Application::Stop()
@@ -94,11 +97,14 @@ namespace Quark {
 		RenderCommand::SetClearColor({ 0.01f, 0.01f, 0.01f, 1.0f });
 		QK_CORE_INFO(GraphicsAPI::Instance->GetSpecification());
 
-		Renderer::Initialize();
-		Renderer2D::Initialize();
+		if (GraphicsAPI::GetAPI() == GraphicsAPI::API::OpenGL)
+		{
+			Renderer::Initialize();
+			Renderer2D::Initialize();
 
-		Renderer::OnViewportResized(m_Window->GetWidth(), m_Window->GetHeight());
-		SceneRenderer::OnViewportResized(m_Window->GetWidth(), m_Window->GetHeight());
+			Renderer::OnViewportResized(m_Window->GetWidth(), m_Window->GetHeight());
+			SceneRenderer::OnViewportResized(m_Window->GetWidth(), m_Window->GetHeight());
+		}
 
 		if (m_Options.HasFlag(ShowApiInWindowTitle))
 		{

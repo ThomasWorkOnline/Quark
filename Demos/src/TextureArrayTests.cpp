@@ -1,6 +1,6 @@
 #include "TextureArrayTest.h"
 
-struct Vertex
+struct SpriteVertex
 {
 	Vec3f Position;
 	Vec2f TexCoord;
@@ -9,9 +9,9 @@ struct Vertex
 
 TextureArrayTest::TextureArrayTest()
 {
-	Image texture1 = "assets/textures/Example1_BasicRendering.png";
+	Image texture1 = Image("assets/textures/Example1_BasicRendering.png");
 
-	TextureArraySpecification spec;
+	Texture2DArraySpecification spec;
 	spec.DataFormat     = TextureDataFormat::RGBA;
 	spec.InternalFormat = TextureInternalFormat::SRGBA8;
 	spec.Width = texture1.Width();
@@ -29,7 +29,7 @@ TextureArrayTest::TextureArrayTest()
 	m_Shader->Attach();
 	m_Shader->SetInt("u_Sampler", 0);
 
-	static constexpr Vertex vertices[] = {
+	static constexpr SpriteVertex vertices[] = {
 		{ { 0.0f, 0.0f, 1.0f },  { 0.0f, 1.0f }, 0 },
 		{ { 1.0f, 0.0f, 1.0f },  { 1.0f, 1.0f }, 0 },
 		{ { 1.0f, 1.0f, 1.0f },  { 1.0f, 0.0f }, 1 },

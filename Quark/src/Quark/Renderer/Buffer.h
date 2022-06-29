@@ -84,23 +84,42 @@ namespace Quark {
 	class BufferLayout
 	{
 	public:
-		BufferLayout() = default;
-		BufferLayout(std::initializer_list<BufferElement> elements)
+		constexpr BufferLayout() = default;
+		constexpr BufferLayout(std::initializer_list<BufferElement> elements)
 			: m_Elements(elements)
 		{
 			CalculateOffsetsAndStride();
 		}
 
-		size_t GetStride() const { return m_Stride; }
-		const std::vector<BufferElement>& GetElements() const { return m_Elements; }
+		constexpr size_t GetStride() const { return m_Stride; }
+		constexpr size_t GetCount() const { return m_Elements.size(); }
 
-		std::vector<BufferElement>::iterator begin() { return m_Elements.begin(); }
-		std::vector<BufferElement>::iterator end() { return m_Elements.end(); }
-		std::vector<BufferElement>::const_iterator begin() const { return m_Elements.begin(); }
-		std::vector<BufferElement>::const_iterator end() const { return m_Elements.end(); }
+		constexpr const std::vector<BufferElement>& GetElements() const { return m_Elements; }
+
+		constexpr const BufferElement& operator[](const char* name) const
+		{
+			auto it = std::find_if(m_Elements.begin(), m_Elements.end(), [name](const BufferElement& element)
+				{
+					return std::strcmp(element.Name, name) == 0;
+				});
+
+			QK_CORE_ASSERT(it != m_Elements.end(), "Element with name {0} was not found in layout", name);
+			return *it;
+		}
+
+		constexpr const BufferElement& operator[](size_t index) const
+		{
+			QK_CORE_ASSERT(index >= 0 && index < m_Elements.size(), "Buffer element index out of bounds");
+			return m_Elements[index];
+		}
+
+		constexpr std::vector<BufferElement>::iterator begin() { return m_Elements.begin(); }
+		constexpr std::vector<BufferElement>::iterator end() { return m_Elements.end(); }
+		constexpr std::vector<BufferElement>::const_iterator begin() const { return m_Elements.begin(); }
+		constexpr std::vector<BufferElement>::const_iterator end() const { return m_Elements.end(); }
 
 	private:
-		void CalculateOffsetsAndStride()
+		constexpr void CalculateOffsetsAndStride()
 		{
 			size_t offset = 0;
 			m_Stride = 0;

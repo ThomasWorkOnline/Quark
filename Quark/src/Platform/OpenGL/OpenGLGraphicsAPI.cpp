@@ -5,6 +5,7 @@
 #include "OpenGLCubemap.h"
 #include "OpenGLFont.h"
 #include "OpenGLFramebuffer.h"
+#include "OpenGLPipeline.h"
 #include "OpenGLShader.h"
 #include "OpenGLTexture.h"
 #include "OpenGLTextureArray.h"
@@ -264,6 +265,11 @@ namespace Quark {
 		return CreateRef<OpenGLFramebuffer>(spec);
 	}
 
+	Scope<RenderPipeline> OpenGLGraphicsAPI::CreateRenderPipeline()
+	{
+		return CreateScope<OpenGLPipeline>();
+	}
+
 	Ref<Shader> OpenGLGraphicsAPI::CreateShader(std::string_view filepath)
 	{
 		return CreateRef<OpenGLShader>(filepath);
@@ -289,7 +295,7 @@ namespace Quark {
 		return CreateRef<OpenGLTexture2D>(filepath, descriptor);
 	}
 
-	Ref<Texture2DArray> OpenGLGraphicsAPI::CreateTexture2DArray(const TextureArraySpecification& spec)
+	Ref<Texture2DArray> OpenGLGraphicsAPI::CreateTexture2DArray(const Texture2DArraySpecification& spec)
 	{
 		return CreateRef<OpenGLTexture2DArray>(spec);
 	}

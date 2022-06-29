@@ -1,6 +1,8 @@
 #include "qkpch.h"
 #include "VulkanFramebuffer.h"
-#include "VulkanGraphicsContext.h"
+
+#include "VulkanContext.h"
+#include "VulkanUtils.h"
 
 namespace Quark {
 
@@ -13,7 +15,7 @@ namespace Quark {
 	VulkanFramebuffer::~VulkanFramebuffer()
 	{
 		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
-		vkDevice.destroyFramebuffer(m_VkFramebuffer);
+		vkDevice.destroyFramebuffer(m_Framebuffer);
 	}
 
 	void VulkanFramebuffer::Resize(uint32_t width, uint32_t height)
@@ -27,9 +29,9 @@ namespace Quark {
 	void VulkanFramebuffer::Invalidate()
 	{
 		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
-		if (m_VkFramebuffer)
+		if (m_Framebuffer)
 		{
-			vkDevice.destroyFramebuffer(m_VkFramebuffer);
+			vkDevice.destroyFramebuffer(m_Framebuffer);
 		}
 	}
 }

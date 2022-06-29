@@ -1,11 +1,11 @@
 #include "qkpch.h"
-#include "OpenGLWin32GraphicsContext.h"
+#include "OpenGLWin32Context.h"
 
 #include <glad/glad.h>
 
 namespace Quark {
 
-	OpenGLWin32GraphicsContext::OpenGLWin32GraphicsContext(void* windowHandle)
+	OpenGLWin32Context::OpenGLWin32Context(void* windowHandle)
 		: m_WindowHandle(static_cast<HWND>(windowHandle))
 		, m_DeviceContext(nullptr)
 		, m_Context(nullptr)
@@ -13,7 +13,7 @@ namespace Quark {
 		QK_CORE_ASSERT(windowHandle, "Window handle is nullptr");
 	}
 
-	OpenGLWin32GraphicsContext::~OpenGLWin32GraphicsContext()
+	OpenGLWin32Context::~OpenGLWin32Context()
 	{
 		QK_PROFILE_FUNCTION();
 
@@ -22,7 +22,7 @@ namespace Quark {
 		wglDeleteContext(m_Context);
 	}
 
-	void OpenGLWin32GraphicsContext::Init()
+	void OpenGLWin32Context::Init()
 	{
 		QK_PROFILE_FUNCTION();
 
@@ -63,7 +63,7 @@ namespace Quark {
 		QK_CORE_TRACE("Created OpenGL graphics context!");
 	}
 
-	void OpenGLWin32GraphicsContext::SwapBuffers()
+	void OpenGLWin32Context::SwapBuffers()
 	{
 		::SwapBuffers(m_DeviceContext);
 	}

@@ -1,6 +1,8 @@
 #include "qkpch.h"
 #include "VulkanUniformBuffer.h"
-#include "VulkanGraphicsContext.h"
+
+#include "VulkanContext.h"
+#include "VulkanUtils.h"
 
 namespace Quark {
 

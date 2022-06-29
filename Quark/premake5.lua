@@ -10,7 +10,7 @@ group ""
 project "Quark"
 	kind "StaticLib"
 	language "C++"
-	cppdialect "C++17"
+	cppdialect "C++20"
 	staticruntime "Off"
 
 	targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
@@ -135,7 +135,7 @@ project "Quark"
 		defines "QK_RELEASE"
 		runtime "Release"
 		optimize "On"
-		symbols	"Off"
+		symbols	"On"
 
 		flags
 		{

@@ -161,7 +161,7 @@ namespace Quark {
 			return GraphicsAPI::Instance->CreateTexture2D(filepath, descriptor);
 		}
 
-		static Ref<Texture2DArray> CreateTexture2DArray(const TextureArraySpecification& spec)
+		static Ref<Texture2DArray> CreateTexture2DArray(const Texture2DArraySpecification& spec)
 		{
 			QK_ASSERT_RENDER_THREAD();
 			return GraphicsAPI::Instance->CreateTexture2DArray(spec);

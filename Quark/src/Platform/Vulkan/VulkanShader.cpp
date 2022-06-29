@@ -1,6 +1,7 @@
 #include "qkpch.h"
 #include "VulkanShader.h"
-#include "VulkanGraphicsContext.h"
+
+#include "VulkanContext.h"
 
 namespace Quark {
 
@@ -20,10 +21,27 @@ namespace Quark {
 
 			return buffer;
 		}
+
+		static vk::ShaderStageFlagBits GetShaderStageType(std::string_view filepath)
+		{
+			vk::ShaderStageFlagBits stage{};
+			if (filepath.find("vert") != std::string::npos)
+				stage = vk::ShaderStageFlagBits::eVertex;
+			else if (filepath.find("frag") != std::string::npos)
+				stage = vk::ShaderStageFlagBits::eFragment;
+			else if (filepath.find("geometry") != std::string::npos)
+				stage = vk::ShaderStageFlagBits::eGeometry;
+			else if (filepath.find("compute") != std::string::npos)
+				stage = vk::ShaderStageFlagBits::eCompute;
+
+			QK_CORE_ASSERT(stage != (vk::ShaderStageFlagBits)0, "Could not find the type of shader");
+			return stage;
+		}
 	}
 
-	VulkanShader::VulkanShader(vk::ShaderStageFlagBits stage, std::string_view filepath)
+	VulkanShader::VulkanShader(std::string_view filepath)
 	{
+		auto type = Utils::GetShaderStageType(filepath);
 		auto byteCode = Utils::ReadByteCode(filepath);
 
 		vk::ShaderModuleCreateInfo createInfo;
@@ -33,9 +51,19 @@ namespace Quark {
 		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
 		m_ShaderModule = vkDevice.createShaderModule(createInfo);
 
-		m_StageInfo.setStage(stage);
+		m_StageInfo.setStage(type);
 		m_StageInfo.setModule(m_ShaderModule);
 		m_StageInfo.setPName("main");
+	}
+
+	VulkanShader::VulkanShader(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource)
+	{
+		QK_CORE_FATAL("Compiling Vulkan shaders is not yet implemented");
+	}
+
+	VulkanShader::VulkanShader(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource)
+	{
+		QK_CORE_FATAL("Compiling Vulkan shaders is not yet implemented");
 	}
 
 	VulkanShader::~VulkanShader()

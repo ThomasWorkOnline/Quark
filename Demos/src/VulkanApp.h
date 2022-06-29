@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Platform/Vulkan/VulkanPipeline.h"
 #include <Quark.h>
 
 using namespace Quark;
@@ -19,10 +18,11 @@ private:
 	bool OnWindowResized(WindowResizedEvent& e);
 
 private:
+	SceneCamera m_SceneCamera;
+	Mat4f m_CameraView;
+
 	Ref<VertexBuffer> m_VertexBuffer;
 	Ref<IndexBuffer> m_IndexBuffer;
 
-	CameraBufferData m_CameraData;
-
-	VulkanPipeline m_RenderPipeline;
+	Scope<RenderPipeline> m_RenderPipeline;
 };

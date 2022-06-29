@@ -9,6 +9,7 @@
 #include "Cubemap.h"
 #include "Font.h"
 #include "Framebuffer.h"
+#include "RenderPipeline.h"
 #include "Shader.h"
 #include "Texture.h"
 #include "TextureArray.h"
@@ -70,6 +71,8 @@ namespace Quark {
 		virtual Ref<Font>              CreateFont(std::string_view filepath, uint32_t fontSize) = 0;
 
 		virtual Ref<Framebuffer>       CreateFramebuffer(const FramebufferSpecification& spec) = 0;
+
+		virtual Scope<RenderPipeline>  CreateRenderPipeline() = 0;
 		
 		virtual Ref<Shader>            CreateShader(std::string_view filepath) = 0;
 		virtual Ref<Shader>            CreateShader(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource) = 0;
@@ -78,7 +81,7 @@ namespace Quark {
 		virtual Ref<Texture2D>         CreateTexture2D(const Texture2DSpecification& spec) = 0;
 		virtual Ref<Texture2D>         CreateTexture2D(std::string_view filepath, const TextureFormatDescriptor& descriptor = {}) = 0;
 
-		virtual Ref<Texture2DArray>    CreateTexture2DArray(const TextureArraySpecification& spec) = 0;
+		virtual Ref<Texture2DArray>    CreateTexture2DArray(const Texture2DArraySpecification& spec) = 0;
 
 		virtual Ref<UniformBuffer>     CreateUniformBuffer(size_t size, uint32_t binding) = 0;
 

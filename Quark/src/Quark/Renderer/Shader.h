@@ -39,7 +39,7 @@ namespace Quark {
 		virtual void SetMat4d(std::string_view name, const Mat4d& matrix) = 0;
 
 		virtual uint32_t GetRendererID() const = 0;
-		virtual const std::string& GetName() const = 0;
+		virtual std::string_view GetName() const = 0;
 
 		virtual bool operator==(const Shader& other) const = 0;
 

@@ -1,14 +1,55 @@
 #include "qkpch.h"
 #include "VulkanPipeline.h"
-#include "VulkanGraphicsContext.h"
+
+#include "VulkanContext.h"
+#include "VulkanUtils.h"
+
+#include "Quark/Renderer/RenderCommand.h"
+
+// alloca failure warning
+#pragma warning(disable : 6255)
 
 namespace Quark {
 
+	namespace Utils {
+
+		static vk::Format ShaderDataTypeToVulkan(ShaderDataType type)
+		{
+			switch (type)
+			{
+				case ShaderDataType::Float:   return vk::Format::eR32Sfloat;
+				case ShaderDataType::Float2:  return vk::Format::eR32G32Sfloat;
+				case ShaderDataType::Float3:  return vk::Format::eR32G32B32Sfloat;
+				case ShaderDataType::Float4:  return vk::Format::eR32G32B32A32Sfloat;
+				case ShaderDataType::Double:  return vk::Format::eR64Sfloat;
+				case ShaderDataType::Double2: return vk::Format::eR64G64Sfloat;
+				case ShaderDataType::Double3: return vk::Format::eR64G64B64Sfloat;
+				case ShaderDataType::Double4: return vk::Format::eR64G64B64A64Sfloat;
+
+				// TODO: map matrices, int and bool types
+				default:
+					QK_CORE_FATAL("Unknown ShaderDataType");
+					return vk::Format::eUndefined;
+			}
+		}
+
+		static vk::VertexInputBindingDescription GetBindingDescription(const BufferLayout& layout)
+		{
+			vk::VertexInputBindingDescription bindingDescription;
+			bindingDescription.binding = 0;
+			bindingDescription.stride = layout.GetStride();
+			bindingDescription.inputRate = vk::VertexInputRate::eVertex;
+
+			return bindingDescription;
+		}
+	}
+
 	VulkanPipeline::VulkanPipeline()
-		: m_VertShader(vk::ShaderStageFlagBits::eVertex, "../Quark/assets/shaders/version/4.50/bin/vert.spv"),
-		m_FragShader(vk::ShaderStageFlagBits::eFragment, "../Quark/assets/shaders/version/4.50/bin/frag.spv")
 	{
 		QK_PROFILE_FUNCTION();
+
+		m_VertShader = Shader::Create("../Quark/assets/shaders/version/4.50/bin/vert.spv");
+		m_FragShader = Shader::Create("../Quark/assets/shaders/version/4.50/bin/frag.spv");
 
 		auto& swapChain = VulkanContext::GetSwapChain();
 		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
@@ -147,7 +188,7 @@ namespace Quark {
 		vkDevice.destroyRenderPass(m_RenderPass);
 	}
 
-	void VulkanPipeline::Begin()
+	void VulkanPipeline::Begin(const Mat4f& cameraProjection, const Mat4f& cameraView)
 	{
 		m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % g_FramesInFlight;
 
@@ -167,6 +208,7 @@ namespace Quark {
 		m_ActiveCommandBuffer.reset();
 
 		m_ActiveCameraUniformBuffer = m_CameraUniformBuffers[m_CurrentFrameIndex].get();
+		m_ActiveCameraUniformBuffer->SetData(&m_CameraData, sizeof(CameraBufferData));
 
 		vk::CommandBufferBeginInfo beginInfo;
 		m_ActiveCommandBuffer.begin(beginInfo);
@@ -192,7 +234,7 @@ namespace Quark {
 		submitInfo.setPCommandBuffers(&m_ActiveCommandBuffer);
 
 		auto& swapChain = VulkanContext::GetSwapChain();
-		vk::Semaphore signalSemaphores[] = { swapChain.GetRenderFinishedSemaphore(m_CurrentFrameIndex) };
+		vk::Semaphore signalSemaphores[] = { swapChain.GetRenderFinishedSemaphore() };
 		submitInfo.setSignalSemaphoreCount(1);
 		submitInfo.setPSignalSemaphores(signalSemaphores);
 
@@ -291,19 +333,29 @@ namespace Quark {
 			vkDevice.destroyPipelineLayout(m_PipelineLayout);
 		}
 
-		auto bindingDescription = Vertex::GetBindingDescription();
-		auto attributeDescriptions = Vertex::GetAttributeDescriptions();
+		// Vertex input 
+		auto bindingDescription = Utils::GetBindingDescription(g_Vertex2DLayout);
+		vk::VertexInputAttributeDescription* attributeDescriptions = (vk::VertexInputAttributeDescription*)alloca(g_Vertex2DLayout.GetCount() * sizeof(BufferElement));
+
+		for (size_t i = 0; i < g_Vertex2DLayout.GetCount(); i++)
+		{
+			attributeDescriptions[i].binding = 0;
+			attributeDescriptions[i].location = i;
+			attributeDescriptions[i].format = Utils::ShaderDataTypeToVulkan(g_Vertex2DLayout[i].Type);
+			attributeDescriptions[i].offset = g_Vertex2DLayout[i].Offset;
+		}
 
 		vk::PipelineVertexInputStateCreateInfo vertexInputInfo;
 		vertexInputInfo.setVertexBindingDescriptionCount(1);
-		vertexInputInfo.setVertexAttributeDescriptionCount(static_cast<uint32_t>(attributeDescriptions.size()));
+		vertexInputInfo.setVertexAttributeDescriptionCount(static_cast<uint32_t>(g_Vertex2DLayout.GetCount()));
 		vertexInputInfo.setPVertexBindingDescriptions(&bindingDescription);
-		vertexInputInfo.setPVertexAttributeDescriptions(attributeDescriptions.data());
+		vertexInputInfo.setPVertexAttributeDescriptions(attributeDescriptions);
 
 		vk::PipelineInputAssemblyStateCreateInfo inputAssembly;
 		inputAssembly.setTopology(vk::PrimitiveTopology::eTriangleList);
 		inputAssembly.setPrimitiveRestartEnable(VK_FALSE);
 
+		// Viewport dimensions and rasterization
 		auto& swapChain = VulkanContext::GetSwapChain();
 		vk::Extent2D extent = swapChain.GetSpecification().Extent;
 
@@ -334,13 +386,15 @@ namespace Quark {
 		rasterizer.setFrontFace(vk::FrontFace::eClockwise);
 		rasterizer.setDepthBiasEnable(VK_FALSE);
 
+		// Multisampling
 		vk::PipelineMultisampleStateCreateInfo multisampling;
 		multisampling.setSampleShadingEnable(VK_FALSE);
 		multisampling.setRasterizationSamples(vk::SampleCountFlagBits::e1);
-		/*multisampling.setMinSampleShading(1.0f);
+		multisampling.setMinSampleShading(1.0f);
 		multisampling.setAlphaToCoverageEnable(VK_FALSE);
-		multisampling.setAlphaToOneEnable(VK_FALSE);*/
+		multisampling.setAlphaToOneEnable(VK_FALSE);
 
+		// Blending
 		vk::PipelineColorBlendAttachmentState colorBlendAttachment;
 		colorBlendAttachment.setColorWriteMask(vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA);
 		colorBlendAttachment.setBlendEnable(VK_TRUE);
@@ -357,15 +411,18 @@ namespace Quark {
 		colorBlending.setAttachmentCount(1);
 		colorBlending.setPAttachments(&colorBlendAttachment);
 
-		/*vk::DynamicState dynamicStates[] = {
+#if 0
+		vk::DynamicState dynamicStates[] = {
 			vk::DynamicState::eViewport,
 			vk::DynamicState::eLineWidth
 		};
 
 		vk::PipelineDynamicStateCreateInfo dynamicState;
 		dynamicState.setDynamicStateCount(static_cast<uint32_t>(sizeof(dynamicStates)));
-		dynamicState.setPDynamicStates(dynamicStates);*/
+		dynamicState.setPDynamicStates(dynamicStates);
+#endif
 
+		// Pipeline creation
 		vk::PipelineLayoutCreateInfo pipelineLayoutInfo;
 		pipelineLayoutInfo.setSetLayoutCount(0);
 		pipelineLayoutInfo.setPushConstantRangeCount(0);
@@ -376,8 +433,8 @@ namespace Quark {
 		m_PipelineLayout = vkDevice.createPipelineLayout(pipelineLayoutInfo);
 
 		vk::PipelineShaderStageCreateInfo shaderStages[] = {
-			m_VertShader.GetStageInfo(),
-			m_FragShader.GetStageInfo()
+			((VulkanShader&)*m_VertShader).GetStageInfo(),
+			((VulkanShader&)*m_FragShader).GetStageInfo()
 		};
 
 		vk::GraphicsPipelineCreateInfo pipelineInfo;

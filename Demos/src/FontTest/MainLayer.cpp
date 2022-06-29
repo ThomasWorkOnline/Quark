@@ -2,7 +2,7 @@
 
 MainLayer::MainLayer()
 {
-	TextureArraySpecification spec;
+	Texture2DArraySpecification spec;
 	spec.Width = 48;
 	spec.Height = 48;
 	spec.Layers = 1;

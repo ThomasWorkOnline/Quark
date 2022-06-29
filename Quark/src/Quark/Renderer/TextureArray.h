@@ -5,7 +5,7 @@
 
 namespace Quark {
 
-	struct TextureArraySpecification
+	struct Texture2DArraySpecification
 	{
 		uint32_t              Width = 0, Height = 0, Layers = 0;
 		uint32_t              Samples = 1;
@@ -35,6 +35,6 @@ namespace Quark {
 
 		virtual bool operator==(const Texture2DArray& other) const = 0;
 
-		static Ref<Texture2DArray> Create(const TextureArraySpecification& spec);
+		static Ref<Texture2DArray> Create(const Texture2DArraySpecification& spec);
 	};
 }

@@ -25,9 +25,8 @@ namespace Quark {
 		void Resize(uint32_t viewportWidth, uint32_t viewportHeight);
 
 		uint32_t AcquireNextImageIndex(vk::Semaphore imageAvailableSemaphore);
-
 		vk::ImageView GetImageView(uint32_t i) const { return m_SwapChainImageViews[i]; }
-		vk::Semaphore GetRenderFinishedSemaphore(uint32_t i) const { return m_RenderFinishedSemaphores[i]; }
+		vk::Semaphore GetRenderFinishedSemaphore() const { return m_RenderFinishedSemaphores[m_CurrentFrameIndex]; }
 
 		const VulkanSwapChainSpecification& GetSpecification() const { return m_Spec; }
 
@@ -42,8 +41,8 @@ namespace Quark {
 		std::vector<vk::ImageView> m_SwapChainImageViews;
 		std::vector<vk::Semaphore> m_RenderFinishedSemaphores;
 
-		uint32_t m_CurrentFrameIndex = std::numeric_limits<uint32_t>::max();
 		uint32_t m_ImageIndex = 0;
+		uint32_t m_CurrentFrameIndex = std::numeric_limits<uint32_t>::max();
 		VulkanSwapChainSpecification m_Spec;
 	};
 }

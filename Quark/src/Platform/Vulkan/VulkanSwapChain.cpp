@@ -1,20 +1,21 @@
 #include "qkpch.h"
 #include "VulkanSwapChain.h"
-#include "VulkanGraphicsContext.h"
+
+#include "VulkanContext.h"
 
 namespace Quark {
 
 	VulkanSwapChain::VulkanSwapChain(vk::SurfaceKHR surface, const VulkanSwapChainSpecification& spec)
 		: m_Surface(surface), m_Spec(spec)
 	{
-		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
-
-		m_RenderFinishedSemaphores.resize(g_FramesInFlight);
-
-		vk::SemaphoreCreateInfo semaphoreInfo;
-		for (uint32_t i = 0; i < g_FramesInFlight; i++)
+		// Synchronization
 		{
-			m_RenderFinishedSemaphores[i] = vkDevice.createSemaphore(semaphoreInfo);
+			auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
+			m_RenderFinishedSemaphores.resize(g_FramesInFlight);
+
+			vk::SemaphoreCreateInfo semaphoreInfo;
+			for (uint32_t i = 0; i < g_FramesInFlight; i++)
+				m_RenderFinishedSemaphores[i] = vkDevice.createSemaphore(semaphoreInfo);
 		}
 
 		Invalidate(m_Spec.Extent.width, m_Spec.Extent.height);
@@ -26,14 +27,10 @@ namespace Quark {
 
 		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
 		for (uint32_t i = 0; i < g_FramesInFlight; i++)
-		{
 			vkDevice.destroySemaphore(m_RenderFinishedSemaphores[i]);
-		}
 
 		for (uint32_t i = 0; i < m_SwapChainImageViews.size(); i++)
-		{
 			vkDevice.destroyImageView(m_SwapChainImageViews[i]);
-		}
 
 		vkDevice.destroySwapchainKHR(m_SwapChain);
 	}
