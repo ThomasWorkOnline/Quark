@@ -2,8 +2,9 @@
 #include "SceneRenderer.h"
 
 #include "Quark/Core/Application.h"
-#include "Quark/Renderer/Cubemap.h"
-#include "Quark/Renderer/RenderCommand.h"
+#include "Cubemap.h"
+#include "Renderer.h"
+#include "RenderCommand.h"
 
 namespace Quark {
 
@@ -96,6 +97,8 @@ namespace Quark {
 
 	void SceneRenderer::Dispose()
 	{
+		QK_PROFILE_FUNCTION();
+
 		s_Data.Env.reset();
 	}
 

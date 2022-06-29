@@ -18,7 +18,6 @@
 #include "Quark/Scene/Entity.h"
 #include "Quark/Scene/Scene.h"
 #include "Quark/Scene/SceneCamera.h"
-#include "Quark/Scene/SceneRenderer.h"
 
 // Events
 #include "Quark/Events/Event.h"
@@ -40,6 +39,7 @@
 #include "Quark/Renderer/Image.h"
 #include "Quark/Renderer/Material.h"
 #include "Quark/Renderer/Mesh.h"
+#include "Quark/Renderer/SceneRenderer.h"
 #include "Quark/Renderer/Shader.h"
 #include "Quark/Renderer/SubTexture.h"
 #include "Quark/Renderer/Texture.h"

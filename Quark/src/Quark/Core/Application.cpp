@@ -5,7 +5,7 @@
 #include "Quark/Renderer/Renderer.h"
 #include "Quark/Renderer/Renderer2D.h"
 #include "Quark/Renderer/RenderCommand.h"
-#include "Quark/Scene/SceneRenderer.h"
+#include "Quark/Renderer/SceneRenderer.h"
 
 #include <ctime>
 

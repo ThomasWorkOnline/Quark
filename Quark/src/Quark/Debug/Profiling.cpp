@@ -23,6 +23,7 @@ namespace Quark {
 		void Instrumentor::BeginSession(const std::string& sessionName)
 		{
 			std::filesystem::create_directories(InstrumentorSettings::OutputDir);
+
 			m_Output.open(InstrumentorSettings::OutputDir + sessionName);
 			WriteHeader();
 		}

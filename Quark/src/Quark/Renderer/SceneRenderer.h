@@ -2,7 +2,6 @@
 
 #include "Quark/Core/Core.h"
 #include "Quark/Scene/Scene.h"
-#include "Quark/Renderer/Renderer.h"
 
 namespace Quark {
 
