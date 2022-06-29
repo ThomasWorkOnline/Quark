@@ -31,16 +31,16 @@ namespace Quark {
 		createInfo.setPCode(reinterpret_cast<const uint32_t*>(byteCode.data()));
 
 		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
-		m_VkShaderModule = vkDevice.createShaderModule(createInfo);
+		m_ShaderModule = vkDevice.createShaderModule(createInfo);
 
-		m_VkStageInfo.setStage(stage);
-		m_VkStageInfo.setModule(m_VkShaderModule);
-		m_VkStageInfo.setPName("main");
+		m_StageInfo.setStage(stage);
+		m_StageInfo.setModule(m_ShaderModule);
+		m_StageInfo.setPName("main");
 	}
 
 	VulkanShader::~VulkanShader()
 	{
 		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
-		vkDevice.destroyShaderModule(m_VkShaderModule);
+		vkDevice.destroyShaderModule(m_ShaderModule);
 	}
 }

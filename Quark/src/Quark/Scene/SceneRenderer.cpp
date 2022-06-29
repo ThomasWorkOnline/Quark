@@ -94,6 +94,11 @@ namespace Quark {
 		}
 	}
 
+	void SceneRenderer::Dispose()
+	{
+		s_Data.Env.reset();
+	}
+
 	void SceneRenderer::OnNewActiveScene()
 	{
 		// Capture the original viewport dimensions when setting a new scene

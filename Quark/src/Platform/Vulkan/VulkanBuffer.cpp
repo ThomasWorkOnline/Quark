@@ -4,85 +4,6 @@
 
 namespace Quark {
 
-	namespace Utils {
-
-		static uint32_t GetBufferMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties)
-		{
-			auto vkPhysicalDevice = VulkanContext::GetCurrentDevice().GetPhysicalDevice();
-			vk::PhysicalDeviceMemoryProperties memProperties = vkPhysicalDevice.getMemoryProperties();
-
-			for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
-			{
-				if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties)
-					return i;
-			}
-
-			QK_CORE_ASSERT(false, "Unable to find suitable memory type for buffer");
-		}
-
-		static vk::Buffer AllocateBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties, vk::DeviceMemory& bufferMemory)
-		{
-			QK_PROFILE_FUNCTION();
-
-			vk::BufferCreateInfo bufferInfo;
-			bufferInfo.setSize(size);
-			bufferInfo.setUsage(usage);
-			bufferInfo.setSharingMode(vk::SharingMode::eExclusive);
-
-			auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
-			vk::Buffer buffer = vkDevice.createBuffer(bufferInfo);
-
-			vk::MemoryRequirements memRequirements = vkDevice.getBufferMemoryRequirements(buffer);
-			uint32_t memoryTypeIndex = Utils::GetBufferMemoryType(memRequirements.memoryTypeBits, properties);
-
-			vk::MemoryAllocateInfo allocInfo;
-			allocInfo.setAllocationSize(memRequirements.size);
-			allocInfo.setMemoryTypeIndex(memoryTypeIndex);
-
-			bufferMemory = vkDevice.allocateMemory(allocInfo);
-			vkDevice.bindBufferMemory(buffer, bufferMemory, 0);
-
-			return buffer;
-		}
-
-		// TODO: copy allocator
-		static void CopyBuffer(vk::Buffer dstBuffer, vk::Buffer srcBuffer, size_t size)
-		{
-			QK_PROFILE_FUNCTION();
-
-			auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
-			auto commandPool = VulkanContext::GetCurrentDevice().GetCommandPool();
-
-			vk::CommandBufferAllocateInfo allocInfo;
-			allocInfo.setLevel(vk::CommandBufferLevel::ePrimary);
-			allocInfo.setCommandPool(commandPool);
-			allocInfo.setCommandBufferCount(1);
-
-			vk::CommandBuffer commandBuffer = vkDevice.allocateCommandBuffers(allocInfo)[0];
-
-			vk::CommandBufferBeginInfo beginInfo;
-			beginInfo.setFlags(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
-
-			vk::BufferCopy copyRegion;
-			copyRegion.setSize(size);
-
-			commandBuffer.begin(beginInfo);
-			commandBuffer.copyBuffer(srcBuffer, dstBuffer, copyRegion);
-			commandBuffer.end();
-
-			vk::SubmitInfo submitInfo;
-			submitInfo.setCommandBufferCount(1);
-			submitInfo.setPCommandBuffers(&commandBuffer);
-
-			auto graphicsQueue = VulkanContext::GetCurrentDevice().GetGraphicsQueue();
-
-			graphicsQueue.submit(submitInfo);
-			graphicsQueue.waitIdle();
-
-			vkDevice.freeCommandBuffers(commandPool, 1, &commandBuffer);
-		}
-	}
-
 	VulkanVertexBuffer::VulkanVertexBuffer(const void* vertices, size_t size)
 	{
 		QK_PROFILE_FUNCTION();
@@ -100,11 +21,11 @@ namespace Quark {
 		std::memcpy(mappedMemory, vertices, size);
 		vkDevice.unmapMemory(stagingBufferMemory);
 
-		m_VkBuffer = Utils::AllocateBuffer(size,
+		m_Buffer = Utils::AllocateBuffer(size,
 			vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer,
-			vk::MemoryPropertyFlagBits::eDeviceLocal, m_VkBufferMemory);
+			vk::MemoryPropertyFlagBits::eDeviceLocal, m_BufferMemory);
 
-		Utils::CopyBuffer(m_VkBuffer, stagingBuffer, size);
+		Utils::CopyBuffer(m_Buffer, stagingBuffer, size);
 
 		vkDevice.destroyBuffer(stagingBuffer);
 		vkDevice.freeMemory(stagingBufferMemory);
@@ -114,9 +35,9 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		m_VkBuffer = Utils::AllocateBuffer(size,
+		m_Buffer = Utils::AllocateBuffer(size,
 			vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer,
-			vk::MemoryPropertyFlagBits::eDeviceLocal, m_VkBufferMemory);
+			vk::MemoryPropertyFlagBits::eDeviceLocal, m_BufferMemory);
 	}
 
 	VulkanVertexBuffer::~VulkanVertexBuffer()
@@ -124,8 +45,8 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
-		vkDevice.destroyBuffer(m_VkBuffer);
-		vkDevice.freeMemory(m_VkBufferMemory);
+		vkDevice.destroyBuffer(m_Buffer);
+		vkDevice.freeMemory(m_BufferMemory);
 	}
 
 	void VulkanVertexBuffer::Attach() const
@@ -133,7 +54,7 @@ namespace Quark {
 		vk::DeviceSize offsets[] = { 0 };
 
 		auto commandBuffer = VulkanContext::GetCurrentDevice().GetCommandBuffer();
-		commandBuffer.bindVertexBuffers(0, 1, &m_VkBuffer, offsets);
+		commandBuffer.bindVertexBuffers(0, 1, &m_Buffer, offsets);
 	}
 
 	void VulkanVertexBuffer::SetData(const void* data, size_t size, size_t offset)
@@ -154,7 +75,7 @@ namespace Quark {
 		std::memcpy(mappedMemory, data, size);
 		vkDevice.unmapMemory(stagingBufferMemory);
 
-		Utils::CopyBuffer(m_VkBuffer, stagingBuffer, size);
+		Utils::CopyBuffer(m_Buffer, stagingBuffer, size);
 
 		vkDevice.destroyBuffer(stagingBuffer);
 		vkDevice.freeMemory(stagingBufferMemory);
@@ -179,11 +100,11 @@ namespace Quark {
 		std::memcpy(mappedMemory, indices, size);
 		vkDevice.unmapMemory(stagingBufferMemory);
 
-		m_VkBuffer = Utils::AllocateBuffer(size,
+		m_Buffer = Utils::AllocateBuffer(size,
 			vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer,
-			vk::MemoryPropertyFlagBits::eDeviceLocal, m_VkBufferMemory);
+			vk::MemoryPropertyFlagBits::eDeviceLocal, m_BufferMemory);
 
-		Utils::CopyBuffer(m_VkBuffer, stagingBuffer, size);
+		Utils::CopyBuffer(m_Buffer, stagingBuffer, size);
 
 		vkDevice.destroyBuffer(stagingBuffer);
 		vkDevice.freeMemory(stagingBufferMemory);
@@ -195,9 +116,9 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		size_t size = count * sizeof(uint32_t);
-		m_VkBuffer = Utils::AllocateBuffer(size,
+		m_Buffer = Utils::AllocateBuffer(size,
 			vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer,
-			vk::MemoryPropertyFlagBits::eDeviceLocal, m_VkBufferMemory);
+			vk::MemoryPropertyFlagBits::eDeviceLocal, m_BufferMemory);
 	}
 
 	VulkanIndexBuffer::~VulkanIndexBuffer()
@@ -205,14 +126,14 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
-		vkDevice.destroyBuffer(m_VkBuffer);
-		vkDevice.freeMemory(m_VkBufferMemory);
+		vkDevice.destroyBuffer(m_Buffer);
+		vkDevice.freeMemory(m_BufferMemory);
 	}
 
 	void VulkanIndexBuffer::Attach() const
 	{
 		auto commandBuffer = VulkanContext::GetCurrentDevice().GetCommandBuffer();
-		commandBuffer.bindIndexBuffer(m_VkBuffer, 0, vk::IndexType::eUint32);
+		commandBuffer.bindIndexBuffer(m_Buffer, 0, vk::IndexType::eUint32);
 	}
 
 	void VulkanIndexBuffer::SetData(const uint32_t* data, uint32_t count, size_t offset)
@@ -234,7 +155,7 @@ namespace Quark {
 		std::memcpy(mappedMemory, data, size);
 		vkDevice.unmapMemory(stagingBufferMemory);
 
-		Utils::CopyBuffer(m_VkBuffer, stagingBuffer, size);
+		Utils::CopyBuffer(m_Buffer, stagingBuffer, size);
 
 		vkDevice.destroyBuffer(stagingBuffer);
 		vkDevice.freeMemory(stagingBufferMemory);

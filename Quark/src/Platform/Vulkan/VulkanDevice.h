@@ -11,31 +11,31 @@ namespace Quark {
 		VulkanDevice(vk::Device vkDevice, vk::PhysicalDevice vkPhysicalDevice, const Utils::QueueFamilyIndices& queueFamilyIndices);
 		~VulkanDevice();
 
-		vk::CommandPool GetCommandPool() const { return m_VkCommandPool; }
-		vk::PhysicalDevice GetPhysicalDevice() const { return m_VkPhysicalDevice; }
+		vk::CommandPool GetCommandPool() const { return m_CommandPool; }
+		vk::PhysicalDevice GetPhysicalDevice() const { return m_PhysicalDevice; }
 
-		vk::Queue GetGraphicsQueue() const { return m_VkGraphicsQueue; }
-		vk::Queue GetPresentQueue() const { return m_VkPresentQueue; }
+		vk::Queue GetGraphicsQueue() const { return m_GraphicsQueue; }
+		vk::Queue GetPresentQueue() const { return m_PresentQueue; }
 
-		vk::CommandBuffer GetCommandBuffer() const { return m_VkActiveCommandBuffer; }
-		vk::CommandBuffer SwitchCommandBuffer(uint32_t index) { m_VkActiveCommandBuffer = m_VkCommandBuffers[index]; return m_VkActiveCommandBuffer; }
+		vk::CommandBuffer GetCommandBuffer() const { return m_ActiveCommandBuffer; }
+		vk::CommandBuffer SwitchCommandBuffer(uint32_t index) { m_ActiveCommandBuffer = m_CommandBuffers[index]; return m_ActiveCommandBuffer; }
 
-		vk::Device GetVkHandle() const { return m_VkDevice; }
+		vk::Device GetVkHandle() const { return m_Device; }
 
 		const Utils::QueueFamilyIndices& GetQueueFamilyIndices() const { return m_QueueFamilyIndices; }
 
 		static Scope<VulkanDevice> CreateDefaultForSurface(vk::Instance vkInstance, vk::SurfaceKHR vkSurface);
 
 	private:
-		vk::Device m_VkDevice;
-		vk::PhysicalDevice m_VkPhysicalDevice;
+		vk::Device m_Device;
+		vk::PhysicalDevice m_PhysicalDevice;
 
-		vk::Queue m_VkGraphicsQueue;
-		vk::Queue m_VkPresentQueue;
+		vk::Queue m_GraphicsQueue;
+		vk::Queue m_PresentQueue;
 
-		vk::CommandPool m_VkCommandPool;
-		vk::CommandBuffer m_VkActiveCommandBuffer;
-		std::vector<vk::CommandBuffer> m_VkCommandBuffers;
+		vk::CommandPool m_CommandPool;
+		vk::CommandBuffer m_ActiveCommandBuffer;
+		std::vector<vk::CommandBuffer> m_CommandBuffers;
 
 		Utils::QueueFamilyIndices m_QueueFamilyIndices;
 	};

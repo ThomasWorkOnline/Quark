@@ -98,10 +98,10 @@ namespace Quark {
 		m_Device.reset();
 
 #ifdef QK_ENABLE_VULKAN_VALIDATION_LAYERS
-		Utils::DestroyVkDebugUtilsMessengerEXT(m_VkInstance, m_VkDebugMessenger, nullptr);
+		Utils::DestroyVkDebugUtilsMessengerEXT(m_Instance, m_VkDebugMessenger, nullptr);
 #endif
-		m_VkInstance.destroySurfaceKHR(m_VkSurface);
-		m_VkInstance.destroy();
+		m_Instance.destroySurfaceKHR(m_Surface);
+		m_Instance.destroy();
 		s_Instance = nullptr;
 	}
 
@@ -138,23 +138,23 @@ namespace Quark {
 			vkCreateInfo.setPNext(&vkMessengerCreateInfo);
 #endif
 
-			m_VkInstance = vk::createInstance(vkCreateInfo);
+			m_Instance = vk::createInstance(vkCreateInfo);
 
 #ifdef QK_ENABLE_VULKAN_VALIDATION_LAYERS
-			vk::Result vkRes = Utils::CreateVkDebugUtilsMessengerEXT(m_VkInstance, &vkMessengerCreateInfo, nullptr, &m_VkDebugMessenger);
+			vk::Result vkRes = Utils::CreateVkDebugUtilsMessengerEXT(m_Instance, &vkMessengerCreateInfo, nullptr, &m_VkDebugMessenger);
 			QK_CORE_ASSERT(vkRes == vk::Result::eSuccess, "Failed to create a Vulkan debug messenger");
 #endif
 		}
 
 		// Window surface creation
-		glfwCreateWindowSurface(m_VkInstance, m_WindowHandle, nullptr, reinterpret_cast<vk::SurfaceKHR::CType*>(&m_VkSurface));
+		glfwCreateWindowSurface(m_Instance, m_WindowHandle, nullptr, reinterpret_cast<vk::SurfaceKHR::CType*>(&m_Surface));
 
 		// Device creation
-		m_Device = VulkanDevice::CreateDefaultForSurface(m_VkInstance, m_VkSurface);
+		m_Device = VulkanDevice::CreateDefaultForSurface(m_Instance, m_Surface);
 
 		// Swap chain creation
 		{
-			Utils::SwapChainSupportDetails swapChainSupport = Utils::QuerySwapChainSupport(m_Device->GetPhysicalDevice(), m_VkSurface);
+			Utils::SwapChainSupportDetails swapChainSupport = Utils::QuerySwapChainSupport(m_Device->GetPhysicalDevice(), m_Surface);
 
 			uint32_t imageCount = swapChainSupport.Capabilities.minImageCount + 1;
 			if (swapChainSupport.Capabilities.maxImageCount > 0 && imageCount > swapChainSupport.Capabilities.maxImageCount)
@@ -167,7 +167,7 @@ namespace Quark {
 			scSpec.FamilyIndices = m_Device->GetQueueFamilyIndices();
 			scSpec.ImageCount = imageCount;
 
-			m_SwapChain = CreateScope<VulkanSwapChain>(m_VkSurface, scSpec);
+			m_SwapChain = CreateScope<VulkanSwapChain>(m_Surface, scSpec);
 		}
 
 

@@ -24,12 +24,12 @@ namespace Quark {
 
 		virtual bool operator==(const VertexBuffer& other) const override
 		{
-			return m_VkBuffer == ((VulkanVertexBuffer&)other).m_VkBuffer;
+			return m_Buffer == ((VulkanVertexBuffer&)other).m_Buffer;
 		}
 		
 	private:
-		vk::Buffer m_VkBuffer;
-		vk::DeviceMemory m_VkBufferMemory;
+		vk::Buffer m_Buffer;
+		vk::DeviceMemory m_BufferMemory;
 
 		BufferLayout m_Layout;
 	};
@@ -51,12 +51,12 @@ namespace Quark {
 
 		virtual bool operator==(const IndexBuffer& other) const override
 		{
-			return m_VkBuffer == ((VulkanIndexBuffer&)other).m_VkBuffer;
+			return m_Buffer == ((VulkanIndexBuffer&)other).m_Buffer;
 		}
 
 	private:
-		vk::Buffer m_VkBuffer;
-		vk::DeviceMemory m_VkBufferMemory;
+		vk::Buffer m_Buffer;
+		vk::DeviceMemory m_BufferMemory;
 		uint32_t m_Count;
 	};
 }

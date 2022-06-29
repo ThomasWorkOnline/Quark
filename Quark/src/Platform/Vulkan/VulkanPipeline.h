@@ -1,7 +1,10 @@
 #pragma once
 
+#include "Quark/Core/Core.h"
+
 #include "VulkanBuffer.h"
 #include "VulkanFramebuffer.h"
+#include "VulkanUniformBuffer.h"
 #include "VulkanShader.h"
 
 #include <vulkan/vulkan.hpp>
@@ -42,6 +45,12 @@ namespace Quark {
 		}
 	};
 
+	struct CameraBufferData
+	{
+		Mat4f View       = Mat4(1.0f);
+		Mat4f Projection = Mat4(1.0f);
+	};
+
 	class VulkanPipeline
 	{
 	public:
@@ -55,6 +64,8 @@ namespace Quark {
 		void BeginRenderPass();
 		void EndRenderPass();
 
+		const Ref<UniformBuffer>& GetCameraUniformBuffer() const { return m_CameraUniformBuffers[m_CurrentFrameIndex]; }
+
 		void OnViewportResized(uint32_t viewportWidth, uint32_t viewportHeight);
 
 	private:
@@ -65,16 +76,22 @@ namespace Quark {
 		VulkanShader m_VertShader;
 		VulkanShader m_FragShader;
 
-		vk::PipelineLayout m_VkPipelineLayout;
-		vk::Pipeline m_VkGraphicsPipeline;
-		vk::RenderPass m_VkRenderPass;
-
-		std::vector<vk::Framebuffer> m_VkSwapChainFramebuffers;
-		std::vector<vk::Fence> m_VkInFlightFences;
-		std::vector<vk::Semaphore> m_VkImageAvailableSemaphores;
+		vk::DescriptorSet m_DescriptorSet;
+		vk::DescriptorPool m_DescriptorPool;
+		vk::DescriptorSetLayout m_DescriptorSetLayout;
+		vk::PipelineLayout m_PipelineLayout;
+		vk::Pipeline m_GraphicsPipeline;
+		vk::RenderPass m_RenderPass;
 
 		vk::CommandBuffer m_ActiveCommandBuffer;
-		uint32_t m_ActiveFrameIndex = std::numeric_limits<uint32_t>::max();
+		UniformBuffer* m_ActiveCameraUniformBuffer = nullptr;
+
+		std::vector<vk::Fence> m_InFlightFences;
+		std::vector<vk::Framebuffer> m_SwapChainFramebuffers;
+		std::vector<vk::Semaphore> m_ImageAvailableSemaphores;
+		std::vector<Ref<UniformBuffer>> m_CameraUniformBuffers;
+
+		uint32_t m_CurrentFrameIndex = std::numeric_limits<uint32_t>::max();
 		uint32_t m_NextImageIndex = 0;
 
 		uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;

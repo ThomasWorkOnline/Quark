@@ -3,6 +3,7 @@
 
 #include "VulkanBuffer.h"
 #include "VulkanGraphicsContext.h"
+#include "VulkanUniformBuffer.h"
 
 #include <vulkan/vulkan.hpp>
 
@@ -43,5 +44,10 @@ namespace Quark {
 	Ref<IndexBuffer> VulkanGraphicsAPI::CreateIndexBuffer(uint32_t count)
 	{
 		return CreateRef<VulkanIndexBuffer>(count);
+	}
+
+	Ref<UniformBuffer> VulkanGraphicsAPI::CreateUniformBuffer(size_t size, uint32_t binding)
+	{
+		return CreateRef<VulkanUniformBuffer>(size, binding);
 	}
 }

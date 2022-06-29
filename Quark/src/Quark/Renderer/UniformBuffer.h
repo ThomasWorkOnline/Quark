@@ -16,6 +16,8 @@ namespace Quark {
 
 		virtual uint32_t GetRendererID() const = 0;
 
+		virtual bool operator==(const UniformBuffer& other) const = 0;
+
 		static Ref<UniformBuffer> Create(size_t size, uint32_t binding);
 	};
 }

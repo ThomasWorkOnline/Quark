@@ -25,8 +25,8 @@ namespace Quark {
 	private:
 		GLFWwindow* m_WindowHandle;
 
-		vk::Instance m_VkInstance;
-		vk::SurfaceKHR m_VkSurface;
+		vk::Instance m_Instance;
+		vk::SurfaceKHR m_Surface;
 
 #ifdef QK_ENABLE_VULKAN_VALIDATION_LAYERS
 		vk::DebugUtilsMessengerEXT m_VkDebugMessenger;

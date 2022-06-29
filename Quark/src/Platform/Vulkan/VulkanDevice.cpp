@@ -6,37 +6,39 @@
 namespace Quark {
 
 	VulkanDevice::VulkanDevice(vk::Device vkDevice, vk::PhysicalDevice vkPhysicalDevice, const Utils::QueueFamilyIndices& queueFamilyIndices)
-		: m_VkDevice(vkDevice),
-		m_VkPhysicalDevice(vkPhysicalDevice),
+		: m_Device(vkDevice),
+		m_PhysicalDevice(vkPhysicalDevice),
 		m_QueueFamilyIndices(queueFamilyIndices)
 	{
 		QK_PROFILE_FUNCTION();
 
-		vk::CommandPoolCreateInfo poolInfo;
-		poolInfo.setFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer);
-		poolInfo.setQueueFamilyIndex(*m_QueueFamilyIndices.GraphicsFamily);
+		{
+			vk::CommandPoolCreateInfo poolInfo;
+			poolInfo.setFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer);
+			poolInfo.setQueueFamilyIndex(*m_QueueFamilyIndices.GraphicsFamily);
 
-		m_VkGraphicsQueue = m_VkDevice.getQueue(m_QueueFamilyIndices.GraphicsFamily.value(), 0);
-		m_VkPresentQueue = m_VkDevice.getQueue(m_QueueFamilyIndices.PresentFamily.value(), 0);
+			m_GraphicsQueue = m_Device.getQueue(m_QueueFamilyIndices.GraphicsFamily.value(), 0);
+			m_PresentQueue = m_Device.getQueue(m_QueueFamilyIndices.PresentFamily.value(), 0);
 
-		m_VkCommandPool = m_VkDevice.createCommandPool(poolInfo);
+			m_CommandPool = m_Device.createCommandPool(poolInfo);
 
-		vk::CommandBufferAllocateInfo allocInfo;
-		allocInfo.setCommandPool(m_VkCommandPool);
-		allocInfo.setLevel(vk::CommandBufferLevel::ePrimary);
-		allocInfo.setCommandBufferCount(g_FramesInFlight);
+			vk::CommandBufferAllocateInfo allocInfo;
+			allocInfo.setCommandPool(m_CommandPool);
+			allocInfo.setLevel(vk::CommandBufferLevel::ePrimary);
+			allocInfo.setCommandBufferCount(g_FramesInFlight);
 
-		m_VkCommandBuffers.resize(g_FramesInFlight);
-		m_VkCommandBuffers = m_VkDevice.allocateCommandBuffers(allocInfo);
+			m_CommandBuffers.resize(g_FramesInFlight);
+			m_CommandBuffers = m_Device.allocateCommandBuffers(allocInfo);
+		}
 	}
 
 	VulkanDevice::~VulkanDevice()
 	{
 		QK_PROFILE_FUNCTION();
 
-		m_VkDevice.waitIdle();
-		m_VkDevice.destroyCommandPool(m_VkCommandPool);
-		m_VkDevice.destroy();
+		m_Device.waitIdle();
+		m_Device.destroyCommandPool(m_CommandPool);
+		m_Device.destroy();
 	}
 
 	Scope<VulkanDevice> VulkanDevice::CreateDefaultForSurface(vk::Instance vkInstance, vk::SurfaceKHR vkSurface)

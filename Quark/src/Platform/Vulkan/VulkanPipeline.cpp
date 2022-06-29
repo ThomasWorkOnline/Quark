@@ -2,8 +2,6 @@
 #include "VulkanPipeline.h"
 #include "VulkanGraphicsContext.h"
 
-#include <array>
-
 namespace Quark {
 
 	VulkanPipeline::VulkanPipeline()
@@ -13,9 +11,26 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		auto& swapChain = VulkanContext::GetSwapChain();
+		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
 
 		m_ViewportWidth = swapChain.GetSpecification().Extent.width;
 		m_ViewportHeight = swapChain.GetSpecification().Extent.height;
+
+		m_InFlightFences.resize(g_FramesInFlight);
+		m_ImageAvailableSemaphores.resize(g_FramesInFlight);
+		m_CameraUniformBuffers.resize(g_FramesInFlight);
+
+		vk::FenceCreateInfo fenceInfo;
+		fenceInfo.setFlags(vk::FenceCreateFlagBits::eSignaled);
+
+		vk::SemaphoreCreateInfo semaphoreInfo;
+
+		for (uint32_t i = 0; i < g_FramesInFlight; i++)
+		{
+			m_InFlightFences[i] = vkDevice.createFence(fenceInfo);
+			m_ImageAvailableSemaphores[i] = vkDevice.createSemaphore(semaphoreInfo);
+			m_CameraUniformBuffers[i] = UniformBuffer::Create(sizeof(CameraBufferData), 0);
+		}
 
 		// Render pass
 		{
@@ -58,26 +73,47 @@ namespace Quark {
 			renderPassInfo.setPDependencies(&dependency);
 
 			auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
-			m_VkRenderPass = vkDevice.createRenderPass(renderPassInfo);
+			m_RenderPass = vkDevice.createRenderPass(renderPassInfo);
+		}
+
+		// Descriptor pool
+		{
+			vk::DescriptorPoolSize poolSize;
+			poolSize.setType(vk::DescriptorType::eUniformBuffer);
+			poolSize.setDescriptorCount(g_FramesInFlight);
+
+			vk::DescriptorPoolCreateInfo poolInfo;
+			poolInfo.setPoolSizeCount(1);
+			poolInfo.setPPoolSizes(&poolSize);
+			poolInfo.setMaxSets(g_FramesInFlight);
+
+			m_DescriptorPool = vkDevice.createDescriptorPool(poolInfo);
+		}
+
+		// Descriptor set layout
+		{
+			vk::DescriptorSetLayoutBinding uboLayoutBinding;
+			uboLayoutBinding.setBinding(0);
+			uboLayoutBinding.setDescriptorType(vk::DescriptorType::eUniformBuffer);
+			uboLayoutBinding.setDescriptorCount(1);
+			uboLayoutBinding.setStageFlags(vk::ShaderStageFlagBits::eVertex);
+
+			vk::DescriptorSetLayoutCreateInfo layoutInfo;
+			layoutInfo.setBindingCount(1);
+			layoutInfo.setPBindings(&uboLayoutBinding);
+
+			m_DescriptorSetLayout = vkDevice.createDescriptorSetLayout(layoutInfo);
+
+			vk::DescriptorSetAllocateInfo allocInfo;
+			allocInfo.setDescriptorPool(m_DescriptorPool);
+			allocInfo.setDescriptorSetCount(1);
+			allocInfo.setPSetLayouts(&m_DescriptorSetLayout);
+
+			m_DescriptorSet = vkDevice.allocateDescriptorSets(allocInfo)[0];
 		}
 
 		RecreateGraphicsPipeline();
 		RecreateFramebuffers();
-
-		auto& device = VulkanContext::GetCurrentDevice();
-
-		vk::FenceCreateInfo fenceInfo;
-		fenceInfo.setFlags(vk::FenceCreateFlagBits::eSignaled);
-
-		m_VkInFlightFences.resize(g_FramesInFlight);
-		m_VkImageAvailableSemaphores.resize(g_FramesInFlight);
-
-		vk::SemaphoreCreateInfo semaphoreInfo;
-		for (uint32_t i = 0; i < g_FramesInFlight; i++)
-		{
-			m_VkInFlightFences[i] = device.GetVkHandle().createFence(fenceInfo);
-			m_VkImageAvailableSemaphores[i] = device.GetVkHandle().createSemaphore(semaphoreInfo);
-		}
 	}
 
 	VulkanPipeline::~VulkanPipeline()
@@ -92,42 +128,49 @@ namespace Quark {
 			QK_CORE_INFO("Waiting for device to finish: {0}ms", t.Milliseconds().count());
 		}
 
-		for (uint32_t i = 0; i < m_VkSwapChainFramebuffers.size(); i++)
-			vkDevice.destroyFramebuffer(m_VkSwapChainFramebuffers[i]);
-
-		for (uint32_t i = 0; i < m_VkInFlightFences.size(); i++)
+		for (uint32_t i = 0; i < m_SwapChainFramebuffers.size(); i++)
 		{
-			vkDevice.destroyFence(m_VkInFlightFences[i]);
-			vkDevice.destroySemaphore(m_VkImageAvailableSemaphores[i]);
+			vkDevice.destroyFramebuffer(m_SwapChainFramebuffers[i]);
 		}
 
-		vkDevice.destroyPipeline(m_VkGraphicsPipeline);
-		vkDevice.destroyPipelineLayout(m_VkPipelineLayout);
-		vkDevice.destroyRenderPass(m_VkRenderPass);
+		for (uint32_t i = 0; i < g_FramesInFlight; i++)
+		{
+			vkDevice.destroyFence(m_InFlightFences[i]);
+			vkDevice.destroySemaphore(m_ImageAvailableSemaphores[i]);
+		}
+
+		vkDevice.destroyPipeline(m_GraphicsPipeline);
+		vkDevice.destroyPipelineLayout(m_PipelineLayout);
+		vkDevice.destroyDescriptorSetLayout(m_DescriptorSetLayout);
+		vkDevice.destroyDescriptorPool(m_DescriptorPool);
+
+		vkDevice.destroyRenderPass(m_RenderPass);
 	}
 
 	void VulkanPipeline::Begin()
 	{
-		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
+		m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % g_FramesInFlight;
 
-		m_ActiveFrameIndex = (m_ActiveFrameIndex + 1) % g_FramesInFlight;
+		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
 
 		// Wait for last frame to be complete
 		{
-			vk::Result vkRes = vkDevice.waitForFences(m_VkInFlightFences[m_ActiveFrameIndex], VK_TRUE, UINT64_MAX);
+			vk::Result vkRes = vkDevice.waitForFences(m_InFlightFences[m_CurrentFrameIndex], VK_TRUE, UINT64_MAX);
 			QK_CORE_ASSERT(vkRes == vk::Result::eSuccess, "Could not wait for fences");
-			vkDevice.resetFences(m_VkInFlightFences[m_ActiveFrameIndex]);
+			vkDevice.resetFences(m_InFlightFences[m_CurrentFrameIndex]);
 		}
 
 		auto& swapChain = VulkanContext::GetSwapChain();
-		m_NextImageIndex = swapChain.AcquireNextImageIndex(m_VkImageAvailableSemaphores[m_ActiveFrameIndex], m_ActiveFrameIndex);
+		m_NextImageIndex = swapChain.AcquireNextImageIndex(m_ImageAvailableSemaphores[m_CurrentFrameIndex]);
 
-		m_ActiveCommandBuffer = VulkanContext::GetCurrentDevice().SwitchCommandBuffer(m_ActiveFrameIndex);
+		m_ActiveCommandBuffer = VulkanContext::GetCurrentDevice().SwitchCommandBuffer(m_CurrentFrameIndex);
 		m_ActiveCommandBuffer.reset();
+
+		m_ActiveCameraUniformBuffer = m_CameraUniformBuffers[m_CurrentFrameIndex].get();
 
 		vk::CommandBufferBeginInfo beginInfo;
 		m_ActiveCommandBuffer.begin(beginInfo);
-		m_ActiveCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, m_VkGraphicsPipeline);
+		m_ActiveCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, m_GraphicsPipeline);
 	}
 
 	void VulkanPipeline::End()
@@ -138,7 +181,7 @@ namespace Quark {
 	void VulkanPipeline::Submit()
 	{
 		vk::PipelineStageFlags waitStages[] = { vk::PipelineStageFlagBits::eColorAttachmentOutput };
-		vk::Semaphore waitSemaphores[] = { m_VkImageAvailableSemaphores[m_ActiveFrameIndex] };
+		vk::Semaphore waitSemaphores[] = { m_ImageAvailableSemaphores[m_CurrentFrameIndex] };
 
 		vk::SubmitInfo submitInfo;
 		submitInfo.setWaitSemaphoreCount(1);
@@ -149,18 +192,18 @@ namespace Quark {
 		submitInfo.setPCommandBuffers(&m_ActiveCommandBuffer);
 
 		auto& swapChain = VulkanContext::GetSwapChain();
-		vk::Semaphore signalSemaphores[] = { swapChain.GetRenderFinishedSemaphore(m_ActiveFrameIndex) };
+		vk::Semaphore signalSemaphores[] = { swapChain.GetRenderFinishedSemaphore(m_CurrentFrameIndex) };
 		submitInfo.setSignalSemaphoreCount(1);
 		submitInfo.setPSignalSemaphores(signalSemaphores);
 
-		VulkanContext::GetCurrentDevice().GetGraphicsQueue().submit(submitInfo, m_VkInFlightFences[m_ActiveFrameIndex]);
+		VulkanContext::GetCurrentDevice().GetGraphicsQueue().submit(submitInfo, m_InFlightFences[m_CurrentFrameIndex]);
 	}
 
 	void VulkanPipeline::BeginRenderPass()
 	{
 		vk::RenderPassBeginInfo renderPassInfo;
-		renderPassInfo.setRenderPass(m_VkRenderPass);
-		renderPassInfo.setFramebuffer(m_VkSwapChainFramebuffers[m_NextImageIndex]);
+		renderPassInfo.setRenderPass(m_RenderPass);
+		renderPassInfo.setFramebuffer(m_SwapChainFramebuffers[m_NextImageIndex]);
 
 		renderPassInfo.renderArea.offset = vk::Offset2D{ 0, 0 };
 		renderPassInfo.renderArea.extent = vk::Extent2D{ m_ViewportWidth, m_ViewportHeight };
@@ -194,11 +237,7 @@ namespace Quark {
 			QK_CORE_INFO("Waiting for device to finish: {0}ms", t.Milliseconds().count());
 		}
 
-		vkDevice.destroyPipeline(m_VkGraphicsPipeline);
-		vkDevice.destroyPipelineLayout(m_VkPipelineLayout);
-
-		auto& swapChain = VulkanContext::GetSwapChain();
-		swapChain.Resize(viewportWidth, viewportHeight);
+		VulkanContext::GetSwapChain().Resize(viewportWidth, viewportHeight);
 
 		RecreateGraphicsPipeline();
 		RecreateFramebuffers();
@@ -214,14 +253,14 @@ namespace Quark {
 		uint32_t imageCount = swapChain.GetSpecification().ImageCount;
 		vk::Extent2D extent = swapChain.GetSpecification().Extent;
 
-		if (m_VkSwapChainFramebuffers.size() == 0)
+		if (m_SwapChainFramebuffers.size() == 0)
 		{
-			m_VkSwapChainFramebuffers.resize(imageCount);
+			m_SwapChainFramebuffers.resize(imageCount);
 		}
 		else
 		{
-			for (uint32_t i = 0; i < m_VkSwapChainFramebuffers.size(); i++)
-				vkDevice.destroyFramebuffer(m_VkSwapChainFramebuffers[i]);
+			for (uint32_t i = 0; i < m_SwapChainFramebuffers.size(); i++)
+				vkDevice.destroyFramebuffer(m_SwapChainFramebuffers[i]);
 		}
 
 		for (uint32_t i = 0; i < imageCount; i++)
@@ -231,19 +270,27 @@ namespace Quark {
 			};
 
 			vk::FramebufferCreateInfo framebufferInfo;
-			framebufferInfo.setRenderPass(m_VkRenderPass);
+			framebufferInfo.setRenderPass(m_RenderPass);
 			framebufferInfo.setAttachmentCount(1);
 			framebufferInfo.setPAttachments(attachments);
 			framebufferInfo.setWidth(extent.width);
 			framebufferInfo.setHeight(extent.height);
 			framebufferInfo.setLayers(1);
 
-			m_VkSwapChainFramebuffers[i] = vkDevice.createFramebuffer(framebufferInfo);
+			m_SwapChainFramebuffers[i] = vkDevice.createFramebuffer(framebufferInfo);
 		}
 	}
 
 	void VulkanPipeline::RecreateGraphicsPipeline()
 	{
+		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
+
+		if (m_GraphicsPipeline)
+		{
+			vkDevice.destroyPipeline(m_GraphicsPipeline);
+			vkDevice.destroyPipelineLayout(m_PipelineLayout);
+		}
+
 		auto bindingDescription = Vertex::GetBindingDescription();
 		auto attributeDescriptions = Vertex::GetAttributeDescriptions();
 
@@ -323,8 +370,10 @@ namespace Quark {
 		pipelineLayoutInfo.setSetLayoutCount(0);
 		pipelineLayoutInfo.setPushConstantRangeCount(0);
 
-		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
-		m_VkPipelineLayout = vkDevice.createPipelineLayout(pipelineLayoutInfo);
+		pipelineLayoutInfo.setSetLayoutCount(1);
+		pipelineLayoutInfo.setPSetLayouts(&m_DescriptorSetLayout);
+
+		m_PipelineLayout = vkDevice.createPipelineLayout(pipelineLayoutInfo);
 
 		vk::PipelineShaderStageCreateInfo shaderStages[] = {
 			m_VertShader.GetStageInfo(),
@@ -341,12 +390,12 @@ namespace Quark {
 		pipelineInfo.setPRasterizationState(&rasterizer);
 		pipelineInfo.setPMultisampleState(&multisampling);
 		pipelineInfo.setPColorBlendState(&colorBlending);
-		pipelineInfo.setLayout(m_VkPipelineLayout);
-		pipelineInfo.setRenderPass(m_VkRenderPass);
+		pipelineInfo.setLayout(m_PipelineLayout);
+		pipelineInfo.setRenderPass(m_RenderPass);
 		pipelineInfo.setSubpass(0);
 
 		auto pipelineStatusPair = vkDevice.createGraphicsPipeline(VK_NULL_HANDLE, pipelineInfo);
 		QK_CORE_ASSERT(pipelineStatusPair.result == vk::Result::eSuccess, "Could not create the graphics pipeline");
-		m_VkGraphicsPipeline = pipelineStatusPair.value;
+		m_GraphicsPipeline = pipelineStatusPair.value;
 	}
 }

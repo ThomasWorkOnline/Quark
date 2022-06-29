@@ -36,24 +36,30 @@ void VulkanApp::OnEvent(Event& e)
 	dispatcher.Dispatch<WindowResizedEvent>(ATTACH_EVENT_FN(OnWindowResized));
 }
 
+void VulkanApp::OnUpdate(Timestep elapsedTime)
+{
+	m_CameraData.View = glm::rotate(m_CameraData.View, elapsedTime * glm::radians(90.0f), Vec3f(0.0f, 0.0f, 1.0f));
+}
+
 void VulkanApp::OnRender()
 {
-	m_Pipeline.Begin();
-	m_Pipeline.BeginRenderPass();
+	m_RenderPipeline.Begin();
+	m_RenderPipeline.BeginRenderPass();
+
+	m_RenderPipeline.GetCameraUniformBuffer()->SetData(&m_CameraData, sizeof(CameraBufferData));
 
 	m_VertexBuffer->Attach();
 	m_IndexBuffer->Attach();
-
 	RenderCommand::DrawIndexed(nullptr, sizeof(s_Indices) / sizeof(uint32_t));
 
-	m_Pipeline.EndRenderPass();
-	m_Pipeline.End();
+	m_RenderPipeline.EndRenderPass();
+	m_RenderPipeline.End();
 
-	m_Pipeline.Submit();
+	m_RenderPipeline.Submit();
 }
 
 bool VulkanApp::OnWindowResized(WindowResizedEvent& e)
 {
-	m_Pipeline.OnViewportResized(e.GetWidth(), e.GetHeight());
+	m_RenderPipeline.OnViewportResized(e.GetWidth(), e.GetHeight());
 	return false;
 }

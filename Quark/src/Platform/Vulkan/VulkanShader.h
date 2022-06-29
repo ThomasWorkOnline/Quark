@@ -11,10 +11,10 @@ namespace Quark {
 		VulkanShader(vk::ShaderStageFlagBits stage, std::string_view filepath);
 		~VulkanShader();
 
-		vk::PipelineShaderStageCreateInfo GetStageInfo() const { return m_VkStageInfo; }
+		vk::PipelineShaderStageCreateInfo GetStageInfo() const { return m_StageInfo; }
 
 	private:
-		vk::ShaderModule m_VkShaderModule;
-		vk::PipelineShaderStageCreateInfo m_VkStageInfo;
+		vk::ShaderModule m_ShaderModule;
+		vk::PipelineShaderStageCreateInfo m_StageInfo;
 	};
 }

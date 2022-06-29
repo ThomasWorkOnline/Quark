@@ -19,11 +19,14 @@ namespace Quark {
 		static void OnViewportResized(uint32_t width, uint32_t height);
 
 	private:
+		static void Dispose();
 		static void OnNewActiveScene();
 
 		static void InitEnvironment(std::string_view environmentFilepath);
 
 		static Vec2i s_ViewportSize;
 		static Ref<Scene> s_ActiveScene;
+
+		friend class Application;
 	};
 }

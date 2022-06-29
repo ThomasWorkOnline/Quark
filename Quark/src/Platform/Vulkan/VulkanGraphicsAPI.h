@@ -49,7 +49,7 @@ namespace Quark {
 
 		virtual Ref<Texture2DArray>    CreateTexture2DArray(const TextureArraySpecification & spec) override { return nullptr; }
 
-		virtual Ref<UniformBuffer>     CreateUniformBuffer(size_t size, uint32_t binding) override { return nullptr; }
+		virtual Ref<UniformBuffer>     CreateUniformBuffer(size_t size, uint32_t binding) override;
 
 		virtual Ref<VertexArray>       CreateVertexArray() override { return nullptr; }
 
