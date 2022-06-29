@@ -9,11 +9,6 @@
 
 namespace Quark {
 
-	static constexpr bool IsPowerOfTwo(uint32_t x)
-	{
-		return (x & (x - 1)) == 0;
-	}
-
 	OpenGLTexture2D::OpenGLTexture2D(const Texture2DSpecification& spec)
 		: m_Spec(spec)
 	{
@@ -88,6 +83,8 @@ namespace Quark {
 
 	OpenGLTexture2D::~OpenGLTexture2D()
 	{
+		QK_PROFILE_FUNCTION();
+
 		glDeleteTextures(1, &m_RendererID);
 	}
 
@@ -119,6 +116,8 @@ namespace Quark {
 
 	void OpenGLTexture2D::GenerateMipmaps()
 	{
+		QK_PROFILE_FUNCTION();
+
 		QK_CORE_ASSERT(IsformatUsingMips(m_Spec.RenderModes.MinFilteringMode) || IsformatUsingMips(m_Spec.RenderModes.MagFilteringMode),
 			"Invalid texture specification for mipmaps");
 

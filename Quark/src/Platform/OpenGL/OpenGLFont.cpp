@@ -115,7 +115,7 @@ namespace Quark {
 
 	const Glyph& OpenGLFont::GetGlyph(uint8_t charcode) const
 	{
-		QK_ASSERT(charcode >= s_ASCII_Start, "Invalid charcode");
+		QK_CORE_ASSERT(charcode >= s_ASCII_Start, "Invalid charcode");
 		return m_Glyphs.at(charcode - s_ASCII_Start);
 	}
 

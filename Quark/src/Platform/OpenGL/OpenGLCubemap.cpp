@@ -31,6 +31,8 @@ namespace Quark {
 	
 	OpenGLCubemap::~OpenGLCubemap()
 	{
+		QK_PROFILE_FUNCTION();
+
 		glDeleteTextures(1, &m_RendererID);
 	}
 	
@@ -47,6 +49,8 @@ namespace Quark {
 
 	void OpenGLCubemap::SetData(uint32_t index, const void* data, size_t size)
 	{
+		QK_PROFILE_FUNCTION();
+
 		size_t pSize = GetPixelFormatSize(m_Spec.InternalFormat);
 		QK_CORE_ASSERT(size == m_Spec.Width * m_Spec.Height * pSize, "Data must be entire texture");
 		glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + index, 0, 0, 0, m_Spec.Width, m_Spec.Height,

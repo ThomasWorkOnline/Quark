@@ -37,6 +37,8 @@ namespace Quark {
 
 	OpenGLTexture2DArray::~OpenGLTexture2DArray()
 	{
+		QK_PROFILE_FUNCTION();
+
 		glDeleteTextures(1, &m_RendererID);
 	}
 
@@ -55,6 +57,8 @@ namespace Quark {
 
 	void OpenGLTexture2DArray::SetData(const void* data, size_t size, uint32_t layer)
 	{
+		QK_PROFILE_FUNCTION();
+
 		size_t pSize = GetPixelFormatSize(m_Spec.InternalFormat);
 		QK_CORE_ASSERT(size == m_Spec.Width * m_Spec.Height * pSize, "Data must be entire texture");
 
@@ -67,7 +71,7 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		QK_ASSERT(m_Spec.Samples == 1, "Texture is multisampled. Mipmaps are not intended");
+		QK_CORE_ASSERT(m_Spec.Samples == 1, "Texture is multisampled. Mipmaps are not intended");
 
 		glBindTexture(GL_TEXTURE_2D_ARRAY, m_RendererID);
 		glGenerateMipmap(GL_TEXTURE_2D_ARRAY);

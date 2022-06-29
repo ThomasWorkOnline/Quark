@@ -25,6 +25,8 @@ namespace Quark {
 
     OpenGLVertexBuffer::~OpenGLVertexBuffer()
     {
+        QK_PROFILE_FUNCTION();
+
         glDeleteBuffers(1, &m_RendererID);
     }
 
@@ -40,6 +42,8 @@ namespace Quark {
 
     void OpenGLVertexBuffer::SetData(const void* data, size_t size, size_t offset)
     {
+        QK_PROFILE_FUNCTION();
+
         glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
         glBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
     }
@@ -66,6 +70,8 @@ namespace Quark {
 
     OpenGLIndexBuffer::~OpenGLIndexBuffer()
     {
+        QK_PROFILE_FUNCTION();
+
         glDeleteBuffers(1, &m_RendererID);
     }
 
@@ -81,6 +87,8 @@ namespace Quark {
 
     void OpenGLIndexBuffer::SetData(const uint32_t* data, uint32_t count, size_t offset)
     {
+        QK_PROFILE_FUNCTION();
+
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
         glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, offset * sizeof(uint32_t), count * sizeof(uint32_t), data);
     }

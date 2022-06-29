@@ -27,7 +27,7 @@ namespace Quark {
 
 	void ShaderLibrary::Add(std::string_view name, const Ref<Shader>& shader)
 	{
-		QK_ASSERT(!Exists(name), "Shader already exists! It was not added");
+		QK_CORE_ASSERT(!Exists(name), "Shader already exists! It was not added");
 		m_Shaders[GetHashedName(name)] = shader;
 	}
 
@@ -52,7 +52,7 @@ namespace Quark {
 
 	const Ref<Shader>& ShaderLibrary::Get(std::string_view name) const
 	{
-		QK_ASSERT(Exists(name), "Shader not found!");
+		QK_CORE_ASSERT(Exists(name), "Shader not found!");
 		return m_Shaders.at(GetHashedName(name));
 	}
 
