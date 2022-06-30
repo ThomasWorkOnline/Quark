@@ -56,7 +56,7 @@ void Pong::OnEvent(Event& e)
 	dispatcher.Dispatch<KeyPressedEvent>(ATTACH_EVENT_FN(OnKeyPressed));
 	dispatcher.Dispatch<MouseButtonPressedEvent>(ATTACH_EVENT_FN(OnMouseButtonPressed));
 
-	e.Handled = e.IsInCategory(EventCategoryInput) && GetWindow().IsCursorEnabled();
+	e.Handled = e.IsInCategory(EventCategory::Input) && GetWindow().IsCursorEnabled();
 }
 
 void Pong::FaceOff()

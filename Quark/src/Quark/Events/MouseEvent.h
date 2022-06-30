@@ -5,7 +5,16 @@
 
 namespace Quark {
 
-    class MouseMovedEvent : public Event
+    class MouseEvent : public Event
+    {
+    public:
+        EVENT_CLASS_CATEGORY(EventCategory::Mouse | EventCategory::Input);
+
+    protected:
+        MouseEvent() = default;
+    };
+
+    class MouseMovedEvent : public MouseEvent
     {
     public:
     	MouseMovedEvent(float x, float y, float xOffset, float yOffset)
@@ -25,15 +34,14 @@ namespace Quark {
     		return ss.str();
     	}
 
-        EVENT_CLASS_TYPE(MouseMoved);
-        EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput);
+        EVENT_CLASS_TYPE(EventType::MouseMoved);
 
     private:
     	float m_MouseX, m_MouseY;
         float m_XOffset, m_YOffset;
     };
 
-    class MouseScrolledEvent : public Event
+    class MouseScrolledEvent : public MouseEvent
     {
     public:
     	MouseScrolledEvent(float xOffset, float yOffset)
@@ -49,19 +57,16 @@ namespace Quark {
     		return ss.str();
     	}
 
-        EVENT_CLASS_TYPE(MouseScrolled);
-        EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput);
+        EVENT_CLASS_TYPE(EventType::MouseScrolled);
 
     private:
     	float m_XOffset, m_YOffset;
     };
 
-    class MouseButtonEvent : public Event
+    class MouseButtonEvent : public MouseEvent
     {
     public:
     	inline MouseCode GetMouseButton() const { return m_Button; }
-
-        EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput);
 
     protected:
     	MouseButtonEvent(MouseCode button)
@@ -83,7 +88,7 @@ namespace Quark {
     		return ss.str();
     	}
 
-        EVENT_CLASS_TYPE(MouseButtonPressed);
+        EVENT_CLASS_TYPE(EventType::MouseButtonPressed);
     };
 
     class MouseButtonReleasedEvent : public MouseButtonEvent
@@ -99,6 +104,6 @@ namespace Quark {
     		return ss.str();
     	}
 
-        EVENT_CLASS_TYPE(MouseButtonReleased);
+        EVENT_CLASS_TYPE(EventType::MouseButtonReleased);
     };
 }

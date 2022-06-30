@@ -5,6 +5,7 @@
 #include <functional>
 #include <ostream>
 #include <sstream>
+#include <type_traits>
 
 namespace Quark {
 
@@ -17,22 +18,51 @@ namespace Quark {
 		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled
 	};
 
-	enum EventCategory
+	enum class EventCategory : uint8_t
 	{
-		None = 0,
-		EventCategoryApplication = BIT(0),
-		EventCategoryInput = BIT(1),
-		EventCategoryKeyboard = BIT(2),
-		EventCategoryMouse = BIT(3),
-		EventCategoryMouseButton = BIT(4)
+		None        = 0,
+		Application = BIT(0),
+		Input       = BIT(1),
+		Keyboard    = BIT(2),
+		Mouse       = BIT(3),
+		MouseButton = BIT(4)
 	};
 
+	inline EventCategory operator &(EventCategory lhs, EventCategory rhs)
+	{
+		return static_cast<EventCategory>(
+			static_cast<std::underlying_type_t<EventCategory>>(lhs) &
+			static_cast<std::underlying_type_t<EventCategory>>(rhs)
+		);
+	}
+
+	inline EventCategory operator |(EventCategory lhs, EventCategory rhs)
+	{
+		return static_cast<EventCategory>(
+			static_cast<std::underlying_type_t<EventCategory>>(lhs) |
+			static_cast<std::underlying_type_t<EventCategory>>(rhs)
+		);
+	}
+
+	inline EventCategory operator ^(EventCategory lhs, EventCategory rhs)
+	{
+		return static_cast<EventCategory>(
+			static_cast<std::underlying_type_t<EventCategory>>(lhs) ^
+			static_cast<std::underlying_type_t<EventCategory>>(rhs)
+		);
+	}
+
+	inline EventCategory operator ~(EventCategory lhs)
+	{
+		return static_cast<EventCategory>(~static_cast<std::underlying_type_t<EventCategory>>(lhs));
+	}
+
 	// To be defined in event declaration
-#define EVENT_CLASS_TYPE(type)  static EventType GetStaticType() { return EventType::type; }\
+#define EVENT_CLASS_TYPE(type)  static EventType GetStaticType() { return type; }\
 								virtual EventType GetType() const override { return GetStaticType(); }\
 								virtual const char* GetName() const override { return #type; }
 
-#define EVENT_CLASS_CATEGORY(category) virtual uint32_t GetCategoryFlags() const override { return category; }
+#define EVENT_CLASS_CATEGORY(category) virtual EventCategory GetCategoryFlags() const override { return category; }
 	
 	class Event
 	{
@@ -42,12 +72,12 @@ namespace Quark {
 		// Virtual methods
 		virtual EventType GetType() const = 0;
 		virtual const char* GetName() const = 0;
-		virtual uint32_t GetCategoryFlags() const = 0;
+		virtual EventCategory GetCategoryFlags() const = 0;
 		virtual std::string ToString() const { return GetName(); }
 
 		inline bool IsInCategory(EventCategory category)
 		{
-			return GetCategoryFlags() & category;
+			return static_cast<bool>(GetCategoryFlags() & category);
 		}
 	};
 

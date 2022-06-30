@@ -3,6 +3,9 @@
 #include "Quark/Core/Core.h"
 #include "Quark/Core/Input.h"
 
+#include "Quark/Events/KeyEvent.h"
+#include "Quark/Events/MouseEvent.h"
+
 #include "Quark/Scene/Scene.h"
 #include "Quark/Scene/Components.h"
 #include "Quark/Scene/NativeScriptEntity.h"

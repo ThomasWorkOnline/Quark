@@ -13,7 +13,7 @@ namespace Quark {
 
 		bool WasModifierKeyPressed(ModifierKey key) { return (uint8_t)m_Mods & (uint8_t)key; }
 
-		EVENT_CLASS_CATEGORY(EventCategoryKeyboard | EventCategoryInput);
+		EVENT_CLASS_CATEGORY(EventCategory::Keyboard | EventCategory::Input);
 
 	protected:
 		KeyEvent(KeyCode keycode, ModifierKey mods)
@@ -38,7 +38,7 @@ namespace Quark {
 			return ss.str();
 		}
 
-		EVENT_CLASS_TYPE(KeyPressed);
+		EVENT_CLASS_TYPE(EventType::KeyPressed);
 
 	private:
 		int32_t m_RepeatCount;
@@ -57,7 +57,7 @@ namespace Quark {
 			return ss.str();
 		}
 
-		EVENT_CLASS_TYPE(KeyReleased);
+		EVENT_CLASS_TYPE(EventType::KeyReleased);
 	};
 
     class KeyTypedEvent : public KeyEvent
@@ -73,6 +73,6 @@ namespace Quark {
 			return ss.str();
 		}
 
-		EVENT_CLASS_TYPE(KeyTyped);
+		EVENT_CLASS_TYPE(EventType::KeyTyped);
 	};
 }

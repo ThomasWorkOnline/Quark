@@ -9,7 +9,7 @@ namespace Quark {
 	protected:
 		WindowEvent() = default;
 
-		EVENT_CLASS_CATEGORY(EventCategoryApplication);
+		EVENT_CLASS_CATEGORY(EventCategory::Application);
 	};
 
 	class WindowMovedEvent : public WindowEvent
@@ -34,7 +34,7 @@ namespace Quark {
 		int32_t GetXOffset() const { return m_XOffset; }
 		int32_t GetYOffset() const { return m_YOffset; }
 
-		EVENT_CLASS_TYPE(WindowMoved);
+		EVENT_CLASS_TYPE(EventType::WindowMoved);
 
 	private:
 		int32_t m_Xpos, m_YPos;
@@ -59,7 +59,7 @@ namespace Quark {
 			return ss.str();
 		}
 
-		EVENT_CLASS_TYPE(WindowResized);
+		EVENT_CLASS_TYPE(EventType::WindowResized);
 
 	private:
 		uint32_t m_Width, m_Height;
@@ -70,7 +70,7 @@ namespace Quark {
 	public:
 		WindowMaximizedEvent() = default;
 
-		EVENT_CLASS_TYPE(WindowMaximized);
+		EVENT_CLASS_TYPE(EventType::WindowMaximized);
 	};
 
 	class WindowMinimizedEvent : public WindowEvent
@@ -78,7 +78,7 @@ namespace Quark {
 	public:
 		WindowMinimizedEvent() = default;
 
-		EVENT_CLASS_TYPE(WindowMinimized);
+		EVENT_CLASS_TYPE(EventType::WindowMinimized);
 	};
 
 	class WindowRestoredEvent : public WindowEvent
@@ -86,7 +86,7 @@ namespace Quark {
 	public:
 		WindowRestoredEvent() = default;
 
-		EVENT_CLASS_TYPE(WindowRestored);
+		EVENT_CLASS_TYPE(EventType::WindowRestored);
 	};
 
 	class WindowClosedEvent : public WindowEvent
@@ -94,7 +94,7 @@ namespace Quark {
 	public:
 		WindowClosedEvent() = default;
 
-		EVENT_CLASS_TYPE(WindowClosed);
+		EVENT_CLASS_TYPE(EventType::WindowClosed);
 	};
 
 	class WindowFocusedEvent : public WindowEvent
@@ -102,7 +102,7 @@ namespace Quark {
 	public:
 		WindowFocusedEvent() = default;
 
-		EVENT_CLASS_TYPE(WindowFocused);
+		EVENT_CLASS_TYPE(EventType::WindowFocused);
 	};
 
 	class WindowLostFocusEvent : public WindowEvent
@@ -110,6 +110,6 @@ namespace Quark {
 	public:
 		WindowLostFocusEvent() = default;
 
-		EVENT_CLASS_TYPE(WindowLostFocus);
+		EVENT_CLASS_TYPE(EventType::WindowLostFocus);
 	};
 }

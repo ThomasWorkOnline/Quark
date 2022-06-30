@@ -2,10 +2,6 @@
 
 #include "Quark/Core/Core.h"
 #include "Quark/Events/Event.h"
-#include "Quark/Events/ApplicationEvent.h"
-#include "Quark/Events/KeyEvent.h"
-#include "Quark/Events/MouseEvent.h"
-#include "Quark/Events/WindowEvents.h"
 
 #include "Entity.h"
 

@@ -9,8 +9,8 @@ namespace Quark {
 	public:
 		AppTickEvent() = default;
 
-		EVENT_CLASS_TYPE(AppTick);
-		EVENT_CLASS_CATEGORY(EventCategoryApplication);
+		EVENT_CLASS_TYPE(EventType::AppTick);
+		EVENT_CLASS_CATEGORY(EventCategory::Application);
 	};
 
     class AppUpdateEvent : public Event
@@ -18,8 +18,8 @@ namespace Quark {
 	public:
 		AppUpdateEvent() = default;
 
-		EVENT_CLASS_TYPE(AppUpdate);
-		EVENT_CLASS_CATEGORY(EventCategoryApplication);
+		EVENT_CLASS_TYPE(EventType::AppUpdate);
+		EVENT_CLASS_CATEGORY(EventCategory::Application);
 	};
 
     class AppRenderEvent : public Event
@@ -27,7 +27,7 @@ namespace Quark {
 	public:
 		AppRenderEvent() = default;
 
-		EVENT_CLASS_TYPE(AppRender);
-		EVENT_CLASS_CATEGORY(EventCategoryApplication);
+		EVENT_CLASS_TYPE(EventType::AppRender);
+		EVENT_CLASS_CATEGORY(EventCategory::Application);
 	};
 }

@@ -5,7 +5,7 @@
 #include "Quark/Events/ApplicationEvent.h"
 #include "Quark/Events/KeyEvent.h"
 #include "Quark/Events/MouseEvent.h"
-#include "Quark/Events/WindowEvents.h"
+#include "Quark/Events/WindowEvent.h"
 
 #include "Quark/Renderer/GraphicsContext.h"
 

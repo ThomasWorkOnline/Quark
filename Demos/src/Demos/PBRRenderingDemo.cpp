@@ -236,7 +236,7 @@ void PBRRenderingDemo::OnEvent(Event& e)
 	dispatcher.Dispatch<MouseButtonPressedEvent>(ATTACH_EVENT_FN(PBRRenderingDemo::OnMouseButtonPressed));
 	dispatcher.Dispatch<MouseButtonReleasedEvent>(ATTACH_EVENT_FN(PBRRenderingDemo::OnMouseButtonReleased));
 
-	e.Handled = e.IsInCategory(EventCategoryInput) && GetWindow().IsCursorEnabled();
+	e.Handled = e.IsInCategory(EventCategory::Input) && GetWindow().IsCursorEnabled();
 
 	if (!e.Handled)
 		m_Scene->OnEvent(e);
