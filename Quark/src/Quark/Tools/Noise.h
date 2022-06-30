@@ -8,6 +8,9 @@ namespace Quark {
 	class Random
 	{
 	public:
+		static_assert(std::is_floating_point_v<T>,
+			"T must be of floating-point type");
+
 		explicit Random(uint32_t seed = std::mt19937::default_seed)
 			: m_NoiseEngine(seed)
 		{
@@ -38,6 +41,9 @@ namespace Quark {
 	class PerlinNoise
 	{
 	public:
+		static_assert(std::is_floating_point_v<T>,
+			"T must be of floating-point type");
+
 		explicit PerlinNoise(uint32_t seed = std::default_random_engine::default_seed);
 		void Reseed(uint32_t seed);
 
