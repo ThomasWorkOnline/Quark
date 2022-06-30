@@ -1,13 +1,13 @@
 #include "qkpch.h"
 #include "Font.h"
 
-#include "RenderCommand.h"
+#include "GraphicsAPI.h"
 
 namespace Quark {
 
 	Ref<Font> Font::Create(std::string_view filepath, uint32_t fontSize)
 	{
-		return RenderCommand::CreateFont(filepath, fontSize);
+		return GraphicsAPI::Instance->CreateFont(filepath, fontSize);
 	}
 
 	Ref<Font> FontLibrary::Load(const std::string& name, std::string_view filepath, uint32_t fontSize)

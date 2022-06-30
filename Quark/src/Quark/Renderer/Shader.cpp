@@ -1,23 +1,23 @@
 #include "qkpch.h"
 #include "Shader.h"
 
-#include "RenderCommand.h"
+#include "GraphicsAPI.h"
 
 namespace Quark {
 
 	Ref<Shader> Shader::Create(std::string_view filepath)
 	{
-		return RenderCommand::CreateShader(filepath);
+		return GraphicsAPI::Instance->CreateShader(filepath);
 	}
 
 	Ref<Shader> Shader::Create(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource)
 	{
-		return RenderCommand::CreateShader(name, vertexSource, fragmentSource);
+		return GraphicsAPI::Instance->CreateShader(name, vertexSource, fragmentSource);
 	}
 
 	Ref<Shader> Shader::Create(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource)
 	{
-		return RenderCommand::CreateShader(name, vertexSource, geometrySource, fragmentSource);
+		return GraphicsAPI::Instance->CreateShader(name, vertexSource, geometrySource, fragmentSource);
 	}
 
 	static size_t GetHashedName(std::string_view name)

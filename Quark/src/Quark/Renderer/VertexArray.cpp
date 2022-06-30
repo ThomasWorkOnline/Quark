@@ -1,12 +1,12 @@
 #include "qkpch.h"
 #include "VertexArray.h"
 
-#include "RenderCommand.h"
+#include "GraphicsAPI.h"
 
 namespace Quark {
 
 	Ref<VertexArray> VertexArray::Create()
 	{
-		return RenderCommand::CreateVertexArray();
+		return GraphicsAPI::Instance->CreateVertexArray();
 	}
 }

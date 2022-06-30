@@ -5,9 +5,6 @@
 #include "Quark/Core/Application.h"
 #include "Quark/Core/Input.h"
 
-// Animation
-#include "Quark/Animation/SpriteAnimator.h"
-
 // Audio
 #include "Quark/Audio/AudioBuffer.h"
 #include "Quark/Audio/AudioDevice.h"

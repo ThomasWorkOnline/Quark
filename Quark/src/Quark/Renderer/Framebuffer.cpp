@@ -1,12 +1,12 @@
 #include "qkpch.h"
 #include "Framebuffer.h"
 
-#include "RenderCommand.h"
+#include "GraphicsAPI.h"
 
 namespace Quark {
 
 	Ref<Framebuffer> Framebuffer::Create(const FramebufferSpecification& spec)
 	{
-		return RenderCommand::CreateFramebuffer(spec);
+		return GraphicsAPI::Instance->CreateFramebuffer(spec);
 	}
 }

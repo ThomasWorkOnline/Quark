@@ -88,6 +88,7 @@ namespace Quark {
 		return ReadOBJData(filepath, descriptor);
 	}
 
+	// TODO: rework all this mess
 	Mesh Mesh::ConstructMeshFromOBJData(const OBJMeshData& data)
 	{
 		QK_PROFILE_FUNCTION();

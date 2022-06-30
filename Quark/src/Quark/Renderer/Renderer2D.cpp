@@ -438,7 +438,7 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		s_Data = new Renderer2DData();
-		s_Data->MaxSamplers = RenderCommand::GetHardwareConstraints().TextureConstraints.MaxTextureSlots;
+		s_Data->MaxSamplers = GraphicsAPI::Instance->GetHardwareConstraints().TextureConstraints.MaxTextureSlots;
 		s_Data->CameraUniformBuffer = UniformBuffer::Create(sizeof(Renderer2DData::CameraData), 0);
 
 		Renderer2DSetupData setupData;
