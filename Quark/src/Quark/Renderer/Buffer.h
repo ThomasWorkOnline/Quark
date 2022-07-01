@@ -92,7 +92,7 @@ namespace Quark {
 		}
 
 		constexpr size_t GetStride() const { return m_Stride; }
-		constexpr size_t GetCount() const { return m_Elements.size(); }
+		constexpr uint32_t GetCount() const { return static_cast<uint32_t>(m_Elements.size()); }
 
 		constexpr const std::vector<BufferElement>& GetElements() const { return m_Elements; }
 

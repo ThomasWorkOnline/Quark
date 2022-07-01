@@ -228,6 +228,7 @@ namespace Quark {
 			}
 
 			QK_CORE_ASSERT(false, "Unable to find suitable memory type for buffer");
+			return 0;
 		}
 
 		vk::Buffer AllocateBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties, vk::DeviceMemory& bufferMemory)

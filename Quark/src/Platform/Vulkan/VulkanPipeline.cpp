@@ -37,7 +37,7 @@ namespace Quark {
 		{
 			vk::VertexInputBindingDescription bindingDescription;
 			bindingDescription.binding = 0;
-			bindingDescription.stride = layout.GetStride();
+			bindingDescription.stride = static_cast<uint32_t>(layout.GetStride());
 			bindingDescription.inputRate = vk::VertexInputRate::eVertex;
 
 			return bindingDescription;
@@ -337,12 +337,12 @@ namespace Quark {
 		auto bindingDescription = Utils::GetBindingDescription(g_Vertex2DLayout);
 		vk::VertexInputAttributeDescription* attributeDescriptions = (vk::VertexInputAttributeDescription*)alloca(g_Vertex2DLayout.GetCount() * sizeof(BufferElement));
 
-		for (size_t i = 0; i < g_Vertex2DLayout.GetCount(); i++)
+		for (uint32_t i = 0; i < g_Vertex2DLayout.GetCount(); i++)
 		{
 			attributeDescriptions[i].binding = 0;
 			attributeDescriptions[i].location = i;
 			attributeDescriptions[i].format = Utils::ShaderDataTypeToVulkan(g_Vertex2DLayout[i].Type);
-			attributeDescriptions[i].offset = g_Vertex2DLayout[i].Offset;
+			attributeDescriptions[i].offset = static_cast<uint32_t>(g_Vertex2DLayout[i].Offset);
 		}
 
 		vk::PipelineVertexInputStateCreateInfo vertexInputInfo;
