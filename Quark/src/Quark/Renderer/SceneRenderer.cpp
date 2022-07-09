@@ -2,6 +2,8 @@
 #include "SceneRenderer.h"
 
 #include "Quark/Core/Application.h"
+#include "Quark/Filesystem/Filesystem.h"
+
 #include "Renderer.h"
 #include "RenderCommand.h"
 
@@ -149,8 +151,18 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		m_Data.VertexShader = Shader::Create("../Quark/assets/shaders/version/4.50/bin/vert.spv");
-		m_Data.FragmentShader = Shader::Create("../Quark/assets/shaders/version/4.50/bin/frag.spv");
+		if (GraphicsAPI::GetAPI() == API::Vulkan)
+		{
+			m_Data.VertexShader = Shader::Create("../Quark/assets/shaders/version/4.50/bin/vert.spv");
+			m_Data.FragmentShader = Shader::Create("../Quark/assets/shaders/version/4.50/bin/frag.spv");
+		}
+		else
+		{
+			std::string vertexSource = Filesystem::ReadTextFile("../Quark/assets/shaders/version/4.50/shader.vert");
+			std::string fragmentSource = Filesystem::ReadTextFile("../Quark/assets/shaders/version/4.50/shader.frag");
+
+			m_Data.VertexShader = Shader::Create("shader", vertexSource, fragmentSource);
+		}
 
 		{
 			RenderPassSpecification spec;

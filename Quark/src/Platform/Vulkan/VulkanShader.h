@@ -47,12 +47,10 @@ namespace Quark {
 			return m_ShaderModule == reinterpret_cast<const VulkanShader&>(other).m_ShaderModule;
 		}
 
-		vk::PipelineShaderStageCreateInfo GetStageInfo() const { return m_StageInfo; }
+		vk::ShaderModule GetVkHandle() const { return m_ShaderModule; }
 
 	private:
 		VkShaderModule m_ShaderModule = VK_NULL_HANDLE;
-		VkPipelineShaderStageCreateInfo m_StageInfo{};
-
 		std::string m_Name;
 	};
 }

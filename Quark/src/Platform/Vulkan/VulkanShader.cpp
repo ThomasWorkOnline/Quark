@@ -50,11 +50,6 @@ namespace Quark {
 
 		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
 		vkCreateShaderModule(vkDevice, &createInfo, nullptr, &m_ShaderModule);
-
-		m_StageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-		m_StageInfo.stage = type;
-		m_StageInfo.module = m_ShaderModule;
-		m_StageInfo.pName = "main";
 	}
 
 	VulkanShader::VulkanShader(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource)

@@ -81,7 +81,7 @@ namespace Quark {
 		void Compile(const std::unordered_map<GLenum, std::string_view>& shaderSources);
 
 	private:
-		uint32_t m_RendererID;
+		uint32_t m_RendererID = 0;
 		std::string m_Name;
 
 		std::unordered_map<std::size_t, GLint> m_UniformLocations;

@@ -39,13 +39,13 @@ namespace Quark {
 		void RecreateGraphicsPipeline();
 
 	private:
-		vk::DescriptorPool m_DescriptorPool;
-		vk::DescriptorSetLayout m_DescriptorSetLayout;
-		vk::PipelineLayout m_PipelineLayout;
-		vk::Pipeline m_GraphicsPipeline;
+		VkDescriptorPool m_DescriptorPool = VK_NULL_HANDLE;
+		VkDescriptorSetLayout m_DescriptorSetLayout = VK_NULL_HANDLE;
+		VkPipelineLayout m_PipelineLayout = VK_NULL_HANDLE;
+		VkPipeline m_GraphicsPipeline = VK_NULL_HANDLE;
 		VkCommandBuffer m_ActiveCommandBuffer = VK_NULL_HANDLE;
 
-		std::vector<vk::DescriptorSet> m_DescriptorSets;
+		std::vector<VkDescriptorSet> m_DescriptorSets;
 		std::vector<vk::Semaphore> m_ImageAvailableSemaphores;
 		std::vector<vk::Framebuffer> m_SwapChainFramebuffers;
 		std::vector<Ref<UniformBuffer>> m_CameraUniformBuffers;

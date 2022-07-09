@@ -20,19 +20,19 @@
 
 namespace Quark {
 
+	// Supported APIs
+	enum class API
+	{
+		None = 0,
+		Metal,
+		OpenGL,
+		Vulkan
+	};
+
 	class GraphicsAPI
 	{
 	public:
 		static Scope<GraphicsAPI> Instance;
-
-		// Supported APIs
-		enum class API
-		{
-			None = 0,
-			Metal,
-			OpenGL,
-			Vulkan
-		};
 
 		struct Version
 		{
@@ -51,9 +51,6 @@ namespace Quark {
 		virtual void                   SetCullFace(RenderCullMode face) = 0;
 		virtual void                   SetDepthFunction(RenderDepthFunction func) = 0;
 		virtual void                   SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) = 0;
-
-		virtual void                   BeginRenderPass(const Ref<RenderPass>& renderPass) = 0;
-		virtual void                   EndRenderPass() = 0;
 
 		virtual void                   Draw(uint32_t offset, uint32_t count) = 0;
 		virtual void                   DrawIndexed(uint32_t indexCount = 0) = 0;

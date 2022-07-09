@@ -15,46 +15,46 @@ namespace Quark {
 
 	namespace Utils {
 
-		static constexpr vk::Format ShaderDataTypeToVulkan(ShaderDataType type)
+		static constexpr VkFormat ShaderDataTypeToVulkan(ShaderDataType type)
 		{
 			switch (type)
 			{
-				case ShaderDataType::Float:   return vk::Format::eR32Sfloat;
-				case ShaderDataType::Float2:  return vk::Format::eR32G32Sfloat;
-				case ShaderDataType::Float3:  return vk::Format::eR32G32B32Sfloat;
-				case ShaderDataType::Float4:  return vk::Format::eR32G32B32A32Sfloat;
-				case ShaderDataType::Double:  return vk::Format::eR64Sfloat;
-				case ShaderDataType::Double2: return vk::Format::eR64G64Sfloat;
-				case ShaderDataType::Double3: return vk::Format::eR64G64B64Sfloat;
-				case ShaderDataType::Double4: return vk::Format::eR64G64B64A64Sfloat;
+				case ShaderDataType::Float:   return VK_FORMAT_R32_SFLOAT;
+				case ShaderDataType::Float2:  return VK_FORMAT_R32G32_SFLOAT;
+				case ShaderDataType::Float3:  return VK_FORMAT_R32G32B32_SFLOAT;
+				case ShaderDataType::Float4:  return VK_FORMAT_R32G32B32A32_SFLOAT;
+				case ShaderDataType::Double:  return VK_FORMAT_R64_SFLOAT;
+				case ShaderDataType::Double2: return VK_FORMAT_R64G64_SFLOAT;
+				case ShaderDataType::Double3: return VK_FORMAT_R64G64B64_SFLOAT;
+				case ShaderDataType::Double4: return VK_FORMAT_R64G64B64A64_SFLOAT;
 
 				// TODO: map matrices, int and bool types
 				default:
 					QK_CORE_FATAL("Unknown ShaderDataType");
-					return vk::Format::eUndefined;
+					return VK_FORMAT_UNDEFINED;
 			}
 		}
 
-		static constexpr vk::CullModeFlagBits RenderCullModeToVulkan(RenderCullMode mode)
+		static constexpr VkCullModeFlagBits RenderCullModeToVulkan(RenderCullMode mode)
 		{
 			switch (mode)
 			{
-				case RenderCullMode::None:         return vk::CullModeFlagBits::eNone;
-				case RenderCullMode::Front:        return vk::CullModeFlagBits::eFront;
-				case RenderCullMode::Back:         return vk::CullModeFlagBits::eBack;
-				case RenderCullMode::FrontAndBack: return vk::CullModeFlagBits::eFrontAndBack;
+				case RenderCullMode::None:         return VK_CULL_MODE_NONE;
+				case RenderCullMode::Front:        return VK_CULL_MODE_FRONT_BIT;
+				case RenderCullMode::Back:         return VK_CULL_MODE_BACK_BIT;
+				case RenderCullMode::FrontAndBack: return VK_CULL_MODE_FRONT_AND_BACK;
 				default:
 					QK_CORE_FATAL("Unknown culling mode");
-					return vk::CullModeFlagBits::eNone;
+					return VK_CULL_MODE_NONE;
 			}
 		}
 
-		static vk::VertexInputBindingDescription GetBindingDescription(const BufferLayout& layout)
+		static VkVertexInputBindingDescription GetBindingDescription(const BufferLayout& layout)
 		{
-			vk::VertexInputBindingDescription bindingDescription;
+			VkVertexInputBindingDescription bindingDescription{};
 			bindingDescription.binding = 0;
 			bindingDescription.stride = static_cast<uint32_t>(layout.GetStride());
-			bindingDescription.inputRate = vk::VertexInputRate::eVertex;
+			bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
 			return bindingDescription;
 		}
@@ -86,63 +86,68 @@ namespace Quark {
 
 		// Descriptor pool
 		{
-			vk::DescriptorPoolSize poolSize;
-			poolSize.setType(vk::DescriptorType::eUniformBuffer);
-			poolSize.setDescriptorCount(m_Spec.FramesInFlight);
+			VkDescriptorPoolSize poolSize{};
+			poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			poolSize.descriptorCount = m_Spec.FramesInFlight;
 
-			vk::DescriptorPoolCreateInfo poolInfo;
-			poolInfo.setPoolSizeCount(1);
-			poolInfo.setPPoolSizes(&poolSize);
-			poolInfo.setMaxSets(m_Spec.FramesInFlight);
+			VkDescriptorPoolCreateInfo poolInfo{};
+			poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+			poolInfo.poolSizeCount = 1;
+			poolInfo.pPoolSizes = &poolSize;
+			poolInfo.maxSets = m_Spec.FramesInFlight;
 
-			m_DescriptorPool = vkDevice.createDescriptorPool(poolInfo);
+			vkCreateDescriptorPool(vkDevice, &poolInfo, nullptr, &m_DescriptorPool);
 		}
 
 		// Descriptor set layout
 		{
-			vk::DescriptorSetLayoutBinding uboLayoutBinding;
-			uboLayoutBinding.setBinding(0);
-			uboLayoutBinding.setDescriptorType(vk::DescriptorType::eUniformBuffer);
-			uboLayoutBinding.setDescriptorCount(1);
-			uboLayoutBinding.setStageFlags(vk::ShaderStageFlagBits::eVertex);
+			VkDescriptorSetLayoutBinding uboLayoutBinding{};
+			uboLayoutBinding.binding = 0;
+			uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			uboLayoutBinding.descriptorCount = 1;
+			uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
-			vk::DescriptorSetLayoutCreateInfo layoutInfo;
-			layoutInfo.setBindingCount(1);
-			layoutInfo.setPBindings(&uboLayoutBinding);
+			VkDescriptorSetLayoutCreateInfo layoutInfo{};
+			layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+			layoutInfo.bindingCount = 1;
+			layoutInfo.pBindings = &uboLayoutBinding;
 
-			m_DescriptorSetLayout = vkDevice.createDescriptorSetLayout(layoutInfo);
+			vkCreateDescriptorSetLayout(vkDevice, &layoutInfo, nullptr, &m_DescriptorSetLayout);
 		}
 
 		// Descriptor sets
 		{
 			// Copy each layout for each frame in flight
-			auto* layouts = static_cast<vk::DescriptorSetLayout*>(alloca(m_Spec.FramesInFlight * sizeof(vk::DescriptorSetLayout)));
+			QK_CORE_ASSERT(m_Spec.FramesInFlight > 0, "Number of frames in flight must be greater than zero");
+			auto* layouts = static_cast<VkDescriptorSetLayout*>(alloca(m_Spec.FramesInFlight * sizeof(VkDescriptorSetLayout)));
 			for (uint32_t i = 0; i < m_Spec.FramesInFlight; i++)
 				layouts[i] = m_DescriptorSetLayout;
 
- 			vk::DescriptorSetAllocateInfo allocInfo;
-			allocInfo.setDescriptorPool(m_DescriptorPool);
-			allocInfo.setDescriptorSetCount(m_Spec.FramesInFlight);
-			allocInfo.setPSetLayouts(layouts);
+			VkDescriptorSetAllocateInfo allocInfo{};
+			allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+			allocInfo.descriptorPool = m_DescriptorPool;
+			allocInfo.descriptorSetCount = m_Spec.FramesInFlight;
+			allocInfo.pSetLayouts = layouts;
 
-			vkAllocateDescriptorSets(vkDevice, reinterpret_cast<VkDescriptorSetAllocateInfo*>(&allocInfo), reinterpret_cast<VkDescriptorSet*>(m_DescriptorSets.data()));
+			vkAllocateDescriptorSets(vkDevice, &allocInfo, m_DescriptorSets.data());
 
 			for (uint32_t i = 0; i < m_Spec.FramesInFlight; i++)
 			{
-				vk::DescriptorBufferInfo bufferInfo;
+				VkDescriptorBufferInfo bufferInfo{};
 				bufferInfo.buffer = std::static_pointer_cast<VulkanUniformBuffer>(m_CameraUniformBuffers[i])->GetVkHandle();
 				bufferInfo.offset = 0;
 				bufferInfo.range = m_Spec.CameraUniformBufferSize;
 
-				vk::WriteDescriptorSet descriptorWrite;
+				VkWriteDescriptorSet descriptorWrite{};
+				descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 				descriptorWrite.dstSet = m_DescriptorSets[i];
 				descriptorWrite.dstBinding = 0;
 				descriptorWrite.dstArrayElement = 0;
-				descriptorWrite.descriptorType = vk::DescriptorType::eUniformBuffer;
+				descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 				descriptorWrite.descriptorCount = 1;
 				descriptorWrite.pBufferInfo = &bufferInfo;
 
-				vkDevice.updateDescriptorSets(descriptorWrite, nullptr);
+				vkUpdateDescriptorSets(vkDevice, 1, &descriptorWrite, 0, nullptr);
 			}
 		}
 
@@ -297,79 +302,87 @@ namespace Quark {
 
 		// Vertex input 
 		auto bindingDescription = Utils::GetBindingDescription(m_Spec.Layout);
-		auto* attributeDescriptions = static_cast<vk::VertexInputAttributeDescription*>(alloca(m_Spec.Layout.GetCount() * sizeof(BufferElement)));
+
+		QK_CORE_ASSERT(m_Spec.Layout.GetCount() > 0, "A vertex layout must be set for the pipeline");
+		auto* attributeDescriptions = static_cast<VkVertexInputAttributeDescription*>(alloca(m_Spec.Layout.GetCount() * sizeof(VkVertexInputAttributeDescription)));
 
 		for (uint32_t i = 0; i < m_Spec.Layout.GetCount(); i++)
 		{
-			attributeDescriptions[i].binding = 0;
 			attributeDescriptions[i].location = i;
+			attributeDescriptions[i].binding = 0;
 			attributeDescriptions[i].format = Utils::ShaderDataTypeToVulkan(m_Spec.Layout[i].Type);
 			attributeDescriptions[i].offset = static_cast<uint32_t>(m_Spec.Layout[i].Offset);
 		}
 
-		vk::PipelineVertexInputStateCreateInfo vertexInputInfo;
-		vertexInputInfo.setVertexBindingDescriptionCount(1);
-		vertexInputInfo.setVertexAttributeDescriptionCount(m_Spec.Layout.GetCount());
-		vertexInputInfo.setPVertexBindingDescriptions(&bindingDescription);
-		vertexInputInfo.setPVertexAttributeDescriptions(attributeDescriptions);
+		VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
+		vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+		vertexInputInfo.vertexBindingDescriptionCount = 1;
+		vertexInputInfo.vertexAttributeDescriptionCount = m_Spec.Layout.GetCount();
+		vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+		vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions;
 
-		vk::PipelineInputAssemblyStateCreateInfo inputAssembly;
-		inputAssembly.setTopology(vk::PrimitiveTopology::eTriangleList);
-		inputAssembly.setPrimitiveRestartEnable(VK_FALSE);
+		VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
+		inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+		inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+		inputAssembly.primitiveRestartEnable = VK_FALSE;
 
 		// Viewport
-		vk::Viewport viewport;
-		viewport.setX(0.0f);
-		viewport.setY(0.0f);
-		viewport.setWidth((float)m_Spec.ViewportWidth);
-		viewport.setHeight((float)m_Spec.ViewportHeight);
-		viewport.setMinDepth(0.0f);
-		viewport.setMaxDepth(1.0f);
+		VkViewport viewport{};
+		viewport.x = 0.0f;
+		viewport.y = 0.0f;
+		viewport.width = (float)m_Spec.ViewportWidth;
+		viewport.height = (float)m_Spec.ViewportHeight;
+		viewport.minDepth = 0.0f;
+		viewport.maxDepth = 1.0f;
 
-		vk::Rect2D scissor;
-		scissor.setOffset({ 0, 0 });
-		scissor.setExtent(vk::Extent2D{ m_Spec.ViewportWidth, m_Spec.ViewportHeight });
+		VkRect2D scissor{};
+		scissor.offset = { 0, 0 };
+		scissor.extent = VkExtent2D{ m_Spec.ViewportWidth, m_Spec.ViewportHeight };
 
-		vk::PipelineViewportStateCreateInfo viewportState;
-		viewportState.setViewportCount(1);
-		viewportState.setPViewports(&viewport);
-		viewportState.setScissorCount(1);
-		viewportState.setPScissors(&scissor);
+		VkPipelineViewportStateCreateInfo viewportState{};
+		viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+		viewportState.viewportCount = 1;
+		viewportState.pViewports = &viewport;
+		viewportState.scissorCount = 1;
+		viewportState.pScissors = &scissor;
 
 		// Rasterization
-		vk::PipelineRasterizationStateCreateInfo rasterizer;
-		rasterizer.setDepthClampEnable(VK_FALSE);
-		rasterizer.setRasterizerDiscardEnable(VK_FALSE);
-		rasterizer.setPolygonMode(vk::PolygonMode::eFill);
-		rasterizer.setLineWidth(1.0f);
-		rasterizer.setCullMode(Utils::RenderCullModeToVulkan(m_Spec.CullMode));
-		rasterizer.setFrontFace(vk::FrontFace::eClockwise);
-		rasterizer.setDepthBiasEnable(VK_FALSE);
+		VkPipelineRasterizationStateCreateInfo rasterizer{};
+		rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+		rasterizer.depthBiasClamp = VK_FALSE;
+		rasterizer.rasterizerDiscardEnable = VK_FALSE;
+		rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+		rasterizer.lineWidth = 1.0f;
+		rasterizer.cullMode = Utils::RenderCullModeToVulkan(m_Spec.CullMode);
+		rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+		rasterizer.depthBiasEnable = VK_FALSE;
 
 		// Multisampling
-		vk::PipelineMultisampleStateCreateInfo multisampling;
-		multisampling.setSampleShadingEnable(VK_FALSE);
-		multisampling.setRasterizationSamples(vk::SampleCountFlagBits::e1);
-		multisampling.setMinSampleShading(1.0f);
-		multisampling.setAlphaToCoverageEnable(VK_FALSE);
-		multisampling.setAlphaToOneEnable(VK_FALSE);
+		VkPipelineMultisampleStateCreateInfo multisampling{};
+		multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+		multisampling.sampleShadingEnable = VK_FALSE;
+		multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+		multisampling.minSampleShading = 1.0f;
+		multisampling.alphaToCoverageEnable = VK_FALSE;
+		multisampling.alphaToOneEnable = VK_FALSE;
 
 		// Blending
-		vk::PipelineColorBlendAttachmentState colorBlendAttachment;
-		colorBlendAttachment.setColorWriteMask(vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA);
-		colorBlendAttachment.setBlendEnable(VK_TRUE);
-		colorBlendAttachment.setSrcColorBlendFactor(vk::BlendFactor::eSrcAlpha);
-		colorBlendAttachment.setDstColorBlendFactor(vk::BlendFactor::eOneMinusSrcAlpha);
-		colorBlendAttachment.setColorBlendOp(vk::BlendOp::eAdd);
-		colorBlendAttachment.setSrcAlphaBlendFactor(vk::BlendFactor::eOne);
-		colorBlendAttachment.setDstAlphaBlendFactor(vk::BlendFactor::eZero);
-		colorBlendAttachment.setAlphaBlendOp(vk::BlendOp::eAdd);
+		VkPipelineColorBlendAttachmentState colorBlendAttachment{};
+		colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+		colorBlendAttachment.blendEnable = VK_TRUE;
+		colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+		colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+		colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
+		colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+		colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+		colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
 
-		vk::PipelineColorBlendStateCreateInfo colorBlending;
-		colorBlending.setLogicOpEnable(VK_FALSE);
-		colorBlending.setLogicOp(vk::LogicOp::eCopy);
-		colorBlending.setAttachmentCount(1);
-		colorBlending.setPAttachments(&colorBlendAttachment);
+		VkPipelineColorBlendStateCreateInfo colorBlending{};
+		colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+		colorBlending.logicOpEnable = VK_FALSE;
+		colorBlending.logicOp = VK_LOGIC_OP_COPY;
+		colorBlending.attachmentCount = 1;
+		colorBlending.pAttachments = &colorBlendAttachment;
 
 #if 0
 		vk::DynamicState dynamicStates[] = {
@@ -383,36 +396,44 @@ namespace Quark {
 #endif
 
 		// Pipeline creation
-		vk::PipelineLayoutCreateInfo pipelineLayoutInfo;
-		pipelineLayoutInfo.setSetLayoutCount(0);
-		pipelineLayoutInfo.setPushConstantRangeCount(0);
+		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
+		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+		pipelineLayoutInfo.setLayoutCount = 0;
+		pipelineLayoutInfo.pushConstantRangeCount = 0;
 
-		pipelineLayoutInfo.setSetLayoutCount(1);
-		pipelineLayoutInfo.setPSetLayouts(&m_DescriptorSetLayout);
+		pipelineLayoutInfo.setLayoutCount = 1;
+		pipelineLayoutInfo.pSetLayouts = &m_DescriptorSetLayout;
 
-		m_PipelineLayout = vkDevice.createPipelineLayout(pipelineLayoutInfo);
+		vkCreatePipelineLayout(vkDevice, &pipelineLayoutInfo, nullptr, &m_PipelineLayout);
 
-		vk::PipelineShaderStageCreateInfo shaderStages[] = {
-			std::static_pointer_cast<VulkanShader>(m_Spec.VertexShader)->GetStageInfo(),
-			std::static_pointer_cast<VulkanShader>(m_Spec.FragmentShader)->GetStageInfo()
-		};
+		VkPipelineShaderStageCreateInfo shaderStages[2]{};
+		shaderStages[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
+		shaderStages[0].module = std::static_pointer_cast<VulkanShader>(m_Spec.VertexShader)->GetVkHandle();
+		shaderStages[0].pName = "main";
 
-		vk::GraphicsPipelineCreateInfo pipelineInfo;
-		pipelineInfo.setStageCount(2);
-		pipelineInfo.setPStages(shaderStages);
+		VkPipelineShaderStageCreateInfo fragmentStageInfo{};
+		shaderStages[1].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+		shaderStages[1].module = std::static_pointer_cast<VulkanShader>(m_Spec.FragmentShader)->GetVkHandle();
+		shaderStages[1].pName = "main";
 
-		pipelineInfo.setPVertexInputState(&vertexInputInfo);
-		pipelineInfo.setPInputAssemblyState(&inputAssembly);
-		pipelineInfo.setPViewportState(&viewportState);
-		pipelineInfo.setPRasterizationState(&rasterizer);
-		pipelineInfo.setPMultisampleState(&multisampling);
-		pipelineInfo.setPColorBlendState(&colorBlending);
-		pipelineInfo.setLayout(m_PipelineLayout);
-		pipelineInfo.setRenderPass(std::static_pointer_cast<VulkanRenderPass>(m_Spec.RenderPass)->GetVkHandle());
-		pipelineInfo.setSubpass(0);
+		VkGraphicsPipelineCreateInfo pipelineInfo{};
+		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+		pipelineInfo.stageCount = 2;
+		pipelineInfo.pStages = shaderStages;
 
-		auto pipelineStatusPair = vkDevice.createGraphicsPipeline(VK_NULL_HANDLE, pipelineInfo);
-		QK_CORE_ASSERT(pipelineStatusPair.result == vk::Result::eSuccess, "Could not create the graphics pipeline");
-		m_GraphicsPipeline = pipelineStatusPair.value;
+		pipelineInfo.pVertexInputState = &vertexInputInfo;
+		pipelineInfo.pInputAssemblyState = &inputAssembly;
+		pipelineInfo.pViewportState = &viewportState;
+		pipelineInfo.pRasterizationState = &rasterizer;
+		pipelineInfo.pMultisampleState = &multisampling;
+		pipelineInfo.pColorBlendState = &colorBlending;
+		pipelineInfo.layout = m_PipelineLayout;
+		pipelineInfo.renderPass = std::static_pointer_cast<VulkanRenderPass>(m_Spec.RenderPass)->GetVkHandle();
+		pipelineInfo.subpass = 0;
+
+		VkResult vkRes = vkCreateGraphicsPipelines(vkDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_GraphicsPipeline);
+		QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Could not create the graphics pipeline");
 	}
 }

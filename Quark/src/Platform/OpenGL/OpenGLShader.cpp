@@ -12,16 +12,19 @@
 
 namespace Quark {
 
-	static constexpr GLenum ShaderTypeFromString(std::string_view type)
-	{
-		if (type == "vertex")
-			return GL_VERTEX_SHADER;
-		else if (type == "fragment" || type == "pixel")
-			return GL_FRAGMENT_SHADER;
-		else if (type == "geometry")
-			return GL_GEOMETRY_SHADER;
+	namespace Utils {
 
-		return GL_NONE;
+		static constexpr GLenum ShaderTypeFromString(std::string_view type)
+		{
+			if (type == "vertex")
+				return GL_VERTEX_SHADER;
+			else if (type == "fragment" || type == "pixel")
+				return GL_FRAGMENT_SHADER;
+			else if (type == "geometry")
+				return GL_GEOMETRY_SHADER;
+
+			return GL_NONE;
+		}
 	}
 
 	OpenGLShader::OpenGLShader(std::string_view filepath)
@@ -83,7 +86,7 @@ namespace Quark {
 
 			size_t begin = pos + typeTokenLength + 1; // Start of shader type name (after "#type " keyword)
 			std::string_view type = source.substr(begin, eol - begin);
-			GLenum shaderType = ShaderTypeFromString(type);
+			GLenum shaderType = Utils::ShaderTypeFromString(type);
 			if (shaderType == GL_NONE)
 				QK_CORE_FATAL("Invalid shader type specified");
 
@@ -132,13 +135,12 @@ namespace Quark {
 
 				for (uint32_t i = 0; i < glShaderIDIndex; i++)
 				{
-					glDetachShader(program, glShaderIDs[i]);
 					glDeleteShader(glShaderIDs[i]);
 				}
 
 				glDeleteProgram(program);
 
-				QK_CORE_FATAL("Shader compilation failure:\n{0}", infoLog.data());
+				QK_CORE_ERROR("Shader compilation failure (compiling: {0}):\n{1}", m_Name, infoLog.data());
 				return;
 			}
 
@@ -165,7 +167,7 @@ namespace Quark {
 
 			glDeleteProgram(program);
 
-			QK_CORE_FATAL("Shader link failure:\n{0}", infoLog.data());
+			QK_CORE_ERROR("Shader link failure (linking {0}):\n{1}", m_Name, infoLog.data());
 			return;
 		}
 

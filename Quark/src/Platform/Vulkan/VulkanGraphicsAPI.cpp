@@ -25,22 +25,6 @@ namespace Quark {
 		m_Constraints.TextureConstraints.MaxTextureSlots = 32; // TODO: implement
 	}
 
-	void VulkanGraphicsAPI::BeginRenderPass(const Ref<RenderPass>& renderPass)
-	{
-	}
-
-	void VulkanGraphicsAPI::EndRenderPass()
-	{
-	}
-
-	void VulkanGraphicsAPI::Draw(uint32_t offset, uint32_t count)
-	{
-	}
-
-	void VulkanGraphicsAPI::DrawIndexed(uint32_t indexCount)
-	{
-	}
-
 	Ref<CommandBuffer> VulkanGraphicsAPI::CreateCommandBuffer()
 	{
 		return CreateRef<VulkanCommandBuffer>();

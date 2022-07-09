@@ -9,23 +9,23 @@
 #include "Platform/OpenGL/OpenGLGraphicsAPI.h"
 #include "Platform/Vulkan/VulkanGraphicsAPI.h"
 
-#define USE_VULKAN 1
+#define USE_VULKAN 0
 
 namespace Quark {
 
-	GraphicsAPI::API GraphicsAPI::s_API = GraphicsAPI::API::None;
+	API GraphicsAPI::s_API = API::None;
 	Scope<GraphicsAPI> GraphicsAPI::Instance = Instantiate(GetDefaultForPlatform());
 
-	GraphicsAPI::API GraphicsAPI::GetDefaultForPlatform()
+	API GraphicsAPI::GetDefaultForPlatform()
 	{
 #ifdef QK_PLATFORM_APPLE
-		return GraphicsAPI::API::Metal;
+		return API::Metal;
 #else
 		// Default
 #if USE_VULKAN
-		return GraphicsAPI::API::Vulkan;
+		return API::Vulkan;
 #else
-		return GraphicsAPI::API::OpenGL;
+		return API::OpenGL;
 #endif
 #endif
 	}
@@ -35,7 +35,7 @@ namespace Quark {
 		s_API = api;
 		switch (api)
 		{
-			case GraphicsAPI::API::Metal:
+			case API::Metal:
 			{
 #ifdef QK_PLATFORM_APPLE
 				return CreateScope<MetalGraphicsAPI>();
@@ -44,8 +44,8 @@ namespace Quark {
 				return nullptr;
 #endif
 			}
-			case GraphicsAPI::API::OpenGL: return CreateScope<OpenGLGraphicsAPI>();
-			case GraphicsAPI::API::Vulkan: return CreateScope<VulkanGraphicsAPI>();
+			case API::OpenGL: return CreateScope<OpenGLGraphicsAPI>();
+			case API::Vulkan: return CreateScope<VulkanGraphicsAPI>();
 			default:
 				QK_CORE_FATAL("Unknown graphics API");
 				return nullptr;

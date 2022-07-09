@@ -19,9 +19,12 @@ namespace Quark {
 
 		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
 
-		void* mappedMemory = vkDevice.mapMemory(stagingBufferMemory, 0, size);
-		std::memcpy(mappedMemory, vertices, size);
-		vkDevice.unmapMemory(stagingBufferMemory);
+		{
+			void* mappedMemory;
+			vkMapMemory(vkDevice, stagingBufferMemory, 0, size, 0, &mappedMemory);
+			std::memcpy(mappedMemory, vertices, size);
+			vkUnmapMemory(vkDevice, stagingBufferMemory);
+		}
 
 		m_Buffer = Utils::AllocateBuffer(size,
 			vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer,
@@ -69,9 +72,12 @@ namespace Quark {
 
 		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
 
-		void* mappedMemory = vkDevice.mapMemory(stagingBufferMemory, 0, size);
-		std::memcpy(mappedMemory, data, size);
-		vkDevice.unmapMemory(stagingBufferMemory);
+		{
+			void* mappedMemory;
+			vkMapMemory(vkDevice, stagingBufferMemory, 0, size, 0, &mappedMemory);
+			std::memcpy(mappedMemory, data, size);
+			vkUnmapMemory(vkDevice, stagingBufferMemory);
+		}
 
 		Utils::CopyBuffer(m_Buffer, stagingBuffer, size);
 
@@ -94,9 +100,12 @@ namespace Quark {
 
 		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
 
-		void* mappedMemory = vkDevice.mapMemory(stagingBufferMemory, 0, size);
-		std::memcpy(mappedMemory, indices, size);
-		vkDevice.unmapMemory(stagingBufferMemory);
+		{
+			void* mappedMemory;
+			vkMapMemory(vkDevice, stagingBufferMemory, 0, size, 0, &mappedMemory);
+			std::memcpy(mappedMemory, indices, size);
+			vkUnmapMemory(vkDevice, stagingBufferMemory);
+		}
 
 		m_Buffer = Utils::AllocateBuffer(size,
 			vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer,
@@ -147,9 +156,12 @@ namespace Quark {
 
 		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
 
-		void* mappedMemory = vkDevice.mapMemory(stagingBufferMemory, 0, size);
-		std::memcpy(mappedMemory, data, size);
-		vkDevice.unmapMemory(stagingBufferMemory);
+		{
+			void* mappedMemory;
+			vkMapMemory(vkDevice, stagingBufferMemory, 0, size, 0, &mappedMemory);
+			std::memcpy(mappedMemory, data, size);
+			vkUnmapMemory(vkDevice, stagingBufferMemory);
+		}
 
 		Utils::CopyBuffer(m_Buffer, stagingBuffer, size);
 

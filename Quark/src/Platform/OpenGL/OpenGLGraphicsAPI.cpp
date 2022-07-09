@@ -33,7 +33,7 @@ namespace Quark {
 			case GL_DEBUG_SEVERITY_NOTIFICATION: QK_CORE_TRACE(message); return;
 		}
 
-		QK_CORE_ASSERT(false, "OnOpenGLMessage had an unknown severity level");
+		QK_CORE_FATAL("OnOpenGLMessage had an unknown severity level");
 	}
 
 	void OpenGLGraphicsAPI::Init()
@@ -183,14 +183,6 @@ namespace Quark {
 	void OpenGLGraphicsAPI::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 	{
 		glViewport(x, y, width, height);
-	}
-
-	void OpenGLGraphicsAPI::BeginRenderPass(const Ref<RenderPass>& renderPass)
-	{
-	}
-
-	void OpenGLGraphicsAPI::EndRenderPass()
-	{
 	}
 
 	void OpenGLGraphicsAPI::Draw(uint32_t offset, uint32_t count)
