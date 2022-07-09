@@ -24,8 +24,6 @@ namespace Quark {
 		virtual uint32_t GetAtlasWidth() const override { return m_AtlasWidth; }
 		virtual uint32_t GetAtlasHeight() const override { return m_AtlasHeight; }
 
-		virtual uint32_t GetRendererID() const override { return m_RendererID; }
-
 		virtual bool operator==(const Font& other) const override
 		{
 			return m_RendererID == ((OpenGLFont&)other).m_RendererID;

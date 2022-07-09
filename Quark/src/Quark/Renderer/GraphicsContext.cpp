@@ -30,7 +30,7 @@ namespace Quark {
 
 			case GraphicsAPI::API::OpenGL:
 #if defined(QK_PLATFORM_WINDOWS) && defined(QK_USE_NATIVE_APIS)
-				return CreateScope<OpenGLWin32GraphicsContext>(windowHandle);
+				return CreateScope<OpenGLWin32Context>(windowHandle);
 #else
 				return CreateScope<OpenGLContext>(windowHandle);
 #endif

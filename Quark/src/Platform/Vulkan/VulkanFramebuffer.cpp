@@ -15,7 +15,7 @@ namespace Quark {
 	VulkanFramebuffer::~VulkanFramebuffer()
 	{
 		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
-		vkDevice.destroyFramebuffer(m_Framebuffer);
+		vkDestroyFramebuffer(vkDevice, m_Framebuffer, nullptr);
 	}
 
 	void VulkanFramebuffer::Resize(uint32_t width, uint32_t height)
@@ -31,7 +31,7 @@ namespace Quark {
 		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
 		if (m_Framebuffer)
 		{
-			vkDevice.destroyFramebuffer(m_Framebuffer);
+			vkDestroyFramebuffer(vkDevice, m_Framebuffer, nullptr);
 		}
 	}
 }

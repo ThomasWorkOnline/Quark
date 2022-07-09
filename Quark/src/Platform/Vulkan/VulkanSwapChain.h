@@ -1,48 +1,56 @@
 #pragma once
 
-#include "VulkanUtils.h"
+#include "Quark/Renderer/SwapChain.h"
+#include "Quark/Renderer/GraphicsContext.h"
+#include "Quark/Renderer/Renderer.h"
+
 #include <vulkan/vulkan.hpp>
+
+typedef struct GLFWwindow GLFWwindow;
 
 namespace Quark {
 
-	struct VulkanSwapChainSpecification
-	{
-		vk::SurfaceFormatKHR       SurfaceFormat{};
-		vk::PresentModeKHR         PresentMode{};
-		vk::Extent2D               Extent;
-
-		Utils::QueueFamilyIndices  FamilyIndices;
-		uint32_t                   ImageCount = 0;
-	};
-
-	class VulkanSwapChain
+	class VulkanSwapChain final : public SwapChain
 	{
 	public:
-		VulkanSwapChain(vk::SurfaceKHR surface, const VulkanSwapChainSpecification& spec);
+		VulkanSwapChain(GLFWwindow* window, vk::SurfaceKHR surface);
 		~VulkanSwapChain();
 
+		void Init();
 		void Present(vk::Queue presentQueue);
-		void Resize(uint32_t viewportWidth, uint32_t viewportHeight);
+		virtual void Resize(uint32_t viewportWidth, uint32_t viewportHeight) override;
 
 		uint32_t AcquireNextImageIndex(vk::Semaphore imageAvailableSemaphore);
+
 		vk::ImageView GetImageView(uint32_t i) const { return m_SwapChainImageViews[i]; }
+		vk::Fence     GetFence() const { return m_InFlightFences[m_CurrentFrameIndex]; }
 		vk::Semaphore GetRenderFinishedSemaphore() const { return m_RenderFinishedSemaphores[m_CurrentFrameIndex]; }
 
-		const VulkanSwapChainSpecification& GetSpecification() const { return m_Spec; }
+		const SwapChainSpecification& GetSpecification() const { return m_Spec; }
 
 	private:
-		void Invalidate(uint32_t viewportWidth, uint32_t viewportHeight);
+		void Invalidate();
 
 	private:
-		vk::SurfaceKHR m_Surface;
-		vk::SwapchainKHR m_SwapChain;
+		GLFWwindow* m_WindowHandle;
+		VkSurfaceKHR m_Surface;
+		VkSwapchainKHR m_SwapChain = VK_NULL_HANDLE;
 
-		std::vector<vk::Image> m_SwapChainImages;
-		std::vector<vk::ImageView> m_SwapChainImageViews;
-		std::vector<vk::Semaphore> m_RenderFinishedSemaphores;
+		vk::SurfaceFormatKHR m_ActualSurfaceFormat;
+		vk::PresentModeKHR m_ActualPresentMode{};
+
+		std::vector<VkImage> m_SwapChainImages;
+		std::vector<VkImageView> m_SwapChainImageViews;
+
+		VkFence m_InFlightFences[Renderer::FramesInFlight]{};
+		VkSemaphore m_RenderFinishedSemaphores[Renderer::FramesInFlight]{};
 
 		uint32_t m_ImageIndex = 0;
 		uint32_t m_CurrentFrameIndex = std::numeric_limits<uint32_t>::max();
-		VulkanSwapChainSpecification m_Spec;
+
+		SwapChainSpecification m_Spec;
+
+		// TODO: remove
+		friend class VulkanRenderPass;
 	};
 }

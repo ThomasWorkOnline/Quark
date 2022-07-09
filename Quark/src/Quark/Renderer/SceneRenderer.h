@@ -3,29 +3,73 @@
 #include "Quark/Core/Core.h"
 #include "Quark/Scene/Scene.h"
 
+#include "Buffer.h"
+#include "Cubemap.h"
+#include "Framebuffer.h"
+#include "Pipeline.h"
+#include "RenderPass.h"
+#include "Shader.h"
+#include "UniformBuffer.h"
+
 namespace Quark {
 
 	class SceneRenderer
 	{
 	public:
-		SceneRenderer() = delete;
-		SceneRenderer& operator=(const SceneRenderer&) = delete;
+		SceneRenderer();
+		SceneRenderer(const Ref<Scene>& scene);
+		~SceneRenderer();
 
-		static void SetActiveScene(const Ref<Scene>& scene);
-		static void SetEnvironment(std::string_view filepath);
+		void SetContext(const Ref<Scene>& scene);
+		void SetEnvironment(std::string_view filepath);
 
-		static void OnRender();
-		static void OnViewportResized(uint32_t width, uint32_t height);
+		void OnRender();
+		void OnViewportResized(uint32_t viewportWidth, uint32_t viewportHeight);
 
 	private:
-		static void Dispose();
-		static void OnNewActiveScene();
+		void GeometryPass();
 
-		static void InitEnvironment(std::string_view environmentFilepath);
+		void Initialize();
+		void NewEnvironment(std::string_view environmentFilepath);
 
-		static Vec2i s_ViewportSize;
-		static Ref<Scene> s_ActiveScene;
+	private:
+		struct EnvironmentData
+		{
+			Ref<Shader> SkyboxShader;
+			Ref<Shader> IrradianceShader;
+			Ref<Shader> EquirectangleToCubemapShader;
+			Ref<VertexBuffer> CubemapVertexBuffer;
+			Ref<IndexBuffer> CubemapIndexBuffer;
+			Ref<Framebuffer> Framebuffer;
 
-		friend class Application;
+			Ref<Cubemap> Environment;
+			Ref<Cubemap> Irradiance;
+		};
+
+		struct SceneData
+		{
+			// Assure std140 layout
+			struct CameraUniformBufferData
+			{
+				Mat4f View = Mat4(1.0f);
+				Mat4f Projection = Mat4(1.0f);
+			};
+
+			Scope<EnvironmentData> Env;
+			CameraUniformBufferData CameraBufferData;
+
+			Ref<Shader> VertexShader;
+			Ref<Shader> FragmentShader;
+
+			Ref<Pipeline> GraphicsPipeline;
+			Ref<RenderPass> GeometryPass;
+
+			Ref<VertexBuffer> VertexBuffer;
+			Ref<IndexBuffer> IndexBuffer;
+		};
+
+		SceneData m_Data;
+		Ref<Scene> m_Scene;
+		Vec2i m_ViewportSize{};
 	};
 }

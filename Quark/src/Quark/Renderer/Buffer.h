@@ -84,42 +84,42 @@ namespace Quark {
 	class BufferLayout
 	{
 	public:
-		constexpr BufferLayout() = default;
-		constexpr BufferLayout(std::initializer_list<BufferElement> elements)
+		QK_CONSTEXPR20 BufferLayout() = default;
+		QK_CONSTEXPR20 BufferLayout(std::initializer_list<BufferElement> elements)
 			: m_Elements(elements)
 		{
 			CalculateOffsetsAndStride();
 		}
 
-		constexpr size_t GetStride() const { return m_Stride; }
-		constexpr uint32_t GetCount() const { return static_cast<uint32_t>(m_Elements.size()); }
+		QK_CONSTEXPR20 uint32_t GetCount() const { return static_cast<uint32_t>(m_Elements.size()); }
 
+		constexpr size_t GetStride() const { return m_Stride; }
 		constexpr const std::vector<BufferElement>& GetElements() const { return m_Elements; }
 
-		constexpr const BufferElement& operator[](const char* name) const
+		QK_CONSTEXPR20 const BufferElement& operator[](std::string_view name) const
 		{
 			auto it = std::find_if(m_Elements.begin(), m_Elements.end(), [name](const BufferElement& element)
 				{
-					return std::strcmp(element.Name, name) == 0;
+					return element.Name == name;
 				});
 
 			QK_CORE_ASSERT(it != m_Elements.end(), "Element with name {0} was not found in layout", name);
 			return *it;
 		}
 
-		constexpr const BufferElement& operator[](size_t index) const
+		QK_CONSTEXPR20 const BufferElement& operator[](size_t index) const
 		{
 			QK_CORE_ASSERT(index >= 0 && index < m_Elements.size(), "Buffer element index out of bounds");
 			return m_Elements[index];
 		}
 
-		constexpr std::vector<BufferElement>::iterator begin() { return m_Elements.begin(); }
-		constexpr std::vector<BufferElement>::iterator end() { return m_Elements.end(); }
-		constexpr std::vector<BufferElement>::const_iterator begin() const { return m_Elements.begin(); }
-		constexpr std::vector<BufferElement>::const_iterator end() const { return m_Elements.end(); }
+		QK_CONSTEXPR20 std::vector<BufferElement>::iterator begin() { return m_Elements.begin(); }
+		QK_CONSTEXPR20 std::vector<BufferElement>::iterator end() { return m_Elements.end(); }
+		QK_CONSTEXPR20 std::vector<BufferElement>::const_iterator begin() const { return m_Elements.begin(); }
+		QK_CONSTEXPR20 std::vector<BufferElement>::const_iterator end() const { return m_Elements.end(); }
 
 	private:
-		constexpr void CalculateOffsetsAndStride()
+		QK_CONSTEXPR20 void CalculateOffsetsAndStride()
 		{
 			size_t offset = 0;
 			m_Stride = 0;
@@ -146,10 +146,9 @@ namespace Quark {
 
 		virtual void SetData(const void* data, size_t size, size_t offset = 0) = 0;
 
+		// TODO: deprecate (part of the pipeline)
 		virtual const BufferLayout& GetLayout() const = 0;
 		virtual void SetLayout(const BufferLayout& layout) = 0;
-
-		virtual uint32_t GetRendererID() const = 0;
 
 		virtual bool operator==(const VertexBuffer& other) const = 0;
 
@@ -166,9 +165,7 @@ namespace Quark {
 		virtual void Detach() const = 0;
 
 		virtual void SetData(const uint32_t* data, uint32_t count, size_t offset = 0) = 0;
-
 		virtual uint32_t GetCount() const = 0;
-		virtual uint32_t GetRendererID() const = 0;
 
 		virtual bool operator==(const IndexBuffer& other) const = 0;
 

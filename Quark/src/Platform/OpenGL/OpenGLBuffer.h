@@ -19,8 +19,6 @@ namespace Quark {
         virtual const BufferLayout& GetLayout() const override { return m_Layout; }
         virtual void SetLayout(const BufferLayout& layout) override { m_Layout = layout; }
 
-        virtual uint32_t GetRendererID() const override { return m_RendererID; };
-
         virtual bool operator==(const VertexBuffer& other) const override
         {
             return m_RendererID == ((OpenGLVertexBuffer&)other).m_RendererID;
@@ -42,9 +40,7 @@ namespace Quark {
         virtual void Detach() const override;
 
         virtual void SetData(const uint32_t* data, uint32_t count, size_t offset) override;
-
         virtual uint32_t GetCount() const override { return m_Count; };
-        virtual uint32_t GetRendererID() const override { return m_RendererID; };
 
         virtual bool operator==(const IndexBuffer& other) const override
         {

@@ -57,10 +57,10 @@ namespace Quark {
 			bool        VSync;
 			double      CursorXpos, CursorYpos;
 
+			Scope<GraphicsContext> Context;
 			EventCallbackFn EventCallback;
 		};
 
-		Scope<GraphicsContext> m_Context;
 		GLFWwindow* m_Window;
 		WindowData m_Data{};
 

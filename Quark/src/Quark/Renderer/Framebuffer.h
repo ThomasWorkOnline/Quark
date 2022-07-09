@@ -1,13 +1,14 @@
 #pragma once
 
 #include "Quark/Core/Core.h"
+#include "ColorFormats.h"
 #include "TextureFormats.h"
 
 #include <vector>
 
 namespace Quark {
 
-	enum class FramebufferAttachmentFormat
+	enum class FramebufferTargetAttachment
 	{
 		None = 0,
 
@@ -28,9 +29,9 @@ namespace Quark {
 
 	struct FramebufferAttachmentSpecification
 	{
-		FramebufferAttachmentFormat Attachment{};
-		TextureDataFormat           DataFormat{};
-		TextureInternalFormat       InternalFormat{};
+		FramebufferTargetAttachment Attachment{};
+		ColorDataFormat             DataFormat{};
+		InternalColorFormat         InternalFormat{};
 	};
 
 	struct FramebufferSpecification
@@ -55,13 +56,8 @@ namespace Quark {
 		virtual void AttachColorAttachment(uint32_t textureSlot, uint32_t index = 0) = 0;
 		virtual void AttachDepthAttachment(uint32_t textureSlot) = 0;
 
-		virtual uint32_t GetColorAttachmentRendererID(uint32_t index = 0) const = 0;
-		virtual uint32_t GetDepthAttachmentRendererID() const = 0;
-
 		virtual uint32_t GetWidth() const = 0;
 		virtual uint32_t GetHeight() const = 0;
-
-		virtual uint32_t GetRendererID() const = 0;
 
 		virtual bool operator==(const Framebuffer& other) const = 0;
 

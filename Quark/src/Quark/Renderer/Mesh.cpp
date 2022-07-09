@@ -117,14 +117,10 @@ namespace Quark {
 		}
 
 		Mesh mesh;
-		mesh.m_VertexArray = VertexArray::Create();
+		mesh.m_VertexBuffer = VertexBuffer::Create(baseVertices, vertexCount * sizeof(MeshVertex));
+		mesh.m_VertexBuffer->SetLayout(s_Layout);
 
-		auto vbo = VertexBuffer::Create(baseVertices, vertexCount * sizeof(MeshVertex));
-		vbo->SetLayout(s_Layout);
-		mesh.m_VertexArray->AddVertexBuffer(vbo);
-
-		auto ibo = IndexBuffer::Create(indices, vertexCount);
-		mesh.m_VertexArray->SetIndexBuffer(ibo);
+		mesh.m_IndexBuffer = IndexBuffer::Create(indices, vertexCount);
 
 		delete[] baseVertices;
 		delete[] indices;
@@ -137,14 +133,10 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		Mesh mesh;
-		mesh.m_VertexArray = VertexArray::Create();
+		mesh.m_VertexBuffer = VertexBuffer::Create(CubeVertices, sizeof(CubeVertices));
+		mesh.m_VertexBuffer->SetLayout(s_Layout);
 
-		auto vbo = VertexBuffer::Create(CubeVertices, sizeof(CubeVertices));
-		vbo->SetLayout(s_Layout);
-		mesh.m_VertexArray->AddVertexBuffer(vbo);
-
-		auto ibo = IndexBuffer::Create(CubeIndices, sizeof(CubeIndices) / sizeof(CubeIndices[0]));
-		mesh.m_VertexArray->SetIndexBuffer(ibo);
+		mesh.m_IndexBuffer = IndexBuffer::Create(CubeIndices, sizeof(CubeIndices) / sizeof(CubeIndices[0]));
 
 		return mesh;
 	}

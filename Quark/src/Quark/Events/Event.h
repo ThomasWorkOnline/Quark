@@ -28,7 +28,7 @@ namespace Quark {
 		MouseButton = BIT(4)
 	};
 
-	inline EventCategory operator &(EventCategory lhs, EventCategory rhs)
+	constexpr EventCategory operator &(EventCategory lhs, EventCategory rhs)
 	{
 		return static_cast<EventCategory>(
 			static_cast<std::underlying_type_t<EventCategory>>(lhs) &
@@ -36,7 +36,7 @@ namespace Quark {
 		);
 	}
 
-	inline EventCategory operator |(EventCategory lhs, EventCategory rhs)
+	constexpr EventCategory operator |(EventCategory lhs, EventCategory rhs)
 	{
 		return static_cast<EventCategory>(
 			static_cast<std::underlying_type_t<EventCategory>>(lhs) |
@@ -44,7 +44,7 @@ namespace Quark {
 		);
 	}
 
-	inline EventCategory operator ^(EventCategory lhs, EventCategory rhs)
+	constexpr EventCategory operator ^(EventCategory lhs, EventCategory rhs)
 	{
 		return static_cast<EventCategory>(
 			static_cast<std::underlying_type_t<EventCategory>>(lhs) ^
@@ -52,7 +52,7 @@ namespace Quark {
 		);
 	}
 
-	inline EventCategory operator ~(EventCategory lhs)
+	constexpr EventCategory operator ~(EventCategory lhs)
 	{
 		return static_cast<EventCategory>(~static_cast<std::underlying_type_t<EventCategory>>(lhs));
 	}

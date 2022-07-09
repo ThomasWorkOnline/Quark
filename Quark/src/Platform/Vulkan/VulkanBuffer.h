@@ -20,11 +20,11 @@ namespace Quark {
 		virtual const BufferLayout& GetLayout() const override { return m_Layout; }
 		virtual void SetLayout(const BufferLayout& layout) override { m_Layout = layout; }
 
-		virtual uint32_t GetRendererID() const override { return 0; }
+		vk::Buffer GetVkHandle() const { return m_Buffer; }
 
 		virtual bool operator==(const VertexBuffer& other) const override
 		{
-			return m_Buffer == ((VulkanVertexBuffer&)other).m_Buffer;
+			return m_Buffer == reinterpret_cast<const VulkanVertexBuffer&>(other).m_Buffer;
 		}
 		
 	private:
@@ -45,13 +45,13 @@ namespace Quark {
 		virtual void Detach() const override {}
 
 		virtual void SetData(const uint32_t* data, uint32_t count, size_t offset = 0) override;
-
 		virtual uint32_t GetCount() const override { return m_Count; }
-		virtual uint32_t GetRendererID() const override { return 0; }
+
+		vk::Buffer GetVkHandle() const { return m_Buffer; }
 
 		virtual bool operator==(const IndexBuffer& other) const override
 		{
-			return m_Buffer == ((VulkanIndexBuffer&)other).m_Buffer;
+			return m_Buffer == reinterpret_cast<const VulkanIndexBuffer&>(other).m_Buffer;
 		}
 
 	private:

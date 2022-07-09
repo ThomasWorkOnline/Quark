@@ -2,7 +2,7 @@
 
 namespace Quark {
 
-	enum class RenderCullFace
+	enum class RenderCullMode
 	{
 		None,
 		Front,

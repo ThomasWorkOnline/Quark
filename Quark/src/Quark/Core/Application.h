@@ -16,16 +16,16 @@ namespace Quark {
 
 	enum ApplicationFlag
 	{
-		ApplicationNoFlags = 0,
+		ApplicationFlagEmpty = 0,
 		ShowApiInWindowTitle = BIT(0)
 	};
 
 	struct ApplicationOptions
 	{
 		uint32_t Width = 1280, Height = 720;
-		std::string Title = "Quark Engine";
+		std::string AppName = "Quark Engine";
 		std::string AssetDir;
-		ApplicationFlag Flags = ApplicationNoFlags;
+		ApplicationFlag Flags{};
 
 		bool HasFlag(ApplicationFlag flag) const { return Flags & flag; }
 
@@ -33,9 +33,8 @@ namespace Quark {
 		ApplicationOptions(
 			uint32_t width, uint32_t height,
 			const std::string& title,
-			ApplicationFlag flags = ApplicationNoFlags
-		)
-			: Width(width), Height(height), Title(title), Flags(flags) {}
+			ApplicationFlag flags = {})
+			: Width(width), Height(height), AppName(title), Flags(flags) {}
 	};
 
 	class Application
@@ -47,9 +46,9 @@ namespace Quark {
 		Application(const Application&) = delete;
 		Application& operator=(const Application&) = delete;
 
-		virtual void OnUpdate(Timestep elapsedTime) {}
-		virtual void OnRender() {}
 		virtual void OnEvent(Event& e) {}
+		virtual void OnRender() {}
+		virtual void OnUpdate(Timestep elapsedTime) {}
 
 		void Run();
 		void Stop();
@@ -78,6 +77,8 @@ namespace Quark {
 
 		bool OnWindowClosed(WindowClosedEvent& e);
 		bool OnWindowResized(WindowResizedEvent& e);
+		bool OnWindowMinimized(WindowMinimizedEvent& e);
+		bool OnWindowRestored(WindowRestoredEvent& e);
 
 	private:
 		static Application* s_Instance;
@@ -89,6 +90,7 @@ namespace Quark {
 		std::vector<Layer*> m_Layers;
 
 		float m_TotalTime = 0.0f;
+		bool m_Minimized = false;
 		bool m_Running = false;
 	};
 }

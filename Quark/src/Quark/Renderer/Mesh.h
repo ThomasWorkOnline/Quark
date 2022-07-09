@@ -48,7 +48,8 @@ namespace Quark {
 		Mesh() = default;
 		Mesh(const OBJMeshData& meshData);
 
-		const Ref<VertexArray>& GetVertexArray() const { return m_VertexArray; }
+		const Ref<VertexBuffer>& GetVertexBuffer() const { return m_VertexBuffer; }
+		const Ref<IndexBuffer>& GetIndexBuffer() const { return m_IndexBuffer; }
 
 		static Mesh LoadFromFile(std::string_view filepath, const MeshFormatDescriptor& descriptor = {});
 		static Mesh ConstructMeshFromOBJData(const OBJMeshData& data);
@@ -57,9 +58,10 @@ namespace Quark {
 		// TODO: support sharp edges and sharp angle threshold detector
 		static OBJMeshData ReadOBJData(std::string_view filepath, const MeshFormatDescriptor& descriptor = {});
 
-		operator bool() const { return m_VertexArray != nullptr; }
+		operator bool() const { return m_VertexBuffer != nullptr; }
 
 	private:
-		Ref<VertexArray> m_VertexArray;
+		Ref<VertexBuffer> m_VertexBuffer;
+		Ref<IndexBuffer> m_IndexBuffer;
 	};
 }

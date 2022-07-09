@@ -16,13 +16,13 @@ public:
 
 private:
 	bool OnWindowResized(WindowResizedEvent& e);
+	bool OnMouseButtonPressed(MouseButtonPressedEvent& e);
+	bool OnKeyPressed(KeyPressedEvent& e);
 
 private:
-	SceneCamera m_SceneCamera;
-	Mat4f m_CameraView;
+	Ref<Scene> m_Scene;
+	Entity m_CameraEntity;
 
-	Ref<VertexBuffer> m_VertexBuffer;
-	Ref<IndexBuffer> m_IndexBuffer;
-
-	Scope<RenderPipeline> m_RenderPipeline;
+	bool m_ViewportSelected = false;
+	SceneRenderer m_SceneRenderer;
 };

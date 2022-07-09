@@ -1,6 +1,6 @@
 #include "qkpch.h"
 #include "OpenGLCubemap.h"
-#include "OpenGLTextureFormats.h"
+#include "OpenGLFormats.h"
 
 #include <glad/glad.h>
 
@@ -17,9 +17,9 @@ namespace Quark {
 		for (uint8_t i = 0; i < 6; i++)
 		{
 			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0,
-				GetTextureInternalFormat(m_Spec.InternalFormat), m_Spec.Width, m_Spec.Height, 0,
-				GetTextureDataFormat(m_Spec.DataFormat),
-				GetDataTypeBasedOnInternalFormat(m_Spec.InternalFormat), nullptr);
+				InternalFormatToOpenGL(m_Spec.InternalFormat), m_Spec.Width, m_Spec.Height, 0,
+				DataFormatToOpenGL(m_Spec.DataFormat),
+				InternalFormatToOpenGLDataType(m_Spec.InternalFormat), nullptr);
 		}
 
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -54,7 +54,7 @@ namespace Quark {
 		size_t pSize = GetPixelFormatSize(m_Spec.InternalFormat);
 		QK_CORE_ASSERT(size == m_Spec.Width * m_Spec.Height * pSize, "Data must be entire texture");
 		glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + index, 0, 0, 0, m_Spec.Width, m_Spec.Height,
-			GetTextureDataFormat(m_Spec.DataFormat),
-			GetDataTypeBasedOnInternalFormat(m_Spec.InternalFormat), data);
+			DataFormatToOpenGL(m_Spec.DataFormat),
+			InternalFormatToOpenGLDataType(m_Spec.InternalFormat), data);
 	}
 }

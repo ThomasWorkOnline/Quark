@@ -59,7 +59,6 @@ namespace Quark {
 		uint32_t QuadSamplerIndex = 1; // Next texture slot to be attached, 0 is reserved for default texture
 
 		Ref<Shader> QuadShader;
-		Ref<VertexArray> QuadVertexArray;
 		Ref<VertexBuffer> QuadVertexBuffer;
 		Ref<IndexBuffer> QuadIndexBuffer;
 
@@ -69,7 +68,6 @@ namespace Quark {
 		uint32_t FontSamplerIndex = 0;
 
 		Ref<Shader> FontShader;
-		Ref<VertexArray> FontVertexArray;
 		Ref<VertexBuffer> FontVertexBuffer;
 
 		LineVertex* LineVertexPtr = nullptr;
@@ -77,7 +75,6 @@ namespace Quark {
 		uint32_t LineIndexCount   = 0;
 
 		Ref<Shader> LineShader;
-		Ref<VertexArray> LineVertexArray;
 		Ref<VertexBuffer> LineVertexBuffer;
 
 		Ref<Texture2D> DefaultTexture;
@@ -354,8 +351,11 @@ namespace Quark {
 			for (uint32_t i = 0; i < s_Data->QuadSamplerIndex; i++)
 				s_Data->Textures[i]->Attach(i);
 
+			/*vertexArray->Attach();
+			uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer() ? vertexArray->GetIndexBuffer()->GetCount() : 0;*/
+
 			s_Data->QuadShader->Attach();
-			RenderCommand::DrawIndexed(s_Data->QuadVertexArray, s_Data->QuadIndexCount);
+			RenderCommand::DrawIndexed(s_Data->QuadIndexCount);
 
 			s_Stats.DrawCalls++;
 		}
@@ -368,8 +368,11 @@ namespace Quark {
 			for (uint32_t i = 0; i < s_Data->FontSamplerIndex; i++)
 				s_Data->Fonts[i]->Attach(i);
 
+			/*vertexArray->Attach();
+			uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer() ? vertexArray->GetIndexBuffer()->GetCount() : 0;*/
+
 			s_Data->FontShader->Attach();
-			RenderCommand::DrawIndexed(s_Data->FontVertexArray, s_Data->FontIndexCount);
+			RenderCommand::DrawIndexed(s_Data->FontIndexCount);
 
 			s_Stats.DrawCalls++;
 		}
@@ -379,8 +382,11 @@ namespace Quark {
 			size_t size = ((uint8_t*)s_Data->LineVertexPtr - (uint8_t*)s_Data->LineVertices);
 			s_Data->LineVertexBuffer->SetData(s_Data->LineVertices, size);
 
+			/*vertexArray->Attach();
+			uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer() ? vertexArray->GetIndexBuffer()->GetCount() : 0;*/
+
 			s_Data->LineShader->Attach();
-			RenderCommand::DrawLines(s_Data->LineVertexArray, s_Data->LineIndexCount);
+			RenderCommand::DrawLines(s_Data->LineIndexCount);
 
 			s_Stats.DrawCalls++;
 		}
@@ -467,8 +473,6 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		s_Data->QuadVertexArray = VertexArray::Create();
-
 		s_Data->QuadVertexBuffer = VertexBuffer::Create(Renderer2DData::MaxVertices * sizeof(QuadVertex));
 		s_Data->QuadVertexBuffer->SetLayout({
 			{ ShaderDataType::Float3, "a_Position" },
@@ -476,11 +480,9 @@ namespace Quark {
 			{ ShaderDataType::Float4, "a_Tint"     },
 			{ ShaderDataType::Int,    "a_TexIndex" }
 			});
-		s_Data->QuadVertexArray->AddVertexBuffer(s_Data->QuadVertexBuffer);
 
 		// Indices
 		s_Data->QuadIndexBuffer = IndexBuffer::Create(setupData.Indices, Renderer2DData::MaxIndices);
-		s_Data->QuadVertexArray->SetIndexBuffer(s_Data->QuadIndexBuffer);
 
 		// Vertices
 		s_Data->QuadVertices = new QuadVertex[Renderer2DData::MaxVertices];
@@ -490,8 +492,8 @@ namespace Quark {
 
 		uint32_t textureColor = 0xffffffff;
 		Texture2DSpecification spec = { 1, 1, 1,
-			TextureDataFormat::RGBA,
-			TextureInternalFormat::RGBA8,
+			ColorDataFormat::RGBA,
+			InternalColorFormat::RGBA8,
 			TextureFilteringMode::Nearest, TextureFilteringMode::Nearest, TextureTilingMode::Repeat
 		};
 
@@ -565,8 +567,6 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		s_Data->FontVertexArray = VertexArray::Create();
-
 		s_Data->FontVertexBuffer = VertexBuffer::Create(Renderer2DData::MaxVertices * sizeof(QuadVertex));
 		s_Data->FontVertexBuffer->SetLayout({
 			{ ShaderDataType::Float3, "a_Position" },
@@ -574,10 +574,6 @@ namespace Quark {
 			{ ShaderDataType::Float4, "a_Color"    },
 			{ ShaderDataType::Int,    "a_TexIndex" }
 			});
-		s_Data->FontVertexArray->AddVertexBuffer(s_Data->FontVertexBuffer);
-
-		// Indices
-		s_Data->FontVertexArray->SetIndexBuffer(s_Data->QuadIndexBuffer);
 
 		// Vertices
 		s_Data->FontVertices = new QuadVertex[Renderer2DData::MaxVertices];
@@ -653,14 +649,11 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		s_Data->LineVertexArray = VertexArray::Create();
-
 		s_Data->LineVertexBuffer = VertexBuffer::Create(Renderer2DData::MaxVertices * sizeof(LineVertex));
 		s_Data->LineVertexBuffer->SetLayout({
 			{ ShaderDataType::Float3, "a_Position" },
 			{ ShaderDataType::Float4, "a_Color"    }
 			});
-		s_Data->LineVertexArray->AddVertexBuffer(s_Data->LineVertexBuffer);
 
 		// Vertices
 		s_Data->LineVertices = new LineVertex[Renderer2DData::MaxVertices];

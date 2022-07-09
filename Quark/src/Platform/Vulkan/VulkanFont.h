@@ -20,8 +20,6 @@ namespace Quark {
 		virtual uint32_t GetAtlasWidth() const override { return 0; }
 		virtual uint32_t GetAtlasHeight() const override { return 0; }
 
-		virtual uint32_t GetRendererID() const override { return 0; }
-
 		virtual bool operator==(const Font& other) const override
 		{
 			return false;

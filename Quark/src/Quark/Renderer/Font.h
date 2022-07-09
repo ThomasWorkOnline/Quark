@@ -30,8 +30,6 @@ namespace Quark {
 		virtual uint32_t GetAtlasWidth() const = 0;
 		virtual uint32_t GetAtlasHeight() const = 0;
 
-		virtual uint32_t GetRendererID() const = 0;
-
 		virtual bool operator==(const Font& other) const = 0;
 
 		static Ref<Font> Create(std::string_view filepath, uint32_t fontSize);

@@ -15,8 +15,6 @@ namespace Quark {
 
 		virtual void SetData(const void* data, size_t size, size_t offset = 0) override;
 
-		virtual uint32_t GetRendererID() const override { return m_RendererID; }
-
 		virtual bool operator==(const UniformBuffer& other) const override
 		{
 			return m_RendererID == ((OpenGLUniformBuffer&)other).m_RendererID;

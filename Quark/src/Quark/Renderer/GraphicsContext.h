@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Quark/Core/Core.h"
+#include "SwapChain.h"
 
 namespace Quark {
 
@@ -11,6 +12,8 @@ namespace Quark {
 
 		virtual void Init() = 0;
 		virtual void SwapBuffers() = 0;
+
+		virtual void OnViewportResized(uint32_t viewportWidth, uint32_t viewportHeight) = 0;
 
 		static Scope<GraphicsContext> Create(void* windowHandle);
 	};

@@ -14,18 +14,26 @@ namespace Quark {
 
 		virtual void                   SetClearColor(const Vec4f& rgba) override;
 		virtual void                   Clear() override;
-		virtual void                   SetCullFace(RenderCullFace face) override;
+		virtual void                   SetCullFace(RenderCullMode face) override;
 		virtual void                   SetDepthFunction(RenderDepthFunction func) override;
 		virtual void                   SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) override;
 
+		virtual void                   BeginRenderPass(const Ref<RenderPass>& renderPass) override;
+		virtual void                   EndRenderPass() override;
+
 		virtual void                   Draw(uint32_t offset, uint32_t count) override;
-		virtual void                   DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) override;
-		virtual void                   DrawIndexedInstanced(const Ref<VertexArray>& vertexArray, uint32_t repeatCount, uint32_t indexCount = 0) override;
-		virtual void                   DrawLines(const Ref<VertexArray>& vertexArray, uint32_t count) override;
-		virtual void                   DrawIndexedLines(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) override;
+		virtual void                   DrawIndexed(uint32_t indexCount = 0) override;
+		virtual void                   DrawIndexedInstanced(uint32_t repeatCount, uint32_t indexCount = 0) override;
+		virtual void                   DrawLines(uint32_t vertexCount) override;
+		virtual void                   DrawIndexedLines(uint32_t indexCount = 0) override;
 
 		virtual void                   SetLineThickness(float thickness) override;
 		virtual float                  GetLineThickness() const override;
+
+		virtual Ref<CommandBuffer>     CreateCommandBuffer() override { return nullptr; }
+
+		virtual Ref<Pipeline>          CreatePipeline(const PipelineSpecification& spec) override { return nullptr; }
+		virtual Ref<RenderPass>        CreateRenderPass(const RenderPassSpecification& spec) override { return nullptr; }
 
 		virtual Ref<VertexBuffer>      CreateVertexBuffer(const void* vertices, size_t size) override;
 		virtual Ref<VertexBuffer>      CreateVertexBuffer(size_t size) override;
@@ -38,8 +46,6 @@ namespace Quark {
 		virtual Ref<Font>              CreateFont(std::string_view filepath, uint32_t fontSize) override;
 								       
 		virtual Ref<Framebuffer>       CreateFramebuffer(const FramebufferSpecification& spec) override;
-
-		virtual Scope<RenderPipeline>  CreateRenderPipeline() override;
 								       
 		virtual Ref<Shader>            CreateShader(std::string_view filepath) override;
 		virtual Ref<Shader>            CreateShader(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource) override;

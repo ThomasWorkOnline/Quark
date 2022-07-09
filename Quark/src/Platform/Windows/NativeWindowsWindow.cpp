@@ -51,15 +51,15 @@ namespace Quark {
 		QK_CORE_ASSERT(m_WindowHandle, "Window handle is nullptr");
 		++s_WindowCount;
 
-		m_Context = GraphicsContext::Create(m_WindowHandle);
-		m_Context->Init();
+		m_Data.Context = GraphicsContext::Create(m_WindowHandle);
+		m_Data.Context->Init();
 	}
 
 	NativeWindowsWindow::~NativeWindowsWindow()
 	{
 		QK_PROFILE_FUNCTION();
 
-		m_Context.reset();
+		m_Data.Context.reset();
 		DestroyWindow(m_WindowHandle);
 
 		--s_WindowCount;
@@ -70,7 +70,7 @@ namespace Quark {
 
 	void NativeWindowsWindow::OnUpdate()
 	{
-		m_Context->SwapBuffers();
+		m_Data.Context->SwapBuffers();
 
 		MSG msg{};
 		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE) > 0)
@@ -185,9 +185,7 @@ namespace Quark {
 
 				data.Xpos = p.rcNormalPosition.left;
 				data.Ypos = p.rcNormalPosition.top;
-
-				break;
-			}
+			} break;
 
 			case WM_CLOSE:
 			{
@@ -196,9 +194,7 @@ namespace Quark {
 				WindowClosedEvent event;
 				if (data.EventCallback)
 					data.EventCallback(event);
-
-				break;
-			}
+			} break;
 
 			case WM_DESTROY:
 			{
@@ -209,14 +205,12 @@ namespace Quark {
 			case WM_SIZE:
 			{
 				OnWindowSizeChanged(hWnd, wParam, lParam);
-				break;
-			}
+			} break;
 
 			case WM_MOVE:
 			{
 				OnWindowMoved(hWnd, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-				break;
-			}
+			} break;
 
 			case WM_SETFOCUS:
 			{
@@ -225,9 +219,7 @@ namespace Quark {
 				WindowFocusedEvent event;
 				if (data.EventCallback)
 					data.EventCallback(event);
-
-				break;
-			}
+			} break;
 
 			case WM_KILLFOCUS:
 			{
@@ -236,9 +228,7 @@ namespace Quark {
 				WindowLostFocusEvent event;
 				if (data.EventCallback)
 					data.EventCallback(event);
-
-				break;
-			}
+			} break;
 
 			case WM_MOUSEWHEEL:
 			{
@@ -248,9 +238,7 @@ namespace Quark {
 				MouseScrolledEvent event(scroll, 0.0f);
 				if (data.EventCallback)
 					data.EventCallback(event);
-
-				break;
-			}
+			} break;
 
 			case WM_MOUSEHWHEEL:
 			{
@@ -260,9 +248,7 @@ namespace Quark {
 				MouseScrolledEvent event(0.0f, scroll);
 				if (data.EventCallback)
 					data.EventCallback(event);
-
-				break;
-			}
+			} break;
 		}
 
 		return DefWindowProc(hWnd, uMsg, wParam, lParam);
@@ -308,21 +294,14 @@ namespace Quark {
 					WindowMinimizedEvent event;
 					if (data.EventCallback)
 						data.EventCallback(event);
-
-					break;
-				}
+				} break;
 
 				case SIZE_MAXIMIZED:
 				{
 					WindowMaximizedEvent event;
 					if (data.EventCallback)
 						data.EventCallback(event);
-
-					break;
-				}
-
-				default:
-					break;
+				} break;
 			}
 		}
 
@@ -331,6 +310,8 @@ namespace Quark {
 
 		data.Width = width;
 		data.Height = height;
+
+		data.Context->OnViewportResized(width, height);
 
 		WindowResizedEvent event(data.Width, data.Height);
 		if (data.EventCallback)

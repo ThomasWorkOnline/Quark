@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Quark/Core/Core.h"
+#include "ColorFormats.h"
 #include "TextureFormats.h"
 
 namespace Quark {
@@ -8,8 +9,8 @@ namespace Quark {
 	struct CubemapSpecification
 	{
 		uint32_t              Width = 0, Height = 0;
-		TextureDataFormat     DataFormat     = TextureDataFormat::RGB;
-		TextureInternalFormat InternalFormat = TextureInternalFormat::RGB16f;
+		ColorDataFormat       DataFormat     = ColorDataFormat::RGB;
+		InternalColorFormat   InternalFormat = InternalColorFormat::RGB16f;
 	};
 
 	class Cubemap
@@ -21,8 +22,6 @@ namespace Quark {
 		virtual void Detach() const = 0;
 
 		virtual void SetData(uint32_t index, const void* data, size_t size) = 0;
-
-		virtual uint32_t GetRendererID() const = 0;
 
 		virtual bool operator==(const Cubemap& other) const = 0;
 

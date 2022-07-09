@@ -2,53 +2,6 @@
 
 namespace Quark {
 
-	enum class TextureDataFormat
-	{
-		None = 0,
-
-		// Color formats
-		RGB,
-		RGBA,
-
-		BGR,
-		BGRA,
-
-		Red,
-
-		Depth
-	};
-
-	enum class TextureInternalFormat
-	{
-		None = 0,
-
-		RGB8,
-		RGB10,
-		RGB12,
-		RGB16,
-		RGB32,
-
-		RGBA8,
-		RGBA12,
-		RGBA16,
-
-		// sRGB formats
-		SRGB8,
-		SRGBA8,
-
-		// HDR formats
-		RGB16f,
-		RGB32f,
-		RGBA16f,
-		RGBA32f,
-
-		Red8,
-
-		// Depth stencil formats
-		Depth24,
-		Depth24Stencil8
-	};
-
 	enum class TextureFilteringMode
 	{
 		None = 0,

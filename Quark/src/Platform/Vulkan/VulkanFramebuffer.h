@@ -20,24 +20,21 @@ namespace Quark {
 		virtual void AttachColorAttachment(uint32_t textureSlot, uint32_t index = 0) override {}
 		virtual void AttachDepthAttachment(uint32_t textureSlot) override {}
 
-		virtual uint32_t GetColorAttachmentRendererID(uint32_t index = 0) const override { return 0; }
-		virtual uint32_t GetDepthAttachmentRendererID() const override { return 0; }
+		virtual uint32_t GetWidth() const override { return m_Spec.Width; }
+		virtual uint32_t GetHeight() const override { return m_Spec.Height; }
 
-		virtual uint32_t GetWidth() const override { return 0; }
-		virtual uint32_t GetHeight() const override { return 0; }
-
-		virtual uint32_t GetRendererID() const override { return 0; }
+		vk::Framebuffer GetVkHandle() const { return m_Framebuffer; }
 
 		virtual bool operator==(const Framebuffer& other) const override
 		{
-			return m_Framebuffer == ((VulkanFramebuffer&)other).m_Framebuffer;
+			return m_Framebuffer == reinterpret_cast<const VulkanFramebuffer&>(other).m_Framebuffer;
 		}
 
 	private:
 		void Invalidate();
 
 	private:
-		vk::Framebuffer m_Framebuffer;
+		VkFramebuffer m_Framebuffer;
 		FramebufferSpecification m_Spec;
 	};
 }

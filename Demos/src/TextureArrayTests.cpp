@@ -12,8 +12,8 @@ TextureArrayTest::TextureArrayTest()
 	Image texture1 = Image("assets/textures/Example1_BasicRendering.png");
 
 	Texture2DArraySpecification spec;
-	spec.DataFormat     = TextureDataFormat::RGBA;
-	spec.InternalFormat = TextureInternalFormat::SRGBA8;
+	spec.DataFormat     = ColorDataFormat::RGBA;
+	spec.InternalFormat = InternalColorFormat::SRGBA8;
 	spec.Width = texture1.Width();
 	spec.Height = texture1.Height();
 	spec.Layers = 2;
@@ -72,7 +72,7 @@ void TextureArrayTest::OnRender()
 	Renderer2D::EndScene();
 
 	m_TextureArray->Attach();
-	Renderer::Submit(m_Shader, m_VertexArray, m_ModelTransform);
+	//Renderer::Submit(m_Shader, m_VertexArray, m_ModelTransform);
 }
 
 void TextureArrayTest::OnEvent(Event& e)

@@ -22,8 +22,6 @@ namespace Quark {
 
 		virtual bool operator==(const VertexArray& other) const = 0;
 
-		virtual uint32_t GetRendererID() const = 0;
-
 		static Ref<VertexArray> Create();
 	};
 }

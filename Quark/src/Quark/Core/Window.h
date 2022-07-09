@@ -13,8 +13,8 @@ namespace Quark {
 
 	struct WindowSpecification
 	{
-		uint32_t    Width, Height;
 		std::string Title;
+		uint32_t    Width, Height;
 		uint32_t    Samples = 1;
 	};
 

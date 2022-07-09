@@ -150,14 +150,53 @@ namespace Quark
 		NumLock  = BIT(5)
 	};
 
-	inline constexpr uint16_t KeyCodeToInt(KeyCode key)
+	constexpr uint16_t KeyCodeToInt(KeyCode keyCode)
 	{
-		return (uint16_t)key;
+		return static_cast<uint16_t>(keyCode);
 	}
 
 	inline std::ostream& operator<<(std::ostream& os, KeyCode keyCode)
 	{
-		os << static_cast<int32_t>(keyCode);
+		os << KeyCodeToInt(keyCode);
 		return os;
+	}
+
+	constexpr ModifierKey operator &(ModifierKey lhs, ModifierKey rhs)
+	{
+		return static_cast<ModifierKey>(
+			static_cast<std::underlying_type_t<ModifierKey>>(lhs) &
+			static_cast<std::underlying_type_t<ModifierKey>>(rhs)
+		);
+	}
+
+	constexpr ModifierKey operator |(ModifierKey lhs, ModifierKey rhs)
+	{
+		return static_cast<ModifierKey>(
+			static_cast<std::underlying_type_t<ModifierKey>>(lhs) |
+			static_cast<std::underlying_type_t<ModifierKey>>(rhs)
+		);
+	}
+
+	constexpr ModifierKey operator ^(ModifierKey lhs, ModifierKey rhs)
+	{
+		return static_cast<ModifierKey>(
+			static_cast<std::underlying_type_t<ModifierKey>>(lhs) ^
+			static_cast<std::underlying_type_t<ModifierKey>>(rhs)
+		);
+	}
+
+	constexpr ModifierKey operator ~(ModifierKey key)
+	{
+		return static_cast<ModifierKey>(~static_cast<std::underlying_type_t<ModifierKey>>(key));
+	}
+
+	constexpr ModifierKey operator&=(ModifierKey lhs, ModifierKey rhs)
+	{
+		return lhs & rhs;
+	}
+
+	constexpr ModifierKey operator|=(ModifierKey lhs, ModifierKey rhs)
+	{
+		return lhs | rhs;
 	}
 }

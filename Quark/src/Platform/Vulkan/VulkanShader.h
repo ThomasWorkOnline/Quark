@@ -40,19 +40,18 @@ namespace Quark {
 		virtual void SetMat3d(std::string_view name, const Mat3d& matrix) override {}
 		virtual void SetMat4d(std::string_view name, const Mat4d& matrix) override {}
 
-		virtual uint32_t GetRendererID() const override { return 0; }
 		virtual std::string_view GetName() const override { return m_Name; };
 
 		virtual bool operator==(const Shader& other) const override
 		{
-			return m_ShaderModule == ((VulkanShader&)other).m_ShaderModule;
+			return m_ShaderModule == reinterpret_cast<const VulkanShader&>(other).m_ShaderModule;
 		}
 
 		vk::PipelineShaderStageCreateInfo GetStageInfo() const { return m_StageInfo; }
 
 	private:
-		vk::ShaderModule m_ShaderModule;
-		vk::PipelineShaderStageCreateInfo m_StageInfo;
+		VkShaderModule m_ShaderModule = VK_NULL_HANDLE;
+		VkPipelineShaderStageCreateInfo m_StageInfo{};
 
 		std::string m_Name;
 	};

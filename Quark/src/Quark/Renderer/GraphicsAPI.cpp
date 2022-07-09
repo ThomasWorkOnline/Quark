@@ -9,6 +9,8 @@
 #include "Platform/OpenGL/OpenGLGraphicsAPI.h"
 #include "Platform/Vulkan/VulkanGraphicsAPI.h"
 
+#define USE_VULKAN 1
+
 namespace Quark {
 
 	GraphicsAPI::API GraphicsAPI::s_API = GraphicsAPI::API::None;
@@ -20,8 +22,11 @@ namespace Quark {
 		return GraphicsAPI::API::Metal;
 #else
 		// Default
-		//return GraphicsAPI::API::OpenGL;
+#if USE_VULKAN
 		return GraphicsAPI::API::Vulkan;
+#else
+		return GraphicsAPI::API::OpenGL;
+#endif
 #endif
 	}
 

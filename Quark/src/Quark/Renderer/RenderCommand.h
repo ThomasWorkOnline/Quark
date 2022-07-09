@@ -35,7 +35,7 @@ namespace Quark {
 			GraphicsAPI::Instance->Clear();
 		}
 
-		static void SetCullFace(RenderCullFace face)
+		static void SetCullFace(RenderCullMode face)
 		{
 			QK_ASSERT_RENDER_THREAD();
 			GraphicsAPI::Instance->SetCullFace(face);
@@ -47,34 +47,34 @@ namespace Quark {
 			GraphicsAPI::Instance->SetDepthFunction(func);
 		}
 
-		static void Draw(uint32_t offset, uint32_t count)
+		static void Draw(uint32_t offset, uint32_t vertexCount)
 		{
 			QK_ASSERT_RENDER_THREAD();
-			GraphicsAPI::Instance->Draw(offset, count);
+			GraphicsAPI::Instance->Draw(offset, vertexCount);
 		}
 
-		static void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0)
+		static void DrawIndexed(uint32_t indexCount = 0)
 		{
 			QK_ASSERT_RENDER_THREAD();
-			GraphicsAPI::Instance->DrawIndexed(vertexArray, indexCount);
+			GraphicsAPI::Instance->DrawIndexed(indexCount);
 		}
 
-		static void DrawIndexedInstanced(const Ref<VertexArray>& vertexArray, uint32_t repeatCount, uint32_t indexCount = 0)
+		static void DrawIndexedInstanced(uint32_t repeatCount, uint32_t indexCount = 0)
 		{
 			QK_ASSERT_RENDER_THREAD();
-			GraphicsAPI::Instance->DrawIndexedInstanced(vertexArray, repeatCount, indexCount);
+			GraphicsAPI::Instance->DrawIndexedInstanced(repeatCount, indexCount);
 		}
 
-		static void DrawLines(const Ref<VertexArray>& vertexArray, uint32_t vertexCount)
+		static void DrawLines(uint32_t vertexCount)
 		{
 			QK_ASSERT_RENDER_THREAD();
-			GraphicsAPI::Instance->DrawLines(vertexArray, vertexCount);
+			GraphicsAPI::Instance->DrawLines(vertexCount);
 		}
 
-		static void DrawIndexedLines(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0)
+		static void DrawIndexedLines(uint32_t indexCount = 0)
 		{
 			QK_ASSERT_RENDER_THREAD();
-			GraphicsAPI::Instance->DrawIndexedLines(vertexArray, indexCount);
+			GraphicsAPI::Instance->DrawIndexedLines(indexCount);
 		}
 
 		static void SetLineThickness(float thickness)

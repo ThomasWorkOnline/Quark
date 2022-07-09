@@ -14,8 +14,6 @@ namespace Quark {
 
 		virtual void SetData(const void* data, size_t size, size_t offset = 0) = 0;
 
-		virtual uint32_t GetRendererID() const = 0;
-
 		virtual bool operator==(const UniformBuffer& other) const = 0;
 
 		static Ref<UniformBuffer> Create(size_t size, uint32_t binding);

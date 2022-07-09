@@ -4,6 +4,8 @@
 
 #include "VulkanDevice.h"
 #include "VulkanSwapChain.h"
+#include "VulkanUtils.h"
+
 #include <vulkan/vulkan.hpp>
 
 typedef struct GLFWwindow GLFWwindow;
@@ -19,8 +21,10 @@ namespace Quark {
 		virtual void Init() override;
 		virtual void SwapBuffers() override;
 
-		static VulkanDevice& GetCurrentDevice();
-		static VulkanSwapChain& GetSwapChain();
+		virtual void OnViewportResized(uint32_t viewportWidth, uint32_t viewportHeight) override;
+
+		static VulkanDevice& GetCurrentDevice() { return *s_Instance->m_Device; }
+		static VulkanSwapChain& GetSwapChain() { return *s_Instance->m_SwapChain; }
 
 	private:
 		GLFWwindow* m_WindowHandle;

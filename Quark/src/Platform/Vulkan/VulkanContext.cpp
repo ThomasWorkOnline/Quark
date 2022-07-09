@@ -91,8 +91,7 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		m_Device->GetGraphicsQueue().waitIdle();
-		m_Device->GetPresentQueue().waitIdle();
+		m_Device->WaitIdle();
 
 		m_SwapChain.reset();
 		m_Device.reset();
@@ -137,7 +136,6 @@ namespace Quark {
 			vkCreateInfo.setPpEnabledLayerNames(g_ValidationLayers.data());
 			vkCreateInfo.setPNext(&vkMessengerCreateInfo);
 #endif
-
 			m_Instance = vk::createInstance(vkCreateInfo);
 
 #ifdef QK_ENABLE_VULKAN_VALIDATION_LAYERS
@@ -147,28 +145,14 @@ namespace Quark {
 		}
 
 		// Window surface creation
-		glfwCreateWindowSurface(m_Instance, m_WindowHandle, nullptr, reinterpret_cast<vk::SurfaceKHR::CType*>(&m_Surface));
+		m_Surface = Utils::CreateSurfaceForPlatform(m_Instance, m_WindowHandle);
 
 		// Device creation
 		m_Device = VulkanDevice::CreateDefaultForSurface(m_Instance, m_Surface);
 
 		// Swap chain creation
-		{
-			Utils::SwapChainSupportDetails swapChainSupport = Utils::QuerySwapChainSupport(m_Device->GetPhysicalDevice(), m_Surface);
-
-			uint32_t imageCount = swapChainSupport.Capabilities.minImageCount + 1;
-			if (swapChainSupport.Capabilities.maxImageCount > 0 && imageCount > swapChainSupport.Capabilities.maxImageCount)
-				imageCount = swapChainSupport.Capabilities.maxImageCount;
-
-			VulkanSwapChainSpecification scSpec;
-			scSpec.Extent = Utils::ChooseSwapExtent(swapChainSupport.Capabilities, m_WindowHandle);
-			scSpec.SurfaceFormat = Utils::ChooseSwapSurfaceFormat(swapChainSupport.Formats);
-			scSpec.PresentMode = Utils::ChooseSwapPresentMode(swapChainSupport.PresentModes);
-			scSpec.FamilyIndices = m_Device->GetQueueFamilyIndices();
-			scSpec.ImageCount = imageCount;
-
-			m_SwapChain = CreateScope<VulkanSwapChain>(m_Surface, scSpec);
-		}
+		m_SwapChain = CreateScope<VulkanSwapChain>(m_WindowHandle, m_Surface);
+		m_SwapChain->Init();
 
 		QK_CORE_TRACE("Created Vulkan graphics context!");
 	}
@@ -179,15 +163,8 @@ namespace Quark {
 		m_SwapChain->Present(presentQueue);
 	}
 
-	VulkanDevice& VulkanContext::GetCurrentDevice()
+	void VulkanContext::OnViewportResized(uint32_t viewportWidth, uint32_t viewportHeight)
 	{
-		QK_CORE_ASSERT(s_Instance, "Vulkan context is not initialized");
-		return *s_Instance->m_Device;
-	}
-
-	VulkanSwapChain& VulkanContext::GetSwapChain()
-	{
-		QK_CORE_ASSERT(s_Instance, "Vulkan context is not initialized");
-		return *s_Instance->m_SwapChain;
+		m_SwapChain->Resize(viewportWidth, viewportHeight);
 	}
 }

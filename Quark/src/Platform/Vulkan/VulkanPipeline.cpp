@@ -2,18 +2,20 @@
 #include "VulkanPipeline.h"
 
 #include "VulkanContext.h"
+#include "VulkanCommandBuffer.h"
+#include "VulkanRenderPass.h"
+#include "VulkanUniformBuffer.h"
 #include "VulkanUtils.h"
 
-#include "Quark/Renderer/RenderCommand.h"
-
-// alloca failure warning
+// disable alloca failure warning
+// since variable size stack arrays are not supported by all compilers
 #pragma warning(disable : 6255)
 
 namespace Quark {
 
 	namespace Utils {
 
-		static vk::Format ShaderDataTypeToVulkan(ShaderDataType type)
+		static constexpr vk::Format ShaderDataTypeToVulkan(ShaderDataType type)
 		{
 			switch (type)
 			{
@@ -33,6 +35,20 @@ namespace Quark {
 			}
 		}
 
+		static constexpr vk::CullModeFlagBits RenderCullModeToVulkan(RenderCullMode mode)
+		{
+			switch (mode)
+			{
+				case RenderCullMode::None:         return vk::CullModeFlagBits::eNone;
+				case RenderCullMode::Front:        return vk::CullModeFlagBits::eFront;
+				case RenderCullMode::Back:         return vk::CullModeFlagBits::eBack;
+				case RenderCullMode::FrontAndBack: return vk::CullModeFlagBits::eFrontAndBack;
+				default:
+					QK_CORE_FATAL("Unknown culling mode");
+					return vk::CullModeFlagBits::eNone;
+			}
+		}
+
 		static vk::VertexInputBindingDescription GetBindingDescription(const BufferLayout& layout)
 		{
 			vk::VertexInputBindingDescription bindingDescription;
@@ -44,89 +60,40 @@ namespace Quark {
 		}
 	}
 
-	VulkanPipeline::VulkanPipeline()
+	VulkanPipeline::VulkanPipeline(const PipelineSpecification& spec)
+		: m_Spec(spec)
 	{
 		QK_PROFILE_FUNCTION();
 
-		m_VertShader = Shader::Create("../Quark/assets/shaders/version/4.50/bin/vert.spv");
-		m_FragShader = Shader::Create("../Quark/assets/shaders/version/4.50/bin/frag.spv");
-
-		auto& swapChain = VulkanContext::GetSwapChain();
 		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
 
-		m_ViewportWidth = swapChain.GetSpecification().Extent.width;
-		m_ViewportHeight = swapChain.GetSpecification().Extent.height;
-
-		m_InFlightFences.resize(g_FramesInFlight);
-		m_ImageAvailableSemaphores.resize(g_FramesInFlight);
-		m_CameraUniformBuffers.resize(g_FramesInFlight);
-
-		vk::FenceCreateInfo fenceInfo;
-		fenceInfo.setFlags(vk::FenceCreateFlagBits::eSignaled);
+		m_DescriptorSets.resize(m_Spec.FramesInFlight);
+		m_ImageAvailableSemaphores.resize(m_Spec.FramesInFlight);
+		m_CameraUniformBuffers.resize(m_Spec.FramesInFlight);
 
 		vk::SemaphoreCreateInfo semaphoreInfo;
-
-		for (uint32_t i = 0; i < g_FramesInFlight; i++)
+		for (uint32_t i = 0; i < m_Spec.FramesInFlight; i++)
 		{
-			m_InFlightFences[i] = vkDevice.createFence(fenceInfo);
 			m_ImageAvailableSemaphores[i] = vkDevice.createSemaphore(semaphoreInfo);
-			m_CameraUniformBuffers[i] = UniformBuffer::Create(sizeof(CameraBufferData), 0);
+			m_CameraUniformBuffers[i] = UniformBuffer::Create(m_Spec.CameraUniformBufferSize, 0);
 		}
 
-		// Render pass
+		// Command buffers
+		for (uint32_t i = 0; i < Renderer::FramesInFlight; i++)
 		{
-			QK_PROFILE_FUNCTION();
-
-			vk::Format swapChainImageFormat = swapChain.GetSpecification().SurfaceFormat.format;
-
-			vk::AttachmentDescription colorAttachment;
-			colorAttachment.setFormat(swapChainImageFormat);
-			colorAttachment.setSamples(vk::SampleCountFlagBits::e1);
-			colorAttachment.setLoadOp(vk::AttachmentLoadOp::eClear);
-			colorAttachment.setStoreOp(vk::AttachmentStoreOp::eStore);
-
-			colorAttachment.setInitialLayout(vk::ImageLayout::eUndefined);
-			colorAttachment.setFinalLayout(vk::ImageLayout::ePresentSrcKHR);
-
-			vk::AttachmentReference colorAttachmentRef;
-			colorAttachmentRef.setAttachment(0);
-			colorAttachmentRef.setLayout(vk::ImageLayout::eColorAttachmentOptimal);
-
-			vk::SubpassDescription subpass;
-			subpass.setPipelineBindPoint(vk::PipelineBindPoint::eGraphics);
-			subpass.setColorAttachmentCount(1);
-			subpass.setPColorAttachments(&colorAttachmentRef);
-
-			vk::SubpassDependency dependency;
-			dependency.setSrcSubpass(VK_SUBPASS_EXTERNAL);
-			dependency.setDstSubpass(0);
-			dependency.setSrcStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput);
-			dependency.setSrcAccessMask(vk::AccessFlagBits::eNone);
-			dependency.setDstStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput);
-			dependency.setDstAccessMask(vk::AccessFlagBits::eColorAttachmentWrite);
-
-			vk::RenderPassCreateInfo renderPassInfo;
-			renderPassInfo.setAttachmentCount(1);
-			renderPassInfo.setPAttachments(&colorAttachment);
-			renderPassInfo.setSubpassCount(1);
-			renderPassInfo.setPSubpasses(&subpass);
-			renderPassInfo.setDependencyCount(1);
-			renderPassInfo.setPDependencies(&dependency);
-
-			auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
-			m_RenderPass = vkDevice.createRenderPass(renderPassInfo);
+			m_CommandBuffers[i] = CommandBuffer::Create();
 		}
 
 		// Descriptor pool
 		{
 			vk::DescriptorPoolSize poolSize;
 			poolSize.setType(vk::DescriptorType::eUniformBuffer);
-			poolSize.setDescriptorCount(g_FramesInFlight);
+			poolSize.setDescriptorCount(m_Spec.FramesInFlight);
 
 			vk::DescriptorPoolCreateInfo poolInfo;
 			poolInfo.setPoolSizeCount(1);
 			poolInfo.setPPoolSizes(&poolSize);
-			poolInfo.setMaxSets(g_FramesInFlight);
+			poolInfo.setMaxSets(m_Spec.FramesInFlight);
 
 			m_DescriptorPool = vkDevice.createDescriptorPool(poolInfo);
 		}
@@ -144,13 +111,39 @@ namespace Quark {
 			layoutInfo.setPBindings(&uboLayoutBinding);
 
 			m_DescriptorSetLayout = vkDevice.createDescriptorSetLayout(layoutInfo);
+		}
 
-			vk::DescriptorSetAllocateInfo allocInfo;
+		// Descriptor sets
+		{
+			// Copy each layout for each frame in flight
+			auto* layouts = static_cast<vk::DescriptorSetLayout*>(alloca(m_Spec.FramesInFlight * sizeof(vk::DescriptorSetLayout)));
+			for (uint32_t i = 0; i < m_Spec.FramesInFlight; i++)
+				layouts[i] = m_DescriptorSetLayout;
+
+ 			vk::DescriptorSetAllocateInfo allocInfo;
 			allocInfo.setDescriptorPool(m_DescriptorPool);
-			allocInfo.setDescriptorSetCount(1);
-			allocInfo.setPSetLayouts(&m_DescriptorSetLayout);
+			allocInfo.setDescriptorSetCount(m_Spec.FramesInFlight);
+			allocInfo.setPSetLayouts(layouts);
 
-			m_DescriptorSet = vkDevice.allocateDescriptorSets(allocInfo)[0];
+			vkAllocateDescriptorSets(vkDevice, reinterpret_cast<VkDescriptorSetAllocateInfo*>(&allocInfo), reinterpret_cast<VkDescriptorSet*>(m_DescriptorSets.data()));
+
+			for (uint32_t i = 0; i < m_Spec.FramesInFlight; i++)
+			{
+				vk::DescriptorBufferInfo bufferInfo;
+				bufferInfo.buffer = std::static_pointer_cast<VulkanUniformBuffer>(m_CameraUniformBuffers[i])->GetVkHandle();
+				bufferInfo.offset = 0;
+				bufferInfo.range = m_Spec.CameraUniformBufferSize;
+
+				vk::WriteDescriptorSet descriptorWrite;
+				descriptorWrite.dstSet = m_DescriptorSets[i];
+				descriptorWrite.dstBinding = 0;
+				descriptorWrite.dstArrayElement = 0;
+				descriptorWrite.descriptorType = vk::DescriptorType::eUniformBuffer;
+				descriptorWrite.descriptorCount = 1;
+				descriptorWrite.pBufferInfo = &bufferInfo;
+
+				vkDevice.updateDescriptorSets(descriptorWrite, nullptr);
+			}
 		}
 
 		RecreateGraphicsPipeline();
@@ -162,124 +155,96 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
-
 		{
 			Timer t;
-			vkDevice.waitIdle();
+			vkDeviceWaitIdle(vkDevice);
 			QK_CORE_INFO("Waiting for device to finish: {0}ms", t.Milliseconds().count());
 		}
 
-		for (uint32_t i = 0; i < m_SwapChainFramebuffers.size(); i++)
-		{
-			vkDevice.destroyFramebuffer(m_SwapChainFramebuffers[i]);
-		}
+		for (auto& framebuffer : m_SwapChainFramebuffers)
+			vkDestroyFramebuffer(vkDevice, framebuffer, nullptr);
 
-		for (uint32_t i = 0; i < g_FramesInFlight; i++)
-		{
-			vkDevice.destroyFence(m_InFlightFences[i]);
-			vkDevice.destroySemaphore(m_ImageAvailableSemaphores[i]);
-		}
+		for (auto& semaphore : m_ImageAvailableSemaphores)
+			vkDestroySemaphore(vkDevice, semaphore, nullptr);
 
-		vkDevice.destroyPipeline(m_GraphicsPipeline);
-		vkDevice.destroyPipelineLayout(m_PipelineLayout);
-		vkDevice.destroyDescriptorSetLayout(m_DescriptorSetLayout);
-		vkDevice.destroyDescriptorPool(m_DescriptorPool);
-
-		vkDevice.destroyRenderPass(m_RenderPass);
+		vkDestroyPipeline(vkDevice, m_GraphicsPipeline, nullptr);
+		vkDestroyPipelineLayout(vkDevice, m_PipelineLayout, nullptr);
+		vkDestroyDescriptorSetLayout(vkDevice, m_DescriptorSetLayout, nullptr);
+		vkDestroyDescriptorPool(vkDevice, m_DescriptorPool, nullptr);
 	}
 
-	void VulkanPipeline::Begin(const Mat4f& cameraProjection, const Mat4f& cameraView)
+	void VulkanPipeline::BeginFrame()
 	{
-		m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % g_FramesInFlight;
-
-		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
-
-		// Wait for last frame to be complete
-		{
-			vk::Result vkRes = vkDevice.waitForFences(m_InFlightFences[m_CurrentFrameIndex], VK_TRUE, UINT64_MAX);
-			QK_CORE_ASSERT(vkRes == vk::Result::eSuccess, "Could not wait for fences");
-			vkDevice.resetFences(m_InFlightFences[m_CurrentFrameIndex]);
-		}
+		m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % m_Spec.FramesInFlight;
 
 		auto& swapChain = VulkanContext::GetSwapChain();
 		m_NextImageIndex = swapChain.AcquireNextImageIndex(m_ImageAvailableSemaphores[m_CurrentFrameIndex]);
 
-		m_ActiveCommandBuffer = VulkanContext::GetCurrentDevice().SwitchCommandBuffer(m_CurrentFrameIndex);
-		m_ActiveCommandBuffer.reset();
+		m_ActiveCommandBuffer = std::static_pointer_cast<VulkanCommandBuffer>(m_CommandBuffers[m_CurrentFrameIndex])->GetVkHandle();
+		vkResetCommandBuffer(m_ActiveCommandBuffer, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
 
-		m_ActiveCameraUniformBuffer = m_CameraUniformBuffers[m_CurrentFrameIndex].get();
-		m_ActiveCameraUniformBuffer->SetData(&m_CameraData, sizeof(CameraBufferData));
+		VkCommandBufferBeginInfo beginInfo{};
+		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		vkBeginCommandBuffer(m_ActiveCommandBuffer, &beginInfo);
+		vkCmdBindPipeline(m_ActiveCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline);
 
-		vk::CommandBufferBeginInfo beginInfo;
-		m_ActiveCommandBuffer.begin(beginInfo);
-		m_ActiveCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, m_GraphicsPipeline);
+		vkCmdBindDescriptorSets(m_ActiveCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, 0, 1, reinterpret_cast<VkDescriptorSet*>(&m_DescriptorSets[m_CurrentFrameIndex]), 0, nullptr);
 	}
 
-	void VulkanPipeline::End()
+	void VulkanPipeline::EndFrame()
 	{
-		m_ActiveCommandBuffer.end();
+		vkEndCommandBuffer(m_ActiveCommandBuffer);
 	}
 
 	void VulkanPipeline::Submit()
 	{
-		vk::PipelineStageFlags waitStages[] = { vk::PipelineStageFlagBits::eColorAttachmentOutput };
-		vk::Semaphore waitSemaphores[] = { m_ImageAvailableSemaphores[m_CurrentFrameIndex] };
+		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+		VkSemaphore waitSemaphores = m_ImageAvailableSemaphores[m_CurrentFrameIndex];
 
-		vk::SubmitInfo submitInfo;
-		submitInfo.setWaitSemaphoreCount(1);
-		submitInfo.setPWaitSemaphores(waitSemaphores);
-		submitInfo.setPWaitDstStageMask(waitStages);
+		VkSubmitInfo submitInfo{};
+		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+		submitInfo.waitSemaphoreCount = 1;
+		submitInfo.pWaitSemaphores = &waitSemaphores;
+		submitInfo.pWaitDstStageMask = waitStages;
 
-		submitInfo.setCommandBufferCount(1);
-		submitInfo.setPCommandBuffers(&m_ActiveCommandBuffer);
+		submitInfo.commandBufferCount = 1;
+		submitInfo.pCommandBuffers = &m_ActiveCommandBuffer;
 
 		auto& swapChain = VulkanContext::GetSwapChain();
-		vk::Semaphore signalSemaphores[] = { swapChain.GetRenderFinishedSemaphore() };
-		submitInfo.setSignalSemaphoreCount(1);
-		submitInfo.setPSignalSemaphores(signalSemaphores);
+		VkSemaphore signalSemaphore = swapChain.GetRenderFinishedSemaphore();
+		submitInfo.signalSemaphoreCount = 1;
+		submitInfo.pSignalSemaphores = &signalSemaphore;
 
-		VulkanContext::GetCurrentDevice().GetGraphicsQueue().submit(submitInfo, m_InFlightFences[m_CurrentFrameIndex]);
+		vkQueueSubmit(VulkanContext::GetCurrentDevice().GetGraphicsQueue(), 1, &submitInfo, swapChain.GetFence());
 	}
 
-	void VulkanPipeline::BeginRenderPass()
+	void VulkanPipeline::BeginRenderPass(const Ref<RenderPass>& renderPass)
 	{
-		vk::RenderPassBeginInfo renderPassInfo;
-		renderPassInfo.setRenderPass(m_RenderPass);
-		renderPassInfo.setFramebuffer(m_SwapChainFramebuffers[m_NextImageIndex]);
+		VkRenderPassBeginInfo renderPassInfo{};
+		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		renderPassInfo.renderPass = std::static_pointer_cast<VulkanRenderPass>(renderPass)->GetVkHandle();
+		renderPassInfo.framebuffer = m_SwapChainFramebuffers[m_NextImageIndex];
 
-		renderPassInfo.renderArea.offset = vk::Offset2D{ 0, 0 };
-		renderPassInfo.renderArea.extent = vk::Extent2D{ m_ViewportWidth, m_ViewportHeight };
+		// must be size of framebuffer
+		renderPassInfo.renderArea.offset = VkOffset2D{ 0, 0 };
+		renderPassInfo.renderArea.extent = VkExtent2D{ m_Spec.ViewportWidth, m_Spec.ViewportHeight };
 
-		vk::ClearValue clearColor;
-		vk::ClearColorValue colorValue;
-		colorValue.setFloat32({ 0.0f, 0.0f, 0.0f, 1.0f });
-		clearColor.setColor(colorValue);
+		VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+		renderPassInfo.clearValueCount = 1;
+		renderPassInfo.pClearValues = &clearColor;
 
-		renderPassInfo.setClearValueCount(1);
-		renderPassInfo.setPClearValues(&clearColor);
-
-		m_ActiveCommandBuffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
+		vkCmdBeginRenderPass(m_ActiveCommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 	}
 
 	void VulkanPipeline::EndRenderPass()
 	{
-		m_ActiveCommandBuffer.endRenderPass();
+		vkCmdEndRenderPass(m_ActiveCommandBuffer);
 	}
 
-	void VulkanPipeline::OnViewportResized(uint32_t viewportWidth, uint32_t viewportHeight)
+	void VulkanPipeline::Resize(uint32_t viewportWidth, uint32_t viewportHeight)
 	{
-		m_ViewportWidth = viewportWidth;
-		m_ViewportHeight = viewportHeight;
-
-		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
-
-		{
-			Timer t;
-			vkDevice.waitIdle();
-			QK_CORE_INFO("Waiting for device to finish: {0}ms", t.Milliseconds().count());
-		}
-
-		VulkanContext::GetSwapChain().Resize(viewportWidth, viewportHeight);
+		m_Spec.ViewportWidth = viewportWidth;
+		m_Spec.ViewportHeight = viewportHeight;
 
 		RecreateGraphicsPipeline();
 		RecreateFramebuffers();
@@ -292,31 +257,28 @@ namespace Quark {
 		auto& swapChain = VulkanContext::GetSwapChain();
 		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
 
-		uint32_t imageCount = swapChain.GetSpecification().ImageCount;
-		vk::Extent2D extent = swapChain.GetSpecification().Extent;
-
 		if (m_SwapChainFramebuffers.size() == 0)
 		{
-			m_SwapChainFramebuffers.resize(imageCount);
+			m_SwapChainFramebuffers.resize(swapChain.GetSpecification().ImageCount);
 		}
 		else
 		{
-			for (uint32_t i = 0; i < m_SwapChainFramebuffers.size(); i++)
-				vkDevice.destroyFramebuffer(m_SwapChainFramebuffers[i]);
+			for (auto& framebuffer : m_SwapChainFramebuffers)
+				vkDestroyFramebuffer(vkDevice, framebuffer, nullptr);
 		}
 
-		for (uint32_t i = 0; i < imageCount; i++)
+		for (uint32_t i = 0; i < swapChain.GetSpecification().ImageCount; i++)
 		{
 			vk::ImageView attachments[] = {
 				swapChain.GetImageView(i)
 			};
 
 			vk::FramebufferCreateInfo framebufferInfo;
-			framebufferInfo.setRenderPass(m_RenderPass);
+			framebufferInfo.setRenderPass(std::static_pointer_cast<VulkanRenderPass>(m_Spec.RenderPass)->GetVkHandle());
 			framebufferInfo.setAttachmentCount(1);
 			framebufferInfo.setPAttachments(attachments);
-			framebufferInfo.setWidth(extent.width);
-			framebufferInfo.setHeight(extent.height);
+			framebufferInfo.setWidth(swapChain.GetSpecification().Width);
+			framebufferInfo.setHeight(swapChain.GetSpecification().Height);
 			framebufferInfo.setLayers(1);
 
 			m_SwapChainFramebuffers[i] = vkDevice.createFramebuffer(framebufferInfo);
@@ -334,20 +296,20 @@ namespace Quark {
 		}
 
 		// Vertex input 
-		auto bindingDescription = Utils::GetBindingDescription(g_Vertex2DLayout);
-		vk::VertexInputAttributeDescription* attributeDescriptions = (vk::VertexInputAttributeDescription*)alloca(g_Vertex2DLayout.GetCount() * sizeof(BufferElement));
+		auto bindingDescription = Utils::GetBindingDescription(m_Spec.Layout);
+		auto* attributeDescriptions = static_cast<vk::VertexInputAttributeDescription*>(alloca(m_Spec.Layout.GetCount() * sizeof(BufferElement)));
 
-		for (uint32_t i = 0; i < g_Vertex2DLayout.GetCount(); i++)
+		for (uint32_t i = 0; i < m_Spec.Layout.GetCount(); i++)
 		{
 			attributeDescriptions[i].binding = 0;
 			attributeDescriptions[i].location = i;
-			attributeDescriptions[i].format = Utils::ShaderDataTypeToVulkan(g_Vertex2DLayout[i].Type);
-			attributeDescriptions[i].offset = static_cast<uint32_t>(g_Vertex2DLayout[i].Offset);
+			attributeDescriptions[i].format = Utils::ShaderDataTypeToVulkan(m_Spec.Layout[i].Type);
+			attributeDescriptions[i].offset = static_cast<uint32_t>(m_Spec.Layout[i].Offset);
 		}
 
 		vk::PipelineVertexInputStateCreateInfo vertexInputInfo;
 		vertexInputInfo.setVertexBindingDescriptionCount(1);
-		vertexInputInfo.setVertexAttributeDescriptionCount(static_cast<uint32_t>(g_Vertex2DLayout.GetCount()));
+		vertexInputInfo.setVertexAttributeDescriptionCount(m_Spec.Layout.GetCount());
 		vertexInputInfo.setPVertexBindingDescriptions(&bindingDescription);
 		vertexInputInfo.setPVertexAttributeDescriptions(attributeDescriptions);
 
@@ -355,21 +317,18 @@ namespace Quark {
 		inputAssembly.setTopology(vk::PrimitiveTopology::eTriangleList);
 		inputAssembly.setPrimitiveRestartEnable(VK_FALSE);
 
-		// Viewport dimensions and rasterization
-		auto& swapChain = VulkanContext::GetSwapChain();
-		vk::Extent2D extent = swapChain.GetSpecification().Extent;
-
+		// Viewport
 		vk::Viewport viewport;
 		viewport.setX(0.0f);
 		viewport.setY(0.0f);
-		viewport.setWidth((float)extent.width);
-		viewport.setHeight((float)extent.height);
+		viewport.setWidth((float)m_Spec.ViewportWidth);
+		viewport.setHeight((float)m_Spec.ViewportHeight);
 		viewport.setMinDepth(0.0f);
 		viewport.setMaxDepth(1.0f);
 
 		vk::Rect2D scissor;
 		scissor.setOffset({ 0, 0 });
-		scissor.setExtent(extent);
+		scissor.setExtent(vk::Extent2D{ m_Spec.ViewportWidth, m_Spec.ViewportHeight });
 
 		vk::PipelineViewportStateCreateInfo viewportState;
 		viewportState.setViewportCount(1);
@@ -377,12 +336,13 @@ namespace Quark {
 		viewportState.setScissorCount(1);
 		viewportState.setPScissors(&scissor);
 
+		// Rasterization
 		vk::PipelineRasterizationStateCreateInfo rasterizer;
 		rasterizer.setDepthClampEnable(VK_FALSE);
 		rasterizer.setRasterizerDiscardEnable(VK_FALSE);
 		rasterizer.setPolygonMode(vk::PolygonMode::eFill);
 		rasterizer.setLineWidth(1.0f);
-		rasterizer.setCullMode(vk::CullModeFlagBits::eBack);
+		rasterizer.setCullMode(Utils::RenderCullModeToVulkan(m_Spec.CullMode));
 		rasterizer.setFrontFace(vk::FrontFace::eClockwise);
 		rasterizer.setDepthBiasEnable(VK_FALSE);
 
@@ -433,8 +393,8 @@ namespace Quark {
 		m_PipelineLayout = vkDevice.createPipelineLayout(pipelineLayoutInfo);
 
 		vk::PipelineShaderStageCreateInfo shaderStages[] = {
-			((VulkanShader&)*m_VertShader).GetStageInfo(),
-			((VulkanShader&)*m_FragShader).GetStageInfo()
+			std::static_pointer_cast<VulkanShader>(m_Spec.VertexShader)->GetStageInfo(),
+			std::static_pointer_cast<VulkanShader>(m_Spec.FragmentShader)->GetStageInfo()
 		};
 
 		vk::GraphicsPipelineCreateInfo pipelineInfo;
@@ -448,7 +408,7 @@ namespace Quark {
 		pipelineInfo.setPMultisampleState(&multisampling);
 		pipelineInfo.setPColorBlendState(&colorBlending);
 		pipelineInfo.setLayout(m_PipelineLayout);
-		pipelineInfo.setRenderPass(m_RenderPass);
+		pipelineInfo.setRenderPass(std::static_pointer_cast<VulkanRenderPass>(m_Spec.RenderPass)->GetVkHandle());
 		pipelineInfo.setSubpass(0);
 
 		auto pipelineStatusPair = vkDevice.createGraphicsPipeline(VK_NULL_HANDLE, pipelineInfo);

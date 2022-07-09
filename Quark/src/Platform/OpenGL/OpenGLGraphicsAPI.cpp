@@ -5,7 +5,6 @@
 #include "OpenGLCubemap.h"
 #include "OpenGLFont.h"
 #include "OpenGLFramebuffer.h"
-#include "OpenGLPipeline.h"
 #include "OpenGLShader.h"
 #include "OpenGLTexture.h"
 #include "OpenGLTextureArray.h"
@@ -121,22 +120,22 @@ namespace Quark {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
-	void OpenGLGraphicsAPI::SetCullFace(RenderCullFace face)
+	void OpenGLGraphicsAPI::SetCullFace(RenderCullMode face)
 	{
 		switch (face)
 		{
-		case RenderCullFace::None:
+		case RenderCullMode::None:
 			glDisable(GL_CULL_FACE);
 			break;
-		case RenderCullFace::Front:
+		case RenderCullMode::Front:
 			glEnable(GL_CULL_FACE);
 			glCullFace(GL_FRONT);
 			break;
-		case RenderCullFace::Back:
+		case RenderCullMode::Back:
 			glEnable(GL_CULL_FACE);
 			glCullFace(GL_BACK);
 			break;
-		case RenderCullFace::FrontAndBack:
+		case RenderCullMode::FrontAndBack:
 			glEnable(GL_CULL_FACE);
 			glCullFace(GL_FRONT_AND_BACK);
 			break;
@@ -186,36 +185,37 @@ namespace Quark {
 		glViewport(x, y, width, height);
 	}
 
+	void OpenGLGraphicsAPI::BeginRenderPass(const Ref<RenderPass>& renderPass)
+	{
+	}
+
+	void OpenGLGraphicsAPI::EndRenderPass()
+	{
+	}
+
 	void OpenGLGraphicsAPI::Draw(uint32_t offset, uint32_t count)
 	{
 		glDrawArrays(GL_TRIANGLES, offset, count);
 	}
 
-	void OpenGLGraphicsAPI::DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount)
+	void OpenGLGraphicsAPI::DrawIndexed(uint32_t indexCount)
 	{
-		vertexArray->Attach();
-		uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer() ? vertexArray->GetIndexBuffer()->GetCount() : 0;
-		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
+		glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr);
 	}
 
-	void OpenGLGraphicsAPI::DrawIndexedInstanced(const Ref<VertexArray>& vertexArray, uint32_t repeatCount, uint32_t indexCount)
+	void OpenGLGraphicsAPI::DrawIndexedInstanced(uint32_t repeatCount, uint32_t indexCount)
 	{
-		vertexArray->Attach();
-		uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer() ? vertexArray->GetIndexBuffer()->GetCount() : 0;
-		glDrawElementsInstanced(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr, repeatCount);
+		glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr, repeatCount);
 	}
 
-	void OpenGLGraphicsAPI::DrawLines(const Ref<VertexArray>& vertexArray, uint32_t count)
+	void OpenGLGraphicsAPI::DrawLines(uint32_t vertexCount)
 	{
-		vertexArray->Attach();
-		glDrawArrays(GL_LINES, 0, count);
+		glDrawArrays(GL_LINES, 0, vertexCount);
 	}
 
-	void OpenGLGraphicsAPI::DrawIndexedLines(const Ref<VertexArray>& vertexArray, uint32_t indexCount)
+	void OpenGLGraphicsAPI::DrawIndexedLines(uint32_t indexCount)
 	{
-		vertexArray->Attach();
-		uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer() ? vertexArray->GetIndexBuffer()->GetCount() : 0;
-		glDrawElements(GL_LINES, count, GL_UNSIGNED_INT, nullptr);
+		glDrawElements(GL_LINES, indexCount, GL_UNSIGNED_INT, nullptr);
 	}
 
 	void OpenGLGraphicsAPI::SetLineThickness(float thickness)
@@ -263,11 +263,6 @@ namespace Quark {
 	Ref<Framebuffer> OpenGLGraphicsAPI::CreateFramebuffer(const FramebufferSpecification& spec)
 	{
 		return CreateRef<OpenGLFramebuffer>(spec);
-	}
-
-	Scope<RenderPipeline> OpenGLGraphicsAPI::CreateRenderPipeline()
-	{
-		return CreateScope<OpenGLPipeline>();
 	}
 
 	Ref<Shader> OpenGLGraphicsAPI::CreateShader(std::string_view filepath)

@@ -3,10 +3,12 @@
 
 #include "VulkanBuffer.h"
 #include "VulkanContext.h"
+#include "VulkanCommandBuffer.h"
 #include "VulkanCubemap.h"
 #include "VulkanFont.h"
 #include "VulkanFramebuffer.h"
 #include "VulkanPipeline.h"
+#include "VulkanRenderPass.h"
 #include "VulkanShader.h"
 #include "VulkanTexture.h"
 #include "VulkanTextureArray.h"
@@ -19,18 +21,39 @@ namespace Quark {
 	void VulkanGraphicsAPI::Init()
 	{
 		QK_PROFILE_FUNCTION();
+
+		m_Constraints.TextureConstraints.MaxTextureSlots = 32; // TODO: implement
+	}
+
+	void VulkanGraphicsAPI::BeginRenderPass(const Ref<RenderPass>& renderPass)
+	{
+	}
+
+	void VulkanGraphicsAPI::EndRenderPass()
+	{
 	}
 
 	void VulkanGraphicsAPI::Draw(uint32_t offset, uint32_t count)
 	{
-		auto commandBuffer = VulkanContext::GetCurrentDevice().GetCommandBuffer();
-		commandBuffer.draw(count, 1, offset, 0);
 	}
 
-	void VulkanGraphicsAPI::DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount)
+	void VulkanGraphicsAPI::DrawIndexed(uint32_t indexCount)
 	{
-		auto commandBuffer = VulkanContext::GetCurrentDevice().GetCommandBuffer();
-		commandBuffer.drawIndexed(indexCount, 1, 0, 0, 0);
+	}
+
+	Ref<CommandBuffer> VulkanGraphicsAPI::CreateCommandBuffer()
+	{
+		return CreateRef<VulkanCommandBuffer>();
+	}
+
+	Ref<Pipeline> VulkanGraphicsAPI::CreatePipeline(const PipelineSpecification& spec)
+	{
+		return CreateRef<VulkanPipeline>(spec);
+	}
+
+	Ref<RenderPass> VulkanGraphicsAPI::CreateRenderPass(const RenderPassSpecification& spec)
+	{
+		return CreateRef<VulkanRenderPass>(spec);
 	}
 
 	Ref<VertexBuffer> VulkanGraphicsAPI::CreateVertexBuffer(const void* vertices, size_t size)
@@ -66,11 +89,6 @@ namespace Quark {
 	Ref<Framebuffer> VulkanGraphicsAPI::CreateFramebuffer(const FramebufferSpecification& spec)
 	{
 		return CreateRef<VulkanFramebuffer>(spec);
-	}
-
-	Scope<RenderPipeline> VulkanGraphicsAPI::CreateRenderPipeline()
-	{
-		return CreateScope<VulkanPipeline>();
 	}
 
 	Ref<Shader> VulkanGraphicsAPI::CreateShader(std::string_view filepath)

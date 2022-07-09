@@ -2,151 +2,218 @@
 #include "SceneRenderer.h"
 
 #include "Quark/Core/Application.h"
-#include "Cubemap.h"
 #include "Renderer.h"
 #include "RenderCommand.h"
 
 namespace Quark {
 
-	struct EnvironmentData
+	struct Vertex2D
 	{
-		Ref<Shader> SkyboxShader;
-		Ref<Shader> IrradianceShader;
-		Ref<Shader> EquirectangleToCubemapShader;
-		Ref<VertexArray> CubemapVAO;
-		Ref<Framebuffer> Framebuffer;
-
-		Ref<Cubemap> Environment;
-		Ref<Cubemap> Irradiance;
+		glm::vec3 Position;
+		glm::vec3 Color;
 	};
 
-	struct SceneRendererData
-	{
-		Scope<EnvironmentData> Env;
+	static constexpr Vertex2D s_Vertices[] = {
+		{ { -0.5f, -0.5f, 0.0f }, { 1.0f,  0.0f,  0.0f } },
+		{ {  0.5f, -0.5f, 0.0f }, { 0.0f,  1.0f,  0.0f } },
+		{ {  0.5f,  0.5f, 0.0f }, { 0.0f,  0.0f,  1.0f } },
+		{ { -0.5f,  0.5f, 0.0f }, { 1.0f,  1.0f,  1.0f } }
 	};
 
-	static SceneRendererData s_Data;
+	static constexpr uint32_t s_Indices[] = {
+		0, 1, 2,
+		2, 3, 0
+	};
 
-	Vec2i SceneRenderer::s_ViewportSize{};
-	Ref<Scene> SceneRenderer::s_ActiveScene = nullptr;
+	static BufferLayout s_Vertex2DLayout = {
+		{ ShaderDataType::Float3, "a_Position" },
+		{ ShaderDataType::Float3, "a_Color"    }
+	};
 
-	void SceneRenderer::SetActiveScene(const Ref<Scene>& scene)
+	SceneRenderer::SceneRenderer()
 	{
-		s_ActiveScene = scene;
-		OnNewActiveScene();
+		auto& window = Application::Get().GetWindow();
+		m_ViewportSize = { window.GetWidth(), window.GetHeight() };
+
+		Initialize();
+	}
+
+	SceneRenderer::SceneRenderer(const Ref<Scene>& scene)
+		: m_Scene(scene)
+	{
+		auto& window = Application::Get().GetWindow();
+		m_ViewportSize = { window.GetWidth(), window.GetHeight() };
+
+		Initialize();
+
+		auto view = m_Scene->m_Registry.view<CameraComponent>();
+		for (auto entity : view)
+		{
+			auto& cameraComponent = view.get<CameraComponent>(entity);
+			cameraComponent.Camera.Resize(m_ViewportSize.x, m_ViewportSize.y);
+		}
+	}
+
+	SceneRenderer::~SceneRenderer()
+	{
+		// Internally waits for all operations to be completed
+		m_Data.GraphicsPipeline.reset();
+	}
+
+	void SceneRenderer::SetContext(const Ref<Scene>& scene)
+	{
+		m_Scene = scene;
+
+		auto view = m_Scene->m_Registry.view<CameraComponent>();
+		for (auto entity : view)
+		{
+			auto& cameraComponent = view.get<CameraComponent>(entity);
+			cameraComponent.Camera.Resize(m_ViewportSize.x, m_ViewportSize.y);
+		}
 	}
 
 	void SceneRenderer::SetEnvironment(std::string_view filepath)
 	{
-		InitEnvironment(filepath);
+		NewEnvironment(filepath);
 	}
 
 	void SceneRenderer::OnRender()
 	{
-		if (s_ActiveScene)
+		m_Data.GraphicsPipeline->BeginFrame();
+
+		if (m_Scene && m_Scene->m_CameraEntity)
 		{
-			if (s_ActiveScene->m_CameraEntity)
+			auto& sceneCamera = m_Scene->m_CameraEntity.GetComponent<CameraComponent>().Camera;
+			auto& cameraTransform = m_Scene->m_CameraEntity.GetComponent<Transform3DComponent>();
+
+			Mat4f rotate = glm::toMat4(cameraTransform.Orientation);
+			Mat4f view = glm::translate(rotate, (Vec3f)-cameraTransform.Position);
+
+			m_Data.CameraBufferData.View = view;
+			m_Data.CameraBufferData.Projection = sceneCamera.GetProjection();
+
+			m_Data.GraphicsPipeline->GetUniformBuffer()->SetData(&m_Data.CameraBufferData, sizeof(SceneData::CameraUniformBufferData));
+
+			// Environment map
+			if (m_Data.Env)
 			{
-				auto& sceneCamera = s_ActiveScene->m_CameraEntity.GetComponent<CameraComponent>().Camera;
-				auto& cameraTransform = s_ActiveScene->m_CameraEntity.GetComponent<Transform3DComponent>();
+				RenderCommand::SetCullFace(RenderCullMode::Front);
+				RenderCommand::SetDepthFunction(RenderDepthFunction::LessEqual);
 
-				Renderer::BeginScene(sceneCamera, cameraTransform);
+				m_Data.Env->SkyboxShader->Attach();
+				m_Data.Env->SkyboxShader->SetMat4("u_View", view);
+				m_Data.Env->SkyboxShader->SetMat4("u_Projection", sceneCamera.GetProjection());
+				m_Data.Env->SkyboxShader->SetInt("u_EnvironmentMap", 0);
+				m_Data.Env->SkyboxShader->SetFloat("u_Exposure", 1.0f);
 
-				// Environment map
-				if (s_Data.Env)
-				{
-					RenderCommand::SetCullFace(RenderCullFace::Front);
-					RenderCommand::SetDepthFunction(RenderDepthFunction::LessEqual);
+				m_Data.Env->Environment->Attach(0);
+				m_Data.Env->Irradiance->Attach(5); // TODO: put inside scene uniform buffer
 
-					Mat4f rotate = glm::toMat4(cameraTransform.Orientation);
-					Mat4f view = glm::translate(rotate, (Vec3f)-cameraTransform.Position);
-
-					s_Data.Env->SkyboxShader->Attach();
-					s_Data.Env->SkyboxShader->SetMat4("u_View", view);
-					s_Data.Env->SkyboxShader->SetMat4("u_Projection", sceneCamera.GetProjection());
-					s_Data.Env->SkyboxShader->SetInt("u_EnvironmentMap", 0);
-					s_Data.Env->SkyboxShader->SetFloat("u_Exposure", 1.0f);
-
-					s_Data.Env->Environment->Attach(0);
-					s_Data.Env->Irradiance->Attach(5); // TODO: put inside scene uniform buffer
-
-					RenderCommand::DrawIndexed(s_Data.Env->CubemapVAO);
-					RenderCommand::SetCullFace(RenderCullFace::Default);
-					RenderCommand::SetDepthFunction(RenderDepthFunction::Default);
-				}
-
-				Renderer::EndScene();
+				RenderCommand::DrawIndexed(m_Data.Env->CubemapIndexBuffer->GetCount());
+				RenderCommand::SetCullFace(RenderCullMode::Default);
+				RenderCommand::SetDepthFunction(RenderDepthFunction::Default);
 			}
 		}
+
+		GeometryPass();
+
+		m_Data.GraphicsPipeline->EndFrame();
+		m_Data.GraphicsPipeline->Submit();
 	}
 
-	void SceneRenderer::OnViewportResized(uint32_t width, uint32_t height)
+	void SceneRenderer::OnViewportResized(uint32_t viewportWidth, uint32_t viewportHeight)
 	{
-		s_ViewportSize = { width, height };
+		m_ViewportSize = { viewportWidth, viewportHeight };
+		m_Data.GraphicsPipeline->Resize(m_ViewportSize.x, m_ViewportSize.y);
 
-		if (s_ActiveScene)
-		{
-			auto view = s_ActiveScene->m_Registry.view<CameraComponent>();
-			for (auto entity : view)
-			{
-				auto& cameraComponent = view.get<CameraComponent>(entity);
-				cameraComponent.Camera.Resize(width, height);
-			}
-		}
-	}
-
-	void SceneRenderer::Dispose()
-	{
-		QK_PROFILE_FUNCTION();
-
-		s_Data.Env.reset();
-	}
-
-	void SceneRenderer::OnNewActiveScene()
-	{
-		// Capture the original viewport dimensions when setting a new scene
-		auto view = s_ActiveScene->m_Registry.view<CameraComponent>();
+		auto view = m_Scene->m_Registry.view<CameraComponent>();
 		for (auto entity : view)
 		{
-			view.get<CameraComponent>(entity).Camera.Resize(s_ViewportSize.x, s_ViewportSize.y);
+			auto& cameraComponent = view.get<CameraComponent>(entity);
+			cameraComponent.Camera.Resize(m_ViewportSize.x, m_ViewportSize.y);
 		}
 	}
 
-	void SceneRenderer::InitEnvironment(std::string_view environmentFilepath)
+	void SceneRenderer::GeometryPass()
+	{
+		m_Data.GraphicsPipeline->BeginRenderPass(m_Data.GeometryPass);
+
+		m_Data.GraphicsPipeline->GetCommandBuffer()->BindVertexBuffer(m_Data.VertexBuffer, 0);
+		m_Data.GraphicsPipeline->GetCommandBuffer()->BindIndexBuffer(m_Data.IndexBuffer);
+
+		m_Data.GraphicsPipeline->GetCommandBuffer()->DrawIndexed(sizeof(s_Indices) / sizeof(uint32_t));
+		m_Data.GraphicsPipeline->EndRenderPass();
+	}
+
+	void SceneRenderer::Initialize()
 	{
 		QK_PROFILE_FUNCTION();
 
-		if (!s_Data.Env)
+		m_Data.VertexShader = Shader::Create("../Quark/assets/shaders/version/4.50/bin/vert.spv");
+		m_Data.FragmentShader = Shader::Create("../Quark/assets/shaders/version/4.50/bin/frag.spv");
+
+		{
+			RenderPassSpecification spec;
+			spec.BindPoint = PipelineBindPoint::Graphics;
+			m_Data.GeometryPass = RenderPass::Create(spec);
+		}
+
+		{
+			PipelineSpecification spec;
+			spec.ViewportWidth = m_ViewportSize.x;
+			spec.ViewportHeight = m_ViewportSize.y;
+			spec.FramesInFlight = Renderer::FramesInFlight;
+			spec.CameraUniformBufferSize = sizeof(SceneData::CameraUniformBufferData);
+			spec.Layout = s_Vertex2DLayout;
+			spec.RenderPass = m_Data.GeometryPass;
+			spec.VertexShader = m_Data.VertexShader;
+			spec.FragmentShader = m_Data.FragmentShader;
+
+			m_Data.GraphicsPipeline = Pipeline::Create(spec);
+		}
+
+		{
+			m_Data.VertexBuffer = VertexBuffer::Create(s_Vertices, sizeof(s_Vertices));
+			m_Data.IndexBuffer = IndexBuffer::Create(s_Indices, sizeof(s_Indices) / sizeof(uint32_t));
+		}
+	}
+
+	void SceneRenderer::NewEnvironment(std::string_view environmentFilepath)
+	{
+		QK_PROFILE_FUNCTION();
+
+		if (!m_Data.Env)
 		{
 			auto& assetDir = Application::Get().GetOptions().AssetDir;
 
-			s_Data.Env = CreateScope<EnvironmentData>();
-			s_Data.Env->SkyboxShader = Shader::Create(assetDir + "/assets/shaders/version/3.30/cubemap.glsl");
-			s_Data.Env->IrradianceShader = Shader::Create(assetDir + "/assets/shaders/version/3.30/irradiance.glsl");
-			s_Data.Env->EquirectangleToCubemapShader = Shader::Create(assetDir + "/assets/shaders/version/3.30/equirectangle_to_cubemap.glsl");
+			m_Data.Env = CreateScope<EnvironmentData>();
+			m_Data.Env->SkyboxShader = Shader::Create(assetDir + "/assets/shaders/version/3.30/cubemap.glsl");
+			m_Data.Env->IrradianceShader = Shader::Create(assetDir + "/assets/shaders/version/3.30/irradiance.glsl");
+			m_Data.Env->EquirectangleToCubemapShader = Shader::Create(assetDir + "/assets/shaders/version/3.30/equirectangle_to_cubemap.glsl");
 
 			{
 				Mesh cube = Mesh::GenerateUnitCube();
-				s_Data.Env->CubemapVAO = cube.GetVertexArray();
+				m_Data.Env->CubemapVertexBuffer = cube.GetVertexBuffer();
+				m_Data.Env->CubemapIndexBuffer = cube.GetIndexBuffer();
 			}
 
 			{
 				CubemapSpecification spec;
 				spec.Width = 2048;
 				spec.Height = 2048;
-				s_Data.Env->Environment = Cubemap::Create(spec);
+				m_Data.Env->Environment = Cubemap::Create(spec);
 
 				spec.Width = 32;
 				spec.Height = 32;
-				s_Data.Env->Irradiance = Cubemap::Create(spec);
+				m_Data.Env->Irradiance = Cubemap::Create(spec);
 			}
 
 			{
 				FramebufferSpecification spec;
 				spec.Width = 2048;
 				spec.Height = 2048;
-				spec.Attachments = {  };
-				s_Data.Env->Framebuffer = Framebuffer::Create(spec);
+				spec.Attachments = { { FramebufferTargetAttachment::ColorAttachment0, ColorDataFormat::RGB, InternalColorFormat::RGBA16f } };
+				m_Data.Env->Framebuffer = Framebuffer::Create(spec);
 			}
 		}
 
@@ -163,49 +230,49 @@ namespace Quark {
 		auto hdrTexture = Texture2D::Create(environmentFilepath);
 		hdrTexture->Attach(0);
 
-		s_Data.Env->Framebuffer->Attach();
+		m_Data.Env->Framebuffer->Attach();
 
-		s_Data.Env->EquirectangleToCubemapShader->Attach();
-		s_Data.Env->EquirectangleToCubemapShader->SetInt("u_EquirectangularMap", 0);
-		s_Data.Env->EquirectangleToCubemapShader->SetMat4("u_Projection", captureProjection);
+		m_Data.Env->EquirectangleToCubemapShader->Attach();
+		m_Data.Env->EquirectangleToCubemapShader->SetInt("u_EquirectangularMap", 0);
+		m_Data.Env->EquirectangleToCubemapShader->SetMat4("u_Projection", captureProjection);
 
-		RenderCommand::SetCullFace(RenderCullFace::Front);
+		RenderCommand::SetCullFace(RenderCullMode::Front);
 		RenderCommand::SetDepthFunction(RenderDepthFunction::LessEqual);
 
 		for (uint8_t i = 0; i < 6; i++)
 		{
-			s_Data.Env->EquirectangleToCubemapShader->SetMat4("u_View", captureViews[i]);
-			s_Data.Env->Framebuffer->AttachColorTextureTarget(0x8515 + i, s_Data.Env->Environment->GetRendererID());
+			m_Data.Env->EquirectangleToCubemapShader->SetMat4("u_View", captureViews[i]);
+			//m_Data.Env->Framebuffer->AttachColorTextureTarget(0x8515 + i, m_Data.Env->Environment->GetRendererID());
 
+			// FIX:
 			RenderCommand::Clear();
-			RenderCommand::DrawIndexed(s_Data.Env->CubemapVAO);
+			RenderCommand::DrawIndexed(m_Data.Env->CubemapIndexBuffer->GetCount());
 		}
 
-		s_Data.Env->Framebuffer->Detach();
-		s_Data.Env->Framebuffer->Resize(32, 32);
-		s_Data.Env->Framebuffer->Attach();
+		m_Data.Env->Framebuffer->Detach();
+		m_Data.Env->Framebuffer->Resize(32, 32);
+		m_Data.Env->Framebuffer->Attach();
 
-		s_Data.Env->IrradianceShader->Attach();
-		s_Data.Env->IrradianceShader->SetInt("u_EnvironmentMap", 0);
-		s_Data.Env->IrradianceShader->SetMat4("u_Projection", captureProjection);
-		s_Data.Env->Environment->Attach(0);
+		m_Data.Env->IrradianceShader->Attach();
+		m_Data.Env->IrradianceShader->SetInt("u_EnvironmentMap", 0);
+		m_Data.Env->IrradianceShader->SetMat4("u_Projection", captureProjection);
+		m_Data.Env->Environment->Attach(0);
 
 		for (uint8_t i = 0; i < 6; i++)
 		{
-			s_Data.Env->IrradianceShader->SetMat4("u_View", captureViews[i]);
-			s_Data.Env->Framebuffer->AttachColorTextureTarget(0x8515 + i, s_Data.Env->Irradiance->GetRendererID());
+			m_Data.Env->IrradianceShader->SetMat4("u_View", captureViews[i]);
+			//m_Data.Env->Framebuffer->AttachColorTextureTarget(0x8515 + i, m_Data.Env->Irradiance->GetRendererID());
 
+			// FIX:
 			RenderCommand::Clear();
-			RenderCommand::DrawIndexed(s_Data.Env->CubemapVAO);
+			RenderCommand::DrawIndexed(m_Data.Env->CubemapIndexBuffer->GetCount());
 		}
 
-		s_Data.Env->Framebuffer->Detach();
+		m_Data.Env->Framebuffer->Detach();
 
-		RenderCommand::SetCullFace(RenderCullFace::Default);
+		RenderCommand::SetCullFace(RenderCullMode::Default);
 		RenderCommand::SetDepthFunction(RenderDepthFunction::Default);
 
-		// TODO: make a proper render pipeline that handles viewport resize
-		auto& window = Application::Get().GetWindow();
-		Renderer::OnViewportResized(window.GetWidth(), window.GetHeight());
+		RenderCommand::SetViewport(0, 0, m_ViewportSize.x, m_ViewportSize.y);
 	}
 }

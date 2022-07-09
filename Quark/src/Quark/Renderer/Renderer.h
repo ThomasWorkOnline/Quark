@@ -1,13 +1,11 @@
 #pragma once
 
 #include "Quark/Core/Core.h"
-
 #include "Quark/Scene/Components.h"
-#include "Quark/Scene/Entity.h"
-#include "Quark/Scene/Scene.h"
 
 #include "Camera.h"
 #include "Framebuffer.h"
+#include "RenderPass.h"
 #include "Shader.h"
 #include "Texture.h"
 
@@ -16,6 +14,8 @@ namespace Quark {
 	class Renderer
 	{
 	public:
+		static constexpr uint32_t FramesInFlight = 2;
+
 		Renderer() = delete;
 		Renderer& operator=(const Renderer&) = delete;
 
@@ -31,11 +31,10 @@ namespace Quark {
 		static void BeginScene(const Mat4f& cameraProjection, const Mat4f& cameraView);
 		static void EndScene();
 
-		static void Submit(const Ref<Shader>& shader, const Ref<VertexArray>& va, const Mat4f& transform = Mat4f(1.0f));
-		static void Submit(const Ref<Shader>& shader, const Ref<Texture2D>& texture, const Ref<VertexArray>& va, const Mat4f& transform = Mat4f(1.0f));
-		static void Submit(const Ref<Shader>& shader, const Ref<Framebuffer>& framebuffer, const Ref<VertexArray>& va, const Mat4f& transform = Mat4f(1.0f));
+		static void BeginRenderPass(const Ref<RenderPass>& renderPass);
+		static void EndRenderPass();
 
-		static void OnViewportResized(uint32_t width, uint32_t height);
+		static void OnViewportResized(uint32_t viewportWidth, uint32_t viewportHeight);
 
 		static ShaderLibrary& GetShaderLibrary();
 

@@ -1,6 +1,5 @@
 #include "qkpch.h"
 #include "VulkanShader.h"
-
 #include "VulkanContext.h"
 
 namespace Quark {
@@ -22,19 +21,19 @@ namespace Quark {
 			return buffer;
 		}
 
-		static vk::ShaderStageFlagBits GetShaderStageType(std::string_view filepath)
+		static constexpr VkShaderStageFlagBits GetShaderStageType(std::string_view filepath)
 		{
-			vk::ShaderStageFlagBits stage{};
+			VkShaderStageFlagBits stage{};
 			if (filepath.find("vert") != std::string::npos)
-				stage = vk::ShaderStageFlagBits::eVertex;
+				stage = VK_SHADER_STAGE_VERTEX_BIT;
 			else if (filepath.find("frag") != std::string::npos)
-				stage = vk::ShaderStageFlagBits::eFragment;
+				stage = VK_SHADER_STAGE_FRAGMENT_BIT;
 			else if (filepath.find("geometry") != std::string::npos)
-				stage = vk::ShaderStageFlagBits::eGeometry;
+				stage = VK_SHADER_STAGE_GEOMETRY_BIT;
 			else if (filepath.find("compute") != std::string::npos)
-				stage = vk::ShaderStageFlagBits::eCompute;
+				stage = VK_SHADER_STAGE_COMPUTE_BIT;
 
-			QK_CORE_ASSERT(stage != (vk::ShaderStageFlagBits)0, "Could not find the type of shader");
+			QK_CORE_ASSERT(stage, "Could not find the type of shader");
 			return stage;
 		}
 	}
@@ -44,16 +43,18 @@ namespace Quark {
 		auto type = Utils::GetShaderStageType(filepath);
 		auto byteCode = Utils::ReadByteCode(filepath);
 
-		vk::ShaderModuleCreateInfo createInfo;
-		createInfo.setCodeSize(byteCode.size());
-		createInfo.setPCode(reinterpret_cast<const uint32_t*>(byteCode.data()));
+		VkShaderModuleCreateInfo createInfo{};
+		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+		createInfo.codeSize = byteCode.size();
+		createInfo.pCode = reinterpret_cast<const uint32_t*>(byteCode.data());
 
 		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
-		m_ShaderModule = vkDevice.createShaderModule(createInfo);
+		vkCreateShaderModule(vkDevice, &createInfo, nullptr, &m_ShaderModule);
 
-		m_StageInfo.setStage(type);
-		m_StageInfo.setModule(m_ShaderModule);
-		m_StageInfo.setPName("main");
+		m_StageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		m_StageInfo.stage = type;
+		m_StageInfo.module = m_ShaderModule;
+		m_StageInfo.pName = "main";
 	}
 
 	VulkanShader::VulkanShader(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource)
@@ -69,6 +70,6 @@ namespace Quark {
 	VulkanShader::~VulkanShader()
 	{
 		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
-		vkDevice.destroyShaderModule(m_ShaderModule);
+		vkDestroyShaderModule(vkDevice, m_ShaderModule, nullptr);
 	}
 }

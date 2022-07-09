@@ -45,9 +45,9 @@ void Pong::OnRender()
 	const auto& camera = m_Entity.GetComponent<CameraComponent>().Camera;
 	const auto& transform = m_Entity.GetComponent<Transform3DComponent>();
 
-	Renderer::BeginScene(camera, transform);
-	Renderer::Submit(m_Shader, m_Ball.GetVertexArray(), m_BallTransform);
-	Renderer::EndScene();
+	//Renderer::BeginScene(camera, transform);
+	//Renderer::Submit(m_Shader, m_Ball.GetVertexArray(), m_BallTransform);
+	//Renderer::EndScene();
 }
 
 void Pong::OnEvent(Event& e)

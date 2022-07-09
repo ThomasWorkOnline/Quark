@@ -1,18 +1,18 @@
 #pragma once
 
 #include "Quark/Core/Core.h"
-#include "TextureFormats.h"
+#include "ColorFormats.h"
 
 namespace Quark {
 
 	struct ImageMetadata
 	{
-		uint32_t Width   = 0, Height = 0;
-		uint8_t Channels = 0;
-		uint8_t BPP      = 0; // Number of bits per pixel
+		uint32_t Width    = 0, Height = 0;
+		uint8_t  Channels = 0;
+		uint8_t  BitsPerPixel = 0;
 
-		TextureDataFormat     DataFormat{};
-		TextureInternalFormat InternalFormat{};
+		ColorDataFormat     DataFormat{};
+		InternalColorFormat InternalFormat{};
 	};
 
 	class Image

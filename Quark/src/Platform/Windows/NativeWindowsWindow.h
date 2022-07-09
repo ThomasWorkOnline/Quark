@@ -52,6 +52,7 @@ namespace Quark {
 			bool        Maximized = false;
 			double      CursorXpos, CursorYpos;
 
+			Scope<GraphicsContext> Context;
 			EventCallbackFn EventCallback;
 		};
 
@@ -60,9 +61,7 @@ namespace Quark {
 		void Shutdown();
 
 	private:
-		Scope<GraphicsContext> m_Context;
 		WindowData m_Data{};
-
 		HWND m_WindowHandle;
 	};
 }

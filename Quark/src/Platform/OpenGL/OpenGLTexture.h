@@ -20,8 +20,6 @@ namespace Quark {
 		virtual uint32_t GetWidth() const override { return m_Spec.Width; }
 		virtual uint32_t GetHeight() const override { return m_Spec.Height; }
 
-		virtual uint32_t GetRendererID() const override { return m_RendererID; }
-
 		virtual bool operator==(const Texture2D& other) const override
 		{
 			return m_RendererID == ((OpenGLTexture2D&)other).m_RendererID;

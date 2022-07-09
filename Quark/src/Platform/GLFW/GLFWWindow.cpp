@@ -8,19 +8,8 @@ namespace Quark {
 
 	static constexpr ModifierKey GetModKey(int mod)
 	{
-		uint8_t keys{};
-		switch (mod)
-		{
-			// TODO: rethink this when multiple mod keys are pressed
-			case GLFW_MOD_SHIFT:     keys = (uint8_t)keys | (uint8_t)ModifierKey::Shift;    break;
-			case GLFW_MOD_CONTROL:   keys = (uint8_t)keys | (uint8_t)ModifierKey::Control;  break;
-			case GLFW_MOD_ALT:       keys = (uint8_t)keys | (uint8_t)ModifierKey::Alt;      break;
-			case GLFW_MOD_SUPER:     keys = (uint8_t)keys | (uint8_t)ModifierKey::Super;    break;
-			case GLFW_MOD_CAPS_LOCK: keys = (uint8_t)keys | (uint8_t)ModifierKey::CapsLock; break;
-			case GLFW_MOD_NUM_LOCK:  keys = (uint8_t)keys | (uint8_t)ModifierKey::NumLock;  break;
-		}
-
-		return static_cast<ModifierKey>(keys);
+		// Quark mappings are directly compatible with glfw
+		return static_cast<ModifierKey>(mod);
 	}
 
 	static uint32_t s_WindowCount = 0;
@@ -42,7 +31,7 @@ namespace Quark {
 
 	void GLFWWindow::OnUpdate()
 	{
-		m_Context->SwapBuffers();
+		m_Data.Context->SwapBuffers();
 		glfwPollEvents();
 	}
 
@@ -50,9 +39,9 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
+		m_Data.Title	= spec.Title;
 		m_Data.Width	= spec.Width;
 		m_Data.Height	= spec.Height;
-		m_Data.Title	= spec.Title;
 		m_Data.Samples	= spec.Samples;
 
 		if (s_WindowCount == 0)
@@ -92,8 +81,8 @@ namespace Quark {
 		++s_WindowCount;
 
 		// Creating the graphics context
-		m_Context = GraphicsContext::Create(m_Window);
-		m_Context->Init();
+		m_Data.Context = GraphicsContext::Create(m_Window);
+		m_Data.Context->Init();
 
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 
@@ -122,6 +111,8 @@ namespace Quark {
 				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 				data.Width = width;
 				data.Height = height;
+
+				data.Context->OnViewportResized(width, height);
 
 				WindowResizedEvent event(width, height);
 				data.EventCallback(event);
@@ -266,7 +257,7 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		m_Context.reset();
+		m_Data.Context.reset();
 		glfwDestroyWindow(m_Window);
 		--s_WindowCount;
 

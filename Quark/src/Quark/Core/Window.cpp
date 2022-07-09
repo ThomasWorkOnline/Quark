@@ -2,7 +2,7 @@
 #include "Window.h"
 
 #if defined(QK_PLATFORM_WINDOWS) && defined(QK_USE_NATIVE_APIS)
-#	include "Platform/Windows/WindowsWindow.h"
+#	include "Platform/Windows/NativeWindowsWindow.h"
 #else
 #	include "Platform/GLFW/GLFWWindow.h"
 #endif

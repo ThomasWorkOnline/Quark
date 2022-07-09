@@ -1,6 +1,6 @@
 #include "qkpch.h"
 #include "OpenGLTexture.h"
-#include "OpenGLTextureFormats.h"
+#include "OpenGLFormats.h"
 
 #include "Quark/Renderer/Image.h"
 #include "Quark/Renderer/GraphicsAPI.h"
@@ -17,8 +17,8 @@ namespace Quark {
 		QK_CORE_ASSERT(m_Spec.Width <= GraphicsAPI::Instance->GetHardwareConstraints().TextureConstraints.MaxPixelSize
 			&& m_Spec.Height <= GraphicsAPI::Instance->GetHardwareConstraints().TextureConstraints.MaxPixelSize, "Texture dimensions too large");
 
-		m_InternalFormat = GetTextureInternalFormat(m_Spec.InternalFormat);
-		m_DataFormat = GetTextureDataFormat(m_Spec.DataFormat);
+		m_InternalFormat = InternalFormatToOpenGL(m_Spec.InternalFormat);
+		m_DataFormat = DataFormatToOpenGL(m_Spec.DataFormat);
 		QK_CORE_ASSERT(m_InternalFormat & m_DataFormat, "Image format not supported");
 
 		glGenTextures(1, &m_RendererID);
@@ -33,11 +33,11 @@ namespace Quark {
 		{
 			glBindTexture(GL_TEXTURE_2D, m_RendererID);
 			glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Spec.Width, m_Spec.Height, 0, m_DataFormat,
-				GetDataTypeBasedOnInternalFormat(m_Spec.InternalFormat), nullptr);
+				InternalFormatToOpenGLDataType(m_Spec.InternalFormat), nullptr);
 
-			GLenum tilingMode = GetTextureTilingMode(m_Spec.RenderModes.TilingMode);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetTextureFilteringMode(m_Spec.RenderModes.MinFilteringMode));
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GetTextureFilteringMode(m_Spec.RenderModes.MagFilteringMode));
+			GLenum tilingMode = TilingModeToOpenGL(m_Spec.RenderModes.TilingMode);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, FilteringModeToOpenGL(m_Spec.RenderModes.MinFilteringMode));
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, FilteringModeToOpenGL(m_Spec.RenderModes.MagFilteringMode));
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, tilingMode);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, tilingMode);
 		}
@@ -59,19 +59,19 @@ namespace Quark {
 		QK_CORE_ASSERT(m_Spec.Width <= GraphicsAPI::Instance->GetHardwareConstraints().TextureConstraints.MaxPixelSize
 			&& m_Spec.Height <= GraphicsAPI::Instance->GetHardwareConstraints().TextureConstraints.MaxPixelSize, "Texture dimensions too large");
 
-		m_DataFormat = GetTextureDataFormat(m_Spec.DataFormat);
-		m_InternalFormat = GetTextureInternalFormat(m_Spec.InternalFormat);
+		m_DataFormat = DataFormatToOpenGL(m_Spec.DataFormat);
+		m_InternalFormat = InternalFormatToOpenGL(m_Spec.InternalFormat);
 		QK_CORE_ASSERT(m_InternalFormat & m_DataFormat, "Image format not supported");
 
 		glGenTextures(1, &m_RendererID);
 		glBindTexture(GL_TEXTURE_2D, m_RendererID);
 		glTexImage2D(GL_TEXTURE_2D, 0,
 			m_InternalFormat, m_Spec.Width, m_Spec.Height, 0, m_DataFormat,
-			GetDataTypeBasedOnInternalFormat(m_Spec.InternalFormat), *image);
+			InternalFormatToOpenGLDataType(m_Spec.InternalFormat), *image);
 
-		GLenum tilingMode = GetTextureTilingMode(m_Spec.RenderModes.TilingMode);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GetTextureFilteringMode(m_Spec.RenderModes.MinFilteringMode));
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GetTextureFilteringMode(m_Spec.RenderModes.MagFilteringMode));
+		GLenum tilingMode = TilingModeToOpenGL(m_Spec.RenderModes.TilingMode);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, FilteringModeToOpenGL(m_Spec.RenderModes.MinFilteringMode));
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, FilteringModeToOpenGL(m_Spec.RenderModes.MagFilteringMode));
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, tilingMode);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, tilingMode);
 
@@ -111,7 +111,7 @@ namespace Quark {
 		GLenum target = m_Spec.Samples > 1 ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
 		glBindTexture(target, m_RendererID);
 		glTexSubImage2D(target, 0, 0, 0, m_Spec.Width, m_Spec.Height, m_DataFormat,
-			GetDataTypeBasedOnInternalFormat(m_Spec.InternalFormat), data);
+			InternalFormatToOpenGLDataType(m_Spec.InternalFormat), data);
 	}
 
 	void OpenGLTexture2D::GenerateMipmaps()

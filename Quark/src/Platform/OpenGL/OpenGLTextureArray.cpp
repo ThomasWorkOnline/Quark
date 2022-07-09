@@ -1,6 +1,6 @@
 #include "qkpch.h"
 #include "OpenGLTextureArray.h"
-#include "OpenGLTextureFormats.h"
+#include "OpenGLFormats.h"
 
 #include <glad/glad.h>
 
@@ -11,8 +11,8 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		m_InternalFormat = GetTextureInternalFormat(m_Spec.InternalFormat);
-		m_DataFormat = GetTextureDataFormat(m_Spec.DataFormat);
+		m_InternalFormat = InternalFormatToOpenGL(m_Spec.InternalFormat);
+		m_DataFormat = DataFormatToOpenGL(m_Spec.DataFormat);
 
 		glGenTextures(1, &m_RendererID);
 
@@ -27,9 +27,9 @@ namespace Quark {
 			glBindTexture(GL_TEXTURE_2D_ARRAY, m_RendererID);
 			glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, m_InternalFormat, m_Spec.Width, m_Spec.Height, m_Spec.Layers, 0, m_DataFormat, GL_UNSIGNED_BYTE, nullptr);
 
-			GLenum tilingMode = GetTextureTilingMode(m_Spec.RenderModes.TilingMode);
-			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GetTextureFilteringMode(m_Spec.RenderModes.MinFilteringMode));
-			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GetTextureFilteringMode(m_Spec.RenderModes.MagFilteringMode));
+			GLenum tilingMode = TilingModeToOpenGL(m_Spec.RenderModes.TilingMode);
+			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, FilteringModeToOpenGL(m_Spec.RenderModes.MinFilteringMode));
+			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, FilteringModeToOpenGL(m_Spec.RenderModes.MagFilteringMode));
 			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, tilingMode);
 			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, tilingMode);
 		}

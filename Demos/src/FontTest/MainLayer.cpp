@@ -6,8 +6,8 @@ MainLayer::MainLayer()
 	spec.Width = 48;
 	spec.Height = 48;
 	spec.Layers = 1;
-	spec.DataFormat = TextureDataFormat::RGBA;
-	spec.InternalFormat = TextureInternalFormat::RGBA8;
+	spec.DataFormat = ColorDataFormat::RGBA;
+	spec.InternalFormat = InternalColorFormat::RGBA8;
 	spec.RenderModes.MinFilteringMode = TextureFilteringMode::Linear;
 	spec.RenderModes.MagFilteringMode = TextureFilteringMode::Nearest;
 
@@ -24,7 +24,7 @@ MainLayer::MainLayer()
 
 	auto& window = Application::Get().GetWindow();
 
-	m_Camera.SetOrthographic(window.GetWidth());
+	m_Camera.SetOrthographic((float)window.GetWidth());
 	m_Camera.Resize(window.GetWidth(), window.GetHeight());
 }
 

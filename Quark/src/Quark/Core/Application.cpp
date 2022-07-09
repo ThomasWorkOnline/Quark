@@ -5,7 +5,6 @@
 #include "Quark/Renderer/Renderer.h"
 #include "Quark/Renderer/Renderer2D.h"
 #include "Quark/Renderer/RenderCommand.h"
-#include "Quark/Renderer/SceneRenderer.h"
 
 #include <ctime>
 
@@ -28,12 +27,8 @@ namespace Quark {
 		for (size_t i = 0; i < m_Layers.size(); i++)
 			delete m_Layers[i];
 
-		if (GraphicsAPI::GetAPI() == GraphicsAPI::API::OpenGL)
-		{
-			Renderer::Dispose();
-			Renderer2D::Dispose();
-			SceneRenderer::Dispose();
-		}
+		//Renderer2D::Dispose();
+		Renderer::Dispose();
 	}
 
 	void Application::Stop()
@@ -54,7 +49,6 @@ namespace Quark {
 				tStart = tNow;
 
 				m_TotalTime += elapsedTime;
-
 				OnUpdate(elapsedTime);
 
 				// Don't use iterator based for loops; we might modify the layer stack in OnUpdate()
@@ -62,14 +56,12 @@ namespace Quark {
 					m_Layers[i]->OnUpdate(elapsedTime);
 			}
 
+			if (!m_Minimized)
 			{
-				RenderCommand::Clear();
 				OnRender();
 
 				for (size_t i = 0; i < m_Layers.size(); i++)
 					m_Layers[i]->OnRender();
-
-				SceneRenderer::OnRender();
 			}
 
 			m_Window->OnUpdate();
@@ -84,7 +76,7 @@ namespace Quark {
 		m_AppMainThreadId = std::this_thread::get_id();
 
 		WindowSpecification spec = {
-			m_Options.Width, m_Options.Height, m_Options.Title, 4
+			m_Options.AppName, m_Options.Width, m_Options.Height, 4
 		};
 
 		m_Window = Window::Create(spec);
@@ -93,18 +85,11 @@ namespace Quark {
 		m_AudioOutputDevice = AudioOutputDevice::Create();
 		QK_CORE_INFO("Opened audio device: {0}", m_AudioOutputDevice->GetDeviceName());
 
-		RenderCommand::Init();
-		RenderCommand::SetClearColor({ 0.01f, 0.01f, 0.01f, 1.0f });
+		Renderer::Initialize();
+		Renderer::OnViewportResized(m_Window->GetWidth(), m_Window->GetHeight());
 		QK_CORE_INFO(GraphicsAPI::Instance->GetSpecification());
 
-		if (GraphicsAPI::GetAPI() == GraphicsAPI::API::OpenGL)
-		{
-			Renderer::Initialize();
-			Renderer2D::Initialize();
-
-			Renderer::OnViewportResized(m_Window->GetWidth(), m_Window->GetHeight());
-			SceneRenderer::OnViewportResized(m_Window->GetWidth(), m_Window->GetHeight());
-		}
+		//Renderer2D::Initialize();
 
 		if (m_Options.HasFlag(ShowApiInWindowTitle))
 		{
@@ -116,8 +101,10 @@ namespace Quark {
 	void Application::OnEventInternal(Event& e)
 	{
 		EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<WindowClosedEvent>(ATTACH_EVENT_FN(Application::OnWindowClosed));
-		dispatcher.Dispatch<WindowResizedEvent>(ATTACH_EVENT_FN(Application::OnWindowResized));
+		dispatcher.Dispatch<WindowClosedEvent>(ATTACH_EVENT_FN(OnWindowClosed));
+		dispatcher.Dispatch<WindowResizedEvent>(ATTACH_EVENT_FN(OnWindowResized));
+		dispatcher.Dispatch<WindowMinimizedEvent>(ATTACH_EVENT_FN(OnWindowMinimized));
+		dispatcher.Dispatch<WindowRestoredEvent>(ATTACH_EVENT_FN(OnWindowRestored));
 
 		if (!e.Handled)
 			OnEvent(e);
@@ -154,7 +141,18 @@ namespace Quark {
 	bool Application::OnWindowResized(WindowResizedEvent& e)
 	{
 		Renderer::OnViewportResized(e.GetWidth(), e.GetHeight());
-		SceneRenderer::OnViewportResized(e.GetWidth(), e.GetHeight());
+		return false;
+	}
+
+	bool Application::OnWindowMinimized(WindowMinimizedEvent& e)
+	{
+		m_Minimized = true;
+		return false;
+	}
+
+	bool Application::OnWindowRestored(WindowRestoredEvent& e)
+	{
+		m_Minimized = false;
 		return false;
 	}
 }

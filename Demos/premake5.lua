@@ -1,7 +1,7 @@
 project "Demos"
 	kind "ConsoleApp"
 	language "C++"
-	cppdialect "C++20"
+	cppdialect "C++17"
 	staticruntime "Off"
 
 	targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
@@ -19,10 +19,7 @@ project "Demos"
 		"%{wks.location}/Quark/src",
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.glm}",
-		"%{IncludeDir.spdlog}",
-
-		"%{IncludeDir.glfw}",
-		"%{IncludeDir.VulkanSDK}"
+		"%{IncludeDir.spdlog}"
 	}
 
 	links

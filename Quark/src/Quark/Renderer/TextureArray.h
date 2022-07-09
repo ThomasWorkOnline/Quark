@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Quark/Core/Core.h"
+#include "ColorFormats.h"
 #include "TextureFormats.h"
 
 namespace Quark {
@@ -11,8 +12,8 @@ namespace Quark {
 		uint32_t              Samples = 1;
 		uint8_t               Levels  = 1;
 
-		TextureDataFormat     DataFormat{};
-		TextureInternalFormat InternalFormat{};
+		ColorDataFormat       DataFormat{};
+		InternalColorFormat   InternalFormat{};
 		TextureRenderModes    RenderModes;
 	};
 
@@ -30,8 +31,6 @@ namespace Quark {
 		virtual uint32_t GetWidth() const = 0;
 		virtual uint32_t GetHeight() const = 0;
 		virtual uint32_t GetLayerCount() const = 0;
-
-		virtual uint32_t GetRendererID() const = 0;
 
 		virtual bool operator==(const Texture2DArray& other) const = 0;
 
