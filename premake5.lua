@@ -18,5 +18,17 @@ workspace "Quark"
 
 outputdir = "%{cfg.system}-%{cfg.buildcfg}-%{cfg.architecture}"
 
-include "Quark"
+-- Quark Dependencies
+group "Dependencies"
+	include "Quark/vendor/freetype"
+	include "Quark/vendor/glad"
+	include "Quark/vendor/glfw"
+	include "Quark/vendor/lodepng"
+	include "Quark/vendor/spdlog"
+group ""
+
+group "Core"
+	include "Quark"
+group ""
+
 include "Demos"
