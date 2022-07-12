@@ -1,10 +1,6 @@
 #include "qkpch.h"
 #include "MetalGraphicsAPI.h"
 
-// We need to define these once to link the static symbols inside Metal
-#define NS_PRIVATE_IMPLEMENTATION
-#define CA_PRIVATE_IMPLEMENTATION
-#define MTL_PRIVATE_IMPLEMENTATION
 #include <Foundation/Foundation.hpp>
 #include <Metal/Metal.hpp>
 #include <QuartzCore/QuartzCore.hpp>
@@ -18,11 +14,11 @@ namespace Quark {
 
 	void MetalGraphicsAPI::SetClearColor(const Vec4f& rgba)
 	{
-		
+
 	}
 
 	void MetalGraphicsAPI::Clear()
 	{
-		
+
 	}
 }
