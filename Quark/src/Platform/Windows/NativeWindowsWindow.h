@@ -42,6 +42,15 @@ namespace Quark {
 
 		virtual void* GetNativeWindow() const override { return m_WindowHandle; }
 
+	private:
+		void Init();
+		void Shutdown();
+
+		static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+		static void OnWindowMoved(HWND hWnd, int32_t x, int32_t y);
+		static void OnWindowSizeChanged(HWND hWnd, WPARAM wParam, LPARAM lParam);
+
+	private:
 		struct WindowData
 		{
 			std::string Title;
@@ -56,11 +65,6 @@ namespace Quark {
 			EventCallbackFn EventCallback;
 		};
 
-	private:
-		void Init();
-		void Shutdown();
-
-	private:
 		WindowData m_Data{};
 		HWND m_WindowHandle;
 	};

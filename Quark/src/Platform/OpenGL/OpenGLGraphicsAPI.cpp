@@ -5,6 +5,7 @@
 #include "OpenGLCubemap.h"
 #include "OpenGLFont.h"
 #include "OpenGLFramebuffer.h"
+#include "OpenGLPipeline.h"
 #include "OpenGLShader.h"
 #include "OpenGLTexture.h"
 #include "OpenGLTextureArray.h"
@@ -220,6 +221,11 @@ namespace Quark {
 		GLfloat thickness;
 		glGetFloatv(GL_LINE_WIDTH, &thickness);
 		return thickness;
+	}
+
+	Ref<Pipeline> OpenGLGraphicsAPI::CreatePipeline(const PipelineSpecification& spec)
+	{
+		return CreateRef<OpenGLPipeline>(spec);
 	}
 
 	Ref<VertexBuffer> OpenGLGraphicsAPI::CreateVertexBuffer(const void* vertices, size_t size)

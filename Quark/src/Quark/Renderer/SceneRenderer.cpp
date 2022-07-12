@@ -32,45 +32,55 @@ namespace Quark {
 		{ ShaderDataType::Float3, "a_Color"    }
 	};
 
-	SceneRenderer::SceneRenderer()
+	struct EnvironmentData
 	{
-		auto& window = Application::Get().GetWindow();
-		m_ViewportSize = { window.GetWidth(), window.GetHeight() };
+		Ref<Shader> SkyboxShader;
+		Ref<Shader> IrradianceShader;
+		Ref<Shader> EquirectangleToCubemapShader;
+		Ref<VertexBuffer> CubemapVertexBuffer;
+		Ref<IndexBuffer> CubemapIndexBuffer;
+		Ref<Framebuffer> Framebuffer;
 
-		Initialize();
-	}
+		Ref<Cubemap> Environment;
+		Ref<Cubemap> Irradiance;
+	};
 
-	SceneRenderer::SceneRenderer(const Ref<Scene>& scene)
-		: m_Scene(scene)
+	struct SceneData
 	{
-		auto& window = Application::Get().GetWindow();
-		m_ViewportSize = { window.GetWidth(), window.GetHeight() };
-
-		Initialize();
-
-		auto view = m_Scene->m_Registry.view<CameraComponent>();
-		for (auto entity : view)
+		// Assure std140 layout
+		struct CameraUniformBufferData
 		{
-			auto& cameraComponent = view.get<CameraComponent>(entity);
-			cameraComponent.Camera.Resize(m_ViewportSize.x, m_ViewportSize.y);
-		}
-	}
+			Mat4f View = Mat4(1.0f);
+			Mat4f Projection = Mat4(1.0f);
+		};
 
-	SceneRenderer::~SceneRenderer()
-	{
-		// Internally waits for all operations to be completed
-		m_Data.GraphicsPipeline.reset();
-	}
+		Scope<EnvironmentData> Env;
+		CameraUniformBufferData CameraBufferData;
+
+		Ref<Shader> VertexShader;
+		Ref<Shader> FragmentShader;
+
+		Ref<Pipeline> GraphicsPipeline;
+		Ref<RenderPass> GeometryPass;
+
+		Ref<VertexBuffer> VertexBuffer;
+		Ref<IndexBuffer> IndexBuffer;
+	};
+
+	static Scope<SceneData> s_Data;
+
+	Ref<Scene> SceneRenderer::s_Scene;
+	Vec2i SceneRenderer::s_ViewportSize{};
 
 	void SceneRenderer::SetContext(const Ref<Scene>& scene)
 	{
-		m_Scene = scene;
+		s_Scene = scene;
 
-		auto view = m_Scene->m_Registry.view<CameraComponent>();
+		auto view = s_Scene->m_Registry.view<CameraComponent>();
 		for (auto entity : view)
 		{
 			auto& cameraComponent = view.get<CameraComponent>(entity);
-			cameraComponent.Camera.Resize(m_ViewportSize.x, m_ViewportSize.y);
+			cameraComponent.Camera.Resize(s_ViewportSize.x, s_ViewportSize.y);
 		}
 	}
 
@@ -81,37 +91,37 @@ namespace Quark {
 
 	void SceneRenderer::OnRender()
 	{
-		m_Data.GraphicsPipeline->BeginFrame();
+		s_Data->GraphicsPipeline->BeginFrame();
 
-		if (m_Scene && m_Scene->m_CameraEntity)
+		if (s_Scene && s_Scene->m_CameraEntity)
 		{
-			auto& sceneCamera = m_Scene->m_CameraEntity.GetComponent<CameraComponent>().Camera;
-			auto& cameraTransform = m_Scene->m_CameraEntity.GetComponent<Transform3DComponent>();
+			auto& sceneCamera = s_Scene->m_CameraEntity.GetComponent<CameraComponent>().Camera;
+			auto& cameraTransform = s_Scene->m_CameraEntity.GetComponent<Transform3DComponent>();
 
 			Mat4f rotate = glm::toMat4(cameraTransform.Orientation);
 			Mat4f view = glm::translate(rotate, (Vec3f)-cameraTransform.Position);
 
-			m_Data.CameraBufferData.View = view;
-			m_Data.CameraBufferData.Projection = sceneCamera.GetProjection();
+			s_Data->CameraBufferData.View = view;
+			s_Data->CameraBufferData.Projection = sceneCamera.GetProjection();
 
-			m_Data.GraphicsPipeline->GetUniformBuffer()->SetData(&m_Data.CameraBufferData, sizeof(SceneData::CameraUniformBufferData));
+			s_Data->GraphicsPipeline->GetUniformBuffer()->SetData(&s_Data->CameraBufferData, sizeof(SceneData::CameraUniformBufferData));
 
 			// Environment map
-			if (m_Data.Env)
+			if (s_Data->Env)
 			{
 				RenderCommand::SetCullFace(RenderCullMode::Front);
 				RenderCommand::SetDepthFunction(RenderDepthFunction::LessEqual);
 
-				m_Data.Env->SkyboxShader->Attach();
-				m_Data.Env->SkyboxShader->SetMat4("u_View", view);
-				m_Data.Env->SkyboxShader->SetMat4("u_Projection", sceneCamera.GetProjection());
-				m_Data.Env->SkyboxShader->SetInt("u_EnvironmentMap", 0);
-				m_Data.Env->SkyboxShader->SetFloat("u_Exposure", 1.0f);
+				s_Data->Env->SkyboxShader->Attach();
+				s_Data->Env->SkyboxShader->SetMat4("u_View", view);
+				s_Data->Env->SkyboxShader->SetMat4("u_Projection", sceneCamera.GetProjection());
+				s_Data->Env->SkyboxShader->SetInt("u_EnvironmentMap", 0);
+				s_Data->Env->SkyboxShader->SetFloat("u_Exposure", 1.0f);
 
-				m_Data.Env->Environment->Attach(0);
-				m_Data.Env->Irradiance->Attach(5); // TODO: put inside scene uniform buffer
+				s_Data->Env->Environment->Attach(0);
+				s_Data->Env->Irradiance->Attach(5); // TODO: put inside scene uniform buffer
 
-				RenderCommand::DrawIndexed(m_Data.Env->CubemapIndexBuffer->GetCount());
+				RenderCommand::DrawIndexed(s_Data->Env->CubemapIndexBuffer->GetCount());
 				RenderCommand::SetCullFace(RenderCullMode::Default);
 				RenderCommand::SetDepthFunction(RenderDepthFunction::Default);
 			}
@@ -119,105 +129,120 @@ namespace Quark {
 
 		GeometryPass();
 
-		m_Data.GraphicsPipeline->EndFrame();
-		m_Data.GraphicsPipeline->Submit();
+		s_Data->GraphicsPipeline->EndFrame();
+		s_Data->GraphicsPipeline->Submit();
 	}
 
 	void SceneRenderer::OnViewportResized(uint32_t viewportWidth, uint32_t viewportHeight)
 	{
-		m_ViewportSize = { viewportWidth, viewportHeight };
-		m_Data.GraphicsPipeline->Resize(m_ViewportSize.x, m_ViewportSize.y);
+		s_ViewportSize = { viewportWidth, viewportHeight };
+		s_Data->GraphicsPipeline->Resize(s_ViewportSize.x, s_ViewportSize.y);
 
-		auto view = m_Scene->m_Registry.view<CameraComponent>();
-		for (auto entity : view)
+		if (s_Scene)
 		{
-			auto& cameraComponent = view.get<CameraComponent>(entity);
-			cameraComponent.Camera.Resize(m_ViewportSize.x, m_ViewportSize.y);
+			auto view = s_Scene->m_Registry.view<CameraComponent>();
+			for (auto entity : view)
+			{
+				auto& cameraComponent = view.get<CameraComponent>(entity);
+				cameraComponent.Camera.Resize(s_ViewportSize.x, s_ViewportSize.y);
+			}
 		}
 	}
 
 	void SceneRenderer::GeometryPass()
 	{
-		m_Data.GraphicsPipeline->BeginRenderPass(m_Data.GeometryPass);
+		s_Data->GraphicsPipeline->BeginRenderPass(s_Data->GeometryPass);
 
-		m_Data.GraphicsPipeline->GetCommandBuffer()->BindVertexBuffer(m_Data.VertexBuffer, 0);
-		m_Data.GraphicsPipeline->GetCommandBuffer()->BindIndexBuffer(m_Data.IndexBuffer);
+		s_Data->GraphicsPipeline->GetCommandBuffer()->BindVertexBuffer(s_Data->VertexBuffer, 0);
+		s_Data->GraphicsPipeline->GetCommandBuffer()->BindIndexBuffer(s_Data->IndexBuffer);
 
-		m_Data.GraphicsPipeline->GetCommandBuffer()->DrawIndexed(sizeof(s_Indices) / sizeof(uint32_t));
-		m_Data.GraphicsPipeline->EndRenderPass();
+		s_Data->GraphicsPipeline->GetCommandBuffer()->DrawIndexed(sizeof(s_Indices) / sizeof(uint32_t));
+		s_Data->GraphicsPipeline->EndRenderPass();
 	}
 
 	void SceneRenderer::Initialize()
 	{
 		QK_PROFILE_FUNCTION();
 
+		auto& window = Application::Get().GetWindow();
+		s_ViewportSize = { window.GetWidth(), window.GetHeight() };
+
+		s_Data = CreateScope<SceneData>();
+
 		if (GraphicsAPI::GetAPI() == API::Vulkan)
 		{
-			m_Data.VertexShader = Shader::Create("../Quark/assets/shaders/version/4.50/bin/vert.spv");
-			m_Data.FragmentShader = Shader::Create("../Quark/assets/shaders/version/4.50/bin/frag.spv");
+			s_Data->VertexShader = Shader::Create("../Quark/assets/shaders/version/4.50/bin/vert.spv");
+			s_Data->FragmentShader = Shader::Create("../Quark/assets/shaders/version/4.50/bin/frag.spv");
 		}
 		else
 		{
 			std::string vertexSource = Filesystem::ReadTextFile("../Quark/assets/shaders/version/4.50/shader.vert");
 			std::string fragmentSource = Filesystem::ReadTextFile("../Quark/assets/shaders/version/4.50/shader.frag");
 
-			m_Data.VertexShader = Shader::Create("shader", vertexSource, fragmentSource);
+			s_Data->VertexShader = Shader::Create("shader", vertexSource, fragmentSource);
 		}
 
 		{
 			RenderPassSpecification spec;
 			spec.BindPoint = PipelineBindPoint::Graphics;
-			m_Data.GeometryPass = RenderPass::Create(spec);
+			s_Data->GeometryPass = RenderPass::Create(spec);
 		}
 
 		{
 			PipelineSpecification spec;
-			spec.ViewportWidth = m_ViewportSize.x;
-			spec.ViewportHeight = m_ViewportSize.y;
+			spec.ViewportWidth = s_ViewportSize.x;
+			spec.ViewportHeight = s_ViewportSize.y;
 			spec.FramesInFlight = Renderer::FramesInFlight;
 			spec.CameraUniformBufferSize = sizeof(SceneData::CameraUniformBufferData);
 			spec.Layout = s_Vertex2DLayout;
-			spec.RenderPass = m_Data.GeometryPass;
-			spec.VertexShader = m_Data.VertexShader;
-			spec.FragmentShader = m_Data.FragmentShader;
+			spec.RenderPass = s_Data->GeometryPass;
+			spec.VertexShader = s_Data->VertexShader;
+			spec.FragmentShader = s_Data->FragmentShader;
 
-			m_Data.GraphicsPipeline = Pipeline::Create(spec);
+			s_Data->GraphicsPipeline = Pipeline::Create(spec);
 		}
 
 		{
-			m_Data.VertexBuffer = VertexBuffer::Create(s_Vertices, sizeof(s_Vertices));
-			m_Data.IndexBuffer = IndexBuffer::Create(s_Indices, sizeof(s_Indices) / sizeof(uint32_t));
+			s_Data->VertexBuffer = VertexBuffer::Create(s_Vertices, sizeof(s_Vertices));
+			s_Data->IndexBuffer = IndexBuffer::Create(s_Indices, sizeof(s_Indices) / sizeof(uint32_t));
 		}
 	}
 
-	void SceneRenderer::NewEnvironment(std::string_view environmentFilepath)
+	void SceneRenderer::Shutdown()
+	{
+		// Internally waits for all operations to be completed
+		s_Data->GraphicsPipeline.reset();
+		s_Data.reset();
+	}
+
+	void SceneRenderer::NewEnvironment(std::string_view filepath)
 	{
 		QK_PROFILE_FUNCTION();
 
-		if (!m_Data.Env)
+		if (!s_Data->Env)
 		{
 			auto& assetDir = Application::Get().GetOptions().AssetDir;
 
-			m_Data.Env = CreateScope<EnvironmentData>();
-			m_Data.Env->SkyboxShader = Shader::Create(assetDir + "/assets/shaders/version/3.30/cubemap.glsl");
-			m_Data.Env->IrradianceShader = Shader::Create(assetDir + "/assets/shaders/version/3.30/irradiance.glsl");
-			m_Data.Env->EquirectangleToCubemapShader = Shader::Create(assetDir + "/assets/shaders/version/3.30/equirectangle_to_cubemap.glsl");
+			s_Data->Env = CreateScope<EnvironmentData>();
+			s_Data->Env->SkyboxShader = Shader::Create(assetDir + "/assets/shaders/version/3.30/cubemap.glsl");
+			s_Data->Env->IrradianceShader = Shader::Create(assetDir + "/assets/shaders/version/3.30/irradiance.glsl");
+			s_Data->Env->EquirectangleToCubemapShader = Shader::Create(assetDir + "/assets/shaders/version/3.30/equirectangle_to_cubemap.glsl");
 
 			{
 				Mesh cube = Mesh::GenerateUnitCube();
-				m_Data.Env->CubemapVertexBuffer = cube.GetVertexBuffer();
-				m_Data.Env->CubemapIndexBuffer = cube.GetIndexBuffer();
+				s_Data->Env->CubemapVertexBuffer = cube.GetVertexBuffer();
+				s_Data->Env->CubemapIndexBuffer = cube.GetIndexBuffer();
 			}
 
 			{
 				CubemapSpecification spec;
 				spec.Width = 2048;
 				spec.Height = 2048;
-				m_Data.Env->Environment = Cubemap::Create(spec);
+				s_Data->Env->Environment = Cubemap::Create(spec);
 
 				spec.Width = 32;
 				spec.Height = 32;
-				m_Data.Env->Irradiance = Cubemap::Create(spec);
+				s_Data->Env->Irradiance = Cubemap::Create(spec);
 			}
 
 			{
@@ -225,7 +250,7 @@ namespace Quark {
 				spec.Width = 2048;
 				spec.Height = 2048;
 				spec.Attachments = { { FramebufferTargetAttachment::ColorAttachment0, ColorDataFormat::RGB, InternalColorFormat::RGBA16f } };
-				m_Data.Env->Framebuffer = Framebuffer::Create(spec);
+				s_Data->Env->Framebuffer = Framebuffer::Create(spec);
 			}
 		}
 
@@ -239,52 +264,51 @@ namespace Quark {
 			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3( 0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
 		};
 
-		auto hdrTexture = Texture2D::Create(environmentFilepath);
+		auto hdrTexture = Texture2D::Create(filepath);
 		hdrTexture->Attach(0);
 
-		m_Data.Env->Framebuffer->Attach();
-
-		m_Data.Env->EquirectangleToCubemapShader->Attach();
-		m_Data.Env->EquirectangleToCubemapShader->SetInt("u_EquirectangularMap", 0);
-		m_Data.Env->EquirectangleToCubemapShader->SetMat4("u_Projection", captureProjection);
+		s_Data->Env->Framebuffer->Attach();
+		s_Data->Env->EquirectangleToCubemapShader->Attach();
+		s_Data->Env->EquirectangleToCubemapShader->SetInt("u_EquirectangularMap", 0);
+		s_Data->Env->EquirectangleToCubemapShader->SetMat4("u_Projection", captureProjection);
 
 		RenderCommand::SetCullFace(RenderCullMode::Front);
 		RenderCommand::SetDepthFunction(RenderDepthFunction::LessEqual);
 
 		for (uint8_t i = 0; i < 6; i++)
 		{
-			m_Data.Env->EquirectangleToCubemapShader->SetMat4("u_View", captureViews[i]);
+			s_Data->Env->EquirectangleToCubemapShader->SetMat4("u_View", captureViews[i]);
 			//m_Data.Env->Framebuffer->AttachColorTextureTarget(0x8515 + i, m_Data.Env->Environment->GetRendererID());
 
 			// FIX:
 			RenderCommand::Clear();
-			RenderCommand::DrawIndexed(m_Data.Env->CubemapIndexBuffer->GetCount());
+			RenderCommand::DrawIndexed(s_Data->Env->CubemapIndexBuffer->GetCount());
 		}
 
-		m_Data.Env->Framebuffer->Detach();
-		m_Data.Env->Framebuffer->Resize(32, 32);
-		m_Data.Env->Framebuffer->Attach();
+		s_Data->Env->Framebuffer->Detach();
+		s_Data->Env->Framebuffer->Resize(32, 32);
+		s_Data->Env->Framebuffer->Attach();
 
-		m_Data.Env->IrradianceShader->Attach();
-		m_Data.Env->IrradianceShader->SetInt("u_EnvironmentMap", 0);
-		m_Data.Env->IrradianceShader->SetMat4("u_Projection", captureProjection);
-		m_Data.Env->Environment->Attach(0);
+		s_Data->Env->IrradianceShader->Attach();
+		s_Data->Env->IrradianceShader->SetInt("u_EnvironmentMap", 0);
+		s_Data->Env->IrradianceShader->SetMat4("u_Projection", captureProjection);
+		s_Data->Env->Environment->Attach(0);
 
 		for (uint8_t i = 0; i < 6; i++)
 		{
-			m_Data.Env->IrradianceShader->SetMat4("u_View", captureViews[i]);
+			s_Data->Env->IrradianceShader->SetMat4("u_View", captureViews[i]);
 			//m_Data.Env->Framebuffer->AttachColorTextureTarget(0x8515 + i, m_Data.Env->Irradiance->GetRendererID());
 
 			// FIX:
 			RenderCommand::Clear();
-			RenderCommand::DrawIndexed(m_Data.Env->CubemapIndexBuffer->GetCount());
+			RenderCommand::DrawIndexed(s_Data->Env->CubemapIndexBuffer->GetCount());
 		}
 
-		m_Data.Env->Framebuffer->Detach();
+		s_Data->Env->Framebuffer->Detach();
 
 		RenderCommand::SetCullFace(RenderCullMode::Default);
 		RenderCommand::SetDepthFunction(RenderDepthFunction::Default);
 
-		RenderCommand::SetViewport(0, 0, m_ViewportSize.x, m_ViewportSize.y);
+		RenderCommand::SetViewport(0, 0, s_ViewportSize.x, s_ViewportSize.y);
 	}
 }

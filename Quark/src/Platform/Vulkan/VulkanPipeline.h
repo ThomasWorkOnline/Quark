@@ -49,8 +49,7 @@ namespace Quark {
 		std::vector<vk::Semaphore> m_ImageAvailableSemaphores;
 		std::vector<vk::Framebuffer> m_SwapChainFramebuffers;
 		std::vector<Ref<UniformBuffer>> m_CameraUniformBuffers;
-
-		Ref<CommandBuffer> m_CommandBuffers[Renderer::FramesInFlight];
+		std::vector<Ref<CommandBuffer>> m_CommandBuffers;
 
 		uint32_t m_CurrentFrameIndex = std::numeric_limits<uint32_t>::max();
 		uint32_t m_NextImageIndex = 0;

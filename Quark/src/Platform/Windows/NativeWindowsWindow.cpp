@@ -8,10 +8,6 @@ namespace Quark {
 	static constexpr wchar_t s_ClassName[] = L"QuarkApp";
 	static uint32_t s_WindowCount = 0;
 
-	static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-	static void OnWindowMoved(HWND hWnd, int32_t x, int32_t y);
-	static void OnWindowSizeChanged(HWND hWnd, WPARAM wParam, LPARAM lParam);
-
 	static std::wstring ConvertToWideString(const std::string& narrow)
 	{
 		std::wstring wide;
@@ -22,8 +18,6 @@ namespace Quark {
 
 		return wide;
 	}
-
-	using WindowData = NativeWindowsWindow::WindowData;
 
 	NativeWindowsWindow::NativeWindowsWindow(const WindowSpecification& spec)
 	{
@@ -162,7 +156,7 @@ namespace Quark {
 		UnregisterClass(s_ClassName, hInstance);
 	}
 
-	static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+	LRESULT CALLBACK NativeWindowsWindow::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		// NOTE: Mouse movement event are currently unsupported
 		// TODO: register input devices
@@ -177,7 +171,6 @@ namespace Quark {
 				SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)pCreate->lpCreateParams);
 
 				EnableNonClientDpiScaling(hWnd);
-
 				WindowData& data = *(WindowData*)pCreate->lpCreateParams;
 
 				WINDOWPLACEMENT p{};
@@ -230,22 +223,22 @@ namespace Quark {
 					data.EventCallback(event);
 			} break;
 
-			case WM_MOUSEWHEEL:
+			case WM_MOUSEHWHEEL:
 			{
 				WindowData& data = *(WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-
-				SHORT scroll = (SHORT)HIWORD(wParam) / WHEEL_DELTA;
-				MouseScrolledEvent event(scroll, 0.0f);
+				SHORT scroll = -(SHORT)HIWORD(wParam) / WHEEL_DELTA;
+				
+				MouseScrolledEvent event((float)scroll, 0.0f);
 				if (data.EventCallback)
 					data.EventCallback(event);
 			} break;
 
-			case WM_MOUSEHWHEEL:
+			case WM_MOUSEWHEEL:
 			{
 				WindowData& data = *(WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+				SHORT scroll = (SHORT)HIWORD(wParam) / WHEEL_DELTA;
 
-				SHORT scroll = -(SHORT)HIWORD(wParam) / WHEEL_DELTA;
-				MouseScrolledEvent event(0.0f, scroll);
+				MouseScrolledEvent event(0.0f, (float)scroll);
 				if (data.EventCallback)
 					data.EventCallback(event);
 			} break;
@@ -254,7 +247,7 @@ namespace Quark {
 		return DefWindowProc(hWnd, uMsg, wParam, lParam);
 	}
 
-	void OnWindowMoved(HWND hWnd, int32_t x, int32_t y)
+	void NativeWindowsWindow::OnWindowMoved(HWND hWnd, int32_t x, int32_t y)
 	{
 		WindowData& data = *(WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 
@@ -272,7 +265,7 @@ namespace Quark {
 			data.EventCallback(event);
 	}
 
-	void OnWindowSizeChanged(HWND hWnd, WPARAM wParam, LPARAM lParam)
+	void NativeWindowsWindow::OnWindowSizeChanged(HWND hWnd, WPARAM wParam, LPARAM lParam)
 	{
 		WindowData& data = *(WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 
@@ -310,7 +303,6 @@ namespace Quark {
 
 		data.Width = width;
 		data.Height = height;
-
 		data.Context->OnViewportResized(width, height);
 
 		WindowResizedEvent event(data.Width, data.Height);

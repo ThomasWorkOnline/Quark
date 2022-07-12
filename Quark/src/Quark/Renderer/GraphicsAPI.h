@@ -29,6 +29,9 @@ namespace Quark {
 		Vulkan
 	};
 
+	// To be defined by each supported platform
+	extern API GetDefaultAPIForPlatform();
+
 	class GraphicsAPI
 	{
 	public:
@@ -94,7 +97,7 @@ namespace Quark {
 		virtual const char*            GetName() const = 0;
 		virtual std::string            GetSpecification() const = 0;
 
-		static API                     GetDefaultForPlatform();
+		static API                     GetDefaultForPlatform() { return GetDefaultAPIForPlatform(); }
 		static API                     GetAPI() { return s_API; }
 		static Scope<GraphicsAPI>      Instantiate(API api);
 

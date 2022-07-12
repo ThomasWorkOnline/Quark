@@ -1,12 +1,3 @@
--- Quark Dependencies
-group "Dependencies"
-	include "vendor/freetype"
-	include "vendor/glad"
-	include "vendor/glfw"
-	include "vendor/lodepng"
-	include "vendor/spdlog"
-group ""
-
 project "Quark"
 	kind "StaticLib"
 	language "C++"
@@ -92,8 +83,8 @@ project "Quark"
 	filter "system:macosx"
 		files
 		{
-			"src/Platform/Metal/**.h",
-			"src/Platform/Metal/**.cpp"
+			"src/Platform/Macos/**.h",
+			"src/Platform/Macos/**.cpp"
 		}
 
 		includedirs
@@ -114,6 +105,12 @@ project "Quark"
 		}
 
 	filter "system:linux"
+		files
+		{
+			"src/Platform/Linux/**.h",
+			"src/Platform/Linux/**.cpp"
+		}
+
 		links
 		{
 			"GL",
@@ -150,7 +147,7 @@ project "Quark"
 	filter "configurations:Dist"
 		defines "QK_DIST"
 		runtime "Release"
-		optimize "On"
+		optimize "Full"
 		symbols "Off"
 
 		flags

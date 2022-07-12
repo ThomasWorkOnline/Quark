@@ -79,7 +79,7 @@ project "Demos"
 	filter "configurations:Dist"
 		defines "QK_DIST"
 		runtime "Release"
-		optimize "On"
+		optimize "Full"
 		symbols "Off"
 
 		flags

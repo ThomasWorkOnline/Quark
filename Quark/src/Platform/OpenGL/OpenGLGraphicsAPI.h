@@ -29,7 +29,7 @@ namespace Quark {
 
 		virtual Ref<CommandBuffer>     CreateCommandBuffer() override { return nullptr; }
 
-		virtual Ref<Pipeline>          CreatePipeline(const PipelineSpecification& spec) override { return nullptr; }
+		virtual Ref<Pipeline>          CreatePipeline(const PipelineSpecification& spec) override;
 		virtual Ref<RenderPass>        CreateRenderPass(const RenderPassSpecification& spec) override { return nullptr; }
 
 		virtual Ref<VertexBuffer>      CreateVertexBuffer(const void* vertices, size_t size) override;

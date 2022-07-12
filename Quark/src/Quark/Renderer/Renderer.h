@@ -31,11 +31,6 @@ namespace Quark {
 		static void BeginScene(const Mat4f& cameraProjection, const Mat4f& cameraView);
 		static void EndScene();
 
-		static void BeginRenderPass(const Ref<RenderPass>& renderPass);
-		static void EndRenderPass();
-
-		static void OnViewportResized(uint32_t viewportWidth, uint32_t viewportHeight);
-
 		static ShaderLibrary& GetShaderLibrary();
 
 	private:

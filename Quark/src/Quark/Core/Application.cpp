@@ -4,6 +4,7 @@
 #include "Core.h"
 #include "Quark/Renderer/Renderer.h"
 #include "Quark/Renderer/Renderer2D.h"
+#include "Quark/Renderer/SceneRenderer.h"
 #include "Quark/Renderer/RenderCommand.h"
 
 #include <ctime>
@@ -26,6 +27,8 @@ namespace Quark {
 
 		for (size_t i = 0; i < m_Layers.size(); i++)
 			delete m_Layers[i];
+
+		SceneRenderer::Shutdown();
 
 		//Renderer2D::Dispose();
 		Renderer::Dispose();
@@ -58,6 +61,7 @@ namespace Quark {
 
 			if (!m_Minimized)
 			{
+				SceneRenderer::OnRender();
 				OnRender();
 
 				for (size_t i = 0; i < m_Layers.size(); i++)
@@ -86,10 +90,12 @@ namespace Quark {
 		QK_CORE_INFO("Opened audio device: {0}", m_AudioOutputDevice->GetDeviceName());
 
 		Renderer::Initialize();
-		Renderer::OnViewportResized(m_Window->GetWidth(), m_Window->GetHeight());
 		QK_CORE_INFO(GraphicsAPI::Instance->GetSpecification());
 
 		//Renderer2D::Initialize();
+
+		SceneRenderer::Initialize();
+		SceneRenderer::OnViewportResized(m_Window->GetWidth(), m_Window->GetHeight());
 
 		if (m_Options.HasFlag(ShowApiInWindowTitle))
 		{
@@ -140,7 +146,7 @@ namespace Quark {
 
 	bool Application::OnWindowResized(WindowResizedEvent& e)
 	{
-		Renderer::OnViewportResized(e.GetWidth(), e.GetHeight());
+		SceneRenderer::OnViewportResized(e.GetWidth(), e.GetHeight());
 		return false;
 	}
 

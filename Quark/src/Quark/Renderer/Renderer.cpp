@@ -68,19 +68,6 @@ namespace Quark {
 	{
 	}
 
-	void Renderer::BeginRenderPass(const Ref<RenderPass>& renderPass)
-	{
-	}
-
-	void Renderer::EndRenderPass()
-	{
-	}
-
-	void Renderer::OnViewportResized(uint32_t viewportWidth, uint32_t viewportHeight)
-	{
-		RenderCommand::SetViewport(0, 0, viewportWidth, viewportHeight);
-	}
-
 	ShaderLibrary& Renderer::GetShaderLibrary()
 	{
 		return s_Data->ShaderLib;

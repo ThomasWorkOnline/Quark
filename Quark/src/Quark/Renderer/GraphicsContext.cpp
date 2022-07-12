@@ -3,7 +3,7 @@
 #include "GraphicsAPI.h"
 
 #ifdef QK_PLATFORM_APPLE
-#	include "Platform/Metal/MetalContext.h"
+#	include "Platform/Macos/Metal/MetalContext.h"
 #endif
 
 #if defined(QK_PLATFORM_WINDOWS) && defined(QK_USE_NATIVE_APIS)

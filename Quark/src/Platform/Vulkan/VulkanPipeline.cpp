@@ -49,7 +49,7 @@ namespace Quark {
 			}
 		}
 
-		static VkVertexInputBindingDescription GetBindingDescription(const BufferLayout& layout)
+		static QK_CONSTEXPR20 VkVertexInputBindingDescription GetBindingDescription(const BufferLayout& layout)
 		{
 			VkVertexInputBindingDescription bindingDescription{};
 			bindingDescription.binding = 0;
@@ -70,17 +70,13 @@ namespace Quark {
 		m_DescriptorSets.resize(m_Spec.FramesInFlight);
 		m_ImageAvailableSemaphores.resize(m_Spec.FramesInFlight);
 		m_CameraUniformBuffers.resize(m_Spec.FramesInFlight);
+		m_CommandBuffers.resize(m_Spec.FramesInFlight);
 
 		vk::SemaphoreCreateInfo semaphoreInfo;
 		for (uint32_t i = 0; i < m_Spec.FramesInFlight; i++)
 		{
 			m_ImageAvailableSemaphores[i] = vkDevice.createSemaphore(semaphoreInfo);
 			m_CameraUniformBuffers[i] = UniformBuffer::Create(m_Spec.CameraUniformBufferSize, 0);
-		}
-
-		// Command buffers
-		for (uint32_t i = 0; i < Renderer::FramesInFlight; i++)
-		{
 			m_CommandBuffers[i] = CommandBuffer::Create();
 		}
 

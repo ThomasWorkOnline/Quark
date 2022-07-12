@@ -3,32 +3,16 @@
 
 // Include all supported APIs here
 #ifdef QK_PLATFORM_APPLE
-#	include "Platform/Metal/MetalGraphicsAPI.h"
+#	include "Platform/Macos/Metal/MetalGraphicsAPI.h"
 #endif
 
 #include "Platform/OpenGL/OpenGLGraphicsAPI.h"
 #include "Platform/Vulkan/VulkanGraphicsAPI.h"
 
-#define USE_VULKAN 0
-
 namespace Quark {
 
 	API GraphicsAPI::s_API = API::None;
 	Scope<GraphicsAPI> GraphicsAPI::Instance = Instantiate(GetDefaultForPlatform());
-
-	API GraphicsAPI::GetDefaultForPlatform()
-	{
-#ifdef QK_PLATFORM_APPLE
-		return API::Metal;
-#else
-		// Default
-#if USE_VULKAN
-		return API::Vulkan;
-#else
-		return API::OpenGL;
-#endif
-#endif
-	}
 
 	Scope<GraphicsAPI> GraphicsAPI::Instantiate(API api)
 	{
