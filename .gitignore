@@ -1,6 +1,3 @@
-# Premake
-!Vendor/bin
-
 # Visual Studio
 **.sln
 **.vcxproj
@@ -23,6 +20,9 @@ include
 lib
 bin
 bin-int
+
+# Premake
+!Vendor/bin
 
 # Instrumentation
 instrumentor
