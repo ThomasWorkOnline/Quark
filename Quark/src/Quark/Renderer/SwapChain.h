@@ -26,8 +26,7 @@ namespace Quark {
 
 	struct SwapChainSpecification
 	{
-		uint32_t             Width = 0, Height = 0;
-		uint32_t             ImageCount = 0;
+		uint32_t             FramesInFlight = 0;
 		SwapChainPresentMode PresentMode = SwapChainPresentMode::Preferred;
 		SwapChainImageFormat SurfaceFormat{};
 		ColorSpace           ColorSpace{};
@@ -36,8 +35,20 @@ namespace Quark {
 	class SwapChain
 	{
 	public:
+		SwapChain(const SwapChainSpecification& spec)
+			: m_Spec(spec) {}
+
 		virtual ~SwapChain() = default;
 
+		virtual uint32_t GetWidth() const = 0;
+		virtual uint32_t GetHeight() const = 0;
+		virtual uint32_t GetImageCount() const = 0;
+
 		virtual void Resize(uint32_t viewportWidth, uint32_t viewportHeight) = 0;
+
+		const SwapChainSpecification& GetSpecification() const { return m_Spec; }
+
+	protected:
+		SwapChainSpecification m_Spec;
 	};
 }

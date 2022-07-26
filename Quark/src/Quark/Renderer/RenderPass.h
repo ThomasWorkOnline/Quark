@@ -16,17 +16,24 @@ namespace Quark {
 	{
 		PipelineBindPoint BindPoint{};
 		InternalColorFormat ColorFormat{};
+		bool Clears = false;
 	};
 
 	class RenderPass
 	{
 	public:
-		virtual ~RenderPass() = default;
+		RenderPass(const RenderPassSpecification& spec)
+			: m_Spec(spec) {}
 
-		virtual const RenderPassSpecification& GetSpecification() const = 0;
+		virtual ~RenderPass() = default;
 
 		virtual bool operator==(const RenderPass& other) const = 0;
 
+		const RenderPassSpecification& GetSpecification() const { return m_Spec; }
+
 		static Ref<RenderPass> Create(const RenderPassSpecification& spec);
+
+	protected:
+		RenderPassSpecification m_Spec;
 	};
 }

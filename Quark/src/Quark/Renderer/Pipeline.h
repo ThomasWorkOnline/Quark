@@ -22,13 +22,15 @@ namespace Quark {
 
 		BufferLayout        Layout;
 		Ref<RenderPass>     RenderPass;
-		Ref<Shader>         VertexShader;
-		Ref<Shader>         FragmentShader;
+		Ref<Shader>         Shader;
 	};
 
 	class Pipeline
 	{
 	public:
+		Pipeline(const PipelineSpecification& spec)
+			: m_Spec(spec) {}
+
 		virtual ~Pipeline() = default;
 
 		virtual void BeginFrame() = 0;
@@ -37,14 +39,16 @@ namespace Quark {
 		virtual void BeginRenderPass(const Ref<RenderPass>& renderPass) = 0;
 		virtual void EndRenderPass() = 0;
 
+		virtual void Resize(uint32_t viewportWidth, uint32_t viewportHeight) = 0;
+
 		virtual const Ref<CommandBuffer>& GetCommandBuffer() const = 0;
 		virtual const Ref<UniformBuffer>& GetUniformBuffer() const = 0;
 
-		virtual void Submit() = 0;
-		virtual void Resize(uint32_t viewportWidth, uint32_t viewportHeight) = 0;
-
-		virtual const PipelineSpecification& GetSpecification() const = 0;
+		const PipelineSpecification& GetSpecification() const { return m_Spec; }
 
 		static Ref<Pipeline> Create(const PipelineSpecification& spec);
+
+	protected:
+		PipelineSpecification m_Spec;
 	};
 }

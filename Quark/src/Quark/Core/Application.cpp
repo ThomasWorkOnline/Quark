@@ -11,10 +11,8 @@
 
 namespace Quark {
 
-	Application* Application::s_Instance = nullptr;
-
-	Application::Application(const ApplicationOptions& options)
-		: m_Options(options)
+	Application::Application(const ApplicationOptions& options) : Singleton(this),
+		m_Options(options)
 	{
 		Initialize();
 	}
@@ -28,9 +26,7 @@ namespace Quark {
 		for (size_t i = 0; i < m_Layers.size(); i++)
 			delete m_Layers[i];
 
-		SceneRenderer::Shutdown();
-
-		//Renderer2D::Dispose();
+		Renderer2D::Dispose();
 		Renderer::Dispose();
 	}
 
@@ -59,14 +55,10 @@ namespace Quark {
 					m_Layers[i]->OnUpdate(elapsedTime);
 			}
 
-			if (!m_Minimized)
-			{
-				SceneRenderer::OnRender();
-				OnRender();
+			OnRender();
 
-				for (size_t i = 0; i < m_Layers.size(); i++)
-					m_Layers[i]->OnRender();
-			}
+			for (size_t i = 0; i < m_Layers.size(); i++)
+				m_Layers[i]->OnRender();
 
 			m_Window->OnUpdate();
 		}
@@ -76,11 +68,10 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		s_Instance = this;
 		m_AppMainThreadId = std::this_thread::get_id();
 
 		WindowSpecification spec = {
-			m_Options.AppName, m_Options.Width, m_Options.Height, 4
+			m_Options.AppName.empty() ? "Quark Engine" : m_Options.AppName, m_Options.Width, m_Options.Height, 4
 		};
 
 		m_Window = Window::Create(spec);
@@ -90,17 +81,13 @@ namespace Quark {
 		QK_CORE_INFO("Opened audio device: {0}", m_AudioOutputDevice->GetDeviceName());
 
 		Renderer::Initialize();
+		Renderer2D::Initialize();
 		QK_CORE_INFO(GraphicsAPI::Instance->GetSpecification());
-
-		//Renderer2D::Initialize();
-
-		SceneRenderer::Initialize();
-		SceneRenderer::OnViewportResized(m_Window->GetWidth(), m_Window->GetHeight());
 
 		if (m_Options.HasFlag(ShowApiInWindowTitle))
 		{
-			std::string appendedTitle = " - " + std::string(GraphicsAPI::Instance->GetName());
-			m_Window->AppendTitle(appendedTitle);
+			auto title = GraphicsAPI::Instance->GetName();
+			m_Window->AppendTitle(" - ").AppendTitle(title);
 		}
 	}
 
@@ -112,16 +99,18 @@ namespace Quark {
 		dispatcher.Dispatch<WindowMinimizedEvent>(ATTACH_EVENT_FN(OnWindowMinimized));
 		dispatcher.Dispatch<WindowRestoredEvent>(ATTACH_EVENT_FN(OnWindowRestored));
 
-		if (!e.Handled)
-			OnEvent(e);
+		OnEvent(e);
+
+		if (e.Handled)
+			return;
 
 		// Dispatch all other not already handled events
 		for (size_t i = m_Layers.size(); i > 0; i--)
 		{
+			m_Layers[i - 1]->OnEvent(e);
+
 			if (e.Handled)
 				break;
-
-			m_Layers[i - 1]->OnEvent(e);
 		}
 	}
 
@@ -146,7 +135,6 @@ namespace Quark {
 
 	bool Application::OnWindowResized(WindowResizedEvent& e)
 	{
-		SceneRenderer::OnViewportResized(e.GetWidth(), e.GetHeight());
 		return false;
 	}
 

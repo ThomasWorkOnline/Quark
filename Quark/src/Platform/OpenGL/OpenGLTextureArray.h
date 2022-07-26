@@ -17,7 +17,7 @@ namespace Quark {
 		virtual void GenerateMipmaps() override;
 
 		virtual uint32_t GetWidth() const override { return m_Spec.Width; }
-		virtual uint32_t GetHeight() const override{ return m_Spec.Height; }
+		virtual uint32_t GetHeight() const override { return m_Spec.Height; }
 		virtual uint32_t GetLayerCount() const override { return m_Spec.Layers; }
 
 		virtual bool operator==(const Texture2DArray& other) const override

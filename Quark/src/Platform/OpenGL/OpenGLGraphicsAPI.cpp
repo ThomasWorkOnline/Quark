@@ -1,11 +1,13 @@
 #include "qkpch.h"
 #include "OpenGLGraphicsAPI.h"
 
+#include "OpenGLCommandBuffer.h"
 #include "OpenGLBuffer.h"
 #include "OpenGLCubemap.h"
 #include "OpenGLFont.h"
 #include "OpenGLFramebuffer.h"
 #include "OpenGLPipeline.h"
+#include "OpenGLRenderPass.h"
 #include "OpenGLShader.h"
 #include "OpenGLTexture.h"
 #include "OpenGLTextureArray.h"
@@ -62,8 +64,8 @@ namespace Quark {
 		// Face Culling
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
-		glFrontFace(GL_CW);
-		//           ^^^-- we use a clockwise winding order
+		glFrontFace(GL_CCW);
+		//           ^^^-- we use a counter-clockwise winding order
 
 		// Depth Testing
 		glEnable(GL_DEPTH_TEST);
@@ -223,9 +225,19 @@ namespace Quark {
 		return thickness;
 	}
 
+	Ref<CommandBuffer> OpenGLGraphicsAPI::CreateCommandBuffer()
+	{
+		return CreateRef<OpenGLCommandBuffer>();
+	}
+
 	Ref<Pipeline> OpenGLGraphicsAPI::CreatePipeline(const PipelineSpecification& spec)
 	{
 		return CreateRef<OpenGLPipeline>(spec);
+	}
+
+	Ref<RenderPass> OpenGLGraphicsAPI::CreateRenderPass(const RenderPassSpecification& spec)
+	{
+		return CreateRef<OpenGLRenderPass>(spec);
 	}
 
 	Ref<VertexBuffer> OpenGLGraphicsAPI::CreateVertexBuffer(const void* vertices, size_t size)

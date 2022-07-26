@@ -28,6 +28,8 @@ namespace Quark {
 		{
 			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_RendererID);
 			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Spec.Samples, m_InternalFormat, m_Spec.Width, m_Spec.Height, GL_FALSE);
+
+			QK_DEBUG_CALL(glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0));
 		}
 		else
 		{
@@ -40,6 +42,8 @@ namespace Quark {
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, FilteringModeToOpenGL(m_Spec.RenderModes.MagFilteringMode));
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, tilingMode);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, tilingMode);
+
+			QK_DEBUG_CALL(glBindTexture(GL_TEXTURE_2D, 0));
 		}
 	}
 
@@ -79,6 +83,8 @@ namespace Quark {
 		{
 			glGenerateMipmap(GL_TEXTURE_2D);
 		}
+
+		QK_DEBUG_CALL(glBindTexture(GL_TEXTURE_2D, 0));
 	}
 
 	OpenGLTexture2D::~OpenGLTexture2D()
@@ -121,6 +127,7 @@ namespace Quark {
 		QK_CORE_ASSERT(IsformatUsingMips(m_Spec.RenderModes.MinFilteringMode) || IsformatUsingMips(m_Spec.RenderModes.MagFilteringMode),
 			"Invalid texture specification for mipmaps");
 
+		glBindTexture(GL_TEXTURE_2D, m_RendererID);
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 }

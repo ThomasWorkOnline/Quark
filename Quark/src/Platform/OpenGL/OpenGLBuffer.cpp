@@ -5,91 +5,221 @@
 
 namespace Quark {
 
-    OpenGLVertexBuffer::OpenGLVertexBuffer(size_t size)
-    {
-        QK_PROFILE_FUNCTION();
+	namespace Utils {
 
-        glGenBuffers(1, &m_RendererID);
-        glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
-        glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
-    }
+		static constexpr GLenum ShaderDataTypeToOpenGLBaseType(ShaderDataType type)
+		{
+			switch (type)
+			{
+				case ShaderDataType::Float:		return GL_FLOAT;
+				case ShaderDataType::Float2:	return GL_FLOAT;
+				case ShaderDataType::Float3:	return GL_FLOAT;
+				case ShaderDataType::Float4:	return GL_FLOAT;
+				case ShaderDataType::Double:	return GL_DOUBLE;
+				case ShaderDataType::Double2:	return GL_DOUBLE;
+				case ShaderDataType::Double3:	return GL_DOUBLE;
+				case ShaderDataType::Double4:	return GL_DOUBLE;
+				case ShaderDataType::Mat3:		return GL_FLOAT;
+				case ShaderDataType::Mat4:		return GL_FLOAT;
+				case ShaderDataType::Mat3d:     return GL_DOUBLE;
+				case ShaderDataType::Mat4d:     return GL_DOUBLE;
+				case ShaderDataType::Int:		return GL_INT;
+				case ShaderDataType::Int2:		return GL_INT;
+				case ShaderDataType::Int3:		return GL_INT;
+				case ShaderDataType::Int4:		return GL_INT;
+				case ShaderDataType::Bool:		return GL_BOOL;
+				default:
+					QK_CORE_FATAL("Unknown ShaderDataType");
+					return GL_NONE;
+			}
+		}
+	}
 
-    OpenGLVertexBuffer::OpenGLVertexBuffer(const void* vertices, size_t size)
-    {
-        QK_PROFILE_FUNCTION();
+	OpenGLVertexBuffer::OpenGLVertexBuffer(size_t size)
+	{
+		QK_PROFILE_FUNCTION();
 
-        glGenBuffers(1, &m_RendererID);
-        glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
-        glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
-    }
+		glGenBuffers(1, &m_RendererID);
+		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
+		glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
 
-    OpenGLVertexBuffer::~OpenGLVertexBuffer()
-    {
-        QK_PROFILE_FUNCTION();
+		QK_DEBUG_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+	}
 
-        glDeleteBuffers(1, &m_RendererID);
-    }
+	OpenGLVertexBuffer::OpenGLVertexBuffer(const void* vertices, size_t size)
+	{
+		QK_PROFILE_FUNCTION();
 
-    void OpenGLVertexBuffer::Attach() const
-    {
-        glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
-    }
+		glGenBuffers(1, &m_RendererID);
+		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
+		glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
 
-    void OpenGLVertexBuffer::Detach() const
-    {
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-    }
+		QK_DEBUG_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+	}
 
-    void OpenGLVertexBuffer::SetData(const void* data, size_t size, size_t offset)
-    {
-        QK_PROFILE_FUNCTION();
+	OpenGLVertexBuffer::~OpenGLVertexBuffer()
+	{
+		QK_PROFILE_FUNCTION();
 
-        glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
-        glBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
-    }
+		glDeleteBuffers(1, &m_RendererID);
+	}
 
-    OpenGLIndexBuffer::OpenGLIndexBuffer(uint32_t count)
-        : m_Count(count)
-    {
-        QK_PROFILE_FUNCTION();
+	void OpenGLVertexBuffer::Attach() const
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
 
-        glGenBuffers(1, &m_RendererID);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), nullptr, GL_DYNAMIC_DRAW);
-    }
+		// TODO: find a way to bind a vertex array to the pipeline
+		uint32_t vertexBufferIndex = 0;
+		for (const auto& element : m_Layout)
+		{
+			switch (element.Type)
+			{
+				case ShaderDataType::Float:
+				case ShaderDataType::Float2:
+				case ShaderDataType::Float3:
+				case ShaderDataType::Float4:
+				{
+					glEnableVertexAttribArray(vertexBufferIndex);
+					glVertexAttribPointer(vertexBufferIndex,
+						element.GetComponentCount(),
+						Utils::ShaderDataTypeToOpenGLBaseType(element.Type),
+						element.Normalized ? GL_TRUE : GL_FALSE,
+						(GLsizei)m_Layout.GetStride(),
+						(const void*)element.Offset);
+					vertexBufferIndex++;
+					break;
+				}
+				case ShaderDataType::Double:
+				case ShaderDataType::Double2:
+				case ShaderDataType::Double3:
+				case ShaderDataType::Double4:
+				{
+					glEnableVertexAttribArray(vertexBufferIndex);
+					glVertexAttribLPointer(vertexBufferIndex,
+						element.GetComponentCount(),
+						Utils::ShaderDataTypeToOpenGLBaseType(element.Type),
+						(GLsizei)m_Layout.GetStride(),
+						(const void*)element.Offset);
+					vertexBufferIndex++;
+					break;
+				}
+				case ShaderDataType::Int:
+				case ShaderDataType::Int2:
+				case ShaderDataType::Int3:
+				case ShaderDataType::Int4:
+				case ShaderDataType::Bool:
+				{
+					glEnableVertexAttribArray(vertexBufferIndex);
+					glVertexAttribIPointer(vertexBufferIndex,
+						element.GetComponentCount(),
+						Utils::ShaderDataTypeToOpenGLBaseType(element.Type),
+						(GLsizei)m_Layout.GetStride(),
+						(const void*)element.Offset);
+					vertexBufferIndex++;
+					break;
+				}
+				case ShaderDataType::Mat3:
+				case ShaderDataType::Mat4:
+				{
+					uint32_t count = element.GetComponentCount();
+					for (uint32_t i = 0; i < count; i++)
+					{
+						glEnableVertexAttribArray(vertexBufferIndex);
+						glVertexAttribPointer(vertexBufferIndex,
+							count,
+							Utils::ShaderDataTypeToOpenGLBaseType(element.Type),
+							element.Normalized ? GL_TRUE : GL_FALSE,
+							(GLsizei)m_Layout.GetStride(),
+							(const void*)(sizeof(float) * count * i));
+						glVertexAttribDivisor(vertexBufferIndex, 1);
+						vertexBufferIndex++;
+					}
+					break;
+				}
+				case ShaderDataType::Mat3d:
+				case ShaderDataType::Mat4d:
+				{
+					uint32_t count = element.GetComponentCount();
+					for (uint32_t i = 0; i < count; i++)
+					{
+						glEnableVertexAttribArray(vertexBufferIndex);
+						glVertexAttribPointer(vertexBufferIndex,
+							count,
+							Utils::ShaderDataTypeToOpenGLBaseType(element.Type),
+							element.Normalized ? GL_TRUE : GL_FALSE,
+							(GLsizei)m_Layout.GetStride(),
+							(const void*)(sizeof(double) * count * i));
+						glVertexAttribDivisor(vertexBufferIndex, 1);
+						vertexBufferIndex++;
+					}
+					break;
+				}
+				default:
+					QK_CORE_FATAL("Unknown shader data type");
+					break;
+			}
+		}
+	}
 
-    OpenGLIndexBuffer::OpenGLIndexBuffer(const uint32_t* indices, uint32_t count)
-        : m_Count(count)
-    {
-        QK_PROFILE_FUNCTION();
+	void OpenGLVertexBuffer::Detach() const
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
 
-        glGenBuffers(1, &m_RendererID);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
+	void OpenGLVertexBuffer::SetData(const void* data, size_t size, size_t offset)
+	{
+		QK_PROFILE_FUNCTION();
+
+		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
+		glBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
+	}
+
+	OpenGLIndexBuffer::OpenGLIndexBuffer(uint32_t count)
+		: m_Count(count)
+	{
+		QK_PROFILE_FUNCTION();
+
+		glGenBuffers(1, &m_RendererID);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), nullptr, GL_DYNAMIC_DRAW);
+
+		QK_DEBUG_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+	}
+
+	OpenGLIndexBuffer::OpenGLIndexBuffer(const uint32_t* indices, uint32_t count)
+		: m_Count(count)
+	{
+		QK_PROFILE_FUNCTION();
+
+		glGenBuffers(1, &m_RendererID);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), indices, GL_STATIC_DRAW);
-    }
 
-    OpenGLIndexBuffer::~OpenGLIndexBuffer()
-    {
-        QK_PROFILE_FUNCTION();
+		QK_DEBUG_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+	}
 
-        glDeleteBuffers(1, &m_RendererID);
-    }
+	OpenGLIndexBuffer::~OpenGLIndexBuffer()
+	{
+		QK_PROFILE_FUNCTION();
 
-    void OpenGLIndexBuffer::Attach() const
-    {
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
-    }
+		glDeleteBuffers(1, &m_RendererID);
+	}
 
-    void OpenGLIndexBuffer::Detach() const
-    {
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    }
+	void OpenGLIndexBuffer::Attach() const
+	{
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
+	}
 
-    void OpenGLIndexBuffer::SetData(const uint32_t* data, uint32_t count, size_t offset)
-    {
-        QK_PROFILE_FUNCTION();
+	void OpenGLIndexBuffer::Detach() const
+	{
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	}
 
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
-        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, offset * sizeof(uint32_t), count * sizeof(uint32_t), data);
-    }
+	void OpenGLIndexBuffer::SetData(const uint32_t* data, uint32_t count, size_t offset)
+	{
+		QK_PROFILE_FUNCTION();
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
+		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, offset * sizeof(uint32_t), count * sizeof(uint32_t), data);
+	}
 }

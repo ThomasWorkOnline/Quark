@@ -5,15 +5,10 @@
 VulkanApp::VulkanApp()
 {
 	m_Scene = Scene::Create();
-	m_CameraEntity = m_Scene->CreateEntity();
-
-	m_CameraEntity.AddComponent<Transform3DComponent>().Position = { 0.0f, 0.0f, -1.0f };
-	m_CameraEntity.AddComponent<PhysicsComponent>().Friction = 4.0f;
-	m_CameraEntity.AddComponent<CameraComponent>().Camera.SetPerspective(90.0f);
+	m_CameraEntity = m_Scene->CreatePrimaryCamera();
 	m_CameraEntity.AddComponent<NativeScriptComponent>().Bind<CameraController>();
 
-	m_Scene->SetPrimaryCamera(m_CameraEntity);
-	SceneRenderer::SetContext(m_Scene);
+	m_SceneRenderer.SetContext(m_Scene);
 }
 
 void VulkanApp::OnEvent(Event& e)
@@ -21,9 +16,15 @@ void VulkanApp::OnEvent(Event& e)
 	EventDispatcher dispatcher(e);
 	dispatcher.Dispatch<MouseButtonPressedEvent>(ATTACH_EVENT_FN(OnMouseButtonPressed));
 	dispatcher.Dispatch<KeyPressedEvent>(ATTACH_EVENT_FN(OnKeyPressed));
+	dispatcher.Dispatch<WindowResizedEvent>(ATTACH_EVENT_FN(OnWindowResized));
 	
 	if (!e.Handled && m_ViewportSelected)
 		m_Scene->OnEvent(e);
+}
+
+void VulkanApp::OnRender()
+{
+	m_SceneRenderer.OnRender();
 }
 
 void VulkanApp::OnUpdate(Timestep elapsedTime)
@@ -56,5 +57,11 @@ bool VulkanApp::OnKeyPressed(KeyPressedEvent& e)
 		}
 	}
 
+	return false;
+}
+
+bool VulkanApp::OnWindowResized(WindowResizedEvent& e)
+{
+	m_SceneRenderer.OnViewportResized(e.GetWidth(), e.GetHeight());
 	return false;
 }

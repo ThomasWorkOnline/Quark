@@ -40,31 +40,35 @@ namespace Quark {
 
 	VulkanShader::VulkanShader(std::string_view filepath)
 	{
-		auto type = Utils::GetShaderStageType(filepath);
-		auto byteCode = Utils::ReadByteCode(filepath);
-
-		VkShaderModuleCreateInfo createInfo{};
-		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-		createInfo.codeSize = byteCode.size();
-		createInfo.pCode = reinterpret_cast<const uint32_t*>(byteCode.data());
-
-		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
-		vkCreateShaderModule(vkDevice, &createInfo, nullptr, &m_ShaderModule);
+		QK_CORE_FATAL("Loading a Vulkan shader from a filepath is not supported");
 	}
 
 	VulkanShader::VulkanShader(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource)
+		: m_Name(name)
 	{
-		QK_CORE_FATAL("Compiling Vulkan shaders is not yet implemented");
+		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
+
+		VkShaderModuleCreateInfo createInfo{};
+		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+		createInfo.codeSize = vertexSource.size();
+		createInfo.pCode = reinterpret_cast<const uint32_t*>(vertexSource.data());
+		vkCreateShaderModule(vkDevice, &createInfo, nullptr, &m_VertexShaderModule);
+
+		createInfo.codeSize = fragmentSource.size();
+		createInfo.pCode = reinterpret_cast<const uint32_t*>(fragmentSource.data());
+		vkCreateShaderModule(vkDevice, &createInfo, nullptr, &m_FragmentShaderModule);
 	}
 
 	VulkanShader::VulkanShader(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource)
 	{
-		QK_CORE_FATAL("Compiling Vulkan shaders is not yet implemented");
+		QK_CORE_FATAL("Compiling Vulkan shaders is not supported");
 	}
 
 	VulkanShader::~VulkanShader()
 	{
 		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
-		vkDestroyShaderModule(vkDevice, m_ShaderModule, nullptr);
+		vkDestroyShaderModule(vkDevice, m_VertexShaderModule, nullptr);
+		vkDestroyShaderModule(vkDevice, m_GeometryShaderModule, nullptr);
+		vkDestroyShaderModule(vkDevice, m_FragmentShaderModule, nullptr);
 	}
 }

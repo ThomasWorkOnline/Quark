@@ -10,7 +10,11 @@ namespace Quark {
 	public:
 		VulkanCommandBuffer();
 
-		virtual void DrawIndexed(uint32_t indexCount, uint32_t indexOffset = 0) override;
+		virtual void Begin() override;
+		virtual void End() override;
+
+		virtual void Reset() override;
+		virtual void DrawIndexed(uint32_t indexCount) override;
 
 		virtual void BindVertexBuffer(const Ref<VertexBuffer>& vertexBuffer, uint32_t binding) override;
 		virtual void BindIndexBuffer(const Ref<IndexBuffer>& indexBuffer) override;

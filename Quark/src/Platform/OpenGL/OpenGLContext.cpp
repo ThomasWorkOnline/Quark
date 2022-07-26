@@ -29,6 +29,7 @@ namespace Quark {
 
 		int errorCode = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 		QK_CORE_ASSERT(errorCode == 1, "Failed to initialize OpenGL context");
+
 		QK_CORE_TRACE("Created OpenGL graphics context!");
 	}
 

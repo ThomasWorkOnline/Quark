@@ -2,6 +2,8 @@
 #include "Scene.h"
 #include "Components.h"
 
+#include "Quark/Events/WindowEvent.h"
+
 namespace Quark {
 
 	Scene::~Scene()
@@ -28,7 +30,7 @@ namespace Quark {
 				if (!nsComponent.ScriptInstance)
 				{
 					nsComponent.ScriptInstance = Scope<NativeScriptEntity>(nsComponent.InstanciateScript());
-					nsComponent.ScriptInstance->m_Entity = Entity{ entity, &m_Registry };
+					nsComponent.ScriptInstance->m_Entity = { entity, &m_Registry };
 					nsComponent.ScriptInstance->OnCreate();
 				}
 
@@ -64,6 +66,16 @@ namespace Quark {
 	Entity Scene::CreateEntity()
 	{
 		return { m_Registry.create(), &m_Registry };
+	}
+
+	Entity Scene::CreatePrimaryCamera()
+	{
+		m_CameraEntity = CreateEntity();
+		m_CameraEntity.AddComponent<Transform3DComponent>().Position = { 0.0f, 0.0f, -1.0f };
+		m_CameraEntity.AddComponent<PhysicsComponent>().Friction = 4.0f;
+		m_CameraEntity.AddComponent<CameraComponent>().Camera.SetPerspective(90.0f);
+
+		return m_CameraEntity;
 	}
 
 	void Scene::DeleteEntity(Entity entity)

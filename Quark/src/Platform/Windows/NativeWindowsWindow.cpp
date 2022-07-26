@@ -8,7 +8,7 @@ namespace Quark {
 	static constexpr wchar_t s_ClassName[] = L"QuarkApp";
 	static uint32_t s_WindowCount = 0;
 
-	static std::wstring ConvertToWideString(const std::string& narrow)
+	static std::wstring ConvertToWideString(std::string_view narrow)
 	{
 		std::wstring wide;
 		wide.reserve(narrow.size());
@@ -74,15 +74,18 @@ namespace Quark {
 		}
 	}
 
-	void NativeWindowsWindow::SetTitle(const std::string& title)
+	Window& NativeWindowsWindow::SetTitle(std::string_view title)
 	{
-		SetWindowText(m_WindowHandle, ConvertToWideString(title).c_str());
 		m_Data.Title = title;
+		SetWindowText(m_WindowHandle, ConvertToWideString(m_Data.Title).c_str());
+		return *this;
 	}
 
-	void NativeWindowsWindow::AppendTitle(const std::string& title)
+	Window& NativeWindowsWindow::AppendTitle(std::string_view title)
 	{
-		SetTitle(m_Data.Title + title);
+		m_Data.Title.append(title);
+		SetWindowText(m_WindowHandle, ConvertToWideString(m_Data.Title).c_str());
+		return *this;
 	}
 
 	void NativeWindowsWindow::Focus()

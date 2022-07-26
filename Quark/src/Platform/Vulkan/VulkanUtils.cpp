@@ -68,6 +68,53 @@ namespace Quark {
 			return true;
 		}
 
+		vk::SurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats)
+		{
+			for (const auto& availableFormat : availableFormats)
+			{
+				if (availableFormat.format == vk::Format::eB8G8R8A8Srgb && availableFormat.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear)
+					return availableFormat;
+			}
+
+			QK_CORE_WARN("Swap surface format not found: using default format 0");
+			return availableFormats[0];
+		}
+
+		vk::PresentModeKHR ChooseSwapPresentMode(const std::vector<vk::PresentModeKHR>& availablePresentModes)
+		{
+			for (const auto& availablePresentMode : availablePresentModes)
+			{
+				if (availablePresentMode == vk::PresentModeKHR::eMailbox)
+					return availablePresentMode;
+			}
+
+			QK_CORE_WARN("Swap present mode not found: using default FIFO present mode");
+			return vk::PresentModeKHR::eFifo;
+		}
+
+		vk::Extent2D ChooseSwapExtent(const vk::SurfaceCapabilitiesKHR& capabilities, GLFWwindow* window)
+		{
+			if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
+			{
+				return capabilities.currentExtent;
+			}
+			else
+			{
+				int width, height;
+				glfwGetFramebufferSize(window, &width, &height);
+
+				vk::Extent2D actualExtent = {
+					static_cast<uint32_t>(width),
+					static_cast<uint32_t>(height)
+				};
+
+				actualExtent.width = std::clamp(actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
+				actualExtent.height = std::clamp(actualExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
+
+				return actualExtent;
+			}
+		}
+
 		vk::SurfaceKHR CreateSurfaceForPlatform(vk::Instance instance, GLFWwindow* window)
 		{
 			VkSurfaceKHR surface;

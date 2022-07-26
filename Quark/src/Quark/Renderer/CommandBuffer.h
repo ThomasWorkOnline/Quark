@@ -10,7 +10,11 @@ namespace Quark {
 	public:
 		virtual ~CommandBuffer() = default;
 
-		virtual void DrawIndexed(uint32_t indexCount, uint32_t indexOffset = 0) = 0;
+		virtual void Begin() = 0;
+		virtual void End() = 0;
+
+		virtual void Reset() = 0;
+		virtual void DrawIndexed(uint32_t indexCount) = 0;
 
 		virtual void BindVertexBuffer(const Ref<VertexBuffer>& vertexBuffer, uint32_t binding) = 0;
 		virtual void BindIndexBuffer(const Ref<IndexBuffer>& indexBuffer) = 0;

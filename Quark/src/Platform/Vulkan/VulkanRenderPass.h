@@ -11,8 +11,6 @@ namespace Quark {
 		VulkanRenderPass(const RenderPassSpecification& spec);
 		virtual ~VulkanRenderPass() override;
 
-		virtual const RenderPassSpecification& GetSpecification() const override { return m_Spec; }
-
 		virtual bool operator==(const RenderPass& other) const override
 		{
 			return m_RenderPass == reinterpret_cast<const VulkanRenderPass&>(other).m_RenderPass;
@@ -22,6 +20,5 @@ namespace Quark {
 
 	private:
 		VkRenderPass m_RenderPass = VK_NULL_HANDLE;
-		RenderPassSpecification m_Spec;
 	};
 }

@@ -1,5 +1,7 @@
 #include "qkpch.h"
 #include "Renderer.h"
+
+#include "CommandBuffer.h"
 #include "RenderCommand.h"
 
 namespace Quark {
@@ -27,10 +29,10 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		RenderCommand::Init();
-		RenderCommand::SetClearColor({ 0.01f, 0.01f, 0.01f, 1.0f });
 
 		QK_CORE_ASSERT(s_Data == nullptr, "s_Data already initialized");
 		s_Data = new RendererData();
+		s_Data->MaxUniformBuffers = GraphicsAPI::Instance->GetHardwareConstraints().UniformBufferConstraints.MaxBindings;
 
 		uint32_t textureColor = 0xffffffff;
 		Texture2DSpecification spec = { 1, 1, 1,
@@ -39,7 +41,6 @@ namespace Quark {
 			TextureFilteringMode::Nearest, TextureFilteringMode::Nearest, TextureTilingMode::Repeat
 		};
 
-		s_Data->MaxUniformBuffers = GraphicsAPI::Instance->GetHardwareConstraints().UniformBufferConstraints.MaxBindings;
 		s_Data->DefaultTexture = Texture2D::Create(spec);
 		s_Data->DefaultTexture->SetData(&textureColor, sizeof(uint32_t));
 	}
@@ -65,6 +66,14 @@ namespace Quark {
 	}
 
 	void Renderer::EndScene()
+	{
+	}
+
+	void Renderer::BeginFrame()
+	{
+	}
+
+	void Renderer::EndFrame()
 	{
 	}
 

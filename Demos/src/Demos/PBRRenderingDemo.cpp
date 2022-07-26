@@ -15,7 +15,6 @@ PBRRenderingDemo::PBRRenderingDemo()
 	QK_PROFILE_FUNCTION();
 
 	GetWindow().SetVSync(true);
-	SetAssetDir("../Quark");
 
 	m_Scene = Scene::Create();
 	m_Player = m_Scene->CreateEntity();

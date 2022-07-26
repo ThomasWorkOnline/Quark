@@ -44,13 +44,17 @@ namespace Quark {
 
 		virtual bool operator==(const Shader& other) const override
 		{
-			return m_ShaderModule == reinterpret_cast<const VulkanShader&>(other).m_ShaderModule;
+			return m_Name == reinterpret_cast<const VulkanShader&>(other).m_Name;
 		}
 
-		vk::ShaderModule GetVkHandle() const { return m_ShaderModule; }
+		vk::ShaderModule GetVertexVkHandle() const { return m_VertexShaderModule; }
+		vk::ShaderModule GetGeometryVkHandle() const { return m_VertexShaderModule; }
+		vk::ShaderModule GetFragmentVkHandle() const { return m_FragmentShaderModule; }
 
 	private:
-		VkShaderModule m_ShaderModule = VK_NULL_HANDLE;
+		VkShaderModule m_VertexShaderModule = VK_NULL_HANDLE;
+		VkShaderModule m_GeometryShaderModule = VK_NULL_HANDLE;
+		VkShaderModule m_FragmentShaderModule = VK_NULL_HANDLE;
 		std::string m_Name;
 	};
 }

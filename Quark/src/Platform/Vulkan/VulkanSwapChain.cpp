@@ -6,59 +6,38 @@
 
 namespace Quark {
 
-	namespace Utils {
-
-		static vk::SurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats)
-		{
-			for (const auto& availableFormat : availableFormats)
-			{
-				if (availableFormat.format == vk::Format::eB8G8R8A8Srgb && availableFormat.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear)
-					return availableFormat;
-			}
-
-			QK_CORE_WARN("Swap surface format not found: using default format 0");
-			return availableFormats[0];
-		}
-
-		static vk::PresentModeKHR ChooseSwapPresentMode(const std::vector<vk::PresentModeKHR>& availablePresentModes)
-		{
-			for (const auto& availablePresentMode : availablePresentModes)
-			{
-				if (availablePresentMode == vk::PresentModeKHR::eMailbox)
-					return availablePresentMode;
-			}
-
-			QK_CORE_WARN("Swap present mode not found: using default FIFO present mode");
-			return vk::PresentModeKHR::eFifo;
-		}
-
-		static vk::Extent2D ChooseSwapExtent(const vk::SurfaceCapabilitiesKHR& capabilities, GLFWwindow* window)
-		{
-			if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
-			{
-				return capabilities.currentExtent;
-			}
-			else
-			{
-				int width, height;
-				glfwGetFramebufferSize(window, &width, &height);
-
-				vk::Extent2D actualExtent = {
-					static_cast<uint32_t>(width),
-					static_cast<uint32_t>(height)
-				};
-
-				actualExtent.width = std::clamp(actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
-				actualExtent.height = std::clamp(actualExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
-
-				return actualExtent;
-			}
-		}
-	}
-
-	VulkanSwapChain::VulkanSwapChain(GLFWwindow* window, vk::SurfaceKHR surface)
-		: m_WindowHandle(window), m_Surface(surface)
+	VulkanSwapChain::VulkanSwapChain(GLFWwindow* window, vk::SurfaceKHR surface, const SwapChainSpecification& spec) : SwapChain(spec),
+		m_WindowHandle(window), m_Surface(surface)
 	{
+		auto& supportDetails = VulkanContext::GetCurrentDevice().GetSupportDetails();
+
+		m_Format.ImageCount = supportDetails.Capabilities.minImageCount + 1;
+		if (supportDetails.Capabilities.maxImageCount > 0 && m_Format.ImageCount > supportDetails.Capabilities.maxImageCount)
+			m_Format.ImageCount = supportDetails.Capabilities.maxImageCount;
+
+		m_Format.ActualSurfaceFormat = Utils::ChooseSwapSurfaceFormat(supportDetails.Formats);
+		m_Format.ActualPresentMode = Utils::ChooseSwapPresentMode(supportDetails.PresentModes);
+		m_Format.Extent = Utils::ChooseSwapExtent(supportDetails.Capabilities, m_WindowHandle);
+
+		// Synchronization
+		{
+			auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
+
+			m_InFlightFences.resize(m_Spec.FramesInFlight);
+			m_RenderFinishedSemaphores.resize(m_Spec.FramesInFlight);
+
+			vk::FenceCreateInfo fenceInfo;
+			fenceInfo.setFlags(vk::FenceCreateFlagBits::eSignaled);
+
+			vk::SemaphoreCreateInfo semaphoreInfo;
+			for (uint32_t i = 0; i < m_Spec.FramesInFlight; i++)
+			{
+				m_InFlightFences[i] = vkDevice.createFence(fenceInfo);
+				m_RenderFinishedSemaphores[i] = vkDevice.createSemaphore(semaphoreInfo);
+			}
+		}
+
+		Invalidate();
 	}
 
 	VulkanSwapChain::~VulkanSwapChain()
@@ -76,43 +55,6 @@ namespace Quark {
 			vkDestroyImageView(vkDevice, imageView, nullptr);
 
 		vkDestroySwapchainKHR(vkDevice, m_SwapChain, nullptr);
-	}
-
-	void VulkanSwapChain::Init()
-	{
-		// Specification
-		{
-			auto& supportDetails = VulkanContext::GetCurrentDevice().GetSupportDetails();
-			m_ActualSurfaceFormat = Utils::ChooseSwapSurfaceFormat(supportDetails.Formats);
-			m_ActualPresentMode = Utils::ChooseSwapPresentMode(supportDetails.PresentModes);
-			auto extent = Utils::ChooseSwapExtent(supportDetails.Capabilities, m_WindowHandle);
-
-			m_Spec.Width = extent.width;
-			m_Spec.Height = extent.height;
-
-			uint32_t imageCount = supportDetails.Capabilities.minImageCount + 1;
-			if (supportDetails.Capabilities.maxImageCount > 0 && imageCount > supportDetails.Capabilities.maxImageCount)
-				imageCount = supportDetails.Capabilities.maxImageCount;
-
-			m_Spec.ImageCount = imageCount;
-		}
-
-		// Synchronization
-		{
-			auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
-
-			vk::FenceCreateInfo fenceInfo;
-			fenceInfo.setFlags(vk::FenceCreateFlagBits::eSignaled);
-
-			vk::SemaphoreCreateInfo semaphoreInfo;
-			for (uint32_t i = 0; i < Renderer::FramesInFlight; i++)
-			{
-				m_InFlightFences[i] = vkDevice.createFence(fenceInfo);
-				m_RenderFinishedSemaphores[i] = vkDevice.createSemaphore(semaphoreInfo);
-			}
-		}
-
-		Invalidate();
 	}
 
 	void VulkanSwapChain::Present(vk::Queue presentQueue)
@@ -141,10 +83,10 @@ namespace Quark {
 		}
 
 		// FIX: this will fail if extent dimensions is zero
-		if (m_Spec.Width != viewportWidth || m_Spec.Height != viewportHeight)
+		if (m_Format.Extent.width != viewportWidth || m_Format.Extent.height != viewportHeight)
 		{
-			m_Spec.Width = viewportWidth;
-			m_Spec.Height = viewportHeight;
+			m_Format.Extent.width = viewportWidth;
+			m_Format.Extent.height = viewportHeight;
 
 			Invalidate();
 		}
@@ -152,7 +94,7 @@ namespace Quark {
 
 	uint32_t VulkanSwapChain::AcquireNextImageIndex(vk::Semaphore imageAvailableSemaphore)
 	{
-		m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % Renderer::FramesInFlight;
+		m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % m_Spec.FramesInFlight;
 		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
 
 		// Wait for last frame to be complete
@@ -184,12 +126,12 @@ namespace Quark {
 		vk::SwapchainCreateInfoKHR createInfo;
 		createInfo.setClipped(VK_TRUE);
 		createInfo.setCompositeAlpha(vk::CompositeAlphaFlagBitsKHR::eOpaque);
-		createInfo.setImageExtent(vk::Extent2D{ m_Spec.Width, m_Spec.Height });
-		createInfo.setImageFormat(m_ActualSurfaceFormat.format);
-		createInfo.setImageColorSpace(m_ActualSurfaceFormat.colorSpace);
+		createInfo.setImageExtent(m_Format.Extent);
+		createInfo.setImageFormat(m_Format.ActualSurfaceFormat.format);
+		createInfo.setImageColorSpace(m_Format.ActualSurfaceFormat.colorSpace);
 		createInfo.setImageArrayLayers(1);
 		createInfo.setImageUsage(vk::ImageUsageFlagBits::eColorAttachment);
-		createInfo.setMinImageCount(m_Spec.ImageCount);
+		createInfo.setMinImageCount(m_Format.ImageCount);
 		createInfo.setOldSwapchain(VK_NULL_HANDLE);
 		createInfo.setPresentMode(static_cast<vk::PresentModeKHR>(m_Spec.PresentMode));
 		createInfo.setPreTransform(vk::SurfaceTransformFlagBitsKHR::eIdentity);
@@ -229,7 +171,7 @@ namespace Quark {
 			createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 			createInfo.image = m_SwapChainImages[i];
 			createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-			createInfo.format = (VkFormat)m_ActualSurfaceFormat.format;
+			createInfo.format = (VkFormat)m_Format.ActualSurfaceFormat.format;
 			createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 			createInfo.subresourceRange.baseMipLevel = 0;
 			createInfo.subresourceRange.levelCount = 1;

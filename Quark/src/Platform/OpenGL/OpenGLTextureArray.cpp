@@ -21,6 +21,8 @@ namespace Quark {
 		{
 			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE_ARRAY, m_RendererID);
 			glTexImage3DMultisample(GL_TEXTURE_2D_MULTISAMPLE_ARRAY, m_Spec.Samples, m_InternalFormat, m_Spec.Width, m_Spec.Height, m_Spec.Layers, GL_FALSE);
+
+			QK_DEBUG_CALL(glBindTexture(GL_TEXTURE_2D_MULTISAMPLE_ARRAY, 0));
 		}
 		else
 		{
@@ -32,6 +34,8 @@ namespace Quark {
 			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, FilteringModeToOpenGL(m_Spec.RenderModes.MagFilteringMode));
 			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, tilingMode);
 			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, tilingMode);
+
+			QK_DEBUG_CALL(glBindTexture(GL_TEXTURE_2D_ARRAY, 0));
 		}
 	}
 

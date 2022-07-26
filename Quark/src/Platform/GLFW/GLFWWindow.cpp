@@ -265,15 +265,18 @@ namespace Quark {
 			glfwTerminate();
 	}
 
-	void GLFWWindow::SetTitle(const std::string& title)
+	Window& GLFWWindow::SetTitle(std::string_view title)
 	{
-		glfwSetWindowTitle(m_Window, title.c_str());
 		m_Data.Title = title;
+		glfwSetWindowTitle(m_Window, m_Data.Title.c_str());
+		return *this;
 	}
 
-	void GLFWWindow::AppendTitle(const std::string& title)
+	Window& GLFWWindow::AppendTitle(std::string_view title)
 	{
-		SetTitle(m_Data.Title + title);
+		m_Data.Title.append(title);
+		glfwSetWindowTitle(m_Window, m_Data.Title.c_str());
+		return *this;
 	}
 
 	void GLFWWindow::Focus()

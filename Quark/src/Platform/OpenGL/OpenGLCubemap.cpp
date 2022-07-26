@@ -27,15 +27,17 @@ namespace Quark {
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		QK_DEBUG_CALL(glBindTexture(GL_TEXTURE_CUBE_MAP, 0));
 	}
-	
+
 	OpenGLCubemap::~OpenGLCubemap()
 	{
 		QK_PROFILE_FUNCTION();
 
 		glDeleteTextures(1, &m_RendererID);
 	}
-	
+
 	void OpenGLCubemap::Attach(uint32_t textureSlot) const
 	{
 		glActiveTexture(GL_TEXTURE0 + textureSlot);
@@ -53,6 +55,7 @@ namespace Quark {
 
 		size_t pSize = GetPixelFormatSize(m_Spec.InternalFormat);
 		QK_CORE_ASSERT(size == m_Spec.Width * m_Spec.Height * pSize, "Data must be entire texture");
+		glBindTexture(GL_TEXTURE_CUBE_MAP, m_RendererID);
 		glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + index, 0, 0, 0, m_Spec.Width, m_Spec.Height,
 			DataFormatToOpenGL(m_Spec.DataFormat),
 			InternalFormatToOpenGLDataType(m_Spec.InternalFormat), data);

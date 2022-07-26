@@ -16,18 +16,13 @@ namespace Quark {
 		virtual void BeginRenderPass(const Ref<RenderPass>& renderPass) override;
 		virtual void EndRenderPass() override;
 
+		virtual void Resize(uint32_t viewportWidth, uint32_t viewportHeight) override;
+
 		virtual const Ref<CommandBuffer>& GetCommandBuffer() const override { return m_CommandBuffer; }
 		virtual const Ref<UniformBuffer>& GetUniformBuffer() const override { return m_UniformBuffer; }
 
-		virtual void Submit() override;
-		virtual void Resize(uint32_t viewportWidth, uint32_t viewportHeight) override;
-
-		virtual const PipelineSpecification& GetSpecification() const override { return m_Spec; }
-
 	private:
-		Ref<CommandBuffer> m_CommandBuffer = nullptr;
-		Ref<UniformBuffer> m_UniformBuffer = nullptr;
-
-		PipelineSpecification m_Spec;
+		Ref<CommandBuffer> m_CommandBuffer;
+		Ref<UniformBuffer> m_UniformBuffer;
 	};
 }

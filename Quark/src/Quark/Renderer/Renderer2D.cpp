@@ -2,28 +2,47 @@
 #include "Renderer2D.h"
 #include "RenderCommand.h"
 
+#include "Quark/Filesystem/Filesystem.h"
 #include <sstream>
 
 namespace Quark {
 
-	/*      Index order
-	 *  1    2      1 <- 2
-	 *      /^      |   ^
-	 *     / |      |  /
-	 *    /  |      | /
-	 *   v	 |      v/
-	 *  0 -> 3      0    3
-	 */
+	/*
+		- Coordinate System -
 
-	static constexpr Vec4f s_SpriteVertexPositions[4] = {
+		(-,+)     |      (+,+)
+		          |
+		          |
+		----------+----------
+		          |
+		          |
+        (-,-)     |      (+,-)
+
+		---- Index order ----
+
+		3    2         3 <- 2
+		    /^         |   ^
+		   / |         |  /
+		  /  |         | /
+		 v	 |         v/
+		0 -> 1         0    1
+	*/
+
+	static constexpr Vec4f s_QuadVertexPositions[4] = {
 		{ -0.5f, -0.5f, 0.0f, 1.0f },
 		{  0.5f, -0.5f, 0.0f, 1.0f },
 		{  0.5f,  0.5f, 0.0f, 1.0f },
 		{ -0.5f,  0.5f, 0.0f, 1.0f }
 	};
 
+	static constexpr uint32_t s_QuadIndices[6] = {
+		0, 1, 2,
+		2, 3, 0
+	};
+
 	// NOTE: UVs are flipped vertically since the image loader
 	// does not provide any way to flip it while loading
+	// TODO: this is only applicable for OpenGL, change
 	static constexpr Vec2f s_TextureCoords[4] = {
 		{ 0.0f, 1.0f },
 		{ 1.0f, 1.0f },
@@ -166,7 +185,7 @@ namespace Quark {
 
 		for (uint8_t i = 0; i < 4; i++)
 		{
-			s_Data->QuadVertexPtr->Position = transform * s_SpriteVertexPositions[i];
+			s_Data->QuadVertexPtr->Position = transform * s_QuadVertexPositions[i];
 			s_Data->QuadVertexPtr->TexCoord = texCoords[i];
 			s_Data->QuadVertexPtr->Color = { 1.0f, 1.0f, 1.0f, 1.0f };
 			s_Data->QuadVertexPtr->TexIndex = textureIndex;
@@ -191,7 +210,7 @@ namespace Quark {
 
 		for (uint8_t i = 0; i < 4; i++)
 		{
-			s_Data->QuadVertexPtr->Position = transform * s_SpriteVertexPositions[i];
+			s_Data->QuadVertexPtr->Position = transform * s_QuadVertexPositions[i];
 			s_Data->QuadVertexPtr->TexCoord = { 0.0f, 0.0f };
 			s_Data->QuadVertexPtr->Color = color;
 			s_Data->QuadVertexPtr->TexIndex = 0;
@@ -346,13 +365,11 @@ namespace Quark {
 		if (s_Data->QuadIndexCount > 0)
 		{
 			size_t size = ((uint8_t*)s_Data->QuadVertexPtr - (uint8_t*)s_Data->QuadVertices);
+			s_Data->QuadVertexBuffer->Attach();
 			s_Data->QuadVertexBuffer->SetData(s_Data->QuadVertices, size);
 
 			for (uint32_t i = 0; i < s_Data->QuadSamplerIndex; i++)
 				s_Data->Textures[i]->Attach(i);
-
-			/*vertexArray->Attach();
-			uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer() ? vertexArray->GetIndexBuffer()->GetCount() : 0;*/
 
 			s_Data->QuadShader->Attach();
 			RenderCommand::DrawIndexed(s_Data->QuadIndexCount);
@@ -363,13 +380,11 @@ namespace Quark {
 		if (s_Data->FontIndexCount > 0)
 		{
 			size_t size = ((uint8_t*)s_Data->FontVertexPtr - (uint8_t*)s_Data->FontVertices);
+			s_Data->FontVertexBuffer->Attach();
 			s_Data->FontVertexBuffer->SetData(s_Data->FontVertices, size);
 
 			for (uint32_t i = 0; i < s_Data->FontSamplerIndex; i++)
 				s_Data->Fonts[i]->Attach(i);
-
-			/*vertexArray->Attach();
-			uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer() ? vertexArray->GetIndexBuffer()->GetCount() : 0;*/
 
 			s_Data->FontShader->Attach();
 			RenderCommand::DrawIndexed(s_Data->FontIndexCount);
@@ -380,10 +395,8 @@ namespace Quark {
 		if (s_Data->LineIndexCount > 0)
 		{
 			size_t size = ((uint8_t*)s_Data->LineVertexPtr - (uint8_t*)s_Data->LineVertices);
+			s_Data->LineVertexBuffer->Attach();
 			s_Data->LineVertexBuffer->SetData(s_Data->LineVertices, size);
-
-			/*vertexArray->Attach();
-			uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer() ? vertexArray->GetIndexBuffer()->GetCount() : 0;*/
 
 			s_Data->LineShader->Attach();
 			RenderCommand::DrawLines(s_Data->LineIndexCount);
@@ -417,12 +430,12 @@ namespace Quark {
 			uint32_t offset = 0;
 			for (uint32_t i = 0; i < Renderer2DData::MaxIndices; i += 6)
 			{
-				Indices[i + 0] = offset + 0;
-				Indices[i + 1] = offset + 3;
-				Indices[i + 2] = offset + 2;
-				Indices[i + 3] = offset + 0;
-				Indices[i + 4] = offset + 2;
-				Indices[i + 5] = offset + 1;
+				Indices[i + 0] = offset + s_QuadIndices[0];
+				Indices[i + 1] = offset + s_QuadIndices[1];
+				Indices[i + 2] = offset + s_QuadIndices[2];
+				Indices[i + 3] = offset + s_QuadIndices[3];
+				Indices[i + 4] = offset + s_QuadIndices[4];
+				Indices[i + 5] = offset + s_QuadIndices[5];
 
 				offset += 4;
 			}
@@ -479,15 +492,10 @@ namespace Quark {
 			{ ShaderDataType::Float2, "a_TexCoord" },
 			{ ShaderDataType::Float4, "a_Tint"     },
 			{ ShaderDataType::Int,    "a_TexIndex" }
-			});
+		});
 
-		// Indices
 		s_Data->QuadIndexBuffer = IndexBuffer::Create(setupData.Indices, Renderer2DData::MaxIndices);
-
-		// Vertices
 		s_Data->QuadVertices = new QuadVertex[Renderer2DData::MaxVertices];
-
-		// Textures
 		s_Data->Textures = new Ref<Texture2D>[s_Data->MaxSamplers];
 
 		uint32_t textureColor = 0xffffffff;
@@ -499,9 +507,9 @@ namespace Quark {
 
 		s_Data->DefaultTexture = Texture2D::Create(spec);
 		s_Data->DefaultTexture->SetData(&textureColor, sizeof(uint32_t));
-
 		s_Data->Textures[0] = s_Data->DefaultTexture;
 
+#if 0
 		const char* spriteVertexSource = R"(
 			#version 420 core
 
@@ -561,6 +569,7 @@ namespace Quark {
 		s_Data->QuadShader = Shader::Create("defaultSprite", spriteVertexSource, spriteFragmentSource.str());
 		s_Data->QuadShader->Attach();
 		s_Data->QuadShader->SetIntArray("u_Samplers", setupData.Samplers, s_Data->MaxSamplers);
+#endif
 	}
 
 	static void SetupFontRenderer(Renderer2DSetupData& setupData)
@@ -573,12 +582,12 @@ namespace Quark {
 			{ ShaderDataType::Float2, "a_TexCoord" },
 			{ ShaderDataType::Float4, "a_Color"    },
 			{ ShaderDataType::Int,    "a_TexIndex" }
-			});
+		});
 
-		// Vertices
 		s_Data->FontVertices = new QuadVertex[Renderer2DData::MaxVertices];
 		s_Data->Fonts = new Ref<Font>[s_Data->MaxSamplers];
 
+#if 0
 		const char* fontVertexSource = R"(
 			#version 420 core
 
@@ -643,6 +652,7 @@ namespace Quark {
 		s_Data->FontShader = Shader::Create("defaultFont", fontVertexSource, fontFragmentSource.str());
 		s_Data->FontShader->Attach();
 		s_Data->FontShader->SetIntArray("u_Samplers", setupData.Samplers, s_Data->MaxSamplers);
+#endif
 	}
 
 	static void SetupLineRenderer()
@@ -653,11 +663,11 @@ namespace Quark {
 		s_Data->LineVertexBuffer->SetLayout({
 			{ ShaderDataType::Float3, "a_Position" },
 			{ ShaderDataType::Float4, "a_Color"    }
-			});
+		});
 
-		// Vertices
 		s_Data->LineVertices = new LineVertex[Renderer2DData::MaxVertices];
 
+#if 0
 		const char* lineVertexSource = R"(
 			#version 420 core
 
@@ -691,5 +701,6 @@ namespace Quark {
 		)";
 
 		s_Data->LineShader = Shader::Create("defaultLine", lineVertexSource, lineFragmentSource);
+#endif
 	}
 }

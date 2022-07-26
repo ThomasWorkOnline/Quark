@@ -10,6 +10,12 @@
 #define ATTACH_EVENT_FN(fn) [&](auto&&... args) -> decltype(auto) { return fn(std::forward<decltype(args)>(args)...); }
 #define BIT(x) (1 << x)
 
+#ifdef QK_DEBUG
+#	define QK_DEBUG_CALL(x) x
+#else
+#	define QK_DEBUG_CALL(x)
+#endif
+
 namespace Quark {
 
 	template<typename T, typename Deleter = std::default_delete<T>>
@@ -36,6 +42,39 @@ namespace Quark {
 
 	template<typename T>
 	using WeakRef = std::weak_ptr<T>;
+
+	struct NonCopyable
+	{
+		NonCopyable() = default;
+		NonCopyable(const NonCopyable&) = delete;
+		NonCopyable& operator=(const NonCopyable&) = delete;
+	};
+
+	struct NonMovable
+	{
+		NonMovable() = default;
+		NonMovable(NonMovable&&) = delete;
+		NonMovable& operator=(NonMovable&&) = delete;
+	};
+
+	template<typename T>
+	class Singleton : public NonCopyable, public NonMovable
+	{
+	public:
+		using ValueType     = T;
+		using PointerType   = T*;
+		using ReferenceType = T&;
+
+	public:
+		static inline ReferenceType Get() { return *s_Instance; }
+
+	protected:
+		Singleton(PointerType instance) { s_Instance = instance; }
+		virtual ~Singleton() { s_Instance = nullptr; }
+
+	private:
+		static inline PointerType s_Instance = nullptr;
+	};
 }
 
 // GLM standards configuration

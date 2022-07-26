@@ -3,8 +3,8 @@
 
 #include "Quark/Filesystem/Filesystem.h"
 
-#include <glm/gtc/type_ptr.hpp>
 #include <glad/glad.h>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <vector>
 #include <unordered_map>
@@ -25,22 +25,26 @@ namespace Quark {
 
 			return GL_NONE;
 		}
+
+		static constexpr std::string_view ExtractNameFromPath(std::string_view filepath)
+		{
+			// Extract name from filepath
+			auto lastSlash = filepath.find_last_of("/\\");
+			lastSlash = lastSlash == std::string::npos ? 0 : lastSlash + 1;
+			auto lastDot = filepath.rfind('.');
+			auto count = lastDot == std::string::npos ? filepath.size() - lastSlash : lastDot - lastSlash;
+			return filepath.substr(lastSlash, count);
+		}
 	}
 
 	OpenGLShader::OpenGLShader(std::string_view filepath)
+		: m_Name(Utils::ExtractNameFromPath(filepath))
 	{
 		QK_PROFILE_FUNCTION();
 
 		std::string source = Filesystem::ReadTextFile(filepath);
 		auto shaderSources = PreProcess(source);
 		Compile(shaderSources);
-
-		// Extract name from filepath
-		auto lastSlash = filepath.find_last_of("/\\");
-		lastSlash = lastSlash == std::string::npos ? 0 : lastSlash + 1;
-		auto lastDot = filepath.rfind('.');
-		auto count = lastDot == std::string::npos ? filepath.size() - lastSlash : lastDot - lastSlash;
-		m_Name = filepath.substr(lastSlash, count);
 	}
 
 	OpenGLShader::OpenGLShader(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource)
@@ -76,23 +80,33 @@ namespace Quark {
 		std::unordered_map<GLenum, std::string_view> shaderSources;
 
 		static constexpr std::string_view typeToken = "#type";
-		size_t typeTokenLength = typeToken.size();
-		size_t pos = source.find(typeToken, 0); // Start of shader type declaration line
+		static constexpr size_t typeTokenLength = typeToken.size();
+		size_t pos = source.find(typeToken); // Start of shader type declaration line
+
 		while (pos != std::string::npos)
 		{
 			size_t eol = source.find_first_of("\r\n", pos); // End of shader type declaration line
 			if (eol == std::string::npos)
-				QK_CORE_FATAL("Syntax error in shader");
+			{
+				QK_CORE_ERROR("Syntax error in shader");
+				break;
+			}
 
 			size_t begin = pos + typeTokenLength + 1; // Start of shader type name (after "#type " keyword)
 			std::string_view type = source.substr(begin, eol - begin);
 			GLenum shaderType = Utils::ShaderTypeFromString(type);
 			if (shaderType == GL_NONE)
-				QK_CORE_FATAL("Invalid shader type specified");
+			{
+				QK_CORE_ERROR("Invalid shader type specified");
+				break;
+			}
 
 			size_t nextLinePos = source.find_first_not_of("\r\n", eol); // Start of shader code after shader type declaration line
 			if (nextLinePos == std::string::npos)
-				QK_CORE_FATAL("Syntax error in shader");
+			{
+				QK_CORE_ERROR("Syntax error in shader");
+				break;
+			}
 
 			pos = source.find(typeToken, nextLinePos); // Start of next shader type declaration line
 
@@ -119,7 +133,7 @@ namespace Quark {
 			glShaderIDs[glShaderIDIndex++] = shader;
 
 			const GLchar* sourceData = source.data();
-			GLint lengths = (GLint)source.size();
+			GLint lengths = static_cast<GLint>(source.size());
 			glShaderSource(shader, 1, &sourceData, &lengths);
 			glCompileShader(shader);
 
@@ -131,7 +145,7 @@ namespace Quark {
 				glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
 
 				std::vector<GLchar> infoLog(maxLength);
-				glGetShaderInfoLog(shader, maxLength, &maxLength, &infoLog[0]);
+				glGetShaderInfoLog(shader, maxLength, &maxLength, infoLog.data());
 
 				for (uint32_t i = 0; i < glShaderIDIndex; i++)
 				{

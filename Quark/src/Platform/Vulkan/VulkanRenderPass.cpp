@@ -19,12 +19,11 @@ namespace Quark {
 		}
 	}
 
-	VulkanRenderPass::VulkanRenderPass(const RenderPassSpecification& spec)
-		: m_Spec(spec)
+	VulkanRenderPass::VulkanRenderPass(const RenderPassSpecification& spec) : RenderPass(spec)
 	{
 		// TODO: get format from specification
 		auto& swapChain = VulkanContext::GetSwapChain();
-		VkFormat swapChainImageFormat = (VkFormat)swapChain.m_ActualSurfaceFormat.format;
+		VkFormat swapChainImageFormat = (VkFormat)swapChain.m_Format.ActualSurfaceFormat.format;
 
 		VkAttachmentDescription colorAttachment{};
 		colorAttachment.format = swapChainImageFormat;

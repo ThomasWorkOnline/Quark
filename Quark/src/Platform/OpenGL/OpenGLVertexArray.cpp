@@ -5,7 +5,6 @@
 
 namespace Quark {
 
-	// type conversion table
 	static constexpr GLenum ShaderDataTypeToOpenGLBaseType(ShaderDataType type)
 	{
 		switch (type)
@@ -29,7 +28,7 @@ namespace Quark {
 			case ShaderDataType::Bool:		return GL_BOOL;
 			default:
 				QK_CORE_FATAL("Unknown ShaderDataType");
-				return 0;
+				return GL_NONE;
 		}
 	}
 
@@ -37,7 +36,7 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-        glGenVertexArrays(1, &m_RendererID);
+		glGenVertexArrays(1, &m_RendererID);
 	}
 
 	OpenGLVertexArray::~OpenGLVertexArray()
@@ -59,7 +58,6 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		QK_CORE_ASSERT(vertexBuffer, "Vertex Buffer is empty");
 		QK_CORE_ASSERT(vertexBuffer->GetLayout().GetElements().size() != 0, "Vertex buffer has no layout");
 
 		glBindVertexArray(m_RendererID);
@@ -151,7 +149,8 @@ namespace Quark {
 					break;
 				}
 				default:
-					QK_CORE_FATAL("Unknown ShaderDataType");
+					QK_CORE_FATAL("Unknown shader data type");
+					break;
 			}
 		}
 
@@ -163,10 +162,7 @@ namespace Quark {
 	{
 		QK_CORE_ASSERT(indexBuffer != nullptr, "Index Buffer is empty");
 
-		glBindVertexArray(m_RendererID);
 		indexBuffer->Attach();
-		glBindVertexArray(0);
-
 		m_IndexBuffer = indexBuffer;
 	}
 }

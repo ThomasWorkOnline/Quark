@@ -150,14 +150,9 @@ namespace Quark
 		NumLock  = BIT(5)
 	};
 
-	constexpr uint16_t KeyCodeToInt(KeyCode keyCode)
-	{
-		return static_cast<uint16_t>(keyCode);
-	}
-
 	inline std::ostream& operator<<(std::ostream& os, KeyCode keyCode)
 	{
-		os << KeyCodeToInt(keyCode);
+		os << static_cast<uint16_t>(keyCode);
 		return os;
 	}
 

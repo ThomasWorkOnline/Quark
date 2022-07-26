@@ -23,9 +23,10 @@ namespace Quark {
 	struct ApplicationOptions
 	{
 		uint32_t Width = 1280, Height = 720;
-		std::string AppName = "Quark Engine";
-		std::string AssetDir;
+		std::string AppName;
+
 		ApplicationFlag Flags{};
+		std::filesystem::path AssetDir;
 
 		bool HasFlag(ApplicationFlag flag) const { return Flags & flag; }
 
@@ -37,14 +38,11 @@ namespace Quark {
 			: Width(width), Height(height), AppName(title), Flags(flags) {}
 	};
 
-	class Application
+	class Application : public Singleton<Application>
 	{
 	public:
 		Application(const ApplicationOptions& options = {});
 		virtual ~Application();
-
-		Application(const Application&) = delete;
-		Application& operator=(const Application&) = delete;
 
 		virtual void OnEvent(Event& e) {}
 		virtual void OnRender() {}
@@ -55,8 +53,6 @@ namespace Quark {
 
 		void PushLayer(Layer* layer);
 		void PopLayer(Layer* layer);
-
-		void SetAssetDir(std::string_view directory) { m_Options.AssetDir = directory; }
 
 		float GetAppRunningTime() const { return m_TotalTime; }
 		std::thread::id GetThreadId() const { return m_AppMainThreadId; }
@@ -69,8 +65,6 @@ namespace Quark {
 		const AudioOutputDevice& GetAudioOutputDevice() const { return *m_AudioOutputDevice; }
 		AudioOutputDevice& GetAudioOutputDevice() { return *m_AudioOutputDevice; }
 
-		static Application& Get() { return *s_Instance; }
-
 	private:
 		void Initialize();
 		void OnEventInternal(Event& e);
@@ -81,12 +75,10 @@ namespace Quark {
 		bool OnWindowRestored(WindowRestoredEvent& e);
 
 	private:
-		static Application* s_Instance;
-		std::thread::id m_AppMainThreadId;
-
 		ApplicationOptions m_Options;
 		Scope<Window> m_Window;
 		Scope<AudioOutputDevice> m_AudioOutputDevice;
+		std::thread::id m_AppMainThreadId;
 		std::vector<Layer*> m_Layers;
 
 		float m_TotalTime = 0.0f;

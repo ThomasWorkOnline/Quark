@@ -53,7 +53,7 @@ namespace Quark {
 			GraphicsAPI::Instance->Draw(offset, vertexCount);
 		}
 
-		static void DrawIndexed(uint32_t indexCount = 0)
+		static void DrawIndexed(uint32_t indexCount)
 		{
 			QK_ASSERT_RENDER_THREAD();
 			GraphicsAPI::Instance->DrawIndexed(indexCount);

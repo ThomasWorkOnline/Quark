@@ -14,9 +14,9 @@ namespace Quark {
 	static uint32_t s_FontCount = 0;
 	static FT_Library s_Library;
 
-	static constexpr uint8_t s_ASCII_Start  = 32;
-	static constexpr uint8_t s_ASCII_End    = 255;
-	static constexpr uint8_t s_GlyphCount   = s_ASCII_End - s_ASCII_Start;
+	static constexpr uint8_t s_ASCII_Start = 32;
+	static constexpr uint8_t s_ASCII_End = 255;
+	static constexpr uint8_t s_GlyphCount = s_ASCII_End - s_ASCII_Start;
 
 	OpenGLFont::OpenGLFont(std::string_view filepath, uint32_t fontSize)
 		: m_FontSize(fontSize)
@@ -86,6 +86,8 @@ namespace Quark {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+		QK_DEBUG_CALL(glBindTexture(GL_TEXTURE_2D, 0));
 
 		FT_Done_Face(m_Face);
 	}

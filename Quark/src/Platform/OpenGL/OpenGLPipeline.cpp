@@ -5,9 +5,9 @@
 
 namespace Quark {
 
-	OpenGLPipeline::OpenGLPipeline(const PipelineSpecification& spec)
-		: m_Spec(spec)
+	OpenGLPipeline::OpenGLPipeline(const PipelineSpecification& spec) : Pipeline(spec)
 	{
+		m_CommandBuffer = CommandBuffer::Create();
 		m_UniformBuffer = UniformBuffer::Create(m_Spec.CameraUniformBufferSize, 0);
 	}
 
@@ -17,7 +17,7 @@ namespace Quark {
 
 	void OpenGLPipeline::BeginFrame()
 	{
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		m_Spec.Shader->Attach();
 	}
 
 	void OpenGLPipeline::EndFrame()
@@ -26,14 +26,16 @@ namespace Quark {
 
 	void OpenGLPipeline::BeginRenderPass(const Ref<RenderPass>& renderPass)
 	{
+		if (renderPass->GetSpecification().Clears)
+		{
+			glClearColor(0.01f, 0.01f, 0.01f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		}
+
 		// Render passes do not exist in OpenGL
 	}
 
 	void OpenGLPipeline::EndRenderPass()
-	{
-	}
-
-	void OpenGLPipeline::Submit()
 	{
 	}
 

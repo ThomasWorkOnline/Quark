@@ -8,33 +8,36 @@
 
 namespace Quark {
 
-	static constexpr GLenum GetAttachmentTarget(FramebufferTargetAttachment attachment)
-	{
-		switch (attachment)
-		{
-			case FramebufferTargetAttachment::ColorAttachment0:       return GL_COLOR_ATTACHMENT0;
-			case FramebufferTargetAttachment::ColorAttachment1:       return GL_COLOR_ATTACHMENT1;
-			case FramebufferTargetAttachment::ColorAttachment2:       return GL_COLOR_ATTACHMENT2;
-			case FramebufferTargetAttachment::ColorAttachment3:       return GL_COLOR_ATTACHMENT3;
-			case FramebufferTargetAttachment::ColorAttachment4:       return GL_COLOR_ATTACHMENT4;
-			case FramebufferTargetAttachment::ColorAttachment5:       return GL_COLOR_ATTACHMENT5;
-			case FramebufferTargetAttachment::ColorAttachment6:       return GL_COLOR_ATTACHMENT6;
-			case FramebufferTargetAttachment::ColorAttachment7:       return GL_COLOR_ATTACHMENT7;
-			case FramebufferTargetAttachment::DepthAttachment:        return GL_DEPTH_ATTACHMENT;
-			case FramebufferTargetAttachment::DepthStencilAttachment: return GL_DEPTH_STENCIL_ATTACHMENT;
-			default:
-				QK_CORE_FATAL("Invalid framebuffer attachment");
-				return GL_NONE;
-		}
-	}
+	namespace Utils {
 
-	static constexpr bool IsDepthAttachment(FramebufferTargetAttachment attachment)
-	{
-		switch (attachment)
+		static constexpr GLenum GetAttachmentTarget(FramebufferTargetAttachment attachment)
 		{
-			case Quark::FramebufferTargetAttachment::DepthAttachment:
-			case Quark::FramebufferTargetAttachment::DepthStencilAttachment: return true;
-			default:                                                         return false;
+			switch (attachment)
+			{
+				case FramebufferTargetAttachment::ColorAttachment0:       return GL_COLOR_ATTACHMENT0;
+				case FramebufferTargetAttachment::ColorAttachment1:       return GL_COLOR_ATTACHMENT1;
+				case FramebufferTargetAttachment::ColorAttachment2:       return GL_COLOR_ATTACHMENT2;
+				case FramebufferTargetAttachment::ColorAttachment3:       return GL_COLOR_ATTACHMENT3;
+				case FramebufferTargetAttachment::ColorAttachment4:       return GL_COLOR_ATTACHMENT4;
+				case FramebufferTargetAttachment::ColorAttachment5:       return GL_COLOR_ATTACHMENT5;
+				case FramebufferTargetAttachment::ColorAttachment6:       return GL_COLOR_ATTACHMENT6;
+				case FramebufferTargetAttachment::ColorAttachment7:       return GL_COLOR_ATTACHMENT7;
+				case FramebufferTargetAttachment::DepthAttachment:        return GL_DEPTH_ATTACHMENT;
+				case FramebufferTargetAttachment::DepthStencilAttachment: return GL_DEPTH_STENCIL_ATTACHMENT;
+				default:
+					QK_CORE_FATAL("Invalid framebuffer attachment");
+					return GL_NONE;
+			}
+		}
+
+		static constexpr bool IsDepthAttachment(FramebufferTargetAttachment attachment)
+		{
+			switch (attachment)
+			{
+				case Quark::FramebufferTargetAttachment::DepthAttachment:
+				case Quark::FramebufferTargetAttachment::DepthStencilAttachment: return true;
+				default:                                                         return false;
+			}
 		}
 	}
 
@@ -47,7 +50,7 @@ namespace Quark {
 
 		for (const auto& s : m_Spec.Attachments)
 		{
-			if (IsDepthAttachment(s.Attachment))
+			if (Utils::IsDepthAttachment(s.Attachment))
 				m_DepthSpec = s;
 			else
 				m_ColorSpecs.emplace_back(s);
@@ -154,7 +157,7 @@ namespace Quark {
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 				}
 
-				glFramebufferTexture2D(GL_FRAMEBUFFER, GetAttachmentTarget(m_ColorSpecs[i].Attachment), target, m_ColorAttachments[i], 0);
+				glFramebufferTexture2D(GL_FRAMEBUFFER, Utils::GetAttachmentTarget(m_ColorSpecs[i].Attachment), target, m_ColorAttachments[i], 0);
 			}
 		}
 
@@ -183,7 +186,7 @@ namespace Quark {
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 			}
 
-			GLenum attachmentTarget = GetAttachmentTarget(m_DepthSpec.Attachment);
+			GLenum attachmentTarget = Utils::GetAttachmentTarget(m_DepthSpec.Attachment);
 			glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentTarget, target, m_DepthAttachment, 0);
 		}
 

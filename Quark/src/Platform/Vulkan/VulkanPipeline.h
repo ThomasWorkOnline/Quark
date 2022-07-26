@@ -23,16 +23,13 @@ namespace Quark {
 		virtual void BeginFrame() override;
 		virtual void EndFrame() override;
 
-		virtual void Submit() override;
 		virtual void BeginRenderPass(const Ref<RenderPass>& renderPass) override;
 		virtual void EndRenderPass() override;
 
-		virtual const Ref<CommandBuffer>& GetCommandBuffer() const override { return m_CommandBuffers[m_CurrentFrameIndex]; }
-		virtual const Ref<UniformBuffer>& GetUniformBuffer() const override { return m_CameraUniformBuffers[m_CurrentFrameIndex]; }
-
 		virtual void Resize(uint32_t viewportWidth, uint32_t viewportHeight) override;
 
-		virtual const PipelineSpecification& GetSpecification() const override { return m_Spec; }
+		virtual const Ref<CommandBuffer>& GetCommandBuffer() const override { return m_CommandBuffers[m_CurrentFrameIndex]; }
+		virtual const Ref<UniformBuffer>& GetUniformBuffer() const override { return m_CameraUniformBuffers[m_CurrentFrameIndex]; }
 
 	private:
 		void RecreateFramebuffers();
@@ -53,7 +50,5 @@ namespace Quark {
 
 		uint32_t m_CurrentFrameIndex = std::numeric_limits<uint32_t>::max();
 		uint32_t m_NextImageIndex = 0;
-
-		PipelineSpecification m_Spec;
 	};
 }

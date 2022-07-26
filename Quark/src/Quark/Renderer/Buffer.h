@@ -8,7 +8,27 @@ namespace Quark {
 
 	enum class ShaderDataType
 	{
-		None = 0, Float, Float2, Float3, Float4, Double, Double2, Double3, Double4, Mat3, Mat4, Mat3d, Mat4d, Int, Int2, Int3, Int4, Bool
+		None = 0,
+		Float,
+		Float2,
+		Float3,
+		Float4,
+
+		Double,
+		Double2,
+		Double3,
+		Double4,
+
+		Mat3,
+		Mat4,
+		Mat3d,
+		Mat4d,
+
+		Int,
+		Int2,
+		Int3,
+		Int4,
+		Bool
 	};
 
 	static constexpr size_t ShaderDataTypeSize(ShaderDataType type)
@@ -99,9 +119,9 @@ namespace Quark {
 		QK_CONSTEXPR20 const BufferElement& operator[](std::string_view name) const
 		{
 			auto it = std::find_if(m_Elements.begin(), m_Elements.end(), [name](const BufferElement& element)
-				{
-					return element.Name == name;
-				});
+			{
+				return element.Name == name;
+			});
 
 			QK_CORE_ASSERT(it != m_Elements.end(), "Element with name {0} was not found in layout", name);
 			return *it;
@@ -121,12 +141,10 @@ namespace Quark {
 	private:
 		QK_CONSTEXPR20 void CalculateOffsetsAndStride()
 		{
-			size_t offset = 0;
 			m_Stride = 0;
 			for (auto& element : m_Elements)
 			{
-				element.Offset = offset;
-				offset += element.Size;
+				element.Offset = m_Stride;
 				m_Stride += element.Size;
 			}
 		}
@@ -147,13 +165,16 @@ namespace Quark {
 		virtual void SetData(const void* data, size_t size, size_t offset = 0) = 0;
 
 		// TODO: deprecate (part of the pipeline)
-		virtual const BufferLayout& GetLayout() const = 0;
-		virtual void SetLayout(const BufferLayout& layout) = 0;
+		const BufferLayout& GetLayout() const { return m_Layout; }
+		void SetLayout(const BufferLayout& layout) { m_Layout = layout; }
 
 		virtual bool operator==(const VertexBuffer& other) const = 0;
 
 		static Ref<VertexBuffer> Create(const void* vertices, size_t size);
 		static Ref<VertexBuffer> Create(size_t size);
+
+	protected:
+		BufferLayout m_Layout;
 	};
 
 	class IndexBuffer

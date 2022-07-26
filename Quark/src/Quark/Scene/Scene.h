@@ -19,12 +19,16 @@ namespace Quark {
 		void OnEvent(Event& e);
 
 		Entity CreateEntity();
+		Entity CreatePrimaryCamera();
 
 		void DeleteEntity(Entity entity);
 		void SetPrimaryCamera(Entity cameraEntity);
 
 		const entt::registry& GetRegistryRaw() const { return m_Registry; }
 		entt::registry& GetRegistryRaw() { return m_Registry; }
+
+		operator const entt::registry& () const { return m_Registry; }
+		operator entt::registry&() { return m_Registry; }
 
 		static Ref<Scene> Create();
 

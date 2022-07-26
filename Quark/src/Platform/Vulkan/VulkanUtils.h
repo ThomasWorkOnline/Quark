@@ -25,12 +25,15 @@ namespace Quark {
 	namespace Utils {
 
 		std::vector<const char*> GetRequiredVkExtensions();
-		void EnumerateVkExtensions();
-		bool CheckVkValidationLayerSupport();
+		void                     EnumerateVkExtensions();
+		bool                     CheckVkValidationLayerSupport();
 
-		vk::SurfaceKHR CreateSurfaceForPlatform(vk::Instance instance, GLFWwindow* window);
+		vk::SurfaceFormatKHR     ChooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats);
+		vk::PresentModeKHR       ChooseSwapPresentMode(const std::vector<vk::PresentModeKHR>& availablePresentModes);
+		vk::Extent2D             ChooseSwapExtent(const vk::SurfaceCapabilitiesKHR& capabilities, GLFWwindow* window);
+		vk::SurfaceKHR           CreateSurfaceForPlatform(vk::Instance instance, GLFWwindow* window);
 
-		vk::Buffer AllocateBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties, vk::DeviceMemory& bufferMemory);
-		void CopyBuffer(vk::Buffer dstBuffer, vk::Buffer srcBuffer, size_t size);
+		vk::Buffer               AllocateBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties, vk::DeviceMemory& bufferMemory);
+		void                     CopyBuffer(vk::Buffer dstBuffer, vk::Buffer srcBuffer, size_t size);
 	}
 }

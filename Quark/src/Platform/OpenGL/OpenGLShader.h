@@ -77,7 +77,7 @@ namespace Quark {
 
 		GLint GetUniformLocation(std::string_view name);
 
-		std::unordered_map<GLenum, std::string_view> PreProcess(std::string_view source);
+		static std::unordered_map<GLenum, std::string_view> PreProcess(std::string_view source);
 		void Compile(const std::unordered_map<GLenum, std::string_view>& shaderSources);
 
 	private:

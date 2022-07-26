@@ -16,24 +16,56 @@ namespace Quark {
 	class SceneRenderer
 	{
 	public:
-		static void SetContext(const Ref<Scene>& scene);
-		static void SetEnvironment(std::string_view filepath);
+		SceneRenderer();
+		~SceneRenderer();
+
+		void OnRender();
+		void OnViewportResized(uint32_t viewportWidth, uint32_t viewportHeight);
+
+		void SetContext(Ref<Scene> scene);
+		void SetEnvironment(std::string_view filepath);
 
 	private:
-		static void OnRender();
-		static void OnViewportResized(uint32_t viewportWidth, uint32_t viewportHeight);
-
-		static void GeometryPass();
-
-		static void Initialize();
-		static void Shutdown();
-
-		static void NewEnvironment(std::string_view filepath);
+		void GeometryPass();
+		void Initialize();
+		void NewEnvironment(std::string_view filepath);
 
 	private:
-		static Ref<Scene> s_Scene;
-		static Vec2i s_ViewportSize;
+		struct EnvironmentData
+		{
+			Ref<Shader> SkyboxShader;
+			Ref<Shader> IrradianceShader;
+			Ref<Shader> EquirectangleToCubemapShader;
+			Ref<VertexBuffer> CubemapVertexBuffer;
+			Ref<IndexBuffer> CubemapIndexBuffer;
+			Ref<Framebuffer> Framebuffer;
 
-		friend class Application;
+			Ref<Cubemap> Environment;
+			Ref<Cubemap> Irradiance;
+		};
+
+		struct SceneData
+		{
+			// Assure std140 layout
+			struct CameraUniformBufferData
+			{
+				Mat4f View = Mat4(1.0f);
+				Mat4f Projection = Mat4(1.0f);
+			};
+
+			Scope<EnvironmentData> Env;
+			CameraUniformBufferData CameraBufferData;
+
+			Ref<VertexBuffer> VertexBuffer;
+			Ref<IndexBuffer> IndexBuffer;
+
+			Ref<Shader> Shader;
+			Ref<RenderPass> GeometryPass;
+			Ref<Pipeline> GraphicsPipeline;
+		};
+
+		Ref<Scene> m_Scene;
+		SceneData m_Data;
+		uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;
 	};
 }

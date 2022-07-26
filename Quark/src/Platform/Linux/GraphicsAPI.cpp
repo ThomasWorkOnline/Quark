@@ -1,10 +1,10 @@
 #include "qkpch.h"
-#include "GraphicsPreferences.h"
+#include "GraphicsAPI.h"
 
 namespace Quark {
 
 	API GetDefaultAPIForPlatform()
 	{
-		return API::Metal;
+		return API::Vulkan;
 	}
 }
