@@ -62,7 +62,7 @@ namespace Quark {
 		static_assert(!std::is_same_v<Component, NativeScriptComponent>,
 			"Invalid usage. Please, use the AddNativeScript() method when adding a native script component");
 
-		QK_CORE_ASSERT(!HasComponent<Component>(), "Entity already has component!");
+		QK_CORE_ASSERT(!HasComponent<Component>(), "Entity already has a {0}!", typeid(Component).name());
 		auto& component = m_Scene->m_Registry.emplace<Component>(m_Entity, std::forward<Args>(args)...);
 		m_Scene->OnComponentAdded<Component>(*this, component);
 		return component;
@@ -71,15 +71,15 @@ namespace Quark {
 	template<typename Component>
 	inline void Entity::RemoveComponent()
 	{
-		QK_CORE_ASSERT(HasComponent<Component>(), "Entity does not have component!");
-		m_Scene->OnComponentRemove<Component>(*this, GetComponent<Component>);
+		QK_CORE_ASSERT(HasComponent<Component>(), "Entity does not have a {0}!", typeid(Component).name());
+		m_Scene->OnComponentRemove<Component>(*this, GetComponent<Component>());
 		m_Scene->m_Registry.remove<Component>(m_Entity);
 	}
 
 	template<typename Script>
 	inline NativeScriptComponent& Entity::AddNativeScript()
 	{
-		QK_CORE_ASSERT(!HasComponent<NativeScriptComponent>(), "Entity already has a {0} script installed!", typeid(Script).name());
+		QK_CORE_ASSERT(!HasComponent<NativeScriptComponent>(), "Entity already has a NativeScriptComponent installed!");
 		auto& script = m_Scene->m_Registry.emplace<NativeScriptComponent>(m_Entity).Bind<Script>();
 		m_Scene->OnComponentAdded<NativeScriptComponent>(*this, script);
 		return script;
@@ -94,14 +94,14 @@ namespace Quark {
 	template<typename Component>
 	inline Component& Entity::GetComponent()
 	{
-		QK_CORE_ASSERT(HasComponent<Component>(), "Entity does not have component!");
+		QK_CORE_ASSERT(HasComponent<Component>(), "Entity does not have a {0}!", typeid(Component).name());
 		return m_Scene->m_Registry.get<Component>(m_Entity);
 	}
 
 	template<typename Component>
 	inline const Component& Entity::GetComponent() const
 	{
-		QK_CORE_ASSERT(HasComponent<Component>(), "Entity does not have component!");
+		QK_CORE_ASSERT(HasComponent<Component>(), "Entity does not have a {0}!", typeid(Component).name());
 		return m_Scene->m_Registry.get<Component>(m_Entity);
 	}
 }
