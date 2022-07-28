@@ -47,6 +47,7 @@ namespace Quark {
 		virtual void OnEvent(Event& e) {}
 		virtual void OnRender() {}
 		virtual void OnUpdate(Timestep elapsedTime) {}
+		virtual void OnCrash() {}
 
 		void Run();
 		void Stop();
@@ -68,11 +69,6 @@ namespace Quark {
 	private:
 		void Initialize();
 		void OnEventInternal(Event& e);
-
-		bool OnWindowClosed(WindowClosedEvent& e);
-		bool OnWindowResized(WindowResizedEvent& e);
-		bool OnWindowMinimized(WindowMinimizedEvent& e);
-		bool OnWindowRestored(WindowRestoredEvent& e);
 
 	private:
 		ApplicationOptions m_Options;

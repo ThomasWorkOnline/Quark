@@ -27,6 +27,6 @@ namespace Quark {
 	private:
 		Entity m_Entity;
 
-		friend class Scene;
+		friend class NativeScriptComponent;
 	};
 }

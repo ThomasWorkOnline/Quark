@@ -94,10 +94,9 @@ namespace Quark {
 	void Application::OnEventInternal(Event& e)
 	{
 		EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<WindowClosedEvent>(ATTACH_EVENT_FN(OnWindowClosed));
-		dispatcher.Dispatch<WindowResizedEvent>(ATTACH_EVENT_FN(OnWindowResized));
-		dispatcher.Dispatch<WindowMinimizedEvent>(ATTACH_EVENT_FN(OnWindowMinimized));
-		dispatcher.Dispatch<WindowRestoredEvent>(ATTACH_EVENT_FN(OnWindowRestored));
+		dispatcher.Dispatch<WindowClosedEvent>([&](auto& e) { Stop(); });
+		dispatcher.Dispatch<WindowMinimizedEvent>([&](auto& e) { m_Minimized = true; });
+		dispatcher.Dispatch<WindowRestoredEvent>([&](auto& e) { m_Minimized = false; });
 
 		OnEvent(e);
 
@@ -125,28 +124,5 @@ namespace Quark {
 
 		if (it != m_Layers.end())
 			m_Layers.erase(it);
-	}
-
-	bool Application::OnWindowClosed(WindowClosedEvent& e)
-	{
-		Stop();
-		return false;
-	}
-
-	bool Application::OnWindowResized(WindowResizedEvent& e)
-	{
-		return false;
-	}
-
-	bool Application::OnWindowMinimized(WindowMinimizedEvent& e)
-	{
-		m_Minimized = true;
-		return false;
-	}
-
-	bool Application::OnWindowRestored(WindowRestoredEvent& e)
-	{
-		m_Minimized = false;
-		return false;
 	}
 }

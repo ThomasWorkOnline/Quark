@@ -63,10 +63,10 @@ namespace Quark {
 	{
 		m_Data.GraphicsPipeline->BeginFrame();
 
-		if (m_Scene && m_Scene->m_CameraEntity)
+		if (m_Scene && m_Scene->HasPrimaryCamera())
 		{
-			auto& sceneCamera = m_Scene->m_CameraEntity.GetComponent<CameraComponent>().Camera;
-			auto& cameraTransform = m_Scene->m_CameraEntity.GetComponent<Transform3DComponent>();
+			auto& sceneCamera = m_Scene->m_PrimaryCameraEntity.GetComponent<CameraComponent>().Camera;
+			auto& cameraTransform = m_Scene->m_PrimaryCameraEntity.GetComponent<Transform3DComponent>();
 
 			Mat4f rotate = glm::toMat4(cameraTransform.Orientation);
 			Mat4f view = glm::translate(rotate, (Vec3f)-cameraTransform.Position);
@@ -175,7 +175,6 @@ namespace Quark {
 		{
 			m_Data.VertexBuffer = VertexBuffer::Create(s_Vertices, sizeof(s_Vertices));
 			m_Data.VertexBuffer->SetLayout(s_Vertex2DLayout);
-
 			m_Data.IndexBuffer = IndexBuffer::Create(s_Indices, sizeof(s_Indices) / sizeof(uint32_t));
 		}
 	}

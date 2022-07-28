@@ -19,9 +19,9 @@ PBRRenderingDemo::PBRRenderingDemo()
 	m_Scene = Scene::Create();
 	m_Player = m_Scene->CreateEntity();
 	m_Player.AddComponent<Transform3DComponent>().Position = { 0.0f, 0.0f, -2.0f };
-	m_Player.AddComponent<PhysicsComponent>().Friction = 4.0f;
+	m_Player.AddComponent<PhysicsComponent>();
 	m_Player.AddComponent<CameraComponent>().Camera.SetPerspective(70.0f);
-	m_Player.AddComponent<NativeScriptComponent>().Bind<CameraController>();
+	m_Player.AddNativeScript<CameraController>();
 
 	m_Scene->SetPrimaryCamera(m_Player);
 

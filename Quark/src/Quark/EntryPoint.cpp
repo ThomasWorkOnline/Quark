@@ -5,13 +5,23 @@ namespace Quark {
 
 	static int Main(int argc, char** argv)
 	{
-		QK_BEGIN_PROFILE_SESSION("startup.json");
-		auto app = Quark::CreateApplication();
-		QK_END_PROFILE_SESSION();
+		Application* app = nullptr;
 
-		QK_BEGIN_PROFILE_SESSION("runtime.json");
-		app->Run();
-		QK_END_PROFILE_SESSION();
+		try
+		{
+			QK_BEGIN_PROFILE_SESSION("startup.json");
+			app = Quark::CreateApplication();
+			QK_END_PROFILE_SESSION();
+
+			QK_BEGIN_PROFILE_SESSION("runtime.json");
+			app->Run();
+			QK_END_PROFILE_SESSION();
+		}
+		catch (std::exception& e)
+		{
+			QK_CORE_ERROR(e.what());
+			app->OnCrash();
+		}
 
 		QK_BEGIN_PROFILE_SESSION("shutdown.json");
 		delete app;

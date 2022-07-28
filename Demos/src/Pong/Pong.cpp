@@ -7,7 +7,7 @@ Pong::Pong()
 
 	m_Entity = m_Scene.CreateEntity();
 	m_Entity.AddComponent<Transform3DComponent>();
-	m_Entity.AddComponent<PhysicsComponent>().Friction = 4.0f;
+	m_Entity.AddComponent<PhysicsComponent>();
 	auto& camera = m_Entity.AddComponent<CameraComponent>().Camera;
 	camera.SetPerspective(70.0f);
 	camera.Resize(window.GetWidth(), window.GetHeight());

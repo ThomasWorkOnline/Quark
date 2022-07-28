@@ -6,7 +6,7 @@ VulkanApp::VulkanApp()
 {
 	m_Scene = Scene::Create();
 	m_CameraEntity = m_Scene->CreatePrimaryCamera();
-	m_CameraEntity.AddComponent<NativeScriptComponent>().Bind<CameraController>();
+	m_CameraEntity.AddNativeScript<CameraController>();
 
 	m_SceneRenderer.SetContext(m_Scene);
 }
@@ -16,8 +16,12 @@ void VulkanApp::OnEvent(Event& e)
 	EventDispatcher dispatcher(e);
 	dispatcher.Dispatch<MouseButtonPressedEvent>(ATTACH_EVENT_FN(OnMouseButtonPressed));
 	dispatcher.Dispatch<KeyPressedEvent>(ATTACH_EVENT_FN(OnKeyPressed));
-	dispatcher.Dispatch<WindowResizedEvent>(ATTACH_EVENT_FN(OnWindowResized));
-	
+	dispatcher.Dispatch<WindowResizedEvent>([&](WindowResizedEvent& e)
+	{
+		m_SceneRenderer.OnViewportResized(e.GetWidth(), e.GetHeight());
+		return false;
+	});
+
 	if (!e.Handled && m_ViewportSelected)
 		m_Scene->OnEvent(e);
 }
@@ -57,11 +61,5 @@ bool VulkanApp::OnKeyPressed(KeyPressedEvent& e)
 		}
 	}
 
-	return false;
-}
-
-bool VulkanApp::OnWindowResized(WindowResizedEvent& e)
-{
-	m_SceneRenderer.OnViewportResized(e.GetWidth(), e.GetHeight());
 	return false;
 }

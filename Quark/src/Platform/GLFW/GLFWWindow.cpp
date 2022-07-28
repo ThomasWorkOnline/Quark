@@ -39,10 +39,11 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		m_Data.Title	= spec.Title;
-		m_Data.Width	= spec.Width;
-		m_Data.Height	= spec.Height;
-		m_Data.Samples	= spec.Samples;
+		m_Data.Title = spec.Title;
+		m_Data.Title.append(" - " QK_PLATFORM_NAME " (" QK_CONFIG_NAME ")");
+		m_Data.Width   = spec.Width;
+		m_Data.Height  = spec.Height;
+		m_Data.Samples = spec.Samples;
 
 		if (s_WindowCount == 0)
 		{

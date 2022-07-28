@@ -63,6 +63,8 @@ namespace Quark {
 								virtual const char* GetName() const override { return #type; }
 
 #define EVENT_CLASS_CATEGORY(category) virtual EventCategory GetCategoryFlags() const override { return category; }
+
+#define EVENT_HANDLER_RETURN_TYPE(x, args) decltype(x(args))
 	
 	class Event
 	{
@@ -99,7 +101,15 @@ namespace Quark {
 		{
 			if (m_Event.GetType() == T::GetStaticType())
 			{
-				m_Event.Handled = func((T&)m_Event);
+				if constexpr (std::is_same_v<EVENT_HANDLER_RETURN_TYPE(func, (T&)m_Event), bool>)
+				{
+					m_Event.Handled = func((T&)m_Event);
+				}
+				else if constexpr (std::is_same_v<EVENT_HANDLER_RETURN_TYPE(func, (T&)m_Event), void>)
+				{
+					func((T&)m_Event);
+				}
+				else static_assert(false, "Event handler return value must be of type boolean or void");
 				return true;
 			}
 			return false;

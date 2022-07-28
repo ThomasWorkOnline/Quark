@@ -1,6 +1,7 @@
 #pragma once
 
 // Platform detection
+#include "Config.h"
 #include "Platform.h"
 #include "Tweaks.h"
 
@@ -9,12 +10,6 @@
 
 #define ATTACH_EVENT_FN(fn) [&](auto&&... args) -> decltype(auto) { return fn(std::forward<decltype(args)>(args)...); }
 #define BIT(x) (1 << x)
-
-#ifdef QK_DEBUG
-#	define QK_DEBUG_CALL(x) x
-#else
-#	define QK_DEBUG_CALL(x)
-#endif
 
 namespace Quark {
 

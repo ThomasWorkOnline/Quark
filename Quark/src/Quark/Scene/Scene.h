@@ -9,6 +9,11 @@
 
 namespace Quark {
 
+	struct SceneSettings
+	{
+		Float GlobalFrictionCoeff = 4.0f;
+	};
+
 	class Scene
 	{
 	public:
@@ -24,8 +29,13 @@ namespace Quark {
 		void DeleteEntity(Entity entity);
 		void SetPrimaryCamera(Entity cameraEntity);
 
-		const entt::registry& GetRegistryRaw() const { return m_Registry; }
-		entt::registry& GetRegistryRaw() { return m_Registry; }
+		bool HasPrimaryCamera() const { return (bool)m_PrimaryCameraEntity; }
+
+		const SceneSettings& GetSettings() const { return m_Settings; }
+		SceneSettings& GetSettings() { return m_Settings; }
+
+		const entt::registry& GetRegistry() const { return m_Registry; }
+		entt::registry& GetRegistry() { return m_Registry; }
 
 		operator const entt::registry& () const { return m_Registry; }
 		operator entt::registry&() { return m_Registry; }
@@ -33,9 +43,19 @@ namespace Quark {
 		static Ref<Scene> Create();
 
 	private:
-		entt::registry m_Registry;
-		Entity m_CameraEntity;
+		template<typename Component>
+		void OnComponentAdded(Entity entity, Component& c);
 
+		template<typename Component>
+		void OnComponentRemove(Entity entity, Component& c);
+
+	private:
+		entt::registry m_Registry;
+		Entity m_PrimaryCameraEntity;
+
+		SceneSettings m_Settings;
+
+		friend class Entity;
 		friend class SceneRenderer;
 	};
 }

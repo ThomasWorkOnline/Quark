@@ -27,6 +27,7 @@ namespace Quark {
 			Init();
 
 		m_Data.Title = spec.Title;
+		m_Data.Title.append(" - " QK_PLATFORM_NAME " (" QK_CONFIG_NAME ")");
 		m_WindowHandle = CreateWindowEx(
 			0,                                           // Optional window styles.
 			s_ClassName,                                 // Window class

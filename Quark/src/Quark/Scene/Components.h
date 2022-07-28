@@ -3,7 +3,6 @@
 #include "Quark/Core/Core.h"
 
 #include "SceneCamera.h"
-#include "NativeScriptEntity.h"
 #include "Quark/Renderer/Mesh.h"
 
 namespace Quark {
@@ -64,11 +63,10 @@ namespace Quark {
 
 	struct PhysicsComponent
 	{
-		Vec3  Velocity;
-		Float Friction;
+		Vec3 Velocity;
 
-		PhysicsComponent(const Vec3& initVelocity = Vec3(0.f), Float coeffFriction = 0.f)
-			: Velocity(initVelocity), Friction(coeffFriction) {}
+		PhysicsComponent(const Vec3& initVelocity = Vec3(0.0f))
+			: Velocity(initVelocity) {}
 	};
 
 	struct MeshComponent
@@ -78,18 +76,29 @@ namespace Quark {
 		MeshComponent() = default;
 	};
 
+	class Scene;
+	class Entity;
+	class NativeScriptEntity;
+
 	struct NativeScriptComponent
 	{
 		Scope<NativeScriptEntity> ScriptInstance;
-		NativeScriptEntity* (*InstanciateScript)();
+		NativeScriptEntity* (*InstanciateScript)(Entity, Scene*) = nullptr;
 
 		template<typename T>
-		void Bind()
+		NativeScriptComponent& Bind()
 		{
 			static_assert(std::is_base_of_v<NativeScriptEntity, T>,
-				"Template argument must be a subtype of NativeScriptEntity");
+				"Template argument must be a sub-type of NativeScriptEntity");
 
-			InstanciateScript = []() { return static_cast<NativeScriptEntity*>(new T()); };
+			InstanciateScript = [](Entity entity, Scene* scene)
+			{
+				auto* script = static_cast<NativeScriptEntity*>(new T());
+				script->m_Entity = { entity, scene };
+				return script;
+			};
+
+			return *this;
 		}
 	};
 }

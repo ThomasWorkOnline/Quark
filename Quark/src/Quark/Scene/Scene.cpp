@@ -1,8 +1,8 @@
 #include "qkpch.h"
 #include "Scene.h"
-#include "Components.h"
 
-#include "Quark/Events/WindowEvent.h"
+#include "Components.h"
+#include "NativeScriptEntity.h"
 
 namespace Quark {
 
@@ -27,13 +27,6 @@ namespace Quark {
 			for (auto entity : view)
 			{
 				auto& nsComponent = view.get<NativeScriptComponent>(entity);
-				if (!nsComponent.ScriptInstance)
-				{
-					nsComponent.ScriptInstance = Scope<NativeScriptEntity>(nsComponent.InstanciateScript());
-					nsComponent.ScriptInstance->m_Entity = { entity, &m_Registry };
-					nsComponent.ScriptInstance->OnCreate();
-				}
-
 				nsComponent.ScriptInstance->OnUpdate(elapsedTime);
 			}
 		}
@@ -44,7 +37,7 @@ namespace Quark {
 			for (auto entity : group)
 			{
 				auto [transformComponent, physicsComponent] = group.get<Transform3DComponent, PhysicsComponent>(entity);
-				physicsComponent.Velocity -= physicsComponent.Velocity * physicsComponent.Friction * (Float)elapsedTime;
+				physicsComponent.Velocity -= physicsComponent.Velocity * m_Settings.GlobalFrictionCoeff * (Float)elapsedTime;
 				transformComponent.Position += physicsComponent.Velocity * (Float)elapsedTime;
 			}
 		}
@@ -65,17 +58,16 @@ namespace Quark {
 
 	Entity Scene::CreateEntity()
 	{
-		return { m_Registry.create(), &m_Registry };
+		return { m_Registry.create(), this };
 	}
 
 	Entity Scene::CreatePrimaryCamera()
 	{
-		m_CameraEntity = CreateEntity();
-		m_CameraEntity.AddComponent<Transform3DComponent>().Position = { 0.0f, 0.0f, -1.0f };
-		m_CameraEntity.AddComponent<PhysicsComponent>().Friction = 4.0f;
-		m_CameraEntity.AddComponent<CameraComponent>().Camera.SetPerspective(90.0f);
-
-		return m_CameraEntity;
+		m_PrimaryCameraEntity = CreateEntity();
+		m_PrimaryCameraEntity.AddComponent<Transform3DComponent>().Position = { 0.0f, 0.0f, -1.0f };
+		m_PrimaryCameraEntity.AddComponent<PhysicsComponent>();
+		m_PrimaryCameraEntity.AddComponent<CameraComponent>().Camera.SetPerspective(90.0f);
+		return m_PrimaryCameraEntity;
 	}
 
 	void Scene::DeleteEntity(Entity entity)
@@ -86,11 +78,35 @@ namespace Quark {
 	void Scene::SetPrimaryCamera(Entity cameraEntity)
 	{
 		QK_CORE_ASSERT(cameraEntity.HasComponent<CameraComponent>(), "Entity must have a camera component");
-		m_CameraEntity = cameraEntity;
+		m_PrimaryCameraEntity = cameraEntity;
 	}
 
 	Ref<Scene> Scene::Create()
 	{
 		return CreateRef<Scene>();
+	}
+
+
+	template<typename Component>
+	void Scene::OnComponentAdded(Entity entity, Component& c)
+	{
+	}
+
+	template<typename Component>
+	void Scene::OnComponentRemove(Entity entity, Component& c)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentAdded<NativeScriptComponent>(Entity entity, NativeScriptComponent& nsc)
+	{
+		nsc.ScriptInstance = Scope<NativeScriptEntity>{ nsc.InstanciateScript(entity, this) };
+		nsc.ScriptInstance->OnCreate();
+	}
+
+	template<>
+	void Scene::OnComponentRemove<NativeScriptComponent>(Entity entity, NativeScriptComponent& nsc)
+	{
+		nsc.ScriptInstance->OnDestroy();
 	}
 }

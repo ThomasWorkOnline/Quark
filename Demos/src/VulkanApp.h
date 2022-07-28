@@ -16,11 +16,11 @@ public:
 private:
 	bool OnMouseButtonPressed(MouseButtonPressedEvent& e);
 	bool OnKeyPressed(KeyPressedEvent& e);
-	bool OnWindowResized(WindowResizedEvent& e);
 
 private:
 	Ref<Scene> m_Scene;
 	Entity m_CameraEntity;
+
 	SceneRenderer m_SceneRenderer;
 
 	bool m_ViewportSelected = false;

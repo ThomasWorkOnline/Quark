@@ -3,8 +3,8 @@
 
 namespace Quark {
 
-    Entity::Entity(entt::entity entity, entt::registry* registry)
-        : m_Entity(entity), m_Registry(registry)
+    Entity::Entity(entt::entity entity, Scene* scene)
+        : m_Entity(entity), m_Scene(scene)
     {
     }
 }
