@@ -4,6 +4,7 @@
 #include "Components.h"
 
 #include <entt/entt.hpp>
+#include <typeinfo>
 
 namespace Quark {
 
@@ -78,7 +79,7 @@ namespace Quark {
 	template<typename Script>
 	inline NativeScriptComponent& Entity::AddNativeScript()
 	{
-		QK_CORE_ASSERT(!HasComponent<NativeScriptComponent>(), "Entity already has a native script component!");
+		QK_CORE_ASSERT(!HasComponent<NativeScriptComponent>(), "Entity already has a {0} script installed!", typeid(Script).name());
 		auto& script = m_Scene->m_Registry.emplace<NativeScriptComponent>(m_Entity).Bind<Script>();
 		m_Scene->OnComponentAdded<NativeScriptComponent>(*this, script);
 		return script;
