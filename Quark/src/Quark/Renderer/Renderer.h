@@ -11,14 +11,9 @@
 
 namespace Quark {
 
-	class Renderer
+	class Renderer : public StaticClass
 	{
 	public:
-		static constexpr uint32_t FramesInFlight = 2;
-
-		Renderer() = delete;
-		Renderer& operator=(const Renderer&) = delete;
-
 		static void BeginScene(const Camera& camera, const Transform3DComponent& cameraTransform);
 
 		/// <summary>
@@ -34,6 +29,8 @@ namespace Quark {
 		static void BeginFrame();
 		static void EndFrame();
 
+		static uint32_t GetFramesInFlight();
+		static uint32_t GetCurrentFrameIndex();
 		static ShaderLibrary& GetShaderLibrary();
 
 	private:

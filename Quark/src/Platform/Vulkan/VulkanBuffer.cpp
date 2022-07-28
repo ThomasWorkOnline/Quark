@@ -17,7 +17,7 @@ namespace Quark {
 			stagingBufferMemory
 		);
 
-		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
+		auto vkDevice = VulkanContext::GetCurrentDevice()->GetVkHandle();
 
 		{
 			void* mappedMemory;
@@ -49,7 +49,7 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
+		auto vkDevice = VulkanContext::GetCurrentDevice()->GetVkHandle();
 		vkDestroyBuffer(vkDevice, m_Buffer, nullptr);
 		vkFreeMemory(vkDevice, m_BufferMemory, nullptr);
 	}
@@ -70,7 +70,7 @@ namespace Quark {
 			stagingBufferMemory
 		);
 
-		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
+		auto vkDevice = VulkanContext::GetCurrentDevice()->GetVkHandle();
 
 		{
 			void* mappedMemory;
@@ -98,7 +98,7 @@ namespace Quark {
 			stagingBufferMemory
 		);
 
-		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
+		auto vkDevice = VulkanContext::GetCurrentDevice()->GetVkHandle();
 
 		{
 			void* mappedMemory;
@@ -132,7 +132,7 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
+		auto vkDevice = VulkanContext::GetCurrentDevice()->GetVkHandle();
 		vkDestroyBuffer(vkDevice, m_Buffer, nullptr);
 		vkFreeMemory(vkDevice, m_BufferMemory, nullptr);
 	}
@@ -154,7 +154,7 @@ namespace Quark {
 			stagingBufferMemory
 		);
 
-		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
+		auto vkDevice = VulkanContext::GetCurrentDevice()->GetVkHandle();
 
 		{
 			void* mappedMemory;

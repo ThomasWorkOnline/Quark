@@ -10,6 +10,9 @@ namespace Quark {
 	public:
 		virtual void                   Init() override;
 
+		virtual void                   InitBackend() override;
+		virtual void                   ShutdownBackend() override;
+
 		virtual                        Version GetVersion() const override { return Version{}; }
 		virtual const                  HardwareConstraints& GetHardwareConstraints() const override { return m_Constraints; }
 

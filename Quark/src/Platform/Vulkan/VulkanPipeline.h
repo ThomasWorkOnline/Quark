@@ -28,8 +28,8 @@ namespace Quark {
 
 		virtual void Resize(uint32_t viewportWidth, uint32_t viewportHeight) override;
 
-		virtual const Ref<CommandBuffer>& GetCommandBuffer() const override { return m_CommandBuffers[m_CurrentFrameIndex]; }
-		virtual const Ref<UniformBuffer>& GetUniformBuffer() const override { return m_CameraUniformBuffers[m_CurrentFrameIndex]; }
+		virtual const Ref<CommandBuffer>& GetCommandBuffer() const override { return m_CommandBuffers[Renderer::GetCurrentFrameIndex()]; }
+		virtual const Ref<UniformBuffer>& GetUniformBuffer() const override { return m_CameraUniformBuffers[Renderer::GetCurrentFrameIndex()]; }
 
 	private:
 		void RecreateFramebuffers();
@@ -43,12 +43,8 @@ namespace Quark {
 		VkCommandBuffer m_ActiveCommandBuffer = VK_NULL_HANDLE;
 
 		std::vector<VkDescriptorSet> m_DescriptorSets;
-		std::vector<vk::Semaphore> m_ImageAvailableSemaphores;
-		std::vector<vk::Framebuffer> m_SwapChainFramebuffers;
+		std::vector<VkFramebuffer> m_SwapChainFramebuffers;
 		std::vector<Ref<UniformBuffer>> m_CameraUniformBuffers;
 		std::vector<Ref<CommandBuffer>> m_CommandBuffers;
-
-		uint32_t m_CurrentFrameIndex = std::numeric_limits<uint32_t>::max();
-		uint32_t m_NextImageIndex = 0;
 	};
 }

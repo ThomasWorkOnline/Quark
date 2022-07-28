@@ -14,6 +14,7 @@
 #include "VulkanTextureArray.h"
 #include "VulkanUniformBuffer.h"
 
+#include "VulkanRenderer.h"
 #include <vulkan/vulkan.hpp>
 
 namespace Quark {
@@ -22,7 +23,17 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		m_Constraints.TextureConstraints.MaxTextureSlots = 32; // TODO: implement
+		m_Constraints.TextureConstraints.MaxTextureSlots = 32; // TODO: implement caps
+	}
+
+	void VulkanGraphicsAPI::InitBackend()
+	{
+		VulkanRenderer::Initialize();
+	}
+
+	void VulkanGraphicsAPI::ShutdownBackend()
+	{
+		VulkanRenderer::Shutdown();
 	}
 
 	Ref<CommandBuffer> VulkanGraphicsAPI::CreateCommandBuffer()

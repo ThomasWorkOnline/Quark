@@ -1,7 +1,7 @@
 #include "qkpch.h"
 #include "GraphicsAPI.h"
 
-#define USE_VULKAN 0
+#define USE_VULKAN 1
 
 namespace Quark {
 

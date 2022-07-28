@@ -9,6 +9,7 @@ namespace Quark {
 	struct RendererData
 	{
 		uint32_t MaxUniformBuffers = 0;
+		uint32_t FramesInFlight = 2;
 
 		// Ensure std140 layout
 		struct CameraData
@@ -20,19 +21,23 @@ namespace Quark {
 		CameraData         CameraBufferData{};
 		Ref<Texture2D>     DefaultTexture;
 		ShaderLibrary      ShaderLib;
+
+		uint32_t CurrentFrameIndex = std::numeric_limits<uint32_t>::max();
 	};
 
-	static RendererData* s_Data;
+	static Scope<RendererData> s_Data;
 
 	void Renderer::Initialize()
 	{
 		QK_PROFILE_FUNCTION();
 
-		RenderCommand::Init();
-
-		QK_CORE_ASSERT(s_Data == nullptr, "s_Data already initialized");
-		s_Data = new RendererData();
+		s_Data = CreateScope<RendererData>();
 		s_Data->MaxUniformBuffers = GraphicsAPI::Instance->GetHardwareConstraints().UniformBufferConstraints.MaxBindings;
+
+		if (GraphicsAPI::GetAPI() == API::OpenGL)
+		{
+			s_Data->FramesInFlight = 1;
+		}
 
 		uint32_t textureColor = 0xffffffff;
 		Texture2DSpecification spec = { 1, 1, 1,
@@ -48,9 +53,7 @@ namespace Quark {
 	void Renderer::Dispose()
 	{
 		QK_PROFILE_FUNCTION();
-
-		delete s_Data;
-		s_Data = nullptr;
+		s_Data.reset();
 	}
 
 	void Renderer::BeginScene(const Camera& camera, const Transform3DComponent& cameraTransform)
@@ -71,10 +74,21 @@ namespace Quark {
 
 	void Renderer::BeginFrame()
 	{
+		s_Data->CurrentFrameIndex = (s_Data->CurrentFrameIndex + 1) % s_Data->FramesInFlight;
 	}
 
 	void Renderer::EndFrame()
 	{
+	}
+
+	uint32_t Renderer::GetFramesInFlight()
+	{
+		return s_Data->FramesInFlight;
+	}
+
+	uint32_t Renderer::GetCurrentFrameIndex()
+	{
+		return s_Data->CurrentFrameIndex;
 	}
 
 	ShaderLibrary& Renderer::GetShaderLibrary()

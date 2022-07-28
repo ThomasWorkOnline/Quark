@@ -46,7 +46,7 @@ namespace Quark {
 	VulkanShader::VulkanShader(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource)
 		: m_Name(name)
 	{
-		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
+		auto vkDevice = VulkanContext::GetCurrentDevice()->GetVkHandle();
 
 		VkShaderModuleCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -66,7 +66,8 @@ namespace Quark {
 
 	VulkanShader::~VulkanShader()
 	{
-		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
+		auto vkDevice = VulkanContext::GetCurrentDevice()->GetVkHandle();
+
 		vkDestroyShaderModule(vkDevice, m_VertexShaderModule, nullptr);
 		vkDestroyShaderModule(vkDevice, m_GeometryShaderModule, nullptr);
 		vkDestroyShaderModule(vkDevice, m_FragmentShaderModule, nullptr);

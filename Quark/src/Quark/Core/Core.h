@@ -52,8 +52,10 @@ namespace Quark {
 		NonMovable& operator=(NonMovable&&) = delete;
 	};
 
+	struct StaticClass : public NonCopyable, public NonMovable {};
+
 	template<typename T>
-	class Singleton : public NonCopyable, public NonMovable
+	class Singleton : public StaticClass
 	{
 	public:
 		using ValueType     = T;

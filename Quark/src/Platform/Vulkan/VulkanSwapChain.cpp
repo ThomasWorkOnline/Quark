@@ -2,14 +2,16 @@
 #include "VulkanSwapChain.h"
 
 #include "VulkanContext.h"
+#include "VulkanRenderer.h"
+
 #include <GLFW/glfw3.h>
 
 namespace Quark {
 
-	VulkanSwapChain::VulkanSwapChain(GLFWwindow* window, vk::SurfaceKHR surface, const SwapChainSpecification& spec) : SwapChain(spec),
-		m_WindowHandle(window), m_Surface(surface)
+	VulkanSwapChain::VulkanSwapChain(GLFWwindow* window, vk::SurfaceKHR surface)
+		: m_WindowHandle(window), m_Surface(surface)
 	{
-		auto& supportDetails = VulkanContext::GetCurrentDevice().GetSupportDetails();
+		auto& supportDetails = VulkanContext::GetCurrentDevice()->GetSupportDetails();
 
 		m_Format.ImageCount = supportDetails.Capabilities.minImageCount + 1;
 		if (supportDetails.Capabilities.maxImageCount > 0 && m_Format.ImageCount > supportDetails.Capabilities.maxImageCount)
@@ -19,24 +21,6 @@ namespace Quark {
 		m_Format.ActualPresentMode = Utils::ChooseSwapPresentMode(supportDetails.PresentModes);
 		m_Format.Extent = Utils::ChooseSwapExtent(supportDetails.Capabilities, m_WindowHandle);
 
-		// Synchronization
-		{
-			auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
-
-			m_InFlightFences.resize(m_Spec.FramesInFlight);
-			m_RenderFinishedSemaphores.resize(m_Spec.FramesInFlight);
-
-			vk::FenceCreateInfo fenceInfo;
-			fenceInfo.setFlags(vk::FenceCreateFlagBits::eSignaled);
-
-			vk::SemaphoreCreateInfo semaphoreInfo;
-			for (uint32_t i = 0; i < m_Spec.FramesInFlight; i++)
-			{
-				m_InFlightFences[i] = vkDevice.createFence(fenceInfo);
-				m_RenderFinishedSemaphores[i] = vkDevice.createSemaphore(semaphoreInfo);
-			}
-		}
-
 		Invalidate();
 	}
 
@@ -44,25 +28,38 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
-		for (auto fence : m_InFlightFences)
-			vkDestroyFence(vkDevice, fence, nullptr);
-
-		for (auto semaphore : m_RenderFinishedSemaphores)
-			vkDestroySemaphore(vkDevice, semaphore, nullptr);
-
+		auto vkDevice = VulkanContext::GetCurrentDevice()->GetVkHandle();
 		for (auto& imageView : m_SwapChainImageViews)
 			vkDestroyImageView(vkDevice, imageView, nullptr);
 
 		vkDestroySwapchainKHR(vkDevice, m_SwapChain, nullptr);
 	}
 
+	void VulkanSwapChain::AcquireNextImageIndex()
+	{
+		auto vkDevice = VulkanContext::GetCurrentDevice()->GetVkHandle();
+
+		// Wait for last frame to be complete
+		{
+			auto inFlightFence = VulkanRenderer::GetInFlightFence();
+
+			VkResult vkRes = vkWaitForFences(vkDevice, 1, &inFlightFence, VK_TRUE, UINT64_MAX);
+			QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Could not wait for fences");
+			vkResetFences(vkDevice, 1, &inFlightFence);
+		}
+
+		VkResult vkRes = vkAcquireNextImageKHR(vkDevice, m_SwapChain, UINT64_MAX, VulkanRenderer::GetImageAvailableSemaphore(), VK_NULL_HANDLE, &m_ImageIndex);
+		QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Could not acquire next image in swap chain");
+	}
+
 	void VulkanSwapChain::Present(vk::Queue presentQueue)
 	{
+		auto renderFinishedSemaphore = VulkanRenderer::GetRenderFinishedSemaphore();
+
 		VkPresentInfoKHR presentInfo{};
 		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 		presentInfo.waitSemaphoreCount = 1;
-		presentInfo.pWaitSemaphores = &m_RenderFinishedSemaphores[m_CurrentFrameIndex];
+		presentInfo.pWaitSemaphores = &renderFinishedSemaphore;
 
 		presentInfo.swapchainCount = 1;
 		presentInfo.pSwapchains = &m_SwapChain;
@@ -75,7 +72,7 @@ namespace Quark {
 	void VulkanSwapChain::Resize(uint32_t viewportWidth, uint32_t viewportHeight)
 	{
 		{
-			auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
+			auto vkDevice = VulkanContext::GetCurrentDevice()->GetVkHandle();
 
 			Timer t;
 			vkDeviceWaitIdle(vkDevice);
@@ -92,31 +89,13 @@ namespace Quark {
 		}
 	}
 
-	uint32_t VulkanSwapChain::AcquireNextImageIndex(vk::Semaphore imageAvailableSemaphore)
-	{
-		m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % m_Spec.FramesInFlight;
-		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
-
-		// Wait for last frame to be complete
-		{
-			VkResult vkRes = vkWaitForFences(vkDevice, 1, &m_InFlightFences[m_CurrentFrameIndex], VK_TRUE, UINT64_MAX);
-			QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Could not wait for fences");
-			vkResetFences(vkDevice, 1, &m_InFlightFences[m_CurrentFrameIndex]);
-		}
-
-		VkResult vkRes = vkAcquireNextImageKHR(vkDevice, m_SwapChain, UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &m_ImageIndex);
-		QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Could not acquire next image in swap chain");
-
-		return m_ImageIndex;
-	}
-
 	// IMPROVE: recreate swap chain using existing memory
 	void VulkanSwapChain::Invalidate()
 	{
 		QK_PROFILE_FUNCTION();
 
 		{
-			auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
+			auto vkDevice = VulkanContext::GetCurrentDevice()->GetVkHandle();
 			for (auto& imageView : m_SwapChainImageViews)
 				vkDestroyImageView(vkDevice, imageView, nullptr);
 
@@ -133,17 +112,17 @@ namespace Quark {
 		createInfo.setImageUsage(vk::ImageUsageFlagBits::eColorAttachment);
 		createInfo.setMinImageCount(m_Format.ImageCount);
 		createInfo.setOldSwapchain(VK_NULL_HANDLE);
-		createInfo.setPresentMode(static_cast<vk::PresentModeKHR>(m_Spec.PresentMode));
+		createInfo.setPresentMode(static_cast<vk::PresentModeKHR>(m_Format.ActualPresentMode));
 		createInfo.setPreTransform(vk::SurfaceTransformFlagBitsKHR::eIdentity);
 		createInfo.setSurface(m_Surface);
 
-		auto& device = VulkanContext::GetCurrentDevice();
+		auto device = VulkanContext::GetCurrentDevice();
 		uint32_t queueFamilyIndices[] = {
-			*device.GetQueueFamilyIndices().GraphicsFamily,
-			*device.GetQueueFamilyIndices().PresentFamily
+			*device->GetQueueFamilyIndices().GraphicsFamily,
+			*device->GetQueueFamilyIndices().PresentFamily
 		};
 
-		if (device.GetQueueFamilyIndices().GraphicsFamily != device.GetQueueFamilyIndices().PresentFamily)
+		if (device->GetQueueFamilyIndices().GraphicsFamily != device->GetQueueFamilyIndices().PresentFamily)
 		{
 			createInfo.setImageSharingMode(vk::SharingMode::eConcurrent);
 			createInfo.setQueueFamilyIndexCount(sizeof(queueFamilyIndices));
@@ -155,7 +134,7 @@ namespace Quark {
 			createInfo.setQueueFamilyIndexCount(0);
 		}
 
-		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
+		auto vkDevice = VulkanContext::GetCurrentDevice()->GetVkHandle();
 		m_SwapChain = vkDevice.createSwapchainKHR(createInfo);
 
 		uint32_t imageCount;

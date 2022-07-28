@@ -22,8 +22,8 @@ namespace Quark {
 	VulkanRenderPass::VulkanRenderPass(const RenderPassSpecification& spec) : RenderPass(spec)
 	{
 		// TODO: get format from specification
-		auto& swapChain = VulkanContext::GetSwapChain();
-		VkFormat swapChainImageFormat = (VkFormat)swapChain.m_Format.ActualSurfaceFormat.format;
+		auto swapChain = VulkanContext::GetSwapChain();
+		VkFormat swapChainImageFormat = (VkFormat)swapChain->m_Format.ActualSurfaceFormat.format;
 
 		VkAttachmentDescription colorAttachment{};
 		colorAttachment.format = swapChainImageFormat;
@@ -60,13 +60,13 @@ namespace Quark {
 		renderPassInfo.dependencyCount = 1;
 		renderPassInfo.pDependencies = &dependency;
 
-		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
+		auto vkDevice = VulkanContext::GetCurrentDevice()->GetVkHandle();
 		vkCreateRenderPass(vkDevice, &renderPassInfo, nullptr, &m_RenderPass);
 	}
 
 	VulkanRenderPass::~VulkanRenderPass()
 	{
-		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
+		auto vkDevice = VulkanContext::GetCurrentDevice()->GetVkHandle();
 		vkDestroyRenderPass(vkDevice, m_RenderPass, nullptr);
 	}
 }

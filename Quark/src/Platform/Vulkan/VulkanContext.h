@@ -23,8 +23,8 @@ namespace Quark {
 
 		virtual void OnViewportResized(uint32_t viewportWidth, uint32_t viewportHeight) override;
 
-		static VulkanDevice& GetCurrentDevice() { return *s_Instance->m_Device; }
-		static VulkanSwapChain& GetSwapChain() { return *s_Instance->m_SwapChain; }
+		static VulkanDevice* GetCurrentDevice() { return s_Instance->m_Device.get(); }
+		static VulkanSwapChain* GetSwapChain() { return s_Instance->m_SwapChain.get(); }
 
 	private:
 		GLFWwindow* m_WindowHandle;

@@ -151,11 +151,7 @@ namespace Quark {
 		m_Device = VulkanDevice::CreateDefaultForSurface(m_Instance, m_Surface);
 
 		// Swap chain creation
-		{
-			SwapChainSpecification scSpec;
-			scSpec.FramesInFlight = 2;
-			m_SwapChain = CreateScope<VulkanSwapChain>(m_WindowHandle, m_Surface, scSpec);
-		}
+		m_SwapChain = CreateScope<VulkanSwapChain>(m_WindowHandle, m_Surface);
 
 		QK_CORE_TRACE("Created Vulkan graphics context!");
 	}

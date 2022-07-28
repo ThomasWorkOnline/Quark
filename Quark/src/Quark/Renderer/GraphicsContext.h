@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Quark/Core/Core.h"
-#include "SwapChain.h"
 
 namespace Quark {
 

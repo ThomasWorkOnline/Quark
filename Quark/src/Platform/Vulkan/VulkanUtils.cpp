@@ -124,7 +124,7 @@ namespace Quark {
 
 		static uint32_t GetBufferMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties)
 		{
-			auto vkPhysicalDevice = VulkanContext::GetCurrentDevice().GetPhysicalDevice();
+			auto vkPhysicalDevice = VulkanContext::GetCurrentDevice()->GetPhysicalDevice();
 
 			vk::PhysicalDeviceMemoryProperties memProperties = vkPhysicalDevice.getMemoryProperties();
 			for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
@@ -147,7 +147,7 @@ namespace Quark {
 			bufferInfo.usage = static_cast<VkBufferUsageFlags>(usage);
 			bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-			auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
+			auto vkDevice = VulkanContext::GetCurrentDevice()->GetVkHandle();
 
 			VkBuffer buffer;
 			vkCreateBuffer(vkDevice, &bufferInfo, nullptr, &buffer);
@@ -171,8 +171,8 @@ namespace Quark {
 		{
 			QK_PROFILE_FUNCTION();
 
-			auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
-			auto commandPool = VulkanContext::GetCurrentDevice().GetCommandPool();
+			auto vkDevice = VulkanContext::GetCurrentDevice()->GetVkHandle();
+			auto commandPool = VulkanContext::GetCurrentDevice()->GetCommandPool();
 
 			VkCommandBufferAllocateInfo allocInfo{};
 			allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -199,7 +199,7 @@ namespace Quark {
 			submitInfo.commandBufferCount = 1;
 			submitInfo.pCommandBuffers = &commandBuffer;
 
-			auto graphicsQueue = VulkanContext::GetCurrentDevice().GetGraphicsQueue();
+			auto graphicsQueue = VulkanContext::GetCurrentDevice()->GetGraphicsQueue();
 
 			vkQueueSubmit(graphicsQueue, 1, &submitInfo, nullptr);
 			vkQueueWaitIdle(graphicsQueue);

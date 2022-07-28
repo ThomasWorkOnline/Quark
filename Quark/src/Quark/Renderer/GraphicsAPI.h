@@ -46,6 +46,9 @@ namespace Quark {
 		virtual                       ~GraphicsAPI() = default;
 		virtual void                   Init() = 0;
 
+		virtual void                   InitBackend() = 0;
+		virtual void                   ShutdownBackend() = 0;
+
 		virtual                        Version GetVersion() const = 0;
 		virtual const                  HardwareConstraints& GetHardwareConstraints() const = 0;
 

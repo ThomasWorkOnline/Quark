@@ -3,6 +3,7 @@
 
 #include "VulkanContext.h"
 #include "VulkanCommandBuffer.h"
+#include "VulkanRenderer.h"
 #include "VulkanRenderPass.h"
 #include "VulkanUniformBuffer.h"
 #include "VulkanUtils.h"
@@ -64,17 +65,15 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
+		auto vkDevice = VulkanContext::GetCurrentDevice()->GetVkHandle();
 
-		m_DescriptorSets.resize(m_Spec.FramesInFlight);
-		m_ImageAvailableSemaphores.resize(m_Spec.FramesInFlight);
-		m_CameraUniformBuffers.resize(m_Spec.FramesInFlight);
-		m_CommandBuffers.resize(m_Spec.FramesInFlight);
+		uint32_t framesInFlight = Renderer::GetFramesInFlight();
+		m_DescriptorSets.resize(framesInFlight);
+		m_CameraUniformBuffers.resize(framesInFlight);
+		m_CommandBuffers.resize(framesInFlight);
 
-		vk::SemaphoreCreateInfo semaphoreInfo;
-		for (uint32_t i = 0; i < m_Spec.FramesInFlight; i++)
+		for (uint32_t i = 0; i < framesInFlight; i++)
 		{
-			m_ImageAvailableSemaphores[i] = vkDevice.createSemaphore(semaphoreInfo);
 			m_CameraUniformBuffers[i] = UniformBuffer::Create(m_Spec.CameraUniformBufferSize, 0);
 			m_CommandBuffers[i] = CommandBuffer::Create();
 		}
@@ -83,13 +82,13 @@ namespace Quark {
 		{
 			VkDescriptorPoolSize poolSize{};
 			poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			poolSize.descriptorCount = m_Spec.FramesInFlight;
+			poolSize.descriptorCount = framesInFlight;
 
 			VkDescriptorPoolCreateInfo poolInfo{};
 			poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 			poolInfo.poolSizeCount = 1;
 			poolInfo.pPoolSizes = &poolSize;
-			poolInfo.maxSets = m_Spec.FramesInFlight;
+			poolInfo.maxSets = framesInFlight;
 
 			vkCreateDescriptorPool(vkDevice, &poolInfo, nullptr, &m_DescriptorPool);
 		}
@@ -113,20 +112,19 @@ namespace Quark {
 		// Descriptor sets
 		{
 			// Copy each layout for each frame in flight
-			QK_CORE_ASSERT(m_Spec.FramesInFlight > 0, "Number of frames in flight must be greater than zero");
-			auto* layouts = static_cast<VkDescriptorSetLayout*>(alloca(m_Spec.FramesInFlight * sizeof(VkDescriptorSetLayout)));
-			for (uint32_t i = 0; i < m_Spec.FramesInFlight; i++)
+			auto* layouts = static_cast<VkDescriptorSetLayout*>(alloca(framesInFlight * sizeof(VkDescriptorSetLayout)));
+			for (uint32_t i = 0; i < framesInFlight; i++)
 				layouts[i] = m_DescriptorSetLayout;
 
 			VkDescriptorSetAllocateInfo allocInfo{};
 			allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 			allocInfo.descriptorPool = m_DescriptorPool;
-			allocInfo.descriptorSetCount = m_Spec.FramesInFlight;
+			allocInfo.descriptorSetCount = framesInFlight;
 			allocInfo.pSetLayouts = layouts;
 
 			vkAllocateDescriptorSets(vkDevice, &allocInfo, m_DescriptorSets.data());
 
-			for (uint32_t i = 0; i < m_Spec.FramesInFlight; i++)
+			for (uint32_t i = 0; i < framesInFlight; i++)
 			{
 				VkDescriptorBufferInfo bufferInfo{};
 				bufferInfo.buffer = static_cast<VulkanUniformBuffer*>(m_CameraUniformBuffers[i].get())->GetVkHandle();
@@ -154,7 +152,7 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
+		auto vkDevice = VulkanContext::GetCurrentDevice()->GetVkHandle();
 		{
 			Timer t;
 			vkDeviceWaitIdle(vkDevice);
@@ -164,9 +162,6 @@ namespace Quark {
 		for (auto& framebuffer : m_SwapChainFramebuffers)
 			vkDestroyFramebuffer(vkDevice, framebuffer, nullptr);
 
-		for (auto& semaphore : m_ImageAvailableSemaphores)
-			vkDestroySemaphore(vkDevice, semaphore, nullptr);
-
 		vkDestroyPipeline(vkDevice, m_GraphicsPipeline, nullptr);
 		vkDestroyPipelineLayout(vkDevice, m_PipelineLayout, nullptr);
 		vkDestroyDescriptorSetLayout(vkDevice, m_DescriptorSetLayout, nullptr);
@@ -175,25 +170,24 @@ namespace Quark {
 
 	void VulkanPipeline::BeginFrame()
 	{
-		m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % m_Spec.FramesInFlight;
+		VulkanContext::GetSwapChain()->AcquireNextImageIndex();
 
-		auto& swapChain = VulkanContext::GetSwapChain();
-		m_NextImageIndex = swapChain.AcquireNextImageIndex(m_ImageAvailableSemaphores[m_CurrentFrameIndex]);
-
-		m_ActiveCommandBuffer = static_cast<VulkanCommandBuffer*>(m_CommandBuffers[m_CurrentFrameIndex].get())->GetVkHandle();
-		m_CommandBuffers[m_CurrentFrameIndex]->Reset();
-		m_CommandBuffers[m_CurrentFrameIndex]->Begin();
+		uint32_t currentFrameIndex = Renderer::GetCurrentFrameIndex();
+		m_ActiveCommandBuffer = static_cast<VulkanCommandBuffer*>(m_CommandBuffers[currentFrameIndex].get())->GetVkHandle();
+		m_CommandBuffers[currentFrameIndex]->Reset();
+		m_CommandBuffers[currentFrameIndex]->Begin();
 
 		vkCmdBindPipeline(m_ActiveCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline);
-		vkCmdBindDescriptorSets(m_ActiveCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, 0, 1, &m_DescriptorSets[m_CurrentFrameIndex], 0, nullptr);
+		vkCmdBindDescriptorSets(m_ActiveCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, 0, 1, &m_DescriptorSets[currentFrameIndex], 0, nullptr);
 	}
 
 	void VulkanPipeline::EndFrame()
 	{
-		m_CommandBuffers[m_CurrentFrameIndex]->End();
+		uint32_t currentFrameIndex = Renderer::GetCurrentFrameIndex();
+		m_CommandBuffers[currentFrameIndex]->End();
 
 		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-		VkSemaphore waitSemaphores = m_ImageAvailableSemaphores[m_CurrentFrameIndex];
+		VkSemaphore waitSemaphores = VulkanRenderer::GetImageAvailableSemaphore();
 
 		VkSubmitInfo submitInfo{};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -204,12 +198,11 @@ namespace Quark {
 		submitInfo.commandBufferCount = 1;
 		submitInfo.pCommandBuffers = &m_ActiveCommandBuffer;
 
-		auto& swapChain = VulkanContext::GetSwapChain();
-		VkSemaphore signalSemaphore = swapChain.GetRenderFinishedSemaphore();
+		VkSemaphore signalSemaphore = VulkanRenderer::GetRenderFinishedSemaphore();
 		submitInfo.signalSemaphoreCount = 1;
 		submitInfo.pSignalSemaphores = &signalSemaphore;
 
-		vkQueueSubmit(VulkanContext::GetCurrentDevice().GetGraphicsQueue(), 1, &submitInfo, swapChain.GetFence());
+		vkQueueSubmit(VulkanContext::GetCurrentDevice()->GetGraphicsQueue(), 1, &submitInfo, VulkanRenderer::GetInFlightFence());
 	}
 
 	void VulkanPipeline::BeginRenderPass(const Ref<RenderPass>& renderPass)
@@ -217,7 +210,7 @@ namespace Quark {
 		VkRenderPassBeginInfo renderPassInfo{};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 		renderPassInfo.renderPass = static_cast<VulkanRenderPass*>(renderPass.get())->GetVkHandle();
-		renderPassInfo.framebuffer = m_SwapChainFramebuffers[m_NextImageIndex];
+		renderPassInfo.framebuffer = m_SwapChainFramebuffers[VulkanContext::GetSwapChain()->GetCurrentImageIndex()];
 
 		// must be size of framebuffer
 		renderPassInfo.renderArea.offset = VkOffset2D{ 0, 0 };
@@ -251,12 +244,12 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		auto& swapChain = VulkanContext::GetSwapChain();
-		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
+		auto vkDevice = VulkanContext::GetCurrentDevice()->GetVkHandle();
+		auto swapChain = VulkanContext::GetSwapChain();
 
 		if (m_SwapChainFramebuffers.size() == 0)
 		{
-			m_SwapChainFramebuffers.resize(swapChain.GetImageCount());
+			m_SwapChainFramebuffers.resize(swapChain->GetImageCount());
 		}
 		else
 		{
@@ -264,18 +257,18 @@ namespace Quark {
 				vkDestroyFramebuffer(vkDevice, framebuffer, nullptr);
 		}
 
-		for (uint32_t i = 0; i < swapChain.GetImageCount(); i++)
+		for (uint32_t i = 0; i < swapChain->GetImageCount(); i++)
 		{
 			vk::ImageView attachments[] = {
-				swapChain.GetImageView(i)
+				swapChain->GetImageView(i)
 			};
 
 			vk::FramebufferCreateInfo framebufferInfo;
 			framebufferInfo.setRenderPass(static_cast<VulkanRenderPass*>(m_Spec.RenderPass.get())->GetVkHandle());
 			framebufferInfo.setAttachmentCount(1);
 			framebufferInfo.setPAttachments(attachments);
-			framebufferInfo.setWidth(swapChain.GetWidth());
-			framebufferInfo.setHeight(swapChain.GetHeight());
+			framebufferInfo.setWidth(swapChain->GetWidth());
+			framebufferInfo.setHeight(swapChain->GetHeight());
 			framebufferInfo.setLayers(1);
 
 			m_SwapChainFramebuffers[i] = vkDevice.createFramebuffer(framebufferInfo);
@@ -284,7 +277,7 @@ namespace Quark {
 
 	void VulkanPipeline::RecreateGraphicsPipeline()
 	{
-		auto vkDevice = VulkanContext::GetCurrentDevice().GetVkHandle();
+		auto vkDevice = VulkanContext::GetCurrentDevice()->GetVkHandle();
 
 		if (m_GraphicsPipeline)
 		{

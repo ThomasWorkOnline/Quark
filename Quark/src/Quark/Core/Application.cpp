@@ -26,6 +26,8 @@ namespace Quark {
 		for (size_t i = 0; i < m_Layers.size(); i++)
 			delete m_Layers[i];
 
+		GraphicsAPI::Instance->ShutdownBackend();
+
 		Renderer2D::Dispose();
 		Renderer::Dispose();
 	}
@@ -80,8 +82,11 @@ namespace Quark {
 		m_AudioOutputDevice = AudioOutputDevice::Create();
 		QK_CORE_INFO("Opened audio device: {0}", m_AudioOutputDevice->GetDeviceName());
 
+		RenderCommand::Init();
 		Renderer::Initialize();
 		Renderer2D::Initialize();
+
+		GraphicsAPI::Instance->InitBackend();
 		QK_CORE_INFO(GraphicsAPI::Instance->GetSpecification());
 
 		if (m_Options.HasFlag(ShowApiInWindowTitle))

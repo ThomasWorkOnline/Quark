@@ -8,15 +8,15 @@ namespace Quark {
 
 	VulkanCommandBuffer::VulkanCommandBuffer()
 	{
-		auto& device = VulkanContext::GetCurrentDevice();
+		auto device = VulkanContext::GetCurrentDevice();
 
 		VkCommandBufferAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		allocInfo.commandPool = device.GetCommandPool();
+		allocInfo.commandPool = device->GetCommandPool();
 		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 		allocInfo.commandBufferCount = 1;
 
-		vkAllocateCommandBuffers(device.GetVkHandle(), &allocInfo, &m_CommandBuffer);
+		vkAllocateCommandBuffers(device->GetVkHandle(), &allocInfo, &m_CommandBuffer);
 	}
 
 	void VulkanCommandBuffer::Begin()

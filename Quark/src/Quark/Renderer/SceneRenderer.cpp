@@ -61,6 +61,7 @@ namespace Quark {
 
 	void SceneRenderer::OnRender()
 	{
+		Renderer::BeginFrame();
 		m_Data.GraphicsPipeline->BeginFrame();
 
 		if (m_Scene && m_Scene->HasPrimaryCamera())
@@ -99,6 +100,7 @@ namespace Quark {
 		}
 
 		m_Data.GraphicsPipeline->EndFrame();
+		Renderer::EndFrame();
 	}
 
 	void SceneRenderer::OnViewportResized(uint32_t viewportWidth, uint32_t viewportHeight)
@@ -163,7 +165,6 @@ namespace Quark {
 			PipelineSpecification spec;
 			spec.ViewportWidth = m_ViewportWidth;
 			spec.ViewportHeight = m_ViewportHeight;
-			spec.FramesInFlight = Renderer::FramesInFlight;
 			spec.CameraUniformBufferSize = sizeof(SceneData::CameraUniformBufferData);
 			spec.Layout = s_Vertex2DLayout;
 			spec.RenderPass = m_Data.GeometryPass;

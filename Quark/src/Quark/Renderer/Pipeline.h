@@ -14,7 +14,6 @@ namespace Quark {
 	struct PipelineSpecification
 	{
 		uint32_t            ViewportWidth = 0, ViewportHeight = 0;
-		uint32_t            FramesInFlight = 1;
 		size_t              CameraUniformBufferSize = 0;
 
 		RenderCullMode      CullMode = RenderCullMode::Default;
