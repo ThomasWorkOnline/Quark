@@ -210,14 +210,14 @@ void PBRRenderingDemo::OnRender()
 	m_PBRShader->Attach();
 	m_PBRShader->SetFloat3("u_CameraPos", transform.Position);
 
-	Renderer::BeginScene(camera, transform);
+	//Renderer::BeginScene(camera, transform);
 
 	if (m_Body)
 	{
 		//RenderCommand::DrawIndexed(m_Body.GetVertexArray());
 	}
 
-	Renderer::EndScene();
+	//Renderer::EndScene();
 
 	t.Stop();
 	auto ms = t.Microseconds().count() / 1000.0f;

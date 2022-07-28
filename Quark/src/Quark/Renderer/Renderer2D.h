@@ -26,12 +26,9 @@ namespace Quark {
 		uint32_t LinesDrawn;
 	};
 
-	class Renderer2D
+	class Renderer2D : public StaticClass
 	{
 	public:
-		Renderer2D() = delete;
-		Renderer2D& operator=(const Renderer2D&) = delete;
-
 		static void BeginScene(const Camera& camera, const Transform3DComponent& cameraTransform);
 		static void BeginScene(const Mat4f& cameraProjection, const Mat4f& cameraView);
 		static void EndScene();

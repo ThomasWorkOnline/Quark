@@ -11,16 +11,8 @@ namespace Quark {
 		uint32_t MaxUniformBuffers = 0;
 		uint32_t FramesInFlight = 2;
 
-		// Ensure std140 layout
-		struct CameraData
-		{
-			Mat4f View;
-			Mat4f Projection;
-		};
-
-		CameraData         CameraBufferData{};
-		Ref<Texture2D>     DefaultTexture;
-		ShaderLibrary      ShaderLib;
+		Ref<Texture2D> DefaultTexture;
+		ShaderLibrary  ShaderLib;
 
 		uint32_t CurrentFrameIndex = std::numeric_limits<uint32_t>::max();
 	};
@@ -54,22 +46,6 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 		s_Data.reset();
-	}
-
-	void Renderer::BeginScene(const Camera& camera, const Transform3DComponent& cameraTransform)
-	{
-		Mat4f rotate = glm::toMat4(cameraTransform.Orientation);
-		Mat4f view = glm::translate(rotate, (Vec3f)-cameraTransform.Position);
-
-		BeginScene(camera.GetProjection(), view);
-	}
-
-	void Renderer::BeginScene(const Mat4f& cameraProjection, const Mat4f& cameraView)
-	{
-	}
-
-	void Renderer::EndScene()
-	{
 	}
 
 	void Renderer::BeginFrame()
