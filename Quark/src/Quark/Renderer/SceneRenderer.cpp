@@ -130,9 +130,9 @@ namespace Quark {
 
 	void SceneRenderer::GeometryPass()
 	{
-		uint32_t imageIndex = GraphicsContext::Get().GetSwapChain()->GetCurrentImageIndex();
-
 		m_Data.GraphicsPipeline->Bind(Renderer::GetCommandBuffer());
+
+		uint32_t imageIndex = GraphicsContext::Get().GetSwapChain()->GetCurrentImageIndex();
 		Renderer::BeginRenderPass(m_Data.GeometryPass, m_Data.Framebuffers[imageIndex]);
 
 		Renderer::GetCommandBuffer()->BindVertexBuffer(m_Data.VertexBuffer, 0);
@@ -164,13 +164,13 @@ namespace Quark {
 		{
 			RenderPassSpecification spec;
 			spec.BindPoint = PipelineBindPoint::Graphics;
-			spec.ColorFormat = ColorDataFormat::BRGA8_SRGB;
+			spec.ColorFormat = ColorDataFormat::BGRA8_SRGB;
 			spec.Clears = true;
 			m_Data.GeometryPass = RenderPass::Create(spec);
 		}
 
 		{
-			const uint32_t imageCount = 3;
+			const uint32_t imageCount = GraphicsContext::Get().GetSwapChain()->GetImageCount();
 			m_Data.Framebuffers.resize(imageCount);
 
 			FramebufferSpecification fbSpec;
@@ -237,7 +237,6 @@ namespace Quark {
 
 			{
 				FramebufferAttachmentSpecification attachmentSpec = {
-					FramebufferTargetAttachment::ColorAttachment0,
 					ColorDataFormat::RGBA16f
 				};
 

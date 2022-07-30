@@ -7,75 +7,128 @@
 #include <set>
 #include <sstream>
 
+#include <GLFW/glfw3.h>
+
 namespace Quark {
 
 	static VKAPI_ATTR VkBool32 VKAPI_CALL VkDebugCallback(
-		vk::DebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-		vk::DebugUtilsMessageTypeFlagsEXT messageType,
-		const vk::DebugUtilsMessengerCallbackDataEXT* pCallbackData,
+		VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+		VkDebugUtilsMessageTypeFlagsEXT messageType,
+		const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
 		void* pUserData)
 	{
-		if (messageType == vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral)
+		if (messageType & VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT)
 			return VK_FALSE;
 
 		switch (messageSeverity)
 		{
-			case vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose: QK_CORE_TRACE(pCallbackData->pMessage); return VK_FALSE;
-			case vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo:    QK_CORE_INFO(pCallbackData->pMessage);  return VK_FALSE;
-			case vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning: QK_CORE_WARN(pCallbackData->pMessage);  return VK_FALSE;
-			case vk::DebugUtilsMessageSeverityFlagBitsEXT::eError:   QK_CORE_FATAL(pCallbackData->pMessage); return VK_FALSE;
+			case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT: QK_CORE_TRACE(pCallbackData->pMessage); return VK_FALSE;
+			case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:    QK_CORE_INFO(pCallbackData->pMessage);  return VK_FALSE;
+			case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT: QK_CORE_WARN(pCallbackData->pMessage);  return VK_FALSE;
+			case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:   QK_CORE_FATAL(pCallbackData->pMessage); return VK_FALSE;
+			default:
+				QK_CORE_FATAL("Unknown severity level in Vulkan message callback");
+				return VK_FALSE;
 		}
 
-		QK_CORE_FATAL("Unknown severity level in Vulkan message callback");
 		return VK_FALSE;
 	}
 
 	namespace Utils {
 
-		static vk::Result CreateVkDebugUtilsMessengerEXT(
-			vk::Instance instance,
-			const vk::DebugUtilsMessengerCreateInfoEXT* pCreateInfo,
-			const vk::AllocationCallbacks* pAllocator,
-			vk::DebugUtilsMessengerEXT* pDebugMessenger)
+		static bool CheckVkValidationLayerSupport()
+		{
+			uint32_t layerCount;
+			VkResult vkRes = vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+			QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Error enumerating Vulkan validation layer properties");
+
+			std::vector<VkLayerProperties> availableLayers(layerCount);
+			vkRes = vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+			QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Error enumerating Vulkan validation layer properties");
+
+			for (const char* layerName : g_ValidationLayers)
+			{
+				bool layerFound = false;
+				for (const auto& layerProperties : availableLayers)
+				{
+					if (std::strcmp(layerName, layerProperties.layerName) == 0)
+					{
+						layerFound = true;
+						break;
+					}
+				}
+
+				if (!layerFound)
+					return false;
+			}
+
+			return true;
+		}
+
+		static std::vector<const char*> GetRequiredVkExtensions()
+		{
+			uint32_t glfwExtensionCount = 0;
+			const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+
+			std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+
+#ifdef QK_ENABLE_VULKAN_VALIDATION_LAYERS
+			extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+#endif
+			return extensions;
+		}
+
+		static VkSurfaceKHR CreateSurfaceForPlatform(VkInstance instance, GLFWwindow* window)
+		{
+			VkSurfaceKHR surface;
+			glfwCreateWindowSurface(instance, window, nullptr, &surface);
+			return surface;
+		}
+
+		static VkResult CreateVkDebugUtilsMessengerEXT(
+			VkInstance instance,
+			const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+			const VkAllocationCallbacks* pAllocator,
+			VkDebugUtilsMessengerEXT* pDebugMessenger)
 		{
 			auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
 
 			if (func != nullptr)
-				return (vk::Result)func((VkInstance)instance, (const VkDebugUtilsMessengerCreateInfoEXT*)pCreateInfo, (const VkAllocationCallbacks*)pAllocator, (VkDebugUtilsMessengerEXT*)pDebugMessenger);
+				return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
 			else
-				return vk::Result::eErrorExtensionNotPresent;
+				return VK_ERROR_EXTENSION_NOT_PRESENT;
 		}
 
-		static void DestroyVkDebugUtilsMessengerEXT(vk::Instance instance,
-			vk::DebugUtilsMessengerEXT debugMessenger,
-			const vk::AllocationCallbacks* pAllocator)
+		static void DestroyVkDebugUtilsMessengerEXT(VkInstance instance,
+			VkDebugUtilsMessengerEXT debugMessenger,
+			const VkAllocationCallbacks* pAllocator)
 		{
 			auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
 
 			QK_CORE_ASSERT(func != nullptr, "Could not load function vkDestroyDebugUtilsMessengerEXT");
-			func((VkInstance)instance, (VkDebugUtilsMessengerEXT)debugMessenger, (const VkAllocationCallbacks*)pAllocator);
+			func(instance, debugMessenger, pAllocator);
 		}
 
-		static vk::DebugUtilsMessengerCreateInfoEXT CreateVkDebugUtilsMessengerCreateInfoEXT()
+		static VkDebugUtilsMessengerCreateInfoEXT CreateVkDebugUtilsMessengerCreateInfoEXT()
 		{
-			vk::DebugUtilsMessengerCreateInfoEXT vkMessengerCreateInfo;
-			vkMessengerCreateInfo.setMessageSeverity(
-				vk::DebugUtilsMessageSeverityFlagBitsEXT::eError
-				| vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning
+			VkDebugUtilsMessengerCreateInfoEXT messengerCreateInfo{};
+			messengerCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+			messengerCreateInfo.messageSeverity =
+				  VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT
+				| VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT
 #if QK_VULKAN_VERBOSE_LOG
-				| vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo
-				| vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose
+				| VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT
+				| VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT
 #endif
-			);
+				;
 
-			vkMessengerCreateInfo.setMessageType(
-				vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral |
-				vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation |
-				vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance
-			);
+			messengerCreateInfo.messageType =
+				  VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT
+				| VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT
+				| VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
 
-			vkMessengerCreateInfo.setPfnUserCallback((PFN_vkDebugUtilsMessengerCallbackEXT)VkDebugCallback);
-			return vkMessengerCreateInfo;
+			messengerCreateInfo.pfnUserCallback = (PFN_vkDebugUtilsMessengerCallbackEXT)VkDebugCallback;
+			return messengerCreateInfo;
 		}
 	}
 
@@ -97,12 +150,14 @@ namespace Quark {
 #ifdef QK_ENABLE_VULKAN_VALIDATION_LAYERS
 		Utils::DestroyVkDebugUtilsMessengerEXT(m_Instance, m_VkDebugMessenger, nullptr);
 #endif
-		m_Instance.destroySurfaceKHR(m_Surface);
-		m_Instance.destroy();
+		vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
+		vkDestroyInstance(m_Instance, nullptr);
 	}
 
 	void VulkanContext::Init()
 	{
+		QK_PROFILE_FUNCTION();
+
 		QK_PROFILE_FUNCTION();
 
 		// Instance creation
@@ -113,29 +168,35 @@ namespace Quark {
 			QK_CORE_ASSERT(Utils::CheckVkValidationLayerSupport(), "Some Vulkan validation layers are not supported");
 #endif
 
-			vk::ApplicationInfo vkAppInfo;
-			vkAppInfo.setPApplicationName("Quark App");
-			vkAppInfo.setPEngineName("Quark Engine");
+			VkApplicationInfo appInfo{};
+			appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+			appInfo.pApplicationName = "Quark App";
+			appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+			appInfo.pEngineName = "Quark Engine";
+			appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
+			appInfo.apiVersion = VK_API_VERSION_1_0;
 
-			vk::InstanceCreateInfo vkCreateInfo;
-			vkCreateInfo.setPApplicationInfo(&vkAppInfo);
+			VkInstanceCreateInfo createInfo{};
+			createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+			createInfo.pApplicationInfo = &appInfo;
 
 			auto extensions = Utils::GetRequiredVkExtensions();
-			vkCreateInfo.setEnabledExtensionCount(static_cast<uint32_t>(extensions.size()));
-			vkCreateInfo.setPpEnabledExtensionNames(extensions.data());
+			createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
+			createInfo.ppEnabledExtensionNames = extensions.data();
 
 #ifdef QK_ENABLE_VULKAN_VALIDATION_LAYERS
-			auto vkMessengerCreateInfo = Utils::CreateVkDebugUtilsMessengerCreateInfoEXT();
+			auto messengerCreateInfo = Utils::CreateVkDebugUtilsMessengerCreateInfoEXT();
 
-			vkCreateInfo.setEnabledLayerCount(static_cast<uint32_t>(g_ValidationLayers.size()));
-			vkCreateInfo.setPpEnabledLayerNames(g_ValidationLayers.data());
-			vkCreateInfo.setPNext(&vkMessengerCreateInfo);
+			createInfo.enabledLayerCount = sizeof_array(g_ValidationLayers);
+			createInfo.ppEnabledLayerNames = g_ValidationLayers;
+			createInfo.pNext = &messengerCreateInfo;
 #endif
-			m_Instance = vk::createInstance(vkCreateInfo);
+			VkResult vkRes = vkCreateInstance(&createInfo, nullptr, &m_Instance);
+			QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Failed to create the Vulkan instance");
 
 #ifdef QK_ENABLE_VULKAN_VALIDATION_LAYERS
-			vk::Result vkRes = Utils::CreateVkDebugUtilsMessengerEXT(m_Instance, &vkMessengerCreateInfo, nullptr, &m_VkDebugMessenger);
-			QK_CORE_ASSERT(vkRes == vk::Result::eSuccess, "Failed to create a Vulkan debug messenger");
+			vkRes = Utils::CreateVkDebugUtilsMessengerEXT(m_Instance, &messengerCreateInfo, nullptr, &m_VkDebugMessenger);
+			QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Failed to create a Vulkan debug messenger");
 #endif
 		}
 
@@ -153,7 +214,6 @@ namespace Quark {
 
 	void VulkanContext::SwapBuffers()
 	{
-		auto presentQueue = m_Device->GetPresentQueue();
-		m_SwapChain->Present(presentQueue);
+		m_SwapChain->Present();
 	}
 }

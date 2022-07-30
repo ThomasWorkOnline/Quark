@@ -20,8 +20,8 @@ namespace Quark {
 		RGB8_SRGB,
 		RGBA8_SRGB,
 
-		BRG8_SRGB,
-		BRGA8_SRGB,
+		BGR8_SRGB,
+		BGRA8_SRGB,
 
 		// HDR formats
 		RGB16f,
@@ -50,8 +50,8 @@ namespace Quark {
 			case ColorDataFormat::RGBA16:          return 8;
 			case ColorDataFormat::RGB8_SRGB:       return 3;
 			case ColorDataFormat::RGBA8_SRGB:      return 4;
-			case ColorDataFormat::BRG8_SRGB:       return 3;
-			case ColorDataFormat::BRGA8_SRGB:      return 4;
+			case ColorDataFormat::BGR8_SRGB:       return 3;
+			case ColorDataFormat::BGRA8_SRGB:      return 4;
 			case ColorDataFormat::Red8:            return 1;
 			case ColorDataFormat::RGB16f:          return 6;
 			case ColorDataFormat::RGB32f:          return 12;
@@ -73,7 +73,7 @@ namespace Quark {
 			case ColorDataFormat::RGBA12:
 			case ColorDataFormat::RGBA16:
 			case ColorDataFormat::RGBA8_SRGB:
-			case ColorDataFormat::BRGA8_SRGB:
+			case ColorDataFormat::BGRA8_SRGB:
 			case ColorDataFormat::RGBA16f:
 			case ColorDataFormat::RGBA32f:
 				return true;

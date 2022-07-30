@@ -6,6 +6,8 @@
 // since variable size stack arrays are not supported by all compilers
 #pragma warning(disable : 6255)
 
+#define sizeof_array(x) (sizeof(x) / sizeof(x[0]))
+
 namespace Quark {
 
 	template<typename T, typename Deleter = std::default_delete<T>>

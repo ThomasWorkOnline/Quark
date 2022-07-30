@@ -8,28 +8,15 @@ namespace Quark {
 
 	namespace Utils {
 
-		std::vector<const char*> GetRequiredVkExtensions()
-		{
-			uint32_t glfwExtensionCount = 0;
-			const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-
-			std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
-
-#ifdef QK_ENABLE_VULKAN_VALIDATION_LAYERS
-			extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-#endif
-			return extensions;
-		}
-
 		void EnumerateVkExtensions()
 		{
 			uint32_t extensionCount = 0;
-			vk::Result vkRes = vk::enumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-			QK_CORE_ASSERT(vkRes == vk::Result::eSuccess, "Error enumerating Vulkan extension properties");
+			VkResult vkRes = vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
+			QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Error enumerating Vulkan extension properties");
 
-			std::vector<vk::ExtensionProperties> extensions(extensionCount);
-			vkRes = vk::enumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
-			QK_CORE_ASSERT(vkRes == vk::Result::eSuccess, "Error enumerating Vulkan extension properties");
+			std::vector<VkExtensionProperties> extensions(extensionCount);
+			vkRes = vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
+			QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Error enumerating Vulkan extension properties");
 
 			std::stringstream ss;
 			ss << "available extensions:\n";
@@ -37,35 +24,6 @@ namespace Quark {
 				ss << '\t' << extension.extensionName << '\n';
 
 			QK_CORE_INFO(ss.str());
-		}
-
-		bool CheckVkValidationLayerSupport()
-		{
-			uint32_t layerCount;
-			vk::Result vkRes = vk::enumerateInstanceLayerProperties(&layerCount, nullptr);
-			QK_CORE_ASSERT(vkRes == vk::Result::eSuccess, "Error enumerating Vulkan validation layer properties");
-
-			std::vector<vk::LayerProperties> availableLayers(layerCount);
-			vkRes = vk::enumerateInstanceLayerProperties(&layerCount, availableLayers.data());
-			QK_CORE_ASSERT(vkRes == vk::Result::eSuccess, "Error enumerating Vulkan validation layer properties");
-
-			for (const char* layerName : g_ValidationLayers)
-			{
-				bool layerFound = false;
-				for (const auto& layerProperties : availableLayers)
-				{
-					if (std::strcmp(layerName, layerProperties.layerName) == 0)
-					{
-						layerFound = true;
-						break;
-					}
-				}
-
-				if (!layerFound)
-					return false;
-			}
-
-			return true;
 		}
 
 		VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
@@ -113,13 +71,6 @@ namespace Quark {
 
 				return actualExtent;
 			}
-		}
-
-		VkSurfaceKHR CreateSurfaceForPlatform(VkInstance instance, GLFWwindow* window)
-		{
-			VkSurfaceKHR surface;
-			glfwCreateWindowSurface(instance, window, nullptr, &surface);
-			return surface;
 		}
 
 		static uint32_t GetBufferMemoryType(VkPhysicalDevice physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties)

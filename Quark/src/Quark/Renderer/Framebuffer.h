@@ -9,6 +9,7 @@
 
 namespace Quark {
 
+#if 0
 	enum class FramebufferTargetAttachment
 	{
 		None = 0,
@@ -27,11 +28,11 @@ namespace Quark {
 		DepthAttachment,
 		DepthStencilAttachment
 	};
+#endif
 
 	struct FramebufferAttachmentSpecification
 	{
-		FramebufferTargetAttachment Attachment{};
-		ColorDataFormat             DataFormat{};
+		ColorDataFormat DataFormat{};
 	};
 
 	class FramebufferAttachment
@@ -68,11 +69,6 @@ namespace Quark {
 		virtual void Detach() = 0;
 
 		virtual void Resize(uint32_t width, uint32_t height) = 0;
-
-		// @Deprecated
-		virtual void AttachColorTextureTarget(uint32_t target, uint32_t textureRendererID) = 0;
-		virtual void AttachColorAttachment(uint32_t textureSlot, uint32_t index = 0) = 0;
-		virtual void AttachDepthAttachment(uint32_t textureSlot) = 0;
 
 		virtual uint32_t GetWidth() const = 0;
 		virtual uint32_t GetHeight() const = 0;

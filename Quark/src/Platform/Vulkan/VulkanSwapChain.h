@@ -21,7 +21,7 @@ namespace Quark {
 		virtual uint32_t GetCurrentImageIndex() const override { return m_ImageIndex; }
 
 		virtual void AcquireNextImage() override;
-		virtual void Present(void* presentQueue) override;
+		virtual void Present() override;
 		virtual void Resize(uint32_t viewportWidth, uint32_t viewportHeight) override;
 
 		virtual const Ref<FramebufferAttachment>& GetAttachment(uint32_t imageIndex) const override { return m_Attachments[imageIndex]; }

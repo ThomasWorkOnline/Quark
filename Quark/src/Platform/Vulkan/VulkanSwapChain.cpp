@@ -24,7 +24,7 @@ namespace Quark {
 		Invalidate();
 
 		FramebufferAttachmentSpecification attachmentSpec;
-		attachmentSpec.DataFormat = ColorDataFormat::BRGA8_SRGB;
+		attachmentSpec.DataFormat = ColorDataFormat::BGRA8_SRGB;
 		for (size_t i = 0; i < m_Format.ImageCount; i++)
 		{
 			m_Attachments[i] = FramebufferAttachment::Create(m_SwapChainImages[i], attachmentSpec);
@@ -47,7 +47,7 @@ namespace Quark {
 		QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Could not acquire next image in swap chain");
 	}
 
-	void VulkanSwapChain::Present(void* presentQueue)
+	void VulkanSwapChain::Present()
 	{
 		auto renderFinishedSemaphore = VulkanRenderer::GetRenderFinishedSemaphore();
 
@@ -60,6 +60,7 @@ namespace Quark {
 		presentInfo.pSwapchains = &m_SwapChain;
 		presentInfo.pImageIndices = &m_ImageIndex;
 
+		auto presentQueue = VulkanContext::GetCurrentDevice()->GetPresentQueue();
 		VkResult vkRes = vkQueuePresentKHR(static_cast<VkQueue>(presentQueue), &presentInfo);
 		QK_CORE_ASSERT(vkRes == VK_SUCCESS || vkRes == VK_SUBOPTIMAL_KHR, "Could not present");
 	}

@@ -14,24 +14,17 @@ typedef struct GLFWwindow GLFWwindow;
 
 namespace Quark {
 
-	static inline const std::vector<const char*> g_ValidationLayers = {
+	static inline const char* g_ValidationLayers[] = {
 		"VK_LAYER_KHRONOS_validation"
-	};
-
-	static inline const std::vector<const char*> g_DeviceExtensions = {
-		VK_KHR_SWAPCHAIN_EXTENSION_NAME
 	};
 
 	namespace Utils {
 
-		std::vector<const char*> GetRequiredVkExtensions();
 		void                     EnumerateVkExtensions();
-		bool                     CheckVkValidationLayerSupport();
 
 		VkSurfaceFormatKHR       ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 		VkPresentModeKHR         ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
 		VkExtent2D               ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, GLFWwindow* window);
-		VkSurfaceKHR             CreateSurfaceForPlatform(VkInstance instance, GLFWwindow* window);
 
 		VkBuffer                 AllocateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkDeviceMemory& bufferMemory);
 		void                     CopyBuffer(VkBuffer dstBuffer, VkBuffer srcBuffer, size_t size);

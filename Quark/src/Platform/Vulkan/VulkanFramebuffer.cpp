@@ -90,7 +90,7 @@ namespace Quark {
 		VkFramebufferCreateInfo framebufferInfo{};
 		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 		framebufferInfo.renderPass = static_cast<VulkanRenderPass*>(m_Spec.RenderPass.get())->GetVkHandle();
-		framebufferInfo.attachmentCount = m_Spec.Attachments.size();
+		framebufferInfo.attachmentCount = static_cast<uint32_t>(m_Spec.Attachments.size());
 		framebufferInfo.pAttachments = attachments;
 		framebufferInfo.width = m_Spec.Width;
 		framebufferInfo.height = m_Spec.Height;

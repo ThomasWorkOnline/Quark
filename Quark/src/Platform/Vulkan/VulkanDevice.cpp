@@ -7,6 +7,10 @@
 
 namespace Quark {
 
+	static const char* s_DeviceExtensions[] = {
+		VK_KHR_SWAPCHAIN_EXTENSION_NAME
+	};
+
 	namespace Utils {
 
 		static SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface)
@@ -80,7 +84,7 @@ namespace Quark {
 			vkRes = vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
 			QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Could not enumerate device extension properties");
 
-			for (const char* extensionName : g_DeviceExtensions)
+			for (const char* extensionName : s_DeviceExtensions)
 			{
 				bool extensionFound = false;
 				for (auto& extension : availableExtensions)
@@ -128,12 +132,12 @@ namespace Quark {
 		createInfo.pQueueCreateInfos = queueCreateInfos.data();
 		createInfo.pEnabledFeatures = &deviceFeatures;
 
-		createInfo.enabledExtensionCount = static_cast<uint32_t>(g_DeviceExtensions.size());
-		createInfo.ppEnabledExtensionNames = g_DeviceExtensions.data();
+		createInfo.enabledExtensionCount = sizeof_array(s_DeviceExtensions);
+		createInfo.ppEnabledExtensionNames = s_DeviceExtensions;
 
 #ifdef QK_ENABLE_VULKAN_VALIDATION_LAYERS
-		createInfo.enabledLayerCount = static_cast<uint32_t>(g_ValidationLayers.size());
-		createInfo.ppEnabledLayerNames = g_ValidationLayers.data();
+		createInfo.enabledLayerCount = sizeof_array(g_ValidationLayers);
+		createInfo.ppEnabledLayerNames = g_ValidationLayers;
 #endif
 
 		vkCreateDevice(vkPhysicalDevice, &createInfo, nullptr, &m_Device);

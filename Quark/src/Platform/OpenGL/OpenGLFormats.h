@@ -17,13 +17,16 @@ namespace Quark {
 			case ColorDataFormat::RGB12:
 			case ColorDataFormat::RGB16:
 			case ColorDataFormat::RGB32:
-			case ColorDataFormat::RGBA8:
 			case ColorDataFormat::RGB8_SRGB:
 				return GL_RGB;
+			case ColorDataFormat::RGBA8:
 			case ColorDataFormat::RGBA12:
 			case ColorDataFormat::RGBA16:
 			case ColorDataFormat::RGBA8_SRGB:
 				return GL_RGBA;
+			case ColorDataFormat::BGR8_SRGB:
+			case ColorDataFormat::BGRA8_SRGB:
+				return GL_BGR;
 			case ColorDataFormat::Red8:
 				return GL_RED;
 			case ColorDataFormat::Depth24:
@@ -49,6 +52,8 @@ namespace Quark {
 			case ColorDataFormat::RGBA16:          return GL_RGBA16;
 			case ColorDataFormat::RGB8_SRGB:       return GL_SRGB8;
 			case ColorDataFormat::RGBA8_SRGB:      return GL_SRGB8_ALPHA8;
+			case ColorDataFormat::BGR8_SRGB:       return GL_SRGB8;
+			case ColorDataFormat::BGRA8_SRGB:      return GL_SRGB8_ALPHA8;
 			case ColorDataFormat::Red8:            return GL_R8;
 			case ColorDataFormat::RGB16f:          return GL_RGB16F;
 			case ColorDataFormat::RGB32f:          return GL_RGB32F;

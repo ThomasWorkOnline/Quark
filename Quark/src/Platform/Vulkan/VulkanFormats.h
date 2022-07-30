@@ -21,8 +21,8 @@ namespace Quark {
 			case ColorDataFormat::RGBA16:          return VK_FORMAT_R16G16B16A16_UINT;
 			case ColorDataFormat::RGB8_SRGB:       return VK_FORMAT_R8G8B8_SRGB;
 			case ColorDataFormat::RGBA8_SRGB:      return VK_FORMAT_R8G8B8A8_SRGB;
-			case ColorDataFormat::BRG8_SRGB:       return VK_FORMAT_B8G8R8_SRGB;
-			case ColorDataFormat::BRGA8_SRGB:      return VK_FORMAT_B8G8R8A8_SRGB;
+			case ColorDataFormat::BGR8_SRGB:       return VK_FORMAT_B8G8R8_SRGB;
+			case ColorDataFormat::BGRA8_SRGB:      return VK_FORMAT_B8G8R8A8_SRGB;
 			case ColorDataFormat::Red8:            return VK_FORMAT_R8_UINT;
 			case ColorDataFormat::RGB16f:          return VK_FORMAT_R16G16B16_SFLOAT;
 			case ColorDataFormat::RGB32f:          return VK_FORMAT_R32G32B32_SFLOAT;
