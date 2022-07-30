@@ -6,8 +6,7 @@ MainLayer::MainLayer()
 	spec.Width = 48;
 	spec.Height = 48;
 	spec.Layers = 1;
-	spec.DataFormat = ColorDataFormat::RGBA;
-	spec.InternalFormat = InternalColorFormat::RGBA8;
+	spec.DataFormat = ColorDataFormat::RGBA8;
 	spec.RenderModes.MinFilteringMode = TextureFilteringMode::Linear;
 	spec.RenderModes.MagFilteringMode = TextureFilteringMode::Nearest;
 

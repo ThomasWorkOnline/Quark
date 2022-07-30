@@ -17,7 +17,7 @@ namespace Quark {
 
 		virtual void SetData(const void* data, size_t size, size_t offset = 0) override;
 
-		vk::Buffer GetVkHandle() const { return m_Buffer; }
+		VkBuffer GetVkHandle() const { return m_Buffer; }
 
 		virtual bool operator==(const VertexBuffer& other) const override
 		{
@@ -25,8 +25,8 @@ namespace Quark {
 		}
 		
 	private:
-		vk::Buffer m_Buffer;
-		vk::DeviceMemory m_BufferMemory;
+		VkBuffer m_Buffer;
+		VkDeviceMemory m_BufferMemory;
 	};
 
 	class VulkanIndexBuffer final : public IndexBuffer
@@ -42,7 +42,7 @@ namespace Quark {
 		virtual void SetData(const uint32_t* data, uint32_t count, size_t offset = 0) override;
 		virtual uint32_t GetCount() const override { return m_Count; }
 
-		vk::Buffer GetVkHandle() const { return m_Buffer; }
+		VkBuffer GetVkHandle() const { return m_Buffer; }
 
 		virtual bool operator==(const IndexBuffer& other) const override
 		{
@@ -50,8 +50,8 @@ namespace Quark {
 		}
 
 	private:
-		vk::Buffer m_Buffer;
-		vk::DeviceMemory m_BufferMemory;
+		VkBuffer m_Buffer;
+		VkDeviceMemory m_BufferMemory;
 		uint32_t m_Count;
 	};
 }

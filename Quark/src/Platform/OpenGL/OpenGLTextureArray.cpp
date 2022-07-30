@@ -11,8 +11,8 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		m_InternalFormat = InternalFormatToOpenGL(m_Spec.InternalFormat);
-		m_DataFormat = DataFormatToOpenGL(m_Spec.DataFormat);
+		m_InternalFormat = DataFormatToOpenGLInternalFormat(m_Spec.DataFormat);
+		m_DataFormat = DataFormatToOpenGLStorageFormat(m_Spec.DataFormat);
 
 		glGenTextures(1, &m_RendererID);
 
@@ -63,7 +63,7 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		size_t pSize = GetPixelFormatSize(m_Spec.InternalFormat);
+		size_t pSize = GetPixelFormatSize(m_Spec.DataFormat);
 		QK_CORE_ASSERT(size == m_Spec.Width * m_Spec.Height * pSize, "Data must be entire texture");
 
 		GLenum target = m_Spec.Samples > 1 ? GL_TEXTURE_2D_MULTISAMPLE_ARRAY : GL_TEXTURE_2D_ARRAY;

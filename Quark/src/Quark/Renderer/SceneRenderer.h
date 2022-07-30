@@ -55,6 +55,7 @@ namespace Quark {
 
 			Scope<EnvironmentData> Env;
 			CameraUniformBufferData CameraBufferData;
+			std::vector<Ref<Framebuffer>> Framebuffers;
 
 			Ref<VertexBuffer> VertexBuffer;
 			Ref<IndexBuffer> IndexBuffer;

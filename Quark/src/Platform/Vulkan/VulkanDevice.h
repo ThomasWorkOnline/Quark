@@ -9,9 +9,9 @@ namespace Quark {
 
 	struct SwapChainSupportDetails
 	{
-		vk::SurfaceCapabilitiesKHR        Capabilities;
-		std::vector<vk::SurfaceFormatKHR> Formats;
-		std::vector<vk::PresentModeKHR>   PresentModes;
+		VkSurfaceCapabilitiesKHR        Capabilities;
+		std::vector<VkSurfaceFormatKHR> Formats;
+		std::vector<VkPresentModeKHR>   PresentModes;
 	};
 
 	struct QueueFamilyIndices
@@ -25,31 +25,31 @@ namespace Quark {
 	class VulkanDevice
 	{
 	public:
-		VulkanDevice(vk::Device vkDevice, vk::PhysicalDevice vkPhysicalDevice, QueueFamilyIndices queueFamilyIndices, SwapChainSupportDetails supportDetails);
+		VulkanDevice(VkPhysicalDevice vkPhysicalDevice, const std::vector<VkDeviceQueueCreateInfo>& queueCreateInfos, QueueFamilyIndices queueFamilyIndices, SwapChainSupportDetails supportDetails);
 		~VulkanDevice();
 
-		void WaitIdle() const { m_Device.waitIdle(); }
+		void WaitIdle() const;
 
-		vk::CommandPool GetCommandPool() const { return m_CommandPool; }
-		vk::PhysicalDevice GetPhysicalDevice() const { return m_PhysicalDevice; }
+		VkCommandPool GetCommandPool() const { return m_CommandPool; }
+		VkPhysicalDevice GetPhysicalDevice() const { return m_PhysicalDevice; }
 
-		vk::Queue GetGraphicsQueue() const { return m_GraphicsQueue; }
-		vk::Queue GetPresentQueue() const { return m_PresentQueue; }
+		VkQueue GetGraphicsQueue() const { return m_GraphicsQueue; }
+		VkQueue GetPresentQueue() const { return m_PresentQueue; }
 
-		vk::Device GetVkHandle() const { return m_Device; }
+		VkDevice GetVkHandle() const { return m_Device; }
 
 		const QueueFamilyIndices& GetQueueFamilyIndices() const { return m_QueueFamilyIndices; }
 		const SwapChainSupportDetails& GetSupportDetails() const { return m_SupportDetails; }
 
-		static Scope<VulkanDevice> CreateDefaultForSurface(vk::Instance vkInstance, vk::SurfaceKHR vkSurface);
+		static Scope<VulkanDevice> CreateDefaultForSurface(VkInstance vkInstance, VkSurfaceKHR vkSurface);
 
 	private:
-		vk::Device m_Device;
-		vk::PhysicalDevice m_PhysicalDevice;
+		VkDevice m_Device;
+		VkPhysicalDevice m_PhysicalDevice;
 
-		vk::Queue m_GraphicsQueue;
-		vk::Queue m_PresentQueue;
-		vk::CommandPool m_CommandPool;
+		VkQueue m_GraphicsQueue;
+		VkQueue m_PresentQueue;
+		VkCommandPool m_CommandPool;
 
 		QueueFamilyIndices m_QueueFamilyIndices;
 		SwapChainSupportDetails m_SupportDetails;

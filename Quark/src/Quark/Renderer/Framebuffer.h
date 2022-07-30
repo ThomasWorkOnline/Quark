@@ -2,6 +2,7 @@
 
 #include "Quark/Core/Core.h"
 #include "ColorFormats.h"
+#include "RenderPass.h"
 #include "TextureFormats.h"
 
 #include <vector>
@@ -31,20 +32,36 @@ namespace Quark {
 	{
 		FramebufferTargetAttachment Attachment{};
 		ColorDataFormat             DataFormat{};
-		InternalColorFormat         InternalFormat{};
+	};
+
+	class FramebufferAttachment
+	{
+	public:
+		FramebufferAttachment(const FramebufferAttachmentSpecification& spec);
+		virtual ~FramebufferAttachment() = default;
+
+		virtual void SetData(void* data) = 0;
+		const FramebufferAttachmentSpecification& GetSpecification() const { return m_Spec; }
+
+		static Ref<FramebufferAttachment> Create(void* image, const FramebufferAttachmentSpecification& spec);
+
+	protected:
+		FramebufferAttachmentSpecification m_Spec;
 	};
 
 	struct FramebufferSpecification
 	{
 		uint32_t Width = 0, Height = 0;
 		uint32_t Samples = 1;
-		std::vector<FramebufferAttachmentSpecification> Attachments;
+		Ref<RenderPass> RenderPass;
+		std::vector<Ref<FramebufferAttachment>> Attachments;
 		bool SwapChainTarget = false;
 	};
 
 	class Framebuffer
 	{
 	public:
+		Framebuffer(const FramebufferSpecification& spec);
 		virtual ~Framebuffer() = default;
 
 		virtual void Attach() = 0;
@@ -52,6 +69,7 @@ namespace Quark {
 
 		virtual void Resize(uint32_t width, uint32_t height) = 0;
 
+		// @Deprecated
 		virtual void AttachColorTextureTarget(uint32_t target, uint32_t textureRendererID) = 0;
 		virtual void AttachColorAttachment(uint32_t textureSlot, uint32_t index = 0) = 0;
 		virtual void AttachDepthAttachment(uint32_t textureSlot) = 0;
@@ -59,8 +77,13 @@ namespace Quark {
 		virtual uint32_t GetWidth() const = 0;
 		virtual uint32_t GetHeight() const = 0;
 
+		const FramebufferSpecification& GetSpecification() const { return m_Spec; }
+
 		virtual bool operator==(const Framebuffer& other) const = 0;
 
 		static Ref<Framebuffer> Create(const FramebufferSpecification& spec);
+
+	protected:
+		FramebufferSpecification m_Spec;
 	};
 }

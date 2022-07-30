@@ -17,9 +17,9 @@ namespace Quark {
 		for (uint8_t i = 0; i < 6; i++)
 		{
 			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0,
-				InternalFormatToOpenGL(m_Spec.InternalFormat), m_Spec.Width, m_Spec.Height, 0,
-				DataFormatToOpenGL(m_Spec.DataFormat),
-				InternalFormatToOpenGLDataType(m_Spec.InternalFormat), nullptr);
+				DataFormatToOpenGLInternalFormat(m_Spec.DataFormat), m_Spec.Width, m_Spec.Height, 0,
+				DataFormatToOpenGLStorageFormat(m_Spec.DataFormat),
+				DataFormatToOpenGLDataType(m_Spec.DataFormat), nullptr);
 		}
 
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -53,11 +53,11 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		size_t pSize = GetPixelFormatSize(m_Spec.InternalFormat);
+		size_t pSize = GetPixelFormatSize(m_Spec.DataFormat);
 		QK_CORE_ASSERT(size == m_Spec.Width * m_Spec.Height * pSize, "Data must be entire texture");
 		glBindTexture(GL_TEXTURE_CUBE_MAP, m_RendererID);
 		glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + index, 0, 0, 0, m_Spec.Width, m_Spec.Height,
-			DataFormatToOpenGL(m_Spec.DataFormat),
-			InternalFormatToOpenGLDataType(m_Spec.InternalFormat), data);
+			DataFormatToOpenGLStorageFormat(m_Spec.DataFormat),
+			DataFormatToOpenGLDataType(m_Spec.DataFormat), data);
 	}
 }

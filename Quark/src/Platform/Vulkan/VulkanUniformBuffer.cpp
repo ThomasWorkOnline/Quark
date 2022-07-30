@@ -9,16 +9,16 @@ namespace Quark {
 	VulkanUniformBuffer::VulkanUniformBuffer(size_t size, uint32_t binding)
 	{
 		m_Buffer = Utils::AllocateBuffer(size,
-			vk::BufferUsageFlagBits::eUniformBuffer,
-			vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
 			m_BufferMemory);
 	}
 
 	VulkanUniformBuffer::~VulkanUniformBuffer()
 	{
 		auto vkDevice = VulkanContext::GetCurrentDevice()->GetVkHandle();
-		vkDevice.destroyBuffer(m_Buffer);
-		vkDevice.freeMemory(m_BufferMemory);
+		vkDestroyBuffer(vkDevice, m_Buffer, nullptr);
+		vkFreeMemory(vkDevice, m_BufferMemory, nullptr);
 	}
 
 	void VulkanUniformBuffer::Attach(uint32_t binding) const
@@ -30,8 +30,9 @@ namespace Quark {
 		auto vkDevice = VulkanContext::GetCurrentDevice()->GetVkHandle();
 		QK_CORE_ASSERT(offset == 0, "offsets are currently not supported");
 
-		void* mappedMemory = vkDevice.mapMemory(m_BufferMemory, 0, size);
+		void* mappedMemory;
+		vkMapMemory(vkDevice, m_BufferMemory, 0, size, 0, &mappedMemory);
 		std::memcpy(mappedMemory, data, size);
-		vkDevice.unmapMemory(m_BufferMemory);
+		vkUnmapMemory(vkDevice, m_BufferMemory);
 	}
 }

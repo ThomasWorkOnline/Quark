@@ -36,6 +36,21 @@ namespace Quark {
 		VulkanRenderer::Shutdown();
 	}
 
+	void VulkanGraphicsAPI::WaitForFences() const
+	{
+		VulkanRenderer::WaitForFences();
+	}
+
+	void VulkanGraphicsAPI::WaitAndRender()
+	{
+		VulkanRenderer::WaitAndRender();
+	}
+
+	uint32_t VulkanGraphicsAPI::GetRendererFramesInFlight() const
+	{
+		return VulkanRenderer::GetFramesInFlight();
+	}
+
 	Ref<CommandBuffer> VulkanGraphicsAPI::CreateCommandBuffer()
 	{
 		return CreateRef<VulkanCommandBuffer>();
@@ -84,6 +99,11 @@ namespace Quark {
 	Ref<Framebuffer> VulkanGraphicsAPI::CreateFramebuffer(const FramebufferSpecification& spec)
 	{
 		return CreateRef<VulkanFramebuffer>(spec);
+	}
+
+	Ref<FramebufferAttachment> VulkanGraphicsAPI::CreateFramebufferAttachment(void* image, const FramebufferAttachmentSpecification& spec)
+	{
+		return CreateRef<VulkanFramebufferAttachment>(image, spec);
 	}
 
 	Ref<Shader> VulkanGraphicsAPI::CreateShader(std::string_view filepath)

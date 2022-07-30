@@ -16,7 +16,7 @@ namespace Quark {
 
 		virtual void SetData(const void* data, size_t size, size_t offset = 0) override;
 
-		vk::Buffer GetVkHandle() const { return m_Buffer; }
+		VkBuffer GetVkHandle() const { return m_Buffer; }
 
 		virtual bool operator==(const UniformBuffer& other) const override
 		{
@@ -24,7 +24,7 @@ namespace Quark {
 		}
 
 	private:
-		vk::Buffer m_Buffer;
-		vk::DeviceMemory m_BufferMemory;
+		VkBuffer m_Buffer;
+		VkDeviceMemory m_BufferMemory;
 	};
 }

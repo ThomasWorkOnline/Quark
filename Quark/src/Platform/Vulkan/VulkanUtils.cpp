@@ -68,11 +68,11 @@ namespace Quark {
 			return true;
 		}
 
-		vk::SurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats)
+		VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
 		{
 			for (const auto& availableFormat : availableFormats)
 			{
-				if (availableFormat.format == vk::Format::eB8G8R8A8Srgb && availableFormat.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear)
+				if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
 					return availableFormat;
 			}
 
@@ -80,19 +80,19 @@ namespace Quark {
 			return availableFormats[0];
 		}
 
-		vk::PresentModeKHR ChooseSwapPresentMode(const std::vector<vk::PresentModeKHR>& availablePresentModes)
+		VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes)
 		{
 			for (const auto& availablePresentMode : availablePresentModes)
 			{
-				if (availablePresentMode == vk::PresentModeKHR::eMailbox)
+				if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
 					return availablePresentMode;
 			}
 
 			QK_CORE_WARN("Swap present mode not found: using default FIFO present mode");
-			return vk::PresentModeKHR::eFifo;
+			return VK_PRESENT_MODE_FIFO_KHR;
 		}
 
-		vk::Extent2D ChooseSwapExtent(const vk::SurfaceCapabilitiesKHR& capabilities, GLFWwindow* window)
+		VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, GLFWwindow* window)
 		{
 			if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
 			{
@@ -103,7 +103,7 @@ namespace Quark {
 				int width, height;
 				glfwGetFramebufferSize(window, &width, &height);
 
-				vk::Extent2D actualExtent = {
+				VkExtent2D actualExtent = {
 					static_cast<uint32_t>(width),
 					static_cast<uint32_t>(height)
 				};
@@ -115,18 +115,17 @@ namespace Quark {
 			}
 		}
 
-		vk::SurfaceKHR CreateSurfaceForPlatform(vk::Instance instance, GLFWwindow* window)
+		VkSurfaceKHR CreateSurfaceForPlatform(VkInstance instance, GLFWwindow* window)
 		{
 			VkSurfaceKHR surface;
 			glfwCreateWindowSurface(instance, window, nullptr, &surface);
 			return surface;
 		}
 
-		static uint32_t GetBufferMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties)
+		static uint32_t GetBufferMemoryType(VkPhysicalDevice physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties)
 		{
-			auto vkPhysicalDevice = VulkanContext::GetCurrentDevice()->GetPhysicalDevice();
-
-			vk::PhysicalDeviceMemoryProperties memProperties = vkPhysicalDevice.getMemoryProperties();
+			VkPhysicalDeviceMemoryProperties memProperties;
+			vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
 			for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
 			{
 				if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties)
@@ -137,7 +136,7 @@ namespace Quark {
 			return 0;
 		}
 
-		vk::Buffer AllocateBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties, vk::DeviceMemory& bufferMemory)
+		VkBuffer AllocateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkDeviceMemory& bufferMemory)
 		{
 			QK_PROFILE_FUNCTION();
 
@@ -148,6 +147,7 @@ namespace Quark {
 			bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
 			auto vkDevice = VulkanContext::GetCurrentDevice()->GetVkHandle();
+			auto vkPhysicalDevice = VulkanContext::GetCurrentDevice()->GetPhysicalDevice();
 
 			VkBuffer buffer;
 			vkCreateBuffer(vkDevice, &bufferInfo, nullptr, &buffer);
@@ -158,16 +158,16 @@ namespace Quark {
 			VkMemoryAllocateInfo allocInfo{};
 			allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 			allocInfo.allocationSize = memRequirements.size;
-			allocInfo.memoryTypeIndex = Utils::GetBufferMemoryType(memRequirements.memoryTypeBits, properties);
+			allocInfo.memoryTypeIndex = Utils::GetBufferMemoryType(vkPhysicalDevice, memRequirements.memoryTypeBits, properties);
 
-			vkAllocateMemory(vkDevice, &allocInfo, nullptr, reinterpret_cast<VkDeviceMemory*>(&bufferMemory));
+			vkAllocateMemory(vkDevice, &allocInfo, nullptr, &bufferMemory);
 			vkBindBufferMemory(vkDevice, buffer, bufferMemory, 0);
 
 			return buffer;
 		}
 
 		// TODO: copy allocator
-		void CopyBuffer(vk::Buffer dstBuffer, vk::Buffer srcBuffer, size_t size)
+		void CopyBuffer(VkBuffer dstBuffer, VkBuffer srcBuffer, size_t size)
 		{
 			QK_PROFILE_FUNCTION();
 

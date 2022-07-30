@@ -17,8 +17,8 @@ namespace Quark {
 		QK_CORE_ASSERT(m_Spec.Width <= GraphicsAPI::Instance->GetHardwareConstraints().TextureConstraints.MaxPixelSize
 			&& m_Spec.Height <= GraphicsAPI::Instance->GetHardwareConstraints().TextureConstraints.MaxPixelSize, "Texture dimensions too large");
 
-		m_InternalFormat = InternalFormatToOpenGL(m_Spec.InternalFormat);
-		m_DataFormat = DataFormatToOpenGL(m_Spec.DataFormat);
+		m_InternalFormat = DataFormatToOpenGLInternalFormat(m_Spec.DataFormat);
+		m_DataFormat = DataFormatToOpenGLStorageFormat(m_Spec.DataFormat);
 		QK_CORE_ASSERT(m_InternalFormat & m_DataFormat, "Image format not supported");
 
 		glGenTextures(1, &m_RendererID);
@@ -35,7 +35,7 @@ namespace Quark {
 		{
 			glBindTexture(GL_TEXTURE_2D, m_RendererID);
 			glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Spec.Width, m_Spec.Height, 0, m_DataFormat,
-				InternalFormatToOpenGLDataType(m_Spec.InternalFormat), nullptr);
+				DataFormatToOpenGLDataType(m_Spec.DataFormat), nullptr);
 
 			GLenum tilingMode = TilingModeToOpenGL(m_Spec.RenderModes.TilingMode);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, FilteringModeToOpenGL(m_Spec.RenderModes.MinFilteringMode));
@@ -57,21 +57,21 @@ namespace Quark {
 		m_Spec.Width          = metadata.Width;
 		m_Spec.Height         = metadata.Height;
 		m_Spec.DataFormat     = metadata.DataFormat;
-		m_Spec.InternalFormat = metadata.InternalFormat;
+		m_Spec.DataFormat = metadata.DataFormat;
 		m_Spec.RenderModes    = descriptor.RenderModes;
 
 		QK_CORE_ASSERT(m_Spec.Width <= GraphicsAPI::Instance->GetHardwareConstraints().TextureConstraints.MaxPixelSize
 			&& m_Spec.Height <= GraphicsAPI::Instance->GetHardwareConstraints().TextureConstraints.MaxPixelSize, "Texture dimensions too large");
 
-		m_DataFormat = DataFormatToOpenGL(m_Spec.DataFormat);
-		m_InternalFormat = InternalFormatToOpenGL(m_Spec.InternalFormat);
+		m_DataFormat = DataFormatToOpenGLStorageFormat(m_Spec.DataFormat);
+		m_InternalFormat = DataFormatToOpenGLInternalFormat(m_Spec.DataFormat);
 		QK_CORE_ASSERT(m_InternalFormat & m_DataFormat, "Image format not supported");
 
 		glGenTextures(1, &m_RendererID);
 		glBindTexture(GL_TEXTURE_2D, m_RendererID);
 		glTexImage2D(GL_TEXTURE_2D, 0,
 			m_InternalFormat, m_Spec.Width, m_Spec.Height, 0, m_DataFormat,
-			InternalFormatToOpenGLDataType(m_Spec.InternalFormat), *image);
+			DataFormatToOpenGLDataType(m_Spec.DataFormat), *image);
 
 		GLenum tilingMode = TilingModeToOpenGL(m_Spec.RenderModes.TilingMode);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, FilteringModeToOpenGL(m_Spec.RenderModes.MinFilteringMode));
@@ -111,13 +111,13 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		size_t pSize = GetPixelFormatSize(m_Spec.InternalFormat);
+		size_t pSize = GetPixelFormatSize(m_Spec.DataFormat);
 		QK_CORE_ASSERT(size == m_Spec.Width * m_Spec.Height * pSize, "Data must be entire texture");
 
 		GLenum target = m_Spec.Samples > 1 ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
 		glBindTexture(target, m_RendererID);
 		glTexSubImage2D(target, 0, 0, 0, m_Spec.Width, m_Spec.Height, m_DataFormat,
-			InternalFormatToOpenGLDataType(m_Spec.InternalFormat), data);
+			DataFormatToOpenGLDataType(m_Spec.DataFormat), data);
 	}
 
 	void OpenGLTexture2D::GenerateMipmaps()

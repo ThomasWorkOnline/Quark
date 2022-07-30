@@ -500,8 +500,7 @@ namespace Quark {
 
 		uint32_t textureColor = 0xffffffff;
 		Texture2DSpecification spec = { 1, 1, 1,
-			ColorDataFormat::RGBA,
-			InternalColorFormat::RGBA8,
+			ColorDataFormat::RGBA8,
 			TextureFilteringMode::Nearest, TextureFilteringMode::Nearest, TextureTilingMode::Repeat
 		};
 

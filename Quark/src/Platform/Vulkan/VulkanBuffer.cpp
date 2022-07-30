@@ -10,10 +10,10 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		vk::DeviceMemory stagingBufferMemory;
-		vk::Buffer stagingBuffer = Utils::AllocateBuffer(size,
-			vk::BufferUsageFlagBits::eTransferSrc,
-			vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+		VkDeviceMemory stagingBufferMemory;
+		VkBuffer stagingBuffer = Utils::AllocateBuffer(size,
+			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
 			stagingBufferMemory
 		);
 
@@ -27,8 +27,8 @@ namespace Quark {
 		}
 
 		m_Buffer = Utils::AllocateBuffer(size,
-			vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer,
-			vk::MemoryPropertyFlagBits::eDeviceLocal, m_BufferMemory);
+			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_BufferMemory);
 
 		Utils::CopyBuffer(m_Buffer, stagingBuffer, size);
 
@@ -41,8 +41,8 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		m_Buffer = Utils::AllocateBuffer(size,
-			vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer,
-			vk::MemoryPropertyFlagBits::eDeviceLocal, m_BufferMemory);
+			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_BufferMemory);
 	}
 
 	VulkanVertexBuffer::~VulkanVertexBuffer()
@@ -63,10 +63,10 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 		QK_CORE_ASSERT(offset == 0, "offsets are currently not supported");
 
-		vk::DeviceMemory stagingBufferMemory;
-		vk::Buffer stagingBuffer = Utils::AllocateBuffer(size,
-			vk::BufferUsageFlagBits::eTransferSrc,
-			vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+		VkDeviceMemory stagingBufferMemory;
+		VkBuffer stagingBuffer = Utils::AllocateBuffer(size,
+			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
 			stagingBufferMemory
 		);
 
@@ -91,10 +91,10 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		size_t size = count * sizeof(uint32_t);
-		vk::DeviceMemory stagingBufferMemory;
-		vk::Buffer stagingBuffer = Utils::AllocateBuffer(size,
-			vk::BufferUsageFlagBits::eTransferSrc,
-			vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+		VkDeviceMemory stagingBufferMemory;
+		VkBuffer stagingBuffer = Utils::AllocateBuffer(size,
+			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
 			stagingBufferMemory
 		);
 
@@ -108,8 +108,8 @@ namespace Quark {
 		}
 
 		m_Buffer = Utils::AllocateBuffer(size,
-			vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer,
-			vk::MemoryPropertyFlagBits::eDeviceLocal, m_BufferMemory);
+			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_BufferMemory);
 
 		Utils::CopyBuffer(m_Buffer, stagingBuffer, size);
 
@@ -124,8 +124,8 @@ namespace Quark {
 
 		size_t size = count * sizeof(uint32_t);
 		m_Buffer = Utils::AllocateBuffer(size,
-			vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer,
-			vk::MemoryPropertyFlagBits::eDeviceLocal, m_BufferMemory);
+			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_BufferMemory);
 	}
 
 	VulkanIndexBuffer::~VulkanIndexBuffer()
@@ -147,10 +147,10 @@ namespace Quark {
 		QK_CORE_ASSERT(offset == 0, "offsets are currently not supported");
 
 		size_t size = count * sizeof(uint32_t);
-		vk::DeviceMemory stagingBufferMemory;
-		vk::Buffer stagingBuffer = Utils::AllocateBuffer(size,
-			vk::BufferUsageFlagBits::eTransferSrc,
-			vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+		VkDeviceMemory stagingBufferMemory;
+		VkBuffer stagingBuffer = Utils::AllocateBuffer(size,
+			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
 			stagingBufferMemory
 		);
 

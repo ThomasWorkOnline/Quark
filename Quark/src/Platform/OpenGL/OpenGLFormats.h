@@ -8,74 +8,85 @@
 
 namespace Quark {
 
-	constexpr GLenum DataFormatToOpenGL(ColorDataFormat format)
+	constexpr GLenum DataFormatToOpenGLStorageFormat(ColorDataFormat format)
 	{
 		switch (format)
 		{
-			case ColorDataFormat::RGB:   return GL_RGB;
-			case ColorDataFormat::RGBA:  return GL_RGBA;
-			case ColorDataFormat::BGR:   return GL_BGR;
-			case ColorDataFormat::BGRA:  return GL_BGRA;
-			case ColorDataFormat::Red:   return GL_RED;
-			case ColorDataFormat::Depth: return GL_DEPTH_COMPONENT;
+			case ColorDataFormat::RGB8: 
+			case ColorDataFormat::RGB10:
+			case ColorDataFormat::RGB12:
+			case ColorDataFormat::RGB16:
+			case ColorDataFormat::RGB32:
+			case ColorDataFormat::RGBA8:
+			case ColorDataFormat::RGB8_SRGB:
+				return GL_RGB;
+			case ColorDataFormat::RGBA12:
+			case ColorDataFormat::RGBA16:
+			case ColorDataFormat::RGBA8_SRGB:
+				return GL_RGBA;
+			case ColorDataFormat::Red8:
+				return GL_RED;
+			case ColorDataFormat::Depth24:
+			case ColorDataFormat::Depth24Stencil8:
+				return GL_DEPTH_COMPONENT;
 			default:
 				QK_CORE_FATAL("Invalid color data format");
 				return GL_NONE;
 		}
 	}
 
-	constexpr GLenum InternalFormatToOpenGL(InternalColorFormat format)
+	constexpr GLenum DataFormatToOpenGLInternalFormat(ColorDataFormat format)
 	{
 		switch (format)
 		{
-			case InternalColorFormat::RGB8:            return GL_RGB8;
-			case InternalColorFormat::RGB10:           return GL_RGB10;
-			case InternalColorFormat::RGB12:           return GL_RGB12;
-			case InternalColorFormat::RGB16:           return GL_RGB16;
-			case InternalColorFormat::RGB32:           return GL_RGB32I;
-			case InternalColorFormat::RGBA8:           return GL_RGBA8;
-			case InternalColorFormat::RGBA12:          return GL_RGBA12;
-			case InternalColorFormat::RGBA16:          return GL_RGBA16;
-			case InternalColorFormat::SRGB8:           return GL_SRGB8;
-			case InternalColorFormat::SRGBA8:          return GL_SRGB8_ALPHA8;
-			case InternalColorFormat::Red8:            return GL_R8;
-			case InternalColorFormat::RGB16f:          return GL_RGB16F;
-			case InternalColorFormat::RGB32f:          return GL_RGB32F;
-			case InternalColorFormat::RGBA16f:         return GL_RGBA16F;
-			case InternalColorFormat::RGBA32f:         return GL_RGBA32F;
-			case InternalColorFormat::Depth24:         return GL_DEPTH_COMPONENT24;
-			case InternalColorFormat::Depth24Stencil8: return GL_DEPTH24_STENCIL8;
+			case ColorDataFormat::RGB8:            return GL_RGB8;
+			case ColorDataFormat::RGB10:           return GL_RGB10;
+			case ColorDataFormat::RGB12:           return GL_RGB12;
+			case ColorDataFormat::RGB16:           return GL_RGB16;
+			case ColorDataFormat::RGB32:           return GL_RGB32I;
+			case ColorDataFormat::RGBA8:           return GL_RGBA8;
+			case ColorDataFormat::RGBA12:          return GL_RGBA12;
+			case ColorDataFormat::RGBA16:          return GL_RGBA16;
+			case ColorDataFormat::RGB8_SRGB:       return GL_SRGB8;
+			case ColorDataFormat::RGBA8_SRGB:      return GL_SRGB8_ALPHA8;
+			case ColorDataFormat::Red8:            return GL_R8;
+			case ColorDataFormat::RGB16f:          return GL_RGB16F;
+			case ColorDataFormat::RGB32f:          return GL_RGB32F;
+			case ColorDataFormat::RGBA16f:         return GL_RGBA16F;
+			case ColorDataFormat::RGBA32f:         return GL_RGBA32F;
+			case ColorDataFormat::Depth24:         return GL_DEPTH_COMPONENT24;
+			case ColorDataFormat::Depth24Stencil8: return GL_DEPTH24_STENCIL8;
 			default:
-				QK_CORE_FATAL("Invalid internal color format");
+				QK_CORE_FATAL("Invalid color data format");
 				return GL_NONE;
 		}
 	}
 
-	constexpr GLenum InternalFormatToOpenGLDataType(InternalColorFormat format)
+	constexpr GLenum DataFormatToOpenGLDataType(ColorDataFormat format)
 	{
 		switch (format)
 		{
-			case InternalColorFormat::RGB8:
-			case InternalColorFormat::RGB10:
-			case InternalColorFormat::RGB12:
-			case InternalColorFormat::RGB16:
-			case InternalColorFormat::RGB32:
-			case InternalColorFormat::RGBA8:
-			case InternalColorFormat::RGBA12:
-			case InternalColorFormat::RGBA16:
-			case InternalColorFormat::SRGB8:
-			case InternalColorFormat::SRGBA8:
-			case InternalColorFormat::Red8:
-			case InternalColorFormat::Depth24:
-			case InternalColorFormat::Depth24Stencil8:
+			case ColorDataFormat::RGB8:
+			case ColorDataFormat::RGB10:
+			case ColorDataFormat::RGB12:
+			case ColorDataFormat::RGB16:
+			case ColorDataFormat::RGB32:
+			case ColorDataFormat::RGBA8:
+			case ColorDataFormat::RGBA12:
+			case ColorDataFormat::RGBA16:
+			case ColorDataFormat::RGB8_SRGB:
+			case ColorDataFormat::RGBA8_SRGB:
+			case ColorDataFormat::Red8:
+			case ColorDataFormat::Depth24:
+			case ColorDataFormat::Depth24Stencil8:
 				return GL_UNSIGNED_BYTE;
-			case InternalColorFormat::RGB16f:
-			case InternalColorFormat::RGB32f:
-			case InternalColorFormat::RGBA16f:
-			case InternalColorFormat::RGBA32f:
+			case ColorDataFormat::RGB16f:
+			case ColorDataFormat::RGB32f:
+			case ColorDataFormat::RGBA16f:
+			case ColorDataFormat::RGBA32f:
 				return GL_FLOAT;
 			default:
-				QK_CORE_FATAL("Invalid internal color format");
+				QK_CORE_FATAL("Invalid color data format");
 				return GL_NONE;
 		}
 	}

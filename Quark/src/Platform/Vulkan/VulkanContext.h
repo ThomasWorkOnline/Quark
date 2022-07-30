@@ -3,7 +3,6 @@
 #include "Quark/Renderer/GraphicsContext.h"
 
 #include "VulkanDevice.h"
-#include "VulkanSwapChain.h"
 #include "VulkanUtils.h"
 
 #include <vulkan/vulkan.hpp>
@@ -21,10 +20,7 @@ namespace Quark {
 		virtual void Init() override;
 		virtual void SwapBuffers() override;
 
-		virtual void OnViewportResized(uint32_t viewportWidth, uint32_t viewportHeight) override;
-
-		static VulkanDevice* GetCurrentDevice() { return s_Instance->m_Device.get(); }
-		static VulkanSwapChain* GetSwapChain() { return s_Instance->m_SwapChain.get(); }
+		static VulkanDevice* GetCurrentDevice() { return static_cast<VulkanContext&>(Get()).m_Device.get(); }
 
 	private:
 		GLFWwindow* m_WindowHandle;
@@ -36,8 +32,5 @@ namespace Quark {
 		vk::DebugUtilsMessengerEXT m_VkDebugMessenger;
 #endif
 		Scope<VulkanDevice> m_Device;
-		Scope<VulkanSwapChain> m_SwapChain;
-
-		static VulkanContext* s_Instance;
 	};
 }

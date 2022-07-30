@@ -28,12 +28,12 @@ namespace Quark {
 		void                     EnumerateVkExtensions();
 		bool                     CheckVkValidationLayerSupport();
 
-		vk::SurfaceFormatKHR     ChooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats);
-		vk::PresentModeKHR       ChooseSwapPresentMode(const std::vector<vk::PresentModeKHR>& availablePresentModes);
-		vk::Extent2D             ChooseSwapExtent(const vk::SurfaceCapabilitiesKHR& capabilities, GLFWwindow* window);
-		vk::SurfaceKHR           CreateSurfaceForPlatform(vk::Instance instance, GLFWwindow* window);
+		VkSurfaceFormatKHR       ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
+		VkPresentModeKHR         ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
+		VkExtent2D               ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, GLFWwindow* window);
+		VkSurfaceKHR             CreateSurfaceForPlatform(VkInstance instance, GLFWwindow* window);
 
-		vk::Buffer               AllocateBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties, vk::DeviceMemory& bufferMemory);
-		void                     CopyBuffer(vk::Buffer dstBuffer, vk::Buffer srcBuffer, size_t size);
+		VkBuffer                 AllocateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkDeviceMemory& bufferMemory);
+		void                     CopyBuffer(VkBuffer dstBuffer, VkBuffer srcBuffer, size_t size);
 	}
 }

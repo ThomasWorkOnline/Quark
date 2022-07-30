@@ -16,12 +16,9 @@ namespace Quark {
 		uint32_t            ViewportWidth = 0, ViewportHeight = 0;
 		size_t              CameraUniformBufferSize = 0;
 
-		RenderCullMode      CullMode = RenderCullMode::Default;
-		RenderDepthFunction DepthFunction = RenderDepthFunction::Default;
-
 		BufferLayout        Layout;
-		Ref<RenderPass>     RenderPass;
 		Ref<Shader>         Shader;
+		Ref<RenderPass>     RenderPass;
 	};
 
 	class Pipeline
@@ -32,16 +29,9 @@ namespace Quark {
 
 		virtual ~Pipeline() = default;
 
-		virtual void BeginFrame() = 0;
-		virtual void EndFrame() = 0;
-
-		virtual void BeginRenderPass(const Ref<RenderPass>& renderPass) = 0;
-		virtual void EndRenderPass() = 0;
-
+		virtual void Bind(const Ref<CommandBuffer>& commandBuffer) = 0;
 		virtual void Resize(uint32_t viewportWidth, uint32_t viewportHeight) = 0;
-
-		virtual const Ref<CommandBuffer>& GetCommandBuffer() const = 0;
-		virtual const Ref<UniformBuffer>& GetUniformBuffer() const = 0;
+		virtual const Ref<UniformBuffer>& GetUniformBuffer() const = 0; // TODO: move into specification
 
 		const PipelineSpecification& GetSpecification() const { return m_Spec; }
 

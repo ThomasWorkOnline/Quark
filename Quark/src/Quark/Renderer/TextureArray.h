@@ -13,7 +13,6 @@ namespace Quark {
 		uint8_t               Levels  = 1;
 
 		ColorDataFormat       DataFormat{};
-		InternalColorFormat   InternalFormat{};
 		TextureRenderModes    RenderModes;
 	};
 

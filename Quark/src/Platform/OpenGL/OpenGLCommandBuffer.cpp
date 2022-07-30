@@ -6,6 +6,19 @@
 
 namespace Quark {
 
+	void OpenGLCommandBuffer::BeginRenderPass(const Ref<RenderPass>& renderPass, const Ref<Framebuffer>& framebuffer)
+	{
+		if (renderPass->GetSpecification().Clears)
+		{
+			glClearColor(0.01f, 0.01f, 0.01f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		}
+	}
+
+	void OpenGLCommandBuffer::EndRenderPass()
+	{
+	}
+
 	void OpenGLCommandBuffer::DrawIndexed(uint32_t indexCount)
 	{
 		glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr);

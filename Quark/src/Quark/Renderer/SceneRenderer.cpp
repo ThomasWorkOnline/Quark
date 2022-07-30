@@ -62,7 +62,6 @@ namespace Quark {
 	void SceneRenderer::OnRender()
 	{
 		Renderer::BeginFrame();
-		m_Data.GraphicsPipeline->BeginFrame();
 
 		if (m_Scene && m_Scene->HasPrimaryCamera())
 		{
@@ -99,7 +98,6 @@ namespace Quark {
 			GeometryPass();
 		}
 
-		m_Data.GraphicsPipeline->EndFrame();
 		Renderer::EndFrame();
 	}
 
@@ -109,6 +107,10 @@ namespace Quark {
 		m_ViewportHeight = viewportHeight;
 
 		m_Data.GraphicsPipeline->Resize(viewportWidth, viewportHeight);
+		for (auto& framebuffer : m_Data.Framebuffers)
+		{
+			framebuffer->Resize(viewportWidth, viewportHeight);
+		}
 
 		if (m_Scene)
 		{
@@ -128,11 +130,16 @@ namespace Quark {
 
 	void SceneRenderer::GeometryPass()
 	{
-		m_Data.GraphicsPipeline->BeginRenderPass(m_Data.GeometryPass);
-		m_Data.GraphicsPipeline->GetCommandBuffer()->BindVertexBuffer(m_Data.VertexBuffer, 0);
-		m_Data.GraphicsPipeline->GetCommandBuffer()->BindIndexBuffer(m_Data.IndexBuffer);
-		m_Data.GraphicsPipeline->GetCommandBuffer()->DrawIndexed(sizeof(s_Indices) / sizeof(uint32_t));
-		m_Data.GraphicsPipeline->EndRenderPass();
+		uint32_t imageIndex = GraphicsContext::Get().GetSwapChain()->GetCurrentImageIndex();
+
+		m_Data.GraphicsPipeline->Bind(Renderer::GetCommandBuffer());
+		Renderer::BeginRenderPass(m_Data.GeometryPass, m_Data.Framebuffers[imageIndex]);
+
+		Renderer::GetCommandBuffer()->BindVertexBuffer(m_Data.VertexBuffer, 0);
+		Renderer::GetCommandBuffer()->BindIndexBuffer(m_Data.IndexBuffer);
+		Renderer::GetCommandBuffer()->DrawIndexed(sizeof(s_Indices) / sizeof(uint32_t));
+
+		Renderer::EndRenderPass();
 	}
 
 	void SceneRenderer::Initialize()
@@ -157,8 +164,26 @@ namespace Quark {
 		{
 			RenderPassSpecification spec;
 			spec.BindPoint = PipelineBindPoint::Graphics;
+			spec.ColorFormat = ColorDataFormat::BRGA8_SRGB;
 			spec.Clears = true;
 			m_Data.GeometryPass = RenderPass::Create(spec);
+		}
+
+		{
+			const uint32_t imageCount = 3;
+			m_Data.Framebuffers.resize(imageCount);
+
+			FramebufferSpecification fbSpec;
+			fbSpec.Width = m_ViewportWidth;
+			fbSpec.Height = m_ViewportHeight;
+			fbSpec.RenderPass = m_Data.GeometryPass;
+			fbSpec.SwapChainTarget = true;
+
+			for (uint32_t i = 0; i < imageCount; i++)
+			{
+				fbSpec.Attachments = { GraphicsContext::Get().GetSwapChain()->GetAttachment(i) };
+				m_Data.Framebuffers[i] = Framebuffer::Create(fbSpec);
+			}
 		}
 
 		{
@@ -211,10 +236,15 @@ namespace Quark {
 			}
 
 			{
+				FramebufferAttachmentSpecification attachmentSpec = {
+					FramebufferTargetAttachment::ColorAttachment0,
+					ColorDataFormat::RGBA16f
+				};
+
 				FramebufferSpecification spec;
 				spec.Width = 2048;
 				spec.Height = 2048;
-				spec.Attachments = { { FramebufferTargetAttachment::ColorAttachment0, ColorDataFormat::RGB, InternalColorFormat::RGBA16f } };
+				spec.Attachments = { FramebufferAttachment::Create(nullptr, attachmentSpec) };
 				m_Data.Env->Framebuffer = Framebuffer::Create(spec);
 			}
 		}

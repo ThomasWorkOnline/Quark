@@ -8,7 +8,7 @@
 
 namespace Quark {
 
-	VulkanSwapChain::VulkanSwapChain(GLFWwindow* window, vk::SurfaceKHR surface)
+	VulkanSwapChain::VulkanSwapChain(GLFWwindow* window, VkSurfaceKHR surface)
 		: m_WindowHandle(window), m_Surface(surface)
 	{
 		auto& supportDetails = VulkanContext::GetCurrentDevice()->GetSupportDetails();
@@ -22,6 +22,13 @@ namespace Quark {
 		m_Format.Extent = Utils::ChooseSwapExtent(supportDetails.Capabilities, m_WindowHandle);
 
 		Invalidate();
+
+		FramebufferAttachmentSpecification attachmentSpec;
+		attachmentSpec.DataFormat = ColorDataFormat::BRGA8_SRGB;
+		for (size_t i = 0; i < m_Format.ImageCount; i++)
+		{
+			m_Attachments[i] = FramebufferAttachment::Create(m_SwapChainImages[i], attachmentSpec);
+		}
 	}
 
 	VulkanSwapChain::~VulkanSwapChain()
@@ -29,30 +36,18 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		auto vkDevice = VulkanContext::GetCurrentDevice()->GetVkHandle();
-		for (auto& imageView : m_SwapChainImageViews)
-			vkDestroyImageView(vkDevice, imageView, nullptr);
-
 		vkDestroySwapchainKHR(vkDevice, m_SwapChain, nullptr);
 	}
 
-	void VulkanSwapChain::AcquireNextImageIndex()
+	void VulkanSwapChain::AcquireNextImage()
 	{
 		auto vkDevice = VulkanContext::GetCurrentDevice()->GetVkHandle();
-
-		// Wait for last frame to be complete
-		{
-			auto inFlightFence = VulkanRenderer::GetInFlightFence();
-
-			VkResult vkRes = vkWaitForFences(vkDevice, 1, &inFlightFence, VK_TRUE, UINT64_MAX);
-			QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Could not wait for fences");
-			vkResetFences(vkDevice, 1, &inFlightFence);
-		}
 
 		VkResult vkRes = vkAcquireNextImageKHR(vkDevice, m_SwapChain, UINT64_MAX, VulkanRenderer::GetImageAvailableSemaphore(), VK_NULL_HANDLE, &m_ImageIndex);
 		QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Could not acquire next image in swap chain");
 	}
 
-	void VulkanSwapChain::Present(vk::Queue presentQueue)
+	void VulkanSwapChain::Present(void* presentQueue)
 	{
 		auto renderFinishedSemaphore = VulkanRenderer::GetRenderFinishedSemaphore();
 
@@ -65,19 +60,13 @@ namespace Quark {
 		presentInfo.pSwapchains = &m_SwapChain;
 		presentInfo.pImageIndices = &m_ImageIndex;
 
-		VkResult vkRes = vkQueuePresentKHR(presentQueue, &presentInfo);
-		QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Could not present");
+		VkResult vkRes = vkQueuePresentKHR(static_cast<VkQueue>(presentQueue), &presentInfo);
+		QK_CORE_ASSERT(vkRes == VK_SUCCESS || vkRes == VK_SUBOPTIMAL_KHR, "Could not present");
 	}
 
 	void VulkanSwapChain::Resize(uint32_t viewportWidth, uint32_t viewportHeight)
 	{
-		{
-			auto vkDevice = VulkanContext::GetCurrentDevice()->GetVkHandle();
-
-			Timer t;
-			vkDeviceWaitIdle(vkDevice);
-			QK_CORE_INFO("Waiting for device to finish: {0}ms", t.Milliseconds().count());
-		}
+		VulkanContext::GetCurrentDevice()->WaitIdle();
 
 		// FIX: this will fail if extent dimensions is zero
 		if (m_Format.Extent.width != viewportWidth || m_Format.Extent.height != viewportHeight)
@@ -94,70 +83,55 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		{
-			auto vkDevice = VulkanContext::GetCurrentDevice()->GetVkHandle();
-			for (auto& imageView : m_SwapChainImageViews)
-				vkDestroyImageView(vkDevice, imageView, nullptr);
+		bool isNew = m_SwapChain == VK_NULL_HANDLE;
 
-			vkDestroySwapchainKHR(vkDevice, m_SwapChain, nullptr);
-		}
-
-		vk::SwapchainCreateInfoKHR createInfo;
-		createInfo.setClipped(VK_TRUE);
-		createInfo.setCompositeAlpha(vk::CompositeAlphaFlagBitsKHR::eOpaque);
-		createInfo.setImageExtent(m_Format.Extent);
-		createInfo.setImageFormat(m_Format.ActualSurfaceFormat.format);
-		createInfo.setImageColorSpace(m_Format.ActualSurfaceFormat.colorSpace);
-		createInfo.setImageArrayLayers(1);
-		createInfo.setImageUsage(vk::ImageUsageFlagBits::eColorAttachment);
-		createInfo.setMinImageCount(m_Format.ImageCount);
-		createInfo.setOldSwapchain(VK_NULL_HANDLE);
-		createInfo.setPresentMode(static_cast<vk::PresentModeKHR>(m_Format.ActualPresentMode));
-		createInfo.setPreTransform(vk::SurfaceTransformFlagBitsKHR::eIdentity);
-		createInfo.setSurface(m_Surface);
+		VkSwapchainCreateInfoKHR createInfo{};
+		createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+		createInfo.surface = m_Surface;
+		createInfo.minImageCount = m_Format.ImageCount;
+		createInfo.imageFormat = m_Format.ActualSurfaceFormat.format;
+		createInfo.imageColorSpace = m_Format.ActualSurfaceFormat.colorSpace;
+		createInfo.imageExtent = m_Format.Extent;
+		createInfo.imageArrayLayers = 1;
+		createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+		createInfo.preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+		createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+		createInfo.presentMode = m_Format.ActualPresentMode;
+		createInfo.clipped = VK_TRUE;
+		createInfo.oldSwapchain = m_SwapChain;
 
 		auto device = VulkanContext::GetCurrentDevice();
 		uint32_t queueFamilyIndices[] = {
-			*device->GetQueueFamilyIndices().GraphicsFamily,
-			*device->GetQueueFamilyIndices().PresentFamily
+			device->GetQueueFamilyIndices().GraphicsFamily.value(),
+			device->GetQueueFamilyIndices().PresentFamily.value()
 		};
 
 		if (device->GetQueueFamilyIndices().GraphicsFamily != device->GetQueueFamilyIndices().PresentFamily)
 		{
-			createInfo.setImageSharingMode(vk::SharingMode::eConcurrent);
-			createInfo.setQueueFamilyIndexCount(sizeof(queueFamilyIndices));
-			createInfo.setPQueueFamilyIndices(queueFamilyIndices);
+			createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+			createInfo.queueFamilyIndexCount = sizeof(queueFamilyIndices);
+			createInfo.pQueueFamilyIndices = queueFamilyIndices;
 		}
 		else
 		{
-			createInfo.setImageSharingMode(vk::SharingMode::eExclusive);
-			createInfo.setQueueFamilyIndexCount(0);
+			createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+			createInfo.queueFamilyIndexCount = 0;
 		}
 
-		auto vkDevice = VulkanContext::GetCurrentDevice()->GetVkHandle();
-		m_SwapChain = vkDevice.createSwapchainKHR(createInfo);
+		vkCreateSwapchainKHR(device->GetVkHandle(), &createInfo, nullptr, &m_SwapChain);
+		vkGetSwapchainImagesKHR(device->GetVkHandle(), m_SwapChain, &m_Format.ImageCount, nullptr);
 
-		uint32_t imageCount;
-		vkGetSwapchainImagesKHR(vkDevice, m_SwapChain, &imageCount, nullptr);
+		m_SwapChainImages.resize(m_Format.ImageCount);
+		m_Attachments.resize(m_Format.ImageCount);
 
-		m_SwapChainImages.resize(imageCount);
-		vkGetSwapchainImagesKHR(vkDevice, m_SwapChain, &imageCount, m_SwapChainImages.data());
+		vkGetSwapchainImagesKHR(device->GetVkHandle(), m_SwapChain, &m_Format.ImageCount, m_SwapChainImages.data());
 
-		m_SwapChainImageViews.resize(imageCount);
-		for (size_t i = 0; i < m_SwapChainImages.size(); i++)
+		if (!isNew)
 		{
-			VkImageViewCreateInfo createInfo{};
-			createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-			createInfo.image = m_SwapChainImages[i];
-			createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-			createInfo.format = (VkFormat)m_Format.ActualSurfaceFormat.format;
-			createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-			createInfo.subresourceRange.baseMipLevel = 0;
-			createInfo.subresourceRange.levelCount = 1;
-			createInfo.subresourceRange.baseArrayLayer = 0;
-			createInfo.subresourceRange.layerCount = 1;
-
-			vkCreateImageView(vkDevice, &createInfo, nullptr, &m_SwapChainImageViews[i]);
+			for (size_t i = 0; i < m_Format.ImageCount; i++)
+			{
+				m_Attachments[i]->SetData(m_SwapChainImages[i]);
+			}
 		}
 	}
 }

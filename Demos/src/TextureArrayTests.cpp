@@ -12,8 +12,7 @@ TextureArrayTest::TextureArrayTest()
 	Image texture1 = Image("assets/textures/Example1_BasicRendering.png");
 
 	Texture2DArraySpecification spec;
-	spec.DataFormat     = ColorDataFormat::RGBA;
-	spec.InternalFormat = InternalColorFormat::SRGBA8;
+	spec.DataFormat = ColorDataFormat::RGBA8_SRGB;
 	spec.Width = texture1.Width();
 	spec.Height = texture1.Height();
 	spec.Layers = 2;

@@ -2,6 +2,7 @@
 #include "Renderer.h"
 
 #include "CommandBuffer.h"
+#include "GraphicsContext.h"
 #include "RenderCommand.h"
 
 namespace Quark {
@@ -9,10 +10,11 @@ namespace Quark {
 	struct RendererData
 	{
 		uint32_t MaxUniformBuffers = 0;
-		uint32_t FramesInFlight = 2;
+		uint32_t FramesInFlight = 0;
+		ShaderLibrary ShaderLib;
 
-		Ref<Texture2D> DefaultTexture;
-		ShaderLibrary  ShaderLib;
+		CommandBuffer* ActiveCommandBuffer = nullptr;
+		std::vector<Ref<CommandBuffer>> CommandBuffers;
 
 		uint32_t CurrentFrameIndex = std::numeric_limits<uint32_t>::max();
 	};
@@ -25,21 +27,13 @@ namespace Quark {
 
 		s_Data = CreateScope<RendererData>();
 		s_Data->MaxUniformBuffers = GraphicsAPI::Instance->GetHardwareConstraints().UniformBufferConstraints.MaxBindings;
+		s_Data->FramesInFlight = GraphicsAPI::Instance->GetRendererFramesInFlight();
 
-		if (GraphicsAPI::GetAPI() == API::OpenGL)
+		s_Data->CommandBuffers.resize(s_Data->FramesInFlight);
+		for (uint32_t i = 0; i < s_Data->FramesInFlight; i++)
 		{
-			s_Data->FramesInFlight = 1;
+			s_Data->CommandBuffers[i] = CommandBuffer::Create();
 		}
-
-		uint32_t textureColor = 0xffffffff;
-		Texture2DSpecification spec = { 1, 1, 1,
-			ColorDataFormat::RGBA,
-			InternalColorFormat::RGBA8,
-			TextureFilteringMode::Nearest, TextureFilteringMode::Nearest, TextureTilingMode::Repeat
-		};
-
-		s_Data->DefaultTexture = Texture2D::Create(spec);
-		s_Data->DefaultTexture->SetData(&textureColor, sizeof(uint32_t));
 	}
 
 	void Renderer::Dispose()
@@ -51,15 +45,40 @@ namespace Quark {
 	void Renderer::BeginFrame()
 	{
 		s_Data->CurrentFrameIndex = (s_Data->CurrentFrameIndex + 1) % s_Data->FramesInFlight;
+		s_Data->ActiveCommandBuffer = s_Data->CommandBuffers[s_Data->CurrentFrameIndex].get();
+
+		RenderCommand::WaitForFences();
+
+		GraphicsContext::Get().GetSwapChain()->AcquireNextImage();
+
+		s_Data->ActiveCommandBuffer->Reset();
+		s_Data->ActiveCommandBuffer->Begin();
 	}
 
 	void Renderer::EndFrame()
 	{
+		s_Data->ActiveCommandBuffer->End();
+		RenderCommand::Submit();
 	}
 
-	uint32_t Renderer::GetFramesInFlight()
+	void Renderer::BeginRenderPass(const Ref<RenderPass>& renderPass, const Ref<Framebuffer>& framebuffer)
 	{
-		return s_Data->FramesInFlight;
+		s_Data->ActiveCommandBuffer->BeginRenderPass(renderPass, framebuffer);
+	}
+
+	void Renderer::EndRenderPass()
+	{
+		s_Data->ActiveCommandBuffer->EndRenderPass();
+	}
+
+	const Ref<CommandBuffer>& Renderer::GetCommandBuffer()
+	{
+		return s_Data->CommandBuffers[s_Data->CurrentFrameIndex];
+	}
+
+	void Renderer::OnViewportResized(uint32_t width, uint32_t height)
+	{
+		GraphicsContext::Get().GetSwapChain()->Resize(width, height);
 	}
 
 	uint32_t Renderer::GetCurrentFrameIndex()

@@ -275,6 +275,12 @@ namespace Quark {
 		return CreateRef<OpenGLFramebuffer>(spec);
 	}
 
+	Ref<FramebufferAttachment> OpenGLGraphicsAPI::CreateFramebufferAttachment(void* image, const FramebufferAttachmentSpecification& spec)
+	{
+		QK_CORE_FATAL("Todo");
+		return nullptr;
+	}
+
 	Ref<Shader> OpenGLGraphicsAPI::CreateShader(std::string_view filepath)
 	{
 		return CreateRef<OpenGLShader>(filepath);

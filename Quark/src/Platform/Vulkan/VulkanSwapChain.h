@@ -1,28 +1,30 @@
 #pragma once
 
-#include "Quark/Renderer/GraphicsContext.h"
+#include "Quark/Core/Core.h"
+#include "Quark/Renderer/SwapChain.h"
+
 #include <vulkan/vulkan.hpp>
 
 typedef struct GLFWwindow GLFWwindow;
 
 namespace Quark {
 
-	class VulkanSwapChain
+	class VulkanSwapChain final : public SwapChain
 	{
 	public:
-		VulkanSwapChain(GLFWwindow* window, vk::SurfaceKHR surface);
+		VulkanSwapChain(GLFWwindow* window, VkSurfaceKHR surface);
 		~VulkanSwapChain();
 
-		uint32_t GetWidth() const { return m_Format.Extent.width; }
-		uint32_t GetHeight() const { return m_Format.Extent.height; }
-		uint32_t GetImageCount() const { return m_Format.ImageCount; }
+		virtual uint32_t GetWidth() const override { return m_Format.Extent.width; }
+		virtual uint32_t GetHeight() const override { return m_Format.Extent.height; }
+		virtual uint32_t GetImageCount() const override { return m_Format.ImageCount; }
+		virtual uint32_t GetCurrentImageIndex() const override { return m_ImageIndex; }
 
-		void AcquireNextImageIndex();
-		void Present(vk::Queue presentQueue);
-		void Resize(uint32_t viewportWidth, uint32_t viewportHeight);
+		virtual void AcquireNextImage() override;
+		virtual void Present(void* presentQueue) override;
+		virtual void Resize(uint32_t viewportWidth, uint32_t viewportHeight) override;
 
-		uint32_t GetCurrentImageIndex() const { return m_ImageIndex; }
-		VkImageView GetImageView(uint32_t i) const { return m_SwapChainImageViews[i]; }
+		virtual const Ref<FramebufferAttachment>& GetAttachment(uint32_t imageIndex) const override { return m_Attachments[imageIndex]; }
 
 	private:
 		void Invalidate();
@@ -31,9 +33,9 @@ namespace Quark {
 		struct Format
 		{
 			uint32_t             ImageCount = 0;
-			vk::Extent2D         Extent;
-			vk::SurfaceFormatKHR ActualSurfaceFormat;
-			vk::PresentModeKHR   ActualPresentMode{};
+			VkExtent2D           Extent{};
+			VkSurfaceFormatKHR   ActualSurfaceFormat{};
+			VkPresentModeKHR     ActualPresentMode{};
 		};
 
 		GLFWwindow* m_WindowHandle;
@@ -41,12 +43,9 @@ namespace Quark {
 		VkSwapchainKHR m_SwapChain = VK_NULL_HANDLE;
 
 		std::vector<VkImage> m_SwapChainImages;
-		std::vector<VkImageView> m_SwapChainImageViews;
+		std::vector<Ref<FramebufferAttachment>> m_Attachments;
 
 		uint32_t m_ImageIndex = 0;
 		Format m_Format;
-
-		// TODO: remove
-		friend class VulkanRenderPass;
 	};
 }

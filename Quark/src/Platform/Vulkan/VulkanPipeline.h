@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Quark/Core/Core.h"
-#include "Quark/Renderer/Renderer.h"
 #include "Quark/Renderer/Pipeline.h"
 
 #include "VulkanBuffer.h"
@@ -20,31 +19,23 @@ namespace Quark {
 		VulkanPipeline(const PipelineSpecification& spec);
 		virtual ~VulkanPipeline() override;
 
-		virtual void BeginFrame() override;
-		virtual void EndFrame() override;
-
-		virtual void BeginRenderPass(const Ref<RenderPass>& renderPass) override;
-		virtual void EndRenderPass() override;
-
+		virtual void Bind(const Ref<CommandBuffer>& commandBuffer) override;
 		virtual void Resize(uint32_t viewportWidth, uint32_t viewportHeight) override;
 
-		virtual const Ref<CommandBuffer>& GetCommandBuffer() const override { return m_CommandBuffers[Renderer::GetCurrentFrameIndex()]; }
-		virtual const Ref<UniformBuffer>& GetUniformBuffer() const override { return m_CameraUniformBuffers[Renderer::GetCurrentFrameIndex()]; }
+		virtual const Ref<UniformBuffer>& GetUniformBuffer() const override;
+
+		VkPipeline GetVkHandle() const { return m_Pipeline; }
 
 	private:
-		void RecreateFramebuffers();
-		void RecreateGraphicsPipeline();
+		void Invalidate();
 
 	private:
 		VkDescriptorPool m_DescriptorPool = VK_NULL_HANDLE;
 		VkDescriptorSetLayout m_DescriptorSetLayout = VK_NULL_HANDLE;
 		VkPipelineLayout m_PipelineLayout = VK_NULL_HANDLE;
-		VkPipeline m_GraphicsPipeline = VK_NULL_HANDLE;
-		VkCommandBuffer m_ActiveCommandBuffer = VK_NULL_HANDLE;
+		VkPipeline m_Pipeline = VK_NULL_HANDLE;
 
 		std::vector<VkDescriptorSet> m_DescriptorSets;
-		std::vector<VkFramebuffer> m_SwapChainFramebuffers;
 		std::vector<Ref<UniformBuffer>> m_CameraUniformBuffers;
-		std::vector<Ref<CommandBuffer>> m_CommandBuffers;
 	};
 }

@@ -41,8 +41,7 @@ namespace Quark {
 		}
 	}
 
-	OpenGLFramebuffer::OpenGLFramebuffer(const FramebufferSpecification& spec)
-		: m_Spec(spec)
+	OpenGLFramebuffer::OpenGLFramebuffer(const FramebufferSpecification& spec) : Framebuffer(spec)
 	{
 		QK_PROFILE_FUNCTION();
 
@@ -50,10 +49,10 @@ namespace Quark {
 
 		for (const auto& s : m_Spec.Attachments)
 		{
-			if (Utils::IsDepthAttachment(s.Attachment))
-				m_DepthSpec = s;
+			if (Utils::IsDepthAttachment(s->GetSpecification().Attachment))
+				m_DepthSpec = s->GetSpecification();
 			else
-				m_ColorSpecs.emplace_back(s);
+				m_ColorSpecs.emplace_back(s->GetSpecification());
 		}
 
 		Invalidate();
@@ -144,12 +143,12 @@ namespace Quark {
 				if (multisampled)
 				{
 					glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Spec.Samples,
-						InternalFormatToOpenGL(m_ColorSpecs[i].InternalFormat), m_Spec.Width, m_Spec.Height, GL_FALSE);
+						DataFormatToOpenGLInternalFormat(m_ColorSpecs[i].DataFormat), m_Spec.Width, m_Spec.Height, GL_FALSE);
 				}
 				else
 				{
-					glTexImage2D(GL_TEXTURE_2D, 0, InternalFormatToOpenGL(m_ColorSpecs[i].InternalFormat), m_Spec.Width, m_Spec.Height, 0,
-						DataFormatToOpenGL(m_ColorSpecs[i].DataFormat), GL_UNSIGNED_BYTE, nullptr);
+					glTexImage2D(GL_TEXTURE_2D, 0, DataFormatToOpenGLInternalFormat(m_ColorSpecs[i].DataFormat), m_Spec.Width, m_Spec.Height, 0,
+						DataFormatToOpenGLStorageFormat(m_ColorSpecs[i].DataFormat), GL_UNSIGNED_BYTE, nullptr);
 
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -173,12 +172,12 @@ namespace Quark {
 			if (multisampled)
 			{
 				glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Spec.Samples,
-					InternalFormatToOpenGL(m_DepthSpec.InternalFormat), m_Spec.Width, m_Spec.Height, GL_FALSE);
+					DataFormatToOpenGLInternalFormat(m_DepthSpec.DataFormat), m_Spec.Width, m_Spec.Height, GL_FALSE);
 			}
 			else
 			{
-				glTexImage2D(GL_TEXTURE_2D, 0, InternalFormatToOpenGL(m_DepthSpec.InternalFormat), m_Spec.Width, m_Spec.Height, 0,
-					DataFormatToOpenGL(m_DepthSpec.DataFormat), GL_UNSIGNED_BYTE, nullptr);
+				glTexImage2D(GL_TEXTURE_2D, 0, DataFormatToOpenGLInternalFormat(m_DepthSpec.DataFormat), m_Spec.Width, m_Spec.Height, 0,
+					DataFormatToOpenGLStorageFormat(m_DepthSpec.DataFormat), GL_UNSIGNED_BYTE, nullptr);
 
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

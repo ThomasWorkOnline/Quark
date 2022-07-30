@@ -3,6 +3,9 @@
 
 #include "VulkanBuffer.h"
 #include "VulkanContext.h"
+#include "VulkanFramebuffer.h"
+#include "VulkanPipeline.h"
+#include "VulkanRenderPass.h"
 
 namespace Quark {
 
@@ -29,6 +32,35 @@ namespace Quark {
 	void VulkanCommandBuffer::End()
 	{
 		vkEndCommandBuffer(m_CommandBuffer);
+	}
+
+	void VulkanCommandBuffer::BeginRenderPass(const Ref<RenderPass>& renderPass, const Ref<Framebuffer>& framebuffer)
+	{
+		auto vkFramebuffer = static_cast<VulkanFramebuffer*>(framebuffer.get())->GetVkHandle();
+		auto vkRenderPass = static_cast<VulkanRenderPass*>(renderPass.get())->GetVkHandle();
+
+		VkRenderPassBeginInfo renderPassInfo{};
+		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		renderPassInfo.renderPass = vkRenderPass;
+		renderPassInfo.framebuffer = vkFramebuffer;
+		
+		// must be size of framebuffer
+		renderPassInfo.renderArea.offset = VkOffset2D{ 0, 0 };
+		renderPassInfo.renderArea.extent = VkExtent2D{ framebuffer->GetWidth(), framebuffer->GetHeight() };
+
+		if (renderPass->GetSpecification().Clears)
+		{
+			VkClearValue clearColor = { 0.01f, 0.01f, 0.01f, 1.0f };
+			renderPassInfo.clearValueCount = 1;
+			renderPassInfo.pClearValues = &clearColor;
+		}
+
+		vkCmdBeginRenderPass(m_CommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+	}
+
+	void VulkanCommandBuffer::EndRenderPass()
+	{
+		vkCmdEndRenderPass(m_CommandBuffer);
 	}
 
 	void VulkanCommandBuffer::Reset()

@@ -145,8 +145,7 @@ PBRRenderingDemo::PBRRenderingDemo()
 			Texture2DSpecification spec;
 			spec.Width = 1;
 			spec.Height = 1;
-			spec.DataFormat = ColorDataFormat::Red;
-			spec.InternalFormat = InternalColorFormat::Red8;
+			spec.DataFormat = ColorDataFormat::Red8;
 
 			uint8_t data = 0xff;
 
@@ -281,8 +280,7 @@ void PBRRenderingDemo::UploadAssets()
 		Texture2DSpecification spec;
 		spec.Width = image->Width();
 		spec.Height = image->Height();
-		spec.DataFormat = image->Channels() == 4 ? ColorDataFormat::RGBA : ColorDataFormat::RGB;
-		spec.InternalFormat = image->Channels() == 4 ? InternalColorFormat::SRGBA8 : InternalColorFormat::SRGB8;
+		spec.DataFormat = image->Channels() == 4 ? ColorDataFormat::RGBA8_SRGB : ColorDataFormat::RGB8_SRGB;
 		spec.RenderModes.MagFilteringMode = TextureFilteringMode::Linear;
 		spec.RenderModes.MinFilteringMode = TextureFilteringMode::LinearMipmapLinear;
 
@@ -296,8 +294,7 @@ void PBRRenderingDemo::UploadAssets()
 		Texture2DSpecification spec;
 		spec.Width = image->Width();
 		spec.Height = image->Height();
-		spec.DataFormat = image->Channels() == 4 ? ColorDataFormat::RGBA : ColorDataFormat::RGB;
-		spec.InternalFormat = image->Channels() == 4 ? InternalColorFormat::RGBA8 : InternalColorFormat::RGB8;
+		spec.DataFormat = image->Channels() == 4 ? ColorDataFormat::RGBA8 : ColorDataFormat::RGB8;
 		spec.RenderModes.MagFilteringMode = TextureFilteringMode::Linear;
 		spec.RenderModes.MinFilteringMode = TextureFilteringMode::LinearMipmapLinear;
 
@@ -311,8 +308,7 @@ void PBRRenderingDemo::UploadAssets()
 		Texture2DSpecification spec;
 		spec.Width = image->Width();
 		spec.Height = image->Height();
-		spec.DataFormat = image->Channels() == 4 ? ColorDataFormat::RGBA : ColorDataFormat::RGB;
-		spec.InternalFormat = image->Channels() == 4 ? InternalColorFormat::RGBA8 : InternalColorFormat::RGB8;
+		spec.DataFormat = image->Channels() == 4 ? ColorDataFormat::RGBA8 : ColorDataFormat::RGB8;
 		spec.RenderModes.MagFilteringMode = TextureFilteringMode::Linear;
 		spec.RenderModes.MinFilteringMode = TextureFilteringMode::LinearMipmapLinear;
 
@@ -326,8 +322,7 @@ void PBRRenderingDemo::UploadAssets()
 		Texture2DSpecification spec;
 		spec.Width = image->Width();
 		spec.Height = image->Height();
-		spec.DataFormat = image->Channels() == 4 ? ColorDataFormat::RGBA : ColorDataFormat::RGB;
-		spec.InternalFormat = image->Channels() == 4 ? InternalColorFormat::RGBA8 : InternalColorFormat::RGB8;
+		spec.DataFormat = image->Channels() == 4 ? ColorDataFormat::RGBA8 : ColorDataFormat::RGB8;
 		spec.RenderModes.MagFilteringMode = TextureFilteringMode::Linear;
 		spec.RenderModes.MinFilteringMode = TextureFilteringMode::LinearMipmapLinear;
 
@@ -341,8 +336,7 @@ void PBRRenderingDemo::UploadAssets()
 		Texture2DSpecification spec;
 		spec.Width = image->Width();
 		spec.Height = image->Height();
-		spec.DataFormat = image->Channels() == 4 ? ColorDataFormat::RGBA : ColorDataFormat::RGB;
-		spec.InternalFormat = image->Channels() == 4 ? InternalColorFormat::RGBA8 : InternalColorFormat::RGB8;
+		spec.DataFormat = image->Channels() == 4 ? ColorDataFormat::RGBA8 : ColorDataFormat::RGB8;
 		spec.RenderModes.MagFilteringMode = TextureFilteringMode::Linear;
 		spec.RenderModes.MinFilteringMode = TextureFilteringMode::LinearMipmapLinear;
 

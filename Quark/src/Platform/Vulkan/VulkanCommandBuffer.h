@@ -13,6 +13,9 @@ namespace Quark {
 		virtual void Begin() override;
 		virtual void End() override;
 
+		virtual void BeginRenderPass(const Ref<RenderPass>& renderPass, const Ref<Framebuffer>& framebuffer) override;
+		virtual void EndRenderPass() override;
+
 		virtual void Reset() override;
 		virtual void DrawIndexed(uint32_t indexCount) override;
 

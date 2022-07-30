@@ -12,7 +12,6 @@ namespace Quark {
 		uint32_t              Samples = 1;
 
 		ColorDataFormat       DataFormat{};
-		InternalColorFormat   InternalFormat{};
 		TextureRenderModes    RenderModes;
 	};
 

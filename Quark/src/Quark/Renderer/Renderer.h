@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Quark/Core/Core.h"
-#include "Quark/Scene/Components.h"
 
 #include "Camera.h"
+#include "CommandBuffer.h"
 #include "Framebuffer.h"
 #include "RenderPass.h"
 #include "Shader.h"
@@ -17,7 +17,13 @@ namespace Quark {
 		static void BeginFrame();
 		static void EndFrame();
 
-		static uint32_t GetFramesInFlight();
+		static void BeginRenderPass(const Ref<RenderPass>& renderPass, const Ref<Framebuffer>& framebuffer);
+		static void EndRenderPass();
+
+		static const Ref<CommandBuffer>& GetCommandBuffer();
+
+		static void OnViewportResized(uint32_t width, uint32_t height);
+
 		static uint32_t GetCurrentFrameIndex();
 		static ShaderLibrary& GetShaderLibrary();
 

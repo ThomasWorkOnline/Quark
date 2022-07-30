@@ -102,6 +102,10 @@ namespace Quark {
 		dispatcher.Dispatch<WindowClosedEvent>([&](auto& e) { Stop(); });
 		dispatcher.Dispatch<WindowMinimizedEvent>([&](auto& e) { m_Minimized = true; });
 		dispatcher.Dispatch<WindowRestoredEvent>([&](auto& e) { m_Minimized = false; });
+		dispatcher.Dispatch<WindowResizedEvent>([](WindowResizedEvent& e)
+		{
+			Renderer::OnViewportResized(e.GetWidth(), e.GetHeight());
+		});
 
 		OnEvent(e);
 

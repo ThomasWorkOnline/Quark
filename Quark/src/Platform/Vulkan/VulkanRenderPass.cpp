@@ -1,6 +1,8 @@
 #include "qkpch.h"
 #include "VulkanRenderPass.h"
+
 #include "VulkanContext.h"
+#include "VulkanFormats.h"
 
 namespace Quark {
 
@@ -21,12 +23,8 @@ namespace Quark {
 
 	VulkanRenderPass::VulkanRenderPass(const RenderPassSpecification& spec) : RenderPass(spec)
 	{
-		// TODO: get format from specification
-		auto swapChain = VulkanContext::GetSwapChain();
-		VkFormat swapChainImageFormat = (VkFormat)swapChain->m_Format.ActualSurfaceFormat.format;
-
 		VkAttachmentDescription colorAttachment{};
-		colorAttachment.format = swapChainImageFormat;
+		colorAttachment.format = InternalFormatToVulkan(spec.ColorFormat);
 		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
 		colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 		colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;

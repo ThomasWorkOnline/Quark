@@ -5,6 +5,20 @@
 
 namespace Quark {
 
+	class VulkanFramebufferAttachment final : public FramebufferAttachment
+	{
+	public:
+		VulkanFramebufferAttachment(void* image, const FramebufferAttachmentSpecification& spec);
+		virtual ~VulkanFramebufferAttachment() override;
+
+		virtual void SetData(void* data) override;
+
+		VkImageView GetImageView() const { return m_ImageView; }
+
+	private:
+		VkImageView m_ImageView = VK_NULL_HANDLE;
+	};
+
 	class VulkanFramebuffer final : public Framebuffer
 	{
 	public:
@@ -34,7 +48,6 @@ namespace Quark {
 		void Invalidate();
 
 	private:
-		VkFramebuffer m_Framebuffer;
-		FramebufferSpecification m_Spec;
+		VkFramebuffer m_Framebuffer = VK_NULL_HANDLE;
 	};
 }

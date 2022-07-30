@@ -10,21 +10,8 @@
 
 namespace Quark {
 
-	static constexpr ColorDataFormat GetDataFormat(uint8_t channels)
-	{
-		switch (channels)
-		{
-			case 1: return ColorDataFormat::Red;
-			case 3: return ColorDataFormat::RGB;
-			case 4: return ColorDataFormat::RGBA;
-		}
-
-		QK_CORE_FATAL("Unknown texture data format");
-		return ColorDataFormat::None;
-	}
-
-	//                                                     Number of bits per pixel ---v
-	static constexpr InternalColorFormat GetInternalFormat(uint8_t channels, uint8_t bpp, bool srgb, bool fp)
+	//                                           Number of bits per pixel ---v
+	static constexpr ColorDataFormat GetDataFormat(uint8_t channels, uint8_t bpp, bool srgb, bool fp)
 	{
 		switch (channels)
 		{
@@ -32,7 +19,7 @@ namespace Quark {
 			{
 				switch (bpp)
 				{
-					case 8: return InternalColorFormat::Red8;
+					case 8: return ColorDataFormat::Red8;
 				}
 				break;
 			}
@@ -40,9 +27,9 @@ namespace Quark {
 			{
 				switch (bpp)
 				{
-					case 24: return srgb ? InternalColorFormat::SRGB8 : InternalColorFormat::RGB8;
-					case 48: return fp ? InternalColorFormat::RGB16f : InternalColorFormat::RGB16;
-					case 96: return fp ? InternalColorFormat::RGB32f : InternalColorFormat::RGB32;
+					case 24: return srgb ? ColorDataFormat::RGB8_SRGB : ColorDataFormat::RGB8;
+					case 48: return fp ? ColorDataFormat::RGB16f : ColorDataFormat::RGB16;
+					case 96: return fp ? ColorDataFormat::RGB32f : ColorDataFormat::RGB32;
 				}
 				break;
 			}
@@ -50,15 +37,15 @@ namespace Quark {
 			{
 				switch (bpp)
 				{
-					case 32: return srgb ? InternalColorFormat::SRGBA8 : InternalColorFormat::RGBA8;
-					case 64: return fp ? InternalColorFormat::RGBA16f : InternalColorFormat::RGBA16;
+					case 32: return srgb ? ColorDataFormat::RGBA8_SRGB : ColorDataFormat::RGBA8;
+					case 64: return fp ? ColorDataFormat::RGBA16f : ColorDataFormat::RGBA16;
 				}
 				break;
 			}
 		}
 
 		QK_CORE_FATAL("Unknown texture internal format");
-		return InternalColorFormat::None;
+		return ColorDataFormat::None;
 	}
 
 	Image::Image(std::string_view filepath)
@@ -114,9 +101,7 @@ namespace Quark {
 		m_Metadata.Height = height;
 		m_Metadata.Channels = channels;
 		m_Metadata.BitsPerPixel = bpp;
-
-		m_Metadata.DataFormat = GetDataFormat(channels);
-		m_Metadata.InternalFormat = GetInternalFormat(channels, bpp, state.info_png.srgb_defined, false);
+		m_Metadata.DataFormat = GetDataFormat(channels, bpp, state.info_png.srgb_defined, false);
 
 		free(filedata);
 		lodepng_state_cleanup(&state);
@@ -140,9 +125,7 @@ namespace Quark {
 		m_Metadata.Height = height;
 		m_Metadata.Channels = channels;
 		m_Metadata.BitsPerPixel = bpc * channels;
-
-		m_Metadata.DataFormat = GetDataFormat(channels);
-		m_Metadata.InternalFormat = GetInternalFormat(channels, bpc * channels, false, true);
+		m_Metadata.DataFormat = GetDataFormat(channels, bpc * channels, false, true);
 
 		fclose(file);
 	}

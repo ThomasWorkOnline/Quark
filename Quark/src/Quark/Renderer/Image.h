@@ -11,8 +11,7 @@ namespace Quark {
 		uint8_t  Channels = 0;
 		uint8_t  BitsPerPixel = 0;
 
-		ColorDataFormat     DataFormat{};
-		InternalColorFormat InternalFormat{};
+		ColorDataFormat DataFormat{};
 	};
 
 	class Image

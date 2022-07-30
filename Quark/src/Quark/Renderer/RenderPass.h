@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ColorFormats.h"
-#include "Framebuffer.h"
 
 namespace Quark {
 
@@ -15,7 +14,7 @@ namespace Quark {
 	struct RenderPassSpecification
 	{
 		PipelineBindPoint BindPoint{};
-		InternalColorFormat ColorFormat{};
+		ColorDataFormat   ColorFormat{};
 		bool Clears = false;
 	};
 
@@ -26,7 +25,6 @@ namespace Quark {
 			: m_Spec(spec) {}
 
 		virtual ~RenderPass() = default;
-
 		virtual bool operator==(const RenderPass& other) const = 0;
 
 		const RenderPassSpecification& GetSpecification() const { return m_Spec; }

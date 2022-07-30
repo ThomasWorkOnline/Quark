@@ -1,15 +1,13 @@
 #include "qkpch.h"
 #include "VulkanContext.h"
 
-#include "VulkanUtils.h"
+#include "VulkanSwapChain.h"
 
 #include <fstream>
 #include <set>
 #include <sstream>
 
 namespace Quark {
-
-	VulkanContext* VulkanContext::s_Instance = nullptr;
 
 	static VKAPI_ATTR VkBool32 VKAPI_CALL VkDebugCallback(
 		vk::DebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
@@ -101,14 +99,11 @@ namespace Quark {
 #endif
 		m_Instance.destroySurfaceKHR(m_Surface);
 		m_Instance.destroy();
-		s_Instance = nullptr;
 	}
 
 	void VulkanContext::Init()
 	{
 		QK_PROFILE_FUNCTION();
-
-		s_Instance = this;
 
 		// Instance creation
 		{
@@ -160,10 +155,5 @@ namespace Quark {
 	{
 		auto presentQueue = m_Device->GetPresentQueue();
 		m_SwapChain->Present(presentQueue);
-	}
-
-	void VulkanContext::OnViewportResized(uint32_t viewportWidth, uint32_t viewportHeight)
-	{
-		m_SwapChain->Resize(viewportWidth, viewportHeight);
 	}
 }

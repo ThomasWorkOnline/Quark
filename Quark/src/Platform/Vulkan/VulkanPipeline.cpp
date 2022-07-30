@@ -1,54 +1,19 @@
 #include "qkpch.h"
 #include "VulkanPipeline.h"
 
+#include "Quark/Renderer/Renderer.h"
+
 #include "VulkanContext.h"
 #include "VulkanCommandBuffer.h"
+#include "VulkanFormats.h"
 #include "VulkanRenderer.h"
 #include "VulkanRenderPass.h"
 #include "VulkanUniformBuffer.h"
 #include "VulkanUtils.h"
 
-// disable alloca failure warning
-// since variable size stack arrays are not supported by all compilers
-#pragma warning(disable : 6255)
-
 namespace Quark {
 
 	namespace Utils {
-
-		static constexpr VkFormat ShaderDataTypeToVulkan(ShaderDataType type)
-		{
-			switch (type)
-			{
-				case ShaderDataType::Float:   return VK_FORMAT_R32_SFLOAT;
-				case ShaderDataType::Float2:  return VK_FORMAT_R32G32_SFLOAT;
-				case ShaderDataType::Float3:  return VK_FORMAT_R32G32B32_SFLOAT;
-				case ShaderDataType::Float4:  return VK_FORMAT_R32G32B32A32_SFLOAT;
-				case ShaderDataType::Double:  return VK_FORMAT_R64_SFLOAT;
-				case ShaderDataType::Double2: return VK_FORMAT_R64G64_SFLOAT;
-				case ShaderDataType::Double3: return VK_FORMAT_R64G64B64_SFLOAT;
-				case ShaderDataType::Double4: return VK_FORMAT_R64G64B64A64_SFLOAT;
-
-				// TODO: map matrices, int and bool types
-				default:
-					QK_CORE_FATAL("Unknown ShaderDataType");
-					return VK_FORMAT_UNDEFINED;
-			}
-		}
-
-		static constexpr VkCullModeFlagBits RenderCullModeToVulkan(RenderCullMode mode)
-		{
-			switch (mode)
-			{
-				case RenderCullMode::None:         return VK_CULL_MODE_NONE;
-				case RenderCullMode::Front:        return VK_CULL_MODE_FRONT_BIT;
-				case RenderCullMode::Back:         return VK_CULL_MODE_BACK_BIT;
-				case RenderCullMode::FrontAndBack: return VK_CULL_MODE_FRONT_AND_BACK;
-				default:
-					QK_CORE_FATAL("Unknown culling mode");
-					return VK_CULL_MODE_NONE;
-			}
-		}
 
 		static QK_CONSTEXPR20 VkVertexInputBindingDescription GetBindingDescription(const BufferLayout& layout)
 		{
@@ -67,15 +32,13 @@ namespace Quark {
 
 		auto vkDevice = VulkanContext::GetCurrentDevice()->GetVkHandle();
 
-		uint32_t framesInFlight = Renderer::GetFramesInFlight();
+		uint32_t framesInFlight = VulkanRenderer::GetFramesInFlight();
 		m_DescriptorSets.resize(framesInFlight);
 		m_CameraUniformBuffers.resize(framesInFlight);
-		m_CommandBuffers.resize(framesInFlight);
 
 		for (uint32_t i = 0; i < framesInFlight; i++)
 		{
 			m_CameraUniformBuffers[i] = UniformBuffer::Create(m_Spec.CameraUniformBufferSize, 0);
-			m_CommandBuffers[i] = CommandBuffer::Create();
 		}
 
 		// Descriptor pool
@@ -144,8 +107,7 @@ namespace Quark {
 			}
 		}
 
-		RecreateGraphicsPipeline();
-		RecreateFramebuffers();
+		Invalidate();
 	}
 
 	VulkanPipeline::~VulkanPipeline()
@@ -159,76 +121,17 @@ namespace Quark {
 			QK_CORE_INFO("Waiting for device to finish: {0}ms", t.Milliseconds().count());
 		}
 
-		for (auto& framebuffer : m_SwapChainFramebuffers)
-			vkDestroyFramebuffer(vkDevice, framebuffer, nullptr);
-
-		vkDestroyPipeline(vkDevice, m_GraphicsPipeline, nullptr);
+		vkDestroyPipeline(vkDevice, m_Pipeline, nullptr);
 		vkDestroyPipelineLayout(vkDevice, m_PipelineLayout, nullptr);
 		vkDestroyDescriptorSetLayout(vkDevice, m_DescriptorSetLayout, nullptr);
 		vkDestroyDescriptorPool(vkDevice, m_DescriptorPool, nullptr);
 	}
 
-	void VulkanPipeline::BeginFrame()
+	void VulkanPipeline::Bind(const Ref<CommandBuffer>& commandBuffer)
 	{
-		VulkanContext::GetSwapChain()->AcquireNextImageIndex();
-
-		uint32_t currentFrameIndex = Renderer::GetCurrentFrameIndex();
-		m_ActiveCommandBuffer = static_cast<VulkanCommandBuffer*>(m_CommandBuffers[currentFrameIndex].get())->GetVkHandle();
-		m_CommandBuffers[currentFrameIndex]->Reset();
-		m_CommandBuffers[currentFrameIndex]->Begin();
-
-		vkCmdBindPipeline(m_ActiveCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline);
-		vkCmdBindDescriptorSets(m_ActiveCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, 0, 1, &m_DescriptorSets[currentFrameIndex], 0, nullptr);
-	}
-
-	void VulkanPipeline::EndFrame()
-	{
-		uint32_t currentFrameIndex = Renderer::GetCurrentFrameIndex();
-		m_CommandBuffers[currentFrameIndex]->End();
-
-		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-		VkSemaphore waitSemaphores = VulkanRenderer::GetImageAvailableSemaphore();
-
-		VkSubmitInfo submitInfo{};
-		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		submitInfo.waitSemaphoreCount = 1;
-		submitInfo.pWaitSemaphores = &waitSemaphores;
-		submitInfo.pWaitDstStageMask = waitStages;
-
-		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &m_ActiveCommandBuffer;
-
-		VkSemaphore signalSemaphore = VulkanRenderer::GetRenderFinishedSemaphore();
-		submitInfo.signalSemaphoreCount = 1;
-		submitInfo.pSignalSemaphores = &signalSemaphore;
-
-		vkQueueSubmit(VulkanContext::GetCurrentDevice()->GetGraphicsQueue(), 1, &submitInfo, VulkanRenderer::GetInFlightFence());
-	}
-
-	void VulkanPipeline::BeginRenderPass(const Ref<RenderPass>& renderPass)
-	{
-		VkRenderPassBeginInfo renderPassInfo{};
-		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-		renderPassInfo.renderPass = static_cast<VulkanRenderPass*>(renderPass.get())->GetVkHandle();
-		renderPassInfo.framebuffer = m_SwapChainFramebuffers[VulkanContext::GetSwapChain()->GetCurrentImageIndex()];
-
-		// must be size of framebuffer
-		renderPassInfo.renderArea.offset = VkOffset2D{ 0, 0 };
-		renderPassInfo.renderArea.extent = VkExtent2D{ m_Spec.ViewportWidth, m_Spec.ViewportHeight };
-
-		if (renderPass->GetSpecification().Clears)
-		{
-			VkClearValue clearColor = { 0.01f, 0.01f, 0.01f, 1.0f };
-			renderPassInfo.clearValueCount = 1;
-			renderPassInfo.pClearValues = &clearColor;
-		}
-
-		vkCmdBeginRenderPass(m_ActiveCommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-	}
-
-	void VulkanPipeline::EndRenderPass()
-	{
-		vkCmdEndRenderPass(m_ActiveCommandBuffer);
+		auto vkCommandBuffer = static_cast<VulkanCommandBuffer*>(commandBuffer.get())->GetVkHandle();
+		vkCmdBindPipeline(vkCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline);
+		vkCmdBindDescriptorSets(vkCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, 0, 1, &m_DescriptorSets[Renderer::GetCurrentFrameIndex()], 0, nullptr);
 	}
 
 	void VulkanPipeline::Resize(uint32_t viewportWidth, uint32_t viewportHeight)
@@ -236,53 +139,22 @@ namespace Quark {
 		m_Spec.ViewportWidth = viewportWidth;
 		m_Spec.ViewportHeight = viewportHeight;
 
-		RecreateGraphicsPipeline();
-		RecreateFramebuffers();
+		Invalidate();
 	}
 
-	void VulkanPipeline::RecreateFramebuffers()
+	const Ref<UniformBuffer>& VulkanPipeline::GetUniformBuffer() const
 	{
-		QK_PROFILE_FUNCTION();
-
-		auto vkDevice = VulkanContext::GetCurrentDevice()->GetVkHandle();
-		auto swapChain = VulkanContext::GetSwapChain();
-
-		if (m_SwapChainFramebuffers.size() == 0)
-		{
-			m_SwapChainFramebuffers.resize(swapChain->GetImageCount());
-		}
-		else
-		{
-			for (auto& framebuffer : m_SwapChainFramebuffers)
-				vkDestroyFramebuffer(vkDevice, framebuffer, nullptr);
-		}
-
-		for (uint32_t i = 0; i < swapChain->GetImageCount(); i++)
-		{
-			vk::ImageView attachments[] = {
-				swapChain->GetImageView(i)
-			};
-
-			vk::FramebufferCreateInfo framebufferInfo;
-			framebufferInfo.setRenderPass(static_cast<VulkanRenderPass*>(m_Spec.RenderPass.get())->GetVkHandle());
-			framebufferInfo.setAttachmentCount(1);
-			framebufferInfo.setPAttachments(attachments);
-			framebufferInfo.setWidth(swapChain->GetWidth());
-			framebufferInfo.setHeight(swapChain->GetHeight());
-			framebufferInfo.setLayers(1);
-
-			m_SwapChainFramebuffers[i] = vkDevice.createFramebuffer(framebufferInfo);
-		}
+		return m_CameraUniformBuffers[Renderer::GetCurrentFrameIndex()];
 	}
 
-	void VulkanPipeline::RecreateGraphicsPipeline()
+	void VulkanPipeline::Invalidate()
 	{
 		auto vkDevice = VulkanContext::GetCurrentDevice()->GetVkHandle();
 
-		if (m_GraphicsPipeline)
+		if (m_Pipeline)
 		{
-			vkDevice.destroyPipeline(m_GraphicsPipeline);
-			vkDevice.destroyPipelineLayout(m_PipelineLayout);
+			vkDestroyPipeline(vkDevice, m_Pipeline, nullptr);
+			vkDestroyPipelineLayout(vkDevice, m_PipelineLayout, nullptr);
 		}
 
 		// Vertex input 
@@ -295,7 +167,7 @@ namespace Quark {
 		{
 			attributeDescriptions[i].location = i;
 			attributeDescriptions[i].binding = 0;
-			attributeDescriptions[i].format = Utils::ShaderDataTypeToVulkan(m_Spec.Layout[i].Type);
+			attributeDescriptions[i].format = ShaderDataTypeToVulkan(m_Spec.Layout[i].Type);
 			attributeDescriptions[i].offset = static_cast<uint32_t>(m_Spec.Layout[i].Offset);
 		}
 
@@ -338,7 +210,7 @@ namespace Quark {
 		rasterizer.rasterizerDiscardEnable = VK_FALSE;
 		rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
 		rasterizer.lineWidth = 1.0f;
-		rasterizer.cullMode = Utils::RenderCullModeToVulkan(m_Spec.CullMode);
+		rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
 		rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE; // <-- Vulkan uses right-handed coordinate system so vertex winding is flipped
 		rasterizer.depthBiasEnable = VK_FALSE;
 
@@ -370,14 +242,15 @@ namespace Quark {
 		colorBlending.pAttachments = &colorBlendAttachment;
 
 #if 0
-		vk::DynamicState dynamicStates[] = {
-			vk::DynamicState::eViewport,
-			vk::DynamicState::eLineWidth
+		VkDynamicState dynamicStates[] = {
+			VK_DYNAMIC_STATE_VIEWPORT,
+			VK_DYNAMIC_STATE_LINE_WIDTH
 		};
 
-		vk::PipelineDynamicStateCreateInfo dynamicState;
-		dynamicState.setDynamicStateCount(static_cast<uint32_t>(sizeof(dynamicStates)));
-		dynamicState.setPDynamicStates(dynamicStates);
+		VkPipelineDynamicStateCreateInfo dynamicState{};
+		dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+		dynamicState.dynamicStateCount = static_cast<uint32_t>(sizeof(dynamicStates));
+		dynamicState.pDynamicStates = dynamicStates;
 #endif
 
 		// Pipeline creation
@@ -417,7 +290,7 @@ namespace Quark {
 		pipelineInfo.renderPass = static_cast<VulkanRenderPass*>(m_Spec.RenderPass.get())->GetVkHandle();
 		pipelineInfo.subpass = 0;
 
-		VkResult vkRes = vkCreateGraphicsPipelines(vkDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_GraphicsPipeline);
+		VkResult vkRes = vkCreateGraphicsPipelines(vkDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_Pipeline);
 		QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Could not create the graphics pipeline");
 	}
 }
