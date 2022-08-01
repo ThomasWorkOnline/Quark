@@ -35,29 +35,21 @@ namespace Quark {
 	template<typename T>
 	using WeakRef = std::weak_ptr<T>;
 
-	struct NonCopyable
-	{
-		NonCopyable() = default;
-		NonCopyable(const NonCopyable&) = delete;
-		NonCopyable& operator=(const NonCopyable&) = delete;
-	};
-
-	struct NonMovable
-	{
-		NonMovable() = default;
-		NonMovable(NonMovable&&) = delete;
-		NonMovable& operator=(NonMovable&&) = delete;
-	};
-
-	struct StaticClass : public NonCopyable, public NonMovable {};
-
 	template<typename T>
-	class Singleton : public StaticClass
+	class Singleton
 	{
 	public:
 		using ValueType = T;
 		using PointerType = T*;
 		using ReferenceType = T&;
+
+		// Non-copyable
+		Singleton(const Singleton&) = delete;
+		Singleton& operator=(const Singleton&) = delete;
+
+		// Non-movable
+		Singleton(Singleton&&) = delete;
+		Singleton& operator=(Singleton&&) = delete;
 
 	public:
 		static inline ReferenceType Get() { return *s_Instance; }

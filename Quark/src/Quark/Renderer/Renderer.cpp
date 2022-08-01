@@ -10,13 +10,10 @@ namespace Quark {
 	struct RendererData
 	{
 		uint32_t MaxUniformBuffers = 0;
-		uint32_t FramesInFlight = 0;
 		ShaderLibrary ShaderLib;
 
 		CommandBuffer* ActiveCommandBuffer = nullptr;
-		std::vector<Ref<CommandBuffer>> CommandBuffers;
-
-		uint32_t CurrentFrameIndex = std::numeric_limits<uint32_t>::max();
+		Scope<BackendRenderer> Backend;
 	};
 
 	static Scope<RendererData> s_Data;
@@ -27,13 +24,8 @@ namespace Quark {
 
 		s_Data = CreateScope<RendererData>();
 		s_Data->MaxUniformBuffers = GraphicsAPI::Instance->GetHardwareConstraints().UniformBufferConstraints.MaxBindings;
-		s_Data->FramesInFlight = GraphicsAPI::Instance->GetRendererFramesInFlight();
-
-		s_Data->CommandBuffers.resize(s_Data->FramesInFlight);
-		for (uint32_t i = 0; i < s_Data->FramesInFlight; i++)
-		{
-			s_Data->CommandBuffers[i] = CommandBuffer::Create();
-		}
+		s_Data->Backend = BackendRenderer::Create();
+		s_Data->Backend->Initialize();
 	}
 
 	void Renderer::Dispose()
@@ -44,13 +36,9 @@ namespace Quark {
 
 	void Renderer::BeginFrame()
 	{
-		s_Data->CurrentFrameIndex = (s_Data->CurrentFrameIndex + 1) % s_Data->FramesInFlight;
-		s_Data->ActiveCommandBuffer = s_Data->CommandBuffers[s_Data->CurrentFrameIndex].get();
+		s_Data->Backend->BeginFrame();
 
-		RenderCommand::WaitForFences();
-
-		GraphicsContext::Get().GetSwapChain()->AcquireNextImage();
-
+		s_Data->ActiveCommandBuffer = GetCommandBuffer().get();
 		s_Data->ActiveCommandBuffer->Reset();
 		s_Data->ActiveCommandBuffer->Begin();
 	}
@@ -58,7 +46,7 @@ namespace Quark {
 	void Renderer::EndFrame()
 	{
 		s_Data->ActiveCommandBuffer->End();
-		RenderCommand::Submit();
+		s_Data->Backend->Submit();
 	}
 
 	void Renderer::BeginRenderPass(const Ref<RenderPass>& renderPass, const Ref<Framebuffer>& framebuffer)
@@ -73,21 +61,34 @@ namespace Quark {
 
 	const Ref<CommandBuffer>& Renderer::GetCommandBuffer()
 	{
-		return s_Data->CommandBuffers[s_Data->CurrentFrameIndex];
+		return s_Data->Backend->GetCommandBuffer();
 	}
 
 	void Renderer::OnViewportResized(uint32_t width, uint32_t height)
 	{
-		GraphicsContext::Get().GetSwapChain()->Resize(width, height);
-	}
-
-	uint32_t Renderer::GetCurrentFrameIndex()
-	{
-		return s_Data->CurrentFrameIndex;
+		s_Data->Backend->OnViewportResized(width, height);
 	}
 
 	ShaderLibrary& Renderer::GetShaderLibrary()
 	{
 		return s_Data->ShaderLib;
+	}
+}
+
+#include "Platform/OpenGL/OpenGLRenderer.h"
+#include "Platform/Vulkan/VulkanRenderer.h"
+
+namespace Quark {
+
+	Scope<BackendRenderer> BackendRenderer::Create()
+	{
+		switch (GraphicsAPI::GetAPI())
+		{
+			case API::OpenGL: return CreateScope<OpenGLRenderer>();
+			case API::Vulkan: return CreateScope<VulkanRenderer>();
+			default:
+				QK_CORE_FATAL("No default renderer");
+				return nullptr;
+		}
 	}
 }

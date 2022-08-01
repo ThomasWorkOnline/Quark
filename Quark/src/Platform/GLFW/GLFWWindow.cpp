@@ -113,8 +113,6 @@ namespace Quark {
 				data.Width = width;
 				data.Height = height;
 
-				data.Context->GetSwapChain()->Resize(width, height);
-
 				WindowResizedEvent event(width, height);
 				data.EventCallback(event);
 			});

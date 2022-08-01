@@ -107,10 +107,6 @@ namespace Quark {
 		m_ViewportHeight = viewportHeight;
 
 		m_Data.GraphicsPipeline->Resize(viewportWidth, viewportHeight);
-		for (auto& framebuffer : m_Data.Framebuffers)
-		{
-			framebuffer->Resize(viewportWidth, viewportHeight);
-		}
 
 		if (m_Scene)
 		{
@@ -132,8 +128,7 @@ namespace Quark {
 	{
 		m_Data.GraphicsPipeline->Bind(Renderer::GetCommandBuffer());
 
-		uint32_t imageIndex = GraphicsContext::Get().GetSwapChain()->GetCurrentImageIndex();
-		Renderer::BeginRenderPass(m_Data.GeometryPass, m_Data.Framebuffers[imageIndex]);
+		Renderer::BeginRenderPass(m_Data.GeometryPass, nullptr);
 
 		Renderer::GetCommandBuffer()->BindVertexBuffer(m_Data.VertexBuffer, 0);
 		Renderer::GetCommandBuffer()->BindIndexBuffer(m_Data.IndexBuffer);
@@ -170,6 +165,7 @@ namespace Quark {
 		}
 
 		{
+#if 0
 			const uint32_t imageCount = GraphicsContext::Get().GetSwapChain()->GetImageCount();
 			m_Data.Framebuffers.resize(imageCount);
 
@@ -184,6 +180,7 @@ namespace Quark {
 				fbSpec.Attachments = { GraphicsContext::Get().GetSwapChain()->GetAttachment(i) };
 				m_Data.Framebuffers[i] = Framebuffer::Create(fbSpec);
 			}
+#endif
 		}
 
 		{

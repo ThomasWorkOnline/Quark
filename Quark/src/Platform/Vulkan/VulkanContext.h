@@ -12,7 +12,7 @@ typedef struct GLFWwindow GLFWwindow;
 
 namespace Quark {
 
-	class VulkanContext final : public GraphicsContext
+	class VulkanContext final : public GraphicsContext, public Singleton<VulkanContext>
 	{
 	public:
 		VulkanContext(void* windowHandle);
@@ -20,8 +20,8 @@ namespace Quark {
 
 		virtual void Init() override;
 		virtual void SwapBuffers() override;
-		virtual SwapChain* GetSwapChain() override { return m_SwapChain.get(); }
 
+		VulkanSwapChain* GetSwapChain() { return m_SwapChain.get(); }
 		static VulkanDevice* GetCurrentDevice() { return static_cast<VulkanContext&>(Get()).m_Device.get(); }
 
 	private:
@@ -33,7 +33,7 @@ namespace Quark {
 #ifdef QK_ENABLE_VULKAN_VALIDATION_LAYERS
 		VkDebugUtilsMessengerEXT m_VkDebugMessenger = VK_NULL_HANDLE;
 #endif
-		Scope<VulkanSwapChain> m_SwapChain;
 		Scope<VulkanDevice> m_Device;
+		Scope<VulkanSwapChain> m_SwapChain;
 	};
 }

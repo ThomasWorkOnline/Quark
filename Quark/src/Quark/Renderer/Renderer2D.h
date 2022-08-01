@@ -26,7 +26,7 @@ namespace Quark {
 		uint32_t LinesDrawn;
 	};
 
-	class Renderer2D : public StaticClass
+	class Renderer2D
 	{
 	public:
 		static void BeginScene(const Camera& camera, const Transform3DComponent& cameraTransform);

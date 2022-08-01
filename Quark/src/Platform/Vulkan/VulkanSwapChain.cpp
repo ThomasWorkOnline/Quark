@@ -79,7 +79,6 @@ namespace Quark {
 		}
 	}
 
-	// IMPROVE: recreate swap chain using existing memory
 	void VulkanSwapChain::Invalidate()
 	{
 		QK_PROFILE_FUNCTION();

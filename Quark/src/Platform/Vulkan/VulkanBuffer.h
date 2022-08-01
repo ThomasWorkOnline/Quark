@@ -21,7 +21,7 @@ namespace Quark {
 
 		virtual bool operator==(const VertexBuffer& other) const override
 		{
-			return m_Buffer == reinterpret_cast<const VulkanVertexBuffer&>(other).m_Buffer;
+			return m_Buffer == static_cast<const VulkanVertexBuffer&>(other).m_Buffer;
 		}
 		
 	private:
@@ -46,7 +46,7 @@ namespace Quark {
 
 		virtual bool operator==(const IndexBuffer& other) const override
 		{
-			return m_Buffer == reinterpret_cast<const VulkanIndexBuffer&>(other).m_Buffer;
+			return m_Buffer == static_cast<const VulkanIndexBuffer&>(other).m_Buffer;
 		}
 
 	private:

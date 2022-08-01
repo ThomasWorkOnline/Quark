@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Quark/Core/Core.h"
-#include "Quark/Renderer/SwapChain.h"
+#include "Quark/Renderer/Framebuffer.h"
 
 #include <vulkan/vulkan.hpp>
 
@@ -9,22 +9,22 @@ typedef struct GLFWwindow GLFWwindow;
 
 namespace Quark {
 
-	class VulkanSwapChain final : public SwapChain
+	class VulkanSwapChain
 	{
 	public:
 		VulkanSwapChain(GLFWwindow* window, VkSurfaceKHR surface);
 		~VulkanSwapChain();
 
-		virtual uint32_t GetWidth() const override { return m_Format.Extent.width; }
-		virtual uint32_t GetHeight() const override { return m_Format.Extent.height; }
-		virtual uint32_t GetImageCount() const override { return m_Format.ImageCount; }
-		virtual uint32_t GetCurrentImageIndex() const override { return m_ImageIndex; }
+		uint32_t GetWidth() const { return m_Format.Extent.width; }
+		uint32_t GetHeight() const { return m_Format.Extent.height; }
+		uint32_t GetImageCount() const { return m_Format.ImageCount; }
+		uint32_t GetCurrentImageIndex() const { return m_ImageIndex; }
 
-		virtual void AcquireNextImage() override;
-		virtual void Present() override;
-		virtual void Resize(uint32_t viewportWidth, uint32_t viewportHeight) override;
+		void AcquireNextImage();
+		void Present();
+		void Resize(uint32_t viewportWidth, uint32_t viewportHeight);
 
-		virtual const Ref<FramebufferAttachment>& GetAttachment(uint32_t imageIndex) const override { return m_Attachments[imageIndex]; }
+		const Ref<FramebufferAttachment>& GetAttachment(uint32_t imageIndex) const { return m_Attachments[imageIndex]; }
 
 	private:
 		void Invalidate();

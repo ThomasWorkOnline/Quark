@@ -11,7 +11,7 @@
 
 namespace Quark {
 
-	class Renderer : public StaticClass
+	class Renderer
 	{
 	public:
 		static void BeginFrame();
@@ -21,10 +21,8 @@ namespace Quark {
 		static void EndRenderPass();
 
 		static const Ref<CommandBuffer>& GetCommandBuffer();
-
 		static void OnViewportResized(uint32_t width, uint32_t height);
 
-		static uint32_t GetCurrentFrameIndex();
 		static ShaderLibrary& GetShaderLibrary();
 
 	private:
@@ -32,5 +30,22 @@ namespace Quark {
 		static void Dispose();
 
 		friend class Application;
+	};
+
+	class BackendRenderer
+	{
+	public:
+		virtual ~BackendRenderer() = default;
+
+		virtual void Initialize() = 0;
+		virtual void Shutdown() = 0;
+
+		virtual void BeginFrame() = 0;
+		virtual void Submit() = 0;
+		virtual const Ref<CommandBuffer>& GetCommandBuffer() const = 0;
+
+		virtual void OnViewportResized(uint32_t viewportWidth, uint32_t viewportHeight) = 0;
+
+		static Scope<BackendRenderer> Create();
 	};
 }

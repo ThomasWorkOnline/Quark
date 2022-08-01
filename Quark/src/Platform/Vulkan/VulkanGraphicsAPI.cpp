@@ -26,31 +26,6 @@ namespace Quark {
 		m_Constraints.TextureConstraints.MaxTextureSlots = 32; // TODO: implement caps
 	}
 
-	void VulkanGraphicsAPI::InitBackend()
-	{
-		VulkanRenderer::Initialize();
-	}
-
-	void VulkanGraphicsAPI::ShutdownBackend()
-	{
-		VulkanRenderer::Shutdown();
-	}
-
-	void VulkanGraphicsAPI::WaitForFences() const
-	{
-		VulkanRenderer::WaitForFences();
-	}
-
-	void VulkanGraphicsAPI::WaitAndRender()
-	{
-		VulkanRenderer::WaitAndRender();
-	}
-
-	uint32_t VulkanGraphicsAPI::GetRendererFramesInFlight() const
-	{
-		return VulkanRenderer::GetFramesInFlight();
-	}
-
 	Ref<CommandBuffer> VulkanGraphicsAPI::CreateCommandBuffer()
 	{
 		return CreateRef<VulkanCommandBuffer>();

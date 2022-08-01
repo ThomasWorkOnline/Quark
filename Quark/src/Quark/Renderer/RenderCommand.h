@@ -17,16 +17,6 @@ namespace Quark {
 			GraphicsAPI::Instance->Init();
 		}
 
-		static void Submit()
-		{
-			GraphicsAPI::Instance->WaitAndRender();
-		}
-
-		static void WaitForFences()
-		{
-			GraphicsAPI::Instance->WaitForFences();
-		}
-
 		static void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 		{
 			QK_ASSERT_RENDER_THREAD();

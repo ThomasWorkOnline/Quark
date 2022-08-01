@@ -2,6 +2,7 @@
 #include "Renderer2D.h"
 #include "RenderCommand.h"
 
+#include "Quark/Renderer/Renderer.h"
 #include "Quark/Filesystem/Filesystem.h"
 #include <sstream>
 

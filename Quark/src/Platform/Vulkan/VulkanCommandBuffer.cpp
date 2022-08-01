@@ -5,6 +5,7 @@
 #include "VulkanContext.h"
 #include "VulkanFramebuffer.h"
 #include "VulkanPipeline.h"
+#include "VulkanRenderer.h"
 #include "VulkanRenderPass.h"
 
 namespace Quark {

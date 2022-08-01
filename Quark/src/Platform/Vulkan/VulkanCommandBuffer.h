@@ -24,7 +24,7 @@ namespace Quark {
 
 		virtual bool operator==(const CommandBuffer& other) const override
 		{
-			return m_CommandBuffer == reinterpret_cast<const VulkanCommandBuffer&>(other).m_CommandBuffer;
+			return m_CommandBuffer == static_cast<const VulkanCommandBuffer&>(other).m_CommandBuffer;
 		}
 
 		vk::CommandBuffer GetVkHandle() const { return m_CommandBuffer; }

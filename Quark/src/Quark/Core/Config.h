@@ -5,7 +5,7 @@
 #elif defined(QK_RELEASE)
 #	define QK_CONFIG_NAME "Release"
 #elif defined(QK_DIST)
-#	define QK_CONFIG_NAME "Distribution"
+#	define QK_CONFIG_NAME "Dist"
 #else
 #	error "Unknown configuration"
 #endif

@@ -132,8 +132,8 @@ namespace Quark {
 		}
 	}
 
-	VulkanContext::VulkanContext(void* windowHandle)
-		: m_WindowHandle(static_cast<GLFWwindow*>(windowHandle))
+	VulkanContext::VulkanContext(void* windowHandle) : Singleton(this),
+		m_WindowHandle(static_cast<GLFWwindow*>(windowHandle))
 	{
 		QK_CORE_ASSERT(windowHandle, "Window handle is nullptr");
 	}

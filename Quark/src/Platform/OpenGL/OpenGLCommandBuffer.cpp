@@ -8,6 +8,8 @@ namespace Quark {
 
 	void OpenGLCommandBuffer::BeginRenderPass(const Ref<RenderPass>& renderPass, const Ref<Framebuffer>& framebuffer)
 	{
+		framebuffer ? framebuffer->Attach() : glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 		if (renderPass->GetSpecification().Clears)
 		{
 			glClearColor(0.01f, 0.01f, 0.01f, 1.0f);
