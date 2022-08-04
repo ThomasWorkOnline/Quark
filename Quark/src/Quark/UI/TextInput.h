@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Quark/Core/Core.h"
-#include "Quark/Events/KeyEvent.h"
+
+#include "Quark/Event/KeyEvent.h"
 #include "Quark/Renderer/Font.h"
 #include "Quark/Renderer/TextRendererTraits.h"
 #include "Quark/UI/UIElement.h"

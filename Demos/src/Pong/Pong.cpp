@@ -12,7 +12,7 @@ Pong::Pong()
 	camera.SetPerspective(70.0f);
 	camera.Resize(window.GetWidth(), window.GetHeight());
 
-	m_BallTransform.Position = glm::vec3(0.0f, 0.0f, 10.0f);
+	m_BallTransform.Position = Vec3f(0.0f, 0.0f, 10.0f);
 
 	m_Shader = Shader::Create("assets/shaders/PBR.glsl");
 	m_Ball = Mesh::LoadFromFile("assets/meshes/sphere.obj");

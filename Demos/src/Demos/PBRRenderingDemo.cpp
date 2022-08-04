@@ -157,8 +157,8 @@ PBRRenderingDemo::PBRRenderingDemo()
 	m_PBRShader = Shader::Create("assets/shaders/PBR.glsl");
 
 	static constexpr float lightPower = 10.0f;
-	static constexpr glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f) * lightPower;
-	static constexpr glm::vec3 lightPositions[4] = {
+	static constexpr Vec3f lightColor = Vec3f(1.0f, 1.0f, 1.0f) * lightPower;
+	static constexpr Vec3f lightPositions[4] = {
 		{  0.0f,  0.0f, -3.0f },
 		{  0.0f,  2.0f,  3.0f },
 		{ -1.7f,  0.3f, -0.5f },
@@ -166,7 +166,7 @@ PBRRenderingDemo::PBRRenderingDemo()
 	};
 
 	m_PBRShader->Attach();
-	m_PBRShader->SetMat4("u_Model", glm::mat4(1.0f));
+	m_PBRShader->SetMat4f("u_Model", Mat4f(1.0f));
 	m_PBRShader->SetInt("u_AlbedoMap", 0);
 	m_PBRShader->SetInt("u_NormalMap", 1);
 	m_PBRShader->SetInt("u_MetallicMap", 2);
@@ -174,15 +174,15 @@ PBRRenderingDemo::PBRRenderingDemo()
 	m_PBRShader->SetInt("u_AmbiantOcclusionMap", 4);
 	m_PBRShader->SetInt("u_IrradianceMap", 5);
 
-	m_PBRShader->SetFloat3("u_LightColors[0]", lightColor);
-	m_PBRShader->SetFloat3("u_LightColors[1]", lightColor);
-	m_PBRShader->SetFloat3("u_LightColors[2]", lightColor);
-	m_PBRShader->SetFloat3("u_LightColors[3]", lightColor);
+	m_PBRShader->SetVec3f("u_LightColors[0]", lightColor);
+	m_PBRShader->SetVec3f("u_LightColors[1]", lightColor);
+	m_PBRShader->SetVec3f("u_LightColors[2]", lightColor);
+	m_PBRShader->SetVec3f("u_LightColors[3]", lightColor);
 
-	m_PBRShader->SetFloat3("u_LightPositions[0]", lightPositions[0]);
-	m_PBRShader->SetFloat3("u_LightPositions[1]", lightPositions[1]);
-	m_PBRShader->SetFloat3("u_LightPositions[2]", lightPositions[2]);
-	m_PBRShader->SetFloat3("u_LightPositions[3]", lightPositions[3]);
+	m_PBRShader->SetVec3f("u_LightPositions[0]", lightPositions[0]);
+	m_PBRShader->SetVec3f("u_LightPositions[1]", lightPositions[1]);
+	m_PBRShader->SetVec3f("u_LightPositions[2]", lightPositions[2]);
+	m_PBRShader->SetVec3f("u_LightPositions[3]", lightPositions[3]);
 }
 
 void PBRRenderingDemo::OnUpdate(Timestep elapsedTime)
@@ -207,7 +207,7 @@ void PBRRenderingDemo::OnRender()
 	const auto& transform = m_Player.GetComponent<Transform3DComponent>();
 
 	m_PBRShader->Attach();
-	m_PBRShader->SetFloat3("u_CameraPos", transform.Position);
+	m_PBRShader->SetVec3f("u_CameraPos", transform.Position);
 
 	//Renderer::BeginScene(camera, transform);
 

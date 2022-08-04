@@ -6,7 +6,7 @@
 #include "Window.h"
 
 #include "Quark/Audio/AudioDevice.h"
-#include "Quark/Events/ApplicationEvent.h"
+#include "Quark/Event/ApplicationEvent.h"
 #include "Quark/Renderer/GraphicsAPI.h"
 
 #include <thread>

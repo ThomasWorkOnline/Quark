@@ -9,9 +9,9 @@ namespace Quark {
 
 	struct Glyph
 	{
-		glm::ivec2 Size;
-		glm::ivec2 Bearing;
-		glm::ivec2 Advance;
+		Vec2i Size;
+		Vec2i Bearing;
+		Vec2i Advance;
 		uint32_t OffsetX;
 	};
 

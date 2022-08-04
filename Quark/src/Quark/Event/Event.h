@@ -58,9 +58,10 @@ namespace Quark {
 	}
 
 	// To be defined in event declaration
-#define EVENT_CLASS_TYPE(type)  static EventType GetStaticType() { return type; }\
-								virtual EventType GetType() const override { return GetStaticType(); }\
-								virtual const char* GetName() const override { return #type; }
+#define EVENT_CLASS_TYPE(type)  static constexpr EventType GetStaticType() { return type; } \
+								static constexpr const char* GetStaticName() { return #type; } \
+								virtual EventType GetType() const override { return GetStaticType(); } \
+								virtual const char* GetName() const override { return GetStaticName(); }
 
 #define EVENT_CLASS_CATEGORY(category) virtual EventCategory GetCategoryFlags() const override { return category; }
 
@@ -97,7 +98,7 @@ namespace Quark {
 		}
 
 		template<typename T, typename Func>
-		bool Dispatch(const Func& func)
+		bool Dispatch(Func&& func)
 		{
 			if (m_Event.GetType() == T::GetStaticType())
 			{

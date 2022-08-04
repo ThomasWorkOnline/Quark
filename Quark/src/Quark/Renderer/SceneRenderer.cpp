@@ -13,8 +13,8 @@ namespace Quark {
 
 	struct Vertex2D
 	{
-		glm::vec3 Position;
-		glm::vec3 Color;
+		Vec3f Position;
+		Vec3f Color;
 	};
 
 	static constexpr Vertex2D s_Vertices[4] = {
@@ -83,8 +83,8 @@ namespace Quark {
 				RenderCommand::SetDepthFunction(RenderDepthFunction::LessEqual);
 
 				m_Data.Env->SkyboxShader->Attach();
-				m_Data.Env->SkyboxShader->SetMat4("u_View", view);
-				m_Data.Env->SkyboxShader->SetMat4("u_Projection", sceneCamera.GetProjection());
+				m_Data.Env->SkyboxShader->SetMat4f("u_View", view);
+				m_Data.Env->SkyboxShader->SetMat4f("u_Projection", sceneCamera.GetProjection());
 				m_Data.Env->SkyboxShader->SetInt("u_EnvironmentMap", 0);
 				m_Data.Env->SkyboxShader->SetFloat("u_Exposure", 1.0f);
 
@@ -225,14 +225,14 @@ namespace Quark {
 			}
 		}
 
-		glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
-		glm::mat4 captureViews[] = {
-			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
-			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
-			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)),
-			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)),
-			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
-			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
+		Mat4f captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
+		Mat4f captureViews[] = {
+			glm::lookAt(Vec3f(0.0f, 0.0f, 0.0f), Vec3f( 1.0f,  0.0f,  0.0f), Vec3f(0.0f, -1.0f,  0.0f)),
+			glm::lookAt(Vec3f(0.0f, 0.0f, 0.0f), Vec3f(-1.0f,  0.0f,  0.0f), Vec3f(0.0f, -1.0f,  0.0f)),
+			glm::lookAt(Vec3f(0.0f, 0.0f, 0.0f), Vec3f( 0.0f,  1.0f,  0.0f), Vec3f(0.0f,  0.0f, -1.0f)),
+			glm::lookAt(Vec3f(0.0f, 0.0f, 0.0f), Vec3f( 0.0f, -1.0f,  0.0f), Vec3f(0.0f,  0.0f,  1.0f)),
+			glm::lookAt(Vec3f(0.0f, 0.0f, 0.0f), Vec3f( 0.0f,  0.0f, -1.0f), Vec3f(0.0f, -1.0f,  0.0f)),
+			glm::lookAt(Vec3f(0.0f, 0.0f, 0.0f), Vec3f( 0.0f,  0.0f,  1.0f), Vec3f(0.0f, -1.0f,  0.0f))
 		};
 
 		auto hdrTexture = Texture2D::Create(filepath);
@@ -241,14 +241,14 @@ namespace Quark {
 		m_Data.Env->Framebuffer->Attach();
 		m_Data.Env->EquirectangleToCubemapShader->Attach();
 		m_Data.Env->EquirectangleToCubemapShader->SetInt("u_EquirectangularMap", 0);
-		m_Data.Env->EquirectangleToCubemapShader->SetMat4("u_Projection", captureProjection);
+		m_Data.Env->EquirectangleToCubemapShader->SetMat4f("u_Projection", captureProjection);
 
 		RenderCommand::SetCullFace(RenderCullMode::Front);
 		RenderCommand::SetDepthFunction(RenderDepthFunction::LessEqual);
 
 		for (uint8_t i = 0; i < 6; i++)
 		{
-			m_Data.Env->EquirectangleToCubemapShader->SetMat4("u_View", captureViews[i]);
+			m_Data.Env->EquirectangleToCubemapShader->SetMat4f("u_View", captureViews[i]);
 			//m_Data.Env->Framebuffer->AttachColorTextureTarget(0x8515 + i, m_Data.Env->Environment->GetRendererID());
 
 			// FIX:
@@ -262,12 +262,12 @@ namespace Quark {
 
 		m_Data.Env->IrradianceShader->Attach();
 		m_Data.Env->IrradianceShader->SetInt("u_EnvironmentMap", 0);
-		m_Data.Env->IrradianceShader->SetMat4("u_Projection", captureProjection);
+		m_Data.Env->IrradianceShader->SetMat4f("u_Projection", captureProjection);
 		m_Data.Env->Environment->Attach(0);
 
 		for (uint8_t i = 0; i < 6; i++)
 		{
-			m_Data.Env->IrradianceShader->SetMat4("u_View", captureViews[i]);
+			m_Data.Env->IrradianceShader->SetMat4f("u_View", captureViews[i]);
 			//m_Data.Env->Framebuffer->AttachColorTextureTarget(0x8515 + i, m_Data.Env->Irradiance->GetRendererID());
 
 			// FIX:

@@ -75,7 +75,7 @@ namespace Quark {
 		m_ZoomSpeed -= (m_ZoomSpeed * zoomFrictionCoeff) * elapsedTime;
 
 		// Check if the fov needs to be changed
-		if (abs(m_ZoomSpeed) > glm::epsilon<float>())
+		if (std::abs(m_ZoomSpeed) > glm::epsilon<Float>())
 		{
 			camera.SetFov(camera.GetFov() - m_ZoomSpeed * elapsedTime * camera.GetFov());
 		}

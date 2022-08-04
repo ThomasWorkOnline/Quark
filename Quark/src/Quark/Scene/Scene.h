@@ -2,7 +2,8 @@
 
 #include "Quark/Core/Core.h"
 #include "Quark/Core/Timestep.h"
-#include "Quark/Events/Event.h"
+
+#include "Quark/Event/Event.h"
 #include "Quark/Scene/Entity.h"
 
 #include <entt/entt.hpp>

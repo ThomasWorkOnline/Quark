@@ -5,39 +5,6 @@
 namespace Quark {
 
 	template<typename T>
-	class Random
-	{
-	public:
-		static_assert(std::is_floating_point_v<T>,
-			"T must be of floating-point type");
-
-		explicit Random(uint32_t seed = std::mt19937::default_seed)
-			: m_NoiseEngine(seed)
-		{
-		}
-
-		inline void Seed(uint32_t seed)
-		{
-			m_NoiseEngine.seed(seed);
-		}
-
-		inline void Discard(uint32_t offset)
-		{
-			m_NoiseEngine.discard(offset);
-		}
-
-		inline T Next()
-		{
-			return m_NoiseEngine() / static_cast<T>(std::numeric_limits<uint32_t>::max());
-		}
-
-		static constexpr uint32_t GetDefaultSeed() { return std::mt19937::default_seed; }
-
-	private:
-		std::mt19937 m_NoiseEngine;
-	};
-
-	template<typename T>
 	class PerlinNoise
 	{
 	public:
@@ -50,7 +17,7 @@ namespace Quark {
 		T Noise1D(T x) const noexcept;
 		T Noise2D(T x, T y) const noexcept;
 		T Noise3D(T x, T y, T z) const noexcept;
-		
+
 		T AccumulatedOctaveNoise1D(T x, int32_t octaves) const noexcept;
 		T AccumulatedOctaveNoise2D(T x, T y, int32_t octaves) const noexcept;
 		T AccumulatedOctaveNoise3D(T x, T y, T z, int32_t octaves) const noexcept;
@@ -64,7 +31,7 @@ namespace Quark {
 		T UnsignedNormalizedOctaveNoise3D(T x, T y, T z, int32_t octaves) const noexcept;
 
 	private:
-		uint8_t p[512];
+		uint8_t m_P[512];
 
 		static constexpr T Fade(T t) noexcept
 		{
@@ -110,14 +77,14 @@ namespace Quark {
 	{
 		for (size_t i = 0; i < 256; ++i)
 		{
-			p[i] = static_cast<uint8_t>(i);
+			m_P[i] = static_cast<uint8_t>(i);
 		}
 
-		std::shuffle(std::begin(p), std::begin(p) + 256, std::default_random_engine(seed));
+		std::shuffle(std::begin(m_P), std::begin(m_P) + 256, std::default_random_engine(seed));
 
 		for (size_t i = 0; i < 256; ++i)
 		{
-			p[256 + i] = p[i];
+			m_P[256 + i] = m_P[i];
 		}
 	}
 
@@ -148,17 +115,17 @@ namespace Quark {
 		const T v = Fade(y);
 		const T w = Fade(z);
 
-		const int32_t A = p[X] + Y, AA = p[A] + Z, AB = p[A + 1] + Z;
-		const int32_t B = p[X + 1] + Y, BA = p[B] + Z, BB = p[B + 1] + Z;
+		const int32_t A = m_P[X] + Y, AA = m_P[A] + Z, AB = m_P[A + 1] + Z;
+		const int32_t B = m_P[X + 1] + Y, BA = m_P[B] + Z, BB = m_P[B + 1] + Z;
 
-		return Lerp(w, Lerp(v, Lerp(u, Grad(p[AA], x, y, z),
-			   Grad(p[BA], x - 1, y, z)),
-			   Lerp(u, Grad(p[AB], x, y - 1, z),
-			   Grad(p[BB], x - 1, y - 1, z))),
-			   Lerp(v, Lerp(u, Grad(p[AA + 1], x, y, z - 1),
-			   Grad(p[BA + 1], x - 1, y, z - 1)),
-			   Lerp(u, Grad(p[AB + 1], x, y - 1, z - 1),
-			   Grad(p[BB + 1], x - 1, y - 1, z - 1))));
+		return Lerp(w, Lerp(v, Lerp(u, Grad(m_P[AA], x, y, z),
+			   Grad(m_P[BA], x - 1, y, z)),
+			   Lerp(u, Grad(m_P[AB], x, y - 1, z),
+			   Grad(m_P[BB], x - 1, y - 1, z))),
+			   Lerp(v, Lerp(u, Grad(m_P[AA + 1], x, y, z - 1),
+			   Grad(m_P[BA + 1], x - 1, y, z - 1)),
+			   Lerp(u, Grad(m_P[AB + 1], x, y - 1, z - 1),
+			   Grad(m_P[BB + 1], x - 1, y - 1, z - 1))));
 	}
 
 	template<typename T>

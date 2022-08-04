@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Quark/Core/Core.h"
-#include "Quark/Events/Event.h"
+#include "Quark/Event/Event.h"
 
 #include "Entity.h"
 

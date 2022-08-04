@@ -2,7 +2,8 @@
 
 #include "Quark/Core/Core.h"
 #include "Quark/Core/Window.h"
-#include "Quark/Events/Event.h"
+
+#include "Quark/Event/Event.h"
 
 namespace Quark {
 

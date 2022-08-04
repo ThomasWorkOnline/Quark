@@ -27,19 +27,19 @@ namespace Quark {
 		virtual void SetIntArray(std::string_view name, const int32_t* values, uint32_t count) override;
 
 		virtual void SetFloat(std::string_view name, float value) override;
-		virtual void SetFloat2(std::string_view name, const Vec2f& value) override;
-		virtual void SetFloat3(std::string_view name, const Vec3f& value) override;
-		virtual void SetFloat4(std::string_view name, const Vec4f& value) override;
+		virtual void SetVec2f(std::string_view name, const Vec2f& value) override;
+		virtual void SetVec3f(std::string_view name, const Vec3f& value) override;
+		virtual void SetVec4f(std::string_view name, const Vec4f& value) override;
 		virtual void SetFloatArray(std::string_view name, const float* values, uint32_t count) override;
 
 		virtual void SetDouble(std::string_view name, double value) override;
-		virtual void SetDouble2(std::string_view name, const Vec2d& value) override;
-		virtual void SetDouble3(std::string_view name, const Vec3d& value) override;
-		virtual void SetDouble4(std::string_view name, const Vec4d& value) override;
+		virtual void SetVec2d(std::string_view name, const Vec2d& value) override;
+		virtual void SetVec3d(std::string_view name, const Vec3d& value) override;
+		virtual void SetVec4d(std::string_view name, const Vec4d& value) override;
 		virtual void SetDoubleArray(std::string_view name, const double* values, uint32_t count) override;
 
-		virtual void SetMat3(std::string_view name, const Mat3f& matrix) override;
-		virtual void SetMat4(std::string_view name, const Mat4f& matrix) override;
+		virtual void SetMat3f(std::string_view name, const Mat3f& matrix) override;
+		virtual void SetMat4f(std::string_view name, const Mat4f& matrix) override;
 
 		virtual void SetMat3d(std::string_view name, const Mat3d& matrix) override;
 		virtual void SetMat4d(std::string_view name, const Mat4d& matrix) override;
@@ -70,8 +70,8 @@ namespace Quark {
 		void UploadUniformDouble4(std::string_view name, const Vec4d& value);
 		void UploadUniformDoubleArray(std::string_view name, const double* values, uint32_t count);
 
-		void UploadUniformMat3(std::string_view name, const Mat3f& matrix);
-		void UploadUniformMat4(std::string_view name, const Mat4f& matrix);
+		void UploadUniformMat3f(std::string_view name, const Mat3f& matrix);
+		void UploadUniformMat4f(std::string_view name, const Mat4f& matrix);
 		void UploadUniformMat3d(std::string_view name, const Mat3d& matrix);
 		void UploadUniformMat4d(std::string_view name, const Mat4d& matrix);
 

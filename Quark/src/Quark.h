@@ -21,11 +21,11 @@
 #include "Quark/Scene/SceneCamera.h"
 
 // Events
-#include "Quark/Events/Event.h"
-#include "Quark/Events/ApplicationEvent.h"
-#include "Quark/Events/KeyEvent.h"
-#include "Quark/Events/MouseEvent.h"
-#include "Quark/Events/WindowEvent.h"
+#include "Quark/Event/Event.h"
+#include "Quark/Event/ApplicationEvent.h"
+#include "Quark/Event/KeyEvent.h"
+#include "Quark/Event/MouseEvent.h"
+#include "Quark/Event/WindowEvent.h"
 
 // Filesystem
 #include "Quark/Filesystem/Filesystem.h"
@@ -59,6 +59,7 @@
 #include "Quark/Tools/Colorimetry.h"
 #include "Quark/Tools/EasingCurves.h"
 #include "Quark/Tools/Noise.h"
+#include "Quark/Tools/Random.h"
 
 // UI
 #include "Quark/UI/UIElement.h"

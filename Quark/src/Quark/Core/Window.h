@@ -2,10 +2,11 @@
 
 #include "Quark/Core/Core.h"
 #include "Quark/Core/Input.h"
-#include "Quark/Events/ApplicationEvent.h"
-#include "Quark/Events/KeyEvent.h"
-#include "Quark/Events/MouseEvent.h"
-#include "Quark/Events/WindowEvent.h"
+
+#include "Quark/Event/ApplicationEvent.h"
+#include "Quark/Event/KeyEvent.h"
+#include "Quark/Event/MouseEvent.h"
+#include "Quark/Event/WindowEvent.h"
 
 #include "Quark/Renderer/GraphicsContext.h"
 

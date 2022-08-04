@@ -26,9 +26,9 @@ private:
 	Text m_Text2;
 	TextInput m_Input;
 
-	glm::vec4 m_Color1 = { 1.0f, 1.0f, 0.0f, 1.0f };
-	glm::vec4 m_Color2 = { 1.0f, 0.0f, 1.0f, 0.5f };
-	glm::mat4 m_Transform = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	Vec4f m_Color1 = { 1.0f, 1.0f, 0.0f, 1.0f };
+	Vec4f m_Color2 = { 1.0f, 0.0f, 1.0f, 0.5f };
+	Mat4f m_Transform = glm::rotate(Mat4f(1.0f), glm::radians(45.0f), Vec3f(1.0f, 0.0f, 0.0f));
 
 	SceneCamera m_Camera;
 };
