@@ -2,12 +2,19 @@
 #include "VulkanContext.h"
 
 #include "VulkanSwapChain.h"
+#include "VulkanCommandBuffer.h"
 
 #include <fstream>
 #include <set>
 #include <sstream>
 
 #include <GLFW/glfw3.h>
+
+#define QK_VULKAN_VERBOSE_LOG 0
+
+const char* g_ValidationLayers[] = {
+	"VK_LAYER_KHRONOS_validation"
+};
 
 namespace Quark {
 
@@ -132,8 +139,8 @@ namespace Quark {
 		}
 	}
 
-	VulkanContext::VulkanContext(void* windowHandle) : Singleton(this),
-		m_WindowHandle(static_cast<GLFWwindow*>(windowHandle))
+	VulkanContext::VulkanContext(void* windowHandle)
+		: m_WindowHandle(static_cast<GLFWwindow*>(windowHandle))
 	{
 		QK_CORE_ASSERT(windowHandle, "Window handle is nullptr");
 	}
@@ -143,6 +150,13 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		m_Device->WaitIdle();
+
+		for (uint32_t i = 0; i < FramesInFlight; i++)
+		{
+			vkDestroyFence(m_Device->GetVkHandle(), m_Data.InFlightFences[i], nullptr);
+			vkDestroySemaphore(m_Device->GetVkHandle(), m_Data.RenderFinishedSemaphores[i], nullptr);
+			vkDestroySemaphore(m_Device->GetVkHandle(), m_Data.ImageAvailableSemaphores[i], nullptr);
+		}
 
 		m_SwapChain.reset();
 		m_Device.reset();
@@ -158,9 +172,6 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		QK_PROFILE_FUNCTION();
-
-		// Instance creation
 		{
 			QK_PROFILE_SCOPE(VulkanContext::Instance);
 
@@ -200,20 +211,84 @@ namespace Quark {
 #endif
 		}
 
-		// Window surface creation
 		m_Surface = Utils::CreateSurfaceForPlatform(m_Instance, m_WindowHandle);
 
-		// Device creation
 		m_Device = VulkanDevice::CreateDefaultForSurface(m_Instance, m_Surface);
+		m_SwapChain = CreateScope<VulkanSwapChain>(m_Device.get(), m_WindowHandle, m_Surface);
 
-		// Swap chain creation
-		m_SwapChain = CreateScope<VulkanSwapChain>(m_WindowHandle, m_Surface);
+		{
+			// Synchronization
+			VkFenceCreateInfo fenceInfo{};
+			fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+			fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+			VkSemaphoreCreateInfo semaphoreInfo{};
+			semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+			for (uint32_t i = 0; i < FramesInFlight; i++)
+			{
+				vkCreateFence(m_Device->GetVkHandle(), &fenceInfo, nullptr, &m_Data.InFlightFences[i]);
+				vkCreateSemaphore(m_Device->GetVkHandle(), &semaphoreInfo, nullptr, &m_Data.RenderFinishedSemaphores[i]);
+				vkCreateSemaphore(m_Device->GetVkHandle(), &semaphoreInfo, nullptr, &m_Data.ImageAvailableSemaphores[i]);
+			}
+
+			for (uint32_t i = 0; i < FramesInFlight; i++)
+			{
+				m_Data.CommandBuffers[i] = CommandBuffer::Create();
+			}
+		}
 
 		QK_CORE_TRACE("Created Vulkan graphics context!");
 	}
 
+	void VulkanContext::StartFrame()
+	{
+		m_Data.CurrentFrameIndex = (m_Data.CurrentFrameIndex + 1) % FramesInFlight;
+
+		{
+			VkFence waitFence = m_Data.InFlightFences[m_Data.CurrentFrameIndex];
+
+			VkResult vkRes = vkWaitForFences(m_Device->GetVkHandle(), 1, &waitFence, VK_TRUE, UINT64_MAX);
+			QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Could not wait for fences");
+			vkResetFences(m_Device->GetVkHandle(), 1, &waitFence);
+		}
+
+		m_SwapChain->AcquireNextImage(m_Data.ImageAvailableSemaphores[m_Data.CurrentFrameIndex]);
+	}
+
+	void VulkanContext::Submit()
+	{
+		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+		VkSemaphore waitSemaphores = m_Data.ImageAvailableSemaphores[m_Data.CurrentFrameIndex];
+
+		VkSubmitInfo submitInfo{};
+		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+		submitInfo.waitSemaphoreCount = 1;
+		submitInfo.pWaitSemaphores = &waitSemaphores;
+		submitInfo.pWaitDstStageMask = waitStages;
+
+		auto& activeCommandBuffer = m_Data.CommandBuffers[m_Data.CurrentFrameIndex];
+		VkCommandBuffer commandBuffer = static_cast<VulkanCommandBuffer*>(activeCommandBuffer.get())->GetVkHandle();
+		submitInfo.commandBufferCount = 1;
+		submitInfo.pCommandBuffers = &commandBuffer;
+
+		VkSemaphore signalSemaphore = m_Data.RenderFinishedSemaphores[m_Data.CurrentFrameIndex];
+		submitInfo.signalSemaphoreCount = 1;
+		submitInfo.pSignalSemaphores = &signalSemaphore;
+
+		vkQueueSubmit(m_Device->GetGraphicsQueue(), 1, &submitInfo, m_Data.InFlightFences[m_Data.CurrentFrameIndex]);
+	}
+
 	void VulkanContext::SwapBuffers()
 	{
-		m_SwapChain->Present();
+		auto presentQueue = m_Device->GetPresentQueue();
+		auto renderFinishedSemaphore = m_Data.RenderFinishedSemaphores[m_Data.CurrentFrameIndex];
+
+		m_SwapChain->Present(presentQueue, renderFinishedSemaphore);
+	}
+
+	void VulkanContext::OnViewportResized(uint32_t viewportWidth, uint32_t viewportHeight)
+	{
+		m_Device->WaitIdle();
+		m_SwapChain->Resize(viewportWidth, viewportHeight);
 	}
 }

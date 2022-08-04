@@ -6,8 +6,7 @@
 
 namespace Quark {
 
-	OpenGLTexture2DArray::OpenGLTexture2DArray(const Texture2DArraySpecification& spec)
-		: m_Spec(spec)
+	OpenGLTexture2DArray::OpenGLTexture2DArray(const Texture2DArraySpecification& spec) : Texture2DArray(spec)
 	{
 		QK_PROFILE_FUNCTION();
 

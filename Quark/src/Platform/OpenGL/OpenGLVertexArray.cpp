@@ -58,13 +58,13 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		QK_CORE_ASSERT(vertexBuffer->GetLayout().GetElements().size() != 0, "Vertex buffer has no layout");
+		QK_CORE_ASSERT(vertexBuffer, "Vertex buffer is empty");
+		QK_CORE_ASSERT(m_Layout.GetCount() != 0, "Vertex array has no layout");
 
 		glBindVertexArray(m_RendererID);
 		vertexBuffer->Attach();
 
-		const auto& layout = vertexBuffer->GetLayout();
-		for (const auto& element : layout)
+		for (const auto& element : m_Layout)
 		{
 			switch (element.Type)
 			{
@@ -78,7 +78,7 @@ namespace Quark {
 						element.GetComponentCount(),
 						ShaderDataTypeToOpenGLBaseType(element.Type),
 						element.Normalized ? GL_TRUE : GL_FALSE,
-						(GLsizei)layout.GetStride(),
+						(GLsizei)m_Layout.GetStride(),
 						(const void*)element.Offset);
 					m_VertexBufferIndex++;
 					break;
@@ -92,7 +92,7 @@ namespace Quark {
 					glVertexAttribLPointer(m_VertexBufferIndex,
 						element.GetComponentCount(),
 						ShaderDataTypeToOpenGLBaseType(element.Type),
-						(GLsizei)layout.GetStride(),
+						(GLsizei)m_Layout.GetStride(),
 						(const void*)element.Offset);
 					m_VertexBufferIndex++;
 					break;
@@ -107,7 +107,7 @@ namespace Quark {
 					glVertexAttribIPointer(m_VertexBufferIndex,
 						element.GetComponentCount(),
 						ShaderDataTypeToOpenGLBaseType(element.Type),
-						(GLsizei)layout.GetStride(),
+						(GLsizei)m_Layout.GetStride(),
 						(const void*)element.Offset);
 					m_VertexBufferIndex++;
 					break;
@@ -123,7 +123,7 @@ namespace Quark {
 							count,
 							ShaderDataTypeToOpenGLBaseType(element.Type),
 							element.Normalized ? GL_TRUE : GL_FALSE,
-							(GLsizei)layout.GetStride(),
+							(GLsizei)m_Layout.GetStride(),
 							(const void*)(sizeof(float) * count * i));
 						glVertexAttribDivisor(m_VertexBufferIndex, 1);
 						m_VertexBufferIndex++;
@@ -141,7 +141,7 @@ namespace Quark {
 							count,
 							ShaderDataTypeToOpenGLBaseType(element.Type),
 							element.Normalized ? GL_TRUE : GL_FALSE,
-							(GLsizei)layout.GetStride(),
+							(GLsizei)m_Layout.GetStride(),
 							(const void*)(sizeof(double) * count * i));
 						glVertexAttribDivisor(m_VertexBufferIndex, 1);
 						m_VertexBufferIndex++;
@@ -160,7 +160,7 @@ namespace Quark {
 
 	void OpenGLVertexArray::SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer)
 	{
-		QK_CORE_ASSERT(indexBuffer != nullptr, "Index Buffer is empty");
+		QK_CORE_ASSERT(indexBuffer, "Index Buffer is empty");
 
 		indexBuffer->Attach();
 		m_IndexBuffer = indexBuffer;

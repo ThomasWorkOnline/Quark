@@ -113,8 +113,8 @@ namespace Quark {
 
 		QK_CONSTEXPR20 uint32_t GetCount() const { return static_cast<uint32_t>(m_Elements.size()); }
 
-		constexpr size_t GetStride() const { return m_Stride; }
-		constexpr const std::vector<BufferElement>& GetElements() const { return m_Elements; }
+		QK_CONSTEXPR20 size_t GetStride() const { return m_Stride; }
+		QK_CONSTEXPR20 const std::vector<BufferElement>& GetElements() const { return m_Elements; }
 
 		QK_CONSTEXPR20 const BufferElement& operator[](std::string_view name) const
 		{
@@ -164,9 +164,8 @@ namespace Quark {
 
 		virtual void SetData(const void* data, size_t size, size_t offset = 0) = 0;
 
-		// TODO: deprecate (part of the pipeline)
 		const BufferLayout& GetLayout() const { return m_Layout; }
-		void SetLayout(const BufferLayout& layout) { m_Layout = layout; }
+		virtual void SetLayout(const BufferLayout& layout) { m_Layout = layout; }
 
 		virtual bool operator==(const VertexBuffer& other) const = 0;
 

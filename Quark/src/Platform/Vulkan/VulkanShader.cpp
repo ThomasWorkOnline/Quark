@@ -1,6 +1,5 @@
 #include "qkpch.h"
 #include "VulkanShader.h"
-#include "VulkanContext.h"
 
 namespace Quark {
 
@@ -38,38 +37,36 @@ namespace Quark {
 		}
 	}
 
-	VulkanShader::VulkanShader(std::string_view filepath)
+	VulkanShader::VulkanShader(VulkanDevice* device, std::string_view filepath)
+		: m_Device(device)
 	{
 		QK_CORE_FATAL("Loading a Vulkan shader from a filepath is not supported");
 	}
 
-	VulkanShader::VulkanShader(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource)
-		: m_Name(name)
+	VulkanShader::VulkanShader(VulkanDevice* device, std::string_view name, std::string_view vertexSource, std::string_view fragmentSource)
+		: m_Device(device), m_Name(name)
 	{
-		auto vkDevice = VulkanContext::GetCurrentDevice()->GetVkHandle();
-
 		VkShaderModuleCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
 		createInfo.codeSize = vertexSource.size();
 		createInfo.pCode = reinterpret_cast<const uint32_t*>(vertexSource.data());
-		vkCreateShaderModule(vkDevice, &createInfo, nullptr, &m_VertexShaderModule);
+		vkCreateShaderModule(m_Device->GetVkHandle(), &createInfo, nullptr, &m_VertexShaderModule);
 
 		createInfo.codeSize = fragmentSource.size();
 		createInfo.pCode = reinterpret_cast<const uint32_t*>(fragmentSource.data());
-		vkCreateShaderModule(vkDevice, &createInfo, nullptr, &m_FragmentShaderModule);
+		vkCreateShaderModule(m_Device->GetVkHandle(), &createInfo, nullptr, &m_FragmentShaderModule);
 	}
 
-	VulkanShader::VulkanShader(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource)
+	VulkanShader::VulkanShader(VulkanDevice* device, std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource)
+		: m_Device(device)
 	{
 		QK_CORE_FATAL("Compiling Vulkan shaders is not supported");
 	}
 
 	VulkanShader::~VulkanShader()
 	{
-		auto vkDevice = VulkanContext::GetCurrentDevice()->GetVkHandle();
-
-		vkDestroyShaderModule(vkDevice, m_VertexShaderModule, nullptr);
-		vkDestroyShaderModule(vkDevice, m_GeometryShaderModule, nullptr);
-		vkDestroyShaderModule(vkDevice, m_FragmentShaderModule, nullptr);
+		vkDestroyShaderModule(m_Device->GetVkHandle(), m_VertexShaderModule, nullptr);
+		vkDestroyShaderModule(m_Device->GetVkHandle(), m_GeometryShaderModule, nullptr);
+		vkDestroyShaderModule(m_Device->GetVkHandle(), m_FragmentShaderModule, nullptr);
 	}
 }

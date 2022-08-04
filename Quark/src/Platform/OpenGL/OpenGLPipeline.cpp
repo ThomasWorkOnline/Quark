@@ -13,14 +13,4 @@ namespace Quark {
 	OpenGLPipeline::~OpenGLPipeline()
 	{
 	}
-
-	void OpenGLPipeline::Bind(const Ref<CommandBuffer>& commandBuffer)
-	{
-		m_Spec.Shader->Attach();
-	}
-
-	void OpenGLPipeline::Resize(uint32_t viewportWidth, uint32_t viewportHeight)
-	{
-		glViewport(0, 0, viewportWidth, viewportHeight);
-	}
 }

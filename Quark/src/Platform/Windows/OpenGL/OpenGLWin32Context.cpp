@@ -60,11 +60,27 @@ namespace Quark {
 
 		int errorCode = gladLoadGL();
 		QK_CORE_ASSERT(errorCode, "Failed to initialize OpenGL context");
+
+		m_CommandBuffer = CommandBuffer::Create();
+
 		QK_CORE_TRACE("Created OpenGL graphics context!");
+	}
+
+	void OpenGLWin32Context::StartFrame()
+	{
+	}
+
+	void OpenGLWin32Context::Submit()
+	{
 	}
 
 	void OpenGLWin32Context::SwapBuffers()
 	{
 		::SwapBuffers(m_DeviceContext);
+	}
+
+	void OpenGLWin32Context::OnViewportResized(uint32_t viewportWidth, uint32_t viewportHeight)
+	{
+		glViewport(0, 0, viewportWidth, viewportHeight);
 	}
 }

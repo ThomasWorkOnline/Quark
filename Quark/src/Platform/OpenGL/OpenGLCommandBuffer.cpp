@@ -6,6 +6,11 @@
 
 namespace Quark {
 
+	void OpenGLCommandBuffer::BindPipeline(const Ref<Pipeline>& pipeline)
+	{
+		pipeline->GetSpecification().Shader->Attach();
+	}
+
 	void OpenGLCommandBuffer::BeginRenderPass(const Ref<RenderPass>& renderPass, const Ref<Framebuffer>& framebuffer)
 	{
 		framebuffer ? framebuffer->Attach() : glBindFramebuffer(GL_FRAMEBUFFER, 0);

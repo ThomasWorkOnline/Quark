@@ -4,6 +4,7 @@
 
 #include "Buffer.h"
 #include "Framebuffer.h"
+#include "Pipeline.h"
 #include "RenderPass.h"
 
 namespace Quark {
@@ -15,6 +16,8 @@ namespace Quark {
 
 		virtual void Begin() = 0;
 		virtual void End() = 0;
+
+		virtual void BindPipeline(const Ref<Pipeline>& pipeline) = 0;
 
 		virtual void BeginRenderPass(const Ref<RenderPass>& renderPass, const Ref<Framebuffer>& framebuffer) = 0;
 		virtual void EndRenderPass() = 0;

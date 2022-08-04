@@ -15,6 +15,9 @@ namespace Quark {
 	class Cubemap
 	{
 	public:
+		Cubemap(const CubemapSpecification& spec)
+			: m_Spec(spec) {}
+
 		virtual ~Cubemap() = default;
 
 		virtual void Attach(uint32_t textureSlot = 0) const = 0;
@@ -24,6 +27,14 @@ namespace Quark {
 
 		virtual bool operator==(const Cubemap& other) const = 0;
 
+		uint32_t GetWidth() const { return m_Spec.Width; }
+		uint32_t GetHeight() const { return m_Spec.Height; }
+
+		const CubemapSpecification& GetSpecification() const { return m_Spec; }
+
 		static Ref<Cubemap> Create(const CubemapSpecification& spec);
+
+	protected:
+		CubemapSpecification m_Spec;
 	};
 }

@@ -14,7 +14,31 @@ namespace Quark {
 	Application::Application(const ApplicationOptions& options) : Singleton(this),
 		m_Options(options)
 	{
-		Initialize();
+		QK_PROFILE_FUNCTION();
+
+		m_AppMainThreadId = std::this_thread::get_id();
+
+		WindowSpecification spec = {
+			m_Options.AppName.empty() ? "Quark Engine" : m_Options.AppName, m_Options.Width, m_Options.Height, 4
+		};
+
+		m_Window = Window::Create(spec);
+		m_Window->SetEventCallback(ATTACH_EVENT_FN(Application::OnEventInternal));
+
+		m_AudioOutputDevice = AudioOutputDevice::Create();
+		QK_CORE_INFO("Opened audio device: {0}", m_AudioOutputDevice->GetDeviceName());
+
+		RenderCommand::Init();
+		QK_CORE_INFO(GraphicsAPI::Instance->GetSpecification());
+
+		Renderer::Initialize();
+		Renderer2D::Initialize();
+
+		if (m_Options.HasFlag(ShowApiInWindowTitle))
+		{
+			auto title = GraphicsAPI::Instance->GetName();
+			m_Window->AppendTitle(" - ").AppendTitle(title);
+		}
 	}
 
 	Application::~Application()
@@ -61,34 +85,6 @@ namespace Quark {
 				m_Layers[i]->OnRender();
 
 			m_Window->OnUpdate();
-		}
-	}
-
-	void Application::Initialize()
-	{
-		QK_PROFILE_FUNCTION();
-
-		m_AppMainThreadId = std::this_thread::get_id();
-
-		WindowSpecification spec = {
-			m_Options.AppName.empty() ? "Quark Engine" : m_Options.AppName, m_Options.Width, m_Options.Height, 4
-		};
-
-		m_Window = Window::Create(spec);
-		m_Window->SetEventCallback(ATTACH_EVENT_FN(Application::OnEventInternal));
-
-		m_AudioOutputDevice = AudioOutputDevice::Create();
-		QK_CORE_INFO("Opened audio device: {0}", m_AudioOutputDevice->GetDeviceName());
-
-		RenderCommand::Init();
-		Renderer::Initialize();
-		Renderer2D::Initialize();
-		QK_CORE_INFO(GraphicsAPI::Instance->GetSpecification());
-
-		if (m_Options.HasFlag(ShowApiInWindowTitle))
-		{
-			auto title = GraphicsAPI::Instance->GetName();
-			m_Window->AppendTitle(" - ").AppendTitle(title);
 		}
 	}
 

@@ -67,7 +67,6 @@ namespace Quark {
 		AudioOutputDevice& GetAudioOutputDevice() { return *m_AudioOutputDevice; }
 
 	private:
-		void Initialize();
 		void OnEventInternal(Event& e);
 
 	private:

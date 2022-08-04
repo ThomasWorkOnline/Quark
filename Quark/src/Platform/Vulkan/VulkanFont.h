@@ -1,13 +1,16 @@
 #pragma once
 
 #include "Quark/Renderer/Font.h"
+#include "VulkanDevice.h"
+
+#include <vulkan/vulkan.h>
 
 namespace Quark {
 
 	class VulkanFont final : public Font
 	{
 	public:
-		VulkanFont(std::string_view filepath, uint32_t fontSize) {}
+		VulkanFont(VulkanDevice* device, std::string_view filepath, uint32_t fontSize);
 		virtual ~VulkanFont() override = default;
 
 		virtual void Attach(uint32_t textureSlot = 0) const override {}
@@ -26,6 +29,7 @@ namespace Quark {
 		}
 
 	private:
+		VulkanDevice* m_Device;
 		Glyph m_NullGlyph{};
 	};
 }

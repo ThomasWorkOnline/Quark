@@ -63,11 +63,11 @@ namespace Quark {
 
 	Entity Scene::CreatePrimaryCamera()
 	{
-		m_PrimaryCameraEntity = CreateEntity();
-		m_PrimaryCameraEntity.AddComponent<Transform3DComponent>().Position = { 0.0f, 0.0f, -1.0f };
-		m_PrimaryCameraEntity.AddComponent<PhysicsComponent>();
-		m_PrimaryCameraEntity.AddComponent<CameraComponent>().Camera.SetPerspective(90.0f);
-		return m_PrimaryCameraEntity;
+		auto entity = CreateEntity();
+		entity.AddComponent<Transform3DComponent>().Position = { 0.0f, 0.0f, -1.0f };
+		entity.AddComponent<PhysicsComponent>();
+		entity.AddComponent<CameraComponent>().Camera.SetPerspective(90.0f);
+		return m_PrimaryCameraEntity = entity;
 	}
 
 	void Scene::DeleteEntity(Entity entity)

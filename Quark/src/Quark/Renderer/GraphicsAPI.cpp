@@ -19,15 +19,9 @@ namespace Quark {
 		s_API = api;
 		switch (api)
 		{
-			case API::Metal:
-			{
 #ifdef QK_PLATFORM_APPLE
-				return CreateScope<MetalGraphicsAPI>();
-#else
-				QK_CORE_FATAL("Metal is not supported on this platform");
-				return nullptr;
+			case API::Metal:  return CreateScope<MetalGraphicsAPI>();
 #endif
-			}
 			case API::OpenGL: return CreateScope<OpenGLGraphicsAPI>();
 			case API::Vulkan: return CreateScope<VulkanGraphicsAPI>();
 			default:

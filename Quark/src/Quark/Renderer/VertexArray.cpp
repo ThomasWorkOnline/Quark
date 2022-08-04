@@ -7,6 +7,6 @@ namespace Quark {
 
 	Ref<VertexArray> VertexArray::Create()
 	{
-		return GraphicsAPI::Instance->CreateVertexArray();
+		return nullptr;
 	}
 }

@@ -6,7 +6,7 @@
 #include "Quark/Renderer/Buffer.h"
 #include "Quark/Renderer/TextureFormats.h"
 
-#include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan.h>
 
 namespace Quark {
 

@@ -22,6 +22,5 @@ namespace Quark {
 
 	private:
 		uint32_t m_RendererID = 0;
-		CubemapSpecification m_Spec;
 	};
 }

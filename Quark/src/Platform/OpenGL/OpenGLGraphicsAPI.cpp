@@ -12,7 +12,6 @@
 #include "OpenGLTexture.h"
 #include "OpenGLTextureArray.h"
 #include "OpenGLUniformBuffer.h"
-#include "OpenGLVertexArray.h"
 
 #include <glad/glad.h>
 #include <sstream>
@@ -313,11 +312,6 @@ namespace Quark {
 	Ref<UniformBuffer> OpenGLGraphicsAPI::CreateUniformBuffer(size_t size, uint32_t binding)
 	{
 		return CreateRef<OpenGLUniformBuffer>(size, binding);
-	}
-
-	Ref<VertexArray> OpenGLGraphicsAPI::CreateVertexArray()
-	{
-		return CreateRef<OpenGLVertexArray>();
 	}
 
 	std::string OpenGLGraphicsAPI::GetSpecification() const

@@ -20,14 +20,9 @@ namespace Quark {
 	{
 		switch (GraphicsAPI::GetAPI())
 		{
-			case API::Metal:
 #ifdef QK_PLATFORM_APPLE
-				return CreateScope<MetalContext>(windowHandle);
-#else
-				QK_CORE_FATAL("Metal is not supported on this platform");
-				return nullptr;
+			case API::Metal: return CreateScope<MetalContext>(windowHandle);
 #endif
-
 			case API::OpenGL:
 #if defined(QK_PLATFORM_WINDOWS) && defined(QK_USE_NATIVE_APIS)
 				return CreateScope<OpenGLWin32Context>(windowHandle);

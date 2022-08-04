@@ -37,11 +37,11 @@ namespace Quark {
 	void SceneRenderer::SetContext(Ref<Scene> scene)
 	{
 		m_Scene = std::move(scene);
-		auto view = m_Scene->m_Registry.view<CameraComponent>();
-		for (auto entity : view)
+
+		if (m_Scene->HasPrimaryCamera())
 		{
-			auto& cameraComponent = view.get<CameraComponent>(entity);
-			cameraComponent.Camera.Resize(m_ViewportWidth, m_ViewportHeight);
+			auto& cc = m_Scene->m_PrimaryCameraEntity.GetComponent<CameraComponent>();
+			cc.Camera.Resize(m_ViewportWidth, m_ViewportHeight);
 		}
 	}
 
@@ -74,6 +74,7 @@ namespace Quark {
 			m_Data.CameraBufferData.View = view;
 			m_Data.CameraBufferData.Projection = sceneCamera.GetProjection();
 
+			Renderer::BindPipeline(m_Data.GraphicsPipeline);
 			m_Data.GraphicsPipeline->GetUniformBuffer()->SetData(&m_Data.CameraBufferData, sizeof(SceneData::CameraUniformBufferData));
 
 			if (m_Data.Env)
@@ -110,11 +111,10 @@ namespace Quark {
 
 		if (m_Scene)
 		{
-			auto view = m_Scene->m_Registry.view<CameraComponent>();
-			for (auto entity : view)
+			if (m_Scene->HasPrimaryCamera())
 			{
-				auto& cameraComponent = view.get<CameraComponent>(entity);
-				cameraComponent.Camera.Resize(viewportWidth, viewportHeight);
+				auto& cc = m_Scene->m_PrimaryCameraEntity.GetComponent<CameraComponent>();
+				cc.Camera.Resize(m_ViewportWidth, m_ViewportHeight);
 			}
 		}
 	}
@@ -126,8 +126,6 @@ namespace Quark {
 
 	void SceneRenderer::GeometryPass()
 	{
-		m_Data.GraphicsPipeline->Bind(Renderer::GetCommandBuffer());
-
 		Renderer::BeginRenderPass(m_Data.GeometryPass, nullptr);
 
 		Renderer::GetCommandBuffer()->BindVertexBuffer(m_Data.VertexBuffer, 0);
@@ -165,25 +163,6 @@ namespace Quark {
 		}
 
 		{
-#if 0
-			const uint32_t imageCount = GraphicsContext::Get().GetSwapChain()->GetImageCount();
-			m_Data.Framebuffers.resize(imageCount);
-
-			FramebufferSpecification fbSpec;
-			fbSpec.Width = m_ViewportWidth;
-			fbSpec.Height = m_ViewportHeight;
-			fbSpec.RenderPass = m_Data.GeometryPass;
-			fbSpec.SwapChainTarget = true;
-
-			for (uint32_t i = 0; i < imageCount; i++)
-			{
-				fbSpec.Attachments = { GraphicsContext::Get().GetSwapChain()->GetAttachment(i) };
-				m_Data.Framebuffers[i] = Framebuffer::Create(fbSpec);
-			}
-#endif
-		}
-
-		{
 			PipelineSpecification spec;
 			spec.ViewportWidth = m_ViewportWidth;
 			spec.ViewportHeight = m_ViewportHeight;
@@ -198,6 +177,7 @@ namespace Quark {
 		{
 			m_Data.VertexBuffer = VertexBuffer::Create(s_Vertices, sizeof(s_Vertices));
 			m_Data.VertexBuffer->SetLayout(s_Vertex2DLayout);
+
 			m_Data.IndexBuffer = IndexBuffer::Create(s_Indices, sizeof(s_Indices) / sizeof(uint32_t));
 		}
 	}

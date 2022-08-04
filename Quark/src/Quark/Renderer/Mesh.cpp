@@ -94,8 +94,11 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		uint32_t vertexCount = data.VertexCount();
-		if (vertexCount == 0)
+		if (vertexCount == 0 || vertexCount % 3 != 0)
+		{
+			QK_CORE_ERROR("Could not triangulate faces: {0} vertices received", vertexCount);
 			return {};
+		}
 
 		MeshVertex* baseVertices = new MeshVertex[vertexCount];
 		MeshVertex* vertexPtr = baseVertices;
@@ -108,6 +111,7 @@ namespace Quark {
 			vertexPtr++;
 		}
 
+		// TODO: fix (indexing here is useless)
 		uint32_t* indices = new uint32_t[vertexCount];
 		for (uint32_t i = 0; i < vertexCount; i += 3)
 		{
@@ -137,7 +141,6 @@ namespace Quark {
 		mesh.m_VertexBuffer->SetLayout(s_Layout);
 
 		mesh.m_IndexBuffer = IndexBuffer::Create(CubeIndices, sizeof(CubeIndices) / sizeof(CubeIndices[0]));
-
 		return mesh;
 	}
 
@@ -195,7 +198,7 @@ namespace Quark {
 
 		OBJMeshData data;
 		std::string_view file = fileRaw;
-		std::vector<std::string_view> tokens;
+		std::vector<std::string_view> tokens(4);
 
 		float Zflip = descriptor.ZFlip ? -1.0f : 1.0f;
 

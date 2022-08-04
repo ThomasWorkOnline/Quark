@@ -56,8 +56,6 @@ namespace Quark {
 									       
 		virtual Ref<UniformBuffer>         CreateUniformBuffer(size_t size, uint32_t binding) override;
 									       
-		virtual Ref<VertexArray>           CreateVertexArray() override;
-									       
 		virtual const char*                GetName() const override { return "OpenGL"; }
 		virtual std::string                GetSpecification() const override;
 

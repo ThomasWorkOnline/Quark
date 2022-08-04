@@ -4,22 +4,22 @@
 
 namespace Quark {
 
-	class OpenGLVertexArray final : public VertexArray
+	class OpenGLVertexArray
 	{
 	public:
 		OpenGLVertexArray();
-		virtual ~OpenGLVertexArray() override;
+		~OpenGLVertexArray();
 
-		virtual void Attach() const override;
-		virtual void Detach() const override;
+		void Attach() const;
+		void Detach() const;
 
-		virtual void AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer) override;
-		virtual void SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer) override;
+		void AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer);
+		void SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer);
 
-		virtual const std::vector<Ref<VertexBuffer>>& GetVertexBuffers() const override { return m_VertexBuffers; }
-		virtual const Ref<IndexBuffer>& GetIndexBuffer() const override { return m_IndexBuffer; }
+		const std::vector<Ref<VertexBuffer>>& GetVertexBuffers() const { return m_VertexBuffers; }
+		const Ref<IndexBuffer>& GetIndexBuffer() const { return m_IndexBuffer; }
 
-		virtual bool operator==(const VertexArray& other) const override
+		bool operator==(const VertexArray& other) const
 		{
 			return m_RendererID == ((OpenGLVertexArray&)other).m_RendererID;
 		}
@@ -29,5 +29,6 @@ namespace Quark {
 		uint32_t m_VertexBufferIndex = 0;
 		std::vector<Ref<VertexBuffer>> m_VertexBuffers;
 		Ref<IndexBuffer> m_IndexBuffer;
+		BufferLayout m_Layout;
 	};
 }

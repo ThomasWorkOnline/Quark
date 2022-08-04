@@ -71,9 +71,12 @@ namespace Quark {
 
 	struct MeshComponent
 	{
-		Mesh MeshInstance;
+		Mesh* MeshInstance = nullptr;
 
-		MeshComponent() = default;
+		MeshComponent(Mesh* meshInstance)
+			: MeshInstance(meshInstance)
+		{
+		}
 	};
 
 	class Scene;

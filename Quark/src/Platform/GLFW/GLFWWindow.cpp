@@ -8,8 +8,33 @@ namespace Quark {
 
 	static constexpr ModifierKey GetModKey(int mod)
 	{
-		// Quark mappings are directly compatible with glfw
 		return static_cast<ModifierKey>(mod);
+	}
+
+	static void SetContextRelatedHints()
+	{
+		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+
+		if (GraphicsAPI::GetAPI() == API::OpenGL)
+		{
+			glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
+
+#ifdef QK_DEBUG
+			glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+#endif
+
+#if defined(QK_PLATFORM_MACOS)
+			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+#endif
+		}
+
+#if defined(QK_PLATFORM_MACOS)
+		glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
+		glfwWindowHint(GLFW_COCOA_GRAPHICS_SWITCHING, GLFW_TRUE);
+#endif
 	}
 
 	static uint32_t s_WindowCount = 0;
@@ -51,28 +76,7 @@ namespace Quark {
 			QK_CORE_ASSERT(initCode == GLFW_TRUE, "Could not initialize GLFW!");
 
 			glfwSetErrorCallback(GLFWErrorCallback);
-			glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-
-			if (GraphicsAPI::GetAPI() == API::OpenGL)
-			{
-				glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
-
-#ifdef QK_DEBUG
-				glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT,     GLFW_TRUE);
-#endif
-
-#if defined(QK_PLATFORM_MACOS)
-				glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,    3);
-				glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,    2);
-				glfwWindowHint(GLFW_OPENGL_PROFILE,           GLFW_OPENGL_CORE_PROFILE);
-				glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT,    GLFW_TRUE);
-#endif
-			}
-
-#if defined(QK_PLATFORM_MACOS)
-			glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
-			glfwWindowHint(GLFW_COCOA_GRAPHICS_SWITCHING, GLFW_TRUE);
-#endif
+			SetContextRelatedHints();
 		}
 
 		// MSAA anti-aliasing

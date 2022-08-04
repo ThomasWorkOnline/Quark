@@ -1,15 +1,16 @@
 #include "qkpch.h"
 #include "VulkanPipeline.h"
 
-#include "Quark/Renderer/Renderer.h"
-
 #include "VulkanContext.h"
 #include "VulkanCommandBuffer.h"
 #include "VulkanFormats.h"
-#include "VulkanRenderer.h"
 #include "VulkanRenderPass.h"
 #include "VulkanUniformBuffer.h"
 #include "VulkanUtils.h"
+
+// disable alloca failure warning
+// since variable size stack arrays are not supported by all compilers
+#pragma warning(disable : 6255)
 
 namespace Quark {
 
@@ -26,16 +27,16 @@ namespace Quark {
 		}
 	}
 
-	VulkanPipeline::VulkanPipeline(const PipelineSpecification& spec) : Pipeline(spec)
+	VulkanPipeline::VulkanPipeline(VulkanDevice* device, const PipelineSpecification& spec) : Pipeline(spec),
+		m_Device(device)
 	{
 		QK_PROFILE_FUNCTION();
 
-		auto vkDevice = VulkanContext::GetCurrentDevice()->GetVkHandle();
+		const auto framesInFlight = VulkanContext::FramesInFlight;
+		m_DescriptorSets.resize(framesInFlight);
+		m_CameraUniformBuffers.resize(framesInFlight);
 
-		m_DescriptorSets.resize(m_Spec.FramesInFlight);
-		m_CameraUniformBuffers.resize(m_Spec.FramesInFlight);
-
-		for (uint32_t i = 0; i < m_Spec.FramesInFlight; i++)
+		for (uint32_t i = 0; i < framesInFlight; i++)
 		{
 			m_CameraUniformBuffers[i] = UniformBuffer::Create(m_Spec.CameraUniformBufferSize, 0);
 		}
@@ -44,15 +45,15 @@ namespace Quark {
 		{
 			VkDescriptorPoolSize poolSize{};
 			poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			poolSize.descriptorCount = m_Spec.FramesInFlight;
+			poolSize.descriptorCount = framesInFlight;
 
 			VkDescriptorPoolCreateInfo poolInfo{};
 			poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 			poolInfo.poolSizeCount = 1;
 			poolInfo.pPoolSizes = &poolSize;
-			poolInfo.maxSets = m_Spec.FramesInFlight;
+			poolInfo.maxSets = framesInFlight;
 
-			vkCreateDescriptorPool(vkDevice, &poolInfo, nullptr, &m_DescriptorPool);
+			vkCreateDescriptorPool(m_Device->GetVkHandle(), &poolInfo, nullptr, &m_DescriptorPool);
 		}
 
 		// Descriptor set layout
@@ -68,25 +69,25 @@ namespace Quark {
 			layoutInfo.bindingCount = 1;
 			layoutInfo.pBindings = &uboLayoutBinding;
 
-			vkCreateDescriptorSetLayout(vkDevice, &layoutInfo, nullptr, &m_DescriptorSetLayout);
+			vkCreateDescriptorSetLayout(m_Device->GetVkHandle(), &layoutInfo, nullptr, &m_DescriptorSetLayout);
 		}
 
 		// Descriptor sets
 		{
 			// Copy each layout for each frame in flight
-			auto* layouts = static_cast<VkDescriptorSetLayout*>(alloca(m_Spec.FramesInFlight * sizeof(VkDescriptorSetLayout)));
-			for (uint32_t i = 0; i < m_Spec.FramesInFlight; i++)
+			auto* layouts = static_cast<VkDescriptorSetLayout*>(alloca(framesInFlight * sizeof(VkDescriptorSetLayout)));
+			for (uint32_t i = 0; i < framesInFlight; i++)
 				layouts[i] = m_DescriptorSetLayout;
 
 			VkDescriptorSetAllocateInfo allocInfo{};
 			allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 			allocInfo.descriptorPool = m_DescriptorPool;
-			allocInfo.descriptorSetCount = m_Spec.FramesInFlight;
+			allocInfo.descriptorSetCount = framesInFlight;
 			allocInfo.pSetLayouts = layouts;
 
-			vkAllocateDescriptorSets(vkDevice, &allocInfo, m_DescriptorSets.data());
+			vkAllocateDescriptorSets(m_Device->GetVkHandle(), &allocInfo, m_DescriptorSets.data());
 
-			for (uint32_t i = 0; i < m_Spec.FramesInFlight; i++)
+			for (uint32_t i = 0; i < framesInFlight; i++)
 			{
 				VkDescriptorBufferInfo bufferInfo{};
 				bufferInfo.buffer = static_cast<VulkanUniformBuffer*>(m_CameraUniformBuffers[i].get())->GetVkHandle();
@@ -102,7 +103,7 @@ namespace Quark {
 				descriptorWrite.descriptorCount = 1;
 				descriptorWrite.pBufferInfo = &bufferInfo;
 
-				vkUpdateDescriptorSets(vkDevice, 1, &descriptorWrite, 0, nullptr);
+				vkUpdateDescriptorSets(m_Device->GetVkHandle(), 1, &descriptorWrite, 0, nullptr);
 			}
 		}
 
@@ -113,24 +114,16 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		auto vkDevice = VulkanContext::GetCurrentDevice()->GetVkHandle();
 		{
 			Timer t;
-			vkDeviceWaitIdle(vkDevice);
+			vkDeviceWaitIdle(m_Device->GetVkHandle());
 			QK_CORE_INFO("Waiting for device to finish: {0}ms", t.Milliseconds().count());
 		}
 
-		vkDestroyPipeline(vkDevice, m_Pipeline, nullptr);
-		vkDestroyPipelineLayout(vkDevice, m_PipelineLayout, nullptr);
-		vkDestroyDescriptorSetLayout(vkDevice, m_DescriptorSetLayout, nullptr);
-		vkDestroyDescriptorPool(vkDevice, m_DescriptorPool, nullptr);
-	}
-
-	void VulkanPipeline::Bind(const Ref<CommandBuffer>& commandBuffer)
-	{
-		auto vkCommandBuffer = static_cast<VulkanCommandBuffer*>(commandBuffer.get())->GetVkHandle();
-		vkCmdBindPipeline(vkCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline);
-		vkCmdBindDescriptorSets(vkCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, 0, 1, &m_DescriptorSets[VulkanRenderer::GetCurrentFrameIndex()], 0, nullptr);
+		vkDestroyPipeline(m_Device->GetVkHandle(), m_Pipeline, nullptr);
+		vkDestroyPipelineLayout(m_Device->GetVkHandle(), m_PipelineLayout, nullptr);
+		vkDestroyDescriptorSetLayout(m_Device->GetVkHandle(), m_DescriptorSetLayout, nullptr);
+		vkDestroyDescriptorPool(m_Device->GetVkHandle(), m_DescriptorPool, nullptr);
 	}
 
 	void VulkanPipeline::Resize(uint32_t viewportWidth, uint32_t viewportHeight)
@@ -143,17 +136,47 @@ namespace Quark {
 
 	const Ref<UniformBuffer>& VulkanPipeline::GetUniformBuffer() const
 	{
-		return m_CameraUniformBuffers[VulkanRenderer::GetCurrentFrameIndex()];
+		return m_CameraUniformBuffers[VulkanContext::Get().GetCurrentFrameIndex()];
+	}
+
+	void VulkanPipeline::Bind(VkCommandBuffer commandBuffer)
+	{
+		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline);
+		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, 0, 1, &m_DescriptorSets[VulkanContext::Get().GetCurrentFrameIndex()], 0, nullptr);
 	}
 
 	void VulkanPipeline::Invalidate()
 	{
-		auto vkDevice = VulkanContext::GetCurrentDevice()->GetVkHandle();
+		// Framebuffers
+		{
+			for (auto& framebuffer : m_Framebuffers)
+			{
+				vkDestroyFramebuffer(m_Device->GetVkHandle(), framebuffer, nullptr);
+			}
+
+			const uint32_t imageCount = VulkanContext::Get().GetSwapChain()->GetImageCount();
+			m_Framebuffers.resize(imageCount);
+
+			VkFramebufferCreateInfo framebufferInfo{};
+			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+			framebufferInfo.renderPass = static_cast<VulkanRenderPass*>(m_Spec.RenderPass.get())->GetVkHandle();
+			framebufferInfo.attachmentCount = 1;
+			framebufferInfo.width = m_Spec.ViewportWidth;
+			framebufferInfo.height = m_Spec.ViewportHeight;
+			framebufferInfo.layers = 1;
+
+			for (uint32_t i = 0; i < imageCount; i++)
+			{
+				auto attachment = VulkanContext::Get().GetSwapChain()->GetImageView(i);
+				framebufferInfo.pAttachments = &attachment;
+				vkCreateFramebuffer(m_Device->GetVkHandle(), &framebufferInfo, nullptr, &m_Framebuffers[i]);
+			}
+		}
 
 		if (m_Pipeline)
 		{
-			vkDestroyPipeline(vkDevice, m_Pipeline, nullptr);
-			vkDestroyPipelineLayout(vkDevice, m_PipelineLayout, nullptr);
+			vkDestroyPipeline(m_Device->GetVkHandle(), m_Pipeline, nullptr);
+			vkDestroyPipelineLayout(m_Device->GetVkHandle(), m_PipelineLayout, nullptr);
 		}
 
 		// Vertex input 
@@ -261,7 +284,7 @@ namespace Quark {
 		pipelineLayoutInfo.setLayoutCount = 1;
 		pipelineLayoutInfo.pSetLayouts = &m_DescriptorSetLayout;
 
-		vkCreatePipelineLayout(vkDevice, &pipelineLayoutInfo, nullptr, &m_PipelineLayout);
+		vkCreatePipelineLayout(m_Device->GetVkHandle(), &pipelineLayoutInfo, nullptr, &m_PipelineLayout);
 
 		VkPipelineShaderStageCreateInfo shaderStages[2]{};
 		shaderStages[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -289,7 +312,7 @@ namespace Quark {
 		pipelineInfo.renderPass = static_cast<VulkanRenderPass*>(m_Spec.RenderPass.get())->GetVkHandle();
 		pipelineInfo.subpass = 0;
 
-		VkResult vkRes = vkCreateGraphicsPipelines(vkDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_Pipeline);
+		VkResult vkRes = vkCreateGraphicsPipelines(m_Device->GetVkHandle(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_Pipeline);
 		QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Could not create the graphics pipeline");
 	}
 }

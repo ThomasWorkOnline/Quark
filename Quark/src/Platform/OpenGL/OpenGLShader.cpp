@@ -120,7 +120,7 @@ namespace Quark {
 
 	void OpenGLShader::Compile(const std::unordered_map<GLenum, std::string_view>& shaderSources)
 	{
-		static constexpr uint32_t maxShaders = 3;
+		static constexpr size_t maxShaders = 3;
 		QK_CORE_ASSERT(shaderSources.size() <= maxShaders, "Maximum number of shaders per program is 3");
 
 		GLuint program = glCreateProgram();
@@ -154,7 +154,7 @@ namespace Quark {
 
 				glDeleteProgram(program);
 
-				QK_CORE_ERROR("Shader compilation failure (compiling: {0}):\n{1}", m_Name, infoLog.data());
+				QK_CORE_ERROR("Shader compilation failure (compiling: {0}):\n{1}", m_Name, (const GLchar*)infoLog.data());
 				return;
 			}
 
@@ -181,7 +181,7 @@ namespace Quark {
 
 			glDeleteProgram(program);
 
-			QK_CORE_ERROR("Shader link failure (linking {0}):\n{1}", m_Name, infoLog.data());
+			QK_CORE_ERROR("Shader link failure (linking {0}):\n{1}", m_Name, (const GLchar*)infoLog.data());
 			return;
 		}
 
@@ -224,7 +224,7 @@ namespace Quark {
 		UploadUniformInt4(name, value);
 	}
 
-	void OpenGLShader::SetIntArray(std::string_view name, int32_t* values, uint32_t count)
+	void OpenGLShader::SetIntArray(std::string_view name, const int32_t* values, uint32_t count)
 	{
 		UploadUniformIntArray(name, values, count);
 	}
@@ -249,7 +249,7 @@ namespace Quark {
 		UploadUniformFloat4(name, value);
 	}
 
-	void OpenGLShader::SetFloatArray(std::string_view name, float* values, uint32_t count)
+	void OpenGLShader::SetFloatArray(std::string_view name, const float* values, uint32_t count)
 	{
 		UploadUniformFloatArray(name, values, count);
 	}
@@ -274,7 +274,7 @@ namespace Quark {
 		UploadUniformDouble4(name, value);
 	}
 
-	void OpenGLShader::SetDoubleArray(std::string_view name, double* values, uint32_t count)
+	void OpenGLShader::SetDoubleArray(std::string_view name, const double* values, uint32_t count)
 	{
 		UploadUniformDoubleArray(name, values, count);
 	}
@@ -323,7 +323,7 @@ namespace Quark {
 		glUniform4i(location, value.x, value.y, value.z, value.w);
 	}
 
-	void OpenGLShader::UploadUniformIntArray(std::string_view name, int32_t* values, uint32_t count)
+	void OpenGLShader::UploadUniformIntArray(std::string_view name, const int32_t* values, uint32_t count)
 	{
 		GLint location = GetUniformLocation(name);
 		glUniform1iv(location, count, values);
@@ -353,7 +353,7 @@ namespace Quark {
 		glUniform4f(location, value.x, value.y, value.z, value.w);
 	}
 
-	void OpenGLShader::UploadUniformFloatArray(std::string_view name, float* values, uint32_t count)
+	void OpenGLShader::UploadUniformFloatArray(std::string_view name, const float* values, uint32_t count)
 	{
 		GLint location = GetUniformLocation(name);
 		glUniform1fv(location, count, values);
@@ -383,7 +383,7 @@ namespace Quark {
 		glUniform4d(location, value.x, value.y, value.z, value.w);
 	}
 
-	void OpenGLShader::UploadUniformDoubleArray(std::string_view name, double* values, uint32_t count)
+	void OpenGLShader::UploadUniformDoubleArray(std::string_view name, const double* values, uint32_t count)
 	{
 		GLint location = GetUniformLocation(name);
 		glUniform1dv(location, count, values);
@@ -413,16 +413,16 @@ namespace Quark {
 		glUniformMatrix4dv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 
-	GLint OpenGLShader::GetUniformLocation(std::string_view name)
+	GLint OpenGLShader::GetUniformLocation(std::string_view name) const
 	{
 		size_t hash = std::hash<std::string_view>()(name);
-		auto it = m_UniformLocations.find(hash);
-		if (it != m_UniformLocations.end())
+		auto it = m_UniformLocationCache.find(hash);
+		if (it != m_UniformLocationCache.end())
 			return it->second;
 
 		// Insert uniform location into cache
-		GLint location = glGetUniformLocation(m_RendererID, name.data());
-		m_UniformLocations[hash] = location;
+		GLint location = glGetUniformLocation(m_RendererID, (const GLchar*)name.data());
+		m_UniformLocationCache[hash] = location;
 
 		return location;
 	}

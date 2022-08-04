@@ -174,7 +174,7 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		vk::PhysicalDevice vkPhysicalDevice;
+		VkPhysicalDevice vkPhysicalDevice = VK_NULL_HANDLE;
 		QueueFamilyIndices queueFamilyIndices;
 		SwapChainSupportDetails supportDetails;
 

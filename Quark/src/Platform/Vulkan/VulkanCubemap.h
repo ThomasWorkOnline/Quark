@@ -1,13 +1,16 @@
 #pragma once
 
 #include "Quark/Renderer/Cubemap.h"
+#include "VulkanDevice.h"
+
+#include <vulkan/vulkan.h>
 
 namespace Quark {
 
 	class VulkanCubemap final : public Cubemap
 	{
 	public:
-		VulkanCubemap(const CubemapSpecification& spec) {}
+		VulkanCubemap(VulkanDevice* device, const CubemapSpecification& spec);
 		virtual ~VulkanCubemap() override = default;
 
 		virtual void Attach(uint32_t textureSlot = 0) const override {}
@@ -19,5 +22,8 @@ namespace Quark {
 		{
 			return false;
 		}
+
+	private:
+		VulkanDevice* m_Device;
 	};
 }

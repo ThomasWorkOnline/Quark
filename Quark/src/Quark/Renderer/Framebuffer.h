@@ -49,12 +49,12 @@ namespace Quark {
 
 		virtual void Resize(uint32_t width, uint32_t height) = 0;
 
-		virtual uint32_t GetWidth() const = 0;
-		virtual uint32_t GetHeight() const = 0;
+		virtual bool operator==(const Framebuffer& other) const = 0;
+
+		uint32_t GetWidth() const { return m_Spec.Width; }
+		uint32_t GetHeight() const { return m_Spec.Height; }
 
 		const FramebufferSpecification& GetSpecification() const { return m_Spec; }
-
-		virtual bool operator==(const Framebuffer& other) const = 0;
 
 		static Ref<Framebuffer> Create(const FramebufferSpecification& spec);
 

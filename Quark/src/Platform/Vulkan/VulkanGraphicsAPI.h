@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Quark/Renderer/GraphicsAPI.h"
-#include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan.h>
 
 namespace Quark {
 
@@ -56,8 +56,6 @@ namespace Quark {
 		virtual Ref<Texture2DArray>        CreateTexture2DArray(const Texture2DArraySpecification& spec) override;
 									       
 		virtual Ref<UniformBuffer>         CreateUniformBuffer(size_t size, uint32_t binding) override;
-									       
-		virtual Ref<VertexArray>           CreateVertexArray() override { return nullptr; }
 									       
 		virtual const char*                GetName() const override { return "Vulkan"; }
 		virtual std::string                GetSpecification() const override { return std::string(); }

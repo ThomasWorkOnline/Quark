@@ -17,7 +17,6 @@
 #include "TextureArray.h"
 #include "VertexArray.h"
 #include "UniformBuffer.h"
-#include "VertexArray.h"
 
 namespace Quark {
 
@@ -25,9 +24,12 @@ namespace Quark {
 	enum class API
 	{
 		None = 0,
-		Metal,
 		OpenGL,
-		Vulkan
+		Vulkan,
+
+#ifdef QK_PLATFORM_APPLE
+		Metal
+#endif
 	};
 
 	// To be defined by each supported platform
@@ -93,8 +95,6 @@ namespace Quark {
 		virtual Ref<Texture2DArray>        CreateTexture2DArray(const Texture2DArraySpecification& spec) = 0;
 									       
 		virtual Ref<UniformBuffer>         CreateUniformBuffer(size_t size, uint32_t binding) = 0;
-									       
-		virtual Ref<VertexArray>           CreateVertexArray() = 0;
 									       
 		virtual const char*                GetName() const = 0;
 		virtual std::string                GetSpecification() const = 0;

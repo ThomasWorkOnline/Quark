@@ -44,6 +44,8 @@ namespace Quark {
 		glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
 
 		QK_DEBUG_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+
+		glGenVertexArrays(1, &m_VAORendererID);
 	}
 
 	OpenGLVertexBuffer::OpenGLVertexBuffer(const void* vertices, size_t size)
@@ -55,6 +57,8 @@ namespace Quark {
 		glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
 
 		QK_DEBUG_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+
+		glGenVertexArrays(1, &m_VAORendererID);
 	}
 
 	OpenGLVertexBuffer::~OpenGLVertexBuffer()
@@ -62,13 +66,40 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		glDeleteBuffers(1, &m_RendererID);
+		glDeleteVertexArrays(1, &m_VAORendererID);
 	}
 
 	void OpenGLVertexBuffer::Attach() const
 	{
+		glBindVertexArray(m_VAORendererID);
+		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
+	}
+
+	void OpenGLVertexBuffer::Detach() const
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+	}
+
+	void OpenGLVertexBuffer::SetData(const void* data, size_t size, size_t offset)
+	{
+		QK_PROFILE_FUNCTION();
+
+		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
+		glBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
+
+		QK_DEBUG_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+	}
+
+	void OpenGLVertexBuffer::SetLayout(const BufferLayout& layout)
+	{
+		m_Layout = layout;
+
+		glBindVertexArray(m_VAORendererID);
 		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
 
-		// TODO: find a way to bind a vertex array to the pipeline
+		QK_CORE_ASSERT(m_Layout.GetCount() > 0, "Layout is empty");
+
 		uint32_t vertexBufferIndex = 0;
 		for (const auto& element : m_Layout)
 		{
@@ -159,19 +190,8 @@ namespace Quark {
 					break;
 			}
 		}
-	}
 
-	void OpenGLVertexBuffer::Detach() const
-	{
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-	}
-
-	void OpenGLVertexBuffer::SetData(const void* data, size_t size, size_t offset)
-	{
-		QK_PROFILE_FUNCTION();
-
-		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
-		glBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
+		glBindVertexArray(0);
 	}
 
 	OpenGLIndexBuffer::OpenGLIndexBuffer(uint32_t count)
@@ -221,5 +241,7 @@ namespace Quark {
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
 		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, offset * sizeof(uint32_t), count * sizeof(uint32_t), data);
+
+		QK_DEBUG_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 	}
 }

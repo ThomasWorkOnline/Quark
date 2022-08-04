@@ -10,6 +10,8 @@ namespace Quark {
 		virtual void Begin() override {}
 		virtual void End() override {}
 
+		virtual void BindPipeline(const Ref<Pipeline>& pipeline) override;
+
 		virtual void BeginRenderPass(const Ref<RenderPass>& renderPass, const Ref<Framebuffer>& framebuffer);
 		virtual void EndRenderPass();
 

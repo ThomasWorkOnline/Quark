@@ -24,9 +24,6 @@ namespace Quark {
 
 		virtual void Resize(uint32_t width, uint32_t height) override;
 
-		virtual uint32_t GetWidth() const override { return m_Spec.Width; }
-		virtual uint32_t GetHeight() const override { return m_Spec.Height; }
-
 		virtual bool operator==(const Framebuffer& other) const override
 		{
 			return m_RendererID == ((OpenGLFramebuffer&)other).m_RendererID;

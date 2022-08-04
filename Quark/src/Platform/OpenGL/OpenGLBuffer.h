@@ -15,6 +15,7 @@ namespace Quark {
 		virtual void Detach() const override;
 
 		virtual void SetData(const void* data, size_t size, size_t offset) override;
+		virtual void SetLayout(const BufferLayout& layout) override;
 
 		virtual bool operator==(const VertexBuffer& other) const override
 		{
@@ -23,6 +24,7 @@ namespace Quark {
 
 	private:
 		uint32_t m_RendererID;
+		uint32_t m_VAORendererID;
 	};
 
 	class OpenGLIndexBuffer final : public IndexBuffer

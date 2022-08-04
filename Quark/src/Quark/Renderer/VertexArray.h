@@ -22,6 +22,12 @@ namespace Quark {
 
 		virtual bool operator==(const VertexArray& other) const = 0;
 
+		const BufferLayout& GetLayout() const { return m_Layout; }
+		void SetLayout(const BufferLayout& layout) { m_Layout = layout; }
+
 		static Ref<VertexArray> Create();
+
+	protected:
+		BufferLayout m_Layout;
 	};
 }

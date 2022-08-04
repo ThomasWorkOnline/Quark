@@ -13,11 +13,20 @@ namespace Quark {
 		virtual ~OpenGLWin32Context() override;
 
 		virtual void Init() override;
+		virtual void StartFrame() override;
+		virtual void Submit() override;
+
 		virtual void SwapBuffers() override;
+
+		virtual const Ref<CommandBuffer>& GetCommandBuffer() const override { return m_CommandBuffer; }
+
+		virtual void OnViewportResized(uint32_t viewportWidth, uint32_t viewportHeight) override;
 
 	private:
 		HWND m_WindowHandle;
 		HDC m_DeviceContext;
 		HGLRC m_Context;
+
+		Ref<CommandBuffer> m_CommandBuffer;
 	};
 }

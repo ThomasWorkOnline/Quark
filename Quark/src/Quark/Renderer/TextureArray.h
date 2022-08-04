@@ -19,6 +19,9 @@ namespace Quark {
 	class Texture2DArray
 	{
 	public:
+		Texture2DArray(const Texture2DArraySpecification& spec)
+			: m_Spec(spec) {}
+
 		virtual ~Texture2DArray() = default;
 
 		virtual void Attach(uint32_t textureSlot = 0) const = 0;
@@ -27,12 +30,17 @@ namespace Quark {
 		virtual void SetData(const void* data, size_t size, uint32_t layer) = 0;
 		virtual void GenerateMipmaps() = 0;
 
-		virtual uint32_t GetWidth() const = 0;
-		virtual uint32_t GetHeight() const = 0;
-		virtual uint32_t GetLayerCount() const = 0;
-
 		virtual bool operator==(const Texture2DArray& other) const = 0;
 
+		uint32_t GetWidth() const { return m_Spec.Width; }
+		uint32_t GetHeight() const { return m_Spec.Height; }
+		uint32_t GetLayerCount() const { return m_Spec.Layers; }
+
+		const Texture2DArraySpecification& GetSpecification() const { return m_Spec; }
+
 		static Ref<Texture2DArray> Create(const Texture2DArraySpecification& spec);
+
+	protected:
+		Texture2DArraySpecification m_Spec;
 	};
 }

@@ -1,14 +1,16 @@
 #pragma once
 
 #include "Quark/Renderer/RenderPass.h"
-#include <vulkan/vulkan.hpp>
+#include "VulkanDevice.h"
+
+#include <vulkan/vulkan.h>
 
 namespace Quark {
 
 	class VulkanRenderPass final : public RenderPass
 	{
 	public:
-		VulkanRenderPass(const RenderPassSpecification& spec);
+		VulkanRenderPass(VulkanDevice* device, const RenderPassSpecification& spec);
 		virtual ~VulkanRenderPass() override;
 
 		virtual bool operator==(const RenderPass& other) const override
@@ -16,9 +18,11 @@ namespace Quark {
 			return m_RenderPass == reinterpret_cast<const VulkanRenderPass&>(other).m_RenderPass;
 		}
 
-		vk::RenderPass GetVkHandle() const { return m_RenderPass; }
+		VkRenderPass GetVkHandle() const { return m_RenderPass; }
 
 	private:
+		VulkanDevice* m_Device;
+
 		VkRenderPass m_RenderPass = VK_NULL_HANDLE;
 	};
 }

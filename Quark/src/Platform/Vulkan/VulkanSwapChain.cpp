@@ -1,56 +1,91 @@
 #include "qkpch.h"
 #include "VulkanSwapChain.h"
 
-#include "VulkanContext.h"
-#include "VulkanRenderer.h"
-
 #include <GLFW/glfw3.h>
 
 namespace Quark {
 
-	VulkanSwapChain::VulkanSwapChain(GLFWwindow* window, VkSurfaceKHR surface)
-		: m_WindowHandle(window), m_Surface(surface)
+	namespace Utils {
+
+		static VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
+		{
+			for (const auto& availableFormat : availableFormats)
+			{
+				if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+					return availableFormat;
+			}
+
+			QK_CORE_WARN("Swap surface format not found: using default format 0");
+			return availableFormats[0];
+		}
+
+		static VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes)
+		{
+			for (const auto& availablePresentMode : availablePresentModes)
+			{
+				if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
+					return availablePresentMode;
+			}
+
+			QK_CORE_WARN("Swap present mode not found: using default FIFO present mode");
+			return VK_PRESENT_MODE_FIFO_KHR;
+		}
+
+		static VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, GLFWwindow* window)
+		{
+			if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
+			{
+				return capabilities.currentExtent;
+			}
+			else
+			{
+				int width, height;
+				glfwGetFramebufferSize(window, &width, &height);
+
+				VkExtent2D actualExtent = {
+					static_cast<uint32_t>(width),
+					static_cast<uint32_t>(height)
+				};
+
+				actualExtent.width = std::clamp(actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
+				actualExtent.height = std::clamp(actualExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
+
+				return actualExtent;
+			}
+		}
+	}
+
+	VulkanSwapChain::VulkanSwapChain(VulkanDevice* device, GLFWwindow* window, VkSurfaceKHR surface)
+		: m_WindowHandle(window), m_Device(device), m_Surface(surface)
 	{
-		auto& supportDetails = VulkanContext::GetCurrentDevice()->GetSupportDetails();
+		auto& supportDetails = m_Device->GetSupportDetails();
 
-		m_Format.ImageCount = supportDetails.Capabilities.minImageCount + 1;
-		if (supportDetails.Capabilities.maxImageCount > 0 && m_Format.ImageCount > supportDetails.Capabilities.maxImageCount)
-			m_Format.ImageCount = supportDetails.Capabilities.maxImageCount;
+		m_Format.MinImageCount = supportDetails.Capabilities.minImageCount + 1;
+		if (m_Format.MinImageCount > supportDetails.Capabilities.maxImageCount)
+			m_Format.MinImageCount = supportDetails.Capabilities.maxImageCount;
 
-		m_Format.ActualSurfaceFormat = Utils::ChooseSwapSurfaceFormat(supportDetails.Formats);
-		m_Format.ActualPresentMode = Utils::ChooseSwapPresentMode(supportDetails.PresentModes);
+		m_Format.SurfaceFormat = Utils::ChooseSwapSurfaceFormat(supportDetails.Formats);
+		m_Format.PresentMode = Utils::ChooseSwapPresentMode(supportDetails.PresentModes);
 		m_Format.Extent = Utils::ChooseSwapExtent(supportDetails.Capabilities, m_WindowHandle);
 
 		Invalidate();
-
-		FramebufferAttachmentSpecification attachmentSpec;
-		attachmentSpec.DataFormat = ColorDataFormat::BGRA8_SRGB;
-		for (size_t i = 0; i < m_Format.ImageCount; i++)
-		{
-			m_Attachments[i] = FramebufferAttachment::Create(m_SwapChainImages[i], attachmentSpec);
-		}
 	}
 
 	VulkanSwapChain::~VulkanSwapChain()
 	{
 		QK_PROFILE_FUNCTION();
 
-		auto vkDevice = VulkanContext::GetCurrentDevice()->GetVkHandle();
-		vkDestroySwapchainKHR(vkDevice, m_SwapChain, nullptr);
+		vkDestroySwapchainKHR(m_Device->GetVkHandle(), m_SwapChain, nullptr);
 	}
 
-	void VulkanSwapChain::AcquireNextImage()
+	void VulkanSwapChain::AcquireNextImage(VkSemaphore imageAvailableSemaphore)
 	{
-		auto vkDevice = VulkanContext::GetCurrentDevice()->GetVkHandle();
-
-		VkResult vkRes = vkAcquireNextImageKHR(vkDevice, m_SwapChain, UINT64_MAX, VulkanRenderer::GetImageAvailableSemaphore(), VK_NULL_HANDLE, &m_ImageIndex);
+		VkResult vkRes = vkAcquireNextImageKHR(m_Device->GetVkHandle(), m_SwapChain, UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &m_ImageIndex);
 		QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Could not acquire next image in swap chain");
 	}
 
-	void VulkanSwapChain::Present()
+	void VulkanSwapChain::Present(VkQueue presentQueue, VkSemaphore renderFinishedSemaphore)
 	{
-		auto renderFinishedSemaphore = VulkanRenderer::GetRenderFinishedSemaphore();
-
 		VkPresentInfoKHR presentInfo{};
 		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 		presentInfo.waitSemaphoreCount = 1;
@@ -60,15 +95,12 @@ namespace Quark {
 		presentInfo.pSwapchains = &m_SwapChain;
 		presentInfo.pImageIndices = &m_ImageIndex;
 
-		auto presentQueue = VulkanContext::GetCurrentDevice()->GetPresentQueue();
-		VkResult vkRes = vkQueuePresentKHR(static_cast<VkQueue>(presentQueue), &presentInfo);
+		VkResult vkRes = vkQueuePresentKHR(presentQueue, &presentInfo);
 		QK_CORE_ASSERT(vkRes == VK_SUCCESS || vkRes == VK_SUBOPTIMAL_KHR, "Could not present");
 	}
 
 	void VulkanSwapChain::Resize(uint32_t viewportWidth, uint32_t viewportHeight)
 	{
-		VulkanContext::GetCurrentDevice()->WaitIdle();
-
 		// FIX: this will fail if extent dimensions is zero
 		if (m_Format.Extent.width != viewportWidth || m_Format.Extent.height != viewportHeight)
 		{
@@ -83,30 +115,32 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		bool isNew = m_SwapChain == VK_NULL_HANDLE;
+		for (auto& imageView : m_Attachments)
+		{
+			vkDestroyImageView(m_Device->GetVkHandle(), imageView, nullptr);
+		}
 
 		VkSwapchainCreateInfoKHR createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
 		createInfo.surface = m_Surface;
-		createInfo.minImageCount = m_Format.ImageCount;
-		createInfo.imageFormat = m_Format.ActualSurfaceFormat.format;
-		createInfo.imageColorSpace = m_Format.ActualSurfaceFormat.colorSpace;
+		createInfo.minImageCount = m_Format.MinImageCount;
+		createInfo.imageFormat = m_Format.SurfaceFormat.format;
+		createInfo.imageColorSpace = m_Format.SurfaceFormat.colorSpace;
 		createInfo.imageExtent = m_Format.Extent;
 		createInfo.imageArrayLayers = 1;
 		createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 		createInfo.preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
 		createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-		createInfo.presentMode = m_Format.ActualPresentMode;
+		createInfo.presentMode = m_Format.PresentMode;
 		createInfo.clipped = VK_TRUE;
 		createInfo.oldSwapchain = m_SwapChain;
 
-		auto device = VulkanContext::GetCurrentDevice();
 		uint32_t queueFamilyIndices[] = {
-			device->GetQueueFamilyIndices().GraphicsFamily.value(),
-			device->GetQueueFamilyIndices().PresentFamily.value()
+			m_Device->GetQueueFamilyIndices().GraphicsFamily.value(),
+			m_Device->GetQueueFamilyIndices().PresentFamily.value()
 		};
 
-		if (device->GetQueueFamilyIndices().GraphicsFamily != device->GetQueueFamilyIndices().PresentFamily)
+		if (m_Device->GetQueueFamilyIndices().GraphicsFamily != m_Device->GetQueueFamilyIndices().PresentFamily)
 		{
 			createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
 			createInfo.queueFamilyIndexCount = sizeof(queueFamilyIndices);
@@ -118,20 +152,28 @@ namespace Quark {
 			createInfo.queueFamilyIndexCount = 0;
 		}
 
-		vkCreateSwapchainKHR(device->GetVkHandle(), &createInfo, nullptr, &m_SwapChain);
-		vkGetSwapchainImagesKHR(device->GetVkHandle(), m_SwapChain, &m_Format.ImageCount, nullptr);
+		vkCreateSwapchainKHR(m_Device->GetVkHandle(), &createInfo, nullptr, &m_SwapChain);
+		vkGetSwapchainImagesKHR(m_Device->GetVkHandle(), m_SwapChain, &m_ImageCount, nullptr);
 
-		m_SwapChainImages.resize(m_Format.ImageCount);
-		m_Attachments.resize(m_Format.ImageCount);
+		m_SwapChainImages.resize(m_ImageCount);
+		m_Attachments.resize(m_ImageCount);
 
-		vkGetSwapchainImagesKHR(device->GetVkHandle(), m_SwapChain, &m_Format.ImageCount, m_SwapChainImages.data());
+		vkGetSwapchainImagesKHR(m_Device->GetVkHandle(), m_SwapChain, &m_ImageCount, m_SwapChainImages.data());
 
-		if (!isNew)
+		VkImageViewCreateInfo imageViewInfo{};
+		imageViewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		imageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		imageViewInfo.format = m_Format.SurfaceFormat.format;
+		imageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		imageViewInfo.subresourceRange.baseMipLevel = 0;
+		imageViewInfo.subresourceRange.levelCount = 1;
+		imageViewInfo.subresourceRange.baseArrayLayer = 0;
+		imageViewInfo.subresourceRange.layerCount = 1;
+
+		for (size_t i = 0; i < m_ImageCount; i++)
 		{
-			for (size_t i = 0; i < m_Format.ImageCount; i++)
-			{
-				m_Attachments[i]->SetData(m_SwapChainImages[i]);
-			}
+			imageViewInfo.image = m_SwapChainImages[i];
+			vkCreateImageView(m_Device->GetVkHandle(), &imageViewInfo, nullptr, &m_Attachments[i]);
 		}
 	}
 }

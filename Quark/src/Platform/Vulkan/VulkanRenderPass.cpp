@@ -1,7 +1,6 @@
 #include "qkpch.h"
 #include "VulkanRenderPass.h"
 
-#include "VulkanContext.h"
 #include "VulkanFormats.h"
 
 namespace Quark {
@@ -21,7 +20,8 @@ namespace Quark {
 		}
 	}
 
-	VulkanRenderPass::VulkanRenderPass(const RenderPassSpecification& spec) : RenderPass(spec)
+	VulkanRenderPass::VulkanRenderPass(VulkanDevice* device, const RenderPassSpecification& spec) : RenderPass(spec),
+		m_Device(device)
 	{
 		VkAttachmentDescription colorAttachment{};
 		colorAttachment.format = InternalFormatToVulkan(spec.ColorFormat);
@@ -58,13 +58,11 @@ namespace Quark {
 		renderPassInfo.dependencyCount = 1;
 		renderPassInfo.pDependencies = &dependency;
 
-		auto vkDevice = VulkanContext::GetCurrentDevice()->GetVkHandle();
-		vkCreateRenderPass(vkDevice, &renderPassInfo, nullptr, &m_RenderPass);
+		vkCreateRenderPass(m_Device->GetVkHandle(), &renderPassInfo, nullptr, &m_RenderPass);
 	}
 
 	VulkanRenderPass::~VulkanRenderPass()
 	{
-		auto vkDevice = VulkanContext::GetCurrentDevice()->GetVkHandle();
-		vkDestroyRenderPass(vkDevice, m_RenderPass, nullptr);
+		vkDestroyRenderPass(m_Device->GetVkHandle(), m_RenderPass, nullptr);
 	}
 }

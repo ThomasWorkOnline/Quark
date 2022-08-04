@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Quark/Core/Core.h"
-#include "Quark/Renderer/Framebuffer.h"
 
-#include <vulkan/vulkan.hpp>
+#include "VulkanDevice.h"
+#include <vulkan/vulkan.h>
 
 typedef struct GLFWwindow GLFWwindow;
 
@@ -12,19 +12,20 @@ namespace Quark {
 	class VulkanSwapChain
 	{
 	public:
-		VulkanSwapChain(GLFWwindow* window, VkSurfaceKHR surface);
+		VulkanSwapChain(VulkanDevice* device, GLFWwindow* window, VkSurfaceKHR surface);
 		~VulkanSwapChain();
 
 		uint32_t GetWidth() const { return m_Format.Extent.width; }
 		uint32_t GetHeight() const { return m_Format.Extent.height; }
-		uint32_t GetImageCount() const { return m_Format.ImageCount; }
+		uint32_t GetImageCount() const { return m_ImageCount; }
 		uint32_t GetCurrentImageIndex() const { return m_ImageIndex; }
 
-		void AcquireNextImage();
-		void Present();
+		void AcquireNextImage(VkSemaphore imageAvailableSemaphore);
+		void Present(VkQueue presentQueue, VkSemaphore renderFinishedSemaphore);
 		void Resize(uint32_t viewportWidth, uint32_t viewportHeight);
 
-		const Ref<FramebufferAttachment>& GetAttachment(uint32_t imageIndex) const { return m_Attachments[imageIndex]; }
+		VkImageView GetImageView(uint32_t imageIndex) const { return m_Attachments[imageIndex]; }
+		VkImageView* GetImageViews() { return m_Attachments.data(); }
 
 	private:
 		void Invalidate();
@@ -32,20 +33,22 @@ namespace Quark {
 	private:
 		struct Format
 		{
-			uint32_t             ImageCount = 0;
+			uint32_t             MinImageCount = 0;
 			VkExtent2D           Extent{};
-			VkSurfaceFormatKHR   ActualSurfaceFormat{};
-			VkPresentModeKHR     ActualPresentMode{};
+			VkSurfaceFormatKHR   SurfaceFormat{};
+			VkPresentModeKHR     PresentMode{};
 		};
 
 		GLFWwindow* m_WindowHandle;
+		VulkanDevice* m_Device;
 		VkSurfaceKHR m_Surface = VK_NULL_HANDLE;
 		VkSwapchainKHR m_SwapChain = VK_NULL_HANDLE;
 
 		std::vector<VkImage> m_SwapChainImages;
-		std::vector<Ref<FramebufferAttachment>> m_Attachments;
+		std::vector<VkImageView> m_Attachments;
 
-		uint32_t m_ImageIndex = 0;
 		Format m_Format;
+		uint32_t m_ImageCount;
+		uint32_t m_ImageIndex = 0;
 	};
 }

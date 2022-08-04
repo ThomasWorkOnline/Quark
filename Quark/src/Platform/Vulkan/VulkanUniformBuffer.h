@@ -1,14 +1,16 @@
 #pragma once
 
 #include "Quark/Renderer/UniformBuffer.h"
-#include <vulkan/vulkan.hpp>
+#include "VulkanDevice.h"
+
+#include <vulkan/vulkan.h>
 
 namespace Quark {
 
 	class VulkanUniformBuffer final : public UniformBuffer
 	{
 	public:
-		VulkanUniformBuffer(size_t size, uint32_t binding);
+		VulkanUniformBuffer(VulkanDevice* device, size_t size, uint32_t binding);
 		virtual ~VulkanUniformBuffer() override;
 
 		virtual void Attach(uint32_t binding = 0) const override;
@@ -24,6 +26,8 @@ namespace Quark {
 		}
 
 	private:
+		VulkanDevice* m_Device;
+
 		VkBuffer m_Buffer;
 		VkDeviceMemory m_BufferMemory;
 	};

@@ -2,18 +2,14 @@
 #include "VulkanCommandBuffer.h"
 
 #include "VulkanBuffer.h"
-#include "VulkanContext.h"
 #include "VulkanFramebuffer.h"
 #include "VulkanPipeline.h"
-#include "VulkanRenderer.h"
 #include "VulkanRenderPass.h"
 
 namespace Quark {
 
-	VulkanCommandBuffer::VulkanCommandBuffer()
+	VulkanCommandBuffer::VulkanCommandBuffer(VulkanDevice* device)
 	{
-		auto device = VulkanContext::GetCurrentDevice();
-
 		VkCommandBufferAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		allocInfo.commandPool = device->GetCommandPool();
@@ -33,6 +29,11 @@ namespace Quark {
 	void VulkanCommandBuffer::End()
 	{
 		vkEndCommandBuffer(m_CommandBuffer);
+	}
+
+	void VulkanCommandBuffer::BindPipeline(const Ref<Pipeline>& pipeline)
+	{
+		static_cast<VulkanPipeline*>(pipeline.get())->Bind(m_CommandBuffer);
 	}
 
 	void VulkanCommandBuffer::BeginRenderPass(const Ref<RenderPass>& renderPass, const Ref<Framebuffer>& framebuffer)

@@ -2,10 +2,6 @@
 
 #include <memory>
 
-// disable alloca failure warning
-// since variable size stack arrays are not supported by all compilers
-#pragma warning(disable : 6255)
-
 #define sizeof_array(x) (sizeof(x) / sizeof(x[0]))
 
 namespace Quark {
@@ -40,8 +36,6 @@ namespace Quark {
 	{
 	public:
 		using ValueType = T;
-		using PointerType = T*;
-		using ReferenceType = T&;
 
 		// Non-copyable
 		Singleton(const Singleton&) = delete;
@@ -52,13 +46,14 @@ namespace Quark {
 		Singleton& operator=(Singleton&&) = delete;
 
 	public:
-		static inline ReferenceType Get() { return *s_Instance; }
+		template<typename TypeCast = ValueType>
+		static inline TypeCast& Get() { return *static_cast<TypeCast*>(s_Instance); }
 
 	protected:
-		Singleton(PointerType instance) { s_Instance = instance; }
+		Singleton(ValueType* instance) { s_Instance = instance; }
 		virtual ~Singleton() { s_Instance = nullptr; }
 
 	private:
-		static inline PointerType s_Instance = nullptr;
+		static inline ValueType* s_Instance = nullptr;
 	};
 }
