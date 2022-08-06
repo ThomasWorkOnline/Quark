@@ -22,17 +22,12 @@ namespace Quark {
 					in.seekg(0, std::ios::beg);
 					in.read(result.data(), size);
 					in.close();
+
+					return result;
 				}
-				else
-				{
-					QK_CORE_FATAL("Could not open file '{0}'", filepath);
-				}
-			}
-			else
-			{
-				QK_CORE_FATAL("Could not open file '{0}'", filepath);
 			}
 
+			QK_CORE_ERROR("Could not open file '{0}'", filepath);
 			return result;
 		}
 	}

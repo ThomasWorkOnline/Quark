@@ -20,7 +20,9 @@ namespace Quark {
 		catch (std::exception& e)
 		{
 			QK_CORE_ERROR(e.what());
-			app->OnCrash();
+
+			if (app)
+				app->OnCrash();
 		}
 
 		QK_BEGIN_PROFILE_SESSION("shutdown.json");

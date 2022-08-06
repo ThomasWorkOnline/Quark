@@ -10,7 +10,7 @@ namespace Quark {
 		OpenALAudioSource();
 		virtual ~OpenALAudioSource() override;
 
-		virtual void Attach(uint32_t buffer) override;
+		virtual void SetBuffer(const Ref<AudioBuffer>& buffer) override;
 
 		virtual void Play() override;
 		virtual void Stop() override;

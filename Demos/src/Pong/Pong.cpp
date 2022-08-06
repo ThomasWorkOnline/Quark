@@ -19,7 +19,7 @@ Pong::Pong()
 
 	m_AudioBuffer = AudioBuffer::Create("assets/sounds/Down V1.2.wav");
 	m_AudioSource = AudioSource::Create();
-	m_AudioSource->Attach(m_AudioBuffer->GetBufferID());
+	m_AudioSource->SetBuffer(m_AudioBuffer);
 
 	m_AudioSource->Play();
 	m_AudioPlaying = true;

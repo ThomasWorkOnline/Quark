@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Quark/Core/Core.h"
+#include "AudioBuffer.h"
 
 namespace Quark {
 
@@ -9,7 +10,7 @@ namespace Quark {
 	public:
 		virtual ~AudioSource() = default;
 
-		virtual void Attach(uint32_t buffer) = 0;
+		virtual void SetBuffer(const Ref<AudioBuffer>&buffer) = 0;
 
 		virtual void Play() = 0;
 		virtual void Stop() = 0;

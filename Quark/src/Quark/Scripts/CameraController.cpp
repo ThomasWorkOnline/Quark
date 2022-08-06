@@ -3,6 +3,13 @@
 
 namespace Quark {
 
+	static constexpr float s_RollSensitivity = 1.0f;
+	static constexpr float s_MovementSpeed = 12.0f;
+	static constexpr float s_MouseSensitivity = 0.002f;
+	static constexpr float s_MouseScrollSensitivity = 1.0f;
+
+	static constexpr float s_ZoomFrictionCoeff = 8.0f;
+
 	void CameraController::OnUpdate(Timestep elapsedTime)
 	{
 		auto& transform = GetComponent<Transform3DComponent>();
@@ -17,8 +24,8 @@ namespace Quark {
 		}
 		else
 		{
-			m_MovementSpeed = m_DefaultMovementSpeed;
-			m_RollSensitivity = m_DefaultRollSensitivity;
+			m_MovementSpeed = s_MovementSpeed;
+			m_RollSensitivity = s_MouseScrollSensitivity;
 		}
 
 		// Controls
@@ -54,25 +61,24 @@ namespace Quark {
 
 		if (Input::IsKeyPressed(KeyCode::Q))
 		{
-			transform.Rotate(elapsedTime * m_RollSensitivity, -transform.GetFrontVector());
+			transform.Rotate(elapsedTime * s_RollSensitivity, -transform.GetFrontVector());
 		}
 
 		if (Input::IsKeyPressed(KeyCode::E))
 		{
-			transform.Rotate(elapsedTime * m_RollSensitivity, transform.GetFrontVector());
+			transform.Rotate(elapsedTime * s_RollSensitivity, transform.GetFrontVector());
 		}
 
 		if (Input::IsKeyPressed(KeyCode::D0))
 		{
 			physics.Velocity = { 0.0f, 0.0f, 0.0f };
 			transform.Position = { 0.0f, 0.0f, 0.0f };
-			transform.Orientation = glm::angleAxis<Float>(0.0f, Vec3(0.0f, 0.0f, 1.0f));
+			transform.Orientation = glm::angleAxis<Float>(0.0f, Vec3f(0.0f, 0.0f, 1.0f));
 			QK_CORE_TRACE("Teleported to world origin");
 		}
 
 		// Zooming
-		static constexpr float zoomFrictionCoeff = 8.0f;
-		m_ZoomSpeed -= (m_ZoomSpeed * zoomFrictionCoeff) * elapsedTime;
+		m_ZoomSpeed -= (m_ZoomSpeed * s_ZoomFrictionCoeff) * elapsedTime;
 
 		// Check if the fov needs to be changed
 		if (std::abs(m_ZoomSpeed) > glm::epsilon<Float>())
@@ -101,7 +107,7 @@ namespace Quark {
 
 	bool CameraController::OnMouseScrolled(MouseScrolledEvent& e)
 	{
-		m_ZoomSpeed += e.GetYOffset() * m_MouseScrollSensitivity;
+		m_ZoomSpeed += e.GetYOffset() * s_MouseScrollSensitivity;
 		return false;
 	}
 
@@ -110,9 +116,9 @@ namespace Quark {
 		auto& transform = GetComponent<Transform3DComponent>();
 		auto& camera = GetComponent<CameraComponent>().Camera;
 
-		Vec2 mouseMove = { e.GetXOffset(), e.GetYOffset() };
-		Quat qYaw      = glm::angleAxis(-mouseMove.x * m_MouseSensitivity * camera.GetFov() / 90.0f, Vec3(0.0f, 1.0f, 0.0f) * transform.Orientation);
-		Quat qPitch    = glm::angleAxis(-mouseMove.y * m_MouseSensitivity * camera.GetFov() / 90.0f, Vec3(1.0f, 0.0f, 0.0f) * transform.Orientation);
+		Vec2f mouseMove = { e.GetXOffset(), e.GetYOffset() };
+		Quatf qYaw      = glm::angleAxis(-mouseMove.x * s_MouseSensitivity * camera.GetFov() / 90.0f, Vec3(0.0f, 1.0f, 0.0f) * transform.Orientation);
+		Quatf qPitch    = glm::angleAxis(-mouseMove.y * s_MouseSensitivity * camera.GetFov() / 90.0f, Vec3(1.0f, 0.0f, 0.0f) * transform.Orientation);
 
 		transform.Rotate(qPitch * qYaw);
 		return false;

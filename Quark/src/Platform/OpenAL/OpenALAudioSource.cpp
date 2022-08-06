@@ -2,6 +2,7 @@
 #include "OpenALAudioSource.h"
 
 #include "OpenALCore.h"
+#include "OpenALBuffer.h"
 
 namespace Quark {
 
@@ -30,8 +31,9 @@ namespace Quark {
 		ALCALL(alSourcePause(m_SourceID));
 	}
 
-	void OpenALAudioSource::Attach(uint32_t buffer)
+	void OpenALAudioSource::SetBuffer(const Ref<AudioBuffer>& buffer)
 	{
-		ALCALL(alSourcei(m_SourceID, AL_BUFFER, buffer));
+		uint32_t bufferID = static_cast<OpenALAudioBuffer*>(buffer.get())->GetBufferID();
+		ALCALL(alSourcei(m_SourceID, AL_BUFFER, bufferID));
 	}
 }

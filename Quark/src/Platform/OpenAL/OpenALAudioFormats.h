@@ -7,7 +7,7 @@
 
 namespace Quark {
 
-	constexpr ALenum GetAudioFormat(AudioFormat format)
+	constexpr ALenum AudioFormatToOpenALFormat(AudioFormat format)
 	{
 		switch (format.Channels)
 		{
@@ -32,18 +32,6 @@ namespace Quark {
 			default:
 				QK_CORE_FATAL("Invalid audio format");
 				return AL_NONE;
-		}
-	}
-
-	constexpr uint32_t GetChannelsCount(ChannelsFormat format)
-	{
-		switch (format)
-		{
-			case ChannelsFormat::Mono:   return 1;
-			case ChannelsFormat::Stereo: return 2;
-			default:
-				QK_CORE_FATAL("Invalid channels format");
-				return 0;
 		}
 	}
 }

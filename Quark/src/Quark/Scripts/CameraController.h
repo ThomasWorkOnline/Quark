@@ -22,13 +22,8 @@ namespace Quark {
 		bool OnMouseMoved(MouseMovedEvent& e);
 
 	private:
-		float m_RollSensitivity = 1.0f;
-		float m_MovementSpeed = 12.0f;
-		float m_MouseSensitivity = 0.002f;
-		float m_MouseScrollSensitivity = 1.0f;
-
 		float m_ZoomSpeed = 0.0f;
-		float m_DefaultMovementSpeed = m_MovementSpeed;
-		float m_DefaultRollSensitivity = m_RollSensitivity;
+		float m_MovementSpeed;
+		float m_RollSensitivity;
 	};
 }
