@@ -4,6 +4,7 @@
 
 #include "Quark/Renderer/Renderer.h"
 #include "Quark/Filesystem/Filesystem.h"
+
 #include <sstream>
 
 namespace Quark {

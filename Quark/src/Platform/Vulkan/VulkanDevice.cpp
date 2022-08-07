@@ -167,7 +167,9 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
+		Timer t;
 		vkDeviceWaitIdle(m_Device);
+		QK_CORE_INFO("Waiting for device to finish: {0}ms", t.Milliseconds().count());
 	}
 
 	Scope<VulkanDevice> VulkanDevice::CreateDefaultForSurface(VkInstance vkInstance, VkSurfaceKHR vkSurface)

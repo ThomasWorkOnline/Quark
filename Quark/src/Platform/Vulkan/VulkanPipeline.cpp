@@ -1,12 +1,9 @@
 #include "qkpch.h"
 #include "VulkanPipeline.h"
 
-#include "VulkanContext.h"
 #include "VulkanCommandBuffer.h"
 #include "VulkanFormats.h"
 #include "VulkanRenderPass.h"
-#include "VulkanUniformBuffer.h"
-#include "VulkanUtils.h"
 
 // disable alloca failure warning
 // since variable size stack arrays are not supported by all compilers
@@ -32,11 +29,7 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		const auto framesInFlight = VulkanContext::FramesInFlight;
-		m_DescriptorSets.resize(framesInFlight);
-		m_CameraUniformBuffers.resize(framesInFlight);
-
-		for (uint32_t i = 0; i < framesInFlight; i++)
+		for (uint32_t i = 0; i < VulkanContext::FramesInFlight; i++)
 		{
 			m_CameraUniformBuffers[i] = UniformBuffer::Create(m_Spec.CameraUniformBufferSize, 0);
 		}
@@ -45,13 +38,13 @@ namespace Quark {
 		{
 			VkDescriptorPoolSize poolSize{};
 			poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			poolSize.descriptorCount = framesInFlight;
+			poolSize.descriptorCount = VulkanContext::FramesInFlight;
 
 			VkDescriptorPoolCreateInfo poolInfo{};
 			poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 			poolInfo.poolSizeCount = 1;
 			poolInfo.pPoolSizes = &poolSize;
-			poolInfo.maxSets = framesInFlight;
+			poolInfo.maxSets = VulkanContext::FramesInFlight;
 
 			vkCreateDescriptorPool(m_Device->GetVkHandle(), &poolInfo, nullptr, &m_DescriptorPool);
 		}
@@ -75,19 +68,19 @@ namespace Quark {
 		// Descriptor sets
 		{
 			// Copy each layout for each frame in flight
-			auto* layouts = static_cast<VkDescriptorSetLayout*>(alloca(framesInFlight * sizeof(VkDescriptorSetLayout)));
-			for (uint32_t i = 0; i < framesInFlight; i++)
+			auto* layouts = static_cast<VkDescriptorSetLayout*>(alloca(VulkanContext::FramesInFlight * sizeof(VkDescriptorSetLayout)));
+			for (uint32_t i = 0; i < VulkanContext::FramesInFlight; i++)
 				layouts[i] = m_DescriptorSetLayout;
 
 			VkDescriptorSetAllocateInfo allocInfo{};
 			allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 			allocInfo.descriptorPool = m_DescriptorPool;
-			allocInfo.descriptorSetCount = framesInFlight;
+			allocInfo.descriptorSetCount = VulkanContext::FramesInFlight;
 			allocInfo.pSetLayouts = layouts;
 
-			vkAllocateDescriptorSets(m_Device->GetVkHandle(), &allocInfo, m_DescriptorSets.data());
+			vkAllocateDescriptorSets(m_Device->GetVkHandle(), &allocInfo, m_DescriptorSets);
 
-			for (uint32_t i = 0; i < framesInFlight; i++)
+			for (uint32_t i = 0; i < VulkanContext::FramesInFlight; i++)
 			{
 				VkDescriptorBufferInfo bufferInfo{};
 				bufferInfo.buffer = static_cast<VulkanUniformBuffer*>(m_CameraUniformBuffers[i].get())->GetVkHandle();
@@ -114,11 +107,7 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		{
-			Timer t;
-			vkDeviceWaitIdle(m_Device->GetVkHandle());
-			QK_CORE_INFO("Waiting for device to finish: {0}ms", t.Milliseconds().count());
-		}
+		m_Device->WaitIdle();
 
 		vkDestroyPipeline(m_Device->GetVkHandle(), m_Pipeline, nullptr);
 		vkDestroyPipelineLayout(m_Device->GetVkHandle(), m_PipelineLayout, nullptr);

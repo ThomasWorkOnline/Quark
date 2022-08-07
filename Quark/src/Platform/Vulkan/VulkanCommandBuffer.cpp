@@ -50,7 +50,7 @@ namespace Quark {
 		renderPassInfo.renderArea.offset = VkOffset2D{ 0, 0 };
 		renderPassInfo.renderArea.extent = VkExtent2D{ framebuffer->GetWidth(), framebuffer->GetHeight() };
 
-		if (renderPass->GetSpecification().Clears)
+		if (renderPass->GetSpecification().ClearBuffers)
 		{
 			VkClearValue clearColor = { 0.01f, 0.01f, 0.01f, 1.0f };
 			renderPassInfo.clearValueCount = 1;

@@ -17,7 +17,7 @@ namespace Quark {
 				case ColorDataFormat::Depth24:         return GL_DEPTH_ATTACHMENT;
 				case ColorDataFormat::Depth24Stencil8: return GL_DEPTH_STENCIL_ATTACHMENT;
 
-				QK_ASSERT_DEFAULT("Invalid framebuffer depth attachment", GL_NONE);
+				QK_ASSERT_NO_DEFAULT("Invalid framebuffer depth attachment", GL_NONE);
 			}
 		}
 

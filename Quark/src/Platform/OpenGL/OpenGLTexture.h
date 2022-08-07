@@ -17,9 +17,6 @@ namespace Quark {
 		virtual void SetData(const void* data, size_t size) override;
 		virtual void GenerateMipmaps() override;
 
-		virtual uint32_t GetWidth() const override { return m_Spec.Width; }
-		virtual uint32_t GetHeight() const override { return m_Spec.Height; }
-
 		virtual bool operator==(const Texture2D& other) const override
 		{
 			return m_RendererID == ((OpenGLTexture2D&)other).m_RendererID;
@@ -27,7 +24,6 @@ namespace Quark {
 
 	private:
 		uint32_t m_RendererID = 0;
-		Texture2DSpecification m_Spec;
 		uint32_t m_InternalFormat = 0, m_DataFormat = 0;
 	};
 }

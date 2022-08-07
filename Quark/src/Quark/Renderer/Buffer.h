@@ -53,7 +53,7 @@ namespace Quark {
 			case ShaderDataType::Int4:      return sizeof(int32_t) * 4;
 			case ShaderDataType::Bool:      return sizeof(bool);
 
-			QK_ASSERT_DEFAULT("Unknown ShaderDataType", 0);
+			QK_ASSERT_NO_DEFAULT("Unknown ShaderDataType", 0);
 		}
 	}
 
@@ -79,7 +79,7 @@ namespace Quark {
 			case ShaderDataType::Int4:    return 4;
 			case ShaderDataType::Bool:    return 1;
 
-			QK_ASSERT_DEFAULT("Unknown ShaderDataType", 0);
+			QK_ASSERT_NO_DEFAULT("Unknown ShaderDataType", 0);
 		}
 	}
 

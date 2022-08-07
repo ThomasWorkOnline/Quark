@@ -68,15 +68,21 @@ namespace Quark {
 		GLenum target = m_Spec.Samples > 1 ? GL_TEXTURE_2D_MULTISAMPLE_ARRAY : GL_TEXTURE_2D_ARRAY;
 		glBindTexture(target, m_RendererID);
 		glTexSubImage3D(target, 0, 0, 0, layer, m_Spec.Width, m_Spec.Height, 1, m_DataFormat, GL_UNSIGNED_BYTE, data);
+
+		QK_DEBUG_CALL(glBindTexture(target, 0));
 	}
 
 	void OpenGLTexture2DArray::GenerateMipmaps()
 	{
 		QK_PROFILE_FUNCTION();
 
-		QK_CORE_ASSERT(m_Spec.Samples == 1, "Texture is multisampled. Mipmaps are not intended");
+		QK_CORE_ASSERT(IsformatUsingMips(m_Spec.RenderModes.MinFilteringMode) || IsformatUsingMips(m_Spec.RenderModes.MagFilteringMode),
+			"Invalid texture specification for mipmaps");
 
-		glBindTexture(GL_TEXTURE_2D_ARRAY, m_RendererID);
-		glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+		GLenum target = m_Spec.Samples > 1 ? GL_TEXTURE_2D_MULTISAMPLE_ARRAY : GL_TEXTURE_2D_ARRAY;
+		glBindTexture(target, m_RendererID);
+		glGenerateMipmap(target);
+
+		QK_DEBUG_CALL(glBindTexture(target, 0));
 	}
 }

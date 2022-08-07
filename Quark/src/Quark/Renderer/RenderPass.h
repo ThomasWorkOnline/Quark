@@ -15,7 +15,7 @@ namespace Quark {
 	{
 		PipelineBindPoint BindPoint{};
 		ColorDataFormat   ColorFormat{};
-		bool Clears = false;
+		bool ClearBuffers = false;
 	};
 
 	class RenderPass

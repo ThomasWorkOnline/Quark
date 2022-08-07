@@ -16,32 +16,28 @@ namespace Quark {
 		switch (channels)
 		{
 			case 1:
+			switch (bpp)
 			{
-				switch (bpp)
-				{
-					case 8: return ColorDataFormat::Red8;
-				}
-				break;
+				case 8: return ColorDataFormat::Red8;
 			}
+			break;
+
 			case 3:
+			switch (bpp)
 			{
-				switch (bpp)
-				{
-					case 24: return srgb ? ColorDataFormat::RGB8_SRGB : ColorDataFormat::RGB8;
-					case 48: return fp ? ColorDataFormat::RGB16f : ColorDataFormat::RGB16;
-					case 96: return fp ? ColorDataFormat::RGB32f : ColorDataFormat::RGB32;
-				}
-				break;
+				case 24: return srgb ? ColorDataFormat::RGB8_SRGB : ColorDataFormat::RGB8;
+				case 48: return fp ? ColorDataFormat::RGB16f : ColorDataFormat::RGB16;
+				case 96: return fp ? ColorDataFormat::RGB32f : ColorDataFormat::RGB32;
 			}
+			break;
+
 			case 4:
+			switch (bpp)
 			{
-				switch (bpp)
-				{
-					case 32: return srgb ? ColorDataFormat::RGBA8_SRGB : ColorDataFormat::RGBA8;
-					case 64: return fp ? ColorDataFormat::RGBA16f : ColorDataFormat::RGBA16;
-				}
-				break;
+				case 32: return srgb ? ColorDataFormat::RGBA8_SRGB : ColorDataFormat::RGBA8;
+				case 64: return fp ? ColorDataFormat::RGBA16f : ColorDataFormat::RGBA16;
 			}
+			break;
 		}
 
 		QK_CORE_ASSERT(false, "Unknown texture internal format");

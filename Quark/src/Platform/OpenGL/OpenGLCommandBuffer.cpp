@@ -15,7 +15,7 @@ namespace Quark {
 	{
 		framebuffer ? framebuffer->Attach() : glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		if (renderPass->GetSpecification().Clears)
+		if (renderPass->GetSpecification().ClearBuffers)
 		{
 			glClearColor(0.01f, 0.01f, 0.01f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

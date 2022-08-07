@@ -32,7 +32,7 @@ namespace Quark {
 
 			case API::Vulkan: return CreateScope<VulkanContext>(windowHandle);
 
-			QK_ASSERT_DEFAULT("Unknown graphics API", nullptr);
+			QK_ASSERT_NO_DEFAULT("Unknown graphics API", nullptr);
 		}
 	}
 }

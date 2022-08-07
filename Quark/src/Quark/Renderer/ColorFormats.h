@@ -60,7 +60,7 @@ namespace Quark {
 			case ColorDataFormat::Depth24:         return 3;
 			case ColorDataFormat::Depth24Stencil8: return 4;
 
-			QK_ASSERT_DEFAULT("Invalid internal texture format", 0);
+			QK_ASSERT_NO_DEFAULT("Invalid internal texture format", 0);
 		}
 	}
 

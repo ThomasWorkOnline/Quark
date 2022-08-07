@@ -158,7 +158,7 @@ namespace Quark {
 			RenderPassSpecification spec;
 			spec.BindPoint = PipelineBindPoint::Graphics;
 			spec.ColorFormat = ColorDataFormat::BGRA8_SRGB;
-			spec.Clears = true;
+			spec.ClearBuffers = true;
 			m_Data.GeometryPass = RenderPass::Create(spec);
 		}
 

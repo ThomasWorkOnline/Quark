@@ -34,7 +34,7 @@ namespace Quark {
 			case GL_DEBUG_SEVERITY_LOW:          QK_CORE_INFO(message);          return;
 			case GL_DEBUG_SEVERITY_NOTIFICATION: QK_CORE_TRACE(message);         return;
 
-			QK_ASSERT_DEFAULT("OnOpenGLMessage had an unknown severity level");
+			QK_ASSERT_NO_DEFAULT("OnOpenGLMessage had an unknown severity level");
 		}
 	}
 

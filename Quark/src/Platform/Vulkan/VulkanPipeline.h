@@ -3,12 +3,11 @@
 #include "Quark/Core/Core.h"
 #include "Quark/Renderer/Pipeline.h"
 
+#include "VulkanContext.h"
 #include "VulkanDevice.h"
-#include "VulkanBuffer.h"
 #include "VulkanFramebuffer.h"
 #include "VulkanUniformBuffer.h"
 #include "VulkanShader.h"
-#include "VulkanUtils.h"
 
 #include <vulkan/vulkan.h>
 
@@ -45,7 +44,7 @@ namespace Quark {
 		VkPipeline m_Pipeline = VK_NULL_HANDLE;
 
 		std::vector<VkFramebuffer> m_Framebuffers;
-		std::vector<VkDescriptorSet> m_DescriptorSets;
-		std::vector<Ref<UniformBuffer>> m_CameraUniformBuffers;
+		VkDescriptorSet m_DescriptorSets[VulkanContext::FramesInFlight];
+		Ref<UniformBuffer> m_CameraUniformBuffers[VulkanContext::FramesInFlight];
 	};
 }

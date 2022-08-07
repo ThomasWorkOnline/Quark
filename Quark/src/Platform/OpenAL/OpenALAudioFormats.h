@@ -16,7 +16,7 @@ namespace Quark {
 			case AudioFormat::Integer8BitStereo:  return AL_FORMAT_STEREO8;
 			case AudioFormat::Integer16BitStereo: return AL_FORMAT_STEREO16;
 
-			QK_ASSERT_DEFAULT("Invalid audio format", AL_NONE);
+			QK_ASSERT_NO_DEFAULT("Invalid audio format", AL_NONE);
 		}
 	}
 }
