@@ -282,6 +282,11 @@ namespace Quark {
 		return *this;
 	}
 
+	void GLFWWindow::Resize(uint32_t width, uint32_t height)
+	{
+		glfwSetWindowSize(m_Window, width, height);
+	}
+
 	void GLFWWindow::Focus()
 	{
 		glfwFocusWindow(m_Window);

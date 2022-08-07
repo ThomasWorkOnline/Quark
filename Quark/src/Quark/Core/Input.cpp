@@ -9,19 +9,19 @@ namespace Quark {
 
 	bool Input::IsKeyPressed(KeyCode key)
 	{
-		auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
+		auto window = static_cast<GLFWwindow*>(Application::Get()->GetWindow()->GetNativeWindow());
 		return glfwGetKey(window, static_cast<int32_t>(key)) == GLFW_PRESS;
 	}
 
 	bool Input::IsMouseButtonPressed(MouseCode button)
 	{
-		auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
+		auto window = static_cast<GLFWwindow*>(Application::Get()->GetWindow()->GetNativeWindow());
 		return glfwGetMouseButton(window, static_cast<int32_t>(button)) == GLFW_PRESS;
 	}
 
 	std::pair<float, float> Input::GetMousePosition()
 	{
-		auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
+		auto window = static_cast<GLFWwindow*>(Application::Get()->GetWindow()->GetNativeWindow());
 		double xpos, ypos;
 		glfwGetCursorPos(window, &xpos, &ypos);
 

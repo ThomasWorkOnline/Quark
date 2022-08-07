@@ -47,9 +47,9 @@ namespace Quark {
 
 	SceneRenderer::SceneRenderer()
 	{
-		auto& window = Application::Get().GetWindow();
-		m_ViewportWidth = window.GetWidth();
-		m_ViewportHeight = window.GetHeight();
+		auto window = Application::Get()->GetWindow();
+		m_ViewportWidth = window->GetWidth();
+		m_ViewportHeight = window->GetHeight();
 
 		Initialize();
 	}
@@ -188,7 +188,7 @@ namespace Quark {
 
 		if (!m_Data.Env)
 		{
-			auto& assetDir = Application::Get().GetOptions().AssetDir;
+			auto& assetDir = Application::Get()->GetOptions().AssetDir;
 
 			m_Data.Env = CreateScope<EnvironmentData>();
 			m_Data.Env->SkyboxShader = Shader::Create((assetDir / "assets/shaders/version/3.30/cubemap.glsl").string());

@@ -12,7 +12,7 @@ namespace Quark {
 	Scope<Window> Window::Create(const WindowSpecification& spec)
 	{
 #if defined(QK_PLATFORM_WINDOWS) && defined(QK_USE_NATIVE_APIS)
-		return CreateScope<WindowsWindow>(spec);
+		return CreateScope<NativeWindowsWindow>(spec);
 #else
 		return CreateScope<GLFWWindow>(spec);
 #endif

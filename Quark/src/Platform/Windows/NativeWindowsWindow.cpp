@@ -7,16 +7,19 @@ namespace Quark {
 
 	static constexpr wchar_t s_ClassName[] = L"QuarkApp";
 	static uint32_t s_WindowCount = 0;
+	
+	namespace Utils {
 
-	static std::wstring ConvertToWideString(std::string_view narrow)
-	{
-		std::wstring wide;
-		wide.reserve(narrow.size());
+		static std::wstring ConvertToWideString(std::string_view narrow)
+		{
+			std::wstring wide;
+			wide.reserve(narrow.size());
 
-		for (char c : narrow)
-			wide.push_back(c);
+			for (char c : narrow)
+				wide.push_back(c);
 
-		return wide;
+			return wide;
+		}
 	}
 
 	NativeWindowsWindow::NativeWindowsWindow(const WindowSpecification& spec)
@@ -31,7 +34,7 @@ namespace Quark {
 		m_WindowHandle = CreateWindowEx(
 			0,                                           // Optional window styles.
 			s_ClassName,                                 // Window class
-			ConvertToWideString(spec.Title).c_str(),     // Window text
+			Utils::ConvertToWideString(spec.Title).c_str(),     // Window text
 			WS_OVERLAPPEDWINDOW | WS_VISIBLE,            // Window style
 
 			// Size and position
@@ -78,15 +81,27 @@ namespace Quark {
 	Window& NativeWindowsWindow::SetTitle(std::string_view title)
 	{
 		m_Data.Title = title;
-		SetWindowText(m_WindowHandle, ConvertToWideString(m_Data.Title).c_str());
+		SetWindowText(m_WindowHandle, Utils::ConvertToWideString(m_Data.Title).c_str());
 		return *this;
 	}
 
 	Window& NativeWindowsWindow::AppendTitle(std::string_view title)
 	{
 		m_Data.Title.append(title);
-		SetWindowText(m_WindowHandle, ConvertToWideString(m_Data.Title).c_str());
+		SetWindowText(m_WindowHandle, Utils::ConvertToWideString(m_Data.Title).c_str());
 		return *this;
+	}
+
+	void NativeWindowsWindow::Resize(uint32_t width, uint32_t height)
+	{
+		RECT rect = { 0, 0, width, height };
+		AdjustWindowRectExForDpi(&rect, GetWindowStyle(m_WindowHandle),
+			FALSE, GetWindowExStyle(m_WindowHandle),
+			GetDpiForWindow(m_WindowHandle));
+
+		SetWindowPos(m_WindowHandle, HWND_TOP,
+			0, 0, rect.right - rect.left, rect.bottom - rect.top,
+			SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOZORDER);
 	}
 
 	void NativeWindowsWindow::Focus()
@@ -182,6 +197,7 @@ namespace Quark {
 
 				data.Xpos = p.rcNormalPosition.left;
 				data.Ypos = p.rcNormalPosition.top;
+
 			} break;
 
 			case WM_CLOSE:
@@ -191,13 +207,13 @@ namespace Quark {
 				WindowClosedEvent event;
 				if (data.EventCallback)
 					data.EventCallback(event);
+
 			} break;
 
 			case WM_DESTROY:
 			{
 				PostQuitMessage(0);
-				return 0;
-			}
+			} break;
 
 			case WM_SIZE:
 			{
@@ -216,6 +232,7 @@ namespace Quark {
 				WindowFocusedEvent event;
 				if (data.EventCallback)
 					data.EventCallback(event);
+
 			} break;
 
 			case WM_KILLFOCUS:
@@ -225,6 +242,7 @@ namespace Quark {
 				WindowLostFocusEvent event;
 				if (data.EventCallback)
 					data.EventCallback(event);
+
 			} break;
 
 			case WM_MOUSEHWHEEL:
@@ -235,6 +253,7 @@ namespace Quark {
 				MouseScrolledEvent event((float)scroll, 0.0f);
 				if (data.EventCallback)
 					data.EventCallback(event);
+
 			} break;
 
 			case WM_MOUSEWHEEL:
@@ -245,6 +264,7 @@ namespace Quark {
 				MouseScrolledEvent event(0.0f, (float)scroll);
 				if (data.EventCallback)
 					data.EventCallback(event);
+
 			} break;
 		}
 

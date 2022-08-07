@@ -33,7 +33,7 @@ namespace Quark {
 
 	void Renderer::BeginFrame()
 	{
-		GraphicsContext::Get().StartFrame();
+		GraphicsContext::Get()->StartFrame();
 
 		s_Data->ActiveCommandBuffer = GetCommandBuffer().get();
 		s_Data->ActiveCommandBuffer->Reset();
@@ -43,7 +43,7 @@ namespace Quark {
 	void Renderer::EndFrame()
 	{
 		s_Data->ActiveCommandBuffer->End();
-		GraphicsContext::Get().Submit();
+		GraphicsContext::Get()->Submit();
 	}
 
 	void Renderer::BindPipeline(const Ref<Pipeline>& pipeline)
@@ -63,12 +63,12 @@ namespace Quark {
 
 	void Renderer::OnViewportResized(uint32_t width, uint32_t height)
 	{
-		GraphicsContext::Get().OnViewportResized(width, height);
+		GraphicsContext::Get()->OnViewportResized(width, height);
 	}
 
 	const Ref<CommandBuffer>& Renderer::GetCommandBuffer()
 	{
-		return GraphicsContext::Get().GetCommandBuffer();
+		return GraphicsContext::Get()->GetCommandBuffer();
 	}
 
 	ShaderLibrary& Renderer::GetShaderLibrary()

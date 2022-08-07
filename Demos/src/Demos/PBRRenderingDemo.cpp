@@ -14,7 +14,7 @@ PBRRenderingDemo::PBRRenderingDemo()
 {
 	QK_PROFILE_FUNCTION();
 
-	GetWindow().SetVSync(true);
+	GetWindow()->SetVSync(true);
 
 	m_Scene = Scene::Create();
 	m_Player = m_Scene->CreateEntity();
@@ -231,7 +231,7 @@ void PBRRenderingDemo::OnEvent(Event& e)
 	dispatcher.Dispatch<MouseButtonPressedEvent>(ATTACH_EVENT_FN(PBRRenderingDemo::OnMouseButtonPressed));
 	dispatcher.Dispatch<MouseButtonReleasedEvent>(ATTACH_EVENT_FN(PBRRenderingDemo::OnMouseButtonReleased));
 
-	e.Handled = e.IsInCategory(EventCategory::Input) && GetWindow().IsCursorEnabled();
+	e.Handled = e.IsInCategory(EventCategory::Input) && GetWindow()->IsCursorEnabled();
 
 	if (!e.Handled)
 		m_Scene->OnEvent(e);
@@ -242,8 +242,8 @@ bool PBRRenderingDemo::OnKeyPressed(KeyPressedEvent& e)
 	switch (e.GetKeyCode())
 	{
 		case KeyCode::Escape:
-			auto& window = GetWindow();
-			window.EnableCursor();
+			auto window = GetWindow();
+			window->EnableCursor();
 			break;
 	}
 	return false;
@@ -251,12 +251,12 @@ bool PBRRenderingDemo::OnKeyPressed(KeyPressedEvent& e)
 
 bool PBRRenderingDemo::OnMouseMoved(MouseMovedEvent& e)
 {
-	return !GetWindow().IsCursorEnabled();
+	return !GetWindow()->IsCursorEnabled();
 }
 
 bool PBRRenderingDemo::OnMouseButtonPressed(MouseButtonPressedEvent& e)
 {
-	GetWindow().DisableCursor();
+	GetWindow()->DisableCursor();
 	return false;
 }
 

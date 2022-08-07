@@ -7,7 +7,7 @@ using namespace Quark;
 class MainLayer : public Layer
 {
 public:
-	MainLayer();
+	MainLayer(Application* app);
 
 	virtual void OnUpdate(Timestep elapsedTime) override;
 	virtual void OnRender() override;

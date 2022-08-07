@@ -1,6 +1,6 @@
 #include "MainLayer.h"
 
-MainLayer::MainLayer()
+MainLayer::MainLayer(Application* app) : Layer(app)
 {
 	Texture2DArraySpecification spec;
 	spec.Width = 48;
@@ -21,10 +21,10 @@ MainLayer::MainLayer()
 	descriptor.SRGB = true;
 	m_Texture = Texture2D::Create("assets/textures/pbr/streaked-metal/normal-dx.png", descriptor);
 
-	auto& window = Application::Get().GetWindow();
+	auto window = GetApplication()->GetWindow();
 
-	m_Camera.SetOrthographic((float)window.GetWidth());
-	m_Camera.Resize(window.GetWidth(), window.GetHeight());
+	m_Camera.SetOrthographic((float)window->GetWidth());
+	m_Camera.Resize(window->GetWidth(), window->GetHeight());
 }
 
 void MainLayer::OnUpdate(Timestep elapsedTime)
@@ -60,9 +60,9 @@ bool MainLayer::OnKeyPressed(KeyPressedEvent& e)
 	{
 		case KeyCode::F11:
 		{
-			auto& window = Application::Get().GetWindow();
-			bool fullscreen = window.IsFullscreen();
-			window.SetFullScreen(!fullscreen);
+			auto window = GetApplication()->GetWindow();
+			bool fullscreen = window->IsFullscreen();
+			window->SetFullScreen(!fullscreen);
 			break;
 		}
 		case KeyCode::Left:

@@ -125,13 +125,13 @@ namespace Quark {
 
 	const Ref<UniformBuffer>& VulkanPipeline::GetUniformBuffer() const
 	{
-		return m_CameraUniformBuffers[VulkanContext::Get().GetCurrentFrameIndex()];
+		return m_CameraUniformBuffers[VulkanContext::Get()->GetCurrentFrameIndex()];
 	}
 
 	void VulkanPipeline::Bind(VkCommandBuffer commandBuffer)
 	{
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline);
-		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, 0, 1, &m_DescriptorSets[VulkanContext::Get().GetCurrentFrameIndex()], 0, nullptr);
+		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, 0, 1, &m_DescriptorSets[VulkanContext::Get()->GetCurrentFrameIndex()], 0, nullptr);
 	}
 
 	void VulkanPipeline::Invalidate()
@@ -143,7 +143,7 @@ namespace Quark {
 				vkDestroyFramebuffer(m_Device->GetVkHandle(), framebuffer, nullptr);
 			}
 
-			const uint32_t imageCount = VulkanContext::Get().GetSwapChain()->GetImageCount();
+			const uint32_t imageCount = VulkanContext::Get()->GetSwapChain()->GetImageCount();
 			m_Framebuffers.resize(imageCount);
 
 			VkFramebufferCreateInfo framebufferInfo{};
@@ -156,7 +156,7 @@ namespace Quark {
 
 			for (uint32_t i = 0; i < imageCount; i++)
 			{
-				auto attachment = VulkanContext::Get().GetSwapChain()->GetImageView(i);
+				auto attachment = VulkanContext::Get()->GetSwapChain()->GetImageView(i);
 				framebufferInfo.pAttachments = &attachment;
 				vkCreateFramebuffer(m_Device->GetVkHandle(), &framebufferInfo, nullptr, &m_Framebuffers[i]);
 			}

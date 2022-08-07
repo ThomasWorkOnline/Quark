@@ -4,5 +4,5 @@
 
 FontTest::FontTest()
 {
-	PushLayer(new MainLayer());
+	PushLayer(new MainLayer(this));
 }

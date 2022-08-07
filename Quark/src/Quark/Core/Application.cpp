@@ -81,8 +81,8 @@ namespace Quark {
 
 			OnRender();
 
-			for (size_t i = 0; i < m_Layers.size(); i++)
-				m_Layers[i]->OnRender();
+			for (auto layer : m_Layers)
+				layer->OnRender();
 
 			m_Window->OnUpdate();
 		}

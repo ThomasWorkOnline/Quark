@@ -41,8 +41,8 @@ namespace Quark {
 		VulkanSwapChain* GetSwapChain() { return m_SwapChain.get(); }
 		uint32_t GetCurrentFrameIndex() const { return m_Data.CurrentFrameIndex; }
 
-		static VulkanDevice* GetCurrentDevice() { return Get().m_Device.get(); }
-		static VulkanContext& Get() { return GraphicsContext::Get<VulkanContext>(); }
+		static VulkanDevice* GetCurrentDevice() { return Get()->m_Device.get(); }
+		static VulkanContext* Get() { return GraphicsContext::Get<VulkanContext>(); }
 
 	private:
 		struct VulkanData
@@ -52,7 +52,7 @@ namespace Quark {
 			VkSemaphore        ImageAvailableSemaphores[FramesInFlight];
 			Ref<CommandBuffer> CommandBuffers[FramesInFlight];
 
-			uint32_t CurrentFrameIndex = std::numeric_limits<uint32_t>::max();
+			uint32_t CurrentFrameIndex = static_cast<uint32_t>(-1);
 		};
 
 		GLFWwindow* m_WindowHandle;

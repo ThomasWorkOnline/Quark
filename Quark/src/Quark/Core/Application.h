@@ -1,13 +1,11 @@
 #pragma once
 
 #include "Core.h"
-
 #include "Layer.h"
 #include "Window.h"
 
 #include "Quark/Audio/AudioDevice.h"
 #include "Quark/Event/ApplicationEvent.h"
-#include "Quark/Renderer/GraphicsAPI.h"
 
 #include <thread>
 #include <filesystem>
@@ -16,7 +14,7 @@ namespace Quark {
 
 	enum ApplicationFlag
 	{
-		ApplicationFlagEmpty = 0,
+		ApplicationFlagNone  = 0,
 		ShowApiInWindowTitle = BIT(0)
 	};
 
@@ -29,13 +27,6 @@ namespace Quark {
 		std::filesystem::path AssetDir;
 
 		bool HasFlag(ApplicationFlag flag) const { return Flags & flag; }
-
-		ApplicationOptions() = default;
-		ApplicationOptions(
-			uint32_t width, uint32_t height,
-			const std::string& title,
-			ApplicationFlag flags = {})
-			: Width(width), Height(height), AppName(title), Flags(flags) {}
 	};
 
 	class Application : public Singleton<Application>
@@ -60,11 +51,8 @@ namespace Quark {
 
 		const ApplicationOptions& GetOptions() const { return m_Options; }
 
-		const Window& GetWindow() const { return *m_Window; }
-		Window& GetWindow() { return *m_Window; }
-
-		const AudioOutputDevice& GetAudioOutputDevice() const { return *m_AudioOutputDevice; }
-		AudioOutputDevice& GetAudioOutputDevice() { return *m_AudioOutputDevice; }
+		Window* GetWindow() const { return m_Window.get(); }
+		AudioOutputDevice* GetAudioOutputDevice() const { return m_AudioOutputDevice.get(); }
 
 	private:
 		void OnEventInternal(Event& e);

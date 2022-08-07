@@ -38,11 +38,11 @@ void VulkanApp::OnUpdate(Timestep elapsedTime)
 
 bool VulkanApp::OnMouseButtonPressed(MouseButtonPressedEvent& e)
 {
-	bool wasSelected = GetWindow().IsCursorEnabled();
+	bool wasSelected = GetWindow()->IsCursorEnabled();
 	if (e.GetMouseButton() == MouseCode::ButtonLeft)
 	{
 		m_ViewportSelected = true;
-		GetWindow().DisableCursor();
+		GetWindow()->DisableCursor();
 	}
 
 	return wasSelected;
@@ -54,9 +54,9 @@ bool VulkanApp::OnKeyPressed(KeyPressedEvent& e)
 	{
 		case KeyCode::Escape:
 		{
-			bool wasDeselected = !GetWindow().IsCursorEnabled();
+			bool wasDeselected = !GetWindow()->IsCursorEnabled();
 			m_ViewportSelected = false;
-			GetWindow().EnableCursor();
+			GetWindow()->EnableCursor();
 			return wasDeselected;
 		}
 	}

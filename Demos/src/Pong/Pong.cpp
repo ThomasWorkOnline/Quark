@@ -1,16 +1,16 @@
 #include "Pong.h"
 
 Pong::Pong()
-	: Application(ApplicationOptions(1280, 720, "Pong"))
+	: Application(ApplicationOptions{ 1280, 720, "Pong" })
 {
-	auto& window = GetWindow();
+	auto window = GetWindow();
 
 	m_Entity = m_Scene.CreateEntity();
 	m_Entity.AddComponent<Transform3DComponent>();
 	m_Entity.AddComponent<PhysicsComponent>();
 	auto& camera = m_Entity.AddComponent<CameraComponent>().Camera;
 	camera.SetPerspective(70.0f);
-	camera.Resize(window.GetWidth(), window.GetHeight());
+	camera.Resize(window->GetWidth(), window->GetHeight());
 
 	m_BallTransform.Position = Vec3f(0.0f, 0.0f, 10.0f);
 
@@ -57,7 +57,7 @@ void Pong::OnEvent(Event& e)
 	dispatcher.Dispatch<KeyPressedEvent>(ATTACH_EVENT_FN(OnKeyPressed));
 	dispatcher.Dispatch<MouseButtonPressedEvent>(ATTACH_EVENT_FN(OnMouseButtonPressed));
 
-	e.Handled = e.IsInCategory(EventCategory::Input) && GetWindow().IsCursorEnabled();
+	e.Handled = e.IsInCategory(EventCategory::Input) && GetWindow()->IsCursorEnabled();
 }
 
 void Pong::FaceOff()
@@ -97,7 +97,7 @@ bool Pong::OnMouseButtonPressed(MouseButtonPressedEvent& e)
 	switch (e.GetMouseButton())
 	{
 		case MouseCode::ButtonLeft:
-			GetWindow().DisableCursor();
+			GetWindow()->DisableCursor();
 			break;
 	}
 	return false;
@@ -108,7 +108,7 @@ bool Pong::OnKeyPressed(KeyPressedEvent& e)
 	switch (e.GetKeyCode())
 	{
 		case KeyCode::Escape:
-			GetWindow().EnableCursor();
+			GetWindow()->EnableCursor();
 			break;
 		case KeyCode::Enter:
 		{
@@ -116,6 +116,7 @@ bool Pong::OnKeyPressed(KeyPressedEvent& e)
 				m_AudioSource->Pause();
 			else 
 				m_AudioSource->Play();
+
 			m_AudioPlaying = !m_AudioPlaying;
 			break;
 		}

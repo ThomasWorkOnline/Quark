@@ -4,13 +4,13 @@
 
 namespace Quark {
 
-	const Window& Layer::GetWindow() const
+	Layer::Layer(Application* app)
+		: m_Application(app)
 	{
-		return Application::Get().GetWindow();
 	}
 
-	Window& Layer::GetWindow()
+	Window* Layer::GetWindow() const
 	{
-		return Application::Get().GetWindow();
+		return m_Application->GetWindow();
 	}
 }

@@ -47,7 +47,7 @@ namespace Quark {
 
 	public:
 		template<typename TypeCast = ValueType>
-		static inline TypeCast& Get() { return *static_cast<TypeCast*>(s_Instance); }
+		static inline TypeCast* Get() { return static_cast<TypeCast*>(s_Instance); }
 
 	protected:
 		Singleton(ValueType* instance) { s_Instance = instance; }

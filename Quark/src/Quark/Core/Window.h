@@ -40,6 +40,8 @@ namespace Quark {
 		virtual Window& SetTitle(std::string_view title) = 0;
 		virtual Window& AppendTitle(std::string_view title) = 0;
 
+		virtual void Resize(uint32_t width, uint32_t height) = 0;
+
 		virtual void Focus() = 0;
 		virtual void Minimize() = 0;
 		virtual void Maximize() = 0;
