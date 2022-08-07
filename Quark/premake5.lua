@@ -82,8 +82,8 @@ project "Quark"
 	filter "system:macosx"
 		files
 		{
-			"src/Platform/Macos/**.h",
-			"src/Platform/Macos/**.cpp"
+			"src/Platform/MacOS/**.h",
+			"src/Platform/MacOS/**.cpp"
 		}
 
 		includedirs

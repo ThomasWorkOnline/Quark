@@ -3,7 +3,7 @@
 
 // Include all supported APIs here
 #ifdef QK_PLATFORM_APPLE
-#	include "Platform/Macos/Metal/MetalGraphicsAPI.h"
+#	include "Platform/MacOS/Metal/MetalGraphicsAPI.h"
 #endif
 
 #include "Platform/OpenGL/OpenGLGraphicsAPI.h"
