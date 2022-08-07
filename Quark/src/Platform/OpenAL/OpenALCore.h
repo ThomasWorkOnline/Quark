@@ -16,9 +16,8 @@ namespace Quark {
 			case AL_INVALID_VALUE:     return "AL_INVALID_VALUE";
 			case AL_INVALID_OPERATION: return "AL_INVALID_OPERATION";
 			case AL_OUT_OF_MEMORY:     return "AL_OUT_OF_MEMORY";
-			default:
-				QK_CORE_FATAL("Invalid error enum type!");
-				return nullptr;
+
+			QK_ASSERT_DEFAULT("Invalid error enum type!", nullptr);
 		}
 	}
 }

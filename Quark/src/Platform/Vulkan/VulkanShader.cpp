@@ -40,7 +40,7 @@ namespace Quark {
 	VulkanShader::VulkanShader(VulkanDevice* device, std::string_view filepath)
 		: m_Device(device)
 	{
-		QK_CORE_FATAL("Loading a Vulkan shader from a filepath is not supported");
+		QK_CORE_ASSERT(false, "Loading a Vulkan shader from a filepath is not supported");
 	}
 
 	VulkanShader::VulkanShader(VulkanDevice* device, std::string_view name, std::string_view vertexSource, std::string_view fragmentSource)
@@ -60,7 +60,7 @@ namespace Quark {
 	VulkanShader::VulkanShader(VulkanDevice* device, std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource)
 		: m_Device(device)
 	{
-		QK_CORE_FATAL("Compiling Vulkan shaders is not supported");
+		QK_CORE_ASSERT(false, "Compiling Vulkan shaders is not supported");
 	}
 
 	VulkanShader::~VulkanShader()

@@ -29,13 +29,13 @@ namespace Quark {
 	{
 		switch (severity)
 		{
-			case GL_DEBUG_SEVERITY_HIGH:         QK_CORE_FATAL(message); return;
-			case GL_DEBUG_SEVERITY_MEDIUM:       QK_CORE_WARN(message);  return;
-			case GL_DEBUG_SEVERITY_LOW:          QK_CORE_INFO(message);  return;
-			case GL_DEBUG_SEVERITY_NOTIFICATION: QK_CORE_TRACE(message); return;
-		}
+			case GL_DEBUG_SEVERITY_HIGH:         QK_CORE_ASSERT(false, message); return;
+			case GL_DEBUG_SEVERITY_MEDIUM:       QK_CORE_WARN(message);          return;
+			case GL_DEBUG_SEVERITY_LOW:          QK_CORE_INFO(message);          return;
+			case GL_DEBUG_SEVERITY_NOTIFICATION: QK_CORE_TRACE(message);         return;
 
-		QK_CORE_FATAL("OnOpenGLMessage had an unknown severity level");
+			QK_ASSERT_DEFAULT("OnOpenGLMessage had an unknown severity level");
+		}
 	}
 
 	void OpenGLGraphicsAPI::Init()

@@ -2,72 +2,63 @@
 
 namespace Quark {
 
-	enum class BitDepthFormat
+	enum class AudioFormat
 	{
 		None = 0,
-		Int8,
-		Int16,
-		Int32,
-		Float32
+		Integer8BitMono,
+		Integer16BitMono,
+		Integer32BitMono,
+		Integer8BitStereo,
+		Integer16BitStereo,
+		Integer32BitStereo,
+
+		Float32BitMono,
+		Float32BitStereo
 	};
 
-	enum class ChannelsFormat
+	constexpr AudioFormat GetFormat(uint16_t channels, uint16_t bitdepth, bool floatingPoint)
 	{
-		None = 0,
-		Mono,
-		Stereo
-	};
-	
-	struct AudioFormat
-	{
-		BitDepthFormat BitDepth{};
-		ChannelsFormat Channels{};
-	};
-
-	static constexpr AudioFormat GetFormat(uint16_t channels, uint16_t bitdepth, bool floatingPoint)
-	{
-		AudioFormat format{};
 		switch (channels)
 		{
-			case 1: format.Channels = ChannelsFormat::Mono;
-				break;
-			case 2: format.Channels = ChannelsFormat::Stereo;
-				break;
-			default:
-				QK_CORE_FATAL("Audio format has invalid channels specification");
-				break;
-		}
+			case 1:
+			switch (bitdepth)
+			{
+				case 8:  return AudioFormat::Integer8BitMono;
+				case 16: return AudioFormat::Integer16BitMono;
+				case 32: return floatingPoint ? AudioFormat::Float32BitMono : AudioFormat::Integer32BitMono;
 
-		switch (bitdepth)
-		{
-			case 8:
-				QK_CORE_ASSERT(!floatingPoint, "Invalid audio format: 8-bit floating-point is invalid");
-				format.BitDepth = BitDepthFormat::Int8;
-				break;
-			case 16:
-				QK_CORE_ASSERT(!floatingPoint, "Invalid audio format: 8-bit floating-point is invalid");
-				format.BitDepth = BitDepthFormat::Int16;
-				break;
-			case 32:
-				format.BitDepth = floatingPoint ? BitDepthFormat::Float32 : BitDepthFormat::Int32;
-				break;
-			default:
-				QK_CORE_FATAL("Unknown audio bitdepth specification");
-				break;
-		}
+				QK_ASSERT_DEFAULT("Invalid bitdepth", AudioFormat::None);
+			}
+			case 2:
+			switch (bitdepth)
+			{
+				case 8:  return AudioFormat::Integer8BitStereo;
+				case 16: return AudioFormat::Integer16BitStereo;
+				case 32: return floatingPoint ? AudioFormat::Float32BitStereo : AudioFormat::Integer32BitStereo;
 
-		return format;
+				QK_ASSERT_DEFAULT("Invalid bitdepth", AudioFormat::None);
+			}
+
+			QK_ASSERT_DEFAULT("Unknown audio format", AudioFormat::None);
+		}
 	}
 
-	constexpr uint32_t GetChannelsCount(ChannelsFormat format)
+	constexpr uint32_t GetChannelsCount(AudioFormat format)
 	{
 		switch (format)
 		{
-			case ChannelsFormat::Mono:   return 1;
-			case ChannelsFormat::Stereo: return 2;
-			default:
-				QK_CORE_FATAL("Invalid channels format");
-				return 0;
+			case AudioFormat::Integer8BitMono:
+			case AudioFormat::Integer16BitMono:
+			case AudioFormat::Integer32BitMono:
+			case AudioFormat::Float32BitMono:
+				return 1;
+			case AudioFormat::Integer8BitStereo:
+			case AudioFormat::Integer16BitStereo:
+			case AudioFormat::Integer32BitStereo:
+			case AudioFormat::Float32BitStereo:
+				return 2;
+
+			QK_ASSERT_DEFAULT("Invalid channels format", 0);
 		}
 	}
 }

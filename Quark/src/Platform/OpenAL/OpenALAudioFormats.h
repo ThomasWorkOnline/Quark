@@ -9,29 +9,14 @@ namespace Quark {
 
 	constexpr ALenum AudioFormatToOpenALFormat(AudioFormat format)
 	{
-		switch (format.Channels)
+		switch (format)
 		{
-			case ChannelsFormat::Mono:
-				switch (format.BitDepth)
-				{
-					case BitDepthFormat::Int8:		return AL_FORMAT_MONO8;
-					case BitDepthFormat::Int16:		return AL_FORMAT_MONO16;
-					default:
-						QK_CORE_FATAL("Invalid bit depth");
-						return AL_NONE;
-				}
-			case ChannelsFormat::Stereo:
-				switch (format.BitDepth)
-				{
-					case BitDepthFormat::Int8:		return AL_FORMAT_STEREO8;
-					case BitDepthFormat::Int16:		return AL_FORMAT_STEREO16;
-					default:
-						QK_CORE_FATAL("Invalid bit depth");
-						return AL_NONE;
-				}
-			default:
-				QK_CORE_FATAL("Invalid audio format");
-				return AL_NONE;
+			case AudioFormat::Integer8BitMono:    return AL_FORMAT_MONO8;
+			case AudioFormat::Integer16BitMono:   return AL_FORMAT_MONO16;
+			case AudioFormat::Integer8BitStereo:  return AL_FORMAT_STEREO8;
+			case AudioFormat::Integer16BitStereo: return AL_FORMAT_STEREO16;
+
+			QK_ASSERT_DEFAULT("Invalid audio format", AL_NONE);
 		}
 	}
 }

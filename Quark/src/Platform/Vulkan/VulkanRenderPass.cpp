@@ -13,9 +13,8 @@ namespace Quark {
 			{
 				case PipelineBindPoint::Graphics: return VK_PIPELINE_BIND_POINT_GRAPHICS;
 				case PipelineBindPoint::Compute:  return VK_PIPELINE_BIND_POINT_COMPUTE;
-				default:
-					QK_CORE_FATAL("Unknown bindpoint");
-					return VkPipelineBindPoint{};
+
+				QK_ASSERT_DEFAULT("Unknown bindpoint", VkPipelineBindPoint{});
 			}
 		}
 	}

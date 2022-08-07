@@ -24,9 +24,8 @@ namespace Quark {
 #endif
 			case API::OpenGL: return CreateScope<OpenGLGraphicsAPI>();
 			case API::Vulkan: return CreateScope<VulkanGraphicsAPI>();
-			default:
-				QK_CORE_FATAL("Unknown graphics API");
-				return nullptr;
+
+			QK_ASSERT_DEFAULT("Unknown graphics API", nullptr);
 		}
 	}
 }

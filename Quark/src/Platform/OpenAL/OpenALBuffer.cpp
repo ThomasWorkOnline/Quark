@@ -37,34 +37,6 @@ namespace Quark {
 
 	namespace Utils {
 
-		static constexpr ALenum GetOpenALFormat(uint16_t channels, uint16_t bitdepth)
-		{
-			switch (channels)
-			{
-			case 1:
-				switch (bitdepth)
-				{
-					case 8:  return AL_FORMAT_MONO8;
-					case 16: return AL_FORMAT_MONO16;
-					default:
-						QK_CORE_FATAL("Invalid bitdepth");
-						return AL_NONE;
-				}
-			case 2:
-				switch (bitdepth)
-				{
-					case 8:  return AL_FORMAT_STEREO8;
-					case 16: return AL_FORMAT_STEREO16;
-					default:
-						QK_CORE_FATAL("Invalid bitdepth");
-						return AL_NONE;
-				}
-			default:
-				QK_CORE_FATAL("Unknown audio format");
-				return AL_NONE;
-			}
-		}
-
 		static WavHeader ReadWavHeader(std::ifstream& in)
 		{
 			WavHeader header{};
@@ -108,8 +80,7 @@ namespace Quark {
 		in.close();
 
 		ALCALL(alGenBuffers(1, &m_BufferID));
-		ALCALL(alBufferData(m_BufferID, Utils::GetOpenALFormat(header.Channels, header.BitDepth),
-			audioData.data(), header.DataChunkSize, header.Samplerate));
+		ALCALL(alBufferData(m_BufferID, AudioFormatToOpenALFormat(m_Spec.Format), audioData.data(), (ALsizei)m_Spec.Size, m_Spec.Samplerate));
 
 		QK_CORE_ASSERT(alIsBuffer(m_BufferID), "Audio buffer is invalid");
 	}
@@ -121,7 +92,7 @@ namespace Quark {
 		QK_CORE_ASSERT(data, "Data must be a valid pointer");
 
 		ALCALL(alGenBuffers(1, &m_BufferID));
-		ALCALL(alBufferData(m_BufferID, AudioFormatToOpenALFormat(m_Spec.Format), data, (ALsizei)m_Spec.Size, m_Spec.Samplerate));
+		ALCALL(alBufferData(m_BufferID, AudioFormatToOpenALFormat(m_Spec.Format),data, (ALsizei)m_Spec.Size, m_Spec.Samplerate));
 
 		QK_CORE_ASSERT(alIsBuffer(m_BufferID), "Audio buffer is invalid");
 	}

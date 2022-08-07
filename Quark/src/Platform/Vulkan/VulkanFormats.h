@@ -28,9 +28,8 @@ namespace Quark {
 			case ColorDataFormat::RGB32f:          return VK_FORMAT_R32G32B32_SFLOAT;
 			case ColorDataFormat::RGBA16f:         return VK_FORMAT_R16G16B16A16_SFLOAT;
 			case ColorDataFormat::RGBA32f:         return VK_FORMAT_R32G32B32A32_SFLOAT;
-			default:
-				QK_CORE_FATAL("Invalid internal color format");
-				return VK_FORMAT_UNDEFINED;
+
+			QK_ASSERT_DEFAULT("Invalid internal color format", VK_FORMAT_UNDEFINED);
 		}
 	}
 
@@ -48,9 +47,8 @@ namespace Quark {
 			case ShaderDataType::Double4: return VK_FORMAT_R64G64B64A64_SFLOAT;
 
 			// TODO: map matrices, int and bool types
-			default:
-				QK_CORE_FATAL("Unknown ShaderDataType");
-				return VK_FORMAT_UNDEFINED;
+
+			QK_ASSERT_DEFAULT("Unknown ShaderDataType", VK_FORMAT_UNDEFINED);
 		}
 	}
 
@@ -62,9 +60,8 @@ namespace Quark {
 			case RenderCullMode::Front:        return VK_CULL_MODE_FRONT_BIT;
 			case RenderCullMode::Back:         return VK_CULL_MODE_BACK_BIT;
 			case RenderCullMode::FrontAndBack: return VK_CULL_MODE_FRONT_AND_BACK;
-			default:
-				QK_CORE_FATAL("Unknown culling mode");
-				return VK_CULL_MODE_NONE;
+
+			QK_ASSERT_DEFAULT("Unknown culling mode", VK_CULL_MODE_NONE);
 		}
 	}
 }

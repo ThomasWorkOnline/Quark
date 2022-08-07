@@ -44,7 +44,7 @@ namespace Quark {
 			}
 		}
 
-		QK_CORE_FATAL("Unknown texture internal format");
+		QK_CORE_ASSERT(false, "Unknown texture internal format");
 		return ColorDataFormat::None;
 	}
 

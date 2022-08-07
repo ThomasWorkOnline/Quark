@@ -29,13 +29,12 @@ namespace Quark {
 
 		switch (messageSeverity)
 		{
-			case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT: QK_CORE_TRACE(pCallbackData->pMessage); return VK_FALSE;
-			case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:    QK_CORE_INFO(pCallbackData->pMessage);  return VK_FALSE;
-			case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT: QK_CORE_WARN(pCallbackData->pMessage);  return VK_FALSE;
-			case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:   QK_CORE_FATAL(pCallbackData->pMessage); return VK_FALSE;
-			default:
-				QK_CORE_FATAL("Unknown severity level in Vulkan message callback");
-				return VK_FALSE;
+			case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:   QK_CORE_ASSERT(false, pCallbackData->pMessage); return VK_FALSE;
+			case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT: QK_CORE_WARN(pCallbackData->pMessage);          return VK_FALSE;
+			case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:    QK_CORE_INFO(pCallbackData->pMessage);          return VK_FALSE;
+			case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT: QK_CORE_TRACE(pCallbackData->pMessage);         return VK_FALSE;
+
+			QK_ASSERT_DEFAULT("Unknown severity level in Vulkan message callback", VK_FALSE);
 		}
 
 		return VK_FALSE;

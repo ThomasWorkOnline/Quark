@@ -30,6 +30,6 @@
 #	define QK_ASSERT(x, ...)
 #endif
 
-#define QK_CORE_FATAL(...) do { QK_CORE_CRITICAL(__VA_ARGS__); QK_DEBUGBREAK(); } while (false)
+#define QK_ASSERT_DEFAULT(msg, optReturnValue) default: QK_CORE_ASSERT(false, msg); return optReturnValue
 
 #define QK_RUNTIME_VERIFY(x, msg) do { if(!(x)) { QK_CORE_ERROR(msg); QK_DEBUGBREAK(); throw std::exception(msg); } } while (false)
