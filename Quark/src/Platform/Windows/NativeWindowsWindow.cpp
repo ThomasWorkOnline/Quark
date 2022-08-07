@@ -311,6 +311,7 @@ namespace Quark {
 					WindowMinimizedEvent event;
 					if (data.EventCallback)
 						data.EventCallback(event);
+
 				} break;
 
 				case SIZE_MAXIMIZED:
@@ -318,6 +319,7 @@ namespace Quark {
 					WindowMaximizedEvent event;
 					if (data.EventCallback)
 						data.EventCallback(event);
+
 				} break;
 			}
 		}
@@ -328,11 +330,11 @@ namespace Quark {
 		data.Width = width;
 		data.Height = height;
 
+		data.Minimized = minimized;
+		data.Maximized = maximized;
+
 		WindowResizedEvent event(data.Width, data.Height);
 		if (data.EventCallback)
 			data.EventCallback(event);
-
-		data.Minimized = minimized;
-		data.Maximized = maximized;
 	}
 }
