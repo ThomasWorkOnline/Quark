@@ -27,7 +27,7 @@ namespace Quark {
 		// Make the context before init OpenGL
 		glfwMakeContextCurrent(m_WindowHandle);
 
-		int success = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+		int success = gladLoadGL();
 		QK_CORE_ASSERT(success, "Failed to initialize OpenGL context");
 
 		m_CommandBuffer = CommandBuffer::Create();
