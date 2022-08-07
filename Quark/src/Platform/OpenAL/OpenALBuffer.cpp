@@ -39,7 +39,7 @@ namespace Quark {
 
 		static WavHeader ReadWavHeader(std::ifstream& in)
 		{
-			WavHeader header{};
+			WavHeader header;
 			in.read((char*)&header, sizeof(WavHeader));
 
 			QK_RUNTIME_VERIFY(
@@ -92,7 +92,7 @@ namespace Quark {
 		QK_CORE_ASSERT(data, "Data must be a valid pointer");
 
 		ALCALL(alGenBuffers(1, &m_BufferID));
-		ALCALL(alBufferData(m_BufferID, AudioFormatToOpenALFormat(m_Spec.Format),data, (ALsizei)m_Spec.Size, m_Spec.Samplerate));
+		ALCALL(alBufferData(m_BufferID, AudioFormatToOpenALFormat(m_Spec.Format), data, (ALsizei)m_Spec.Size, m_Spec.Samplerate));
 
 		QK_CORE_ASSERT(alIsBuffer(m_BufferID), "Audio buffer is invalid");
 	}

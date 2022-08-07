@@ -7,8 +7,8 @@ namespace Quark {
 
 	struct AudioBufferSpecification
 	{
-		size_t      Size       = 1024;
-		uint32_t    Samplerate = 48000;
+		size_t      Size;
+		uint32_t    Samplerate;
 		AudioFormat Format{};
 	};
 
