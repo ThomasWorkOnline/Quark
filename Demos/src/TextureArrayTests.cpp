@@ -40,20 +40,16 @@ TextureArrayTest::TextureArrayTest()
 		0, 2, 1
 	};
 
-	m_VertexArray = VertexArray::Create();
 	m_VertexBuffer = VertexBuffer::Create(vertices, sizeof(vertices));
 	m_VertexBuffer->SetLayout({
 		{ ShaderDataType::Float3, "a_Position" },
 		{ ShaderDataType::Float2, "a_TexCoord" },
 		{ ShaderDataType::Int,    "a_TexIndex" }
-		});
-	m_VertexArray->AddVertexBuffer(m_VertexBuffer);
+	});
 
 	m_IndexBuffer = IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
-	m_VertexArray->SetIndexBuffer(m_IndexBuffer);
 
 	auto window = GetWindow();
-
 	m_Camera.SetPerspective(70.0f);
 	m_Camera.Resize(window->GetWidth(), window->GetHeight());
 }
@@ -70,7 +66,7 @@ void TextureArrayTest::OnRender()
 	Renderer2D::DrawLine(Vec3f(-1, -1, 0), Vec3f(1, 1, 0), color, color);
 	Renderer2D::EndScene();
 
-	m_TextureArray->Attach();
+	//m_TextureArray->Attach();
 	//Renderer::Submit(m_Shader, m_VertexArray, m_ModelTransform);
 }
 

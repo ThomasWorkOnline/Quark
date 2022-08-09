@@ -45,7 +45,9 @@ namespace Quark {
 			case TextureFilteringMode::LinearMipmapNearest:
 			case TextureFilteringMode::LinearMipmapLinear:   return true;
 
-			QK_ASSERT_NO_DEFAULT("Invalid texture filtering mode", false);
+			QK_ASSERT_NO_DEFAULT("Invalid texture filtering mode");
 		}
+
+		return false;
 	}
 }

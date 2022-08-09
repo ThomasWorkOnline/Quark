@@ -131,11 +131,13 @@ namespace Quark {
 		StartBatch();
 
 		s_Data->CameraBufferData.ViewProjection = cameraProjection * cameraView;
+		Renderer::BeginFrame();
 	}
 
 	void Renderer2D::EndScene()
 	{
 		PushBatch();
+		Renderer::EndFrame();
 	}
 	
 	void Renderer2D::DrawSprite(const Ref<Texture2D>& texture, const Mat4f& transform)
@@ -510,7 +512,7 @@ namespace Quark {
 		s_Data->DefaultTexture->SetData(&textureColor, sizeof(uint32_t));
 		s_Data->Textures[0] = s_Data->DefaultTexture;
 
-#if 0
+#if 1
 		const char* spriteVertexSource = R"(
 			#version 420 core
 
@@ -588,7 +590,7 @@ namespace Quark {
 		s_Data->FontVertices = new QuadVertex[Renderer2DData::MaxVertices];
 		s_Data->Fonts = new Ref<Font>[s_Data->MaxSamplers];
 
-#if 0
+#if 1
 		const char* fontVertexSource = R"(
 			#version 420 core
 
@@ -668,7 +670,7 @@ namespace Quark {
 
 		s_Data->LineVertices = new LineVertex[Renderer2DData::MaxVertices];
 
-#if 0
+#if 1
 		const char* lineVertexSource = R"(
 			#version 420 core
 

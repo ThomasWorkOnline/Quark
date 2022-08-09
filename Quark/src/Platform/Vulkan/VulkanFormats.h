@@ -29,8 +29,10 @@ namespace Quark {
 			case ColorDataFormat::RGBA16f:         return VK_FORMAT_R16G16B16A16_SFLOAT;
 			case ColorDataFormat::RGBA32f:         return VK_FORMAT_R32G32B32A32_SFLOAT;
 
-			QK_ASSERT_NO_DEFAULT("Invalid internal color format", VK_FORMAT_UNDEFINED);
+			QK_ASSERT_NO_DEFAULT("Invalid internal color format");
 		}
+
+		return VK_FORMAT_UNDEFINED;
 	}
 
 	constexpr VkFormat ShaderDataTypeToVulkan(ShaderDataType type)
@@ -48,8 +50,10 @@ namespace Quark {
 
 			// TODO: map matrices, int and bool types
 
-			QK_ASSERT_NO_DEFAULT("Unknown ShaderDataType", VK_FORMAT_UNDEFINED);
+			QK_ASSERT_NO_DEFAULT("Unknown ShaderDataType");
 		}
+
+		return VK_FORMAT_UNDEFINED;
 	}
 
 	constexpr VkCullModeFlagBits RenderCullModeToVulkan(RenderCullMode mode)
@@ -61,7 +65,9 @@ namespace Quark {
 			case RenderCullMode::Back:         return VK_CULL_MODE_BACK_BIT;
 			case RenderCullMode::FrontAndBack: return VK_CULL_MODE_FRONT_AND_BACK;
 
-			QK_ASSERT_NO_DEFAULT("Unknown culling mode", VK_CULL_MODE_NONE);
+			QK_ASSERT_NO_DEFAULT("Unknown culling mode");
 		}
+
+		return VK_CULL_MODE_NONE;
 	}
 }

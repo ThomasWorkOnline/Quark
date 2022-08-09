@@ -60,8 +60,10 @@ namespace Quark {
 			case ColorDataFormat::Depth24:         return 3;
 			case ColorDataFormat::Depth24Stencil8: return 4;
 
-			QK_ASSERT_NO_DEFAULT("Invalid internal texture format", 0);
+			QK_ASSERT_NO_DEFAULT("Invalid internal texture format");
 		}
+
+		return 0;
 	}
 
 	constexpr bool IsColorFormatAlpha(ColorDataFormat format)
@@ -74,10 +76,8 @@ namespace Quark {
 			case ColorDataFormat::RGBA8_SRGB:
 			case ColorDataFormat::BGRA8_SRGB:
 			case ColorDataFormat::RGBA16f:
-			case ColorDataFormat::RGBA32f:
-				return true;
-			default:
-				return false;
+			case ColorDataFormat::RGBA32f:    return true;
+			default:                          return false;
 		}
 	}
 }

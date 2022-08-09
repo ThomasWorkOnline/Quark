@@ -22,7 +22,7 @@ namespace Quark {
 		logSink->set_color(spdlog::level::info, FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
 #endif
 
-		logSink->set_pattern("%^[%n]:%$ %v");
+		logSink->set_pattern("%^[%n]%$: %v");
 		sinks.push_back(logSink);
 
 		m_CoreLogger = std::make_shared<spdlog::logger>("Core", sinks.begin(), sinks.end());

@@ -7,6 +7,7 @@
 #include "Quark/Core/KeyCodes.h"
 #include "Quark/Core/MouseCodes.h"
 #include "Quark/Core/Timer.h"
+#include "Quark/Core/Memory.h"
 
 // Audio
 #include "Quark/Audio/AudioBuffer.h"
@@ -56,10 +57,10 @@
 #include "Quark/Renderer/UniformBuffer.h"
 
 // Tools
-#include "Quark/Tools/Colorimetry.h"
-#include "Quark/Tools/EasingCurves.h"
-#include "Quark/Tools/Noise.h"
-#include "Quark/Tools/Random.h"
+#include "Quark/Utility/Colorimetry.h"
+#include "Quark/Utility/EasingCurves.h"
+#include "Quark/Utility/Noise.h"
+#include "Quark/Utility/Random.h"
 
 // UI
 #include "Quark/UI/UIElement.h"

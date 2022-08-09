@@ -5,6 +5,7 @@ namespace Quark {
 
 	static int Main(int argc, char** argv)
 	{
+		RuntimeCore::Init();
 		Application* app = nullptr;
 
 		try
@@ -19,16 +20,15 @@ namespace Quark {
 		}
 		catch (std::exception& e)
 		{
-			QK_CORE_ERROR(e.what());
-
-			if (app)
-				app->OnCrash();
+			if (app) app->OnCrash();
+			QK_CORE_ASSERT(false, e.what());
 		}
 
 		QK_BEGIN_PROFILE_SESSION("shutdown.json");
 		delete app;
 		QK_END_PROFILE_SESSION();
 
+		RuntimeCore::Shutdown();
 		return 0;
 	}
 }

@@ -6,6 +6,8 @@
 #   define QK_ENABLE_ASSERTIONS
 #endif
 
+#include <stdexcept>
+
 // Debugbreak
 #ifdef QK_ENABLE_ASSERTIONS
 #	if defined(QK_PLATFORM_WINDOWS)
@@ -23,13 +25,16 @@
 #endif
 
 #ifdef QK_ENABLE_ASSERTIONS
-#	define QK_CORE_ASSERT(x, ...) do { if(!(x)) { QK_CORE_CRITICAL(__VA_ARGS__); QK_DEBUGBREAK(); } } while (false)
-#	define QK_ASSERT(x, ...)      do { if(!(x)) { QK_CRITICAL(__VA_ARGS__);      QK_DEBUGBREAK(); } } while (false)
+#	define QK_CORE_ASSERT_SILENT(x, ...) do { if (!(x)) { QK_DEBUGBREAK(); } } while (false)
+#	define QK_CORE_ASSERT(x, ...)   do { if (!(x)) { QK_CORE_CRITICAL(__VA_ARGS__); QK_DEBUGBREAK(); } } while (false)
+#	define QK_ASSERT(x, ...)        do { if (!(x)) { QK_CRITICAL(__VA_ARGS__);      QK_DEBUGBREAK(); } } while (false)
 #else
+#	define QK_CORE_ASSERT_SILENT(x)
 #	define QK_CORE_ASSERT(x, ...)
 #	define QK_ASSERT(x, ...)
 #endif
 
-#define QK_ASSERT_NO_DEFAULT(msg, optReturnValue) default: QK_CORE_ASSERT(false, msg); return optReturnValue
+#define QK_ASSERT_NO_DEFAULT(msg) default: { QK_CORE_ASSERT(false, msg); } break
 
-#define QK_RUNTIME_VERIFY(x, msg) do { if(!(x)) { QK_CORE_ERROR(msg); QK_DEBUGBREAK(); throw std::exception(msg); } } while (false)
+#define QK_RUNTIME_ERROR(f, ...) throw std::runtime_error(fmt::format(f, __VA_ARGS__))
+#define QK_RUNTIME_VERIFY(x, f, ...) do { if (!(x)) { QK_RUNTIME_ERROR(f, __VA_ARGS__); } } while (false)

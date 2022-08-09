@@ -24,7 +24,6 @@ private:
 	Ref<Texture2DArray> m_TextureArray;
 	Ref<Shader> m_Shader;
 
-	Ref<VertexArray> m_VertexArray;
 	Ref<VertexBuffer> m_VertexBuffer;
 	Ref<IndexBuffer> m_IndexBuffer;
 };

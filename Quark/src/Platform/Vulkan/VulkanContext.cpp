@@ -34,7 +34,7 @@ namespace Quark {
 			case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:    QK_CORE_INFO(pCallbackData->pMessage);          return VK_FALSE;
 			case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT: QK_CORE_TRACE(pCallbackData->pMessage);         return VK_FALSE;
 
-			QK_ASSERT_NO_DEFAULT("Unknown severity level in Vulkan message callback", VK_FALSE);
+			QK_ASSERT_NO_DEFAULT("Unknown severity level in Vulkan message callback");
 		}
 
 		return VK_FALSE;

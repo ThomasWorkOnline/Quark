@@ -27,7 +27,7 @@ namespace Quark {
 				case 16: return AudioFormat::Integer16BitMono;
 				case 32: return floatingPoint ? AudioFormat::Float32BitMono : AudioFormat::Integer32BitMono;
 
-				QK_ASSERT_NO_DEFAULT("Invalid bitdepth", AudioFormat::None);
+				QK_ASSERT_NO_DEFAULT("Invalid bitdepth");
 			}
 			case 2:
 			switch (bitdepth)
@@ -36,11 +36,13 @@ namespace Quark {
 				case 16: return AudioFormat::Integer16BitStereo;
 				case 32: return floatingPoint ? AudioFormat::Float32BitStereo : AudioFormat::Integer32BitStereo;
 
-				QK_ASSERT_NO_DEFAULT("Invalid bitdepth", AudioFormat::None);
+				QK_ASSERT_NO_DEFAULT("Invalid bitdepth");
 			}
 
-			QK_ASSERT_NO_DEFAULT("Unknown audio format", AudioFormat::None);
+			QK_ASSERT_NO_DEFAULT("Unknown audio format");
 		}
+
+		return AudioFormat::None;
 	}
 
 	constexpr uint32_t GetChannelsCount(AudioFormat format)
@@ -58,7 +60,9 @@ namespace Quark {
 			case AudioFormat::Float32BitStereo:
 				return 2;
 
-			QK_ASSERT_NO_DEFAULT("Invalid channels format", 0);
+			QK_ASSERT_NO_DEFAULT("Invalid channels format");
 		}
+
+		return 0;
 	}
 }

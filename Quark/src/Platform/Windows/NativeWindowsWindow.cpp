@@ -94,7 +94,7 @@ namespace Quark {
 
 	void NativeWindowsWindow::Resize(uint32_t width, uint32_t height)
 	{
-		RECT rect = { 0, 0, width, height };
+		RECT rect = { 0, 0, (LONG)width, (LONG)height };
 		AdjustWindowRectExForDpi(&rect, GetWindowStyle(m_WindowHandle),
 			FALSE, GetWindowExStyle(m_WindowHandle),
 			GetDpiForWindow(m_WindowHandle));

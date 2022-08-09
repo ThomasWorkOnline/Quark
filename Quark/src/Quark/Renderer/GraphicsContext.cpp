@@ -23,6 +23,7 @@ namespace Quark {
 #ifdef QK_PLATFORM_APPLE
 			case API::Metal: return CreateScope<MetalContext>(windowHandle);
 #endif
+
 			case API::OpenGL:
 #if defined(QK_PLATFORM_WINDOWS) && defined(QK_USE_NATIVE_APIS)
 				return CreateScope<OpenGLWin32Context>(windowHandle);
@@ -32,7 +33,9 @@ namespace Quark {
 
 			case API::Vulkan: return CreateScope<VulkanContext>(windowHandle);
 
-			QK_ASSERT_NO_DEFAULT("Unknown graphics API", nullptr);
+			QK_ASSERT_NO_DEFAULT("Unknown graphics API");
 		}
+
+		return nullptr;
 	}
 }

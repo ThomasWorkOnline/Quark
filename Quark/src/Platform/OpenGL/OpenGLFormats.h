@@ -33,8 +33,10 @@ namespace Quark {
 			case ColorDataFormat::Depth24Stencil8:
 				return GL_DEPTH_COMPONENT;
 
-			QK_ASSERT_NO_DEFAULT("Invalid color data format", GL_NONE);
+			QK_ASSERT_NO_DEFAULT("Invalid color data format");
 		}
+
+		return GL_NONE;
 	}
 
 	constexpr GLenum DataFormatToOpenGLInternalFormat(ColorDataFormat format)
@@ -61,8 +63,10 @@ namespace Quark {
 			case ColorDataFormat::Depth24:         return GL_DEPTH_COMPONENT24;
 			case ColorDataFormat::Depth24Stencil8: return GL_DEPTH24_STENCIL8;
 
-			QK_ASSERT_NO_DEFAULT("Invalid color data format", GL_NONE);
+			QK_ASSERT_NO_DEFAULT("Invalid color data format");
 		}
+
+		return GL_NONE;
 	}
 
 	constexpr GLenum DataFormatToOpenGLDataType(ColorDataFormat format)
@@ -89,8 +93,10 @@ namespace Quark {
 			case ColorDataFormat::RGBA32f:
 				return GL_FLOAT;
 
-			QK_ASSERT_NO_DEFAULT("Invalid color data format", GL_NONE);
+			QK_ASSERT_NO_DEFAULT("Invalid color data format");
 		}
+
+		return GL_NONE;
 	}
 
 	constexpr GLenum FilteringModeToOpenGL(TextureFilteringMode mode)
@@ -104,8 +110,10 @@ namespace Quark {
 			case TextureFilteringMode::LinearMipmapNearest:		return GL_LINEAR_MIPMAP_NEAREST;
 			case TextureFilteringMode::LinearMipmapLinear:		return GL_LINEAR_MIPMAP_LINEAR;
 
-			QK_ASSERT_NO_DEFAULT("Invalid texture filtering mode", GL_NONE);
+			QK_ASSERT_NO_DEFAULT("Invalid texture filtering mode");
 		}
+
+		return GL_NONE;
 	}
 
 	constexpr GLenum TilingModeToOpenGL(TextureTilingMode mode)
@@ -116,7 +124,9 @@ namespace Quark {
 			case TextureTilingMode::ClampToEdge:   return GL_CLAMP_TO_EDGE;
 			case TextureTilingMode::Repeat:        return GL_REPEAT;
 
-			QK_ASSERT_NO_DEFAULT("Invalid texture tiling mode", GL_NONE);
+			QK_ASSERT_NO_DEFAULT("Invalid texture tiling mode");
 		}
+		
+		return GL_NONE;
 	}
 }

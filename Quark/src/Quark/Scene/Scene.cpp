@@ -64,7 +64,7 @@ namespace Quark {
 	Entity Scene::CreatePrimaryCamera()
 	{
 		auto entity = CreateEntity();
-		entity.AddComponent<Transform3DComponent>().Position = { 0.0f, 0.0f, -1.0f };
+		entity.AddComponent<Transform3DComponent>();
 		entity.AddComponent<PhysicsComponent>();
 		entity.AddComponent<CameraComponent>().Camera.SetPerspective(90.0f);
 		return m_PrimaryCameraEntity = entity;
@@ -100,7 +100,7 @@ namespace Quark {
 	template<>
 	void Scene::OnComponentAdded<NativeScriptComponent>(Entity entity, NativeScriptComponent& nsc)
 	{
-		nsc.ScriptInstance = Scope<NativeScriptEntity>{ nsc.InstanciateScript(entity, this) };
+		nsc.ScriptInstance = Scope<NativeScriptEntity>{ nsc.InstanciateScript(entity) };
 		nsc.ScriptInstance->OnCreate();
 	}
 

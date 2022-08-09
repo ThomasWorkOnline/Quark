@@ -1,15 +1,17 @@
 #pragma once
 
 #include "Quark/Core/Core.h"
+#include "Quark/Utility/FileStream.h"
+
 #include "ColorFormats.h"
 
 namespace Quark {
 
 	struct ImageMetadata
 	{
-		uint32_t Width    = 0, Height = 0;
-		uint8_t  Channels = 0;
-		uint8_t  BitsPerPixel = 0;
+		uint32_t Width, Height;
+		uint8_t  Channels;
+		uint8_t  BitsPerPixel;
 
 		ColorDataFormat DataFormat{};
 	};
@@ -22,6 +24,9 @@ namespace Quark {
 
 		Image(const Image&) = delete;
 		Image& operator=(const Image&) = delete;
+
+		Image(Image&&) = delete;
+		Image& operator=(Image&&) = delete;
 
 		uint32_t Width() const { return m_Metadata.Width; }
 		uint32_t Height() const { return m_Metadata.Height; }
@@ -37,11 +42,13 @@ namespace Quark {
 		static Ref<Image> Shared(std::string_view filepath);
 
 	private:
-		void DecodePNG(std::string_view filepath);
-		void DecodeHDR(std::string_view filepath);
+		void DecodePNG(FileStream& in);
+		void DecodeHDR(FileStream& in);
 
 	private:
-		ImageMetadata m_Metadata;
+		ImageMetadata m_Metadata{};
+
 		void* m_ImageData = nullptr;
+		void (*DeallocateImageDataCallback)(void*);
 	};
 }

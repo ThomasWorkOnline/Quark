@@ -2,9 +2,9 @@
 
 // Platform detection
 #include "Config.h"
-#include "Memory.h"
 #include "Platform.h"
 #include "Tweaks.h"
+#include "Memory.h"
 
 #include <functional>
 
@@ -21,4 +21,13 @@
 
 #include "Quark/Debug/Logger.h"
 #include "Quark/Debug/Profiling.h"
-#include "Quark/Debug/MemoryMetrics.h"
+#include "Quark/Debug/MemoryContext.h"
+
+namespace Quark {
+
+	namespace RuntimeCore {
+
+		void Init();
+		void Shutdown();
+	}
+}
