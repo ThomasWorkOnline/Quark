@@ -4,8 +4,7 @@
 #include "Core.h"
 #include "Quark/Renderer/Renderer.h"
 #include "Quark/Renderer/Renderer2D.h"
-#include "Quark/Renderer/SceneRenderer.h"
-#include "Quark/Renderer/RenderCommand.h"
+#include "Quark/Renderer/GraphicsAPI.h"
 
 #include <ctime>
 
@@ -28,11 +27,10 @@ namespace Quark {
 		m_AudioOutputDevice = AudioOutputDevice::Create();
 		QK_CORE_INFO("Opened audio device: {0}", m_AudioOutputDevice->GetDeviceName());
 
-		RenderCommand::Init();
-		QK_CORE_INFO(GraphicsAPI::Instance->GetSpecification());
-
 		Renderer::Initialize();
 		Renderer2D::Initialize();
+
+		QK_CORE_INFO(GraphicsAPI::Instance->GetSpecification());
 
 		if (m_Options.HasFlag(ShowApiInWindowTitle))
 		{
@@ -79,10 +77,16 @@ namespace Quark {
 					m_Layers[i]->OnUpdate(elapsedTime);
 			}
 
-			OnRender();
+			{
+				Renderer::BeginFrame();
 
-			for (auto layer : m_Layers)
-				layer->OnRender();
+				OnRender();
+
+				for (auto layer : m_Layers)
+					layer->OnRender();
+
+				Renderer::EndFrame();
+			}
 
 			m_Window->OnUpdate();
 		}

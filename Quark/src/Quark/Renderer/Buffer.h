@@ -19,8 +19,8 @@ namespace Quark {
 		Double3,
 		Double4,
 
-		Mat3,
-		Mat4,
+		Mat3f,
+		Mat4f,
 		Mat3d,
 		Mat4d,
 
@@ -43,8 +43,8 @@ namespace Quark {
 			case ShaderDataType::Double2:   return sizeof(double) * 2;
 			case ShaderDataType::Double3:   return sizeof(double) * 3;
 			case ShaderDataType::Double4:   return sizeof(double) * 4;
-			case ShaderDataType::Mat3:      return sizeof(float) * 3 * 3;
-			case ShaderDataType::Mat4:      return sizeof(float) * 4 * 4;
+			case ShaderDataType::Mat3f:     return sizeof(float) * 3 * 3;
+			case ShaderDataType::Mat4f:     return sizeof(float) * 4 * 4;
 			case ShaderDataType::Mat3d:     return sizeof(double) * 3 * 3;
 			case ShaderDataType::Mat4d:     return sizeof(double) * 4 * 4;
 			case ShaderDataType::Int:       return sizeof(int32_t);
@@ -71,8 +71,8 @@ namespace Quark {
 			case ShaderDataType::Double2: return 2;
 			case ShaderDataType::Double3: return 3;
 			case ShaderDataType::Double4: return 4;
-			case ShaderDataType::Mat3:    return 3; // 3 * float3
-			case ShaderDataType::Mat4:    return 4; // 4 * float4
+			case ShaderDataType::Mat3f:   return 3; // 3 * float3
+			case ShaderDataType::Mat4f:   return 4; // 4 * float4
 			case ShaderDataType::Mat3d:   return 3;
 			case ShaderDataType::Mat4d:   return 4;
 			case ShaderDataType::Int:     return 1;

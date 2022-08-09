@@ -61,13 +61,15 @@ void TextureArrayTest::OnUpdate(Timestep elapsedTime)
 
 void TextureArrayTest::OnRender()
 {
-	static constexpr Vec4f color = { 1.0f, 1.0f, 1.0f, 1.0f };
-	Renderer2D::BeginScene(m_Camera.GetProjection(), m_CameraTransform);
-	Renderer2D::DrawLine(Vec3f(-1, -1, 0), Vec3f(1, 1, 0), color, color);
-	Renderer2D::EndScene();
+	m_TextureArray->Attach();
 
-	//m_TextureArray->Attach();
-	//Renderer::Submit(m_Shader, m_VertexArray, m_ModelTransform);
+	static constexpr Vec4f color = { 1.0f, 1.0f, 0.0f, 1.0f };
+	Renderer2D::BeginScene(m_Camera.GetProjection(), m_CameraTransform);
+
+	Renderer2D::DrawSprite(color);
+	Renderer2D::DrawLine(Vec3f(-100.0f, -100.0f, 1.0f), Vec3f(100.0f, 100.0f, 1.0f), color, color);
+
+	Renderer2D::EndScene();
 }
 
 void TextureArrayTest::OnEvent(Event& e)

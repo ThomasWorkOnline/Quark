@@ -3,7 +3,7 @@
 #include "Quark/Core/Core.h"
 
 #include "RenderModes.h"
-#include "RendererConstraints.h"
+#include "APICapabilities.h"
 
 #include "Buffer.h"
 #include "Cubemap.h"
@@ -50,19 +50,12 @@ namespace Quark {
 		virtual void                       Init() = 0;
 
 		virtual                            Version GetVersion() const = 0;
-		virtual const                      HardwareConstraints& GetHardwareConstraints() const = 0;
 									       
 		virtual void                       SetClearColor(const Vec4f& rgba) = 0;
 		virtual void                       Clear() = 0;
 		virtual void                       SetCullFace(RenderCullMode face) = 0;
 		virtual void                       SetDepthFunction(RenderDepthFunction func) = 0;
 		virtual void                       SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) = 0;
-									       
-		virtual void                       Draw(uint32_t offset, uint32_t count) = 0;
-		virtual void                       DrawIndexed(uint32_t indexCount) = 0;
-		virtual void                       DrawIndexedInstanced(uint32_t repeatCount, uint32_t indexCount = 0) = 0;
-		virtual void                       DrawLines(uint32_t vertexCount) = 0;
-		virtual void                       DrawIndexedLines(uint32_t indexCount = 0) = 0;
 									       
 		virtual void                       SetLineThickness(float thickness) = 0;
 		virtual float                      GetLineThickness() const = 0;
@@ -99,9 +92,14 @@ namespace Quark {
 		virtual const char*                GetName() const = 0;
 		virtual std::string                GetSpecification() const = 0;
 									       
+		const                              GraphicsAPICapabilities& GetCapabilities() const { return m_Capabilities; }
+
 		static API                         GetDefaultForPlatform() { return GetDefaultAPIForPlatform(); }
 		static API                         GetAPI() { return s_API; }
 		static Scope<GraphicsAPI>          Instantiate(API api);
+
+	protected:
+		GraphicsAPICapabilities m_Capabilities{};
 
 	private:
 		static API s_API;

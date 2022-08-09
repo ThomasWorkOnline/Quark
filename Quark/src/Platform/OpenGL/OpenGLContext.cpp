@@ -27,16 +27,13 @@ namespace Quark {
 		// Make the context before init OpenGL
 		glfwMakeContextCurrent(m_WindowHandle);
 
-		int success = gladLoadGL();
-		QK_CORE_ASSERT(success, "Failed to initialize OpenGL context");
-
-		m_CommandBuffer = CommandBuffer::Create();
-
-		QK_CORE_TRACE("Created OpenGL graphics context!");
+		OpenGLContextBase::Init();
 	}
 
 	void OpenGLContext::StartFrame()
 	{
+		// TEMPORARY TODO: remove
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
 	void OpenGLContext::Submit()
@@ -50,6 +47,6 @@ namespace Quark {
 
 	void OpenGLContext::OnViewportResized(uint32_t viewportWidth, uint32_t viewportHeight)
 	{
-		glViewport(0, 0, viewportWidth, viewportHeight);
+		OpenGLContextBase::OnViewportResized(viewportWidth, viewportHeight);
 	}
 }

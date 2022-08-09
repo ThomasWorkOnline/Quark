@@ -61,8 +61,6 @@ namespace Quark {
 
 	void SceneRenderer::OnRender()
 	{
-		Renderer::BeginFrame();
-
 		if (m_Scene && m_Scene->HasPrimaryCamera())
 		{
 			auto& sceneCamera = m_Scene->m_PrimaryCameraEntity.GetComponent<CameraComponent>().Camera;
@@ -76,6 +74,8 @@ namespace Quark {
 
 			Renderer::BindPipeline(m_Data.GraphicsPipeline);
 			m_Data.GraphicsPipeline->GetUniformBuffer()->SetData(&m_Data.CameraBufferData, sizeof(SceneData::CameraUniformBufferData));
+
+			GeometryPass();
 
 			if (m_Data.Env)
 			{
@@ -91,15 +91,11 @@ namespace Quark {
 				m_Data.Env->Environment->Attach(0);
 				m_Data.Env->Irradiance->Attach(5); // TODO: put inside scene uniform buffer
 
-				RenderCommand::DrawIndexed(m_Data.Env->CubemapIndexBuffer->GetCount());
+				Renderer::Submit(m_Data.Env->CubemapVertexBuffer, m_Data.Env->CubemapIndexBuffer);
 				RenderCommand::SetCullFace(RenderCullMode::Default);
 				RenderCommand::SetDepthFunction(RenderDepthFunction::Default);
 			}
-
-			GeometryPass();
 		}
-
-		Renderer::EndFrame();
 	}
 
 	void SceneRenderer::OnViewportResized(uint32_t viewportWidth, uint32_t viewportHeight)
@@ -127,11 +123,7 @@ namespace Quark {
 	void SceneRenderer::GeometryPass()
 	{
 		Renderer::BeginRenderPass(m_Data.GeometryPass, nullptr);
-
-		Renderer::GetCommandBuffer()->BindVertexBuffer(m_Data.VertexBuffer, 0);
-		Renderer::GetCommandBuffer()->BindIndexBuffer(m_Data.IndexBuffer);
-		Renderer::GetCommandBuffer()->DrawIndexed(sizeof(s_Indices) / sizeof(uint32_t));
-
+		Renderer::Submit(m_Data.VertexBuffer, m_Data.IndexBuffer);
 		Renderer::EndRenderPass();
 	}
 
@@ -253,7 +245,7 @@ namespace Quark {
 
 			// FIX:
 			RenderCommand::Clear();
-			RenderCommand::DrawIndexed(m_Data.Env->CubemapIndexBuffer->GetCount());
+			Renderer::Submit(m_Data.Env->CubemapVertexBuffer, m_Data.Env->CubemapIndexBuffer);
 		}
 
 		m_Data.Env->Framebuffer->Detach();
@@ -272,7 +264,7 @@ namespace Quark {
 
 			// FIX:
 			RenderCommand::Clear();
-			RenderCommand::DrawIndexed(m_Data.Env->CubemapIndexBuffer->GetCount());
+			Renderer::Submit(m_Data.Env->CubemapVertexBuffer, m_Data.Env->CubemapIndexBuffer);
 		}
 
 		m_Data.Env->Framebuffer->Detach();

@@ -18,102 +18,44 @@
 
 namespace Quark {
 
-	static void OnOpenGLMessage(
-		GLenum source,
-		GLenum type,
-		GLuint id,
-		GLenum severity,
-		GLsizei length,
-		const GLchar* message,
-		const void* userParam)
-	{
-		switch (severity)
-		{
-			case GL_DEBUG_SEVERITY_HIGH:         QK_CORE_ASSERT(false, message); return;
-			case GL_DEBUG_SEVERITY_MEDIUM:       QK_CORE_WARN(message);          return;
-			case GL_DEBUG_SEVERITY_LOW:          QK_CORE_INFO(message);          return;
-			case GL_DEBUG_SEVERITY_NOTIFICATION: QK_CORE_TRACE(message);         return;
-
-			QK_ASSERT_NO_DEFAULT("OnOpenGLMessage had an unknown severity level");
-		}
-	}
-
 	void OpenGLGraphicsAPI::Init()
 	{
 		QK_PROFILE_FUNCTION();
-
-#ifdef QK_DEBUG
-		if (GLVersion.major >= 4 && GLVersion.minor >= 3)
-		{
-			glEnable(GL_DEBUG_OUTPUT);
-			glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-
-			glDebugMessageCallback(OnOpenGLMessage, nullptr); // <-- This is not supported on OpenGL 4.2 or lower
-			glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
-		}
-#endif
-
-		// Gamma correction
-		glEnable(GL_FRAMEBUFFER_SRGB);
-
-		// Alpha and Blending
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		// Face Culling
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
-		glFrontFace(GL_CCW);
-		//           ^^^-- we use a counter-clockwise winding order
-
-		// Depth Testing
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LESS);
-
-		// Filtering
-		glEnable(GL_MULTISAMPLE);
-		glEnable(GL_LINE_SMOOTH); // <-- NOTE: this massively slows down line rendering
-
-		// Extensions
-		//glEnable(GL_TEXTURE_2D_ARRAY_EXT);
-
-		// Experimental
-		//glEnable(GL_PROGRAM_POINT_SIZE);
 
 		{
 			GLint maxWidth, maxHeight;
 			glGetIntegerv(GL_MAX_FRAMEBUFFER_WIDTH, &maxWidth);
 			glGetIntegerv(GL_MAX_FRAMEBUFFER_HEIGHT, &maxHeight);
-			m_Constraints.FramebufferConstraints.MaxWidth = maxWidth;
-			m_Constraints.FramebufferConstraints.MaxHeight = maxHeight;
+			m_Capabilities.FramebufferConstraints.MaxWidth = maxWidth;
+			m_Capabilities.FramebufferConstraints.MaxHeight = maxHeight;
 
 			GLint maxAttachments;
 			glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &maxAttachments);
-			m_Constraints.FramebufferConstraints.MaxAttachments = maxAttachments;
+			m_Capabilities.FramebufferConstraints.MaxAttachments = maxAttachments;
 		}
 
 		{
 			GLint maxBlockSize;
 			glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &maxBlockSize);
-			m_Constraints.UniformBufferConstraints.MaxBufferSize = maxBlockSize;
+			m_Capabilities.UniformBufferConstraints.MaxBufferSize = maxBlockSize;
 
 			GLint maxBindings;
 			glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, &maxBindings);
-			m_Constraints.UniformBufferConstraints.MaxBindings = maxBindings;
+			m_Capabilities.UniformBufferConstraints.MaxBindings = maxBindings;
 		}
 
 		{
 			GLint maxTextureSlots;
 			glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureSlots);
-			m_Constraints.TextureConstraints.MaxTextureSlots = maxTextureSlots;
+			m_Capabilities.TextureConstraints.MaxTextureSlots = maxTextureSlots;
 
 			GLint maxTextureSize;
 			glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTextureSize);
-			m_Constraints.TextureConstraints.MaxPixelSize = maxTextureSize;
+			m_Capabilities.TextureConstraints.MaxPixelSize = maxTextureSize;
 
 			GLint maxArrayTextureLayers;
 			glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &maxArrayTextureLayers);
-			m_Constraints.TextureConstraints.MaxTextureArrayLayers = maxArrayTextureLayers;
+			m_Capabilities.TextureConstraints.MaxTextureArrayLayers = maxArrayTextureLayers;
 		}
 	}
 
@@ -185,31 +127,6 @@ namespace Quark {
 	void OpenGLGraphicsAPI::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 	{
 		glViewport(x, y, width, height);
-	}
-
-	void OpenGLGraphicsAPI::Draw(uint32_t offset, uint32_t count)
-	{
-		glDrawArrays(GL_TRIANGLES, offset, count);
-	}
-
-	void OpenGLGraphicsAPI::DrawIndexed(uint32_t indexCount)
-	{
-		glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr);
-	}
-
-	void OpenGLGraphicsAPI::DrawIndexedInstanced(uint32_t repeatCount, uint32_t indexCount)
-	{
-		glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr, repeatCount);
-	}
-
-	void OpenGLGraphicsAPI::DrawLines(uint32_t vertexCount)
-	{
-		glDrawArrays(GL_LINES, 0, vertexCount);
-	}
-
-	void OpenGLGraphicsAPI::DrawIndexedLines(uint32_t indexCount)
-	{
-		glDrawElements(GL_LINES, indexCount, GL_UNSIGNED_INT, nullptr);
 	}
 
 	void OpenGLGraphicsAPI::SetLineThickness(float thickness)
@@ -321,8 +238,8 @@ namespace Quark {
 		ss << "|\t" << glGetString(GL_VENDOR) << '\n';
 		ss << "|\t" << glGetString(GL_RENDERER) << '\n';
 		ss << "|\t" << glGetString(GL_VERSION) << '\n';
-		ss << "|\tUniform buffer bindings: " << m_Constraints.UniformBufferConstraints.MaxBindings << '\n';
-		ss << "|\tHardware texture slots available: " << m_Constraints.TextureConstraints.MaxTextureSlots;
+		ss << "|\tUniform buffer bindings: " << m_Capabilities.UniformBufferConstraints.MaxBindings << '\n';
+		ss << "|\tHardware texture slots available: " << m_Capabilities.TextureConstraints.MaxTextureSlots;
 		return ss.str();
 	}
 }

@@ -9,16 +9,13 @@ namespace Quark {
 
 	void MetalGraphicsAPI::Init()
 	{
-		QK_PROFILE_FUNCTION();
 	}
 
 	void MetalGraphicsAPI::SetClearColor(const Vec4f& rgba)
 	{
-
 	}
 
 	void MetalGraphicsAPI::Clear()
 	{
-
 	}
 }

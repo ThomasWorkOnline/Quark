@@ -13,8 +13,8 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		QK_CORE_ASSERT(m_Spec.Width <= GraphicsAPI::Instance->GetHardwareConstraints().TextureConstraints.MaxPixelSize
-			&& m_Spec.Height <= GraphicsAPI::Instance->GetHardwareConstraints().TextureConstraints.MaxPixelSize, "Texture dimensions too large");
+		QK_CORE_ASSERT(m_Spec.Width <= GraphicsAPI::Instance->GetCapabilities().TextureConstraints.MaxPixelSize
+			&& m_Spec.Height <= GraphicsAPI::Instance->GetCapabilities().TextureConstraints.MaxPixelSize, "Texture dimensions too large");
 
 		m_InternalFormat = DataFormatToOpenGLInternalFormat(m_Spec.DataFormat);
 		m_DataFormat = DataFormatToOpenGLStorageFormat(m_Spec.DataFormat);
@@ -59,8 +59,8 @@ namespace Quark {
 		m_Spec.DataFormat     = metadata.DataFormat;
 		m_Spec.RenderModes    = descriptor.RenderModes;
 
-		QK_CORE_ASSERT(m_Spec.Width <= GraphicsAPI::Instance->GetHardwareConstraints().TextureConstraints.MaxPixelSize
-			&& m_Spec.Height <= GraphicsAPI::Instance->GetHardwareConstraints().TextureConstraints.MaxPixelSize, "Texture dimensions too large");
+		QK_CORE_ASSERT(m_Spec.Width <= GraphicsAPI::Instance->GetCapabilities().TextureConstraints.MaxPixelSize
+			&& m_Spec.Height <= GraphicsAPI::Instance->GetCapabilities().TextureConstraints.MaxPixelSize, "Texture dimensions too large");
 
 		m_DataFormat = DataFormatToOpenGLStorageFormat(m_Spec.DataFormat);
 		m_InternalFormat = DataFormatToOpenGLInternalFormat(m_Spec.DataFormat);

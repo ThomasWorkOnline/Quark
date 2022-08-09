@@ -16,7 +16,11 @@ namespace Quark {
 		virtual void EndRenderPass();
 
 		virtual void Reset() override {}
+		virtual void Draw(uint32_t vertexOffset, uint32_t vertexCount) override;
 		virtual void DrawIndexed(uint32_t indexCount) override;
+		virtual void DrawIndexedInstanced(uint32_t instanceCount, uint32_t indexCount) override;;
+
+		virtual void DrawLines(uint32_t vertexCount) override;
 
 		virtual void BindVertexBuffer(const Ref<VertexBuffer>& vertexBuffer, uint32_t binding) override;
 		virtual void BindIndexBuffer(const Ref<IndexBuffer>& indexBuffer) override;

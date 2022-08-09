@@ -8,6 +8,6 @@ namespace Quark {
 
 	Application* CreateApplication()
 	{
-		return new VulkanApp();
+		return new TextureArrayTest();
 	}
 }

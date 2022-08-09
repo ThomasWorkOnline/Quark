@@ -24,7 +24,7 @@ namespace Quark {
 		uint32_t MaxTextureArrayLayers;
 	};
 
-	struct HardwareConstraints
+	struct GraphicsAPICapabilities
 	{
 		FramebufferHardwareConstraints   FramebufferConstraints;
 		UniformBufferHardwareConstraints UniformBufferConstraints;

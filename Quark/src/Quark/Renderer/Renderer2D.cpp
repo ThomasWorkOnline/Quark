@@ -93,7 +93,6 @@ namespace Quark {
 
 		LineVertex* LineVertexPtr = nullptr;
 		LineVertex* LineVertices  = nullptr;
-		uint32_t LineIndexCount   = 0;
 
 		Ref<Shader> LineShader;
 		Ref<VertexBuffer> LineVertexBuffer;
@@ -131,13 +130,11 @@ namespace Quark {
 		StartBatch();
 
 		s_Data->CameraBufferData.ViewProjection = cameraProjection * cameraView;
-		Renderer::BeginFrame();
 	}
 
 	void Renderer2D::EndScene()
 	{
 		PushBatch();
-		Renderer::EndFrame();
 	}
 	
 	void Renderer2D::DrawSprite(const Ref<Texture2D>& texture, const Mat4f& transform)
@@ -246,7 +243,6 @@ namespace Quark {
 		s_Data->LineVertexPtr->Color = endColor;
 		s_Data->LineVertexPtr++;
 
-		s_Data->LineIndexCount += 2;
 		s_Stats.LinesDrawn++;
 	}
 
@@ -358,7 +354,6 @@ namespace Quark {
 		s_Data->FontSamplerIndex = 0;
 
 		s_Data->LineVertexPtr    = s_Data->LineVertices;
-		s_Data->LineIndexCount   = 0;
 	}
 
 	void Renderer2D::PushBatch()
@@ -369,42 +364,36 @@ namespace Quark {
 		if (s_Data->QuadIndexCount > 0)
 		{
 			size_t size = ((uint8_t*)s_Data->QuadVertexPtr - (uint8_t*)s_Data->QuadVertices);
-			s_Data->QuadVertexBuffer->Attach();
 			s_Data->QuadVertexBuffer->SetData(s_Data->QuadVertices, size);
 
 			for (uint32_t i = 0; i < s_Data->QuadSamplerIndex; i++)
 				s_Data->Textures[i]->Attach(i);
 
 			s_Data->QuadShader->Attach();
-			RenderCommand::DrawIndexed(s_Data->QuadIndexCount);
-
+			Renderer::Submit(s_Data->QuadVertexBuffer, s_Data->QuadIndexBuffer, s_Data->QuadIndexCount);
 			s_Stats.DrawCalls++;
 		}
 
 		if (s_Data->FontIndexCount > 0)
 		{
 			size_t size = ((uint8_t*)s_Data->FontVertexPtr - (uint8_t*)s_Data->FontVertices);
-			s_Data->FontVertexBuffer->Attach();
 			s_Data->FontVertexBuffer->SetData(s_Data->FontVertices, size);
 
 			for (uint32_t i = 0; i < s_Data->FontSamplerIndex; i++)
 				s_Data->Fonts[i]->Attach(i);
 
 			s_Data->FontShader->Attach();
-			RenderCommand::DrawIndexed(s_Data->FontIndexCount);
-
+			Renderer::Submit(s_Data->FontVertexBuffer, s_Data->QuadIndexBuffer, s_Data->FontIndexCount);
 			s_Stats.DrawCalls++;
 		}
 
-		if (s_Data->LineIndexCount > 0)
+		if (size_t vertexCount = (s_Data->LineVertexPtr - s_Data->LineVertices))
 		{
 			size_t size = ((uint8_t*)s_Data->LineVertexPtr - (uint8_t*)s_Data->LineVertices);
-			s_Data->LineVertexBuffer->Attach();
 			s_Data->LineVertexBuffer->SetData(s_Data->LineVertices, size);
 
 			s_Data->LineShader->Attach();
-			RenderCommand::DrawLines(s_Data->LineIndexCount);
-
+			Renderer::DrawLines(s_Data->LineVertexBuffer, vertexCount);
 			s_Stats.DrawCalls++;
 		}
 	}
@@ -461,7 +450,7 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		s_Data = new Renderer2DData();
-		s_Data->MaxSamplers = GraphicsAPI::Instance->GetHardwareConstraints().TextureConstraints.MaxTextureSlots;
+		s_Data->MaxSamplers = GraphicsAPI::Instance->GetCapabilities().TextureConstraints.MaxTextureSlots;
 		s_Data->CameraUniformBuffer = UniformBuffer::Create(sizeof(Renderer2DData::CameraData), 0);
 
 		Renderer2DSetupData setupData;

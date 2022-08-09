@@ -17,8 +17,8 @@ namespace Quark {
 			case ShaderDataType::Double2:	return GL_DOUBLE;
 			case ShaderDataType::Double3:	return GL_DOUBLE;
 			case ShaderDataType::Double4:	return GL_DOUBLE;
-			case ShaderDataType::Mat3:		return GL_FLOAT;
-			case ShaderDataType::Mat4:		return GL_FLOAT;
+			case ShaderDataType::Mat3f:		return GL_FLOAT;
+			case ShaderDataType::Mat4f:		return GL_FLOAT;
 			case ShaderDataType::Mat3d:     return GL_DOUBLE;
 			case ShaderDataType::Mat4d:     return GL_DOUBLE;
 			case ShaderDataType::Int:		return GL_INT;
@@ -65,6 +65,7 @@ namespace Quark {
 		glBindVertexArray(m_RendererID);
 		vertexBuffer->Attach();
 
+		GLuint vertexBufferIndex = 0;
 		for (const auto& element : m_Layout)
 		{
 			switch (element.Type)
@@ -74,14 +75,14 @@ namespace Quark {
 				case ShaderDataType::Float3:
 				case ShaderDataType::Float4:
 				{
-					glEnableVertexAttribArray(m_VertexBufferIndex);
-					glVertexAttribPointer(m_VertexBufferIndex,
+					glEnableVertexAttribArray(vertexBufferIndex);
+					glVertexAttribPointer(vertexBufferIndex,
 						element.GetComponentCount(),
 						ShaderDataTypeToOpenGLBaseType(element.Type),
 						element.Normalized ? GL_TRUE : GL_FALSE,
 						(GLsizei)m_Layout.GetStride(),
 						(const void*)element.Offset);
-					m_VertexBufferIndex++;
+					vertexBufferIndex++;
 					break;
 				}
 				case ShaderDataType::Double:
@@ -89,13 +90,13 @@ namespace Quark {
 				case ShaderDataType::Double3:
 				case ShaderDataType::Double4:
 				{
-					glEnableVertexAttribArray(m_VertexBufferIndex);
-					glVertexAttribLPointer(m_VertexBufferIndex,
+					glEnableVertexAttribArray(vertexBufferIndex);
+					glVertexAttribLPointer(vertexBufferIndex,
 						element.GetComponentCount(),
 						ShaderDataTypeToOpenGLBaseType(element.Type),
 						(GLsizei)m_Layout.GetStride(),
 						(const void*)element.Offset);
-					m_VertexBufferIndex++;
+					vertexBufferIndex++;
 					break;
 				}
 				case ShaderDataType::Int:
@@ -104,30 +105,29 @@ namespace Quark {
 				case ShaderDataType::Int4:
 				case ShaderDataType::Bool:
 				{
-					glEnableVertexAttribArray(m_VertexBufferIndex);
-					glVertexAttribIPointer(m_VertexBufferIndex,
+					glEnableVertexAttribArray(vertexBufferIndex);
+					glVertexAttribIPointer(vertexBufferIndex,
 						element.GetComponentCount(),
 						ShaderDataTypeToOpenGLBaseType(element.Type),
 						(GLsizei)m_Layout.GetStride(),
 						(const void*)element.Offset);
-					m_VertexBufferIndex++;
+					vertexBufferIndex++;
 					break;
 				}
-				case ShaderDataType::Mat3:
-				case ShaderDataType::Mat4:
+				case ShaderDataType::Mat3f:
+				case ShaderDataType::Mat4f:
 				{
 					uint32_t count = element.GetComponentCount();
 					for (uint32_t i = 0; i < count; i++)
 					{
-						glEnableVertexAttribArray(m_VertexBufferIndex);
-						glVertexAttribPointer(m_VertexBufferIndex,
+						glEnableVertexAttribArray(vertexBufferIndex);
+						glVertexAttribPointer(vertexBufferIndex,
 							count,
 							ShaderDataTypeToOpenGLBaseType(element.Type),
 							element.Normalized ? GL_TRUE : GL_FALSE,
 							(GLsizei)m_Layout.GetStride(),
 							(const void*)(sizeof(float) * count * i));
-						glVertexAttribDivisor(m_VertexBufferIndex, 1);
-						m_VertexBufferIndex++;
+						vertexBufferIndex++;
 					}
 					break;
 				}
@@ -137,15 +137,14 @@ namespace Quark {
 					uint32_t count = element.GetComponentCount();
 					for (uint32_t i = 0; i < count; i++)
 					{
-						glEnableVertexAttribArray(m_VertexBufferIndex);
-						glVertexAttribPointer(m_VertexBufferIndex,
+						glEnableVertexAttribArray(vertexBufferIndex);
+						glVertexAttribPointer(vertexBufferIndex,
 							count,
 							ShaderDataTypeToOpenGLBaseType(element.Type),
 							element.Normalized ? GL_TRUE : GL_FALSE,
 							(GLsizei)m_Layout.GetStride(),
 							(const void*)(sizeof(double) * count * i));
-						glVertexAttribDivisor(m_VertexBufferIndex, 1);
-						m_VertexBufferIndex++;
+						vertexBufferIndex++;
 					}
 					break;
 				}

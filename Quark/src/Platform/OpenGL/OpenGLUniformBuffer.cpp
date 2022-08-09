@@ -19,6 +19,8 @@ namespace Quark {
 
 	OpenGLUniformBuffer::~OpenGLUniformBuffer()
 	{
+		QK_PROFILE_FUNCTION();
+
 		glDeleteBuffers(1, &m_RendererID);
 	}
 
@@ -35,6 +37,8 @@ namespace Quark {
 
 	void OpenGLUniformBuffer::SetData(const void* data, size_t size, size_t offset)
 	{
+		QK_PROFILE_FUNCTION();
+
 		glBindBuffer(GL_UNIFORM_BUFFER, m_RendererID);
 		glBufferSubData(GL_UNIFORM_BUFFER, offset, size, data);
 

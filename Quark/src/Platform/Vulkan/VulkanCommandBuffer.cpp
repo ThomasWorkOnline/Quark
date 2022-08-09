@@ -70,9 +70,24 @@ namespace Quark {
 		vkResetCommandBuffer(m_CommandBuffer, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
 	}
 
+	void VulkanCommandBuffer::Draw(uint32_t vertexOffset, uint32_t vertexCount)
+	{
+		vkCmdDraw(m_CommandBuffer, vertexCount, 1, vertexOffset, 0);
+	}
+
 	void VulkanCommandBuffer::DrawIndexed(uint32_t indexCount)
 	{
 		vkCmdDrawIndexed(m_CommandBuffer, indexCount, 1, 0, 0, 0);
+	}
+
+	void VulkanCommandBuffer::DrawIndexedInstanced(uint32_t instanceCount, uint32_t indexCount)
+	{
+		QK_CORE_ASSERT(false, "Vulkan instance rendering is not yet implemented");
+	}
+
+	void VulkanCommandBuffer::DrawLines(uint32_t vertexCount)
+	{
+		vkCmdDraw(m_CommandBuffer, vertexCount, 1, 0, 0);
 	}
 
 	void VulkanCommandBuffer::BindVertexBuffer(const Ref<VertexBuffer>& vertexBuffer, uint32_t binding)
