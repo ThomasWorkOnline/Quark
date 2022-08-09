@@ -101,6 +101,9 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
+		if (s_Data)
+			return;
+
 		s_ThreadId = std::this_thread::get_id();
 		RenderCommand::Init();
 
@@ -111,6 +114,7 @@ namespace Quark {
 	void Renderer::Dispose()
 	{
 		QK_PROFILE_FUNCTION();
+
 		s_Data.reset();
 	}
 }

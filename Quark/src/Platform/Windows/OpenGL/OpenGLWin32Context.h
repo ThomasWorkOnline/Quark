@@ -18,10 +18,9 @@ namespace Quark {
 		virtual void Submit() override;
 
 		virtual void SwapBuffers() override;
+		virtual void OnViewportResized(uint32_t viewportWidth, uint32_t viewportHeight) override;
 
 		virtual const Ref<CommandBuffer>& GetCommandBuffer() const override { return m_CommandBuffer; }
-
-		virtual void OnViewportResized(uint32_t viewportWidth, uint32_t viewportHeight) override;
 
 	private:
 		HWND m_WindowHandle;

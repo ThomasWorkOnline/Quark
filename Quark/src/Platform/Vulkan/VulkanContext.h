@@ -30,13 +30,9 @@ namespace Quark {
 		virtual void Submit() override;
 
 		virtual void SwapBuffers() override;
-
-		virtual const Ref<CommandBuffer>& GetCommandBuffer() const override
-		{
-			return m_Data.CommandBuffers[m_Data.CurrentFrameIndex];
-		}
-
 		virtual void OnViewportResized(uint32_t viewportWidth, uint32_t viewportHeight) override;
+
+		virtual const Ref<CommandBuffer>& GetCommandBuffer() const override;
 
 		VulkanSwapChain* GetSwapChain() { return m_SwapChain.get(); }
 		uint32_t GetCurrentFrameIndex() const { return m_Data.CurrentFrameIndex; }

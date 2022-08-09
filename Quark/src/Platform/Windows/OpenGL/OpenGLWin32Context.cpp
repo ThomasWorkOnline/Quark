@@ -17,7 +17,7 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		// unbind the current context
+		// Unbind the current context
 		wglMakeCurrent(NULL, NULL);
 		wglDeleteContext(m_Context);
 	}
@@ -63,6 +63,8 @@ namespace Quark {
 
 	void OpenGLWin32Context::StartFrame()
 	{
+		// TODO(TEMPORARY): remove, part of the renderpass
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
 	void OpenGLWin32Context::Submit()

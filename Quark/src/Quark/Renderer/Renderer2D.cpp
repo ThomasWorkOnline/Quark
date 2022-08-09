@@ -130,6 +130,7 @@ namespace Quark {
 		StartBatch();
 
 		s_Data->CameraBufferData.ViewProjection = cameraProjection * cameraView;
+		s_Data->CameraUniformBuffer->SetData(&s_Data->CameraBufferData, sizeof(Renderer2DData::CameraData));
 	}
 
 	void Renderer2D::EndScene()
@@ -358,9 +359,6 @@ namespace Quark {
 
 	void Renderer2D::PushBatch()
 	{
-		s_Data->CameraUniformBuffer->Attach();
-		s_Data->CameraUniformBuffer->SetData(&s_Data->CameraBufferData, sizeof(Renderer2DData::CameraData));
-
 		if (s_Data->QuadIndexCount > 0)
 		{
 			size_t size = ((uint8_t*)s_Data->QuadVertexPtr - (uint8_t*)s_Data->QuadVertices);
@@ -448,6 +446,9 @@ namespace Quark {
 	void Renderer2D::Initialize()
 	{
 		QK_PROFILE_FUNCTION();
+
+		if (s_Data)
+			return;
 
 		s_Data = new Renderer2DData();
 		s_Data->MaxSamplers = GraphicsAPI::Instance->GetCapabilities().TextureConstraints.MaxTextureSlots;

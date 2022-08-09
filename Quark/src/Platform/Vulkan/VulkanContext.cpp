@@ -290,4 +290,9 @@ namespace Quark {
 		m_Device->WaitIdle();
 		m_SwapChain->Resize(viewportWidth, viewportHeight);
 	}
+
+	const Ref<CommandBuffer>& VulkanContext::GetCommandBuffer() const
+	{
+		return m_Data.CommandBuffers[m_Data.CurrentFrameIndex];
+	}
 }
