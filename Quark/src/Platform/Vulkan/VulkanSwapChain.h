@@ -39,8 +39,8 @@ namespace Quark {
 			VkPresentModeKHR     PresentMode{};
 		};
 
-		GLFWwindow* m_WindowHandle;
 		VulkanDevice* m_Device;
+		GLFWwindow* m_WindowHandle;
 		VkSurfaceKHR m_Surface = VK_NULL_HANDLE;
 		VkSwapchainKHR m_SwapChain = VK_NULL_HANDLE;
 

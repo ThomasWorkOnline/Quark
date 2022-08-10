@@ -22,9 +22,11 @@ namespace Quark {
 		Image(std::string_view filepath);
 		~Image();
 
+		// Non-Copyable
 		Image(const Image&) = delete;
 		Image& operator=(const Image&) = delete;
 
+		// Non-Movable
 		Image(Image&&) = delete;
 		Image& operator=(Image&&) = delete;
 
@@ -32,12 +34,11 @@ namespace Quark {
 		uint32_t Height() const { return m_Metadata.Height; }
 		uint8_t Channels() const { return m_Metadata.Channels; }
 
+		size_t Size() const;
 		const ImageMetadata& GetMetadata() const { return m_Metadata; }
 
 		void* Data() const { return m_ImageData; }
 		void* operator*() const { return m_ImageData; }
-
-		size_t Size() const;
 
 		static Ref<Image> Shared(std::string_view filepath);
 
