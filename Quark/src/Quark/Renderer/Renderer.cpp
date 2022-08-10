@@ -152,6 +152,7 @@ namespace Quark {
 		const uint32_t swapChainImages = GraphicsContext::Get()->GetSwapChainImageCount();
 		s_Data->Framebuffers.resize(swapChainImages);
 
+#if 0
 		// Target the default framebuffer when using OpenGL
 		if (GraphicsAPI::GetAPI() == RHI::Vulkan)
 		{
@@ -165,35 +166,8 @@ namespace Quark {
 			{
 				s_Data->Framebuffers[i].reset(Framebuffer::Create(fbSpec));
 			}
-
-#if 0
-			// Framebuffers
-			{
-				for (auto& framebuffer : m_Framebuffers)
-				{
-					vkDestroyFramebuffer(m_Device->GetVkHandle(), framebuffer, nullptr);
-				}
-
-				const uint32_t imageCount = VulkanContext::Get()->GetSwapChain()->GetImageCount();
-				m_Framebuffers.resize(imageCount);
-
-				VkFramebufferCreateInfo framebufferInfo{};
-				framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-				framebufferInfo.renderPass = static_cast<VulkanRenderPass*>(m_Spec.RenderPass.get())->GetVkHandle();
-				framebufferInfo.attachmentCount = 1;
-				framebufferInfo.width = m_Spec.ViewportWidth;
-				framebufferInfo.height = m_Spec.ViewportHeight;
-				framebufferInfo.layers = 1;
-
-				for (uint32_t i = 0; i < imageCount; i++)
-				{
-					auto attachment = VulkanContext::Get()->GetSwapChain()->GetImageView(i);
-					framebufferInfo.pAttachments = &attachment;
-					vkCreateFramebuffer(m_Device->GetVkHandle(), &framebufferInfo, nullptr, &m_Framebuffers[i]);
-				}
-			}
-#endif
 		}
+#endif
 	}
 
 	void Renderer::Dispose()

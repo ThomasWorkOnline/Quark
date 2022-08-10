@@ -55,8 +55,8 @@ namespace Quark {
 		}
 	}
 
-	VulkanSwapChain::VulkanSwapChain(VulkanDevice* device, GLFWwindow* window, VkSurfaceKHR surface)
-		: m_WindowHandle(window), m_Device(device), m_Surface(surface)
+	VulkanSwapChain::VulkanSwapChain(VulkanDevice* device, void* window, VkSurfaceKHR surface)
+		: m_WindowHandle(static_cast<GLFWwindow*>(window)), m_Device(device), m_Surface(surface)
 	{
 		auto& supportDetails = m_Device->GetSupportDetails();
 

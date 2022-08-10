@@ -12,6 +12,6 @@ namespace Quark {
 
 	Application* CreateApplication()
 	{
-		return new TextureArrayTest();
+		return new VulkanApp();
 	}
 }

@@ -12,7 +12,7 @@ namespace Quark {
 	class VulkanSwapChain
 	{
 	public:
-		VulkanSwapChain(VulkanDevice* device, GLFWwindow* window, VkSurfaceKHR surface);
+		VulkanSwapChain(VulkanDevice* device, void* window, VkSurfaceKHR surface);
 		~VulkanSwapChain();
 
 		uint32_t GetWidth() const { return m_Format.Extent.width; }
