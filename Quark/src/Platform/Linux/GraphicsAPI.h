@@ -4,5 +4,5 @@
 
 namespace Quark {
 
-	API GetDefaultAPIForPlatform();
+	RHI GetDefaultAPIForPlatform();
 }

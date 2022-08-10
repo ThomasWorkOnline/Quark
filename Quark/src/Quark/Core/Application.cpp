@@ -27,7 +27,7 @@ namespace Quark {
 		m_AudioOutputDevice = AudioOutputDevice::Create();
 		QK_CORE_INFO("Opened audio device: {0}", m_AudioOutputDevice->GetDeviceName());
 
-		Renderer::Initialize();
+		Renderer::Initialize(m_Window->GetWidth(), m_Window->GetHeight());
 		Renderer2D::Initialize();
 
 		QK_CORE_INFO(GraphicsAPI::Instance->GetSpecification());
@@ -100,7 +100,7 @@ namespace Quark {
 		dispatcher.Dispatch<WindowRestoredEvent>([&](auto& e) { m_Minimized = false; });
 		dispatcher.Dispatch<WindowResizedEvent>([](WindowResizedEvent& e)
 		{
-			Renderer::OnViewportResized(e.GetWidth(), e.GetHeight());
+			Renderer::SetViewport(0, 0, e.GetWidth(), e.GetHeight());
 		});
 
 		OnEvent(e);

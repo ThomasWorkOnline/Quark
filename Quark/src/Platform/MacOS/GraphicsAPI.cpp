@@ -3,8 +3,8 @@
 
 namespace Quark {
 
-	API GetDefaultAPIForPlatform()
+	RHI GetDefaultAPIForPlatform()
 	{
-		return API::Metal;
+		return RHI::Metal;
 	}
 }

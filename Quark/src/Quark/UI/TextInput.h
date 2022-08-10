@@ -13,12 +13,11 @@ namespace Quark {
 	{
 	public:
 		TextInput() = default;
-		TextInput(const Ref<Font>& font,
-			HorizontalTextAlignment hAlign = HorizontalTextAlignment::Right, VerticalTextAlignment vAlign = VerticalTextAlignment::Default);
+		TextInput(Ref<Font> font, HorizontalTextAlignment hAlign = HorizontalTextAlignment::Right, VerticalTextAlignment vAlign = VerticalTextAlignment::Default);
 
 		void OnEvent(Event& e);
 
-		void SetFont(const Ref<Font>& font);
+		void SetFont(Ref<Font> font);
 		void SetHorizontalAlignment(HorizontalTextAlignment align) { m_RenderTraits.HAlign = align; }
 		void SetVerticalAlignment(VerticalTextAlignment align) { m_RenderTraits.VAlign = align; }
 

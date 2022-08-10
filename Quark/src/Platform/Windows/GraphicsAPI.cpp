@@ -5,12 +5,12 @@
 
 namespace Quark {
 
-	API GetDefaultAPIForPlatform()
+	RHI GetDefaultAPIForPlatform()
 	{
 #if USE_VULKAN
-		return API::Vulkan;
+		return RHI::Vulkan;
 #else
-		return API::OpenGL; // TODO: DirectX
+		return RHI::OpenGL; // TODO: DirectX
 #endif
 	}
 }

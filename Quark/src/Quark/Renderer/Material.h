@@ -6,10 +6,9 @@
 
 namespace Quark {
 
-	class Material
+	struct Material
 	{
-	private:
-		Ref<Shader> m_Shader;
-		Ref<Texture2D> m_Albedo;
+		Ref<Shader>    Shader;
+		Ref<Texture2D> Albedo;
 	};
 }

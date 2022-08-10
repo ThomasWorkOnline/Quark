@@ -17,9 +17,9 @@ namespace Quark {
 		virtual void Begin() = 0;
 		virtual void End() = 0;
 
-		virtual void BindPipeline(const Ref<Pipeline>& pipeline) = 0;
+		virtual void BindPipeline(Pipeline* pipeline) = 0;
 
-		virtual void BeginRenderPass(const Ref<RenderPass>& renderPass, const Ref<Framebuffer>& framebuffer) = 0;
+		virtual void BeginRenderPass(RenderPass* renderPass, Framebuffer* framebuffer) = 0;
 		virtual void EndRenderPass() = 0;
 
 		virtual void Reset() = 0;
@@ -29,11 +29,11 @@ namespace Quark {
 
 		virtual void DrawLines(uint32_t vertexCount) = 0;
 
-		virtual void BindVertexBuffer(const Ref<VertexBuffer>& vertexBuffer, uint32_t binding) = 0;
-		virtual void BindIndexBuffer(const Ref<IndexBuffer>& indexBuffer) = 0;
+		virtual void BindVertexBuffer(VertexBuffer* vertexBuffer, uint32_t binding) = 0;
+		virtual void BindIndexBuffer(IndexBuffer* indexBuffer) = 0;
 
 		virtual bool operator==(const CommandBuffer& other) const = 0;
 
-		static Ref<CommandBuffer> Create();
+		static CommandBuffer* Create();
 	};
 }

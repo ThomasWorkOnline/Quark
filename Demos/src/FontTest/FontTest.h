@@ -2,7 +2,9 @@
 
 #include <Quark.h>
 
-class FontTest : public Quark::Application
+using namespace Quark;
+
+class FontTest : public Application
 {
 public:
 	FontTest();

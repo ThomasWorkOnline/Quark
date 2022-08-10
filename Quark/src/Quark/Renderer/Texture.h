@@ -43,8 +43,8 @@ namespace Quark {
 
 		const Texture2DSpecification& GetSpecification() const { return m_Spec; }
 
-		static Ref<Texture2D> Create(const Texture2DSpecification& spec);
-		static Ref<Texture2D> Create(std::string_view filepath, const TextureFormatDescriptor& descriptor = {});
+		static Texture2D* Create(const Texture2DSpecification& spec);
+		static Texture2D* Create(std::string_view filepath, const TextureFormatDescriptor& descriptor = {});
 
 	protected:
 		Texture2DSpecification m_Spec;

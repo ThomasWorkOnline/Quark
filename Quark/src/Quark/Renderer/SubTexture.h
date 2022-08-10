@@ -8,9 +8,9 @@ namespace Quark {
 	class SubTexture2D
 	{
 	public:
-		SubTexture2D(const Ref<Texture2D>& texture, const Vec2f& coord, const Vec2f& subTextureSize);
+		SubTexture2D(Ref<Texture2D> texture, const Vec2f& coord, const Vec2f& subTextureSize);
 
-		const Ref<Texture2D>& GetTexture() const { return m_Texture; }
+		Texture2D* GetTexture() const { return m_Texture.get(); }
 		const Vec2f* GetCoords() const { return m_TextureCoords; }
 
 	private:

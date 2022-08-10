@@ -13,11 +13,6 @@ namespace Quark {
 			GraphicsAPI::Instance->Init();
 		}
 
-		static void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
-		{
-			GraphicsAPI::Instance->SetViewport(x, y, width, height);
-		}
-
 		static void SetClearColor(const Vec4f& color)
 		{
 			GraphicsAPI::Instance->SetClearColor(color);

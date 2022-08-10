@@ -10,12 +10,12 @@ namespace Quark {
 	public:
 		virtual ~AudioSource() = default;
 
-		virtual void SetBuffer(const Ref<AudioBuffer>&buffer) = 0;
+		virtual void SetBuffer(AudioBuffer* buffer) = 0;
 
 		virtual void Play() = 0;
 		virtual void Stop() = 0;
 		virtual void Pause() = 0;
 
-		static Ref<AudioSource> Create();
+		static AudioSource* Create();
 	};
 }

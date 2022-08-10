@@ -5,7 +5,7 @@
 
 namespace Quark {
 
-	Ref<Cubemap> Cubemap::Create(const CubemapSpecification& spec)
+	Cubemap* Cubemap::Create(const CubemapSpecification& spec)
 	{
 		return GraphicsAPI::Instance->CreateCubemap(spec);
 	}

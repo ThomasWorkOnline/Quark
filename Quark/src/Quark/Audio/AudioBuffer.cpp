@@ -5,13 +5,13 @@
 
 namespace Quark {
 
-	Ref<AudioBuffer> AudioBuffer::Create(std::string_view filepath)
+	AudioBuffer* AudioBuffer::Create(std::string_view filepath)
 	{
-		return CreateRef<OpenALAudioBuffer>(filepath);
+		return new OpenALAudioBuffer(filepath);
 	}
 
-	Ref<AudioBuffer> AudioBuffer::Create(const AudioBufferSpecification& spec, const void* data)
+	AudioBuffer* AudioBuffer::Create(const AudioBufferSpecification& spec, const void* data)
 	{
-		return CreateRef<OpenALAudioBuffer>(spec, data);
+		return new OpenALAudioBuffer(spec, data);
 	}
 }

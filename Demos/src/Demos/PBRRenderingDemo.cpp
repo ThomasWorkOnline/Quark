@@ -4,9 +4,10 @@
 
 static Ref<Texture2D> CreateTextureFromImage(const Ref<Image>& image, const Texture2DSpecification& spec)
 {
-	auto texture = Texture2D::Create(spec);
+	Ref<Texture2D> texture(Texture2D::Create(spec));
 	texture->SetData(image->Data(), image->Size());
 	texture->GenerateMipmaps();
+
 	return texture;
 }
 
@@ -149,12 +150,12 @@ PBRRenderingDemo::PBRRenderingDemo()
 
 			uint8_t data = 0xff;
 
-			m_AO = Texture2D::Create(spec);
+			m_AO.reset(Texture2D::Create(spec));
 			m_AO->SetData(&data, sizeof(uint8_t));
 		}
 	}
 
-	m_PBRShader = Shader::Create("assets/shaders/PBR.glsl");
+	m_PBRShader.reset(Shader::Create("assets/shaders/PBR.glsl"));
 
 	static constexpr float lightPower = 10.0f;
 	static constexpr Vec3f lightColor = Vec3f(1.0f, 1.0f, 1.0f) * lightPower;

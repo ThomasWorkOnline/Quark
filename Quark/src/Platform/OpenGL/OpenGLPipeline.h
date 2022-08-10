@@ -13,7 +13,7 @@ namespace Quark {
 
 		virtual void Resize(uint32_t viewportWidth, uint32_t viewportHeight) override {}
 
-		virtual const Ref<UniformBuffer>& GetUniformBuffer() const override { return m_UniformBuffer; }
+		virtual UniformBuffer* GetUniformBuffer() const override { return m_UniformBuffer.get(); }
 
 		virtual bool operator==(const Pipeline& other) const override
 		{
@@ -21,6 +21,6 @@ namespace Quark {
 		}
 
 	private:
-		Ref<UniformBuffer> m_UniformBuffer;
+		Scope<UniformBuffer> m_UniformBuffer;
 	};
 }

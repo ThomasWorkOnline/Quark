@@ -16,8 +16,8 @@ namespace Quark {
 		size_t              CameraUniformBufferSize = 0;
 
 		BufferLayout        Layout;
-		Ref<Shader>         Shader;
-		Ref<RenderPass>     RenderPass;
+		Shader*             Shader;
+		RenderPass*         RenderPass;
 	};
 
 	class Pipeline
@@ -27,17 +27,15 @@ namespace Quark {
 			: m_Spec(spec) {}
 
 		virtual ~Pipeline() = default;
-
 		virtual void Resize(uint32_t viewportWidth, uint32_t viewportHeight) = 0;
-
-		virtual const Ref<UniformBuffer>& GetUniformBuffer() const = 0; // TODO: move into specification
+		virtual UniformBuffer* GetUniformBuffer() const = 0; // TODO: move into specification
 
 		virtual bool operator==(const Pipeline& other) const = 0;
 		
 		const BufferLayout& GetLayout() const { return m_Spec.Layout; }
 		const PipelineSpecification& GetSpecification() const { return m_Spec; }
 
-		static Ref<Pipeline> Create(const PipelineSpecification& spec);
+		static Pipeline* Create(const PipelineSpecification& spec);
 
 	protected:
 		PipelineSpecification m_Spec;

@@ -4,30 +4,33 @@
 
 namespace Quark {
 
-	class OpenGLCommandBuffer final : public CommandBuffer
+	class OpenGLCommandBuffer : public CommandBuffer
 	{
 	public:
-		virtual void Begin() override {}
-		virtual void End() override {}
+		OpenGLCommandBuffer() = default;
+		virtual ~OpenGLCommandBuffer() = default;
 
-		virtual void BindPipeline(const Ref<Pipeline>& pipeline) override;
+		virtual void Begin() final override {}
+		virtual void End() final override {}
 
-		virtual void BeginRenderPass(const Ref<RenderPass>& renderPass, const Ref<Framebuffer>& framebuffer);
-		virtual void EndRenderPass();
+		virtual void BindPipeline(Pipeline* pipeline) final override;
 
-		virtual void Reset() override {}
-		virtual void Draw(uint32_t vertexOffset, uint32_t vertexCount) override;
-		virtual void DrawIndexed(uint32_t indexCount) override;
-		virtual void DrawIndexedInstanced(uint32_t instanceCount, uint32_t indexCount) override;;
+		virtual void BeginRenderPass(RenderPass* renderPass, Framebuffer* framebuffer)  final override;
+		virtual void EndRenderPass() final override;
 
-		virtual void DrawLines(uint32_t vertexCount) override;
+		virtual void Reset() final override {}
+		virtual void Draw(uint32_t vertexOffset, uint32_t vertexCount) final override;
+		virtual void DrawIndexed(uint32_t indexCount) final override;
+		virtual void DrawIndexedInstanced(uint32_t instanceCount, uint32_t indexCount) final override;
 
-		virtual void BindVertexBuffer(const Ref<VertexBuffer>& vertexBuffer, uint32_t binding) override;
-		virtual void BindIndexBuffer(const Ref<IndexBuffer>& indexBuffer) override;
+		virtual void DrawLines(uint32_t vertexCount) final override;
 
-		virtual bool operator==(const CommandBuffer& other) const override
+		virtual void BindVertexBuffer(VertexBuffer* vertexBuffer, uint32_t binding) final override;
+		virtual void BindIndexBuffer(IndexBuffer* indexBuffer) final override;
+
+		virtual bool operator==(const CommandBuffer& other) const final override
 		{
-			return false;
+			return true;
 		}
 	};
 }

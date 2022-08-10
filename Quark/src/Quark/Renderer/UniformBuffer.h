@@ -16,6 +16,6 @@ namespace Quark {
 
 		virtual bool operator==(const UniformBuffer& other) const = 0;
 
-		static Ref<UniformBuffer> Create(size_t size, uint32_t binding);
+		static UniformBuffer* Create(size_t size, uint32_t binding);
 	};
 }

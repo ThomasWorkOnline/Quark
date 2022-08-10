@@ -6,12 +6,12 @@
 
 namespace Quark {
 
-	void OpenGLCommandBuffer::BindPipeline(const Ref<Pipeline>& pipeline)
+	void OpenGLCommandBuffer::BindPipeline(Pipeline* pipeline)
 	{
 		pipeline->GetSpecification().Shader->Attach();
 	}
 
-	void OpenGLCommandBuffer::BeginRenderPass(const Ref<RenderPass>& renderPass, const Ref<Framebuffer>& framebuffer)
+	void OpenGLCommandBuffer::BeginRenderPass(RenderPass* renderPass, Framebuffer* framebuffer)
 	{
 		framebuffer ? framebuffer->Attach() : glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -46,13 +46,13 @@ namespace Quark {
 		glDrawArrays(GL_LINES, 0, vertexCount);
 	}
 
-	void OpenGLCommandBuffer::BindVertexBuffer(const Ref<VertexBuffer>& vertexBuffer, uint32_t binding)
+	void OpenGLCommandBuffer::BindVertexBuffer(VertexBuffer* vertexBuffer, uint32_t binding)
 	{
-		static_cast<OpenGLVertexBuffer*>(vertexBuffer.get())->Attach();
+		static_cast<OpenGLVertexBuffer*>(vertexBuffer)->Attach();
 	}
 
-	void OpenGLCommandBuffer::BindIndexBuffer(const Ref<IndexBuffer>& indexBuffer)
+	void OpenGLCommandBuffer::BindIndexBuffer(IndexBuffer* indexBuffer)
 	{
-		static_cast<OpenGLIndexBuffer*>(indexBuffer.get())->Attach();
+		static_cast<OpenGLIndexBuffer*>(indexBuffer)->Attach();
 	}
 }

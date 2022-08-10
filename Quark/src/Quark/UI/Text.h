@@ -12,12 +12,12 @@ namespace Quark {
 	{
 	public:
 		Text() = default;
-		Text(std::string text, const Ref<Font>& font, const Vec4f& color,
+		Text(std::string text, Ref<Font> font, const Vec4f& color,
 			HorizontalTextAlignment hAlign = HorizontalTextAlignment::Default, VerticalTextAlignment vAlign = VerticalTextAlignment::Default);
 
 		std::string_view GetText() const { return m_Text; }
 		void SetText(std::string text);
-		void SetFont(const Ref<Font>& font);
+		void SetFont(Ref<Font> font);
 		void SetHorizontalAlignment(HorizontalTextAlignment align) { m_RenderTraits.HAlign = align; }
 		void SetVerticalAlignment(VerticalTextAlignment align) { m_RenderTraits.VAlign = align; }
 

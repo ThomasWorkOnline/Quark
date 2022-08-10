@@ -5,7 +5,7 @@
 
 namespace Quark {
 
-	Ref<UniformBuffer> UniformBuffer::Create(size_t size, uint32_t binding)
+	UniformBuffer* UniformBuffer::Create(size_t size, uint32_t binding)
 	{
 		return GraphicsAPI::Instance->CreateUniformBuffer(size, binding);
 	}

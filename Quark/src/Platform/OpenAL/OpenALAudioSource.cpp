@@ -31,9 +31,9 @@ namespace Quark {
 		ALCALL(alSourcePause(m_SourceID));
 	}
 
-	void OpenALAudioSource::SetBuffer(const Ref<AudioBuffer>& buffer)
+	void OpenALAudioSource::SetBuffer(AudioBuffer* buffer)
 	{
-		uint32_t bufferID = static_cast<OpenALAudioBuffer*>(buffer.get())->GetBufferID();
+		uint32_t bufferID = static_cast<OpenALAudioBuffer*>(buffer)->GetBufferID();
 		ALCALL(alSourcei(m_SourceID, AL_BUFFER, bufferID));
 	}
 }

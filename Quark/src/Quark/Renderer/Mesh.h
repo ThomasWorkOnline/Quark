@@ -48,8 +48,8 @@ namespace Quark {
 		Mesh() = default;
 		Mesh(const OBJMeshData& meshData);
 
-		const Ref<VertexBuffer>& GetVertexBuffer() const { return m_VertexBuffer; }
-		const Ref<IndexBuffer>& GetIndexBuffer() const { return m_IndexBuffer; }
+		VertexBuffer* GetVertexBuffer() const { return m_VertexBuffer.get(); }
+		IndexBuffer*  GetIndexBuffer() const { return m_IndexBuffer.get(); }
 
 		static Mesh LoadFromFile(std::string_view filepath, const MeshFormatDescriptor& descriptor = {});
 		static Mesh ConstructMeshFromOBJData(const OBJMeshData& data);
@@ -61,7 +61,7 @@ namespace Quark {
 		operator bool() const { return m_VertexBuffer != nullptr; }
 
 	private:
-		Ref<VertexBuffer> m_VertexBuffer;
-		Ref<IndexBuffer> m_IndexBuffer;
+		Scope<VertexBuffer> m_VertexBuffer;
+		Scope<IndexBuffer> m_IndexBuffer;
 	};
 }

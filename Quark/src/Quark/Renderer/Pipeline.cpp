@@ -5,7 +5,7 @@
 
 namespace Quark {
 
-	Ref<Pipeline> Pipeline::Create(const PipelineSpecification& spec)
+	Pipeline* Pipeline::Create(const PipelineSpecification& spec)
 	{
 		return GraphicsAPI::Instance->CreatePipeline(spec);
 	}

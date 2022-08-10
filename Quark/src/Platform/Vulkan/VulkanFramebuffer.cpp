@@ -53,12 +53,12 @@ namespace Quark {
 		for (size_t i = 0; i < m_Spec.Attachments.size(); i++)
 		{
 			QK_CORE_ASSERT(false, "");
-			//attachments[i] = static_cast<VulkanFramebufferAttachment*>(m_Spec.Attachments[i].get())->GetImageView();
+			attachments[i] = static_cast<VulkanFramebufferAttachment*>(m_Spec.Attachments[i].get())->GetImageView();
 		}
 
 		VkFramebufferCreateInfo framebufferInfo{};
 		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-		framebufferInfo.renderPass = static_cast<VulkanRenderPass*>(m_Spec.RenderPass.get())->GetVkHandle();
+		framebufferInfo.renderPass = static_cast<VulkanRenderPass*>(m_Spec.RenderPass)->GetVkHandle();
 		framebufferInfo.attachmentCount = static_cast<uint32_t>(m_Spec.Attachments.size());
 		framebufferInfo.pAttachments = attachments;
 		framebufferInfo.width = m_Spec.Width;

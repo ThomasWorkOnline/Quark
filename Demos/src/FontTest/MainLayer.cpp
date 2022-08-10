@@ -13,16 +13,18 @@ MainLayer::MainLayer(Application* app) : Layer(app)
 	m_Font1 = m_Library.Load("arial-regular", "assets/fonts/arial.ttf", 48);
 	m_Font2 = m_Library.Load("agency-regular", "assets/fonts/ANTQUAI.TTF", 64);
 
-	m_Text  = Text("Hello quad", m_Font1, m_Color1, HorizontalTextAlignment::Left, VerticalTextAlignment::Center);
-	m_Text2 = Text("Hello quad", m_Font2, m_Color1, HorizontalTextAlignment::Right, VerticalTextAlignment::Bottom);
+	static constexpr Vec4f color1 = { 1.0f, 1.0f, 0.0f, 1.0f };
+	static constexpr Vec4f color2 = { 1.0f, 0.0f, 1.0f, 0.5f };
+
+	m_Text  = Text("Hello quad", m_Font1, color1, HorizontalTextAlignment::Left, VerticalTextAlignment::Center);
+	m_Text2 = Text("Hello quad", m_Font2, color1, HorizontalTextAlignment::Right, VerticalTextAlignment::Bottom);
 	m_Input = TextInput(m_Font1, HorizontalTextAlignment::Center);
 
 	TextureFormatDescriptor descriptor;
 	descriptor.SRGB = true;
-	m_Texture = Texture2D::Create("assets/textures/pbr/streaked-metal/normal-dx.png", descriptor);
+	m_Texture.reset(Texture2D::Create("assets/textures/pbr/streaked-metal/normal-dx.png", descriptor));
 
 	auto window = GetApplication()->GetWindow();
-
 	m_Camera.SetOrthographic((float)window->GetWidth());
 	m_Camera.Resize(window->GetWidth(), window->GetHeight());
 }

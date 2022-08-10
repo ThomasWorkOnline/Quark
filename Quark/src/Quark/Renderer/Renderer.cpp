@@ -12,21 +12,30 @@ namespace Quark {
 		uint32_t MaxUniformBuffers = 0;
 		ShaderLibrary ShaderLib;
 
+		Scope<RenderPass> GeometryPass;
 		CommandBuffer* ActiveCommandBuffer = nullptr;
+
+		std::vector<Scope<Framebuffer>> Framebuffers;
 	};
 
 	static Scope<RendererData> s_Data;
 
-	void Renderer::BindPipeline(const Ref<Pipeline>& pipeline)
+	void Renderer::BindPipeline(Pipeline* pipeline)
 	{
 		QK_ASSERT_RENDER_THREAD();
 		s_Data->ActiveCommandBuffer->BindPipeline(pipeline);
 	}
 
-	void Renderer::BeginRenderPass(const Ref<RenderPass>& renderPass, const Ref<Framebuffer>& framebuffer)
+	void Renderer::BeginRenderPass(RenderPass* renderPass, Framebuffer* framebuffer)
 	{
 		QK_ASSERT_RENDER_THREAD();
 		s_Data->ActiveCommandBuffer->BeginRenderPass(renderPass, framebuffer);
+	}
+
+	void Renderer::BeginGeometryPass()
+	{
+		QK_ASSERT_RENDER_THREAD();
+		s_Data->ActiveCommandBuffer->BeginRenderPass(s_Data->GeometryPass.get(), GetTargetFramebuffer());
 	}
 
 	void Renderer::EndRenderPass()
@@ -35,7 +44,7 @@ namespace Quark {
 		s_Data->ActiveCommandBuffer->EndRenderPass();
 	}
 
-	void Renderer::Submit(const Ref<VertexBuffer>& vertexBuffer, const Ref<IndexBuffer>& indexBuffer)
+	void Renderer::Submit(VertexBuffer* vertexBuffer, IndexBuffer* indexBuffer)
 	{
 		QK_ASSERT_RENDER_THREAD();
 
@@ -44,7 +53,7 @@ namespace Quark {
 		s_Data->ActiveCommandBuffer->DrawIndexed(indexBuffer->GetCount());
 	}
 
-	void Renderer::Submit(const Ref<VertexBuffer>& vertexBuffer, const Ref<IndexBuffer>& indexBuffer, uint32_t indexCount)
+	void Renderer::Submit(VertexBuffer* vertexBuffer, IndexBuffer* indexBuffer, uint32_t indexCount)
 	{
 		QK_ASSERT_RENDER_THREAD();
 
@@ -53,7 +62,7 @@ namespace Quark {
 		s_Data->ActiveCommandBuffer->DrawIndexed(indexCount);
 	}
 
-	void Renderer::DrawLines(const Ref<VertexBuffer>& vertexBuffer, uint32_t vertexCount)
+	void Renderer::DrawLines(VertexBuffer* vertexBuffer, uint32_t vertexCount)
 	{
 		QK_ASSERT_RENDER_THREAD();
 
@@ -61,10 +70,36 @@ namespace Quark {
 		s_Data->ActiveCommandBuffer->DrawLines(vertexCount);
 	}
 
-	const Ref<CommandBuffer>& Renderer::GetCommandBuffer()
+	void Renderer::SetViewport(uint32_t x, uint32_t y, uint32_t viewportWidth, uint32_t viewportHeight)
+	{
+		QK_ASSERT_RENDER_THREAD();
+
+		s_ViewportExtent.Width = viewportWidth;
+		s_ViewportExtent.Height = viewportHeight;
+
+		GraphicsContext::Get()->SetViewport(x, y, viewportWidth, viewportHeight);
+	}
+
+	RenderPass* Renderer::GetGeometryPass()
+	{
+		return s_Data->GeometryPass.get();
+	}
+
+	Framebuffer* Renderer::GetTargetFramebuffer()
+	{
+		const uint32_t imageIndex = GraphicsContext::Get()->GetCurrentImageIndex();
+		return s_Data->Framebuffers[imageIndex].get();
+	}
+
+	CommandBuffer* Renderer::GetCommandBuffer()
 	{
 		QK_ASSERT_RENDER_THREAD();
 		return GraphicsContext::Get()->GetCommandBuffer();
+	}
+
+	Renderer::ViewportExtent Renderer::GetViewportExtent()
+	{
+		return s_ViewportExtent;
 	}
 
 	ShaderLibrary& Renderer::GetShaderLibrary()
@@ -78,7 +113,7 @@ namespace Quark {
 
 		GraphicsContext::Get()->StartFrame();
 
-		s_Data->ActiveCommandBuffer = GetCommandBuffer().get();
+		s_Data->ActiveCommandBuffer = GetCommandBuffer();
 		s_Data->ActiveCommandBuffer->Reset();
 		s_Data->ActiveCommandBuffer->Begin();
 	}
@@ -91,24 +126,74 @@ namespace Quark {
 		GraphicsContext::Get()->Submit();
 	}
 
-	void Renderer::OnViewportResized(uint32_t width, uint32_t height)
-	{
-		QK_ASSERT_RENDER_THREAD();
-		GraphicsContext::Get()->OnViewportResized(width, height);
-	}
-
-	void Renderer::Initialize()
+	void Renderer::Initialize(uint32_t viewportWidth, uint32_t viewportHeight)
 	{
 		QK_PROFILE_FUNCTION();
 
-		if (s_Data)
-			return;
+		if (s_Data) return;
+
+		s_ViewportExtent.Width = viewportWidth;
+		s_ViewportExtent.Height = viewportHeight;
 
 		s_ThreadId = std::this_thread::get_id();
 		RenderCommand::Init();
 
 		s_Data = CreateScope<RendererData>();
 		s_Data->MaxUniformBuffers = GraphicsAPI::Instance->GetCapabilities().UniformBufferConstraints.MaxBindings;
+
+		{
+			RenderPassSpecification spec;
+			spec.BindPoint = PipelineBindPoint::Graphics;
+			spec.ColorFormat = ColorDataFormat::BGRA8_SRGB;
+			spec.ClearBuffers = true;
+			s_Data->GeometryPass.reset(RenderPass::Create(spec));
+		}
+
+		const uint32_t swapChainImages = GraphicsContext::Get()->GetSwapChainImageCount();
+		s_Data->Framebuffers.resize(swapChainImages);
+
+		// Target the default framebuffer when using OpenGL
+		if (GraphicsAPI::GetAPI() == RHI::Vulkan)
+		{
+			FramebufferSpecification fbSpec;
+			fbSpec.Width = s_ViewportExtent.Width;
+			fbSpec.Height = s_ViewportExtent.Height;
+			fbSpec.SwapChainTarget = true;
+			fbSpec.RenderPass = s_Data->GeometryPass.get();
+
+			for (uint32_t i = 0; i < swapChainImages; i++)
+			{
+				s_Data->Framebuffers[i].reset(Framebuffer::Create(fbSpec));
+			}
+
+#if 0
+			// Framebuffers
+			{
+				for (auto& framebuffer : m_Framebuffers)
+				{
+					vkDestroyFramebuffer(m_Device->GetVkHandle(), framebuffer, nullptr);
+				}
+
+				const uint32_t imageCount = VulkanContext::Get()->GetSwapChain()->GetImageCount();
+				m_Framebuffers.resize(imageCount);
+
+				VkFramebufferCreateInfo framebufferInfo{};
+				framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+				framebufferInfo.renderPass = static_cast<VulkanRenderPass*>(m_Spec.RenderPass.get())->GetVkHandle();
+				framebufferInfo.attachmentCount = 1;
+				framebufferInfo.width = m_Spec.ViewportWidth;
+				framebufferInfo.height = m_Spec.ViewportHeight;
+				framebufferInfo.layers = 1;
+
+				for (uint32_t i = 0; i < imageCount; i++)
+				{
+					auto attachment = VulkanContext::Get()->GetSwapChain()->GetImageView(i);
+					framebufferInfo.pAttachments = &attachment;
+					vkCreateFramebuffer(m_Device->GetVkHandle(), &framebufferInfo, nullptr, &m_Framebuffers[i]);
+				}
+			}
+#endif
+		}
 	}
 
 	void Renderer::Dispose()

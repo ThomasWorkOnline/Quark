@@ -36,6 +36,7 @@ namespace Quark {
 	private:
 		Face m_Face;
 		std::vector<Glyph> m_Glyphs;
+
 		uint32_t m_FontSize;
 		uint32_t m_AtlasWidth, m_AtlasHeight;
 		uint32_t m_RendererID = 0;

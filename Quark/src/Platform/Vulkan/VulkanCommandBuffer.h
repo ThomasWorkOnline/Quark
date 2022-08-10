@@ -10,14 +10,15 @@ namespace Quark {
 	class VulkanCommandBuffer final : public CommandBuffer
 	{
 	public:
+		VulkanCommandBuffer() = default;
 		VulkanCommandBuffer(VulkanDevice* device);
 
 		virtual void Begin() override;
 		virtual void End() override;
 
-		virtual void BindPipeline(const Ref<Pipeline>& pipeline) override;
+		virtual void BindPipeline(Pipeline* pipeline) override;
 
-		virtual void BeginRenderPass(const Ref<RenderPass>& renderPass, const Ref<Framebuffer>& framebuffer) override;
+		virtual void BeginRenderPass(RenderPass* renderPass, Framebuffer* framebuffer) override;
 		virtual void EndRenderPass() override;
 
 		virtual void Reset() override;
@@ -27,8 +28,8 @@ namespace Quark {
 
 		virtual void DrawLines(uint32_t vertexCount) override;
 
-		virtual void BindVertexBuffer(const Ref<VertexBuffer>& vertexBuffer, uint32_t binding) override;
-		virtual void BindIndexBuffer(const Ref<IndexBuffer>& indexBuffer) override;
+		virtual void BindVertexBuffer(VertexBuffer* vertexBuffer, uint32_t binding) override;
+		virtual void BindIndexBuffer(IndexBuffer* indexBuffer) override;
 
 		virtual bool operator==(const CommandBuffer& other) const override
 		{

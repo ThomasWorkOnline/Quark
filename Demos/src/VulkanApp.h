@@ -22,6 +22,5 @@ private:
 	Entity m_CameraEntity;
 
 	SceneRenderer m_SceneRenderer;
-
 	bool m_ViewportSelected = false;
 };

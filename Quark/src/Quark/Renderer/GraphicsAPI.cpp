@@ -11,19 +11,19 @@
 
 namespace Quark {
 
-	API GraphicsAPI::s_API = API::None;
+	RHI GraphicsAPI::s_API = RHI::None;
 	Scope<GraphicsAPI> GraphicsAPI::Instance = Instantiate(GetDefaultForPlatform());
 
-	Scope<GraphicsAPI> GraphicsAPI::Instantiate(API api)
+	Scope<GraphicsAPI> GraphicsAPI::Instantiate(RHI api)
 	{
 		s_API = api;
 		switch (api)
 		{
 #ifdef QK_PLATFORM_APPLE
-			case API::Metal:  return CreateScope<MetalGraphicsAPI>();
+			case RHI::Metal:  return CreateScope<MetalGraphicsAPI>();
 #endif
-			case API::OpenGL: return CreateScope<OpenGLGraphicsAPI>();
-			case API::Vulkan: return CreateScope<VulkanGraphicsAPI>();
+			case RHI::OpenGL: return CreateScope<OpenGLGraphicsAPI>();
+			case RHI::Vulkan: return CreateScope<VulkanGraphicsAPI>();
 
 			QK_ASSERT_NO_DEFAULT("Unknown graphics API");
 		}

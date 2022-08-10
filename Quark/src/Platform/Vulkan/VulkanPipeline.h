@@ -20,17 +20,16 @@ namespace Quark {
 		virtual ~VulkanPipeline() override;
 
 		virtual void Resize(uint32_t viewportWidth, uint32_t viewportHeight) override;
-
-		virtual const Ref<UniformBuffer>& GetUniformBuffer() const override;
+		virtual UniformBuffer* GetUniformBuffer() const override;
 
 		virtual bool operator==(const Pipeline& other) const override
 		{
 			return m_Pipeline == reinterpret_cast<const VulkanPipeline&>(other).m_Pipeline;
 		}
 
-		void Bind(VkCommandBuffer commandBuffer);
-
 		VkPipeline GetVkHandle() const { return m_Pipeline; }
+		VkPipelineLayout GetPipelineLayout() const { return m_PipelineLayout; }
+		VkDescriptorSet GetDescriptorSet() const;
 
 	private:
 		void Invalidate();
@@ -43,8 +42,7 @@ namespace Quark {
 		VkPipelineLayout m_PipelineLayout = VK_NULL_HANDLE;
 		VkPipeline m_Pipeline = VK_NULL_HANDLE;
 
-		std::vector<VkFramebuffer> m_Framebuffers;
 		VkDescriptorSet m_DescriptorSets[VulkanContext::FramesInFlight];
-		Ref<UniformBuffer> m_CameraUniformBuffers[VulkanContext::FramesInFlight];
+		Scope<UniformBuffer> m_CameraUniformBuffers[VulkanContext::FramesInFlight];
 	};
 }

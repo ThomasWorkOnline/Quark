@@ -3,8 +3,8 @@
 
 namespace Quark {
 
-	SubTexture2D::SubTexture2D(const Ref<Texture2D>& texture, const Vec2f& coord, const Vec2f& subTextureSize)
-		: m_Texture(texture)
+	SubTexture2D::SubTexture2D(Ref<Texture2D> texture, const Vec2f& coord, const Vec2f& subTextureSize)
+		: m_Texture(std::move(texture))
 	{
 		auto start = Vec2f(coord.x * subTextureSize.x / texture->GetWidth(), coord.y * subTextureSize.y / texture->GetHeight());
 		auto end = Vec2f(subTextureSize.x / texture->GetWidth(), subTextureSize.y / texture->GetHeight());

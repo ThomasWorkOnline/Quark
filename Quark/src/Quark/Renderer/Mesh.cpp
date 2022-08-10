@@ -121,10 +121,10 @@ namespace Quark {
 		}
 
 		Mesh mesh;
-		mesh.m_VertexBuffer = VertexBuffer::Create(baseVertices, vertexCount * sizeof(MeshVertex));
+		mesh.m_VertexBuffer.reset(VertexBuffer::Create(baseVertices, vertexCount * sizeof(MeshVertex)));
 		mesh.m_VertexBuffer->SetLayout(s_Layout);
 
-		mesh.m_IndexBuffer = IndexBuffer::Create(indices, vertexCount);
+		mesh.m_IndexBuffer.reset(IndexBuffer::Create(indices, vertexCount));
 
 		delete[] baseVertices;
 		delete[] indices;
@@ -137,10 +137,10 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		Mesh mesh;
-		mesh.m_VertexBuffer = VertexBuffer::Create(CubeVertices, sizeof(CubeVertices));
+		mesh.m_VertexBuffer.reset(VertexBuffer::Create(CubeVertices, sizeof(CubeVertices)));
 		mesh.m_VertexBuffer->SetLayout(s_Layout);
 
-		mesh.m_IndexBuffer = IndexBuffer::Create(CubeIndices, sizeof(CubeIndices) / sizeof(CubeIndices[0]));
+		mesh.m_IndexBuffer.reset(IndexBuffer::Create(CubeIndices, sizeof(CubeIndices) / sizeof(CubeIndices[0])));
 		return mesh;
 	}
 

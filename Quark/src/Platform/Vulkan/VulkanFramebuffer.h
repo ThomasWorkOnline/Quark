@@ -15,7 +15,7 @@ namespace Quark {
 
 		virtual void SetData(void* data) override;
 
-	private:
+		VkImageView GetImageView() const { return VK_NULL_HANDLE; }
 	};
 
 	class VulkanFramebuffer final : public Framebuffer

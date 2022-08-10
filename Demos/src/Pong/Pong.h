@@ -25,15 +25,15 @@ private:
 	Scene m_Scene;
 	Entity m_Entity;
 
-	Ref<Shader> m_Shader;
 	Mesh m_Ball;
+	Scope<Shader> m_Shader;
 	Transform3DComponent m_BallTransform;
-	Ref<AudioBuffer> m_AudioBuffer;
-	Ref<AudioSource> m_AudioSource;
+
+	Scope<AudioBuffer> m_AudioBuffer;
+	Scope<AudioSource> m_AudioSource;
 	bool m_AudioPlaying = false;
 
 	float m_Speed = 1.0f;
 	float m_CoeffX = 0.0f, m_CoeffY = 0.0f;
-
 	bool m_CollidesX = false, m_CollidesY = false;
 };

@@ -7,7 +7,8 @@
 namespace Quark {
 
 	OpenALAudioContext::OpenALAudioContext(void* device)
-		: m_DeviceHandle(static_cast<ALCdevice*>(device)), m_Context(nullptr)
+		: m_DeviceHandle(static_cast<ALCdevice*>(device))
+		, m_Context(nullptr)
 	{
 		QK_CORE_ASSERT(device, "Audio device is nullptr!");
 	}

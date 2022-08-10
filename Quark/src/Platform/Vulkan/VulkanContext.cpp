@@ -232,7 +232,7 @@ namespace Quark {
 
 			for (uint32_t i = 0; i < FramesInFlight; i++)
 			{
-				m_Data.CommandBuffers[i] = CommandBuffer::Create();
+				m_Data.CommandBuffers[i] = VulkanCommandBuffer(m_Device.get());
 			}
 		}
 
@@ -266,7 +266,7 @@ namespace Quark {
 		submitInfo.pWaitDstStageMask = waitStages;
 
 		auto& activeCommandBuffer = m_Data.CommandBuffers[m_Data.CurrentFrameIndex];
-		VkCommandBuffer commandBuffer = static_cast<VulkanCommandBuffer*>(activeCommandBuffer.get())->GetVkHandle();
+		VkCommandBuffer commandBuffer = activeCommandBuffer.GetVkHandle();
 		submitInfo.commandBufferCount = 1;
 		submitInfo.pCommandBuffers = &commandBuffer;
 
@@ -285,14 +285,24 @@ namespace Quark {
 		m_SwapChain->Present(presentQueue, renderFinishedSemaphore);
 	}
 
-	void VulkanContext::OnViewportResized(uint32_t viewportWidth, uint32_t viewportHeight)
+	uint32_t VulkanContext::GetSwapChainImageCount() const
 	{
-		m_Device->WaitIdle();
-		m_SwapChain->Resize(viewportWidth, viewportHeight);
+		return m_SwapChain->GetImageCount();
 	}
 
-	const Ref<CommandBuffer>& VulkanContext::GetCommandBuffer() const
+	uint32_t VulkanContext::GetCurrentImageIndex() const
 	{
-		return m_Data.CommandBuffers[m_Data.CurrentFrameIndex];
+		return m_SwapChain->GetCurrentImageIndex();
+	}
+
+	void VulkanContext::SetViewport(uint32_t x, uint32_t y, uint32_t viewportWidth, uint32_t viewportHeight)
+	{
+		m_Device->WaitIdle();
+		m_SwapChain->Resize(viewportWidth - x, viewportHeight - y);
+	}
+
+	CommandBuffer* VulkanContext::GetCommandBuffer()
+	{
+		return m_Data.CommandBuffers + m_Data.CurrentFrameIndex;
 	}
 }

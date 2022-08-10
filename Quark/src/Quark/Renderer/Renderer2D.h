@@ -33,10 +33,11 @@ namespace Quark {
 		static void BeginScene(const Mat4f& cameraProjection, const Mat4f& cameraView);
 		static void EndScene();
 
-		static void DrawSprite(const Ref<Texture2D>& texture, const Mat4f& transform = Mat4f(1.0f));
-		static void DrawSprite(const Ref<Texture2D>& texture, const Vec2f* texCoords, const Mat4f& transform = Mat4f(1.0f));
+		static void DrawSprite(Texture2D* texture, const Mat4f& transform = Mat4f(1.0f));
+		static void DrawSprite(Texture2D* texture, const Vec2f* texCoords, const Mat4f& transform = Mat4f(1.0f));
 		static void DrawSprite(const SubTexture2D& subTexture, const Mat4f& transform = Mat4f(1.0f));
 		static void DrawSprite(const Vec4f& color, const Mat4f& transform = Mat4f(1.0f));
+
 		static void DrawLine(const Vec3f& p1, const Vec3f& p2, const Vec4f& beginColor, const Vec4f& endColor);
 		static void DrawText(std::string_view text, const TextRenderTraits& traits);
 		static void DrawText(const Text& text);

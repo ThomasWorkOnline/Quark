@@ -27,7 +27,7 @@ namespace Quark {
 		}
 		
 	private:
-		VulkanDevice* m_Device;
+		VulkanDevice* m_Device = nullptr;
 
 		VkBuffer m_Buffer;
 		VkDeviceMemory m_BufferMemory;
@@ -54,7 +54,7 @@ namespace Quark {
 		}
 
 	private:
-		VulkanDevice* m_Device;
+		VulkanDevice* m_Device = nullptr;
 
 		VkBuffer m_Buffer;
 		VkDeviceMemory m_BufferMemory;

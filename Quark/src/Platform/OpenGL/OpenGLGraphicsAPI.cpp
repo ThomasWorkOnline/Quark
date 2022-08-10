@@ -124,11 +124,6 @@ namespace Quark {
 		glClearColor(rgba.x, rgba.y, rgba.z, rgba.w);
 	}
 
-	void OpenGLGraphicsAPI::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
-	{
-		glViewport(x, y, width, height);
-	}
-
 	void OpenGLGraphicsAPI::SetLineThickness(float thickness)
 	{
 		glLineWidth(thickness);
@@ -141,94 +136,94 @@ namespace Quark {
 		return thickness;
 	}
 
-	Ref<CommandBuffer> OpenGLGraphicsAPI::CreateCommandBuffer()
+	CommandBuffer* OpenGLGraphicsAPI::CreateCommandBuffer()
 	{
-		return CreateRef<OpenGLCommandBuffer>();
+		return new OpenGLCommandBuffer();
 	}
 
-	Ref<Pipeline> OpenGLGraphicsAPI::CreatePipeline(const PipelineSpecification& spec)
+	Pipeline* OpenGLGraphicsAPI::CreatePipeline(const PipelineSpecification& spec)
 	{
-		return CreateRef<OpenGLPipeline>(spec);
+		return new OpenGLPipeline(spec);
 	}
 
-	Ref<RenderPass> OpenGLGraphicsAPI::CreateRenderPass(const RenderPassSpecification& spec)
+	RenderPass* OpenGLGraphicsAPI::CreateRenderPass(const RenderPassSpecification& spec)
 	{
-		return CreateRef<OpenGLRenderPass>(spec);
+		return new OpenGLRenderPass(spec);
 	}
 
-	Ref<VertexBuffer> OpenGLGraphicsAPI::CreateVertexBuffer(const void* vertices, size_t size)
+	VertexBuffer* OpenGLGraphicsAPI::CreateVertexBuffer(const void* vertices, size_t size)
 	{
-		return CreateRef<OpenGLVertexBuffer>(vertices, size);
+		return new OpenGLVertexBuffer(vertices, size);
 	}
 
-	Ref<VertexBuffer> OpenGLGraphicsAPI::CreateVertexBuffer(size_t size)
+	VertexBuffer* OpenGLGraphicsAPI::CreateVertexBuffer(size_t size)
 	{
-		return CreateRef<OpenGLVertexBuffer>(size);
+		return new OpenGLVertexBuffer(size);
 	}
 
-	Ref<IndexBuffer> OpenGLGraphicsAPI::CreateIndexBuffer(const uint32_t* indices, uint32_t count)
+	IndexBuffer* OpenGLGraphicsAPI::CreateIndexBuffer(const uint32_t* indices, uint32_t count)
 	{
-		return CreateRef<OpenGLIndexBuffer>(indices, count);
+		return new OpenGLIndexBuffer(indices, count);
 	}
 
-	Ref<IndexBuffer> OpenGLGraphicsAPI::CreateIndexBuffer(uint32_t count)
+	IndexBuffer* OpenGLGraphicsAPI::CreateIndexBuffer(uint32_t count)
 	{
-		return CreateRef<OpenGLIndexBuffer>(count);
+		return new OpenGLIndexBuffer(count);
 	}
 
-	Ref<Cubemap> OpenGLGraphicsAPI::CreateCubemap(const CubemapSpecification& spec)
+	Cubemap* OpenGLGraphicsAPI::CreateCubemap(const CubemapSpecification& spec)
 	{
-		return CreateRef<OpenGLCubemap>(spec);
+		return new OpenGLCubemap(spec);
 	}
 
-	Ref<Font> OpenGLGraphicsAPI::CreateFont(std::string_view filepath, uint32_t fontSize)
+	Font* OpenGLGraphicsAPI::CreateFont(std::string_view filepath, uint32_t fontSize)
 	{
-		return CreateRef<OpenGLFont>(filepath, fontSize);
+		return new OpenGLFont(filepath, fontSize);
 	}
 
-	Ref<Framebuffer> OpenGLGraphicsAPI::CreateFramebuffer(const FramebufferSpecification& spec)
+	Framebuffer* OpenGLGraphicsAPI::CreateFramebuffer(const FramebufferSpecification& spec)
 	{
-		return CreateRef<OpenGLFramebuffer>(spec);
+		return new OpenGLFramebuffer(spec);
 	}
 
-	Ref<FramebufferAttachment> OpenGLGraphicsAPI::CreateFramebufferAttachment(void* image, const FramebufferAttachmentSpecification& spec)
+	FramebufferAttachment* OpenGLGraphicsAPI::CreateFramebufferAttachment(void* image, const FramebufferAttachmentSpecification& spec)
 	{
-		return CreateRef<OpenGLFramebufferAttachment>(image, spec);
+		return new OpenGLFramebufferAttachment(image, spec);
 	}
 
-	Ref<Shader> OpenGLGraphicsAPI::CreateShader(std::string_view filepath)
+	Shader* OpenGLGraphicsAPI::CreateShader(std::string_view filepath)
 	{
-		return CreateRef<OpenGLShader>(filepath);
+		return new OpenGLShader(filepath);
 	}
 
-	Ref<Shader> OpenGLGraphicsAPI::CreateShader(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource)
+	Shader* OpenGLGraphicsAPI::CreateShader(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource)
 	{
-		return CreateRef<OpenGLShader>(name, vertexSource, fragmentSource);
+		return new OpenGLShader(name, vertexSource, fragmentSource);
 	}
 
-	Ref<Shader> OpenGLGraphicsAPI::CreateShader(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource)
+	Shader* OpenGLGraphicsAPI::CreateShader(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource)
 	{
-		return CreateRef<OpenGLShader>(name, vertexSource, geometrySource, fragmentSource);
+		return new OpenGLShader(name, vertexSource, geometrySource, fragmentSource);
 	}
 
-	Ref<Texture2D> OpenGLGraphicsAPI::CreateTexture2D(const Texture2DSpecification& spec)
+	Texture2D* OpenGLGraphicsAPI::CreateTexture2D(const Texture2DSpecification& spec)
 	{
-		return CreateRef<OpenGLTexture2D>(spec);
+		return new OpenGLTexture2D(spec);
 	}
 
-	Ref<Texture2D> OpenGLGraphicsAPI::CreateTexture2D(std::string_view filepath, const TextureFormatDescriptor& descriptor)
+	Texture2D* OpenGLGraphicsAPI::CreateTexture2D(std::string_view filepath, const TextureFormatDescriptor& descriptor)
 	{
-		return CreateRef<OpenGLTexture2D>(filepath, descriptor);
+		return new OpenGLTexture2D(filepath, descriptor);
 	}
 
-	Ref<Texture2DArray> OpenGLGraphicsAPI::CreateTexture2DArray(const Texture2DArraySpecification& spec)
+	Texture2DArray* OpenGLGraphicsAPI::CreateTexture2DArray(const Texture2DArraySpecification& spec)
 	{
-		return CreateRef<OpenGLTexture2DArray>(spec);
+		return new OpenGLTexture2DArray(spec);
 	}
 
-	Ref<UniformBuffer> OpenGLGraphicsAPI::CreateUniformBuffer(size_t size, uint32_t binding)
+	UniformBuffer* OpenGLGraphicsAPI::CreateUniformBuffer(size_t size, uint32_t binding)
 	{
-		return CreateRef<OpenGLUniformBuffer>(size, binding);
+		return new OpenGLUniformBuffer(size, binding);
 	}
 
 	std::string OpenGLGraphicsAPI::GetSpecification() const

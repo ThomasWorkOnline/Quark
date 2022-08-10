@@ -31,7 +31,7 @@ private:
 	Ref<Texture2D> m_Roughness;
 	Ref<Texture2D> m_AO;
 
-	Ref<Shader> m_PBRShader;
+	Scope<Shader> m_PBRShader;
 	Mesh m_Body;
 
 	std::future<OBJMeshData> m_MeshDataFuture;

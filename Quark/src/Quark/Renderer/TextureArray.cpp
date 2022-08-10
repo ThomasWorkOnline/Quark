@@ -5,7 +5,7 @@
 
 namespace Quark {
 
-	Ref<Texture2DArray> Texture2DArray::Create(const Texture2DArraySpecification& spec)
+	Texture2DArray* Texture2DArray::Create(const Texture2DArraySpecification& spec)
 	{
 		return GraphicsAPI::Instance->CreateTexture2DArray(spec);
 	}

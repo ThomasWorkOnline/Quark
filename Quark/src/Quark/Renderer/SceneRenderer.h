@@ -33,15 +33,15 @@ namespace Quark {
 	private:
 		struct EnvironmentData
 		{
-			Ref<Shader> SkyboxShader;
-			Ref<Shader> IrradianceShader;
-			Ref<Shader> EquirectangleToCubemapShader;
-			Ref<VertexBuffer> CubemapVertexBuffer;
-			Ref<IndexBuffer> CubemapIndexBuffer;
-			Ref<Framebuffer> Framebuffer;
+			Scope<Shader> SkyboxShader;
+			Scope<Shader> IrradianceShader;
+			Scope<Shader> EquirectangleToCubemapShader;
+			Scope<VertexBuffer> CubemapVertexBuffer;
+			Scope<IndexBuffer> CubemapIndexBuffer;
+			Scope<Framebuffer> Framebuffer;
 
-			Ref<Cubemap> Environment;
-			Ref<Cubemap> Irradiance;
+			Scope<Cubemap> Environment;
+			Scope<Cubemap> Irradiance;
 		};
 
 		struct SceneData
@@ -53,19 +53,17 @@ namespace Quark {
 				Mat4f Projection = Mat4(1.0f);
 			};
 
-			Scope<EnvironmentData> Env;
+			Scope<EnvironmentData>  Env;
 			CameraUniformBufferData CameraBufferData;
 
-			Ref<VertexBuffer> VertexBuffer;
-			Ref<IndexBuffer> IndexBuffer;
+			Scope<VertexBuffer> VertexBuffer;
+			Scope<IndexBuffer>  IndexBuffer;
 
-			Ref<Shader> Shader;
-			Ref<RenderPass> GeometryPass;
-			Ref<Pipeline> GraphicsPipeline;
+			Scope<Shader>   Shader;
+			Scope<Pipeline> GraphicsPipeline;
 		};
 
 		Ref<Scene> m_Scene;
 		SceneData m_Data;
-		uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;
 	};
 }

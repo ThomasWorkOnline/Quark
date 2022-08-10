@@ -36,21 +36,21 @@ namespace Quark {
 
 	void SceneRenderer::SetContext(Ref<Scene> scene)
 	{
+		QK_CORE_ASSERT(scene, "Scene is nullptr!");
+
 		m_Scene = std::move(scene);
 
 		if (m_Scene->HasPrimaryCamera())
 		{
+			auto& viewport = Renderer::GetViewportExtent();
+
 			auto& cc = m_Scene->m_PrimaryCameraEntity.GetComponent<CameraComponent>();
-			cc.Camera.Resize(m_ViewportWidth, m_ViewportHeight);
+			cc.Camera.Resize(viewport.Width, viewport.Height);
 		}
 	}
 
 	SceneRenderer::SceneRenderer()
 	{
-		auto window = Application::Get()->GetWindow();
-		m_ViewportWidth = window->GetWidth();
-		m_ViewportHeight = window->GetHeight();
-
 		Initialize();
 	}
 
@@ -72,7 +72,7 @@ namespace Quark {
 			m_Data.CameraBufferData.View = view;
 			m_Data.CameraBufferData.Projection = sceneCamera.GetProjection();
 
-			Renderer::BindPipeline(m_Data.GraphicsPipeline);
+			Renderer::BindPipeline(m_Data.GraphicsPipeline.get());
 			m_Data.GraphicsPipeline->GetUniformBuffer()->SetData(&m_Data.CameraBufferData, sizeof(SceneData::CameraUniformBufferData));
 
 			GeometryPass();
@@ -91,7 +91,7 @@ namespace Quark {
 				m_Data.Env->Environment->Attach(0);
 				m_Data.Env->Irradiance->Attach(5); // TODO: put inside scene uniform buffer
 
-				Renderer::Submit(m_Data.Env->CubemapVertexBuffer, m_Data.Env->CubemapIndexBuffer);
+				Renderer::Submit(m_Data.Env->CubemapVertexBuffer.get(), m_Data.Env->CubemapIndexBuffer.get());
 				RenderCommand::SetCullFace(RenderCullMode::Default);
 				RenderCommand::SetDepthFunction(RenderDepthFunction::Default);
 			}
@@ -100,18 +100,12 @@ namespace Quark {
 
 	void SceneRenderer::OnViewportResized(uint32_t viewportWidth, uint32_t viewportHeight)
 	{
-		m_ViewportWidth = viewportWidth;
-		m_ViewportHeight = viewportHeight;
-
 		m_Data.GraphicsPipeline->Resize(viewportWidth, viewportHeight);
 
-		if (m_Scene)
+		if (m_Scene && m_Scene->HasPrimaryCamera())
 		{
-			if (m_Scene->HasPrimaryCamera())
-			{
-				auto& cc = m_Scene->m_PrimaryCameraEntity.GetComponent<CameraComponent>();
-				cc.Camera.Resize(m_ViewportWidth, m_ViewportHeight);
-			}
+			auto& cc = m_Scene->m_PrimaryCameraEntity.GetComponent<CameraComponent>();
+			cc.Camera.Resize(viewportWidth, viewportHeight);
 		}
 	}
 
@@ -122,8 +116,8 @@ namespace Quark {
 
 	void SceneRenderer::GeometryPass()
 	{
-		Renderer::BeginRenderPass(m_Data.GeometryPass, nullptr);
-		Renderer::Submit(m_Data.VertexBuffer, m_Data.IndexBuffer);
+		Renderer::BeginGeometryPass();
+		Renderer::Submit(m_Data.VertexBuffer.get(), m_Data.IndexBuffer.get());
 		Renderer::EndRenderPass();
 	}
 
@@ -131,46 +125,40 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		if (GraphicsAPI::GetAPI() == API::Vulkan)
+		if (GraphicsAPI::GetAPI() == RHI::Vulkan)
 		{
 			std::string vertexSource = Filesystem::ReadTextFile("../Quark/assets/shaders/version/4.50/bin/shader.vert.spv");
 			std::string fragmentSource = Filesystem::ReadTextFile("../Quark/assets/shaders/version/4.50/bin/shader.frag.spv");
 
-			m_Data.Shader = Shader::Create("shader", vertexSource, fragmentSource);
+			m_Data.Shader.reset(Shader::Create("shader", vertexSource, fragmentSource));
 		}
-		else if (GraphicsAPI::GetAPI() == API::OpenGL)
+		else if (GraphicsAPI::GetAPI() == RHI::OpenGL)
 		{
 			std::string vertexSource = Filesystem::ReadTextFile("../Quark/assets/shaders/version/4.50/shader.vert");
 			std::string fragmentSource = Filesystem::ReadTextFile("../Quark/assets/shaders/version/4.50/shader.frag");
 
-			m_Data.Shader = Shader::Create("shader", vertexSource, fragmentSource);
+			m_Data.Shader.reset(Shader::Create("shader", vertexSource, fragmentSource));
 		}
 
 		{
-			RenderPassSpecification spec;
-			spec.BindPoint = PipelineBindPoint::Graphics;
-			spec.ColorFormat = ColorDataFormat::BGRA8_SRGB;
-			spec.ClearBuffers = true;
-			m_Data.GeometryPass = RenderPass::Create(spec);
-		}
+			auto& viewport = Renderer::GetViewportExtent();
 
-		{
 			PipelineSpecification spec;
-			spec.ViewportWidth = m_ViewportWidth;
-			spec.ViewportHeight = m_ViewportHeight;
+			spec.ViewportWidth = viewport.Width;
+			spec.ViewportHeight = viewport.Height;
 			spec.CameraUniformBufferSize = sizeof(SceneData::CameraUniformBufferData);
 			spec.Layout = s_Vertex2DLayout;
-			spec.RenderPass = m_Data.GeometryPass;
-			spec.Shader = m_Data.Shader;
+			spec.RenderPass = Renderer::GetGeometryPass();
+			spec.Shader = m_Data.Shader.get();
 
-			m_Data.GraphicsPipeline = Pipeline::Create(spec);
+			m_Data.GraphicsPipeline.reset(Pipeline::Create(spec));
 		}
 
 		{
-			m_Data.VertexBuffer = VertexBuffer::Create(s_Vertices, sizeof(s_Vertices));
+			m_Data.VertexBuffer.reset(VertexBuffer::Create(s_Vertices, sizeof(s_Vertices)));
 			m_Data.VertexBuffer->SetLayout(s_Vertex2DLayout);
 
-			m_Data.IndexBuffer = IndexBuffer::Create(s_Indices, sizeof(s_Indices) / sizeof(uint32_t));
+			m_Data.IndexBuffer.reset(IndexBuffer::Create(s_Indices, sizeof(s_Indices) / sizeof(uint32_t)));
 		}
 	}
 
@@ -183,25 +171,25 @@ namespace Quark {
 			auto& assetDir = Application::Get()->GetOptions().AssetDir;
 
 			m_Data.Env = CreateScope<EnvironmentData>();
-			m_Data.Env->SkyboxShader = Shader::Create((assetDir / "assets/shaders/version/3.30/cubemap.glsl").string());
-			m_Data.Env->IrradianceShader = Shader::Create((assetDir / "assets/shaders/version/3.30/irradiance.glsl").string());
-			m_Data.Env->EquirectangleToCubemapShader = Shader::Create((assetDir / "assets/shaders/version/3.30/equirectangle_to_cubemap.glsl").string());
+			m_Data.Env->SkyboxShader.reset(Shader::Create((assetDir / "assets/shaders/version/3.30/cubemap.glsl").string()));
+			m_Data.Env->IrradianceShader.reset(Shader::Create((assetDir / "assets/shaders/version/3.30/irradiance.glsl").string()));
+			m_Data.Env->EquirectangleToCubemapShader.reset(Shader::Create((assetDir / "assets/shaders/version/3.30/equirectangle_to_cubemap.glsl").string()));
 
 			{
 				Mesh cube = Mesh::GenerateUnitCube();
-				m_Data.Env->CubemapVertexBuffer = cube.GetVertexBuffer();
-				m_Data.Env->CubemapIndexBuffer = cube.GetIndexBuffer();
+				m_Data.Env->CubemapVertexBuffer.reset(cube.GetVertexBuffer());
+				m_Data.Env->CubemapIndexBuffer.reset(cube.GetIndexBuffer());
 			}
 
 			{
 				CubemapSpecification spec;
 				spec.Width = 2048;
 				spec.Height = 2048;
-				m_Data.Env->Environment = Cubemap::Create(spec);
+				m_Data.Env->Environment.reset(Cubemap::Create(spec));
 
 				spec.Width = 32;
 				spec.Height = 32;
-				m_Data.Env->Irradiance = Cubemap::Create(spec);
+				m_Data.Env->Irradiance.reset(Cubemap::Create(spec));
 			}
 
 			{
@@ -212,8 +200,8 @@ namespace Quark {
 				FramebufferSpecification spec;
 				spec.Width = 2048;
 				spec.Height = 2048;
-				spec.Attachments = { FramebufferAttachment::Create(nullptr, attachmentSpec) };
-				m_Data.Env->Framebuffer = Framebuffer::Create(spec);
+				spec.Attachments = { Ref<FramebufferAttachment>(FramebufferAttachment::Create(nullptr, attachmentSpec)) };
+				m_Data.Env->Framebuffer.reset(Framebuffer::Create(spec));
 			}
 		}
 
@@ -245,7 +233,7 @@ namespace Quark {
 
 			// FIX:
 			RenderCommand::Clear();
-			Renderer::Submit(m_Data.Env->CubemapVertexBuffer, m_Data.Env->CubemapIndexBuffer);
+			Renderer::Submit(m_Data.Env->CubemapVertexBuffer.get(), m_Data.Env->CubemapIndexBuffer.get());
 		}
 
 		m_Data.Env->Framebuffer->Detach();
@@ -264,13 +252,12 @@ namespace Quark {
 
 			// FIX:
 			RenderCommand::Clear();
-			Renderer::Submit(m_Data.Env->CubemapVertexBuffer, m_Data.Env->CubemapIndexBuffer);
+			Renderer::Submit(m_Data.Env->CubemapVertexBuffer.get(), m_Data.Env->CubemapIndexBuffer.get());
 		}
 
 		m_Data.Env->Framebuffer->Detach();
 
 		RenderCommand::SetCullFace(RenderCullMode::Default);
 		RenderCommand::SetDepthFunction(RenderDepthFunction::Default);
-		RenderCommand::SetViewport(0, 0, m_ViewportWidth, m_ViewportHeight);
 	}
 }

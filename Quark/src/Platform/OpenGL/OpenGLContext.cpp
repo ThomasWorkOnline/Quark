@@ -30,23 +30,8 @@ namespace Quark {
 		OpenGLContextBase::Init();
 	}
 
-	void OpenGLContext::StartFrame()
-	{
-		// TODO(TEMPORARY): remove, part of the renderpass
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	}
-
-	void OpenGLContext::Submit()
-	{
-	}
-
 	void OpenGLContext::SwapBuffers()
 	{
 		glfwSwapBuffers(m_WindowHandle);
-	}
-
-	void OpenGLContext::OnViewportResized(uint32_t viewportWidth, uint32_t viewportHeight)
-	{
-		OpenGLContextBase::OnViewportResized(viewportWidth, viewportHeight);
 	}
 }

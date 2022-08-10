@@ -4,6 +4,7 @@
 
 #include "VulkanDevice.h"
 #include "VulkanSwapChain.h"
+#include "VulkanCommandBuffer.h"
 
 #include <vulkan/vulkan.h>
 
@@ -27,12 +28,14 @@ namespace Quark {
 
 		virtual void Init() override;
 		virtual void StartFrame() override;
+
 		virtual void Submit() override;
-
 		virtual void SwapBuffers() override;
-		virtual void OnViewportResized(uint32_t viewportWidth, uint32_t viewportHeight) override;
+		virtual void SetViewport(uint32_t x, uint32_t y, uint32_t viewportWidth, uint32_t viewportHeight) override;
 
-		virtual const Ref<CommandBuffer>& GetCommandBuffer() const override;
+		virtual uint32_t GetCurrentImageIndex() const override;
+		virtual uint32_t GetSwapChainImageCount() const override;
+		virtual CommandBuffer* GetCommandBuffer() override;
 
 		VulkanSwapChain* GetSwapChain() { return m_SwapChain.get(); }
 		uint32_t GetCurrentFrameIndex() const { return m_Data.CurrentFrameIndex; }
@@ -43,10 +46,10 @@ namespace Quark {
 	private:
 		struct VulkanData
 		{
-			VkFence            InFlightFences[FramesInFlight];
-			VkSemaphore        RenderFinishedSemaphores[FramesInFlight];
-			VkSemaphore        ImageAvailableSemaphores[FramesInFlight];
-			Ref<CommandBuffer> CommandBuffers[FramesInFlight];
+			VkFence InFlightFences[FramesInFlight];
+			VkSemaphore RenderFinishedSemaphores[FramesInFlight];
+			VkSemaphore ImageAvailableSemaphores[FramesInFlight];
+			VulkanCommandBuffer CommandBuffers[FramesInFlight];
 
 			uint32_t CurrentFrameIndex = static_cast<uint32_t>(-1);
 		};

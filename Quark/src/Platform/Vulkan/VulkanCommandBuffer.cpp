@@ -31,15 +31,20 @@ namespace Quark {
 		vkEndCommandBuffer(m_CommandBuffer);
 	}
 
-	void VulkanCommandBuffer::BindPipeline(const Ref<Pipeline>& pipeline)
+	void VulkanCommandBuffer::BindPipeline(Pipeline* pipeline)
 	{
-		static_cast<VulkanPipeline*>(pipeline.get())->Bind(m_CommandBuffer);
+		auto vulkanPipeline = static_cast<VulkanPipeline*>(pipeline);
+		auto descriptorSet = vulkanPipeline->GetDescriptorSet();
+
+		vkCmdBindPipeline(m_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vulkanPipeline->GetVkHandle());
+		vkCmdBindDescriptorSets(m_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vulkanPipeline->GetPipelineLayout(),
+			0, 1, &descriptorSet, 0, nullptr);
 	}
 
-	void VulkanCommandBuffer::BeginRenderPass(const Ref<RenderPass>& renderPass, const Ref<Framebuffer>& framebuffer)
+	void VulkanCommandBuffer::BeginRenderPass(RenderPass* renderPass, Framebuffer* framebuffer)
 	{
-		auto vkFramebuffer = static_cast<VulkanFramebuffer*>(framebuffer.get())->GetVkHandle();
-		auto vkRenderPass = static_cast<VulkanRenderPass*>(renderPass.get())->GetVkHandle();
+		auto vkFramebuffer = static_cast<VulkanFramebuffer*>(framebuffer)->GetVkHandle();
+		auto vkRenderPass = static_cast<VulkanRenderPass*>(renderPass)->GetVkHandle();
 
 		VkRenderPassBeginInfo renderPassInfo{};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -90,16 +95,16 @@ namespace Quark {
 		vkCmdDraw(m_CommandBuffer, vertexCount, 1, 0, 0);
 	}
 
-	void VulkanCommandBuffer::BindVertexBuffer(const Ref<VertexBuffer>& vertexBuffer, uint32_t binding)
+	void VulkanCommandBuffer::BindVertexBuffer(VertexBuffer* vertexBuffer, uint32_t binding)
 	{
 		VkDeviceSize offsets[] = { 0 };
-		VkBuffer buffer = static_cast<VulkanVertexBuffer*>(vertexBuffer.get())->GetVkHandle();
+		VkBuffer buffer = static_cast<VulkanVertexBuffer*>(vertexBuffer)->GetVkHandle();
 		vkCmdBindVertexBuffers(m_CommandBuffer, 0, 1, &buffer, offsets);
 	}
 
-	void VulkanCommandBuffer::BindIndexBuffer(const Ref<IndexBuffer>& indexBuffer)
+	void VulkanCommandBuffer::BindIndexBuffer(IndexBuffer* indexBuffer)
 	{
-		VkBuffer buffer = static_cast<VulkanIndexBuffer*>(indexBuffer.get())->GetVkHandle();
+		VkBuffer buffer = static_cast<VulkanIndexBuffer*>(indexBuffer)->GetVkHandle();
 		vkCmdBindIndexBuffer(m_CommandBuffer, buffer, 0, VK_INDEX_TYPE_UINT32);
 	}
 }

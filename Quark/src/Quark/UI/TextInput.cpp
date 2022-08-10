@@ -5,10 +5,10 @@
 
 namespace Quark {
 
-	TextInput::TextInput(const Ref<Font>& font,
+	TextInput::TextInput(Ref<Font> font,
 		HorizontalTextAlignment hAlign, VerticalTextAlignment vAlign)
 	{
-		m_RenderTraits.FontStyle = font;
+		m_RenderTraits.FontStyle = std::move(font);
 		m_RenderTraits.HAlign    = hAlign;
 		m_RenderTraits.VAlign    = vAlign;
 	}
@@ -20,9 +20,9 @@ namespace Quark {
 		dispatcher.Dispatch<KeyTypedEvent>(ATTACH_EVENT_FN(TextInput::OnKeyTyped));
 	}
 
-	void TextInput::SetFont(const Ref<Font>& font)
+	void TextInput::SetFont(Ref<Font> font)
 	{
-		m_RenderTraits.FontStyle = font;
+		m_RenderTraits.FontStyle = std::move(font);
 		m_RenderTraits.CalculateLabelDimensions(m_Input);
 	}
 

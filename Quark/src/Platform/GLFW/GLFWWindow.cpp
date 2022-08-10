@@ -15,7 +15,7 @@ namespace Quark {
 	{
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-		if (GraphicsAPI::GetAPI() == API::OpenGL)
+		if (GraphicsAPI::GetAPI() == RHI::OpenGL)
 		{
 			glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
 

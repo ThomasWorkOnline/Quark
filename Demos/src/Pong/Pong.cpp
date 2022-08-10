@@ -14,13 +14,13 @@ Pong::Pong()
 
 	m_BallTransform.Position = Vec3f(0.0f, 0.0f, 10.0f);
 
-	m_Shader = Shader::Create("assets/shaders/PBR.glsl");
+	m_Shader.reset(Shader::Create("assets/shaders/PBR.glsl"));
 	m_Ball = Mesh::LoadFromFile("assets/meshes/sphere.obj");
 
-	m_AudioBuffer = AudioBuffer::Create("assets/sounds/file_example_WAV_1MG.wav");
+	m_AudioBuffer.reset(AudioBuffer::Create("assets/sounds/file_example_WAV_1MG.wav"));
 
-	m_AudioSource = AudioSource::Create();
-	m_AudioSource->SetBuffer(m_AudioBuffer);
+	m_AudioSource.reset(AudioSource::Create());
+	m_AudioSource->SetBuffer(m_AudioBuffer.get());
 
 	m_AudioSource->Play();
 	m_AudioPlaying = true;

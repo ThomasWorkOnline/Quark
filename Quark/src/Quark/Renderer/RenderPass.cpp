@@ -5,7 +5,7 @@
 
 namespace Quark {
 
-	Ref<RenderPass> RenderPass::Create(const RenderPassSpecification& spec)
+	RenderPass* RenderPass::Create(const RenderPassSpecification& spec)
 	{
 		return GraphicsAPI::Instance->CreateRenderPass(spec);
 	}

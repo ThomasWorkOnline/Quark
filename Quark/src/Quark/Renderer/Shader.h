@@ -41,21 +41,21 @@ namespace Quark {
 
 		virtual bool operator==(const Shader& other) const = 0;
 
-		static Ref<Shader> Create(std::string_view filepath);
-		static Ref<Shader> Create(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource);
-		static Ref<Shader> Create(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource);
+		static Shader* Create(std::string_view filepath);
+		static Shader* Create(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource);
+		static Shader* Create(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource);
 	};
 
 	class ShaderLibrary
 	{
 	public:
-		void Add(std::string_view name, const Ref<Shader>& shader);
-		void Add(const Ref<Shader>& shader);
+		void Add(std::string_view name, Ref<Shader> shader);
+		void Add(Ref<Shader> shader);
 
 		Ref<Shader> Load(std::string_view filepath);
 		Ref<Shader> Load(std::string_view name, std::string_view filepath);
 
-		const Ref<Shader>& Get(std::string_view name) const;
+		Ref<Shader> Get(std::string_view name) const;
 
 		bool Exists(std::string_view name) const;
 		size_t Size() const { return m_Shaders.size(); }

@@ -31,7 +31,7 @@ namespace Quark {
 
 		for (uint32_t i = 0; i < VulkanContext::FramesInFlight; i++)
 		{
-			m_CameraUniformBuffers[i] = UniformBuffer::Create(m_Spec.CameraUniformBufferSize, 0);
+			m_CameraUniformBuffers[i].reset(UniformBuffer::Create(m_Spec.CameraUniformBufferSize, 0));
 		}
 
 		// Descriptor pool
@@ -123,45 +123,18 @@ namespace Quark {
 		Invalidate();
 	}
 
-	const Ref<UniformBuffer>& VulkanPipeline::GetUniformBuffer() const
+	UniformBuffer* VulkanPipeline::GetUniformBuffer() const
 	{
-		return m_CameraUniformBuffers[VulkanContext::Get()->GetCurrentFrameIndex()];
+		return m_CameraUniformBuffers[VulkanContext::Get()->GetCurrentFrameIndex()].get();
 	}
 
-	void VulkanPipeline::Bind(VkCommandBuffer commandBuffer)
+	VkDescriptorSet VulkanPipeline::GetDescriptorSet() const
 	{
-		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline);
-		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, 0, 1, &m_DescriptorSets[VulkanContext::Get()->GetCurrentFrameIndex()], 0, nullptr);
+		return m_DescriptorSets[VulkanContext::Get()->GetCurrentFrameIndex()];
 	}
 
 	void VulkanPipeline::Invalidate()
 	{
-		// Framebuffers
-		{
-			for (auto& framebuffer : m_Framebuffers)
-			{
-				vkDestroyFramebuffer(m_Device->GetVkHandle(), framebuffer, nullptr);
-			}
-
-			const uint32_t imageCount = VulkanContext::Get()->GetSwapChain()->GetImageCount();
-			m_Framebuffers.resize(imageCount);
-
-			VkFramebufferCreateInfo framebufferInfo{};
-			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-			framebufferInfo.renderPass = static_cast<VulkanRenderPass*>(m_Spec.RenderPass.get())->GetVkHandle();
-			framebufferInfo.attachmentCount = 1;
-			framebufferInfo.width = m_Spec.ViewportWidth;
-			framebufferInfo.height = m_Spec.ViewportHeight;
-			framebufferInfo.layers = 1;
-
-			for (uint32_t i = 0; i < imageCount; i++)
-			{
-				auto attachment = VulkanContext::Get()->GetSwapChain()->GetImageView(i);
-				framebufferInfo.pAttachments = &attachment;
-				vkCreateFramebuffer(m_Device->GetVkHandle(), &framebufferInfo, nullptr, &m_Framebuffers[i]);
-			}
-		}
-
 		if (m_Pipeline)
 		{
 			vkDestroyPipeline(m_Device->GetVkHandle(), m_Pipeline, nullptr);
@@ -278,12 +251,12 @@ namespace Quark {
 		VkPipelineShaderStageCreateInfo shaderStages[2]{};
 		shaderStages[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 		shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
-		shaderStages[0].module = static_cast<VulkanShader*>(m_Spec.Shader.get())->GetVertexVkHandle();
+		shaderStages[0].module = static_cast<VulkanShader*>(m_Spec.Shader)->GetVertexVkHandle();
 		shaderStages[0].pName = "main";
 
 		shaderStages[1].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 		shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-		shaderStages[1].module = static_cast<VulkanShader*>(m_Spec.Shader.get())->GetFragmentVkHandle();
+		shaderStages[1].module = static_cast<VulkanShader*>(m_Spec.Shader)->GetFragmentVkHandle();
 		shaderStages[1].pName = "main";
 
 		VkGraphicsPipelineCreateInfo pipelineInfo{};
@@ -298,7 +271,7 @@ namespace Quark {
 		pipelineInfo.pMultisampleState = &multisampling;
 		pipelineInfo.pColorBlendState = &colorBlending;
 		pipelineInfo.layout = m_PipelineLayout;
-		pipelineInfo.renderPass = static_cast<VulkanRenderPass*>(m_Spec.RenderPass.get())->GetVkHandle();
+		pipelineInfo.renderPass = static_cast<VulkanRenderPass*>(m_Spec.RenderPass)->GetVkHandle();
 		pipelineInfo.subpass = 0;
 
 		VkResult vkRes = vkCreateGraphicsPipelines(m_Device->GetVkHandle(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_Pipeline);
