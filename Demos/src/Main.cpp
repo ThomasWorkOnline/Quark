@@ -12,6 +12,6 @@ namespace Quark {
 
 	Application* CreateApplication()
 	{
-		return new FontTest();
+		return new TextureArrayTest();
 	}
 }

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Quark/Core/Core.h"
-#include "Quark/Core/FuncSig.h"
+#include "FuncSig.h"
 #include "Logger.h"
 
 #include <chrono>

@@ -6,7 +6,7 @@
 namespace Quark {
 
 	///
-	/// Client entry point: must be defined by client
+	/// Entry point: must be defined by client
 	///
 	extern Application* CreateApplication();
 }

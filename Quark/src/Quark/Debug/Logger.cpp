@@ -1,8 +1,6 @@
 #include "qkpch.h"
 #include "Logger.h"
 
-#ifdef QK_ENABLE_CONSOLE_LOG
-
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 
@@ -40,11 +38,13 @@ namespace Quark {
 		spdlog::register_logger(m_ClientLogger);
 	}
 
-	Logger& Logger::GetInstance()
+	Logger* Logger::GetInstance()
 	{
+#ifdef SPDLOG_COMPILED_LIB
 		static Logger instance;
-		return instance;
+		return &instance;
+#else
+		return nullptr;
+#endif /*QK_ENABLE_CONSOLE_LOG*/
 	}
 }
-
-#endif /*QK_ENABLE_CONSOLE_LOG*/

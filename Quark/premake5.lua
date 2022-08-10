@@ -57,6 +57,7 @@ project "Quark"
 		"Glad",
 		"GLFW",
 		"lodepng",
+		"spdlog",
 		"%{Library.Vulkan}"
 	}
 
@@ -123,11 +124,6 @@ project "Quark"
 		runtime "Debug"
 		symbols "On"
 
-		links
-		{
-			"spdlog"
-		}
-
 	filter "configurations:Release"
 		defines "QK_RELEASE"
 		runtime "Release"
@@ -137,11 +133,6 @@ project "Quark"
 		flags
 		{
 			"LinkTimeOptimization"
-		}
-
-		links
-		{
-			"spdlog"
 		}
 
 	filter "configurations:Dist"

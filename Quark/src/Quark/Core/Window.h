@@ -27,9 +27,6 @@ namespace Quark {
 		Window() = default;
 		virtual ~Window() = default;
 
-		Window(const Window&) = delete;
-		Window& operator=(const Window&) = delete;
-
 		virtual void SetEventCallback(const EventCallbackFn& callback) = 0;
 		virtual void OnUpdate() = 0;
 
@@ -60,6 +57,14 @@ namespace Quark {
 		virtual bool IsFullscreen() const = 0;
 
 		virtual void* GetNativeWindow() const = 0;
+
+		// Non-Copyable
+		Window(const Window&) = delete;
+		Window& operator=(const Window&) = delete;
+
+		// Non-Movable
+		Window(Window&&) = delete;
+		Window& operator=(Window&&) = delete;
 
 		static Scope<Window> Create(const WindowSpecification& spec);
 	};

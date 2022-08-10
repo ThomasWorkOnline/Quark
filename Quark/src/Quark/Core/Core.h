@@ -15,11 +15,11 @@
 #include "Quark/Math/Types.h"
 
 #include "Assertions.h"
-#include "LogUtils.h"
 #include "Timer.h"
 #include "Timestep.h"
 
 #include "Quark/Debug/Logger.h"
+#include "Quark/Debug/LogUtils.h"
 #include "Quark/Debug/Profiling.h"
 #include "Quark/Debug/MemoryContext.h"
 
