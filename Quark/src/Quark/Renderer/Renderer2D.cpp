@@ -113,7 +113,7 @@ namespace Quark {
 	};
 
 	Renderer2DStats Renderer2D::s_Stats;
-	static Renderer2DData* s_Data;
+	static Scope<Renderer2DData> s_Data;
 
 	void Renderer2D::BeginScene(const Camera& camera, const Transform3DComponent& cameraTransform)
 	{
@@ -409,12 +409,14 @@ namespace Quark {
 		uint32_t* Indices = nullptr;
 		int32_t* Samplers = nullptr;
 
-		void Init()
+		Renderer2DSetupData()
 		{
+			QK_CORE_ASSERT(s_Data->MaxSamplers > 0, "Platform does not support texture samplers");
+
 			// Samplers
 			Samplers = new int32_t[s_Data->MaxSamplers];
 			for (uint32_t i = 0; i < s_Data->MaxSamplers; i++)
-				Samplers[i] = i;
+				Samplers[i] = (int32_t)i;
 
 			// Indices
 			Indices = new uint32_t[Renderer2DData::MaxIndices];
@@ -433,7 +435,7 @@ namespace Quark {
 			}
 		}
 
-		void Dispose()
+		~Renderer2DSetupData()
 		{
 			delete[] Indices;
 			delete[] Samplers;
@@ -450,18 +452,14 @@ namespace Quark {
 
 		if (s_Data) return;
 
-		s_Data = new Renderer2DData();
+		s_Data.reset(new Renderer2DData());
 		s_Data->MaxSamplers = GraphicsAPI::Instance->GetCapabilities().TextureConstraints.MaxTextureSlots;
 		s_Data->CameraUniformBuffer.reset(UniformBuffer::Create(sizeof(Renderer2DData::CameraData), 0));
 
 		Renderer2DSetupData setupData;
-		setupData.Init();
-
 		SetupQuadRenderer(setupData);
 		SetupFontRenderer(setupData);
 		SetupLineRenderer();
-
-		setupData.Dispose();
 	}
 
 	void Renderer2D::Dispose()
@@ -473,7 +471,8 @@ namespace Quark {
 		delete[] s_Data->LineVertices;
 		delete[] s_Data->Textures;
 		delete[] s_Data->Fonts;
-		delete s_Data;
+
+		s_Data.reset();
 	}
 
 	static void SetupQuadRenderer(Renderer2DSetupData& setupData)
