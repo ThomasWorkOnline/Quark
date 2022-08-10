@@ -5,7 +5,7 @@
 #	define CreateDebugUtilsMessengerEXT ::Quark::CreateVkDebugUtilsMessengerEXT
 #	define DestroyDebugUtilsMessengerEXT ::Quark::DestroyVkDebugUtilsMessengerEXT
 #else
-#	define CreateDebugUtilsMessengerEXT(...) VK_ERROR_EXTENSION_NOT_PRESENT
+#	define CreateDebugUtilsMessengerEXT(...) VK_SUCCESS
 #	define DestroyDebugUtilsMessengerEXT(...)
 #endif
 
