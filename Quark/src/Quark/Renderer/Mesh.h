@@ -1,8 +1,6 @@
 #pragma once
 
 #include "Quark/Core/Core.h"
-
-#include "VertexArray.h"
 #include "Buffer.h"
 
 namespace Quark {

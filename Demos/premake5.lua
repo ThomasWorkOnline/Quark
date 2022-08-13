@@ -34,6 +34,12 @@ project "Demos"
 		"%{Library.Vulkan}"
 	}
 
+	flags
+	{
+		"FatalCompileWarnings",
+		"ShadowedVariables"
+	}
+
 	filter { "configurations:Dist", "system:windows" }
 		kind "WindowedApp"
 

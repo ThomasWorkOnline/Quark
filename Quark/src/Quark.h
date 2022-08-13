@@ -1,25 +1,21 @@
 #pragma once
 
 // Core
-#include "Quark/Core/Core.h"
 #include "Quark/Core/Application.h"
+#include "Quark/Core/Core.h"
 #include "Quark/Core/Input.h"
 #include "Quark/Core/KeyCodes.h"
+#include "Quark/Core/Layer.h"
+#include "Quark/Core/Memory.h"
 #include "Quark/Core/MouseCodes.h"
 #include "Quark/Core/Timer.h"
-#include "Quark/Core/Memory.h"
+#include "Quark/Core/Timestep.h"
 
 // Audio
 #include "Quark/Audio/AudioBuffer.h"
 #include "Quark/Audio/AudioDevice.h"
+#include "Quark/Audio/AudioFormats.h"
 #include "Quark/Audio/AudioSource.h"
-
-// Entity Component System
-#include "Quark/Scene/Components.h"
-#include "Quark/Scene/Entity.h"
-#include "Quark/Scene/NativeScriptEntity.h"
-#include "Quark/Scene/Scene.h"
-#include "Quark/Scene/SceneCamera.h"
 
 // Events
 #include "Quark/Event/Event.h"
@@ -39,6 +35,7 @@
 #include "Quark/Renderer/Cubemap.h"
 #include "Quark/Renderer/Font.h"
 #include "Quark/Renderer/Framebuffer.h"
+#include "Quark/Renderer/GraphicsAPI.h"
 #include "Quark/Renderer/Image.h"
 #include "Quark/Renderer/Material.h"
 #include "Quark/Renderer/Mesh.h"
@@ -56,14 +53,21 @@
 #include "Quark/Renderer/TextureFormats.h"
 #include "Quark/Renderer/UniformBuffer.h"
 
-// Tools
-#include "Quark/Utility/Colorimetry.h"
-#include "Quark/Utility/EasingCurves.h"
-#include "Quark/Utility/Noise.h"
-#include "Quark/Utility/Random.h"
+// Entity Component System
+#include "Quark/Scene/Components.h"
+#include "Quark/Scene/Entity.h"
+#include "Quark/Scene/NativeScriptEntity.h"
+#include "Quark/Scene/Scene.h"
+#include "Quark/Scene/SceneCamera.h"
 
 // UI
 #include "Quark/UI/UIElement.h"
 #include "Quark/UI/Canvas.h"
 #include "Quark/UI/Text.h"
 #include "Quark/UI/TextInput.h"
+
+// Tools
+#include "Quark/Utility/Colorimetry.h"
+#include "Quark/Utility/EasingCurves.h"
+#include "Quark/Utility/Noise.h"
+#include "Quark/Utility/Random.h"

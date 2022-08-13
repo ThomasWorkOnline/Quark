@@ -32,8 +32,7 @@ project "Quark"
 	defines
 	{
 		"AL_LIBTYPE_STATIC",
-		"GLFW_INCLUDE_NONE",
-		"_CRT_SECURE_NO_WARNINGS"
+		"GLFW_INCLUDE_NONE"
 	}
 
 	includedirs
@@ -45,7 +44,7 @@ project "Quark"
 		"%{IncludeDir.glfw}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.lodepng}",
-		"%{IncludeDir.openal}",
+		"%{IncludeDir.OpenAL}",
 		"%{IncludeDir.spdlog}",
 		"%{IncludeDir.stb}",
 		"%{IncludeDir.VulkanSDK}"
@@ -61,6 +60,12 @@ project "Quark"
 		"%{Library.Vulkan}"
 	}
 
+	flags
+	{
+		"FatalCompileWarnings",
+		"ShadowedVariables"
+	}
+
 	filter "system:windows"
 		systemversion "latest"
 
@@ -70,15 +75,20 @@ project "Quark"
 			"src/Platform/Windows/**.cpp"
 		}
 
+		defines
+		{
+			"_CRT_SECURE_NO_WARNINGS"
+		}
+
 		libdirs
 		{
-			"vendor/openal/libs/Win64"
+			"%{LibraryDir.OpenAL}"
 		}
 
 		links
 		{
-			"OpenAL32.lib",
-			"OpenGL32.lib"
+			"%{Library.OpenAL}",
+			"%{Library.OpenGL}"
 		}
 
 	filter "system:macosx"

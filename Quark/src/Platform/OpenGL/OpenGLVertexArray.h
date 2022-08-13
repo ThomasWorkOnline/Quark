@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Quark/Renderer/VertexArray.h"
+#include "Quark/Renderer/Buffer.h"
 
 namespace Quark {
 
@@ -19,9 +19,9 @@ namespace Quark {
 		const std::vector<Ref<VertexBuffer>>& GetVertexBuffers() const { return m_VertexBuffers; }
 		const Ref<IndexBuffer>& GetIndexBuffer() const { return m_IndexBuffer; }
 
-		bool operator==(const VertexArray& other) const
+		bool operator==(const OpenGLVertexArray& other) const
 		{
-			return m_RendererID == ((OpenGLVertexArray&)other).m_RendererID;
+			return m_RendererID == other.m_RendererID;
 		}
 
 	private:

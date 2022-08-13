@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Quark/Renderer/Pipeline.h"
-#include "Quark/Renderer/VertexArray.h"
 
 namespace Quark {
 

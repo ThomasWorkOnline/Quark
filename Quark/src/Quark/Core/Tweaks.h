@@ -18,4 +18,4 @@
 /////////////////////////////////////////////////////
 
 // On Windows, it will use the default Win32 API for the Window and Graphics API
-//#define QK_USE_NATIVE_APIS
+  #define QK_USE_NATIVE_APIS

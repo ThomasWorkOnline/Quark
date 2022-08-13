@@ -386,7 +386,7 @@ namespace Quark {
 			s_Stats.DrawCalls++;
 		}
 
-		if (size_t vertexCount = (s_Data->LineVertexPtr - s_Data->LineVertices))
+		if (uint32_t vertexCount = (uint32_t)(s_Data->LineVertexPtr - s_Data->LineVertices))
 		{
 			size_t size = ((uint8_t*)s_Data->LineVertexPtr - (uint8_t*)s_Data->LineVertices);
 			s_Data->LineVertexBuffer->SetData(s_Data->LineVertices, size);
