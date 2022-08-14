@@ -113,7 +113,7 @@ namespace Quark {
 	};
 
 	Renderer2DStats Renderer2D::s_Stats;
-	static Scope<Renderer2DData> s_Data;
+	static Renderer2DData* s_Data = nullptr;
 
 	void Renderer2D::BeginScene(const Camera& camera, const Transform3DComponent& cameraTransform)
 	{
@@ -452,7 +452,7 @@ namespace Quark {
 
 		if (s_Data) return;
 
-		s_Data.reset(new Renderer2DData());
+		s_Data = new Renderer2DData();
 		s_Data->MaxSamplers = GraphicsAPI::Instance->GetCapabilities().TextureConstraints.MaxTextureSlots;
 		s_Data->CameraUniformBuffer.reset(UniformBuffer::Create(sizeof(Renderer2DData::CameraData), 0));
 
@@ -466,13 +466,16 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
+		if (!s_Data) return;
+
 		delete[] s_Data->QuadVertices;
 		delete[] s_Data->FontVertices;
 		delete[] s_Data->LineVertices;
 		delete[] s_Data->Textures;
 		delete[] s_Data->Fonts;
 
-		s_Data.reset();
+		delete s_Data;
+		s_Data = nullptr;
 	}
 
 	static void SetupQuadRenderer(Renderer2DSetupData& setupData)

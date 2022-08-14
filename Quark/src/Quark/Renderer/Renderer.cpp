@@ -18,7 +18,7 @@ namespace Quark {
 		std::vector<Scope<Framebuffer>> Framebuffers;
 	};
 
-	static Scope<RendererData> s_Data;
+	static RendererData* s_Data = nullptr;
 
 	void Renderer::BindPipeline(Pipeline* pipeline)
 	{
@@ -138,7 +138,7 @@ namespace Quark {
 		s_ThreadId = std::this_thread::get_id();
 		RenderCommand::Init();
 
-		s_Data = CreateScope<RendererData>();
+		s_Data = new RendererData();
 		s_Data->MaxUniformBuffers = GraphicsAPI::Instance->GetCapabilities().UniformBufferConstraints.MaxBindings;
 
 		{
@@ -174,6 +174,7 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		s_Data.reset();
+		delete s_Data;
+		s_Data = nullptr;
 	}
 }
