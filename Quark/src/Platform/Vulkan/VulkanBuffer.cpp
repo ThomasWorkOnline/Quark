@@ -52,10 +52,6 @@ namespace Quark {
 		vkFreeMemory(m_Device->GetVkHandle(), m_BufferMemory, nullptr);
 	}
 
-	void VulkanVertexBuffer::Attach() const
-	{
-	}
-
 	void VulkanVertexBuffer::SetData(const void* data, size_t size, size_t offset)
 	{
 		QK_PROFILE_FUNCTION();
@@ -128,10 +124,6 @@ namespace Quark {
 
 		vkDestroyBuffer(m_Device->GetVkHandle(), m_Buffer, nullptr);
 		vkFreeMemory(m_Device->GetVkHandle(), m_BufferMemory, nullptr);
-	}
-
-	void VulkanIndexBuffer::Attach() const
-	{
 	}
 
 	void VulkanIndexBuffer::SetData(const uint32_t* data, uint32_t count, size_t offset)

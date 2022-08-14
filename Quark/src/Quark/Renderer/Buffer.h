@@ -161,9 +161,6 @@ namespace Quark {
 	public:
 		virtual ~VertexBuffer() = default;
 
-		virtual void Attach() const = 0;
-		virtual void Detach() const = 0;
-
 		virtual void SetData(const void* data, size_t size, size_t offset = 0) = 0;
 
 		const BufferLayout& GetLayout() const { return m_Layout; }
@@ -182,9 +179,6 @@ namespace Quark {
 	{
 	public:
 		virtual ~IndexBuffer() = default;
-
-		virtual void Attach() const = 0;
-		virtual void Detach() const = 0;
 
 		virtual void SetData(const uint32_t* data, uint32_t count, size_t offset = 0) = 0;
 		virtual uint32_t GetCount() const = 0;

@@ -2,6 +2,8 @@
 
 #include "Quark/Renderer/UniformBuffer.h"
 
+typedef unsigned int GLuint;
+
 namespace Quark {
 
 	class OpenGLUniformBuffer final : public UniformBuffer
@@ -21,6 +23,6 @@ namespace Quark {
 		}
 
 	private:
-		uint32_t m_RendererID = 0;
+		GLuint m_RendererID = 0;
 	};
 }

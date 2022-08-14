@@ -6,6 +6,8 @@
 struct FT_FaceRec_;
 typedef struct FT_FaceRec_* Face;
 
+typedef unsigned int GLuint;
+
 namespace Quark {
 
 	class OpenGLFont : public Font
@@ -39,6 +41,6 @@ namespace Quark {
 
 		uint32_t m_FontSize;
 		uint32_t m_AtlasWidth, m_AtlasHeight;
-		uint32_t m_RendererID = 0;
+		GLuint m_RendererID = 0;
 	};
 }

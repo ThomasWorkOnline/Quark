@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Quark/Renderer/Pipeline.h"
+#include "OpenGLUniformBuffer.h"
 
 namespace Quark {
 
@@ -20,6 +21,6 @@ namespace Quark {
 		}
 
 	private:
-		Scope<UniformBuffer> m_UniformBuffer;
+		Scope<OpenGLUniformBuffer> m_UniformBuffer;
 	};
 }

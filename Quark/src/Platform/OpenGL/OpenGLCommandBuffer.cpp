@@ -46,13 +46,15 @@ namespace Quark {
 		glDrawArrays(GL_LINES, 0, vertexCount);
 	}
 
-	void OpenGLCommandBuffer::BindVertexBuffer(VertexBuffer* vertexBuffer, uint32_t binding)
+	void OpenGLCommandBuffer::BindVertexBuffer(VertexBuffer* vertexBuffer)
 	{
-		static_cast<OpenGLVertexBuffer*>(vertexBuffer)->Attach();
+		GLuint vaoRendererID = static_cast<OpenGLVertexBuffer*>(vertexBuffer)->GetVAORendererID();
+		glBindVertexArray(vaoRendererID);
 	}
 
 	void OpenGLCommandBuffer::BindIndexBuffer(IndexBuffer* indexBuffer)
 	{
-		static_cast<OpenGLIndexBuffer*>(indexBuffer)->Attach();
+		GLuint rendererID = static_cast<OpenGLIndexBuffer*>(indexBuffer)->GetRendererID();
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, rendererID);
 	}
 }

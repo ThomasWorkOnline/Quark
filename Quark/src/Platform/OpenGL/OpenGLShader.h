@@ -5,6 +5,7 @@
 #include <unordered_map>
 
 typedef unsigned int GLenum;
+typedef unsigned int GLuint;
 typedef int GLint;
 
 namespace Quark {
@@ -81,7 +82,7 @@ namespace Quark {
 		void Compile(const std::unordered_map<GLenum, std::string_view>& shaderSources);
 
 	private:
-		uint32_t m_RendererID = 0;
+		GLuint m_RendererID = 0;
 		std::string m_Name;
 
 		mutable std::unordered_map<std::size_t, GLint> m_UniformLocationCache;

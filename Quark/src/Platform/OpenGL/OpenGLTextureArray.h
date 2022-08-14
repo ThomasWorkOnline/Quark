@@ -2,6 +2,9 @@
 
 #include "Quark/Renderer/TextureArray.h"
 
+typedef unsigned int GLenum;
+typedef unsigned int GLuint;
+
 namespace Quark {
 
 	class OpenGLTexture2DArray final : public Texture2DArray
@@ -22,7 +25,7 @@ namespace Quark {
 		}
 
 	private:
-		uint32_t m_RendererID = 0;
-		uint32_t m_InternalFormat, m_DataFormat;
+		GLuint m_RendererID = 0;
+		GLenum m_InternalFormat, m_DataFormat;
 	};
 }

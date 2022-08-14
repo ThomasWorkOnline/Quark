@@ -51,7 +51,7 @@ namespace Quark {
 		renderPassInfo.renderPass = vkRenderPass;
 		renderPassInfo.framebuffer = vkFramebuffer;
 		
-		// must be size of framebuffer
+		// Must be size of framebuffer
 		renderPassInfo.renderArea.offset = VkOffset2D{ 0, 0 };
 		renderPassInfo.renderArea.extent = VkExtent2D{ framebuffer->GetWidth(), framebuffer->GetHeight() };
 
@@ -95,7 +95,7 @@ namespace Quark {
 		vkCmdDraw(m_CommandBuffer, vertexCount, 1, 0, 0);
 	}
 
-	void VulkanCommandBuffer::BindVertexBuffer(VertexBuffer* vertexBuffer, uint32_t binding)
+	void VulkanCommandBuffer::BindVertexBuffer(VertexBuffer* vertexBuffer)
 	{
 		VkDeviceSize offsets[] = { 0 };
 		VkBuffer buffer = static_cast<VulkanVertexBuffer*>(vertexBuffer)->GetVkHandle();

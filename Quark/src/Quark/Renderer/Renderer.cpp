@@ -48,7 +48,7 @@ namespace Quark {
 	{
 		QK_ASSERT_RENDER_THREAD();
 
-		s_Data->ActiveCommandBuffer->BindVertexBuffer(vertexBuffer, 0);
+		s_Data->ActiveCommandBuffer->BindVertexBuffer(vertexBuffer);
 		s_Data->ActiveCommandBuffer->BindIndexBuffer(indexBuffer);
 		s_Data->ActiveCommandBuffer->DrawIndexed(indexBuffer->GetCount());
 	}
@@ -57,7 +57,7 @@ namespace Quark {
 	{
 		QK_ASSERT_RENDER_THREAD();
 
-		s_Data->ActiveCommandBuffer->BindVertexBuffer(vertexBuffer, 0);
+		s_Data->ActiveCommandBuffer->BindVertexBuffer(vertexBuffer);
 		s_Data->ActiveCommandBuffer->BindIndexBuffer(indexBuffer);
 		s_Data->ActiveCommandBuffer->DrawIndexed(indexCount);
 	}
@@ -66,7 +66,7 @@ namespace Quark {
 	{
 		QK_ASSERT_RENDER_THREAD();
 
-		s_Data->ActiveCommandBuffer->BindVertexBuffer(vertexBuffer, 0);
+		s_Data->ActiveCommandBuffer->BindVertexBuffer(vertexBuffer);
 		s_Data->ActiveCommandBuffer->DrawLines(vertexCount);
 	}
 

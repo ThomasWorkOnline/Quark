@@ -28,7 +28,7 @@ namespace Quark {
 
 		virtual void DrawLines(uint32_t vertexCount) override;
 
-		virtual void BindVertexBuffer(VertexBuffer* vertexBuffer, uint32_t binding) override;
+		virtual void BindVertexBuffer(VertexBuffer* vertexBuffer) override;
 		virtual void BindIndexBuffer(IndexBuffer* indexBuffer) override;
 
 		virtual bool operator==(const CommandBuffer& other) const override

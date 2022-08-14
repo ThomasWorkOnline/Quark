@@ -68,18 +68,6 @@ namespace Quark {
 		glDeleteVertexArrays(1, &m_VAORendererID);
 	}
 
-	void OpenGLVertexBuffer::Attach() const
-	{
-		//glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
-		glBindVertexArray(m_VAORendererID);
-	}
-
-	void OpenGLVertexBuffer::Detach() const
-	{
-		//glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindVertexArray(0);
-	}
-
 	void OpenGLVertexBuffer::SetData(const void* data, size_t size, size_t offset)
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
@@ -217,16 +205,6 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		glDeleteBuffers(1, &m_RendererID);
-	}
-
-	void OpenGLIndexBuffer::Attach() const
-	{
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
-	}
-
-	void OpenGLIndexBuffer::Detach() const
-	{
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
 
 	void OpenGLIndexBuffer::SetData(const uint32_t* data, uint32_t count, size_t offset)

@@ -2,6 +2,8 @@
 
 #include "Quark/Renderer/Framebuffer.h"
 
+typedef unsigned int GLuint;
+
 namespace Quark {
 
 	class OpenGLFramebufferAttachment final : public FramebufferAttachment
@@ -33,7 +35,7 @@ namespace Quark {
 		void Invalidate();
 
 	private:
-		uint32_t m_RendererID = 0;
+		GLuint m_RendererID = 0;
 		std::vector<FramebufferAttachmentSpecification> m_ColorSpecs;
 		FramebufferAttachmentSpecification m_DepthSpec;
 

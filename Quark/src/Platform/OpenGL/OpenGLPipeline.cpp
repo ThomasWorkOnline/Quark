@@ -7,7 +7,7 @@ namespace Quark {
 
 	OpenGLPipeline::OpenGLPipeline(const PipelineSpecification& spec) : Pipeline(spec)
 	{
-		m_UniformBuffer.reset(UniformBuffer::Create(m_Spec.CameraUniformBufferSize, 0));
+		m_UniformBuffer.reset(new OpenGLUniformBuffer(m_Spec.CameraUniformBufferSize, 0));
 	}
 
 	OpenGLPipeline::~OpenGLPipeline()

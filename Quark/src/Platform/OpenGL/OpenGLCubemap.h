@@ -2,6 +2,8 @@
 
 #include "Quark/Renderer/Cubemap.h"
 
+typedef unsigned int GLuint;
+
 namespace Quark {
 
 	class OpenGLCubemap final : public Cubemap
@@ -21,6 +23,6 @@ namespace Quark {
 		}
 
 	private:
-		uint32_t m_RendererID = 0;
+		GLuint m_RendererID = 0;
 	};
 }
