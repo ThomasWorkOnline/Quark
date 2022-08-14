@@ -66,7 +66,7 @@ The following examples will guide you in learning the Quark API.
 using namespace Quark;
 
 // Create a class extending `Quark::Application`
-class YourApplication : public Application
+class BasicRenderingApplication : public Application
 {
 	...
 };
@@ -77,24 +77,22 @@ class YourApplication : public Application
 Use `Quark::CreateApplication()` as shown in this snippet below:
 
 ```c++
+#include "Example1_BasicRendering.h"
+
 #include <Quark/EntryPoint.h>
 
 namespace Quark {
 
 	Application* CreateApplication()
 	{
-		return new YourApplication();
+		return new BasicRenderingApplication();
 	}
 };
 ```
 
 Quark already provides the default entry point for launching your program.
-Redefining `main()` will cause a duplicate symbol linking error.
+Redefining `main() or WinMain()` will cause a linking error.
 Make sure to define `CreateApplication()` inside the Quark namespace.
-
-Allocating an instance of your application can potentially be very memory heavy.
-Therefore, instantiating your application on the stack is not adviced.
-By dynamically allocating your app, you prevent high stack usage which can lead to bugs and crashes.
 
 Note: *On Windows distribution builds, the app with launch without the console using the builtin WinMain() entry point (see [EntryPoint.cpp](Quark/src/Quark/EntryPoint.cpp) for details)*
 
@@ -102,7 +100,7 @@ Note: *On Windows distribution builds, the app with launch without the console u
 
 <ins>**3. Implementing some functionality**</ins>
 ```c++
-class YourApplication : public Application
+class BasicRenderingApplication : public Application
 {
 public:
 	// Called each tick
@@ -129,7 +127,7 @@ mouse and keyboard inputs, window moved, resized, minimized, maximized and much 
 The following examples will guide you through using Quark events:
 
 ```c++
-class YourApplication : public Application
+class BasicRenderingApplication : public Application
 {
 public:
 	virtual void OnEvent(Event& e) override
@@ -145,14 +143,17 @@ public:
 Event dispatchers are used to associate an event type with a given function.
 The event handler must have the following signature:
 ```c++
-bool Function(EventType&);
+auto Function(EventType& e) -> void;
+// or
+auto Function(EventType& e) -> bool; // More on event propagation a bit later
 ```
 
-If the function you are linking to is a class member function, you'll have to use the `ATTACH_EVENT_FN` macro to pass the implicit `this` parameter as an argument.
+If the function you are dispatching to is a member function, you will have to use the `ATTACH_EVENT_FN` macro to invoke
+it with the object instance passed as argument or provide a lambda, whichever you prefer.
 For instance, let's write a function that handles keyboard input.
 
 ```c++
-class YourApplication : public Application
+class BasicRenderingApplication : public Application
 {
 public:
 	virtual void OnEvent(Event& e) override
@@ -160,26 +161,19 @@ public:
 		// Create an dispatcher object with the given event reference
 		EventDispatcher dispatcher(e);
 	
-		// Route all `KeyPressedEvent` to `YourApplication::OnKeyPressed`
-		dispatcher.Dispatch<KeyPressedEvent>(ATTACH_EVENT_FN(YourApplication::OnKeyPressed));
+		// Route all `KeyPressedEvent` to `BasicRenderingApplication::OnKeyPressed`
+		dispatcher.Dispatch<KeyPressedEvent>(ATTACH_EVENT_FN(OnKeyPressed));
 	}
 	
 private:
 	// Our custom KeyPressedEvent handler
-	bool OnKeyPressed(KeyPressedEvent& e)
-	{       //               ^
+	void OnKeyPressed(KeyPressedEvent& e)
+	{   //               ^
 		// Note that the event has been cast to the right type
 		std::cout << e.GetKeyCode() << std::endl;
-	
-		// Returns if the event has been handled
-		// A handled event will not be propagated to other handlers
-		return false;
 	}
 };
 ```
-
-By returning false, we do not prevent the event propagation. Returning true can be useful when you wan't to prevent the app from propagating the event any further.
-For instance, in a FPS, you would not wan't your player controller to shoot when left-clicking in your inventory. Furthermore, your player controller should not be aware that a click event has been fired. By returning true, Quark internally discards the event for further handlers.
 
 <ins>**5. Basic 2D rendering**</ins>
 
@@ -189,18 +183,22 @@ Let's render a basic textured quad to the screen using it.
 First, we'll have to load a texture:
 
 ```c++
-class YourApplication : public Application
+class BasicRenderingApplication : public Application
 {
 public:
-	YourApplication()
+	BasicRenderingApplication()
 	{
 		// Loading our texture
-		// This returns a smart reference to a newly created texture object
-		m_Texture = Texture2D::Create("assets/textures/Example1_BasicRendering.png");
+
+		// This returns a raw pointer to a newly created texture object
+		Texture2D* texture = Texture2D::Create("assets/textures/Example1_BasicRendering.png")
+
+		// This can be done on the same line
+		m_Texture.reset(texture);
 	}
 
 private:
-	Ref<Texture2D> m_Texture;
+	Scope<Texture2D> m_Texture;
 };
 ```
 
@@ -214,13 +212,13 @@ For our simple 2D needs, I'll be using an orthographic camera.
 Finally, we can start drawing things to the screen:
 
 ```c++
-class YourApplication : public Application
+class BasicRenderingApplication : public Application
 {
 public:
-	YourApplication()
+	BasicRenderingApplication()
 	{
 		// Loading our texture
-		m_Texture = Texture2D::Create("assets/textures/Example1_BasicRendering.png");
+		m_Texture.reset(Texture2D::Create("assets/textures/Example1_BasicRendering.png"));
 		
 		// Setting the projection type to be orthographic in screen space [-1, 1]
 		m_Camera.SetOrthographic(1.0f);
@@ -241,7 +239,7 @@ public:
 	}
 
 private:
-	Ref<Texture2D> m_Texture;
+	Scope<Texture2D> m_Texture;
 	SceneCamera m_Camera;
 };
 ```
@@ -252,15 +250,15 @@ private:
 <ins>**5. Handling window size**</ins>
 
 So far, we've created our camera using the `SetOrthographic()` method;
-This initialization sets the projection matrix to a [-size/2, size/2] sized orthographic projection.
+This projection model sets the projection matrix to a [-size/2, size/2] sized orthographic projection.
 This doesn't give us the result we wan't since we don't take into consideration the screen aspect ratio.
 Let's fix this:
 
 ```c++
-class YourApplication : public Application
+class BasicRenderingApplication : public Application
 {
 public:
-	YourApplication()
+	BasicRenderingApplication()
 	{
 		// Loading our texture
 		m_Texture = Texture2D::Create("assets/textures/Example1_BasicRendering.png");
@@ -269,8 +267,8 @@ public:
 		m_Camera.SetOrthographic(1.0f);
 
 		// Initial resize of the camera with the viewport size
-		auto& window = GetWindow();
-		m_Camera.Resize(window.GetWidth(), window.GetHeight());
+		auto* window = GetWindow();
+		m_Camera.Resize(window->GetWidth(), window->GetHeight());
 		
 		// Note: We'll see how to automate this in a future example
 	}
@@ -279,7 +277,7 @@ public:
 	{
 		EventDispatcher dispatcher(e);
 		// Binding our events
-		dispatcher.Dispatch<WindowResizedEvent>(ATTACH_EVENT_FN(YourApplication::OnWindowResized));
+		dispatcher.Dispatch<WindowResizedEvent>(ATTACH_EVENT_FN(OnWindowResized));
 	}
 
 	// Called each frame
@@ -298,15 +296,14 @@ public:
 
 private:
 	// This method does the camera update when the window is resized
-	bool OnWindowResized(WindowResizedEvent& e)
+	void OnWindowResized(WindowResizedEvent& e)
 	{
 		// Updating the camera projection every time the window is resized
 		m_Camera.Resize(e.GetWidth(), e.GetHeight());
-		return false;
 	}
 
 private:
-	Ref<Texture2D> m_Texture;
+	Scope<Texture2D> m_Texture;
 	SceneCamera m_Camera;
 };
 ```
@@ -317,7 +314,7 @@ private:
 It's also trivial to render a colored sprite using a different overload of the `DrawSprite()` function:
 
 ```c++
-class YourApplication : public Application
+class BasicRenderingApplication : public Application
 {
 public:
 	[...]

@@ -4,10 +4,10 @@
 
 using namespace Quark;
 
-class YourApplication : public Application
+class BasicRenderingApplication : public Application
 {
 public:
-	YourApplication()
+	BasicRenderingApplication()
 	{
 		// Loading our texture
 		m_Texture.reset(Texture2D::Create("assets/textures/Example1_BasicRendering.png"));
@@ -25,8 +25,8 @@ public:
 		// Create an dispatcher object with the given event reference
 		EventDispatcher dispatcher(e);
 
-		// Route all `WindowResizedEvent` to `YourApplication::OnWindowResized`
-		dispatcher.Dispatch<WindowResizedEvent>(ATTACH_EVENT_FN(YourApplication::OnWindowResized));
+		// Route all `WindowResizedEvent` to `BasicRenderingApplication::OnWindowResized`
+		dispatcher.Dispatch<WindowResizedEvent>(ATTACH_EVENT_FN(OnWindowResized));
 	}
 
 	// Called each frame

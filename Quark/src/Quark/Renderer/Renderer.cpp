@@ -9,7 +9,6 @@ namespace Quark {
 
 	struct RendererData
 	{
-		uint32_t MaxUniformBuffers = 0;
 		ShaderLibrary ShaderLib;
 
 		Scope<RenderPass> GeometryPass;
@@ -139,7 +138,6 @@ namespace Quark {
 		RenderCommand::Init();
 
 		s_Data = new RendererData();
-		s_Data->MaxUniformBuffers = GraphicsAPI::Instance->GetCapabilities().UniformBufferConstraints.MaxBindings;
 
 		{
 			RenderPassSpecification spec;
