@@ -38,7 +38,6 @@
 #include "Quark/Renderer/GraphicsAPI.h"
 #include "Quark/Renderer/Image.h"
 #include "Quark/Renderer/Material.h"
-#include "Quark/Renderer/Mesh.h"
 #include "Quark/Renderer/Pipeline.h"
 #include "Quark/Renderer/RenderCommand.h"
 #include "Quark/Renderer/Renderer.h"
@@ -56,6 +55,7 @@
 // Entity Component System
 #include "Quark/Scene/Components.h"
 #include "Quark/Scene/Entity.h"
+#include "Quark/Scene/Mesh.h"
 #include "Quark/Scene/NativeScriptEntity.h"
 #include "Quark/Scene/Scene.h"
 #include "Quark/Scene/SceneCamera.h"

@@ -2,8 +2,8 @@
 
 #include "Quark/Core/Core.h"
 
+#include "Mesh.h"
 #include "SceneCamera.h"
-#include "Quark/Renderer/Mesh.h"
 
 namespace Quark {
 

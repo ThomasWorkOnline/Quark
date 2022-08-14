@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Quark/Core/Core.h"
-#include "Buffer.h"
+#include "Quark/Renderer/Buffer.h"
 
 namespace Quark {
 
@@ -47,13 +47,12 @@ namespace Quark {
 		Mesh(const OBJMeshData& meshData);
 
 		VertexBuffer* GetVertexBuffer() const { return m_VertexBuffer.get(); }
-		IndexBuffer*  GetIndexBuffer() const { return m_IndexBuffer.get(); }
+		IndexBuffer* GetIndexBuffer() const { return m_IndexBuffer.get(); }
 
 		static Mesh LoadFromFile(std::string_view filepath, const MeshFormatDescriptor& descriptor = {});
 		static Mesh ConstructMeshFromOBJData(const OBJMeshData& data);
 		static Mesh GenerateUnitCube();
 
-		// TODO: support sharp edges and sharp angle threshold detector
 		static OBJMeshData ReadOBJData(std::string_view filepath, const MeshFormatDescriptor& descriptor = {});
 
 		operator bool() const { return m_VertexBuffer != nullptr; }
