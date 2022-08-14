@@ -91,7 +91,7 @@ namespace Quark {
 ```
 
 Quark already provides the default entry point for launching your program.
-Redefining `main() or WinMain()` will cause a linking error.
+Redefining `main()` or `WinMain()` will cause a linking error.
 Make sure to define `CreateApplication()` inside the Quark namespace.
 
 Note: *On Windows distribution builds, the app with launch without the console using the builtin WinMain() entry point (see [EntryPoint.cpp](Quark/src/Quark/EntryPoint.cpp) for details)*
