@@ -16,9 +16,6 @@ namespace Quark {
 	class SceneRenderer
 	{
 	public:
-		SceneRenderer();
-		~SceneRenderer();
-
 		void OnRender();
 		void OnViewportResized(uint32_t viewportWidth, uint32_t viewportHeight);
 
@@ -26,8 +23,6 @@ namespace Quark {
 		void SetEnvironment(std::string_view filepath);
 
 	private:
-		void GeometryPass();
-		void Initialize();
 		void NewEnvironment(std::string_view filepath);
 
 	private:
@@ -46,21 +41,7 @@ namespace Quark {
 
 		struct SceneData
 		{
-			// Assure std140 layout
-			struct CameraUniformBufferData
-			{
-				Mat4f View = Mat4(1.0f);
-				Mat4f Projection = Mat4(1.0f);
-			};
-
-			Scope<EnvironmentData>  Env;
-			CameraUniformBufferData CameraBufferData;
-
-			Scope<VertexBuffer> VertexBuffer;
-			Scope<IndexBuffer>  IndexBuffer;
-
-			Scope<Shader>   Shader;
-			Scope<Pipeline> GraphicsPipeline;
+			Scope<EnvironmentData> Env;
 		};
 
 		Ref<Scene> m_Scene;

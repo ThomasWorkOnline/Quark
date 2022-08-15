@@ -45,6 +45,8 @@ namespace Quark {
 		static const Renderer2DStats& GetStats() { return s_Stats; }
 
 	private:
+		static void SetViewport(uint32_t x, uint32_t y, uint32_t viewportWidth, uint32_t viewportHeight);
+
 		static void StartBatch();
 		static void PushBatch();
 		static void ResetStats();

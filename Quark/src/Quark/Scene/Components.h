@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Quark/Core/Core.h"
+#include "Quark/Renderer/Texture.h"
 
 #include "Mesh.h"
 #include "SceneCamera.h"
@@ -77,6 +78,12 @@ namespace Quark {
 			: MeshInstance(meshInstance)
 		{
 		}
+	};
+
+	struct SpriteRendererComponent
+	{
+		Ref<Texture2D> Texture;
+		Vec4f Color = { 1.0f, 1.0f, 1.0f, 1.0f };
 	};
 
 	class Scene;

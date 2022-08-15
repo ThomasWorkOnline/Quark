@@ -5,15 +5,16 @@
 #include "GraphicsContext.h"
 #include "RenderCommand.h"
 
+#include "Quark/Filesystem/Filesystem.h"
+
 namespace Quark {
 
 	struct RendererData
 	{
 		ShaderLibrary ShaderLib;
-
 		Scope<RenderPass> GeometryPass;
-		CommandBuffer* ActiveCommandBuffer = nullptr;
 
+		CommandBuffer* ActiveCommandBuffer = nullptr;
 		std::vector<Scope<Framebuffer>> Framebuffers;
 	};
 
@@ -115,11 +116,15 @@ namespace Quark {
 		s_Data->ActiveCommandBuffer = GetCommandBuffer();
 		s_Data->ActiveCommandBuffer->Reset();
 		s_Data->ActiveCommandBuffer->Begin();
+
+		BeginGeometryPass();
 	}
 
 	void Renderer::EndFrame()
 	{
 		QK_ASSERT_RENDER_THREAD();
+
+		EndRenderPass();
 
 		s_Data->ActiveCommandBuffer->End();
 		GraphicsContext::Get()->Submit();
@@ -138,6 +143,23 @@ namespace Quark {
 		RenderCommand::Init();
 
 		s_Data = new RendererData();
+
+#if 0
+		if (GraphicsAPI::GetAPI() == RHI::Vulkan)
+		{
+			std::string vertexSource = Filesystem::ReadTextFile("../Quark/assets/shaders/version/4.50/bin/shader.vert.spv");
+			std::string fragmentSource = Filesystem::ReadTextFile("../Quark/assets/shaders/version/4.50/bin/shader.frag.spv");
+
+			s_Data->Shader = Shader::Create("shader", vertexSource, fragmentSource);
+		}
+		else if (GraphicsAPI::GetAPI() == RHI::OpenGL)
+		{
+			std::string vertexSource = Filesystem::ReadTextFile("../Quark/assets/shaders/version/4.50/shader.vert");
+			std::string fragmentSource = Filesystem::ReadTextFile("../Quark/assets/shaders/version/4.50/shader.frag");
+
+			s_Data->Shader = Shader::Create("shader", vertexSource, fragmentSource);
+		}
+#endif
 
 		{
 			RenderPassSpecification spec;

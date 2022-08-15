@@ -101,6 +101,7 @@ namespace Quark {
 		dispatcher.Dispatch<WindowResizedEvent>([](WindowResizedEvent& e)
 		{
 			Renderer::SetViewport(0, 0, e.GetWidth(), e.GetHeight());
+			Renderer2D::SetViewport(0, 0, e.GetWidth(), e.GetHeight());
 		});
 
 		OnEvent(e);

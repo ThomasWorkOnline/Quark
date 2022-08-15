@@ -8,6 +8,10 @@ VulkanApp::VulkanApp()
 	m_CameraEntity = m_Scene->CreatePrimaryCamera();
 	m_CameraEntity.AddNativeScript<CameraController>();
 
+	auto sprite = m_Scene->CreateEntity();
+	sprite.AddComponent<SpriteRendererComponent>().Color = { 1.0f, 0.0f, 0.0, 1.0f };
+	sprite.AddComponent<Transform3DComponent>().Position = { 0.0f, 0.0f, 1.0f };
+
 	m_SceneRenderer.SetContext(m_Scene);
 }
 

@@ -1,38 +1,14 @@
 #include "qkpch.h"
 #include "SceneRenderer.h"
 
-#include "Quark/Core/Application.h"
-#include "Quark/Filesystem/Filesystem.h"
-
 #include "Renderer.h"
+#include "Renderer2D.h"
 #include "RenderCommand.h"
 
-#include <glad/glad.h>
+#include "Quark/Core/Application.h"
+#include "Quark/Scene/Components.h"
 
 namespace Quark {
-
-	struct Vertex2D
-	{
-		Vec3f Position;
-		Vec3f Color;
-	};
-
-	static constexpr Vertex2D s_Vertices[4] = {
-		{ { -0.5f, -0.5f, 1.0f }, { 1.0f,  0.0f,  0.0f } },
-		{ {  0.5f, -0.5f, 1.0f }, { 0.0f,  1.0f,  0.0f } },
-		{ {  0.5f,  0.5f, 1.0f }, { 0.0f,  0.0f,  1.0f } },
-		{ { -0.5f,  0.5f, 1.0f }, { 1.0f,  1.0f,  1.0f } }
-	};
-
-	static constexpr uint32_t s_Indices[6] = {
-		0, 1, 2,
-		2, 3, 0
-	};
-
-	static BufferLayout s_Vertex2DLayout = {
-		{ ShaderDataType::Float3, "a_Position" },
-		{ ShaderDataType::Float3, "a_Color"    }
-	};
 
 	void SceneRenderer::SetContext(Ref<Scene> scene)
 	{
@@ -49,16 +25,6 @@ namespace Quark {
 		}
 	}
 
-	SceneRenderer::SceneRenderer()
-	{
-		Initialize();
-	}
-
-	SceneRenderer::~SceneRenderer()
-	{
-		m_Data.GraphicsPipeline.reset();
-	}
-
 	void SceneRenderer::OnRender()
 	{
 		if (m_Scene && m_Scene->HasPrimaryCamera())
@@ -66,16 +32,22 @@ namespace Quark {
 			auto& sceneCamera = m_Scene->m_PrimaryCameraEntity.GetComponent<CameraComponent>().Camera;
 			auto& cameraTransform = m_Scene->m_PrimaryCameraEntity.GetComponent<Transform3DComponent>();
 
-			Mat4f rotate = glm::toMat4(cameraTransform.Orientation);
-			Mat4f view = glm::translate(rotate, (Vec3f)-cameraTransform.Position);
+			Mat4f cameraRotate = glm::toMat4(cameraTransform.Orientation);
+			Mat4f cameraView = glm::translate(cameraRotate, (Vec3f)-cameraTransform.Position);
 
-			m_Data.CameraBufferData.View = view;
-			m_Data.CameraBufferData.Projection = sceneCamera.GetProjection();
+			Renderer2D::BeginScene(sceneCamera.GetProjection(), cameraView);
 
-			Renderer::BindPipeline(m_Data.GraphicsPipeline.get());
-			m_Data.GraphicsPipeline->GetUniformBuffer()->SetData(&m_Data.CameraBufferData, sizeof(SceneData::CameraUniformBufferData));
+			{
+				auto view = m_Scene->m_Registry.view<SpriteRendererComponent, Transform3DComponent>();
+				for (auto entity : view)
+				{
+					auto& [src, transform] = view.get<SpriteRendererComponent, Transform3DComponent>(entity);
 
-			GeometryPass();
+					src.Texture
+						? Renderer2D::DrawSprite(src.Texture.get(), transform)
+						: Renderer2D::DrawSprite(src.Color, transform);
+				}
+			}
 
 			if (m_Data.Env)
 			{
@@ -83,7 +55,7 @@ namespace Quark {
 				RenderCommand::SetDepthFunction(RenderDepthFunction::LessEqual);
 
 				m_Data.Env->SkyboxShader->Attach();
-				m_Data.Env->SkyboxShader->SetMat4f("u_View", view);
+				m_Data.Env->SkyboxShader->SetMat4f("u_View", cameraView);
 				m_Data.Env->SkyboxShader->SetMat4f("u_Projection", sceneCamera.GetProjection());
 				m_Data.Env->SkyboxShader->SetInt("u_EnvironmentMap", 0);
 				m_Data.Env->SkyboxShader->SetFloat("u_Exposure", 1.0f);
@@ -95,13 +67,13 @@ namespace Quark {
 				RenderCommand::SetCullFace(RenderCullMode::Default);
 				RenderCommand::SetDepthFunction(RenderDepthFunction::Default);
 			}
+
+			Renderer2D::EndScene();
 		}
 	}
 
 	void SceneRenderer::OnViewportResized(uint32_t viewportWidth, uint32_t viewportHeight)
 	{
-		m_Data.GraphicsPipeline->SetViewport(viewportWidth, viewportHeight);
-
 		if (m_Scene && m_Scene->HasPrimaryCamera())
 		{
 			auto& cc = m_Scene->m_PrimaryCameraEntity.GetComponent<CameraComponent>();
@@ -112,54 +84,6 @@ namespace Quark {
 	void SceneRenderer::SetEnvironment(std::string_view filepath)
 	{
 		NewEnvironment(filepath);
-	}
-
-	void SceneRenderer::GeometryPass()
-	{
-		Renderer::BeginGeometryPass();
-		Renderer::Submit(m_Data.VertexBuffer.get(), m_Data.IndexBuffer.get());
-		Renderer::EndRenderPass();
-	}
-
-	void SceneRenderer::Initialize()
-	{
-		QK_PROFILE_FUNCTION();
-
-		if (GraphicsAPI::GetAPI() == RHI::Vulkan)
-		{
-			std::string vertexSource = Filesystem::ReadTextFile("../Quark/assets/shaders/version/4.50/bin/shader.vert.spv");
-			std::string fragmentSource = Filesystem::ReadTextFile("../Quark/assets/shaders/version/4.50/bin/shader.frag.spv");
-
-			m_Data.Shader = Shader::Create("shader", vertexSource, fragmentSource);
-		}
-		else if (GraphicsAPI::GetAPI() == RHI::OpenGL)
-		{
-			std::string vertexSource = Filesystem::ReadTextFile("../Quark/assets/shaders/version/4.50/shader.vert");
-			std::string fragmentSource = Filesystem::ReadTextFile("../Quark/assets/shaders/version/4.50/shader.frag");
-
-			m_Data.Shader = Shader::Create("shader", vertexSource, fragmentSource);
-		}
-
-		{
-			auto& viewport = Renderer::GetViewportExtent();
-
-			PipelineSpecification spec;
-			spec.ViewportWidth = viewport.Width;
-			spec.ViewportHeight = viewport.Height;
-			spec.CameraUniformBufferSize = sizeof(SceneData::CameraUniformBufferData);
-			spec.Layout = s_Vertex2DLayout;
-			spec.RenderPass = Renderer::GetGeometryPass();
-			spec.Shader = m_Data.Shader.get();
-
-			m_Data.GraphicsPipeline = Pipeline::Create(spec);
-		}
-
-		{
-			m_Data.VertexBuffer = VertexBuffer::Create(s_Vertices, sizeof(s_Vertices));
-			m_Data.VertexBuffer->SetLayout(s_Vertex2DLayout);
-
-			m_Data.IndexBuffer = IndexBuffer::Create(s_Indices, sizeof_array(s_Indices));
-		}
 	}
 
 	void SceneRenderer::NewEnvironment(std::string_view filepath)

@@ -6,6 +6,7 @@
 namespace Quark {
 
 	OpenGLUniformBuffer::OpenGLUniformBuffer(size_t size, uint32_t binding)
+		: m_Binding(binding)
 	{
 		QK_PROFILE_FUNCTION();
 
@@ -27,6 +28,7 @@ namespace Quark {
 	void OpenGLUniformBuffer::SetData(const void* data, size_t size, size_t offset)
 	{
 		glBindBuffer(GL_UNIFORM_BUFFER, m_RendererID);
+		glBindBufferBase(GL_UNIFORM_BUFFER, m_Binding, m_RendererID);
 		glBufferSubData(GL_UNIFORM_BUFFER, offset, size, data);
 
 		QK_DEBUG_CALL(glBindBuffer(GL_UNIFORM_BUFFER, 0));

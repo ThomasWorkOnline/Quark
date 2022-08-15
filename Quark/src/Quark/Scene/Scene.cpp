@@ -86,7 +86,6 @@ namespace Quark {
 		return CreateRef<Scene>();
 	}
 
-
 	template<typename Component>
 	void Scene::OnComponentAdded(Entity entity, Component& c)
 	{
@@ -94,6 +93,16 @@ namespace Quark {
 
 	template<typename Component>
 	void Scene::OnComponentRemove(Entity entity, Component& c)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentAdded<SpriteRendererComponent>(Entity entity, SpriteRendererComponent& nsc)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentRemove<SpriteRendererComponent>(Entity entity, SpriteRendererComponent& nsc)
 	{
 	}
 
