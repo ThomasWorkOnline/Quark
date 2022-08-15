@@ -2,9 +2,9 @@
 
 #include <Quark/Scripts/CameraController.h>
 
-static Ref<Texture2D> CreateTextureFromImage(const Ref<Image>& image, const Texture2DSpecification& spec)
+static Scope<Texture2D> CreateTextureFromImage(const Ref<Image>& image, const Texture2DSpecification& spec)
 {
-	Ref<Texture2D> texture(Texture2D::Create(spec));
+	Scope<Texture2D> texture = Texture2D::Create(spec);
 	texture->SetData(image->Data(), image->Size());
 	texture->GenerateMipmaps();
 
@@ -78,10 +78,10 @@ PBRRenderingDemo::PBRRenderingDemo()
 #endif
 
 #if 1
-		m_AlbedoFuture    = std::async(std::launch::async, Image::Shared, albedoFilepath);
-		m_MetallicFuture  = std::async(std::launch::async, Image::Shared, metallicFilepath);
-		m_NormalFuture    = std::async(std::launch::async, Image::Shared, normalFilepath);
-		m_RoughnessFuture = std::async(std::launch::async, Image::Shared, roughnessFilepath);
+		m_AlbedoFuture    = std::async(std::launch::async, Image::Create, albedoFilepath);
+		m_MetallicFuture  = std::async(std::launch::async, Image::Create, metallicFilepath);
+		m_NormalFuture    = std::async(std::launch::async, Image::Create, normalFilepath);
+		m_RoughnessFuture = std::async(std::launch::async, Image::Create, roughnessFilepath);
 #else
 
 		{
@@ -139,7 +139,7 @@ PBRRenderingDemo::PBRRenderingDemo()
 
 		if (aoFilepath)
 		{
-			m_AOFuture = std::async(std::launch::async, Image::Shared, aoFilepath);
+			m_AOFuture = std::async(std::launch::async, Image::Create, aoFilepath);
 		}
 		else
 		{
@@ -184,6 +184,8 @@ PBRRenderingDemo::PBRRenderingDemo()
 	m_PBRShader->SetVec3f("u_LightPositions[1]", lightPositions[1]);
 	m_PBRShader->SetVec3f("u_LightPositions[2]", lightPositions[2]);
 	m_PBRShader->SetVec3f("u_LightPositions[3]", lightPositions[3]);
+
+	m_UniformBuffer = UniformBuffer::Create(sizeof(CameraUniformBufferData), 0);
 }
 
 void PBRRenderingDemo::OnUpdate(Timestep elapsedTime)
@@ -210,14 +212,16 @@ void PBRRenderingDemo::OnRender()
 	m_PBRShader->Attach();
 	m_PBRShader->SetVec3f("u_CameraPos", transform.Position);
 
-	//Renderer::BeginScene(camera, transform);
+	Mat4f cameraRotate = glm::toMat4(transform.Orientation);
+	Mat4f cameraView = glm::translate(cameraRotate, (Vec3f)-transform.Position);
+
+	m_UniformBufferData.ViewProjection = camera.GetProjection() * cameraView;
+	m_UniformBuffer->SetData(&m_UniformBufferData, sizeof(CameraUniformBufferData));
 
 	if (m_Body)
 	{
-		//RenderCommand::DrawIndexed(m_Body.GetVertexArray());
+		Renderer::Submit(m_Body.GetVertexBuffer(), m_Body.GetIndexBuffer());
 	}
-
-	//Renderer::EndScene();
 
 	t.Stop();
 	auto ms = t.Microseconds().count() / 1000.0f;
@@ -227,10 +231,10 @@ void PBRRenderingDemo::OnRender()
 void PBRRenderingDemo::OnEvent(Event& e)
 {
 	EventDispatcher dispatcher(e);
-	dispatcher.Dispatch<KeyPressedEvent>(ATTACH_EVENT_FN(PBRRenderingDemo::OnKeyPressed));
-	dispatcher.Dispatch<MouseMovedEvent>(ATTACH_EVENT_FN(PBRRenderingDemo::OnMouseMoved));
-	dispatcher.Dispatch<MouseButtonPressedEvent>(ATTACH_EVENT_FN(PBRRenderingDemo::OnMouseButtonPressed));
-	dispatcher.Dispatch<MouseButtonReleasedEvent>(ATTACH_EVENT_FN(PBRRenderingDemo::OnMouseButtonReleased));
+	dispatcher.Dispatch<KeyPressedEvent>(ATTACH_EVENT_FN(OnKeyPressed));
+	dispatcher.Dispatch<MouseMovedEvent>(ATTACH_EVENT_FN(OnMouseMoved));
+	dispatcher.Dispatch<MouseButtonPressedEvent>(ATTACH_EVENT_FN(OnMouseButtonPressed));
+	dispatcher.Dispatch<MouseButtonReleasedEvent>(ATTACH_EVENT_FN(OnMouseButtonReleased));
 
 	e.Handled = e.IsInCategory(EventCategory::Input) && GetWindow()->IsCursorEnabled();
 
@@ -252,7 +256,7 @@ bool PBRRenderingDemo::OnKeyPressed(KeyPressedEvent& e)
 
 bool PBRRenderingDemo::OnMouseMoved(MouseMovedEvent& e)
 {
-	return !GetWindow()->IsCursorEnabled();
+	return GetWindow()->IsCursorEnabled();
 }
 
 bool PBRRenderingDemo::OnMouseButtonPressed(MouseButtonPressedEvent& e)

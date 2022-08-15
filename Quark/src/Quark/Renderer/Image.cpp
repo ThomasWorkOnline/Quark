@@ -107,6 +107,11 @@ namespace Quark {
 		return CreateRef<Image>(filepath);
 	}
 
+	Scope<Image> Image::Create(std::string_view filepath)
+	{
+		return CreateScope<Image>(filepath);
+	}
+
 	void Image::DecodePNG(FileStream& in)
 	{	
 		QK_PROFILE_FUNCTION();

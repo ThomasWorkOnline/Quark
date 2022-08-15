@@ -41,7 +41,7 @@ namespace Quark {
 				auto view = m_Scene->m_Registry.view<SpriteRendererComponent, Transform3DComponent>();
 				for (auto entity : view)
 				{
-					auto& [src, transform] = view.get<SpriteRendererComponent, Transform3DComponent>(entity);
+					auto [src, transform] = view.get<SpriteRendererComponent, Transform3DComponent>(entity);
 
 					src.Texture
 						? Renderer2D::DrawSprite(src.Texture.get(), transform)

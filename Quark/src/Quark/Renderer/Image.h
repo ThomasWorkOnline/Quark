@@ -41,6 +41,7 @@ namespace Quark {
 		void* operator*() const { return m_ImageData; }
 
 		static Ref<Image> Shared(std::string_view filepath);
+		static Scope<Image> Create(std::string_view filepath);
 
 	private:
 		void DecodePNG(FileStream& in);
