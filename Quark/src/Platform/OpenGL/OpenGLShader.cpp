@@ -209,17 +209,17 @@ namespace Quark {
 		UploadUniformInt(name, value);
 	}
 
-	void OpenGLShader::SetInt2(std::string_view name, const Vec2i& value)
+	void OpenGLShader::SetVec2i(std::string_view name, const Vec2i& value)
 	{
 		UploadUniformInt2(name, value);
 	}
 
-	void OpenGLShader::SetInt3(std::string_view name, const Vec3i& value)
+	void OpenGLShader::SetVec3i(std::string_view name, const Vec3i& value)
 	{
 		UploadUniformInt3(name, value);
 	}
 
-	void OpenGLShader::SetInt4(std::string_view name, const Vec4i& value)
+	void OpenGLShader::SetVec4i(std::string_view name, const Vec4i& value)
 	{
 		UploadUniformInt4(name, value);
 	}

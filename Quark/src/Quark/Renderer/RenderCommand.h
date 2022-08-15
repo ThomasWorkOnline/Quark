@@ -18,11 +18,6 @@ namespace Quark {
 			GraphicsAPI::Instance->SetClearColor(color);
 		}
 
-		static void Clear()
-		{
-			GraphicsAPI::Instance->Clear();
-		}
-
 		static void SetCullFace(RenderCullMode face)
 		{
 			GraphicsAPI::Instance->SetCullFace(face);

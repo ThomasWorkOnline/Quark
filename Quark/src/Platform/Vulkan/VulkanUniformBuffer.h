@@ -10,11 +10,9 @@ namespace Quark {
 	class VulkanUniformBuffer final : public UniformBuffer
 	{
 	public:
+		VulkanUniformBuffer() = default;
 		VulkanUniformBuffer(VulkanDevice* device, size_t size, uint32_t binding);
 		virtual ~VulkanUniformBuffer() override;
-
-		virtual void Attach(uint32_t binding = 0) const override;
-		virtual void Detach() const override {}
 
 		virtual void SetData(const void* data, size_t size, size_t offset = 0) override;
 
@@ -26,9 +24,9 @@ namespace Quark {
 		}
 
 	private:
-		VulkanDevice* m_Device;
+		VulkanDevice* m_Device = nullptr;
 
-		VkBuffer m_Buffer;
-		VkDeviceMemory m_BufferMemory;
+		VkBuffer m_Buffer = VK_NULL_HANDLE;
+		VkDeviceMemory m_BufferMemory = VK_NULL_HANDLE;
 	};
 }

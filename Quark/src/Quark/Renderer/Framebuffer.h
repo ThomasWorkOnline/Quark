@@ -23,7 +23,7 @@ namespace Quark {
 		virtual void SetData(void* data) = 0;
 		const FramebufferAttachmentSpecification& GetSpecification() const { return m_Spec; }
 
-		static FramebufferAttachment* Create(void* image, const FramebufferAttachmentSpecification& spec);
+		static Scope<FramebufferAttachment> Create(void* image, const FramebufferAttachmentSpecification& spec);
 
 	protected:
 		FramebufferAttachmentSpecification m_Spec;
@@ -57,7 +57,7 @@ namespace Quark {
 
 		const FramebufferSpecification& GetSpecification() const { return m_Spec; }
 
-		static Framebuffer* Create(const FramebufferSpecification& spec);
+		static Scope<Framebuffer> Create(const FramebufferSpecification& spec);
 
 	protected:
 		FramebufferSpecification m_Spec;

@@ -168,8 +168,8 @@ namespace Quark {
 
 		virtual bool operator==(const VertexBuffer& other) const = 0;
 
-		static VertexBuffer* Create(const void* vertices, size_t size);
-		static VertexBuffer* Create(size_t size);
+		static Scope<VertexBuffer> Create(const void* vertices, size_t size);
+		static Scope<VertexBuffer> Create(size_t size);
 
 	protected:
 		BufferLayout m_Layout;
@@ -185,7 +185,7 @@ namespace Quark {
 
 		virtual bool operator==(const IndexBuffer& other) const = 0;
 
-		static IndexBuffer* Create(const uint32_t* indices, uint32_t count);
-		static IndexBuffer* Create(uint32_t count);
+		static Scope<IndexBuffer> Create(const uint32_t* indices, uint32_t count);
+		static Scope<IndexBuffer> Create(uint32_t count);
 	};
 }

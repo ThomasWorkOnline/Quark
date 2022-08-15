@@ -11,7 +11,7 @@ namespace Quark {
 
 		virtual bool operator==(const RenderPass& other) const override
 		{
-			return false;
+			return true;
 		}
 	};
 }

@@ -14,9 +14,9 @@ namespace Quark {
 		virtual void Detach() const = 0;
 
 		virtual void SetInt(std::string_view name, int32_t value) = 0;
-		virtual void SetInt2(std::string_view name, const Vec2i& value) = 0;
-		virtual void SetInt3(std::string_view name, const Vec3i& value) = 0;
-		virtual void SetInt4(std::string_view name, const Vec4i& value) = 0;
+		virtual void SetVec2i(std::string_view name, const Vec2i& value) = 0;
+		virtual void SetVec3i(std::string_view name, const Vec3i& value) = 0;
+		virtual void SetVec4i(std::string_view name, const Vec4i& value) = 0;
 		virtual void SetIntArray(std::string_view name, const int32_t* values, uint32_t count) = 0;
 
 		virtual void SetFloat(std::string_view name, float value) = 0;
@@ -41,9 +41,9 @@ namespace Quark {
 
 		virtual bool operator==(const Shader& other) const = 0;
 
-		static Shader* Create(std::string_view filepath);
-		static Shader* Create(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource);
-		static Shader* Create(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource);
+		static Scope<Shader> Create(std::string_view filepath);
+		static Scope<Shader> Create(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource);
+		static Scope<Shader> Create(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource);
 	};
 
 	class ShaderLibrary
@@ -51,13 +51,12 @@ namespace Quark {
 	public:
 		void Add(std::string_view name, Ref<Shader> shader);
 		void Add(Ref<Shader> shader);
+		bool Exists(std::string_view name) const;
 
 		Ref<Shader> Load(std::string_view filepath);
 		Ref<Shader> Load(std::string_view name, std::string_view filepath);
-
 		Ref<Shader> Get(std::string_view name) const;
 
-		bool Exists(std::string_view name) const;
 		size_t Size() const { return m_Shaders.size(); }
 
 	private:

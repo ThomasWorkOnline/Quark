@@ -19,7 +19,7 @@ namespace Quark {
 
 		virtual bool operator==(const Cubemap& other) const override
 		{
-			return m_RendererID == ((OpenGLCubemap&)other).m_RendererID;
+			return m_RendererID == reinterpret_cast<decltype(*this)&>(other).m_RendererID;
 		}
 
 	private:

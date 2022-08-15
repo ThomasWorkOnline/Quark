@@ -5,6 +5,16 @@
 
 namespace Quark {
 
+	VulkanVertexBuffer::VulkanVertexBuffer(VulkanDevice* device, size_t size)
+		: m_Device(device)
+	{
+		QK_PROFILE_FUNCTION();
+
+		m_Buffer = Utils::AllocateBuffer(m_Device, size,
+			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_BufferMemory);
+	}
+
 	VulkanVertexBuffer::VulkanVertexBuffer(VulkanDevice* device, const void* vertices, size_t size)
 		: m_Device(device)
 	{
@@ -32,16 +42,6 @@ namespace Quark {
 
 		vkDestroyBuffer(m_Device->GetVkHandle(), stagingBuffer, nullptr);
 		vkFreeMemory(m_Device->GetVkHandle(), stagingBufferMemory, nullptr);
-	}
-
-	VulkanVertexBuffer::VulkanVertexBuffer(VulkanDevice* device, size_t size)
-		: m_Device(device)
-	{
-		QK_PROFILE_FUNCTION();
-
-		m_Buffer = Utils::AllocateBuffer(m_Device, size,
-			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_BufferMemory);
 	}
 
 	VulkanVertexBuffer::~VulkanVertexBuffer()
@@ -77,6 +77,17 @@ namespace Quark {
 		vkFreeMemory(m_Device->GetVkHandle(), stagingBufferMemory, nullptr);
 	}
 
+	VulkanIndexBuffer::VulkanIndexBuffer(VulkanDevice* device, uint32_t count)
+		: m_Device(device), m_Count(count)
+	{
+		QK_PROFILE_FUNCTION();
+
+		size_t size = count * sizeof(uint32_t);
+		m_Buffer = Utils::AllocateBuffer(m_Device, size,
+			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_BufferMemory);
+	}
+
 	VulkanIndexBuffer::VulkanIndexBuffer(VulkanDevice* device, const uint32_t* indices, uint32_t count)
 		: m_Device(device), m_Count(count)
 	{
@@ -105,17 +116,6 @@ namespace Quark {
 
 		vkDestroyBuffer(m_Device->GetVkHandle(), stagingBuffer, nullptr);
 		vkFreeMemory(m_Device->GetVkHandle(), stagingBufferMemory, nullptr);
-	}
-
-	VulkanIndexBuffer::VulkanIndexBuffer(VulkanDevice* device, uint32_t count)
-		: m_Device(device), m_Count(count)
-	{
-		QK_PROFILE_FUNCTION();
-
-		size_t size = count * sizeof(uint32_t);
-		m_Buffer = Utils::AllocateBuffer(m_Device, size,
-			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_BufferMemory);
 	}
 
 	VulkanIndexBuffer::~VulkanIndexBuffer()

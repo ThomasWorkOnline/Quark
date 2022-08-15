@@ -11,9 +11,8 @@ namespace Quark {
 		OpenGLPipeline(const PipelineSpecification& spec);
 		virtual ~OpenGLPipeline() override;
 
-		virtual void Resize(uint32_t viewportWidth, uint32_t viewportHeight) override {}
-
-		virtual UniformBuffer* GetUniformBuffer() const override { return m_UniformBuffer.get(); }
+		virtual void SetViewport(uint32_t viewportWidth, uint32_t viewportHeight) override {}
+		virtual UniformBuffer* GetUniformBuffer() const override { return &m_UniformBuffer; }
 
 		virtual bool operator==(const Pipeline& other) const override
 		{
@@ -21,6 +20,6 @@ namespace Quark {
 		}
 
 	private:
-		Scope<OpenGLUniformBuffer> m_UniformBuffer;
+		mutable OpenGLUniformBuffer m_UniformBuffer;
 	};
 }

@@ -31,7 +31,7 @@ namespace Quark {
 
 		for (uint32_t i = 0; i < VulkanContext::FramesInFlight; i++)
 		{
-			m_CameraUniformBuffers[i].reset(UniformBuffer::Create(m_Spec.CameraUniformBufferSize, 0));
+			m_CameraUniformBuffers[i] = VulkanUniformBuffer(m_Device, m_Spec.CameraUniformBufferSize, 0);
 		}
 
 		// Descriptor pool
@@ -83,7 +83,7 @@ namespace Quark {
 			for (uint32_t i = 0; i < VulkanContext::FramesInFlight; i++)
 			{
 				VkDescriptorBufferInfo bufferInfo{};
-				bufferInfo.buffer = static_cast<VulkanUniformBuffer*>(m_CameraUniformBuffers[i].get())->GetVkHandle();
+				bufferInfo.buffer = static_cast<VulkanUniformBuffer*>(&m_CameraUniformBuffers[i])->GetVkHandle();
 				bufferInfo.offset = 0;
 				bufferInfo.range = m_Spec.CameraUniformBufferSize;
 
@@ -115,7 +115,7 @@ namespace Quark {
 		vkDestroyDescriptorPool(m_Device->GetVkHandle(), m_DescriptorPool, nullptr);
 	}
 
-	void VulkanPipeline::Resize(uint32_t viewportWidth, uint32_t viewportHeight)
+	void VulkanPipeline::SetViewport(uint32_t viewportWidth, uint32_t viewportHeight)
 	{
 		m_Spec.ViewportWidth = viewportWidth;
 		m_Spec.ViewportHeight = viewportHeight;
@@ -125,7 +125,7 @@ namespace Quark {
 
 	UniformBuffer* VulkanPipeline::GetUniformBuffer() const
 	{
-		return m_CameraUniformBuffers[VulkanContext::Get()->GetCurrentFrameIndex()].get();
+		return &m_CameraUniformBuffers[VulkanContext::Get()->GetCurrentFrameIndex()];
 	}
 
 	VkDescriptorSet VulkanPipeline::GetDescriptorSet() const

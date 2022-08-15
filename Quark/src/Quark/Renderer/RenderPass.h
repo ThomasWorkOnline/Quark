@@ -29,7 +29,7 @@ namespace Quark {
 
 		const RenderPassSpecification& GetSpecification() const { return m_Spec; }
 
-		static RenderPass* Create(const RenderPassSpecification& spec);
+		static Scope<RenderPass> Create(const RenderPassSpecification& spec);
 
 	protected:
 		RenderPassSpecification m_Spec;

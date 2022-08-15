@@ -10,7 +10,7 @@ public:
 	BasicRenderingApplication()
 	{
 		// Loading our texture
-		m_Texture.reset(Texture2D::Create("assets/textures/Example1_BasicRendering.png"));
+		m_Texture = Texture2D::Create("assets/textures/Example1_BasicRendering.png");
 
 		// Setting the projection type to be orthographic in screen space [-1, 1]
 		m_Camera.SetOrthographic(1.0f);

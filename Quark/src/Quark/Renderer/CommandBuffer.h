@@ -34,6 +34,6 @@ namespace Quark {
 
 		virtual bool operator==(const CommandBuffer& other) const = 0;
 
-		static CommandBuffer* Create();
+		static Scope<CommandBuffer> Create();
 	};
 }

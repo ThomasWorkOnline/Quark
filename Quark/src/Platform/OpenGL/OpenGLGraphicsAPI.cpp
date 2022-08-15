@@ -59,11 +59,6 @@ namespace Quark {
 		}
 	}
 
-	void OpenGLGraphicsAPI::Clear()
-	{
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	}
-
 	void OpenGLGraphicsAPI::SetCullFace(RenderCullMode face)
 	{
 		switch (face)
@@ -136,94 +131,94 @@ namespace Quark {
 		return thickness;
 	}
 
-	CommandBuffer* OpenGLGraphicsAPI::CreateCommandBuffer()
+	Scope<CommandBuffer> OpenGLGraphicsAPI::CreateCommandBuffer()
 	{
-		return new OpenGLCommandBuffer();
+		return CreateScope<OpenGLCommandBuffer>();
 	}
 
-	Pipeline* OpenGLGraphicsAPI::CreatePipeline(const PipelineSpecification& spec)
+	Scope<Pipeline> OpenGLGraphicsAPI::CreatePipeline(const PipelineSpecification& spec)
 	{
-		return new OpenGLPipeline(spec);
+		return CreateScope<OpenGLPipeline>(spec);
 	}
 
-	RenderPass* OpenGLGraphicsAPI::CreateRenderPass(const RenderPassSpecification& spec)
+	Scope<RenderPass> OpenGLGraphicsAPI::CreateRenderPass(const RenderPassSpecification& spec)
 	{
-		return new OpenGLRenderPass(spec);
+		return CreateScope<OpenGLRenderPass>(spec);
 	}
 
-	VertexBuffer* OpenGLGraphicsAPI::CreateVertexBuffer(const void* vertices, size_t size)
+	Scope<VertexBuffer> OpenGLGraphicsAPI::CreateVertexBuffer(const void* vertices, size_t size)
 	{
-		return new OpenGLVertexBuffer(vertices, size);
+		return CreateScope<OpenGLVertexBuffer>(vertices, size);
 	}
 
-	VertexBuffer* OpenGLGraphicsAPI::CreateVertexBuffer(size_t size)
+	Scope<VertexBuffer> OpenGLGraphicsAPI::CreateVertexBuffer(size_t size)
 	{
-		return new OpenGLVertexBuffer(size);
+		return CreateScope<OpenGLVertexBuffer>(size);
 	}
 
-	IndexBuffer* OpenGLGraphicsAPI::CreateIndexBuffer(const uint32_t* indices, uint32_t count)
+	Scope<IndexBuffer> OpenGLGraphicsAPI::CreateIndexBuffer(const uint32_t* indices, uint32_t count)
 	{
-		return new OpenGLIndexBuffer(indices, count);
+		return CreateScope<OpenGLIndexBuffer>(indices, count);
 	}
 
-	IndexBuffer* OpenGLGraphicsAPI::CreateIndexBuffer(uint32_t count)
+	Scope<IndexBuffer> OpenGLGraphicsAPI::CreateIndexBuffer(uint32_t count)
 	{
-		return new OpenGLIndexBuffer(count);
+		return CreateScope<OpenGLIndexBuffer>(count);
 	}
 
-	Cubemap* OpenGLGraphicsAPI::CreateCubemap(const CubemapSpecification& spec)
+	Scope<Cubemap> OpenGLGraphicsAPI::CreateCubemap(const CubemapSpecification& spec)
 	{
-		return new OpenGLCubemap(spec);
+		return CreateScope<OpenGLCubemap>(spec);
 	}
 
-	Font* OpenGLGraphicsAPI::CreateFont(std::string_view filepath, uint32_t fontSize)
+	Scope<Font> OpenGLGraphicsAPI::CreateFont(std::string_view filepath, uint32_t fontSize)
 	{
-		return new OpenGLFont(filepath, fontSize);
+		return CreateScope<OpenGLFont>(filepath, fontSize);
 	}
 
-	Framebuffer* OpenGLGraphicsAPI::CreateFramebuffer(const FramebufferSpecification& spec)
+	Scope<Framebuffer> OpenGLGraphicsAPI::CreateFramebuffer(const FramebufferSpecification& spec)
 	{
-		return new OpenGLFramebuffer(spec);
+		return CreateScope<OpenGLFramebuffer>(spec);
 	}
 
-	FramebufferAttachment* OpenGLGraphicsAPI::CreateFramebufferAttachment(void* image, const FramebufferAttachmentSpecification& spec)
+	Scope<FramebufferAttachment> OpenGLGraphicsAPI::CreateFramebufferAttachment(void* image, const FramebufferAttachmentSpecification& spec)
 	{
-		return new OpenGLFramebufferAttachment(image, spec);
+		return CreateScope<OpenGLFramebufferAttachment>(image, spec);
 	}
 
-	Shader* OpenGLGraphicsAPI::CreateShader(std::string_view filepath)
+	Scope<Shader> OpenGLGraphicsAPI::CreateShader(std::string_view filepath)
 	{
-		return new OpenGLShader(filepath);
+		return CreateScope<OpenGLShader>(filepath);
 	}
 
-	Shader* OpenGLGraphicsAPI::CreateShader(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource)
+	Scope<Shader> OpenGLGraphicsAPI::CreateShader(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource)
 	{
-		return new OpenGLShader(name, vertexSource, fragmentSource);
+		return CreateScope<OpenGLShader>(name, vertexSource, fragmentSource);
 	}
 
-	Shader* OpenGLGraphicsAPI::CreateShader(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource)
+	Scope<Shader> OpenGLGraphicsAPI::CreateShader(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource)
 	{
-		return new OpenGLShader(name, vertexSource, geometrySource, fragmentSource);
+		return CreateScope<OpenGLShader>(name, vertexSource, geometrySource, fragmentSource);
 	}
 
-	Texture2D* OpenGLGraphicsAPI::CreateTexture2D(const Texture2DSpecification& spec)
+	Scope<Texture2D> OpenGLGraphicsAPI::CreateTexture2D(const Texture2DSpecification& spec)
 	{
-		return new OpenGLTexture2D(spec);
+		return CreateScope<OpenGLTexture2D>(spec);
 	}
 
-	Texture2D* OpenGLGraphicsAPI::CreateTexture2D(std::string_view filepath, const TextureFormatDescriptor& descriptor)
+	Scope<Texture2D> OpenGLGraphicsAPI::CreateTexture2D(std::string_view filepath, const TextureFormatDescriptor& descriptor)
 	{
-		return new OpenGLTexture2D(filepath, descriptor);
+		return CreateScope<OpenGLTexture2D>(filepath, descriptor);
 	}
 
-	Texture2DArray* OpenGLGraphicsAPI::CreateTexture2DArray(const Texture2DArraySpecification& spec)
+	Scope<Texture2DArray> OpenGLGraphicsAPI::CreateTexture2DArray(const Texture2DArraySpecification& spec)
 	{
-		return new OpenGLTexture2DArray(spec);
+		return CreateScope<OpenGLTexture2DArray>(spec);
 	}
 
-	UniformBuffer* OpenGLGraphicsAPI::CreateUniformBuffer(size_t size, uint32_t binding)
+	Scope<UniformBuffer> OpenGLGraphicsAPI::CreateUniformBuffer(size_t size, uint32_t binding)
 	{
-		return new OpenGLUniformBuffer(size, binding);
+		return CreateScope<OpenGLUniformBuffer>(size, binding);
 	}
 
 	std::string OpenGLGraphicsAPI::GetSpecification() const

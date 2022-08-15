@@ -20,10 +20,6 @@ namespace Quark {
 		vkFreeMemory(m_Device->GetVkHandle(), m_BufferMemory, nullptr);
 	}
 
-	void VulkanUniformBuffer::Attach(uint32_t binding) const
-	{
-	}
-
 	void VulkanUniformBuffer::SetData(const void* data, size_t size, size_t offset)
 	{
 		QK_CORE_ASSERT(offset == 0, "offsets are currently not supported");

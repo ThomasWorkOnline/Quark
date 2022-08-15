@@ -22,9 +22,9 @@ namespace Quark {
 		virtual void Detach() const override;
 
 		virtual void SetInt(std::string_view name, int32_t value) override;
-		virtual void SetInt2(std::string_view name, const Vec2i& value) override;
-		virtual void SetInt3(std::string_view name, const Vec3i& value) override;
-		virtual void SetInt4(std::string_view name, const Vec4i& value) override;
+		virtual void SetVec2i(std::string_view name, const Vec2i& value) override;
+		virtual void SetVec3i(std::string_view name, const Vec3i& value) override;
+		virtual void SetVec4i(std::string_view name, const Vec4i& value) override;
 		virtual void SetIntArray(std::string_view name, const int32_t* values, uint32_t count) override;
 
 		virtual void SetFloat(std::string_view name, float value) override;
@@ -49,7 +49,7 @@ namespace Quark {
 
 		virtual bool operator==(const Shader& other) const override
 		{
-			return m_RendererID == ((OpenGLShader&)other).m_RendererID;
+			return m_RendererID == reinterpret_cast<decltype(*this)&>(other).m_RendererID;
 		}
 
 	private:

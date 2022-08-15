@@ -3,7 +3,7 @@
 
 namespace Quark {
 
-	RHI GetDefaultAPIForPlatform()
+	RHI GetDefaultRHIForPlatform()
 	{
 		return RHI::Vulkan;
 	}

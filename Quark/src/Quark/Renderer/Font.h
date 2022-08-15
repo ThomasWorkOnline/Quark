@@ -32,18 +32,18 @@ namespace Quark {
 
 		virtual bool operator==(const Font& other) const = 0;
 
-		static Font* Create(std::string_view filepath, uint32_t fontSize);
+		static Scope<Font> Create(std::string_view filepath, uint32_t fontSize);
 	};
 
 	class FontLibrary
 	{
 	public:
 		Ref<Font> Load(std::string_view name, std::string_view filepath, uint32_t fontSize);
-		void Add(Ref<Font> font, std::string_view name);
-
 		Ref<Font> Get(std::string_view name) const;
 
+		void Add(Ref<Font> font, std::string_view name);
 		bool Exists(std::string_view name) const;
+
 		size_t Size() const { return m_Fonts.size(); }
 
 	private:

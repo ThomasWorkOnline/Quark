@@ -5,7 +5,7 @@
 
 namespace Quark {
 
-	CommandBuffer* CommandBuffer::Create()
+	Scope<CommandBuffer> CommandBuffer::Create()
 	{
 		return GraphicsAPI::Instance->CreateCommandBuffer();
 	}

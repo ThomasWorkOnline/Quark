@@ -5,17 +5,17 @@
 
 namespace Quark {
 
-	Shader* Shader::Create(std::string_view filepath)
+	Scope<Shader> Shader::Create(std::string_view filepath)
 	{
 		return GraphicsAPI::Instance->CreateShader(filepath);
 	}
 
-	Shader* Shader::Create(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource)
+	Scope<Shader> Shader::Create(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource)
 	{
 		return GraphicsAPI::Instance->CreateShader(name, vertexSource, fragmentSource);
 	}
 
-	Shader* Shader::Create(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource)
+	Scope<Shader> Shader::Create(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource)
 	{
 		return GraphicsAPI::Instance->CreateShader(name, vertexSource, geometrySource, fragmentSource);
 	}
@@ -36,6 +36,11 @@ namespace Quark {
 		Add(shader->GetName(), std::move(shader));
 	}
 
+	bool ShaderLibrary::Exists(std::string_view name) const
+	{
+		return m_Shaders.find(GetHashedName(name)) != m_Shaders.end();
+	}
+
 	Ref<Shader> ShaderLibrary::Load(std::string_view filepath)
 	{
 		Ref<Shader> shader(Shader::Create(filepath));
@@ -54,10 +59,5 @@ namespace Quark {
 	{
 		QK_CORE_ASSERT(Exists(name), "Shader not found!");
 		return m_Shaders.at(GetHashedName(name));
-	}
-
-	bool ShaderLibrary::Exists(std::string_view name) const
-	{
-		return m_Shaders.find(GetHashedName(name)) != m_Shaders.end();
 	}
 }

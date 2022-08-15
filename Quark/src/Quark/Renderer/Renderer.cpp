@@ -144,7 +144,7 @@ namespace Quark {
 			spec.BindPoint = PipelineBindPoint::Graphics;
 			spec.ColorFormat = ColorDataFormat::BGRA8_SRGB;
 			spec.ClearBuffers = true;
-			s_Data->GeometryPass.reset(RenderPass::Create(spec));
+			s_Data->GeometryPass = RenderPass::Create(spec);
 		}
 
 		const uint32_t swapChainImages = GraphicsContext::Get()->GetSwapChainImageCount();

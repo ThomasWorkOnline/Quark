@@ -32,7 +32,7 @@ namespace Quark {
 
 		const CubemapSpecification& GetSpecification() const { return m_Spec; }
 
-		static Cubemap* Create(const CubemapSpecification& spec);
+		static Scope<Cubemap> Create(const CubemapSpecification& spec);
 
 	protected:
 		CubemapSpecification m_Spec;

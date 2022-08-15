@@ -28,7 +28,7 @@ namespace Quark {
 
 		virtual bool operator==(const Font& other) const override
 		{
-			return m_RendererID == ((OpenGLFont&)other).m_RendererID;
+			return m_RendererID == reinterpret_cast<decltype(*this)&>(other).m_RendererID;
 		}
 
 	private:

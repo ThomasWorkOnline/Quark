@@ -27,7 +27,8 @@ namespace Quark {
 			: m_Spec(spec) {}
 
 		virtual ~Pipeline() = default;
-		virtual void Resize(uint32_t viewportWidth, uint32_t viewportHeight) = 0;
+
+		virtual void SetViewport(uint32_t viewportWidth, uint32_t viewportHeight) = 0;
 		virtual UniformBuffer* GetUniformBuffer() const = 0; // TODO: move into specification
 
 		virtual bool operator==(const Pipeline& other) const = 0;
@@ -35,7 +36,7 @@ namespace Quark {
 		const BufferLayout& GetLayout() const { return m_Spec.Layout; }
 		const PipelineSpecification& GetSpecification() const { return m_Spec; }
 
-		static Pipeline* Create(const PipelineSpecification& spec);
+		static Scope<Pipeline> Create(const PipelineSpecification& spec);
 
 	protected:
 		PipelineSpecification m_Spec;

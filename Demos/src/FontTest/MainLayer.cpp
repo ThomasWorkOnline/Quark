@@ -22,7 +22,7 @@ MainLayer::MainLayer(Application* app) : Layer(app)
 
 	TextureFormatDescriptor descriptor;
 	descriptor.SRGB = true;
-	m_Texture.reset(Texture2D::Create("assets/textures/pbr/streaked-metal/normal-dx.png", descriptor));
+	m_Texture = Texture2D::Create("assets/textures/pbr/streaked-metal/normal-dx.png", descriptor);
 
 	auto window = GetApplication()->GetWindow();
 	m_Camera.SetOrthographic((float)window->GetWidth());

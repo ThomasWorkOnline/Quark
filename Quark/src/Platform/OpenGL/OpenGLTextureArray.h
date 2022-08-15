@@ -21,7 +21,7 @@ namespace Quark {
 
 		virtual bool operator==(const Texture2DArray& other) const override
 		{
-			return m_RendererID == ((OpenGLTexture2DArray&)other).m_RendererID;
+			return m_RendererID == reinterpret_cast<decltype(*this)&>(other).m_RendererID;
 		}
 
 	private:

@@ -18,7 +18,7 @@ namespace Quark {
 
 		virtual bool operator==(const VertexBuffer& other) const override
 		{
-			return m_RendererID == ((OpenGLVertexBuffer&)other).m_RendererID;
+			return m_RendererID == reinterpret_cast<decltype(*this)&>(other).m_RendererID;
 		}
 
 		GLuint GetRendererID() const { return m_RendererID; }
@@ -41,7 +41,7 @@ namespace Quark {
 
 		virtual bool operator==(const IndexBuffer& other) const override
 		{
-			return m_RendererID == ((OpenGLIndexBuffer&)other).m_RendererID;
+			return m_RendererID == reinterpret_cast<decltype(*this)&>(other).m_RendererID;
 		}
 
 		GLuint GetRendererID() const { return m_RendererID; }

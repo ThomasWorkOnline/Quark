@@ -25,93 +25,93 @@ namespace Quark {
 		m_Capabilities.TextureConstraints.MaxTextureSlots = 32; // TODO: implement caps
 	}
 
-	CommandBuffer* VulkanGraphicsAPI::CreateCommandBuffer()
+	Scope<CommandBuffer> VulkanGraphicsAPI::CreateCommandBuffer()
 	{
-		return new VulkanCommandBuffer(VulkanContext::GetCurrentDevice());
+		return CreateScope<VulkanCommandBuffer>(VulkanContext::GetCurrentDevice());
 	}
 
-	Pipeline* VulkanGraphicsAPI::CreatePipeline(const PipelineSpecification& spec)
+	Scope<Pipeline> VulkanGraphicsAPI::CreatePipeline(const PipelineSpecification& spec)
 	{
-		return new VulkanPipeline(VulkanContext::GetCurrentDevice(), spec);
+		return CreateScope<VulkanPipeline>(VulkanContext::GetCurrentDevice(), spec);
 	}
 
-	RenderPass* VulkanGraphicsAPI::CreateRenderPass(const RenderPassSpecification& spec)
+	Scope<RenderPass> VulkanGraphicsAPI::CreateRenderPass(const RenderPassSpecification& spec)
 	{
-		return new VulkanRenderPass(VulkanContext::GetCurrentDevice(), spec);
+		return CreateScope<VulkanRenderPass>(VulkanContext::GetCurrentDevice(), spec);
 	}
 
-	VertexBuffer* VulkanGraphicsAPI::CreateVertexBuffer(const void* vertices, size_t size)
+	Scope<VertexBuffer> VulkanGraphicsAPI::CreateVertexBuffer(const void* vertices, size_t size)
 	{
-		return new VulkanVertexBuffer(VulkanContext::GetCurrentDevice(), vertices, size);
+		return CreateScope<VulkanVertexBuffer>(VulkanContext::GetCurrentDevice(), vertices, size);
 	}
 
-	VertexBuffer* VulkanGraphicsAPI::CreateVertexBuffer(size_t size)
+	Scope<VertexBuffer> VulkanGraphicsAPI::CreateVertexBuffer(size_t size)
 	{
-		return new VulkanVertexBuffer(VulkanContext::GetCurrentDevice(), size);
+		return CreateScope<VulkanVertexBuffer>(VulkanContext::GetCurrentDevice(), size);
 	}
 
-	IndexBuffer* VulkanGraphicsAPI::CreateIndexBuffer(const uint32_t* indices, uint32_t count)
+	Scope<IndexBuffer> VulkanGraphicsAPI::CreateIndexBuffer(const uint32_t* indices, uint32_t count)
 	{
-		return new VulkanIndexBuffer(VulkanContext::GetCurrentDevice(), indices, count);
+		return CreateScope<VulkanIndexBuffer>(VulkanContext::GetCurrentDevice(), indices, count);
 	}
 
-	IndexBuffer* VulkanGraphicsAPI::CreateIndexBuffer(uint32_t count)
+	Scope<IndexBuffer> VulkanGraphicsAPI::CreateIndexBuffer(uint32_t count)
 	{
-		return new VulkanIndexBuffer(VulkanContext::GetCurrentDevice(), count);
+		return CreateScope<VulkanIndexBuffer>(VulkanContext::GetCurrentDevice(), count);
 	}
 
-	Cubemap* VulkanGraphicsAPI::CreateCubemap(const CubemapSpecification& spec)
+	Scope<Cubemap> VulkanGraphicsAPI::CreateCubemap(const CubemapSpecification& spec)
 	{
-		return new VulkanCubemap(VulkanContext::GetCurrentDevice(), spec);
+		return CreateScope<VulkanCubemap>(VulkanContext::GetCurrentDevice(), spec);
 	}
 
-	Font* VulkanGraphicsAPI::CreateFont(std::string_view filepath, uint32_t fontSize)
+	Scope<Font> VulkanGraphicsAPI::CreateFont(std::string_view filepath, uint32_t fontSize)
 	{
-		return new VulkanFont(VulkanContext::GetCurrentDevice(), filepath, fontSize);
+		return CreateScope<VulkanFont>(VulkanContext::GetCurrentDevice(), filepath, fontSize);
 	}
 
-	Framebuffer* VulkanGraphicsAPI::CreateFramebuffer(const FramebufferSpecification& spec)
+	Scope<Framebuffer> VulkanGraphicsAPI::CreateFramebuffer(const FramebufferSpecification& spec)
 	{
-		return new VulkanFramebuffer(VulkanContext::GetCurrentDevice(), spec);
+		return CreateScope<VulkanFramebuffer>(VulkanContext::GetCurrentDevice(), spec);
 	}
 
-	FramebufferAttachment* VulkanGraphicsAPI::CreateFramebufferAttachment(void* image, const FramebufferAttachmentSpecification& spec)
+	Scope<FramebufferAttachment> VulkanGraphicsAPI::CreateFramebufferAttachment(void* image, const FramebufferAttachmentSpecification& spec)
 	{
-		return new VulkanFramebufferAttachment(image, spec);
+		return CreateScope<VulkanFramebufferAttachment>(image, spec);
 	}
 
-	Shader* VulkanGraphicsAPI::CreateShader(std::string_view filepath)
+	Scope<Shader> VulkanGraphicsAPI::CreateShader(std::string_view filepath)
 	{
-		return new VulkanShader(VulkanContext::GetCurrentDevice(), filepath);
+		return CreateScope<VulkanShader>(VulkanContext::GetCurrentDevice(), filepath);
 	}
 
-	Shader* VulkanGraphicsAPI::CreateShader(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource)
+	Scope<Shader> VulkanGraphicsAPI::CreateShader(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource)
 	{
-		return new VulkanShader(VulkanContext::GetCurrentDevice(), name, vertexSource, fragmentSource);
+		return CreateScope<VulkanShader>(VulkanContext::GetCurrentDevice(), name, vertexSource, fragmentSource);
 	}
 
-	Shader* VulkanGraphicsAPI::CreateShader(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource)
+	Scope<Shader> VulkanGraphicsAPI::CreateShader(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource)
 	{
-		return new VulkanShader(VulkanContext::GetCurrentDevice(), name, vertexSource, geometrySource, fragmentSource);
+		return CreateScope<VulkanShader>(VulkanContext::GetCurrentDevice(), name, vertexSource, geometrySource, fragmentSource);
 	}
 
-	Texture2D* VulkanGraphicsAPI::CreateTexture2D(const Texture2DSpecification& spec)
+	Scope<Texture2D> VulkanGraphicsAPI::CreateTexture2D(const Texture2DSpecification& spec)
 	{
-		return new VulkanTexture2D(VulkanContext::GetCurrentDevice(), spec);
+		return CreateScope<VulkanTexture2D>(VulkanContext::GetCurrentDevice(), spec);
 	}
 
-	Texture2D* VulkanGraphicsAPI::CreateTexture2D(std::string_view filepath, const TextureFormatDescriptor& descriptor)
+	Scope<Texture2D> VulkanGraphicsAPI::CreateTexture2D(std::string_view filepath, const TextureFormatDescriptor& descriptor)
 	{
-		return new VulkanTexture2D(VulkanContext::GetCurrentDevice(), filepath, descriptor);
+		return CreateScope<VulkanTexture2D>(VulkanContext::GetCurrentDevice(), filepath, descriptor);
 	}
 
-	Texture2DArray* VulkanGraphicsAPI::CreateTexture2DArray(const Texture2DArraySpecification& spec)
+	Scope<Texture2DArray> VulkanGraphicsAPI::CreateTexture2DArray(const Texture2DArraySpecification& spec)
 	{
-		return new VulkanTexture2DArray(VulkanContext::GetCurrentDevice(), spec);
+		return CreateScope<VulkanTexture2DArray>(VulkanContext::GetCurrentDevice(), spec);
 	}
 
-	UniformBuffer* VulkanGraphicsAPI::CreateUniformBuffer(size_t size, uint32_t binding)
+	Scope<UniformBuffer> VulkanGraphicsAPI::CreateUniformBuffer(size_t size, uint32_t binding)
 	{
-		return new VulkanUniformBuffer(VulkanContext::GetCurrentDevice(), size, binding);
+		return CreateScope<VulkanUniformBuffer>(VulkanContext::GetCurrentDevice(), size, binding);
 	}
 }

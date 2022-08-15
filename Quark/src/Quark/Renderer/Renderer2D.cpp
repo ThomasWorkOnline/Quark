@@ -290,9 +290,9 @@ namespace Quark {
 		float atlasWidth = (float)traits.FontStyle->GetAtlasWidth();
 		float atlasHeight = (float)traits.FontStyle->GetAtlasHeight();
 
-		for (auto it = text.begin(); it != text.end(); it++)
+		for (auto charcode : text)
 		{
-			auto& g = traits.FontStyle->GetGlyph(*it);
+			auto& g = traits.FontStyle->GetGlyph(charcode);
 
 			int32_t xpos = (x + g.Bearing.x);
 			int32_t ypos = (-y - g.Bearing.y);
@@ -454,7 +454,7 @@ namespace Quark {
 
 		s_Data = new Renderer2DData();
 		s_Data->MaxSamplers = GraphicsAPI::Instance->GetCapabilities().TextureConstraints.MaxTextureSlots;
-		s_Data->CameraUniformBuffer.reset(UniformBuffer::Create(sizeof(Renderer2DData::CameraData), 0));
+		s_Data->CameraUniformBuffer = UniformBuffer::Create(sizeof(Renderer2DData::CameraData), 0);
 
 		Renderer2DSetupData setupData;
 		SetupQuadRenderer(setupData);
@@ -482,7 +482,7 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		s_Data->QuadVertexBuffer.reset(VertexBuffer::Create(Renderer2DData::MaxVertices * sizeof(QuadVertex)));
+		s_Data->QuadVertexBuffer = VertexBuffer::Create(Renderer2DData::MaxVertices * sizeof(QuadVertex));
 		s_Data->QuadVertexBuffer->SetLayout({
 			{ ShaderDataType::Float3, "a_Position" },
 			{ ShaderDataType::Float2, "a_TexCoord" },
@@ -490,7 +490,7 @@ namespace Quark {
 			{ ShaderDataType::Int,    "a_TexIndex" }
 		});
 
-		s_Data->QuadIndexBuffer.reset(IndexBuffer::Create(setupData.Indices, Renderer2DData::MaxIndices));
+		s_Data->QuadIndexBuffer = IndexBuffer::Create(setupData.Indices, Renderer2DData::MaxIndices);
 		s_Data->QuadVertices = new QuadVertex[Renderer2DData::MaxVertices];
 
 		uint32_t textureColor = 0xffffffff;
@@ -499,10 +499,10 @@ namespace Quark {
 			TextureFilteringMode::Nearest, TextureFilteringMode::Nearest, TextureTilingMode::Repeat
 		};
 
-		s_Data->DefaultTexture.reset(Texture2D::Create(spec));
+		s_Data->DefaultTexture = Texture2D::Create(spec);
 		s_Data->DefaultTexture->SetData(&textureColor, sizeof(uint32_t));
 
-		s_Data->Textures = new Texture2D * [s_Data->MaxSamplers];
+		s_Data->Textures = new Texture2D*[s_Data->MaxSamplers];
 
 		std::memset(s_Data->Textures, 0, s_Data->MaxSamplers * sizeof(Texture2D*));
 		s_Data->Textures[0] = s_Data->DefaultTexture.get();
@@ -564,7 +564,7 @@ namespace Quark {
 			}
 		)";
 
-		s_Data->QuadShader.reset(Shader::Create("defaultSprite", spriteVertexSource, spriteFragmentSource.str()));
+		s_Data->QuadShader = Shader::Create("defaultSprite", spriteVertexSource, spriteFragmentSource.str());
 		s_Data->QuadShader->Attach();
 		s_Data->QuadShader->SetIntArray("u_Samplers", setupData.Samplers, s_Data->MaxSamplers);
 #endif
@@ -574,7 +574,7 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		s_Data->FontVertexBuffer.reset(VertexBuffer::Create(Renderer2DData::MaxVertices * sizeof(QuadVertex)));
+		s_Data->FontVertexBuffer = VertexBuffer::Create(Renderer2DData::MaxVertices * sizeof(QuadVertex));
 		s_Data->FontVertexBuffer->SetLayout({
 			{ ShaderDataType::Float3, "a_Position" },
 			{ ShaderDataType::Float2, "a_TexCoord" },
@@ -648,7 +648,7 @@ namespace Quark {
 			}
 		)";
 
-		s_Data->FontShader.reset(Shader::Create("defaultFont", fontVertexSource, fontFragmentSource.str()));
+		s_Data->FontShader = Shader::Create("defaultFont", fontVertexSource, fontFragmentSource.str());
 		s_Data->FontShader->Attach();
 		s_Data->FontShader->SetIntArray("u_Samplers", setupData.Samplers, s_Data->MaxSamplers);
 #endif
@@ -658,7 +658,7 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		s_Data->LineVertexBuffer.reset(VertexBuffer::Create(Renderer2DData::MaxVertices * sizeof(LineVertex)));
+		s_Data->LineVertexBuffer = VertexBuffer::Create(Renderer2DData::MaxVertices * sizeof(LineVertex));
 		s_Data->LineVertexBuffer->SetLayout({
 			{ ShaderDataType::Float3, "a_Position" },
 			{ ShaderDataType::Float4, "a_Color"    }
@@ -699,7 +699,7 @@ namespace Quark {
 			}
 		)";
 
-		s_Data->LineShader.reset(Shader::Create("defaultLine", lineVertexSource, lineFragmentSource));
+		s_Data->LineShader = Shader::Create("defaultLine", lineVertexSource, lineFragmentSource);
 #endif
 	}
 }

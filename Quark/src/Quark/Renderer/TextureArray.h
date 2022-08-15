@@ -38,7 +38,7 @@ namespace Quark {
 
 		const Texture2DArraySpecification& GetSpecification() const { return m_Spec; }
 
-		static Texture2DArray* Create(const Texture2DArraySpecification& spec);
+		static Scope<Texture2DArray> Create(const Texture2DArraySpecification& spec);
 
 	protected:
 		Texture2DArraySpecification m_Spec;

@@ -28,7 +28,7 @@ namespace Quark {
 
 		virtual bool operator==(const Framebuffer& other) const override
 		{
-			return m_RendererID == ((OpenGLFramebuffer&)other).m_RendererID;
+			return m_RendererID == reinterpret_cast<decltype(*this)&>(other).m_RendererID;
 		}
 
 	private:

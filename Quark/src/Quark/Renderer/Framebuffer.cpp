@@ -10,7 +10,7 @@ namespace Quark {
 	{
 	}
 
-	FramebufferAttachment* FramebufferAttachment::Create(void* image, const FramebufferAttachmentSpecification& spec)
+	Scope<FramebufferAttachment> FramebufferAttachment::Create(void* image, const FramebufferAttachmentSpecification& spec)
 	{
 		return GraphicsAPI::Instance->CreateFramebufferAttachment(image, spec);
 	}
@@ -20,7 +20,7 @@ namespace Quark {
 	{
 	}
 
-	Framebuffer* Framebuffer::Create(const FramebufferSpecification& spec)
+	Scope<Framebuffer> Framebuffer::Create(const FramebufferSpecification& spec)
 	{
 		return GraphicsAPI::Instance->CreateFramebuffer(spec);
 	}

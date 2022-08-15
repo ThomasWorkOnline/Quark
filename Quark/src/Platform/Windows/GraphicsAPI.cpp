@@ -5,7 +5,7 @@
 
 namespace Quark {
 
-	RHI GetDefaultAPIForPlatform()
+	RHI GetDefaultRHIForPlatform()
 	{
 #if USE_VULKAN
 		return RHI::Vulkan;
