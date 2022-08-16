@@ -86,6 +86,7 @@ namespace Quark {
 		static constexpr uint32_t MaxIndices  = MaxQuads * 6;
 
 		uint32_t MaxSamplers = 0;
+		int32_t* Samplers = nullptr;
 
 		QuadVertex* QuadVertexPtr = nullptr;
 		QuadVertex* QuadVertices  = nullptr;
@@ -130,6 +131,10 @@ namespace Quark {
 
 	Renderer2DStats Renderer2D::s_Stats;
 	static Renderer2DData* s_Data = nullptr;
+
+	static void SetupQuadRenderer();
+	static void SetupFontRenderer();
+	static void SetupLineRenderer();
 
 	void Renderer2D::BeginScene(const Camera& camera, const Transform3DComponent& cameraTransform)
 	{
@@ -392,6 +397,8 @@ namespace Quark {
 				s_Data->Textures[i]->Attach(i);
 
 			Renderer::BindPipeline(s_Data->QuadRendererPipeline.get());
+			s_Data->QuadShader->SetIntArray("u_Samplers", s_Data->Samplers, s_Data->MaxSamplers);
+
 			Renderer::Submit(s_Data->QuadVertexBuffer.get(), s_Data->QuadIndexBuffer.get(), s_Data->QuadIndexCount);
 			s_Stats.DrawCalls++;
 		}
@@ -405,6 +412,8 @@ namespace Quark {
 				s_Data->Fonts[i]->Attach(i);
 
 			Renderer::BindPipeline(s_Data->TextRendererPipeline.get());
+			s_Data->FontShader->SetIntArray("u_Samplers", s_Data->Samplers, s_Data->MaxSamplers);
+
 			Renderer::Submit(s_Data->TextVertexBuffer.get(), s_Data->QuadIndexBuffer.get(), s_Data->FontIndexCount);
 			s_Stats.DrawCalls++;
 		}
@@ -427,48 +436,6 @@ namespace Quark {
 		s_Stats.LinesDrawn = 0;
 	}
 
-	struct Renderer2DSetupData
-	{
-		uint32_t* Indices = nullptr;
-		int32_t* Samplers = nullptr;
-
-		Renderer2DSetupData()
-		{
-			QK_CORE_ASSERT(s_Data->MaxSamplers > 0, "Platform does not support texture samplers");
-
-			// Samplers
-			Samplers = new int32_t[s_Data->MaxSamplers];
-			for (uint32_t i = 0; i < s_Data->MaxSamplers; i++)
-				Samplers[i] = (int32_t)i;
-
-			// Indices
-			Indices = new uint32_t[Renderer2DData::MaxIndices];
-
-			uint32_t offset = 0;
-			for (uint32_t i = 0; i < Renderer2DData::MaxIndices; i += 6)
-			{
-				Indices[i + 0] = offset + s_QuadIndices[0];
-				Indices[i + 1] = offset + s_QuadIndices[1];
-				Indices[i + 2] = offset + s_QuadIndices[2];
-				Indices[i + 3] = offset + s_QuadIndices[3];
-				Indices[i + 4] = offset + s_QuadIndices[4];
-				Indices[i + 5] = offset + s_QuadIndices[5];
-
-				offset += 4;
-			}
-		}
-
-		~Renderer2DSetupData()
-		{
-			delete[] Indices;
-			delete[] Samplers;
-		}
-	};
-
-	static void SetupQuadRenderer(Renderer2DSetupData& setupData);
-	static void SetupFontRenderer(Renderer2DSetupData& setupData);
-	static void SetupLineRenderer();
-
 	void Renderer2D::Initialize()
 	{
 		QK_PROFILE_FUNCTION();
@@ -476,12 +443,20 @@ namespace Quark {
 		if (s_Data) return;
 
 		s_Data = new Renderer2DData();
+
+		// Samplers
 		s_Data->MaxSamplers = GraphicsAPI::Instance->GetCapabilities().TextureConstraints.MaxTextureSlots;
+		QK_CORE_ASSERT(s_Data->MaxSamplers > 0, "Platform does not support texture samplers");
+
+		s_Data->Samplers = new int32_t[s_Data->MaxSamplers];
+		for (uint32_t i = 0; i < s_Data->MaxSamplers; i++)
+			s_Data->Samplers[i] = (int32_t)i;
+
+		// Camera
 		s_Data->CameraUniformBuffer = UniformBuffer::Create(sizeof(Renderer2DData::CameraData), 0);
 
-		Renderer2DSetupData setupData;
-		SetupQuadRenderer(setupData);
-		SetupFontRenderer(setupData);
+		SetupQuadRenderer();
+		SetupFontRenderer();
 		SetupLineRenderer();
 	}
 
@@ -491,6 +466,7 @@ namespace Quark {
 
 		if (!s_Data) return;
 
+		delete[] s_Data->Samplers;
 		delete[] s_Data->QuadVertices;
 		delete[] s_Data->FontVertices;
 		delete[] s_Data->LineVertices;
@@ -501,15 +477,31 @@ namespace Quark {
 		s_Data = nullptr;
 	}
 
-	static void SetupQuadRenderer(Renderer2DSetupData& setupData)
+	static void SetupQuadRenderer()
 	{
 		QK_PROFILE_FUNCTION();
 
 		s_Data->QuadVertexBuffer = VertexBuffer::Create(Renderer2DData::MaxVertices * sizeof(QuadVertex));
 		s_Data->QuadVertexBuffer->SetLayout(s_QuadVertexLayout);
 
-		s_Data->QuadIndexBuffer = IndexBuffer::Create(setupData.Indices, Renderer2DData::MaxIndices);
+		uint32_t* indices = new uint32_t[Renderer2DData::MaxIndices];
+
+		uint32_t offset = 0;
+		for (uint32_t i = 0; i < Renderer2DData::MaxIndices; i += 6)
+		{
+			indices[i + 0] = offset + s_QuadIndices[0];
+			indices[i + 1] = offset + s_QuadIndices[1];
+			indices[i + 2] = offset + s_QuadIndices[2];
+			indices[i + 3] = offset + s_QuadIndices[3];
+			indices[i + 4] = offset + s_QuadIndices[4];
+			indices[i + 5] = offset + s_QuadIndices[5];
+
+			offset += 4;
+		}
+
+		s_Data->QuadIndexBuffer = IndexBuffer::Create(indices, Renderer2DData::MaxIndices);
 		s_Data->QuadVertices = new QuadVertex[Renderer2DData::MaxVertices];
+		delete[] indices;
 
 		uint32_t textureColor = 0xffffffff;
 		Texture2DSpecification spec = { 1, 1, 1,
@@ -530,8 +522,6 @@ namespace Quark {
 		std::string spriteFragmentSource = Filesystem::ReadTextFile((assetDir / "bin-spirv/colored_sprite.frag.spv").string());
 
 		s_Data->QuadShader = Shader::Create("defaultSprite", spriteVertexSource, spriteFragmentSource);
-		s_Data->QuadShader->Attach();
-		s_Data->QuadShader->SetIntArray("u_Samplers", setupData.Samplers, s_Data->MaxSamplers);
 
 		{
 			PipelineSpecification spec;
@@ -546,7 +536,7 @@ namespace Quark {
 		}
 	}
 
-	static void SetupFontRenderer(Renderer2DSetupData& setupData)
+	static void SetupFontRenderer()
 	{
 		QK_PROFILE_FUNCTION();
 
@@ -562,8 +552,6 @@ namespace Quark {
 		std::string textFragmentSource = Filesystem::ReadTextFile((assetDir / "bin-spirv/text.frag.spv").string());
 
 		s_Data->FontShader = Shader::Create("defaultFont", textVertexSource, textFragmentSource);
-		s_Data->FontShader->Attach();
-		s_Data->FontShader->SetIntArray("u_Samplers", setupData.Samplers, s_Data->MaxSamplers);
 
 		{
 			PipelineSpecification spec;
