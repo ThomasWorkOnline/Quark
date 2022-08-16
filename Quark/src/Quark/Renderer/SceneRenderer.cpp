@@ -49,6 +49,8 @@ namespace Quark {
 				}
 			}
 
+			Renderer2D::EndScene();
+
 			if (m_Data.Env)
 			{
 				RenderCommand::SetCullFace(RenderCullMode::Front);
@@ -67,8 +69,6 @@ namespace Quark {
 				RenderCommand::SetCullFace(RenderCullMode::Default);
 				RenderCommand::SetDepthFunction(RenderDepthFunction::Default);
 			}
-
-			Renderer2D::EndScene();
 		}
 	}
 

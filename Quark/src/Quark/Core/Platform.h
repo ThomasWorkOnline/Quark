@@ -43,10 +43,3 @@
 #else
 #	error "Unknown platform"
 #endif
-
-#if __cplusplus >= 202002L
-	// C++20 and later
-	#define QK_CONSTEXPR20 constexpr
-#else
-	#define QK_CONSTEXPR20 inline
-#endif

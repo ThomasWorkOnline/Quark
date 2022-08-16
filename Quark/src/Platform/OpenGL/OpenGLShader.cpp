@@ -6,6 +6,9 @@
 #include <glad/glad.h>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <shaderc/shaderc.hpp>
+#include <spirv_cross/spirv_cross.hpp>
+
 #include <vector>
 #include <unordered_map>
 #include <sstream>
@@ -28,7 +31,6 @@ namespace Quark {
 
 		static constexpr std::string_view ExtractNameFromPath(std::string_view filepath)
 		{
-			// Extract name from filepath
 			auto lastSlash = filepath.find_last_of("/\\");
 			lastSlash = lastSlash == std::string::npos ? 0 : lastSlash + 1;
 			auto lastDot = filepath.rfind('.');
@@ -37,6 +39,8 @@ namespace Quark {
 		}
 	}
 
+	static constexpr size_t s_MaxShaders = 3;
+
 	OpenGLShader::OpenGLShader(std::string_view filepath)
 		: m_Name(Utils::ExtractNameFromPath(filepath))
 	{
@@ -44,30 +48,30 @@ namespace Quark {
 
 		std::string source = Filesystem::ReadTextFile(filepath);
 		auto shaderSources = PreProcess(source);
-		Compile(shaderSources);
+		CompileSources(shaderSources);
 	}
 
-	OpenGLShader::OpenGLShader(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource)
+	OpenGLShader::OpenGLShader(std::string_view name, SPIRVBinary vertexSource, SPIRVBinary fragmentSource)
 		: m_Name(name)
 	{
 		QK_PROFILE_FUNCTION();
 
-		std::unordered_map<GLenum, std::string_view> sources;
+		std::unordered_map<GLenum, SPIRVBinary> sources{2};
 		sources[GL_VERTEX_SHADER]   = vertexSource;
 		sources[GL_FRAGMENT_SHADER] = fragmentSource;
-		Compile(sources);
+		CompileSPIRV(sources);
 	}
 
-	OpenGLShader::OpenGLShader(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource)
+	OpenGLShader::OpenGLShader(std::string_view name, SPIRVBinary vertexSource, SPIRVBinary geometrySource, SPIRVBinary fragmentSource)
 		: m_Name(name)
 	{
 		QK_PROFILE_FUNCTION();
 
-		std::unordered_map<GLenum, std::string_view> sources;
+		std::unordered_map<GLenum, SPIRVBinary> sources{3};
 		sources[GL_VERTEX_SHADER]   = vertexSource;
 		sources[GL_FRAGMENT_SHADER] = fragmentSource;
 		sources[GL_GEOMETRY_SHADER] = geometrySource;
-		Compile(sources);
+		CompileSPIRV(sources);
 	}
 
 	OpenGLShader::~OpenGLShader()
@@ -75,12 +79,11 @@ namespace Quark {
 		glDeleteProgram(m_RendererID);
 	}
 
-	std::unordered_map<GLenum, std::string_view> OpenGLShader::PreProcess(std::string_view source)
+	std::unordered_map<GLenum, std::string> OpenGLShader::PreProcess(std::string_view source)
 	{
-		std::unordered_map<GLenum, std::string_view> shaderSources;
+		std::unordered_map<GLenum, std::string> shaderSources;
 
 		static constexpr std::string_view typeToken = "#type";
-		static constexpr size_t typeTokenLength = typeToken.size();
 		size_t pos = source.find(typeToken); // Start of shader type declaration line
 
 		while (pos != std::string::npos)
@@ -92,12 +95,12 @@ namespace Quark {
 				break;
 			}
 
-			size_t begin = pos + typeTokenLength + 1; // Start of shader type name (after "#type " keyword)
+			size_t begin = pos + typeToken.size() + 1; // Start of shader type name (after "#type " keyword)
 			std::string_view type = source.substr(begin, eol - begin);
 			GLenum shaderType = Utils::ShaderTypeFromString(type);
 			if (shaderType == GL_NONE)
 			{
-				QK_CORE_ERROR("Invalid shader type specified");
+				QK_CORE_ERROR("Invalid shader type specifier");
 				break;
 			}
 
@@ -118,23 +121,22 @@ namespace Quark {
 		return shaderSources;
 	}
 
-	void OpenGLShader::Compile(const std::unordered_map<GLenum, std::string_view>& shaderSources)
+	void OpenGLShader::CompileSources(const std::unordered_map<GLenum, std::string>& shaderSources)
 	{
-		static constexpr size_t maxShaders = 3;
-		QK_CORE_ASSERT(shaderSources.size() <= maxShaders, "Maximum number of shaders per program is 3");
+		QK_CORE_ASSERT(shaderSources.size() <= s_MaxShaders, "Maximum number of shaders per program is 3");
 
 		GLuint program = glCreateProgram();
 
-		GLenum glShaderIDs[maxShaders]{};
+		GLenum glShaderIDs[s_MaxShaders]{};
 		uint32_t glShaderIDIndex = 0;
-		for (auto& [type, source] : shaderSources)
+		for (auto& [stage, source] : shaderSources)
 		{
-			GLuint shader = glCreateShader(type);
+			GLuint shader = glCreateShader(stage);
 			glShaderIDs[glShaderIDIndex++] = shader;
 
 			const GLchar* sourceData = source.data();
-			GLint lengths = static_cast<GLint>(source.size());
-			glShaderSource(shader, 1, &sourceData, &lengths);
+			const GLint length = static_cast<GLint>(source.size());
+			glShaderSource(shader, 1, &sourceData, &length);
 			glCompileShader(shader);
 
 			GLint isCompiled = 0;
@@ -161,6 +163,34 @@ namespace Quark {
 			glAttachShader(program, shader);
 		}
 
+		LinkProgram(program, glShaderIDs, glShaderIDIndex);
+
+		m_RendererID = program;
+	}
+
+	void OpenGLShader::CompileSPIRV(const std::unordered_map<GLenum, SPIRVBinary>& spirvBinaries)
+	{
+		GLuint program = glCreateProgram();
+
+		GLenum glShaderIDs[s_MaxShaders]{};
+		uint32_t glShaderIDIndex = 0;
+		for (auto& [stage, binary] : spirvBinaries)
+		{
+			GLuint shader = glCreateShader(stage);
+			glShaderIDs[glShaderIDIndex++] = shader;
+
+			glShaderBinary(1, &shader, GL_SHADER_BINARY_FORMAT_SPIR_V, (const void*)binary.data(), (GLsizei)binary.size());
+			glSpecializeShader(shader, "main", 0, nullptr, nullptr);
+			glAttachShader(program, shader);
+		}
+
+		LinkProgram(program, glShaderIDs, glShaderIDIndex);
+
+		m_RendererID = program;
+	}
+
+	void OpenGLShader::LinkProgram(GLuint program, const GLenum* glShaderIDs, uint32_t shaderCount)
+	{
 		glLinkProgram(program);
 
 		GLint isLinked = 0;
@@ -173,7 +203,7 @@ namespace Quark {
 			std::vector<GLchar> infoLog(maxLength);
 			glGetProgramInfoLog(program, maxLength, &maxLength, infoLog.data());
 
-			for (uint32_t i = 0; i < glShaderIDIndex; i++)
+			for (uint32_t i = 0; i < shaderCount; i++)
 			{
 				glDetachShader(program, glShaderIDs[i]);
 				glDeleteShader(glShaderIDs[i]);
@@ -185,13 +215,11 @@ namespace Quark {
 			return;
 		}
 
-		for (uint32_t i = 0; i < glShaderIDIndex; i++)
+		for (uint32_t i = 0; i < shaderCount; i++)
 		{
 			glDetachShader(program, glShaderIDs[i]);
 			glDeleteShader(glShaderIDs[i]);
 		}
-
-		m_RendererID = program;
 	}
 
 	void OpenGLShader::Attach() const

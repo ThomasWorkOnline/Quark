@@ -14,8 +14,8 @@ namespace Quark {
 	{
 	public:
 		OpenGLShader(std::string_view filepath);
-		OpenGLShader(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource);
-		OpenGLShader(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource);
+		OpenGLShader(std::string_view name, SPIRVBinary vertexSource, SPIRVBinary fragmentSource);
+		OpenGLShader(std::string_view name, SPIRVBinary vertexSource, SPIRVBinary geometrySource, SPIRVBinary fragmentSource);
 		virtual ~OpenGLShader() override;
 
 		virtual void Attach() const override;
@@ -78,8 +78,12 @@ namespace Quark {
 
 		GLint GetUniformLocation(std::string_view name) const;
 
-		static std::unordered_map<GLenum, std::string_view> PreProcess(std::string_view source);
-		void Compile(const std::unordered_map<GLenum, std::string_view>& shaderSources);
+		static std::unordered_map<GLenum, std::string> PreProcess(std::string_view source);
+
+		void CompileSources(const std::unordered_map<GLenum, std::string>& shaderSources);
+		void CompileSPIRV(const std::unordered_map<GLenum, SPIRVBinary>& spirvBinaries);
+
+		void LinkProgram(GLuint program, const GLenum* glShaderIDs, uint32_t shaderCount);
 
 	private:
 		GLuint m_RendererID = 0;

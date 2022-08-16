@@ -7,7 +7,8 @@ struct SpriteVertex
 	uint32_t TexIndex;
 };
 
-TextureArrayTest::TextureArrayTest()
+TextureArrayTest::TextureArrayTest(const ApplicationOptions& options)
+	: Application(options)
 {
 	Image texture1 = Image("assets/textures/Example1_BasicRendering.png");
 

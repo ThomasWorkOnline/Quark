@@ -2,6 +2,7 @@
 #include "Renderer2D.h"
 #include "GraphicsAPI.h"
 
+#include "Quark/Core/Application.h"
 #include "Quark/Renderer/Renderer.h"
 #include "Quark/Filesystem/Filesystem.h"
 
@@ -524,67 +525,13 @@ namespace Quark {
 		std::memset(s_Data->Textures, 0, s_Data->MaxSamplers * sizeof(Texture2D*));
 		s_Data->Textures[0] = s_Data->DefaultTexture.get();
 
-#if 1
-		const char* spriteVertexSource = R"(
-			#version 420 core
+		auto& assetDir = Application::Get()->GetOptions().CoreAssetDir;
+		std::string spriteVertexSource = Filesystem::ReadTextFile((assetDir / "bin-spirv/colored_sprite.vert.spv").string());
+		std::string spriteFragmentSource = Filesystem::ReadTextFile((assetDir / "bin-spirv/colored_sprite.frag.spv").string());
 
-			layout(location = 0) in vec3 a_Position;
-			layout(location = 1) in vec2 a_TexCoord;
-			layout(location = 2) in vec4 a_Tint;
-			layout(location = 3) in int  a_TexIndex;
-
-			layout(std140, binding = 0) uniform Camera
-			{
-				mat4 u_ViewProjection;
-			};
-
-			out VertexOutput
-			{
-				vec2 TexCoord;
-				vec4 Tint;
-				flat int TexIndex;
-			} v_Output;
-
-			void main()
-			{
-				gl_Position = u_ViewProjection * vec4(a_Position, 1.0);
-				v_Output.TexCoord = a_TexCoord;
-				v_Output.Tint     = a_Tint;
-				v_Output.TexIndex = a_TexIndex;
-			}
-		)";
-
-		std::stringstream spriteFragmentSource;
-		spriteFragmentSource << R"(
-			#version 330 core
-
-			uniform sampler2D u_Samplers[
-		)";
-
-		spriteFragmentSource << s_Data->MaxSamplers;
-		spriteFragmentSource << R"(];
-
-			in VertexOutput
-			{
-				vec2 TexCoord;
-				vec4 Tint;
-				flat int TexIndex;
-			} v_Input;
-
-			out vec4 o_Color;
-
-			void main()
-			{
-				int lvalueIndex = v_Input.TexIndex;
-				vec4 color = texture(u_Samplers[lvalueIndex], v_Input.TexCoord.xy);
-				o_Color = color * v_Input.Tint;
-			}
-		)";
-
-		s_Data->QuadShader = Shader::Create("defaultSprite", spriteVertexSource, spriteFragmentSource.str());
+		s_Data->QuadShader = Shader::Create("defaultSprite", spriteVertexSource, spriteFragmentSource);
 		s_Data->QuadShader->Attach();
 		s_Data->QuadShader->SetIntArray("u_Samplers", setupData.Samplers, s_Data->MaxSamplers);
-#endif
 
 		{
 			PipelineSpecification spec;
@@ -610,72 +557,13 @@ namespace Quark {
 		s_Data->Fonts = new Font*[s_Data->MaxSamplers];
 		std::memset(s_Data->Fonts, 0, s_Data->MaxSamplers * sizeof(Font*));
 
-#if 1
-		const char* fontVertexSource = R"(
-			#version 420 core
+		auto& assetDir = Application::Get()->GetOptions().CoreAssetDir;
+		std::string textVertexSource = Filesystem::ReadTextFile((assetDir / "bin-spirv/text.vert.spv").string());
+		std::string textFragmentSource = Filesystem::ReadTextFile((assetDir / "bin-spirv/text.frag.spv").string());
 
-			layout(location = 0) in vec3 a_Position;
-			layout(location = 1) in vec2 a_TexCoord;
-			layout(location = 2) in vec4 a_Color;
-			layout(location = 3) in int  a_TexIndex;
-
-			layout(std140, binding = 0) uniform Camera
-			{
-				mat4 u_ViewProjection;
-			};
-
-			out VertexOutput
-			{
-				vec2 TexCoord;
-				vec4 Color;
-				flat int TexIndex;
-			} v_Output;
-
-			void main()
-			{
-				gl_Position = u_ViewProjection * vec4(a_Position, 1.0);
-				v_Output.TexCoord = a_TexCoord;
-				v_Output.Color    = a_Color;
-				v_Output.TexIndex = a_TexIndex;
-			}
-		)";
-
-		std::stringstream fontFragmentSource;
-		fontFragmentSource << R"(
-			#version 330 core
-
-			uniform sampler2D u_Samplers[
-		)";
-
-		fontFragmentSource << s_Data->MaxSamplers;
-		fontFragmentSource << R"(];
-
-			in VertexOutput
-			{
-				vec2 TexCoord;
-				vec4 Color;
-				flat int TexIndex;
-			} v_Input;
-
-			out vec4 o_Color;
-
-			void main()
-			{
-				// Glyph information is encoded in the red channel
-				int lvalueIndex = v_Input.TexIndex;
-				float texel = texture(u_Samplers[lvalueIndex], v_Input.TexCoord.xy, 0).r;
-				
-				if (texel == 0)
-					discard;
-
-				o_Color = v_Input.Color * texel;
-			}
-		)";
-
-		s_Data->FontShader = Shader::Create("defaultFont", fontVertexSource, fontFragmentSource.str());
+		s_Data->FontShader = Shader::Create("defaultFont", textVertexSource, textFragmentSource);
 		s_Data->FontShader->Attach();
 		s_Data->FontShader->SetIntArray("u_Samplers", setupData.Samplers, s_Data->MaxSamplers);
-#endif
 
 		{
 			PipelineSpecification spec;
@@ -699,41 +587,11 @@ namespace Quark {
 
 		s_Data->LineVertices = new LineVertex[Renderer2DData::MaxVertices];
 
-#if 1
-		const char* lineVertexSource = R"(
-			#version 420 core
-
-			layout(location = 0) in vec3 a_Position;
-			layout(location = 1) in vec4 a_Color;
-
-			layout(std140, binding = 0) uniform Camera
-			{
-				mat4 u_ViewProjection;
-			};
-
-			out vec4 v_Color;
-
-			void main()
-			{
-				gl_Position = u_ViewProjection * vec4(a_Position, 1.0);
-				v_Color = a_Color;
-			}
-		)";
-
-		const char* lineFragmentSource = R"(
-			#version 330 core
-
-			in vec4 v_Color;
-			out vec4 o_Color;
-
-			void main()
-			{
-				o_Color = v_Color;
-			}
-		)";
+		auto& assetDir = Application::Get()->GetOptions().CoreAssetDir;
+		std::string lineVertexSource = Filesystem::ReadTextFile((assetDir / "bin-spirv/line.vert.spv").string());
+		std::string lineFragmentSource = Filesystem::ReadTextFile((assetDir / "bin-spirv/line.frag.spv").string());
 
 		s_Data->LineShader = Shader::Create("defaultLine", lineVertexSource, lineFragmentSource);
-#endif
 
 		{
 			PipelineSpecification spec;

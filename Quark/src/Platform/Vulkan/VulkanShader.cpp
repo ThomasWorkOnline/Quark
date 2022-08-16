@@ -43,30 +43,40 @@ namespace Quark {
 		QK_CORE_ASSERT(false, "Loading a Vulkan shader from a filepath is not supported");
 	}
 
-	VulkanShader::VulkanShader(VulkanDevice* device, std::string_view name, std::string_view vertexSource, std::string_view fragmentSource)
+	VulkanShader::VulkanShader(VulkanDevice* device, std::string_view name, SPIRVBinary vertexSource, SPIRVBinary fragmentSource)
 		: m_Device(device), m_Name(name)
 	{
-		VkShaderModuleCreateInfo createInfo{};
-		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-		createInfo.codeSize = vertexSource.size();
-		createInfo.pCode = reinterpret_cast<const uint32_t*>(vertexSource.data());
-		vkCreateShaderModule(m_Device->GetVkHandle(), &createInfo, nullptr, &m_VertexShaderModule);
-
-		createInfo.codeSize = fragmentSource.size();
-		createInfo.pCode = reinterpret_cast<const uint32_t*>(fragmentSource.data());
-		vkCreateShaderModule(m_Device->GetVkHandle(), &createInfo, nullptr, &m_FragmentShaderModule);
+		m_ShaderStages.reserve(2);
+		m_ShaderStages[VK_SHADER_STAGE_VERTEX_BIT]   = CreateShader(vertexSource);
+		m_ShaderStages[VK_SHADER_STAGE_FRAGMENT_BIT] = CreateShader(fragmentSource);
 	}
 
-	VulkanShader::VulkanShader(VulkanDevice* device, std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource)
-		: m_Device(device)
+	VulkanShader::VulkanShader(VulkanDevice* device, std::string_view name, SPIRVBinary vertexSource, SPIRVBinary geometrySource, SPIRVBinary fragmentSource)
+		: m_Device(device), m_Name(name)
 	{
-		QK_CORE_ASSERT(false, "Compiling Vulkan shaders is not supported");
+		m_ShaderStages.reserve(3);
+		m_ShaderStages[VK_SHADER_STAGE_VERTEX_BIT]   = CreateShader(vertexSource);
+		m_ShaderStages[VK_SHADER_STAGE_GEOMETRY_BIT] = CreateShader(geometrySource);
+		m_ShaderStages[VK_SHADER_STAGE_FRAGMENT_BIT] = CreateShader(fragmentSource);
 	}
 
 	VulkanShader::~VulkanShader()
 	{
-		vkDestroyShaderModule(m_Device->GetVkHandle(), m_VertexShaderModule, nullptr);
-		vkDestroyShaderModule(m_Device->GetVkHandle(), m_GeometryShaderModule, nullptr);
-		vkDestroyShaderModule(m_Device->GetVkHandle(), m_FragmentShaderModule, nullptr);
+		for (auto& kv : m_ShaderStages)
+		{
+			vkDestroyShaderModule(m_Device->GetVkHandle(), kv.second, nullptr);
+		}
+	}
+
+	VkShaderModule VulkanShader::CreateShader(SPIRVBinary spirvSource)
+	{
+		VkShaderModuleCreateInfo createInfo{};
+		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+		createInfo.codeSize = spirvSource.size();
+		createInfo.pCode = reinterpret_cast<const uint32_t*>(spirvSource.data());
+
+		VkShaderModule shaderModule;
+		vkCreateShaderModule(m_Device->GetVkHandle(), &createInfo, nullptr, &shaderModule);
+		return shaderModule;
 	}
 }

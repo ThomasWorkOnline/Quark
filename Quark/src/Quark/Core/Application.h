@@ -25,6 +25,7 @@ namespace Quark {
 
 		ApplicationFlag Flags{};
 		std::filesystem::path AssetDir;
+		std::filesystem::path CoreAssetDir;
 
 		bool HasFlag(ApplicationFlag flag) const { return Flags & flag; }
 	};
@@ -50,6 +51,7 @@ namespace Quark {
 		std::thread::id GetThreadId() const { return m_AppMainThreadId; }
 
 		const ApplicationOptions& GetOptions() const { return m_Options; }
+		ApplicationOptions& GetOptions() { return m_Options; }
 
 		Window* GetWindow() const { return m_Window.get(); }
 		AudioOutputDevice* GetAudioOutputDevice() const { return m_AudioOutputDevice.get(); }

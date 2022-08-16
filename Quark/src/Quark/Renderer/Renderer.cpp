@@ -145,20 +145,10 @@ namespace Quark {
 		s_Data = new RendererData();
 
 #if 0
-		if (GraphicsAPI::GetAPI() == RHI::Vulkan)
-		{
-			std::string vertexSource = Filesystem::ReadTextFile("../Quark/assets/shaders/version/4.50/bin/shader.vert.spv");
-			std::string fragmentSource = Filesystem::ReadTextFile("../Quark/assets/shaders/version/4.50/bin/shader.frag.spv");
+		std::string vertexSource = Filesystem::ReadTextFile("../Quark/assets/shaders/version/4.50/bin/shader.vert.spv");
+		std::string fragmentSource = Filesystem::ReadTextFile("../Quark/assets/shaders/version/4.50/bin/shader.frag.spv");
 
-			s_Data->Shader = Shader::Create("shader", vertexSource, fragmentSource);
-		}
-		else if (GraphicsAPI::GetAPI() == RHI::OpenGL)
-		{
-			std::string vertexSource = Filesystem::ReadTextFile("../Quark/assets/shaders/version/4.50/shader.vert");
-			std::string fragmentSource = Filesystem::ReadTextFile("../Quark/assets/shaders/version/4.50/shader.frag");
-
-			s_Data->Shader = Shader::Create("shader", vertexSource, fragmentSource);
-		}
+		s_Data->Shader = Shader::Create("shader", vertexSource, fragmentSource);
 #endif
 
 		{

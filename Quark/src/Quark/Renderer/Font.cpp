@@ -30,10 +30,8 @@ namespace Quark {
 
 	void FontLibrary::Add(Ref<Font> font, std::string_view name)
 	{
-		if (!Exists(name))
-			m_Fonts[GetHashedName(name)] = std::move(font);
-		else
-			QK_CORE_WARN("Font already exists! It was not added");
+		QK_CORE_ASSERT(!Exists(name), "Font already exists!");
+		m_Fonts[GetHashedName(name)] = std::move(font);
 	}
 
 	bool FontLibrary::Exists(std::string_view name) const

@@ -47,8 +47,11 @@ namespace Quark {
 			case ShaderDataType::Double2: return VK_FORMAT_R64G64_SFLOAT;
 			case ShaderDataType::Double3: return VK_FORMAT_R64G64B64_SFLOAT;
 			case ShaderDataType::Double4: return VK_FORMAT_R64G64B64A64_SFLOAT;
-
-			// TODO: map matrices, int and bool types
+			case ShaderDataType::Int:     return VK_FORMAT_R32_SINT;
+			case ShaderDataType::Int2:    return VK_FORMAT_R32G32_SINT;
+			case ShaderDataType::Int3:    return VK_FORMAT_R32G32B32_SINT;
+			case ShaderDataType::Int4:    return VK_FORMAT_R32G32B32A32_SINT;
+			case ShaderDataType::Bool:    return VK_FORMAT_R8_UINT;
 
 			QK_ASSERT_NO_DEFAULT("Unknown ShaderDataType");
 		}

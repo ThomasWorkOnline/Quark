@@ -29,11 +29,6 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		for (uint32_t i = 0; i < VulkanContext::FramesInFlight; i++)
-		{
-			m_CameraUniformBuffers[i] = VulkanUniformBuffer(m_Device, m_Spec.CameraUniformBufferSize, 0);
-		}
-
 		// Descriptor pool
 		{
 			VkDescriptorPoolSize poolSize{};
@@ -79,24 +74,27 @@ namespace Quark {
 			allocInfo.pSetLayouts = layouts;
 
 			vkAllocateDescriptorSets(m_Device->GetVkHandle(), &allocInfo, m_DescriptorSets);
-
-			for (uint32_t i = 0; i < VulkanContext::FramesInFlight; i++)
+			
+			if (m_Spec.UniformBuffer)
 			{
 				VkDescriptorBufferInfo bufferInfo{};
-				bufferInfo.buffer = static_cast<VulkanUniformBuffer*>(&m_CameraUniformBuffers[i])->GetVkHandle();
+				bufferInfo.buffer = static_cast<VulkanUniformBuffer*>(m_Spec.UniformBuffer)->GetVkHandle();
 				bufferInfo.offset = 0;
-				bufferInfo.range = m_Spec.CameraUniformBufferSize;
+				bufferInfo.range = m_Spec.UniformBuffer->GetSize();
 
 				VkWriteDescriptorSet descriptorWrite{};
 				descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-				descriptorWrite.dstSet = m_DescriptorSets[i];
 				descriptorWrite.dstBinding = 0;
 				descriptorWrite.dstArrayElement = 0;
-				descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 				descriptorWrite.descriptorCount = 1;
+				descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 				descriptorWrite.pBufferInfo = &bufferInfo;
 
-				vkUpdateDescriptorSets(m_Device->GetVkHandle(), 1, &descriptorWrite, 0, nullptr);
+				for (uint32_t i = 0; i < VulkanContext::FramesInFlight; i++)
+				{
+					descriptorWrite.dstSet = m_DescriptorSets[i];
+					vkUpdateDescriptorSets(m_Device->GetVkHandle(), 1, &descriptorWrite, 0, nullptr);
+				}
 			}
 		}
 
@@ -123,11 +121,6 @@ namespace Quark {
 		Invalidate();
 	}
 
-	UniformBuffer* VulkanPipeline::GetUniformBuffer() const
-	{
-		return &m_CameraUniformBuffers[VulkanContext::Get()->GetCurrentFrameIndex()];
-	}
-
 	VkDescriptorSet VulkanPipeline::GetDescriptorSet() const
 	{
 		return m_DescriptorSets[VulkanContext::Get()->GetCurrentFrameIndex()];
@@ -149,6 +142,7 @@ namespace Quark {
 
 		for (uint32_t i = 0; i < m_Spec.Layout.GetCount(); i++)
 		{
+			attributeDescriptions[i] = {};
 			attributeDescriptions[i].location = i;
 			attributeDescriptions[i].binding = 0;
 			attributeDescriptions[i].format = ShaderDataTypeToVulkan(m_Spec.Layout[i].Type);
@@ -248,21 +242,28 @@ namespace Quark {
 
 		vkCreatePipelineLayout(m_Device->GetVkHandle(), &pipelineLayoutInfo, nullptr, &m_PipelineLayout);
 
-		VkPipelineShaderStageCreateInfo shaderStages[2]{};
-		shaderStages[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-		shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
-		shaderStages[0].module = static_cast<VulkanShader*>(m_Spec.Shader)->GetVertexVkHandle();
-		shaderStages[0].pName = "main";
+		auto* vulkanShader = reinterpret_cast<VulkanShader*>(m_Spec.Shader);
+		auto& shaderStages = vulkanShader->GetShaderStages();
+		size_t stageCount = shaderStages.size();
 
-		shaderStages[1].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-		shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-		shaderStages[1].module = static_cast<VulkanShader*>(m_Spec.Shader)->GetFragmentVkHandle();
-		shaderStages[1].pName = "main";
+		auto* stages = static_cast<VkPipelineShaderStageCreateInfo*>(alloca(stageCount * sizeof(VkPipelineShaderStageCreateInfo)));
+
+		size_t stageIndex = 0;
+		for (auto& [shaderStage, shaderModule] : shaderStages)
+		{
+			stages[stageIndex] = {};
+			stages[stageIndex].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+			stages[stageIndex].stage = shaderStage;
+			stages[stageIndex].module = shaderModule;
+			stages[stageIndex].pName = "main";
+			stages[stageIndex].pSpecializationInfo = nullptr;
+			stageIndex++;
+		}
 
 		VkGraphicsPipelineCreateInfo pipelineInfo{};
 		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-		pipelineInfo.stageCount = 2;
-		pipelineInfo.pStages = shaderStages;
+		pipelineInfo.stageCount = static_cast<uint32_t>(stageCount);
+		pipelineInfo.pStages = stages;
 
 		pipelineInfo.pVertexInputState = &vertexInputInfo;
 		pipelineInfo.pInputAssemblyState = &inputAssembly;

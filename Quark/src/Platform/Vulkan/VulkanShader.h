@@ -4,6 +4,7 @@
 #include "VulkanDevice.h"
 
 #include <vulkan/vulkan.h>
+#include <unordered_map>
 
 namespace Quark {
 
@@ -11,8 +12,8 @@ namespace Quark {
 	{
 	public:
 		VulkanShader(VulkanDevice* device, std::string_view filepath);
-		VulkanShader(VulkanDevice* device, std::string_view name, std::string_view vertexSource, std::string_view fragmentSource);
-		VulkanShader(VulkanDevice* device, std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource);
+		VulkanShader(VulkanDevice* device, std::string_view name, SPIRVBinary vertexSource, SPIRVBinary fragmentSource);
+		VulkanShader(VulkanDevice* device, std::string_view name, SPIRVBinary vertexSource, SPIRVBinary geometrySource, SPIRVBinary fragmentSource);
 		virtual ~VulkanShader() override;
 
 		virtual void Attach() const override {}
@@ -49,16 +50,14 @@ namespace Quark {
 			return m_Name == reinterpret_cast<const VulkanShader&>(other).m_Name;
 		}
 
-		VkShaderModule GetVertexVkHandle() const { return m_VertexShaderModule; }
-		VkShaderModule GetGeometryVkHandle() const { return m_VertexShaderModule; }
-		VkShaderModule GetFragmentVkHandle() const { return m_FragmentShaderModule; }
+		const std::unordered_map<VkShaderStageFlagBits, VkShaderModule>& GetShaderStages() const { return m_ShaderStages; }
+
+	private:
+		VkShaderModule CreateShader(SPIRVBinary spirvSource);
 
 	private:
 		VulkanDevice* m_Device;
-
-		VkShaderModule m_VertexShaderModule = VK_NULL_HANDLE;
-		VkShaderModule m_GeometryShaderModule = VK_NULL_HANDLE;
-		VkShaderModule m_FragmentShaderModule = VK_NULL_HANDLE;
 		std::string m_Name;
+		std::unordered_map<VkShaderStageFlagBits, VkShaderModule> m_ShaderStages;
 	};
 }

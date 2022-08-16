@@ -7,7 +7,7 @@ using namespace Quark;
 class VulkanApp : public Application
 {
 public:
-	VulkanApp();
+	VulkanApp(const ApplicationOptions& options = {});
 
 	virtual void OnEvent(Event& e) override;
 	virtual void OnRender() override;

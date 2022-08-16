@@ -41,8 +41,6 @@ namespace Quark {
 		operator const entt::registry& () const { return m_Registry; }
 		operator entt::registry&() { return m_Registry; }
 
-		static Ref<Scene> Create();
-
 	private:
 		template<typename Component>
 		void OnComponentAdded(Entity entity, Component& c);

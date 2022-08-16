@@ -26,7 +26,10 @@ project "Quark"
 		"src/Platform/OpenGL/**.h",
 		"src/Platform/OpenGL/**.cpp",
 		"src/Platform/Vulkan/**.h",
-		"src/Platform/Vulkan/**.cpp"
+		"src/Platform/Vulkan/**.cpp",
+
+		"assets/shaders/**.vert",
+		"assets/shaders/**.frag"
 	}
 
 	defines
@@ -89,6 +92,11 @@ project "Quark"
 		{
 			"%{Library.OpenAL}",
 			"%{Library.OpenGL}"
+		}
+
+		postbuildcommands
+		{
+			'%{wks.location}/Scripts/Windows/CompileShaders.bat'
 		}
 
 	filter "system:macosx"

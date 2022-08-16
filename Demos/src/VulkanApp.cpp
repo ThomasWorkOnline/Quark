@@ -2,9 +2,10 @@
 
 #include "Quark/Scripts/CameraController.h"
 
-VulkanApp::VulkanApp()
+VulkanApp::VulkanApp(const ApplicationOptions& options)
+	: Application(options)
 {
-	m_Scene = Scene::Create();
+	m_Scene = CreateRef<Scene>();
 	m_CameraEntity = m_Scene->CreatePrimaryCamera();
 	m_CameraEntity.AddNativeScript<CameraController>();
 

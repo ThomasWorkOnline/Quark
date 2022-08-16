@@ -11,6 +11,19 @@
 #define ATTACH_EVENT_FN(fn) [&](auto&&... args) -> decltype(auto) { return fn(std::forward<decltype(args)>(args)...); }
 #define BIT(x) (1 << x)
 
+#if __cplusplus >= 202002L
+	// C++20 and later
+#	define QK_CONSTEXPR20 constexpr
+#else
+#	define QK_CONSTEXPR20 inline
+#endif
+
+#ifndef QK_IGNORE_DEPRECATED_SYMBOLS
+#	define QK_DEPRECATED [[deprecated]]
+#else
+#	define QK_DEPRECATED
+#endif
+
 // GLM standards configuration
 #include "Quark/Math/Types.h"
 

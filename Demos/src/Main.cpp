@@ -12,6 +12,12 @@ namespace Quark {
 
 	Application* CreateApplication()
 	{
-		return new VulkanApp();
+		using App = VulkanApp;
+
+		ApplicationOptions options;
+		options.AppName = "Demo Application";
+		options.CoreAssetDir = "../";
+
+		return new App(options);
 	}
 }

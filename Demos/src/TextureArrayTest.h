@@ -7,7 +7,7 @@ using namespace Quark;
 class TextureArrayTest : public Application
 {
 public:
-	TextureArrayTest();
+	TextureArrayTest(const ApplicationOptions& options = {});
 
 	void OnUpdate(Timestep elapsedTime) override;
 	void OnRender() override;

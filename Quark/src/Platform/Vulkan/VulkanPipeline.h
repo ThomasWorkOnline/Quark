@@ -20,7 +20,6 @@ namespace Quark {
 		virtual ~VulkanPipeline() override;
 
 		virtual void SetViewport(uint32_t viewportWidth, uint32_t viewportHeight) override;
-		virtual UniformBuffer* GetUniformBuffer() const override;
 
 		virtual bool operator==(const Pipeline& other) const override
 		{
@@ -35,14 +34,13 @@ namespace Quark {
 		void Invalidate();
 
 	private:
-		VulkanDevice* m_Device;
+		VulkanDevice* m_Device = nullptr;
 
 		VkDescriptorPool m_DescriptorPool = VK_NULL_HANDLE;
 		VkDescriptorSetLayout m_DescriptorSetLayout = VK_NULL_HANDLE;
 		VkPipelineLayout m_PipelineLayout = VK_NULL_HANDLE;
 		VkPipeline m_Pipeline = VK_NULL_HANDLE;
 
-		VkDescriptorSet m_DescriptorSets[VulkanContext::FramesInFlight];
-		mutable VulkanUniformBuffer m_CameraUniformBuffers[VulkanContext::FramesInFlight];
+		VkDescriptorSet m_DescriptorSets[VulkanContext::FramesInFlight]{};
 	};
 }

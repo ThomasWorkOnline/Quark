@@ -81,11 +81,6 @@ namespace Quark {
 		m_PrimaryCameraEntity = cameraEntity;
 	}
 
-	Ref<Scene> Scene::Create()
-	{
-		return CreateRef<Scene>();
-	}
-
 	template<typename Component>
 	void Scene::OnComponentAdded(Entity entity, Component& c)
 	{

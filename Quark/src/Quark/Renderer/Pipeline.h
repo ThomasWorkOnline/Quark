@@ -14,10 +14,11 @@ namespace Quark {
 	{
 		uint32_t            ViewportWidth = 0, ViewportHeight = 0;
 		size_t              CameraUniformBufferSize = 0;
+		UniformBuffer*      UniformBuffer = nullptr;
 
 		BufferLayout        Layout;
-		Shader*             Shader;
-		RenderPass*         RenderPass;
+		Shader*             Shader = nullptr;
+		RenderPass*         RenderPass = nullptr;
 	};
 
 	class Pipeline
@@ -29,7 +30,6 @@ namespace Quark {
 		virtual ~Pipeline() = default;
 
 		virtual void SetViewport(uint32_t viewportWidth, uint32_t viewportHeight) = 0;
-		virtual UniformBuffer* GetUniformBuffer() const = 0; // TODO: move into specification
 
 		virtual bool operator==(const Pipeline& other) const = 0;
 		

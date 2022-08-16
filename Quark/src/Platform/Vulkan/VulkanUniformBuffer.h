@@ -16,12 +16,12 @@ namespace Quark {
 
 		virtual void SetData(const void* data, size_t size, size_t offset = 0) override;
 
-		VkBuffer GetVkHandle() const { return m_Buffer; }
-
 		virtual bool operator==(const UniformBuffer& other) const override
 		{
 			return m_Buffer == reinterpret_cast<const VulkanUniformBuffer&>(other).m_Buffer;
 		}
+
+		VkBuffer GetVkHandle() const { return m_Buffer; }
 
 	private:
 		VulkanDevice* m_Device = nullptr;

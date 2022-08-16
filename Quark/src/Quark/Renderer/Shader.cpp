@@ -10,12 +10,12 @@ namespace Quark {
 		return GraphicsAPI::Instance->CreateShader(filepath);
 	}
 
-	Scope<Shader> Shader::Create(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource)
+	Scope<Shader> Shader::Create(std::string_view name, SPIRVBinary vertexSource, SPIRVBinary fragmentSource)
 	{
 		return GraphicsAPI::Instance->CreateShader(name, vertexSource, fragmentSource);
 	}
 
-	Scope<Shader> Shader::Create(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource)
+	Scope<Shader> Shader::Create(std::string_view name, SPIRVBinary vertexSource, SPIRVBinary geometrySource, SPIRVBinary fragmentSource)
 	{
 		return GraphicsAPI::Instance->CreateShader(name, vertexSource, geometrySource, fragmentSource);
 	}
@@ -27,13 +27,14 @@ namespace Quark {
 
 	void ShaderLibrary::Add(std::string_view name, Ref<Shader> shader)
 	{
-		QK_CORE_ASSERT(!Exists(name), "Shader already exists! It was not added");
+		QK_CORE_ASSERT(!Exists(name), "Shader already exists!");
 		m_Shaders[GetHashedName(name)] = std::move(shader);
 	}
 
 	void ShaderLibrary::Add(Ref<Shader> shader)
 	{
-		Add(shader->GetName(), std::move(shader));
+		auto shaderName = shader->GetName();
+		Add(shaderName, std::move(shader));
 	}
 
 	bool ShaderLibrary::Exists(std::string_view name) const

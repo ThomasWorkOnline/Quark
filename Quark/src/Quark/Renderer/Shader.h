@@ -8,10 +8,12 @@ namespace Quark {
 	class Shader
 	{
 	public:
+		using SPIRVBinary = std::string_view;
+
 		virtual ~Shader() = default;
 
-		virtual void Attach() const = 0;
-		virtual void Detach() const = 0;
+		QK_DEPRECATED virtual void Attach() const = 0;
+		QK_DEPRECATED virtual void Detach() const = 0;
 
 		virtual void SetInt(std::string_view name, int32_t value) = 0;
 		virtual void SetVec2i(std::string_view name, const Vec2i& value) = 0;
@@ -42,8 +44,8 @@ namespace Quark {
 		virtual bool operator==(const Shader& other) const = 0;
 
 		static Scope<Shader> Create(std::string_view filepath);
-		static Scope<Shader> Create(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource);
-		static Scope<Shader> Create(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource);
+		static Scope<Shader> Create(std::string_view name, SPIRVBinary vertexSource, SPIRVBinary fragmentSource);
+		static Scope<Shader> Create(std::string_view name, SPIRVBinary vertexSource, SPIRVBinary geometrySource, SPIRVBinary fragmentSource);
 	};
 
 	class ShaderLibrary

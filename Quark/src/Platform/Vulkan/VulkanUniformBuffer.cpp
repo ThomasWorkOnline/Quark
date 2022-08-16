@@ -5,8 +5,8 @@
 
 namespace Quark {
 
-	VulkanUniformBuffer::VulkanUniformBuffer(VulkanDevice* device, size_t size, uint32_t binding)
-		: m_Device(device)
+	VulkanUniformBuffer::VulkanUniformBuffer(VulkanDevice* device, size_t size, uint32_t binding) : UniformBuffer(size),
+		m_Device(device)
 	{
 		m_Buffer = Utils::AllocateBuffer(m_Device, size,
 			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
@@ -22,6 +22,7 @@ namespace Quark {
 
 	void VulkanUniformBuffer::SetData(const void* data, size_t size, size_t offset)
 	{
+		QK_CORE_ASSERT(size <= m_Size, "Size parameter must be less than or equal to the total buffer size");
 		QK_CORE_ASSERT(offset == 0, "offsets are currently not supported");
 
 		void* mappedMemory;
