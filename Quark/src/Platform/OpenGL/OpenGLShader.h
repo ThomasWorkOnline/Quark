@@ -18,9 +18,6 @@ namespace Quark {
 		OpenGLShader(std::string_view name, SPIRVBinary vertexSource, SPIRVBinary geometrySource, SPIRVBinary fragmentSource);
 		virtual ~OpenGLShader() override;
 
-		virtual void Attach() const override;
-		virtual void Detach() const override;
-
 		virtual void SetInt(std::string_view name, int32_t value) override;
 		virtual void SetVec2i(std::string_view name, const Vec2i& value) override;
 		virtual void SetVec3i(std::string_view name, const Vec3i& value) override;
@@ -51,6 +48,8 @@ namespace Quark {
 		{
 			return m_RendererID == reinterpret_cast<decltype(*this)&>(other).m_RendererID;
 		}
+
+		GLuint GetRendererID() const { return m_RendererID; }
 
 	private:
 		void UploadUniformInt(std::string_view name, int32_t value);

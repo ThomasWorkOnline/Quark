@@ -16,9 +16,6 @@ namespace Quark {
 		VulkanShader(VulkanDevice* device, std::string_view name, SPIRVBinary vertexSource, SPIRVBinary geometrySource, SPIRVBinary fragmentSource);
 		virtual ~VulkanShader() override;
 
-		virtual void Attach() const override {}
-		virtual void Detach() const override {}
-
 		virtual void SetInt(std::string_view name, int32_t value) override {}
 		virtual void SetVec2i(std::string_view name, const Vec2i& value) override {}
 		virtual void SetVec3i(std::string_view name, const Vec3i& value) override {}

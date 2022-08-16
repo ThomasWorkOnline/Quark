@@ -18,6 +18,7 @@ PBRRenderingDemo::PBRRenderingDemo()
 	GetWindow()->SetVSync(true);
 
 	m_Scene = CreateRef<Scene>();
+
 	m_Player = m_Scene->CreateEntity();
 	m_Player.AddComponent<Transform3DComponent>().Position = { 0.0f, 0.0f, -2.0f };
 	m_Player.AddComponent<PhysicsComponent>();
@@ -166,7 +167,6 @@ PBRRenderingDemo::PBRRenderingDemo()
 		{ -2.0f,  2.0f,  2.0f }
 	};
 
-	m_PBRShader->Attach();
 	m_PBRShader->SetMat4f("u_Model", Mat4f(1.0f));
 	m_PBRShader->SetInt("u_AlbedoMap", 0);
 	m_PBRShader->SetInt("u_NormalMap", 1);
@@ -209,7 +209,6 @@ void PBRRenderingDemo::OnRender()
 	const auto& camera = m_Player.GetComponent<CameraComponent>().Camera;
 	const auto& transform = m_Player.GetComponent<Transform3DComponent>();
 
-	m_PBRShader->Attach();
 	m_PBRShader->SetVec3f("u_CameraPos", transform.Position);
 
 	Mat4f cameraRotate = glm::toMat4(transform.Orientation);

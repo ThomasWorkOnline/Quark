@@ -12,9 +12,6 @@ namespace Quark {
 
 		virtual ~Shader() = default;
 
-		QK_DEPRECATED virtual void Attach() const = 0;
-		QK_DEPRECATED virtual void Detach() const = 0;
-
 		virtual void SetInt(std::string_view name, int32_t value) = 0;
 		virtual void SetVec2i(std::string_view name, const Vec2i& value) = 0;
 		virtual void SetVec3i(std::string_view name, const Vec3i& value) = 0;

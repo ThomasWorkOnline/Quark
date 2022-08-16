@@ -222,16 +222,6 @@ namespace Quark {
 		}
 	}
 
-	void OpenGLShader::Attach() const
-	{
-		glUseProgram(m_RendererID);
-	}
-
-	void OpenGLShader::Detach() const
-	{
-		glUseProgram(0);
-	}
-
 	void OpenGLShader::SetInt(std::string_view name, int32_t value)
 	{
 		UploadUniformInt(name, value);
@@ -330,115 +320,115 @@ namespace Quark {
 	void OpenGLShader::UploadUniformInt(std::string_view name, int32_t value)
 	{
 		GLint location = GetUniformLocation(name);
-		glUniform1i(location, value);
+		glProgramUniform1i(m_RendererID, location, value);
 	}
 
 	void OpenGLShader::UploadUniformInt2(std::string_view name, const Vec2i& value)
 	{
 		GLint location = GetUniformLocation(name);
-		glUniform2i(location, value.x, value.y);
+		glProgramUniform2i(m_RendererID, location, value.x, value.y);
 	}
 
 	void OpenGLShader::UploadUniformInt3(std::string_view name, const Vec3i& value)
 	{
 		GLint location = GetUniformLocation(name);
-		glUniform3i(location, value.x, value.y, value.z);
+		glProgramUniform3i(m_RendererID, location, value.x, value.y, value.z);
 	}
 
 	void OpenGLShader::UploadUniformInt4(std::string_view name, const Vec4i& value)
 	{
 		GLint location = GetUniformLocation(name);
-		glUniform4i(location, value.x, value.y, value.z, value.w);
+		glProgramUniform4i(m_RendererID, location, value.x, value.y, value.z, value.w);
 	}
 
 	void OpenGLShader::UploadUniformIntArray(std::string_view name, const int32_t* values, uint32_t count)
 	{
 		GLint location = GetUniformLocation(name);
-		glUniform1iv(location, count, values);
+		glProgramUniform1iv(m_RendererID, location, count, values);
 	}
 
 	void OpenGLShader::UploadUniformFloat(std::string_view name, float value)
 	{
 		GLint location = GetUniformLocation(name);
-		glUniform1f(location, value);
+		glProgramUniform1f(m_RendererID, location, value);
 	}
 
 	void OpenGLShader::UploadUniformFloat2(std::string_view name, const Vec2f& value)
 	{
 		GLint location = GetUniformLocation(name);
-		glUniform2f(location, value.x, value.y);
+		glProgramUniform2f(m_RendererID, location, value.x, value.y);
 	}
 
 	void OpenGLShader::UploadUniformFloat3(std::string_view name, const Vec3f& value)
 	{
 		GLint location = GetUniformLocation(name);
-		glUniform3f(location, value.x, value.y, value.z);
+		glProgramUniform3f(m_RendererID, location, value.x, value.y, value.z);
 	}
 
 	void OpenGLShader::UploadUniformFloat4(std::string_view name, const Vec4f& value)
 	{
 		GLint location = GetUniformLocation(name);
-		glUniform4f(location, value.x, value.y, value.z, value.w);
+		glProgramUniform4f(m_RendererID, location, value.x, value.y, value.z, value.w);
 	}
 
 	void OpenGLShader::UploadUniformFloatArray(std::string_view name, const float* values, uint32_t count)
 	{
 		GLint location = GetUniformLocation(name);
-		glUniform1fv(location, count, values);
+		glProgramUniform1fv(m_RendererID, location, count, values);
 	}
 
 	void OpenGLShader::UploadUniformDouble(std::string_view name, double value)
 	{
 		GLint location = GetUniformLocation(name);
-		glUniform1d(location, value);
+		glProgramUniform1d(m_RendererID, location, value);
 	}
 
 	void OpenGLShader::UploadUniformDouble2(std::string_view name, const Vec2d& value)
 	{
 		GLint location = GetUniformLocation(name);
-		glUniform2d(location, value.x, value.y);
+		glProgramUniform2d(m_RendererID, location, value.x, value.y);
 	}
 
 	void OpenGLShader::UploadUniformDouble3(std::string_view name, const Vec3d& value)
 	{
 		GLint location = GetUniformLocation(name);
-		glUniform3d(location, value.x, value.y, value.z);
+		glProgramUniform3d(m_RendererID, location, value.x, value.y, value.z);
 	}
 
 	void OpenGLShader::UploadUniformDouble4(std::string_view name, const Vec4d& value)
 	{
 		GLint location = GetUniformLocation(name);
-		glUniform4d(location, value.x, value.y, value.z, value.w);
+		glProgramUniform4d(m_RendererID, location, value.x, value.y, value.z, value.w);
 	}
 
 	void OpenGLShader::UploadUniformDoubleArray(std::string_view name, const double* values, uint32_t count)
 	{
 		GLint location = GetUniformLocation(name);
-		glUniform1dv(location, count, values);
+		glProgramUniform1dv(m_RendererID, location, count, values);
 	}
 
 	void OpenGLShader::UploadUniformMat3f(std::string_view name, const Mat3f& matrix)
 	{
 		GLint location = GetUniformLocation(name);
-		glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
+		glProgramUniformMatrix3fv(m_RendererID, location, 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 
 	void OpenGLShader::UploadUniformMat4f(std::string_view name, const Mat4f& matrix)
 	{
 		GLint location = GetUniformLocation(name);
-		glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
+		glProgramUniformMatrix4fv(m_RendererID, location, 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 
 	void OpenGLShader::UploadUniformMat3d(std::string_view name, const Mat3d& matrix)
 	{
 		GLint location = GetUniformLocation(name);
-		glUniformMatrix3dv(location, 1, GL_FALSE, glm::value_ptr(matrix));
+		glProgramUniformMatrix3dv(m_RendererID, location, 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 
 	void OpenGLShader::UploadUniformMat4d(std::string_view name, const Mat4d& matrix)
 	{
 		GLint location = GetUniformLocation(name);
-		glUniformMatrix4dv(location, 1, GL_FALSE, glm::value_ptr(matrix));
+		glProgramUniformMatrix4dv(m_RendererID, location, 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 
 	GLint OpenGLShader::GetUniformLocation(std::string_view name) const

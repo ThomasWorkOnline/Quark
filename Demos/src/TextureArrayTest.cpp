@@ -26,7 +26,6 @@ TextureArrayTest::TextureArrayTest(const ApplicationOptions& options)
 	m_TextureArray->GenerateMipmaps();
 
 	m_Shader = Shader::Create("assets/shaders/textureArray.glsl");
-	m_Shader->Attach();
 	m_Shader->SetInt("u_Sampler", 0);
 
 	static constexpr SpriteVertex vertices[] = {

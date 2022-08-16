@@ -2,13 +2,16 @@
 #include "OpenGLCommandBuffer.h"
 
 #include "OpenGLBuffer.h"
+#include "OpenGLShader.h"
+
 #include <glad/glad.h>
 
 namespace Quark {
 
 	void OpenGLCommandBuffer::BindPipeline(Pipeline* pipeline)
 	{
-		pipeline->GetSpecification().Shader->Attach();
+		GLuint rendererID = reinterpret_cast<OpenGLShader*>(pipeline->GetSpecification().Shader)->GetRendererID();
+		glUseProgram(rendererID);
 	}
 
 	void OpenGLCommandBuffer::BeginRenderPass(RenderPass* renderPass, Framebuffer* framebuffer)

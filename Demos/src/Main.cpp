@@ -12,7 +12,7 @@ namespace Quark {
 
 	Application* CreateApplication()
 	{
-		using App = VulkanApp;
+		using App = TextureArrayTest;
 
 		ApplicationOptions options;
 		options.AppName = "Demo Application";

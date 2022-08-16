@@ -56,7 +56,6 @@ namespace Quark {
 				RenderCommand::SetCullFace(RenderCullMode::Front);
 				RenderCommand::SetDepthFunction(RenderDepthFunction::LessEqual);
 
-				m_Data.Env->SkyboxShader->Attach();
 				m_Data.Env->SkyboxShader->SetMat4f("u_View", cameraView);
 				m_Data.Env->SkyboxShader->SetMat4f("u_Projection", sceneCamera.GetProjection());
 				m_Data.Env->SkyboxShader->SetInt("u_EnvironmentMap", 0);
@@ -143,7 +142,6 @@ namespace Quark {
 		hdrTexture->Attach(0);
 
 		m_Data.Env->Framebuffer->Attach();
-		m_Data.Env->EquirectangleToCubemapShader->Attach();
 		m_Data.Env->EquirectangleToCubemapShader->SetInt("u_EquirectangularMap", 0);
 		m_Data.Env->EquirectangleToCubemapShader->SetMat4f("u_Projection", captureProjection);
 
@@ -164,7 +162,6 @@ namespace Quark {
 		m_Data.Env->Framebuffer->Resize(32, 32);
 		m_Data.Env->Framebuffer->Attach();
 
-		m_Data.Env->IrradianceShader->Attach();
 		m_Data.Env->IrradianceShader->SetInt("u_EnvironmentMap", 0);
 		m_Data.Env->IrradianceShader->SetMat4f("u_Projection", captureProjection);
 		m_Data.Env->Environment->Attach(0);

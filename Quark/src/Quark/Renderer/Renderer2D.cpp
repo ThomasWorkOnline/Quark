@@ -148,11 +148,11 @@ namespace Quark {
 	{
 		QK_ASSERT_RENDER_THREAD();
 
-		ResetStats();
-		StartBatch();
-
 		s_Data->CameraBufferData.ViewProjection = cameraProjection * cameraView;
 		s_Data->CameraUniformBuffer->SetData(&s_Data->CameraBufferData, sizeof(Renderer2DData::CameraBufferData));
+
+		ResetStats();
+		StartBatch();
 	}
 
 	void Renderer2D::EndScene()
@@ -397,8 +397,6 @@ namespace Quark {
 				s_Data->Textures[i]->Attach(i);
 
 			Renderer::BindPipeline(s_Data->QuadRendererPipeline.get());
-			s_Data->QuadShader->SetIntArray("u_Samplers", s_Data->Samplers, s_Data->MaxSamplers);
-
 			Renderer::Submit(s_Data->QuadVertexBuffer.get(), s_Data->QuadIndexBuffer.get(), s_Data->QuadIndexCount);
 			s_Stats.DrawCalls++;
 		}
@@ -412,8 +410,6 @@ namespace Quark {
 				s_Data->Fonts[i]->Attach(i);
 
 			Renderer::BindPipeline(s_Data->TextRendererPipeline.get());
-			s_Data->FontShader->SetIntArray("u_Samplers", s_Data->Samplers, s_Data->MaxSamplers);
-
 			Renderer::Submit(s_Data->TextVertexBuffer.get(), s_Data->QuadIndexBuffer.get(), s_Data->FontIndexCount);
 			s_Stats.DrawCalls++;
 		}
@@ -500,8 +496,9 @@ namespace Quark {
 		}
 
 		s_Data->QuadIndexBuffer = IndexBuffer::Create(indices, Renderer2DData::MaxIndices);
-		s_Data->QuadVertices = new QuadVertex[Renderer2DData::MaxVertices];
 		delete[] indices;
+
+		s_Data->QuadVertices = new QuadVertex[Renderer2DData::MaxVertices];
 
 		uint32_t textureColor = 0xffffffff;
 		Texture2DSpecification spec = { 1, 1, 1,
@@ -510,7 +507,7 @@ namespace Quark {
 		};
 
 		s_Data->DefaultTexture = Texture2D::Create(spec);
-		s_Data->DefaultTexture->SetData(&textureColor, sizeof(uint32_t));
+		s_Data->DefaultTexture->SetData(&textureColor, sizeof(textureColor));
 
 		s_Data->Textures = new Texture2D*[s_Data->MaxSamplers];
 
@@ -522,6 +519,7 @@ namespace Quark {
 		std::string spriteFragmentSource = Filesystem::ReadTextFile((assetDir / "bin-spirv/colored_sprite.frag.spv").string());
 
 		s_Data->QuadShader = Shader::Create("defaultSprite", spriteVertexSource, spriteFragmentSource);
+		s_Data->QuadShader->SetIntArray("u_Samplers", s_Data->Samplers, s_Data->MaxSamplers);
 
 		{
 			PipelineSpecification spec;
@@ -552,6 +550,7 @@ namespace Quark {
 		std::string textFragmentSource = Filesystem::ReadTextFile((assetDir / "bin-spirv/text.frag.spv").string());
 
 		s_Data->FontShader = Shader::Create("defaultFont", textVertexSource, textFragmentSource);
+		s_Data->FontShader->SetIntArray("u_Samplers", s_Data->Samplers, s_Data->MaxSamplers);
 
 		{
 			PipelineSpecification spec;
