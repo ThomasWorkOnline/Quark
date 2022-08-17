@@ -186,7 +186,8 @@ First, we'll have to load a texture:
 class BasicRenderingApplication : public Application
 {
 public:
-	BasicRenderingApplication()
+	BasicRenderingApplication(const ApplicationOptions& options = {})
+		: Application(options)
 	{
 		// Loading our texture
 		m_Texture = Texture2D::Create("assets/textures/Example1_BasicRendering.png");
@@ -254,7 +255,8 @@ Let's fix this:
 class BasicRenderingApplication : public Application
 {
 public:
-	BasicRenderingApplication()
+	BasicRenderingApplication(const ApplicationOptions& options = {})
+		: Application(options)
 	{
 		// Loading our texture
 		m_Texture = Texture2D::Create("assets/textures/Example1_BasicRendering.png");
