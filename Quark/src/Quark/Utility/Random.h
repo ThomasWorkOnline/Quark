@@ -8,9 +8,10 @@ namespace Quark {
 	class Random
 	{
 	public:
-		static constexpr uint32_t DefaultSeed = std::mt19937::default_seed;
+		using NoiseEngine = std::mt19937;
+		static constexpr uint32_t DefaultSeed = NoiseEngine::default_seed;
 
-		explicit Random(uint32_t seed = std::mt19937::default_seed)
+		explicit Random(uint32_t seed = DefaultSeed)
 			: m_NoiseEngine(seed)
 		{
 		}
@@ -27,25 +28,25 @@ namespace Quark {
 
 		inline T Next()
 		{
-			static_assert(false, "No default template specialization for type T");
+			static_assert(sizeof(T) == 0, "No default template specialization for type T");
 		}
 
 	private:
-		std::mt19937 m_NoiseEngine;
+		NoiseEngine m_NoiseEngine;
 	};
 
 	template<>
 	inline float Random<float>::Next()
 	{
 		// Return value normalized in range [0, 1]
-		return m_NoiseEngine() / static_cast<float>(std::numeric_limits<uint32_t>::max());
+		return m_NoiseEngine() / static_cast<float>(std::numeric_limits<NoiseEngine::result_type>::max());
 	}
 
 	template<>
 	inline double Random<double>::Next()
 	{
 		// Return value normalized in range [0, 1]
-		return m_NoiseEngine() / static_cast<double>(std::numeric_limits<uint32_t>::max());
+		return m_NoiseEngine() / static_cast<double>(std::numeric_limits<NoiseEngine::result_type>::max());
 	}
 
 	template<>
@@ -53,5 +54,19 @@ namespace Quark {
 	{
 		// Return value unnormalized in range [0, UINT32_MAX]
 		return m_NoiseEngine();
+	}
+
+	template<>
+	inline int32_t Random<int32_t>::Next()
+	{
+		// Return value unnormalized in range [-INT32_MAX, INT32_MAX]
+		return m_NoiseEngine() - std::numeric_limits<int32_t>::max();
+	}
+
+	template<>
+	inline bool Random<bool>::Next()
+	{
+		// Returns a uniformly distributed boolean result
+		return m_NoiseEngine() & 1;
 	}
 }
