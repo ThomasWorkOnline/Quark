@@ -20,9 +20,9 @@ VulkanApp::VulkanApp(const ApplicationOptions& options)
 	{
 		auto sprite = m_Scene->CreateEntity();
 		sprite.AddComponent<Transform3DComponent>().Position = { random(), random(), random() };
-		auto& src = sprite.AddComponent<SpriteRendererComponent>();
+		auto& src = sprite.AddComponent<TexturedSpriteRendererComponent>();
 		src.Texture = randomBool.Next() ? texture1 : texture2;
-		src.Color = { 1.0f, 0.0f, 0.0, 1.0f };
+		src.Tint = { 1.0f, 1.0f, 0.0, 1.0f };
 	}
 
 	QK_CORE_INFO("Texture 1 use count: {0}", texture1.use_count());

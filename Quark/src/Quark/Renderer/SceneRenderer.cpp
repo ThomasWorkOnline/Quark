@@ -37,15 +37,23 @@ namespace Quark {
 
 			Renderer2D::BeginScene(sceneCamera.GetProjection(), cameraView);
 
+			// Colored sprites
 			{
-				auto view = m_Scene->m_Registry.view<SpriteRendererComponent, Transform3DComponent>();
+				auto view = m_Scene->m_Registry.view<ColoredSpriteRendererComponent, Transform3DComponent>();
 				for (auto entity : view)
 				{
-					auto [src, transform] = view.get<SpriteRendererComponent, Transform3DComponent>(entity);
+					auto [csr, transform] = view.get<ColoredSpriteRendererComponent, Transform3DComponent>(entity);
+					Renderer2D::DrawSprite(csr.Color, transform);
+				}
+			}
 
-					src.Texture
-						? Renderer2D::DrawSprite(src.Texture.get(), transform)
-						: Renderer2D::DrawSprite(src.Color, transform);
+			// Textured sprites
+			{
+				auto view = m_Scene->m_Registry.view<TexturedSpriteRendererComponent, Transform3DComponent>();
+				for (auto entity : view)
+				{
+					auto [tsr, transform] = view.get<TexturedSpriteRendererComponent, Transform3DComponent>(entity);
+					Renderer2D::DrawSprite(tsr.Texture.get(), tsr.Tint, transform);
 				}
 			}
 

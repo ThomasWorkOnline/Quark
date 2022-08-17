@@ -159,12 +159,12 @@ namespace Quark {
 		PushBatch();
 	}
 	
-	void Renderer2D::DrawSprite(Texture2D* texture, const Mat4f& transform)
+	void Renderer2D::DrawSprite(Texture2D* texture, const Vec4f& tint, const Mat4f& transform)
 	{
-		DrawSprite(texture, s_TextureCoords, transform);
+		DrawSprite(texture, s_TextureCoords, tint, transform);
 	}
 
-	void Renderer2D::DrawSprite(Texture2D* texture, const Vec2f* texCoords, const Mat4f& transform)
+	void Renderer2D::DrawSprite(Texture2D* texture, const Vec2f* texCoords, const Vec4f& tint, const Mat4f& transform)
 	{
 		QK_ASSERT_RENDER_THREAD();
 
@@ -205,7 +205,7 @@ namespace Quark {
 		{
 			s_Data->QuadVertexPtr->Position = transform * s_QuadVertexPositions[i];
 			s_Data->QuadVertexPtr->TexCoord = texCoords[i];
-			s_Data->QuadVertexPtr->Color = { 1.0f, 1.0f, 1.0f, 1.0f };
+			s_Data->QuadVertexPtr->Color    = tint;
 			s_Data->QuadVertexPtr->TexIndex = textureIndex;
 
 			s_Data->QuadVertexPtr++;
@@ -215,9 +215,9 @@ namespace Quark {
 		s_Stats.QuadsDrawn++;
 	}
 
-	void Renderer2D::DrawSprite(const SubTexture2D& subTexture, const Mat4f& transform)
+	void Renderer2D::DrawSprite(const SubTexture2D& subTexture, const Vec4f& tint, const Mat4f& transform)
 	{
-		DrawSprite(subTexture.GetTexture(), subTexture.GetCoords(), transform);
+		DrawSprite(subTexture.GetTexture(), subTexture.GetCoords(), tint, transform);
 	}
 
 	void Renderer2D::DrawSprite(const Vec4f& color, const Mat4f& transform)

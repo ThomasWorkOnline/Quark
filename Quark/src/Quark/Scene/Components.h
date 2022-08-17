@@ -80,10 +80,15 @@ namespace Quark {
 		}
 	};
 
-	struct SpriteRendererComponent
+	struct ColoredSpriteRendererComponent
+	{
+		Vec4f Color = { 1.0f, 1.0f, 1.0f, 1.0f };
+	};
+
+	struct TexturedSpriteRendererComponent
 	{
 		Ref<Texture2D> Texture;
-		Vec4f Color = { 1.0f, 1.0f, 1.0f, 1.0f };
+		Vec4f Tint = { 1.0f, 1.0f, 1.0f, 1.0f };
 	};
 
 	class Scene;
