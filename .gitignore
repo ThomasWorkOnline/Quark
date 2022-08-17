@@ -1,3 +1,28 @@
+# Auto Generated
+include
+lib
+bin
+bin-int
+
+# Instrumentation
+instrumentor
+
+# MacOS files
+.DS_Store
+
+# Makefile
+Makefile
+makefile
+
+# Utilities
+Build
+
+# Premake
+!Vendor/bin
+
+# Python
+__pycache__
+
 # Visual Studio
 **.sln
 **.vcxproj
@@ -7,25 +32,3 @@
 
 # Visual Studio Code
 .vscode
-
-# Makefile
-Makefile
-makefile
-
-# macOS files
-.DS_Store
-
-# Auto Generated
-include
-lib
-bin
-bin-int
-
-# Premake
-!Vendor/bin
-
-# Instrumentation
-instrumentor
-
-# Utilities
-Build
