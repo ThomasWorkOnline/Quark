@@ -86,7 +86,6 @@ namespace Quark {
 		static constexpr uint32_t MaxIndices  = MaxQuads * 6;
 
 		uint32_t MaxSamplers = 0;
-		int32_t* Samplers = nullptr;
 
 		QuadVertex* QuadVertexPtr = nullptr;
 		QuadVertex* QuadVertices  = nullptr;
@@ -444,10 +443,6 @@ namespace Quark {
 		s_Data->MaxSamplers = GraphicsAPI::Instance->GetCapabilities().TextureConstraints.MaxTextureSlots;
 		QK_CORE_ASSERT(s_Data->MaxSamplers > 0, "Platform does not support texture samplers");
 
-		s_Data->Samplers = new int32_t[s_Data->MaxSamplers];
-		for (uint32_t i = 0; i < s_Data->MaxSamplers; i++)
-			s_Data->Samplers[i] = (int32_t)i;
-
 		// Camera
 		s_Data->CameraUniformBuffer = UniformBuffer::Create(sizeof(Renderer2DData::CameraData), 0);
 
@@ -462,7 +457,6 @@ namespace Quark {
 
 		if (!s_Data) return;
 
-		delete[] s_Data->Samplers;
 		delete[] s_Data->QuadVertices;
 		delete[] s_Data->FontVertices;
 		delete[] s_Data->LineVertices;
@@ -519,7 +513,6 @@ namespace Quark {
 		std::string spriteFragmentSource = Filesystem::ReadTextFile((assetDir / "bin-spirv/textured_sprite.frag.spv").string());
 
 		s_Data->QuadShader = Shader::Create("defaultSprite", spriteVertexSource, spriteFragmentSource);
-		s_Data->QuadShader->SetIntArray("u_Samplers", s_Data->Samplers, s_Data->MaxSamplers);
 
 		{
 			PipelineSpecification spec;
@@ -550,7 +543,6 @@ namespace Quark {
 		std::string textFragmentSource = Filesystem::ReadTextFile((assetDir / "bin-spirv/text.frag.spv").string());
 
 		s_Data->FontShader = Shader::Create("defaultFont", textVertexSource, textFragmentSource);
-		s_Data->FontShader->SetIntArray("u_Samplers", s_Data->Samplers, s_Data->MaxSamplers);
 
 		{
 			PipelineSpecification spec;
