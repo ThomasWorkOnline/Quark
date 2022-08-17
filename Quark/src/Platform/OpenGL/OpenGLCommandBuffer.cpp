@@ -10,6 +10,7 @@ namespace Quark {
 
 	void OpenGLCommandBuffer::BindPipeline(Pipeline* pipeline)
 	{
+		m_BoundPipeline = reinterpret_cast<OpenGLPipeline*>(pipeline);
 		GLuint rendererID = reinterpret_cast<OpenGLShader*>(pipeline->GetSpecification().Shader)->GetRendererID();
 		glUseProgram(rendererID);
 	}
@@ -31,21 +32,25 @@ namespace Quark {
 
 	void OpenGLCommandBuffer::Draw(uint32_t vertexOffset, uint32_t vertexCount)
 	{
-		glDrawArrays(GL_TRIANGLES, vertexOffset, vertexCount);
+		GLenum type = m_BoundPipeline->GetPrimitiveTopologyState();
+		glDrawArrays(type, vertexOffset, vertexCount);
 	}
 
 	void OpenGLCommandBuffer::DrawIndexed(uint32_t indexCount)
 	{
-		glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr);
+		GLenum type = m_BoundPipeline->GetPrimitiveTopologyState();
+		glDrawElements(type, indexCount, GL_UNSIGNED_INT, nullptr);
 	}
 
 	void OpenGLCommandBuffer::DrawIndexedInstanced(uint32_t instanceCount, uint32_t indexCount)
 	{
-		glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr, instanceCount);
+		GLenum type = m_BoundPipeline->GetPrimitiveTopologyState();
+		glDrawElementsInstanced(type, indexCount, GL_UNSIGNED_INT, nullptr, instanceCount);
 	}
 
 	void OpenGLCommandBuffer::DrawLines(uint32_t vertexCount)
 	{
+		// TODO: set pipeline topology state to GL_LINES
 		glDrawArrays(GL_LINES, 0, vertexCount);
 	}
 

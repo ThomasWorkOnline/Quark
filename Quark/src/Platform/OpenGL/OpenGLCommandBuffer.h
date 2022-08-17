@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Quark/Renderer/CommandBuffer.h"
+#include "OpenGLPipeline.h"
 
 namespace Quark {
 
@@ -32,5 +33,8 @@ namespace Quark {
 		{
 			return true;
 		}
+
+	private:
+		OpenGLPipeline* m_BoundPipeline = nullptr;
 	};
 }

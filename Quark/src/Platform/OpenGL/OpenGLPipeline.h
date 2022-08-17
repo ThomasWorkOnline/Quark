@@ -1,7 +1,9 @@
 #pragma once
 
 #include "Quark/Renderer/Pipeline.h"
-#include "OpenGLUniformBuffer.h"
+
+typedef unsigned int GLenum;
+#define GL_NONE 0
 
 namespace Quark {
 
@@ -17,5 +19,10 @@ namespace Quark {
 		{
 			return true;
 		}
+
+		GLenum GetPrimitiveTopologyState() const { return m_PrimitiveTopology; }
+
+	private:
+		GLenum m_PrimitiveTopology = GL_NONE;
 	};
 }

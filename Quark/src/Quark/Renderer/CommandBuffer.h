@@ -27,7 +27,7 @@ namespace Quark {
 		virtual void DrawIndexed(uint32_t indexCount) = 0;
 		virtual void DrawIndexedInstanced(uint32_t instanceCount, uint32_t indexCount) = 0;
 
-		virtual void DrawLines(uint32_t vertexCount) = 0;
+		QK_DEPRECATED virtual void DrawLines(uint32_t vertexCount) = 0;
 
 		virtual void BindVertexBuffer(VertexBuffer* vertexBuffer) = 0;
 		virtual void BindIndexBuffer(IndexBuffer* indexBuffer) = 0;

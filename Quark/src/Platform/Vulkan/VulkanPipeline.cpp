@@ -4,6 +4,8 @@
 #include "VulkanCommandBuffer.h"
 #include "VulkanFormats.h"
 #include "VulkanRenderPass.h"
+#include "VulkanShader.h"
+#include "VulkanUniformBuffer.h"
 
 // disable alloca failure warning
 // since variable size stack arrays are not supported by all compilers

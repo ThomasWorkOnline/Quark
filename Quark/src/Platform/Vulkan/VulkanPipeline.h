@@ -5,9 +5,6 @@
 
 #include "VulkanContext.h"
 #include "VulkanDevice.h"
-#include "VulkanFramebuffer.h"
-#include "VulkanUniformBuffer.h"
-#include "VulkanShader.h"
 
 #include <vulkan/vulkan.h>
 

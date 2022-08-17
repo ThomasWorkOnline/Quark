@@ -1,8 +1,6 @@
 #include "qkpch.h"
 #include "OpenGLWin32Context.h"
 
-#include <glad/glad.h>
-
 namespace Quark {
 
 	OpenGLWin32Context::OpenGLWin32Context(void* windowHandle)
