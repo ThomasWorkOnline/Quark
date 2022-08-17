@@ -515,8 +515,8 @@ namespace Quark {
 		s_Data->Textures[0] = s_Data->DefaultTexture.get();
 
 		auto& assetDir = Application::Get()->GetOptions().CoreAssetDir;
-		std::string spriteVertexSource = Filesystem::ReadTextFile((assetDir / "bin-spirv/colored_sprite.vert.spv").string());
-		std::string spriteFragmentSource = Filesystem::ReadTextFile((assetDir / "bin-spirv/colored_sprite.frag.spv").string());
+		std::string spriteVertexSource = Filesystem::ReadTextFile((assetDir / "bin-spirv/textured_sprite.vert.spv").string());
+		std::string spriteFragmentSource = Filesystem::ReadTextFile((assetDir / "bin-spirv/textured_sprite.frag.spv").string());
 
 		s_Data->QuadShader = Shader::Create("defaultSprite", spriteVertexSource, spriteFragmentSource);
 		s_Data->QuadShader->SetIntArray("u_Samplers", s_Data->Samplers, s_Data->MaxSamplers);

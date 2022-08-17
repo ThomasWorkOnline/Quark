@@ -1,18 +1,29 @@
 @echo off
 pushd %~dp0\..\..\
 
-set inputDir="Quark\assets\shaders"
-set outputDir=".\bin-spirv"
-set glslc="C:\VulkanSDK\1.3.216.0\Bin\glslc.exe"
+set glslc="C:/VulkanSDK/1.3.216.0/Bin/glslc.exe"
+set flags=-o
+set outputDir=.\bin-spirv
 
-if not exist %outputDir% (
+if exist %outputDir% (
+	echo Are you sure you want to delete the shader bin directory?
+	del /s %outputDir%
+) else (
 	mkdir %outputDir%
 )
 
-@echo on
+set searchPath=Quark\assets\shaders
+set /a shadersCompiled=0
 
-for /R %%i in (%inputDir%\*.vert *.frag) do (
-	%glslc% %%i -o %outputDir%/%%~nxi.spv
+echo Search path: '%cd%\%searchPath%'
+
+for /r %searchPath% %%i in (*.vert *.frag) do (
+	echo Compiling: '%%i' to '%outputDir%\%%~nxi.spv'
+	call %glslc% %%i %flags% %outputDir%\%%~nxi.spv
+	set /a shadersCompiled=shadersCompiled+1
 )
+
+echo.
+echo Shaders compiled: %shadersCompiled%
 
 pause

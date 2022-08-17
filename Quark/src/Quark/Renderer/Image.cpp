@@ -97,19 +97,9 @@ namespace Quark {
 		DeallocateImageDataCallback(m_ImageData);
 	}
 
-	size_t Image::Size() const
+	size_t Image::GetSize() const
 	{
 		return (size_t)m_Metadata.Width * m_Metadata.Height * (m_Metadata.BitsPerPixel >> 3);
-	}
-
-	Ref<Image> Image::Shared(std::string_view filepath)
-	{
-		return CreateRef<Image>(filepath);
-	}
-
-	Scope<Image> Image::Create(std::string_view filepath)
-	{
-		return CreateScope<Image>(filepath);
 	}
 
 	void Image::DecodePNG(FileStream& in)

@@ -34,14 +34,11 @@ namespace Quark {
 		uint32_t Height() const { return m_Metadata.Height; }
 		uint8_t Channels() const { return m_Metadata.Channels; }
 
-		size_t Size() const;
+		size_t GetSize() const;
 		const ImageMetadata& GetMetadata() const { return m_Metadata; }
 
-		void* Data() const { return m_ImageData; }
-		void* operator*() const { return m_ImageData; }
-
-		static Ref<Image> Shared(std::string_view filepath);
-		static Scope<Image> Create(std::string_view filepath);
+		void* GetData() const { return m_ImageData; }
+		void* operator*() const { return GetData(); }
 
 	private:
 		void DecodePNG(FileStream& in);

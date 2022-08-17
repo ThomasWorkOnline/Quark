@@ -5,7 +5,7 @@
 static Scope<Texture2D> CreateTextureFromImage(const Ref<Image>& image, const Texture2DSpecification& spec)
 {
 	Scope<Texture2D> texture = Texture2D::Create(spec);
-	texture->SetData(image->Data(), image->Size());
+	texture->SetData(image->GetData(), image->GetSize());
 	texture->GenerateMipmaps();
 
 	return texture;
@@ -79,10 +79,15 @@ PBRRenderingDemo::PBRRenderingDemo()
 #endif
 
 #if 1
-		m_AlbedoFuture    = std::async(std::launch::async, Image::Create, albedoFilepath);
-		m_MetallicFuture  = std::async(std::launch::async, Image::Create, metallicFilepath);
-		m_NormalFuture    = std::async(std::launch::async, Image::Create, normalFilepath);
-		m_RoughnessFuture = std::async(std::launch::async, Image::Create, roughnessFilepath);
+		auto newImageLambda = [](const char* filepath)
+		{
+			return CreateScope<Image>(filepath);
+		};
+
+		m_AlbedoFuture    = std::async(std::launch::async, newImageLambda, albedoFilepath);
+		m_MetallicFuture  = std::async(std::launch::async, newImageLambda, metallicFilepath);
+		m_NormalFuture    = std::async(std::launch::async, newImageLambda, normalFilepath);
+		m_RoughnessFuture = std::async(std::launch::async, newImageLambda, roughnessFilepath);
 #else
 
 		{
@@ -140,7 +145,7 @@ PBRRenderingDemo::PBRRenderingDemo()
 
 		if (aoFilepath)
 		{
-			m_AOFuture = std::async(std::launch::async, Image::Create, aoFilepath);
+			m_AOFuture = std::async(std::launch::async, newImageLambda, aoFilepath);
 		}
 		else
 		{
