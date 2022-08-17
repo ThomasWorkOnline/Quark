@@ -1,4 +1,4 @@
-#version 420 core
+#version 450 core
 
 layout(std140, binding = 0) uniform Camera
 {
@@ -7,22 +7,19 @@ layout(std140, binding = 0) uniform Camera
 
 layout(location = 0) in vec3 a_Position;
 layout(location = 1) in vec2 a_TexCoord;
-layout(location = 2) in vec4 a_Color;
+layout(location = 2) in vec4 a_Tint;
 layout(location = 3) in int  a_TexIndex;
 
-struct VertexOutput
-{
+layout(location = 0) out VertexOutput {
 	vec2 TexCoord;
-	vec4 Color;
-	int TexIndex;
-};
-
-layout(location = 0) out VertexOutput Output;
+	vec4 Tint;
+	flat int TexIndex;
+} Output;
 
 void main()
 {
 	gl_Position = u_ViewProjection * vec4(a_Position, 1.0);
 	Output.TexCoord = a_TexCoord;
-	Output.Color    = a_Color;
+	Output.Tint     = a_Tint;
 	Output.TexIndex = a_TexIndex;
 }

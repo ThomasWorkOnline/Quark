@@ -2,7 +2,8 @@
 
 #include "MainLayer.h"
 
-FontTest::FontTest()
+FontTest::FontTest(const ApplicationOptions& options)
+	: Application(options)
 {
 	PushLayer(new MainLayer(this));
 }

@@ -1,15 +1,12 @@
-#version 420 core
+#version 450 core
 
 layout(binding = 0) uniform sampler2D u_Samplers[32];
 
-struct VertexOutput
-{
+layout(location = 0) in VertexOutput {
 	vec2 TexCoord;
 	vec4 Color;
-	int TexIndex;
-};
-
-layout(location = 0) flat in VertexOutput Input;
+	flat int TexIndex;
+} Input;
 
 layout(location = 0) out vec4 o_Color;
 

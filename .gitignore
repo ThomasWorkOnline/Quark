@@ -3,6 +3,7 @@ include
 lib
 bin
 bin-int
+bin-spirv
 
 # Instrumentation
 instrumentor

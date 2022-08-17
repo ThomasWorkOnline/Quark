@@ -38,7 +38,7 @@ public:
 
 		// Submitting a unit sprite with our given texture
 		Renderer2D::DrawSprite(m_Texture.get());
-		Renderer2D::DrawSprite(Vec4f(1.0f, 0.0f, 0.0f, 1.0f));
+		//Renderer2D::DrawSprite(Vec4f(1.0f, 0.0f, 0.0f, 1.0f));
 
 		// Telling Quark we are done with the current scene
 		// The renderer will optimize and draw the geometry here

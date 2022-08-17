@@ -10,7 +10,7 @@ namespace Quark {
 
 	Application* CreateApplication()
 	{
-		using App = TextureArrayTest;
+		using App = BasicRenderingApplication;
 
 		ApplicationOptions options;
 		options.AppName = "Demo Application";

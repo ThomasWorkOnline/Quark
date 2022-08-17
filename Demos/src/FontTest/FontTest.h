@@ -7,5 +7,5 @@ using namespace Quark;
 class FontTest : public Application
 {
 public:
-	FontTest();
+	FontTest(const ApplicationOptions& options = {});
 };
