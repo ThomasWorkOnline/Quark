@@ -15,6 +15,10 @@ namespace Quark {
 
 		virtual void Init() override;
 
+		// Non-Copyable
+		OpenALAudioContext(const OpenALAudioContext&) = delete;
+		OpenALAudioContext& operator=(const OpenALAudioContext&) = delete;
+
 	private:
 		ALCdevice* m_DeviceHandle;
 		ALCcontext* m_Context;

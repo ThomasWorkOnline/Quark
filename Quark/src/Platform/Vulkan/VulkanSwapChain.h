@@ -27,6 +27,10 @@ namespace Quark {
 		VkImageView GetImageView(uint32_t imageIndex) const { return m_Attachments[imageIndex]; }
 		VkImageView* GetImageViews() { return m_Attachments.data(); }
 
+		// Non-Copyable
+		VulkanSwapChain(const VulkanSwapChain&) = delete;
+		VulkanSwapChain& operator=(const VulkanSwapChain&) = delete;
+
 	private:
 		void Invalidate();
 

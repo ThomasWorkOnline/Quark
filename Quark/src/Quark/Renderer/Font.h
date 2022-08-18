@@ -30,6 +30,9 @@ namespace Quark {
 		virtual uint32_t GetAtlasWidth() const = 0;
 		virtual uint32_t GetAtlasHeight() const = 0;
 
+		virtual std::string_view GetStyleName() const = 0;
+		virtual std::string_view GetFamilyName() const = 0;
+
 		virtual bool operator==(const Font& other) const = 0;
 
 		static Scope<Font> Create(std::string_view filepath, uint32_t fontSize);

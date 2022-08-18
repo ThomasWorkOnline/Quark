@@ -13,11 +13,11 @@ namespace Quark {
 	{
 	public:
 		TextInput() = default;
-		TextInput(Ref<Font> font, HorizontalTextAlignment hAlign = HorizontalTextAlignment::Right, VerticalTextAlignment vAlign = VerticalTextAlignment::Default);
+		TextInput(const Ref<Font>& font, HorizontalTextAlignment hAlign = HorizontalTextAlignment::Right, VerticalTextAlignment vAlign = VerticalTextAlignment::Default);
 
 		void OnEvent(Event& e);
 
-		void SetFont(Ref<Font> font);
+		void SetFont(const Ref<Font>& font);
 		void SetHorizontalAlignment(HorizontalTextAlignment align) { m_RenderTraits.HAlign = align; }
 		void SetVerticalAlignment(VerticalTextAlignment align) { m_RenderTraits.VAlign = align; }
 
@@ -25,8 +25,8 @@ namespace Quark {
 		const TextRenderTraits& GetRenderTraits() const { return m_RenderTraits; }
 
 	private:
-		bool OnKeyPressed(KeyPressedEvent& e);
-		bool OnKeyTyped(KeyTypedEvent& e);
+		void OnKeyPressed(KeyPressedEvent& e);
+		void OnKeyTyped(KeyTypedEvent& e);
 
 	private:
 		struct TextSelection
@@ -39,6 +39,5 @@ namespace Quark {
 
 		// Only supports ASCII strings
 		std::string m_Input;
-		TextSelection m_Selection;
 	};
 }

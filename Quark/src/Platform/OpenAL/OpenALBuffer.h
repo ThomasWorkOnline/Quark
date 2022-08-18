@@ -15,6 +15,10 @@ namespace Quark {
 
 		uint32_t GetBufferID() const { return m_BufferID; }
 
+		// Non-Copyable
+		OpenALAudioBuffer(const OpenALAudioBuffer&) = delete;
+		OpenALAudioBuffer& operator=(const OpenALAudioBuffer&) = delete;
+
 	private:
 		uint32_t m_BufferID = 0;
 	};

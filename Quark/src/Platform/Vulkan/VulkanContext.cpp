@@ -70,7 +70,7 @@ namespace Quark {
 
 		for (uint32_t i = 0; i < FramesInFlight; i++)
 		{
-			m_Data.CommandBuffers[i] = VulkanCommandBuffer(m_Device.get());
+			m_Data.CommandBuffers[i] = CreateScope<VulkanCommandBuffer>(m_Device.get());
 		}
 
 		QK_CORE_TRACE("Created Vulkan graphics context!");

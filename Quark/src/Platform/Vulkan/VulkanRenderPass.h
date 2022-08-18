@@ -18,6 +18,10 @@ namespace Quark {
 			return m_RenderPass == reinterpret_cast<const VulkanRenderPass&>(other).m_RenderPass;
 		}
 
+		// Non-Copyable
+		VulkanRenderPass(const VulkanRenderPass&) = delete;
+		VulkanRenderPass& operator=(const VulkanRenderPass&) = delete;
+
 		VkRenderPass GetVkHandle() const { return m_RenderPass; }
 
 	private:

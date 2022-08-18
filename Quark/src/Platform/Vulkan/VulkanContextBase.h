@@ -44,7 +44,7 @@ namespace Quark {
 			VkFence InFlightFences[FramesInFlight];
 			VkSemaphore RenderFinishedSemaphores[FramesInFlight];
 			VkSemaphore ImageAvailableSemaphores[FramesInFlight];
-			VulkanCommandBuffer CommandBuffers[FramesInFlight];
+			Scope<VulkanCommandBuffer> CommandBuffers[FramesInFlight];
 
 			uint32_t CurrentFrameIndex = static_cast<uint32_t>(-1);
 		};

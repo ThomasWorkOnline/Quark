@@ -20,6 +20,10 @@ namespace Quark {
 			return m_RendererID == reinterpret_cast<decltype(*this)&>(other).m_RendererID;
 		}
 
+		// Non-Copyable
+		OpenGLUniformBuffer(const OpenGLUniformBuffer&) = delete;
+		OpenGLUniformBuffer& operator=(const OpenGLUniformBuffer&) = delete;
+
 	private:
 		GLuint m_RendererID = 0;
 		uint32_t m_Binding = 0;

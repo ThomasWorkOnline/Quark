@@ -142,7 +142,7 @@ namespace Quark {
 		submitInfo.pWaitDstStageMask = waitStages;
 
 		auto& activeCommandBuffer = m_Data.CommandBuffers[m_Data.CurrentFrameIndex];
-		VkCommandBuffer commandBuffer = activeCommandBuffer.GetVkHandle();
+		VkCommandBuffer commandBuffer = activeCommandBuffer->GetVkHandle();
 		submitInfo.commandBufferCount = 1;
 		submitInfo.pCommandBuffers = &commandBuffer;
 
@@ -179,7 +179,7 @@ namespace Quark {
 
 	CommandBuffer* VulkanContextBase::GetCommandBuffer()
 	{
-		return m_Data.CommandBuffers + m_Data.CurrentFrameIndex;
+		return m_Data.CommandBuffers[m_Data.CurrentFrameIndex].get();
 	}
 
 	void VulkanContextBase::CreateInstance(VkInstanceCreateInfo& createInfo)

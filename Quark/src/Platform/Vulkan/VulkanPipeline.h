@@ -27,6 +27,10 @@ namespace Quark {
 		VkPipelineLayout GetPipelineLayout() const { return m_PipelineLayout; }
 		VkDescriptorSet GetDescriptorSet() const;
 
+		// Non-Copyable
+		VulkanPipeline(const VulkanPipeline&) = delete;
+		VulkanPipeline& operator=(const VulkanPipeline&) = delete;
+
 	private:
 		void Invalidate();
 

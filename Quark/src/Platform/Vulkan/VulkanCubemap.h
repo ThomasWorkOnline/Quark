@@ -23,6 +23,10 @@ namespace Quark {
 			return false;
 		}
 
+		// Non-Copyable
+		VulkanCubemap(const VulkanCubemap&) = delete;
+		VulkanCubemap& operator=(const VulkanCubemap&) = delete;
+
 	private:
 		VulkanDevice* m_Device;
 	};

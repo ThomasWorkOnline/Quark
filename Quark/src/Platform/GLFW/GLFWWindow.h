@@ -44,6 +44,10 @@ namespace Quark {
 
 		virtual void* GetNativeWindow() const override { return m_Window; }
 
+		// Non-Copyable
+		GLFWWindow(const GLFWWindow&) = delete;
+		GLFWWindow& operator=(const GLFWWindow&) = delete;
+
 	private:
 		void Init(const WindowSpecification& spec);
 		void Shutdown();

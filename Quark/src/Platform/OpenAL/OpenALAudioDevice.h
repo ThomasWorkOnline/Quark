@@ -16,6 +16,10 @@ namespace Quark {
 		virtual const char* GetDeviceName() const override { return m_DeviceName; }
 		virtual void* GetNativeDevice() const override { return m_Device; }
 
+		// Non-Copyable
+		OpenALAudioOutputDevice(const OpenALAudioOutputDevice&) = delete;
+		OpenALAudioOutputDevice& operator=(const OpenALAudioOutputDevice&) = delete;
+
 	private:
 		ALCdevice* m_Device;
 		Scope<AudioContext> m_Context;

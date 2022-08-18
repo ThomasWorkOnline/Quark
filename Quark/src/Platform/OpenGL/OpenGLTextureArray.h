@@ -24,6 +24,10 @@ namespace Quark {
 			return m_RendererID == reinterpret_cast<decltype(*this)&>(other).m_RendererID;
 		}
 
+		// Non-Copyable
+		OpenGLTexture2DArray(const OpenGLTexture2DArray&) = delete;
+		OpenGLTexture2DArray& operator=(const OpenGLTexture2DArray&) = delete;
+
 	private:
 		GLuint m_RendererID = 0;
 		GLenum m_InternalFormat, m_DataFormat;

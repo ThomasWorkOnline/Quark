@@ -23,10 +23,17 @@ namespace Quark {
 		virtual uint32_t GetAtlasWidth() const override { return 0; }
 		virtual uint32_t GetAtlasHeight() const override { return 0; }
 
+		virtual std::string_view GetStyleName() const override { return std::string_view(); }
+		virtual std::string_view GetFamilyName() const override { return std::string_view(); }
+
 		virtual bool operator==(const Font& other) const override
 		{
 			return false;
 		}
+
+		// Non-Copyable
+		VulkanFont(const VulkanFont&) = delete;
+		VulkanFont& operator=(const VulkanFont&) = delete;
 
 	private:
 		VulkanDevice* m_Device;

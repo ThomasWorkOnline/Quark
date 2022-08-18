@@ -14,9 +14,6 @@ void main()
 {
 	// Glyph information is encoded in the red channel
 	float texel = texture(u_Samplers[Input.TexIndex], Input.TexCoord.xy, 0).r;
-				
-	if (texel == 0)
-		discard;
 
-	o_Color = Input.Color * texel;
+	o_Color = vec4(Input.Color.rgb, Input.Color.a * texel);
 }

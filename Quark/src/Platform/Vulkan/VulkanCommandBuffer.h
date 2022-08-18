@@ -10,7 +10,6 @@ namespace Quark {
 	class VulkanCommandBuffer final : public CommandBuffer
 	{
 	public:
-		VulkanCommandBuffer() = default;
 		VulkanCommandBuffer(VulkanDevice* device);
 
 		virtual void Begin() override;
@@ -36,9 +35,13 @@ namespace Quark {
 			return m_CommandBuffer == reinterpret_cast<const VulkanCommandBuffer&>(other).m_CommandBuffer;
 		}
 
+		// Non-Copyable
+		VulkanCommandBuffer(const VulkanCommandBuffer&) = delete;
+		VulkanCommandBuffer& operator=(const VulkanCommandBuffer&) = delete;
+
 		VkCommandBuffer GetVkHandle() const { return m_CommandBuffer; }
 
 	private:
-		VkCommandBuffer m_CommandBuffer = VK_NULL_HANDLE;
+		VkCommandBuffer m_CommandBuffer;
 	};
 }

@@ -10,7 +10,6 @@ namespace Quark {
 	class VulkanUniformBuffer final : public UniformBuffer
 	{
 	public:
-		VulkanUniformBuffer() = default;
 		VulkanUniformBuffer(VulkanDevice* device, size_t size, uint32_t binding);
 		virtual ~VulkanUniformBuffer() override;
 
@@ -21,12 +20,16 @@ namespace Quark {
 			return m_Buffer == reinterpret_cast<const VulkanUniformBuffer&>(other).m_Buffer;
 		}
 
+		// Non-Copyable
+		VulkanUniformBuffer(const VulkanUniformBuffer&) = delete;
+		VulkanUniformBuffer& operator=(const VulkanUniformBuffer&) = delete;
+
 		VkBuffer GetVkHandle() const { return m_Buffer; }
 
 	private:
-		VulkanDevice* m_Device = nullptr;
+		VulkanDevice* m_Device;
 
-		VkBuffer m_Buffer = VK_NULL_HANDLE;
-		VkDeviceMemory m_BufferMemory = VK_NULL_HANDLE;
+		VkBuffer m_Buffer;
+		VkDeviceMemory m_BufferMemory;
 	};
 }

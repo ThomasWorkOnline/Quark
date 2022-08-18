@@ -36,7 +36,5 @@ namespace Quark {
 
 		int32_t GetOriginX() const;
 		int32_t GetOriginY() const;
-
-		void CalculateLabelDimensions(std::string_view text);
 	};
 }

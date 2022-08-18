@@ -17,8 +17,8 @@ namespace Quark {
 	{
 		std::string Name;
 
-		TagComponent(std::string name)
-			: Name(std::move(name)) {}
+		TagComponent(const std::string& name)
+			: Name(name) {}
 	};
 
 	struct Transform3DComponent
@@ -27,47 +27,29 @@ namespace Quark {
 		Vec3 Scale;
 		Quat Orientation;
 
-		Transform3DComponent(const Transform3DComponent& other)
-			: Position(other.Position), Scale(other.Scale), Orientation(other.Orientation) {}
+		Transform3DComponent();
+		Transform3DComponent(const Transform3DComponent& other);
+		Transform3DComponent(const Vec3& position, const Vec3& scale, const Quat& orientation);
 
-		Transform3DComponent()
-			: Position(0.0), Scale(1.0), Orientation(glm::angleAxis<Float>(0.0f, Vec3(0.0f, 0.0f, 1.0f))) {}
+		Vec3 GetFrontVector() const;
+		Vec3 GetRightVector() const;
+		Vec3 GetTopVector() const;
 
-		Transform3DComponent(const Vec3& position, const Vec3& scale, const Quat& orientation)
-			: Position(position), Scale(scale), Orientation(orientation) {}
+		Transform3DComponent& SetFrontVector(const Vec3& direction);
+		Transform3DComponent& Rotate(const Quat& quat);
+		Transform3DComponent& Rotate(Float angle, const Vec3& axis);
 
 		// Conversion operators
 		operator Mat4() const { return GetMatrix(); }
-		Mat4 GetMatrix() const { return ComputeMatrix(); }
-
-		Vec3 GetFrontVector() const { return Vec3(0.0f, 0.0f, 1.0f) * Orientation; }
-		Vec3 GetRightVector() const { return Vec3(1.0f, 0.0f, 0.0f) * Orientation; }
-		Vec3 GetTopVector()   const { return Vec3(0.0f, 1.0f, 0.0f) * Orientation; }
-
-		void SetFrontVector(const Vec3& direction)
-		{
-			Mat4 rotation = glm::lookAt(Position, Position + direction, { 0.f, 1.f, 0.f });
-			Orientation = glm::quat_cast(rotation);
-		}
-
-		Transform3DComponent& Rotate(const Quat& quat) { Orientation = glm::normalize(Orientation * quat); return *this; }
-		Transform3DComponent& Rotate(float angle, const Vec3& axis) { Rotate(glm::angleAxis<Float>(angle, glm::normalize(axis))); return *this; }
-
-	private:
-		Mat4 ComputeMatrix() const
-		{
-			return glm::translate(Mat4(1.0f), Position)
-				* glm::toMat4(Orientation)
-				* glm::scale(Mat4(1.0f), Scale);
-		}
+		Mat4 GetMatrix() const;
 	};
 
 	struct PhysicsComponent
 	{
 		Vec3 Velocity;
 
-		PhysicsComponent(const Vec3& initVelocity = Vec3(0.0f))
-			: Velocity(initVelocity) {}
+		PhysicsComponent();
+		PhysicsComponent(const Vec3& velocity);
 	};
 
 	struct MeshComponent

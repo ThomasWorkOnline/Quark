@@ -25,6 +25,10 @@ namespace Quark {
 			return false;
 		}
 
+		// Non-Copyable
+		VulkanTexture2D(const VulkanTexture2D&) = delete;
+		VulkanTexture2D& operator=(const VulkanTexture2D&) = delete;
+
 	private:
 		VulkanDevice* m_Device;
 	};

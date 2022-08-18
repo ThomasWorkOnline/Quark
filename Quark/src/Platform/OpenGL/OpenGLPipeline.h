@@ -17,8 +17,12 @@ namespace Quark {
 
 		virtual bool operator==(const Pipeline& other) const override
 		{
-			return true;
+			return false;
 		}
+
+		// Non-Copyable
+		OpenGLPipeline(const OpenGLPipeline&) = delete;
+		OpenGLPipeline& operator=(const OpenGLPipeline&) = delete;
 
 		GLenum GetPrimitiveTopologyState() const { return m_PrimitiveTopology; }
 

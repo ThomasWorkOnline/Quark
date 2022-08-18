@@ -49,8 +49,12 @@ namespace Quark {
 			return m_RendererID == reinterpret_cast<decltype(*this)&>(other).m_RendererID;
 		}
 
-		GLuint GetRendererID() const { return m_RendererID; }
+		// Non-Copyable
+		OpenGLShader(const OpenGLShader&) = delete;
+		OpenGLShader& operator=(const OpenGLShader&) = delete;
 
+		GLuint GetRendererID() const { return m_RendererID; }
+		
 	private:
 		void UploadUniformInt(std::string_view name, int32_t value);
 		void UploadUniformInt2(std::string_view name, const Vec2i& value);

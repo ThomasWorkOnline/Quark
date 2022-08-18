@@ -64,8 +64,10 @@ namespace Quark {
 		void Deallocate(void* memory, std::size_t bytes);
 		void Deallocate(void* memory);
 
-		std::size_t GetTotalUsage() const { return m_MemoryAllocated; }
-		std::size_t GetAllocatedBlocks() const { return m_Allocations - m_Deallocations; }
+		size_t GetAllocations() const { return m_Allocations; }
+		size_t GetDeallocations() const { return m_Deallocations; }
+		size_t GetTotalUsage() const { return m_MemoryAllocated; }
+		size_t GetAllocatedBlocks() const { return m_Allocations - m_Deallocations; }
 
 	private:
 		void TrackAllocation(void* memory, std::size_t size);

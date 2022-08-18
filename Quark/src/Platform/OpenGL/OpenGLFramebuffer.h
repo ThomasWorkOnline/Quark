@@ -13,6 +13,10 @@ namespace Quark {
 		virtual ~OpenGLFramebufferAttachment() = default;
 
 		virtual void SetData(void* data) override;
+
+		// Non-Copyable
+		OpenGLFramebufferAttachment(const OpenGLFramebufferAttachment&) = delete;
+		OpenGLFramebufferAttachment& operator=(const OpenGLFramebufferAttachment&) = delete;
 	};
 
 	class OpenGLFramebuffer final : public Framebuffer
@@ -30,6 +34,10 @@ namespace Quark {
 		{
 			return m_RendererID == reinterpret_cast<decltype(*this)&>(other).m_RendererID;
 		}
+
+		// Non-Copyable
+		OpenGLFramebuffer(const OpenGLFramebuffer&) = delete;
+		OpenGLFramebuffer& operator=(const OpenGLFramebuffer&) = delete;
 
 	private:
 		void Invalidate();

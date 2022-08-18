@@ -35,7 +35,8 @@ project "Quark"
 	defines
 	{
 		"AL_LIBTYPE_STATIC",
-		"GLFW_INCLUDE_NONE"
+		"GLFW_INCLUDE_NONE",
+		"GLM_FORCE_LEFT_HANDED"
 	}
 
 	includedirs

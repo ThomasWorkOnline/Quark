@@ -45,6 +45,10 @@ namespace Quark {
 
 		static Scope<VulkanDevice> CreateDefaultForSurface(VkInstance vkInstance, VkSurfaceKHR vkSurface);
 
+		// Non-Copyable
+		VulkanDevice(const VulkanDevice&) = delete;
+		VulkanDevice& operator=(const VulkanDevice&) = delete;
+
 	private:
 		VkDevice m_Device;
 		VkPhysicalDevice m_PhysicalDevice;

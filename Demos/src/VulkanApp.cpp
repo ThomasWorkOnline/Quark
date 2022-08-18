@@ -1,6 +1,7 @@
 #include "VulkanApp.h"
-
 #include "Quark/Scripts/CameraController.h"
+
+#include <charconv>
 
 VulkanApp::VulkanApp(const ApplicationOptions& options)
 	: Application(options)
@@ -12,23 +13,34 @@ VulkanApp::VulkanApp(const ApplicationOptions& options)
 	Ref<Texture2D> texture1 = Texture2D::Create("assets/textures/pbr/streaked-metal/albedo.png");
 	Ref<Texture2D> texture2 = Texture2D::Create("assets/textures/pbr/copper-rock/copper-rock1-alb.png");
 
+	m_Font = Font::Create("assets/fonts/arial.ttf", 32);
+	m_Text.SetFont(m_Font);
+
 	Random<bool> randomBool;
 	Random<float> randomFloat;
-	auto random = [&]() -> auto { return randomFloat.Next() * 100.0f; };
+	auto random = [&]() -> auto { return randomFloat.Next() * 1000.0f; };
 
 	for (uint32_t i = 0; i < 10000; i++)
 	{
 		auto sprite = m_Scene->CreateEntity();
-		sprite.AddComponent<Transform3DComponent>().Position = { random(), random(), random() };
+
+		auto& transform = sprite.AddComponent<Transform3DComponent>();
+
+		Vec3f axis = { randomFloat.Next(), randomFloat.Next(), randomFloat.Next() };
+		transform.Scale = axis;
+		transform.Rotate(randomFloat.Next() * glm::radians(360.0f), axis);
+		transform.Position = Vec3f{ random(), random(), random() };
+
 		auto& src = sprite.AddComponent<TexturedSpriteRendererComponent>();
 		src.Texture = randomBool.Next() ? texture1 : texture2;
-		src.Tint = { 1.0f, 1.0f, 0.0, 1.0f };
+		src.Tint = { axis, 1.0f };
 	}
 
-	QK_CORE_INFO("Texture 1 use count: {0}", texture1.use_count());
-	QK_CORE_INFO("Texture 2 use count: {0}", texture2.use_count());
-
 	m_SceneRenderer.SetContext(m_Scene);
+
+	auto window = GetWindow();
+	m_TextCamera.SetOrthographic((float)window->GetWidth());
+	m_TextCamera.Resize(window->GetWidth(), window->GetHeight());
 }
 
 void VulkanApp::OnEvent(Event& e)
@@ -39,7 +51,6 @@ void VulkanApp::OnEvent(Event& e)
 	dispatcher.Dispatch<WindowResizedEvent>([&](WindowResizedEvent& e)
 	{
 		m_SceneRenderer.OnViewportResized(e.GetWidth(), e.GetHeight());
-		return false;
 	});
 
 	if (!e.Handled && m_ViewportSelected)
@@ -49,6 +60,14 @@ void VulkanApp::OnEvent(Event& e)
 void VulkanApp::OnRender()
 {
 	m_SceneRenderer.OnRender();
+
+	Renderer2D::BeginScene(m_TextCamera.GetProjection(), Mat4f(1.f));
+
+	auto& pos = m_CameraEntity.GetComponent<Transform3DComponent>().Position;
+	auto posStr = glm::to_string(pos);
+	Renderer2D::DrawText(posStr, m_Font.get());
+
+	Renderer2D::EndScene();
 }
 
 void VulkanApp::OnUpdate(Timestep elapsedTime)

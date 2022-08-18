@@ -16,6 +16,10 @@ namespace Quark {
 		virtual void Init() override;
 		virtual void SwapBuffers() override;
 
+		// Non-Copyable
+		OpenGLContext(const OpenGLContext&) = delete;
+		OpenGLContext& operator=(const OpenGLContext&) = delete;
+
 	private:
 		GLFWwindow* m_WindowHandle;
 	};

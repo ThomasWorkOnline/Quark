@@ -235,7 +235,7 @@ namespace Quark {
 		{
 			s_Data->QuadVertexPtr->Position = transform * s_QuadVertexPositions[i];
 			s_Data->QuadVertexPtr->TexCoord = { 0.0f, 0.0f };
-			s_Data->QuadVertexPtr->Color = color;
+			s_Data->QuadVertexPtr->Color    = color;
 			s_Data->QuadVertexPtr->TexIndex = 0;
 
 			s_Data->QuadVertexPtr++;
@@ -268,7 +268,7 @@ namespace Quark {
 		s_Stats.LinesDrawn++;
 	}
 
-	void Renderer2D::DrawText(std::string_view text, const TextRenderTraits& traits)
+	void Renderer2D::DrawText(std::string_view text, Font* font, const Vec4f& color)
 	{
 		QK_ASSERT_RENDER_THREAD();
 
@@ -283,7 +283,7 @@ namespace Quark {
 		uint32_t textureIndex = 0;
 		for (uint32_t i = 1; i < s_Data->FontSamplerIndex; i++)
 		{
-			if (*s_Data->Fonts[i] == *traits.FontStyle)
+			if (*s_Data->Fonts[i] == *font)
 			{
 				textureIndex = i;
 				break;
@@ -301,52 +301,65 @@ namespace Quark {
 			}
 
 			textureIndex = s_Data->FontSamplerIndex;
-			s_Data->Fonts[textureIndex] = traits.FontStyle.get();
+			s_Data->Fonts[textureIndex] = font;
 			s_Data->FontSamplerIndex++;
 		}
 
-		auto [x, y] = traits.GetOrigin();
+#if 0
+		int32_t width = 0, height = 0;
+		for (auto charcode : text)
+		{
+			auto& g = font->GetGlyph(charcode);
+			width += g.Advance.x >> 6;
+			height = std::max(height, g.Size.y);
+		}
+#endif
 
-		float atlasWidth = (float)traits.FontStyle->GetAtlasWidth();
-		float atlasHeight = (float)traits.FontStyle->GetAtlasHeight();
+		int x = 0, y = 0;
+		auto atlasWidth = font->GetAtlasWidth();
+		auto atlasHeight = font->GetAtlasHeight();
 
 		for (auto charcode : text)
 		{
-			auto& g = traits.FontStyle->GetGlyph(charcode);
+			auto& g = font->GetGlyph(charcode);
 
-			int32_t xpos = (x + g.Bearing.x);
-			int32_t ypos = (-y - g.Bearing.y);
-			int32_t w = g.Size.x;
-			int32_t h = g.Size.y;
-			float tx = (float)g.OffsetX / atlasWidth;
+			int xpos = (x + g.Bearing.x);
+			int ypos = (y + g.Bearing.y);
 
 			x += (g.Advance.x >> 6);
-			y += (g.Advance.y >> 6);
-
-			if (!w || !h)
+			
+			if (g.Size.x == 0 || g.Size.y == 0)
 				continue;
 
-			s_Data->FontVertexPtr->Position = Vec4f(xpos + w, -ypos, 0.0f, 1.0f);
-			s_Data->FontVertexPtr->TexCoord = { tx + g.Size.x / atlasWidth, 0.0f };
-			s_Data->FontVertexPtr->Color    = traits.Color;
+			float tx = (float)g.OffsetX / (float)atlasWidth;
+			float w = (float)g.Size.x;
+			float h = (float)g.Size.y;
+
+			// Vertex [-, -]
+			s_Data->FontVertexPtr->Position = Vec4f(xpos, (ypos - h), 0.0f, 1.0f);
+			s_Data->FontVertexPtr->TexCoord = { tx, h / (float)atlasHeight };
+			s_Data->FontVertexPtr->Color    = color;
 			s_Data->FontVertexPtr->TexIndex = textureIndex;
 			s_Data->FontVertexPtr++;
 
-			s_Data->FontVertexPtr->Position = Vec4f(xpos, -ypos, 0.0f, 1.0f);
+			// Vertex [+, -]
+			s_Data->FontVertexPtr->Position = Vec4f(xpos + w, (ypos - h), 0.0f, 1.0f);
+			s_Data->FontVertexPtr->TexCoord = { tx + w / (float)atlasWidth, h / (float)atlasHeight };
+			s_Data->FontVertexPtr->Color    = color;
+			s_Data->FontVertexPtr->TexIndex = textureIndex;
+			s_Data->FontVertexPtr++;
+
+			// Vertex [+, +]
+			s_Data->FontVertexPtr->Position = Vec4f(xpos + w, ypos, 0.0f, 1.0f);
+			s_Data->FontVertexPtr->TexCoord = { tx + w / (float)atlasWidth, 0.0f };
+			s_Data->FontVertexPtr->Color    = color;
+			s_Data->FontVertexPtr->TexIndex = textureIndex;
+			s_Data->FontVertexPtr++;
+
+			// Vertex [-, +]
+			s_Data->FontVertexPtr->Position = Vec4f(xpos, ypos, 0.0f, 1.0f);
 			s_Data->FontVertexPtr->TexCoord = { tx, 0.0f };
-			s_Data->FontVertexPtr->Color    = traits.Color;
-			s_Data->FontVertexPtr->TexIndex = textureIndex;
-			s_Data->FontVertexPtr++;
-
-			s_Data->FontVertexPtr->Position = Vec4f(xpos, -ypos - h, 0.0f, 1.0f);
-			s_Data->FontVertexPtr->TexCoord = { tx, g.Size.y / atlasHeight };
-			s_Data->FontVertexPtr->Color    = traits.Color;
-			s_Data->FontVertexPtr->TexIndex = textureIndex;
-			s_Data->FontVertexPtr++;
-
-			s_Data->FontVertexPtr->Position = Vec4f(xpos + w, -ypos - h, 0.0f, 1.0f);
-			s_Data->FontVertexPtr->TexCoord = { tx + g.Size.x / atlasWidth, g.Size.y / atlasHeight };
-			s_Data->FontVertexPtr->Color    = traits.Color;
+			s_Data->FontVertexPtr->Color    = color;
 			s_Data->FontVertexPtr->TexIndex = textureIndex;
 			s_Data->FontVertexPtr++;
 
@@ -357,12 +370,14 @@ namespace Quark {
 
 	void Renderer2D::DrawText(const Text& text)
 	{
-		DrawText(text.GetText(), text.GetRenderTraits());
+		auto& traits = text.GetRenderTraits();
+		DrawText(text.GetText(), traits.FontStyle.get(), traits.Color);
 	}
 
 	void Renderer2D::DrawTextInput(const TextInput& input)
 	{
-		DrawText(input.GetText(), input.GetRenderTraits());
+		auto& traits = input.GetRenderTraits();
+		DrawText(input.GetText(), traits.FontStyle.get(), traits.Color);
 	}
 
 	void Renderer2D::SetViewport(uint32_t x, uint32_t y, uint32_t viewportWidth, uint32_t viewportHeight)

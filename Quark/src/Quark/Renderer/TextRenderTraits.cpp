@@ -30,18 +30,4 @@ namespace Quark {
 
 		return 0;
 	}
-
-	void TextRenderTraits::CalculateLabelDimensions(std::string_view text)
-	{
-		int32_t width = 0, height = 0;
-		for (auto it = text.begin(); it != text.end(); it++)
-		{
-			auto& g = FontStyle->GetGlyph(*it);
-			width += g.Advance.x >> 6;
-			height = std::max(height, g.Size.y);
-		}
-
-		Width = width;
-		Height = height;
-	}
 }

@@ -21,6 +21,10 @@ namespace Quark {
 			return m_RendererID == reinterpret_cast<decltype(*this)&>(other).m_RendererID;
 		}
 
+		// Non-Copyable
+		OpenGLVertexBuffer(const OpenGLVertexBuffer&) = delete;
+		OpenGLVertexBuffer& operator=(const OpenGLVertexBuffer&) = delete;
+
 		GLuint GetRendererID() const { return m_RendererID; }
 		GLuint GetVAORendererID() const { return m_VAORendererID; }
 
@@ -43,6 +47,10 @@ namespace Quark {
 		{
 			return m_RendererID == reinterpret_cast<decltype(*this)&>(other).m_RendererID;
 		}
+
+		// Non-Copyable
+		OpenGLIndexBuffer(const OpenGLIndexBuffer&) = delete;
+		OpenGLIndexBuffer& operator=(const OpenGLIndexBuffer&) = delete;
 
 		GLuint GetRendererID() const { return m_RendererID; }
 

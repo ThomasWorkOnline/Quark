@@ -3,25 +3,22 @@
 
 namespace Quark {
 
-	Text::Text(std::string text, Ref<Font> font, const Vec4f& color, HorizontalTextAlignment hAlign, VerticalTextAlignment vAlign)
-		: m_Text(std::move(text))
+	Text::Text(const std::string& text, const Ref<Font>& font, const Vec4f& color, HorizontalTextAlignment hAlign, VerticalTextAlignment vAlign)
+		: m_Text(text)
 	{
-		m_RenderTraits.FontStyle = std::move(font);
+		m_RenderTraits.FontStyle = font;
 		m_RenderTraits.Color     = color;
 		m_RenderTraits.HAlign    = hAlign;
-		m_RenderTraits.VAlign   = vAlign;
-		m_RenderTraits.CalculateLabelDimensions(m_Text);
+		m_RenderTraits.VAlign    = vAlign;
 	}
 
-	void Text::SetText(std::string text)
+	void Text::SetText(const std::string& text)
 	{
-		m_Text = std::move(text);
-		m_RenderTraits.CalculateLabelDimensions(m_Text);
+		m_Text = text;
 	}
 
-	void Text::SetFont(Ref<Font> font)
+	void Text::SetFont(const Ref<Font>& font)
 	{
-		m_RenderTraits.FontStyle = std::move(font);
-		m_RenderTraits.CalculateLabelDimensions(m_Text);
+		m_RenderTraits.FontStyle = font;
 	}
 }

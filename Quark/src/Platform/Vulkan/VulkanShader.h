@@ -47,6 +47,10 @@ namespace Quark {
 			return m_Name == reinterpret_cast<const VulkanShader&>(other).m_Name;
 		}
 
+		// Non-Copyable
+		VulkanShader(const VulkanShader&) = delete;
+		VulkanShader& operator=(const VulkanShader&) = delete;
+
 		const std::unordered_map<VkShaderStageFlagBits, VkShaderModule>& GetShaderStages() const { return m_ShaderStages; }
 
 	private:

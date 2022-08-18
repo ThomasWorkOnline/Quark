@@ -20,6 +20,10 @@ private:
 private:
 	Ref<Scene> m_Scene;
 	Entity m_CameraEntity;
+	Ref<Font> m_Font;
+
+	Text m_Text;
+	SceneCamera m_TextCamera;
 
 	SceneRenderer m_SceneRenderer;
 	bool m_ViewportSelected = false;

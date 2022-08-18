@@ -34,6 +34,10 @@ namespace Quark {
 			return true;
 		}
 
+		// Non-Copyable
+		OpenGLCommandBuffer(const OpenGLCommandBuffer&) = delete;
+		OpenGLCommandBuffer& operator=(const OpenGLCommandBuffer&) = delete;
+
 	private:
 		OpenGLPipeline* m_BoundPipeline = nullptr;
 	};

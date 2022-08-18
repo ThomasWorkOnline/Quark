@@ -22,6 +22,10 @@ namespace Quark {
 			return m_RendererID == reinterpret_cast<decltype(*this)&>(other).m_RendererID;
 		}
 
+		// Non-Copyable
+		OpenGLCubemap(const OpenGLCubemap&) = delete;
+		OpenGLCubemap& operator=(const OpenGLCubemap&) = delete;
+
 	private:
 		GLuint m_RendererID = 0;
 	};

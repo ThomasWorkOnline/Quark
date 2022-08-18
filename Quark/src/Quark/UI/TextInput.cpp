@@ -1,14 +1,12 @@
 #include "qkpch.h"
 #include "TextInput.h"
 
-#include <iostream>
-
 namespace Quark {
 
-	TextInput::TextInput(Ref<Font> font,
+	TextInput::TextInput(const Ref<Font>& font,
 		HorizontalTextAlignment hAlign, VerticalTextAlignment vAlign)
 	{
-		m_RenderTraits.FontStyle = std::move(font);
+		m_RenderTraits.FontStyle = font;
 		m_RenderTraits.HAlign    = hAlign;
 		m_RenderTraits.VAlign    = vAlign;
 	}
@@ -20,34 +18,25 @@ namespace Quark {
 		dispatcher.Dispatch<KeyTypedEvent>(ATTACH_EVENT_FN(TextInput::OnKeyTyped));
 	}
 
-	void TextInput::SetFont(Ref<Font> font)
+	void TextInput::SetFont(const Ref<Font>& font)
 	{
-		m_RenderTraits.FontStyle = std::move(font);
-		m_RenderTraits.CalculateLabelDimensions(m_Input);
+		m_RenderTraits.FontStyle = font;
 	}
 
-	bool TextInput::OnKeyPressed(KeyPressedEvent& e)
+	void TextInput::OnKeyPressed(KeyPressedEvent& e)
 	{
 		switch (e.GetKeyCode())
 		{
-		case KeyCode::Backspace:
-			if (m_Input.size() > 0)
+			case KeyCode::Backspace:
 			{
-				m_Input.pop_back();
-				m_RenderTraits.CalculateLabelDimensions(m_Input);
-			}
-			break;
+				if (m_Input.size() > 0)
+					m_Input.pop_back();
+			} break;
 		}
-
-		return false;
 	}
 
-	bool TextInput::OnKeyTyped(KeyTypedEvent& e)
+	void TextInput::OnKeyTyped(KeyTypedEvent& e)
 	{
-		uint16_t keyCode = static_cast<uint16_t>(e.GetKeyCode());
-		m_Input.push_back(static_cast<char>(keyCode));
-		m_RenderTraits.CalculateLabelDimensions(m_Input);
-
-		return false;
+		m_Input.push_back(static_cast<char>(e.GetKeyCode()));
 	}
 }

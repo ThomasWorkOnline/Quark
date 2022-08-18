@@ -38,7 +38,7 @@ namespace Quark {
 		static void DrawSprite(const Vec4f& color, const Mat4f& transform = Mat4f(1.0f));
 
 		static void DrawLine(const Vec3f& p1, const Vec3f& p2, const Vec4f& beginColor, const Vec4f& endColor);
-		static void DrawText(std::string_view text, const TextRenderTraits& traits);
+		static void DrawText(std::string_view text, Font* font, const Vec4f& color = Vec4f(1.0f));
 		static void DrawText(const Text& text);
 		static void DrawTextInput(const TextInput& input);
 

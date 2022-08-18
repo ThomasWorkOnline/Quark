@@ -16,6 +16,10 @@ namespace Quark {
 		virtual void SetData(void* data) override;
 
 		VkImageView GetImageView() const { return VK_NULL_HANDLE; }
+
+		// Non-Copyable
+		VulkanFramebufferAttachment(const VulkanFramebufferAttachment&) = delete;
+		VulkanFramebufferAttachment& operator=(const VulkanFramebufferAttachment&) = delete;
 	};
 
 	class VulkanFramebuffer final : public Framebuffer
@@ -35,6 +39,10 @@ namespace Quark {
 		{
 			return m_Framebuffer == reinterpret_cast<const VulkanFramebuffer&>(other).m_Framebuffer;
 		}
+
+		// Non-Copyable
+		VulkanFramebuffer(const VulkanFramebuffer&) = delete;
+		VulkanFramebuffer& operator=(const VulkanFramebuffer&) = delete;
 
 	private:
 		void Invalidate();
