@@ -16,7 +16,6 @@ namespace Quark {
 		QK_CORE_ASSERT(!IsformatUsingMips(spec.RenderModes.MagFilteringMode),
 			"The magnification mode may not be set to use mipmaps");
 
-
 		QK_CORE_ASSERT(m_Spec.Width <= GraphicsAPI::Instance->GetCapabilities().TextureConstraints.MaxPixelSize
 			&& m_Spec.Height <= GraphicsAPI::Instance->GetCapabilities().TextureConstraints.MaxPixelSize, "Texture dimensions too large");
 
@@ -39,6 +38,9 @@ namespace Quark {
 		}
 		else
 		{
+			QK_CORE_ASSERT(IsformatUsingMips(m_Spec.RenderModes.MinFilteringMode) == m_Spec.Levels > 0,
+				"Mipmap level must match the texture minification mode");
+
 			glBindTexture(GL_TEXTURE_2D, m_RendererID);
 			glPixelStorei(GL_UNPACK_ALIGNMENT, IsPixel4BytesAligned(m_Spec.DataFormat) ? 4 : 1);
 			glTexImage2D(GL_TEXTURE_2D, m_Spec.Levels, m_InternalFormat, m_Spec.Width, m_Spec.Height, 0, m_DataFormat,

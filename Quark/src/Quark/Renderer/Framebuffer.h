@@ -11,7 +11,7 @@ namespace Quark {
 
 	struct FramebufferAttachmentSpecification
 	{
-		ColorDataFormat DataFormat;
+		ColorDataFormat DataFormat{};
 	};
 
 	class FramebufferAttachment

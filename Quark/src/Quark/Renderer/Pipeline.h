@@ -12,13 +12,13 @@ namespace Quark {
 
 	struct PipelineSpecification
 	{
-		uint32_t            ViewportWidth, ViewportHeight;
-		size_t              CameraUniformBufferSize;
-		UniformBuffer*      UniformBuffer;
+		uint32_t            ViewportWidth = 0, ViewportHeight = 0;
+		size_t              CameraUniformBufferSize = 0;
+		UniformBuffer*      UniformBuffer = nullptr;
 
 		BufferLayout        Layout;
-		Shader*             Shader;
-		RenderPass*         RenderPass;
+		Shader*             Shader = nullptr;
+		RenderPass*         RenderPass = nullptr;
 	};
 
 	class Pipeline

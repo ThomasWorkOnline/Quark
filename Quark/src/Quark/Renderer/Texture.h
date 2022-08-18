@@ -8,12 +8,12 @@ namespace Quark {
 
 	struct Texture2DSpecification
 	{
-		uint32_t              Width, Height;
+		uint32_t              Width = 0, Height = 0;
 		uint32_t              Samples = 1;
 		uint32_t              Levels = 0;
 
-		ColorDataFormat       DataFormat;
-		TextureRenderModes    RenderModes;
+		ColorDataFormat       DataFormat{};
+		TextureRenderModes    RenderModes{};
 	};
 
 	class Texture2D

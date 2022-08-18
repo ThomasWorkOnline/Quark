@@ -31,6 +31,9 @@ namespace Quark {
 		}
 		else
 		{
+			QK_CORE_ASSERT(IsformatUsingMips(m_Spec.RenderModes.MinFilteringMode) == m_Spec.Levels > 0,
+				"Mipmap level must match the texture minification mode");
+
 			glBindTexture(GL_TEXTURE_2D_ARRAY, m_RendererID);
 			glPixelStorei(GL_UNPACK_ALIGNMENT, IsPixel4BytesAligned(m_Spec.DataFormat) ? 4 : 1);
 			glTexImage3D(GL_TEXTURE_2D_ARRAY, m_Spec.Levels, m_InternalFormat, m_Spec.Width, m_Spec.Height, m_Spec.Layers, 0,

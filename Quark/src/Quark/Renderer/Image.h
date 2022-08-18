@@ -9,12 +9,12 @@ namespace Quark {
 
 	struct ImageMetadata
 	{
-		uint32_t Width, Height;
-		uint8_t  Channels;
-		uint8_t  BitsPerPixel;
-		size_t   Size;
+		uint32_t Width = 0, Height = 0;
+		uint8_t  Channels = 0;
+		uint8_t  BitsPerPixel = 0;
+		size_t   Size = 0;
 
-		ColorDataFormat DataFormat;
+		ColorDataFormat DataFormat{};
 	};
 
 	class Image
