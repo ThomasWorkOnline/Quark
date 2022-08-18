@@ -26,6 +26,7 @@ namespace Quark {
 		if (multisampled)
 		{
 			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_RendererID);
+			glPixelStorei(GL_UNPACK_ALIGNMENT, IsPixel4BytesAligned(m_Spec.DataFormat) ? 4 : 1);
 			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Spec.Samples, m_InternalFormat, m_Spec.Width, m_Spec.Height, GL_FALSE);
 
 			QK_DEBUG_CALL(glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0));
@@ -33,6 +34,7 @@ namespace Quark {
 		else
 		{
 			glBindTexture(GL_TEXTURE_2D, m_RendererID);
+			glPixelStorei(GL_UNPACK_ALIGNMENT, IsPixel4BytesAligned(m_Spec.DataFormat) ? 4 : 1);
 			glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Spec.Width, m_Spec.Height, 0, m_DataFormat,
 				DataFormatToOpenGLDataType(m_Spec.DataFormat), nullptr);
 
@@ -68,6 +70,7 @@ namespace Quark {
 
 		glGenTextures(1, &m_RendererID);
 		glBindTexture(GL_TEXTURE_2D, m_RendererID);
+		glPixelStorei(GL_UNPACK_ALIGNMENT, IsPixel4BytesAligned(m_Spec.DataFormat) ? 4 : 1);
 		glTexImage2D(GL_TEXTURE_2D, 0,
 			m_InternalFormat, m_Spec.Width, m_Spec.Height, 0, m_DataFormat,
 			DataFormatToOpenGLDataType(m_Spec.DataFormat), *image);
@@ -115,6 +118,7 @@ namespace Quark {
 
 		GLenum target = m_Spec.Samples > 1 ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
 		glBindTexture(target, m_RendererID);
+		glPixelStorei(GL_UNPACK_ALIGNMENT, IsPixel4BytesAligned(m_Spec.DataFormat) ? 4 : 1);
 		glTexSubImage2D(target, 0, 0, 0, m_Spec.Width, m_Spec.Height, m_DataFormat,
 			DataFormatToOpenGLDataType(m_Spec.DataFormat), data);
 

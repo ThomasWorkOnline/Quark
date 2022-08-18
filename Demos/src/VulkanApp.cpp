@@ -13,14 +13,14 @@ VulkanApp::VulkanApp(const ApplicationOptions& options)
 	Ref<Texture2D> texture1 = Texture2D::Create("assets/textures/pbr/streaked-metal/albedo.png");
 	Ref<Texture2D> texture2 = Texture2D::Create("assets/textures/pbr/copper-rock/copper-rock1-alb.png");
 
-	m_Font = Font::Create("assets/fonts/arial.ttf", 32);
+	m_Font = Font::Create("assets/fonts/arial.ttf", 64);
 	m_Text.SetFont(m_Font);
 
 	Random<bool> randomBool;
 	Random<float> randomFloat;
 	auto random = [&]() -> auto { return randomFloat.Next() * 1000.0f; };
 
-	for (uint32_t i = 0; i < 10000; i++)
+	for (uint32_t i = 0; i < 50000; i++)
 	{
 		auto sprite = m_Scene->CreateEntity();
 

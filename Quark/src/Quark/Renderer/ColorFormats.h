@@ -66,6 +66,11 @@ namespace Quark {
 		return 0;
 	}
 
+	constexpr bool IsPixel4BytesAligned(ColorDataFormat format)
+	{
+		return GetPixelFormatSize(format) % 4 == 0;
+	}
+
 	constexpr bool IsColorFormatAlpha(ColorDataFormat format)
 	{
 		switch (format)

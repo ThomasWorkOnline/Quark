@@ -8,10 +8,10 @@ namespace Quark {
 
 	struct Texture2DSpecification
 	{
-		uint32_t              Width = 0, Height = 0;
+		uint32_t              Width, Height;
 		uint32_t              Samples = 1;
 
-		ColorDataFormat       DataFormat{};
+		ColorDataFormat       DataFormat;
 		TextureRenderModes    RenderModes;
 	};
 
@@ -47,6 +47,6 @@ namespace Quark {
 		static Scope<Texture2D> Create(std::string_view filepath, const TextureFormatDescriptor& descriptor = {});
 
 	protected:
-		Texture2DSpecification m_Spec;
+		Texture2DSpecification m_Spec{};
 	};
 }

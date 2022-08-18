@@ -11,7 +11,7 @@ namespace Quark {
 
 	struct FramebufferAttachmentSpecification
 	{
-		ColorDataFormat DataFormat{};
+		ColorDataFormat DataFormat;
 	};
 
 	class FramebufferAttachment
@@ -26,12 +26,12 @@ namespace Quark {
 		static Scope<FramebufferAttachment> Create(void* image, const FramebufferAttachmentSpecification& spec);
 
 	protected:
-		FramebufferAttachmentSpecification m_Spec;
+		FramebufferAttachmentSpecification m_Spec{};
 	};
 
 	struct FramebufferSpecification
 	{
-		uint32_t Width = 0, Height = 0;
+		uint32_t Width, Height;
 		uint32_t Samples = 1;
 
 		RenderPass* RenderPass;
@@ -60,6 +60,6 @@ namespace Quark {
 		static Scope<Framebuffer> Create(const FramebufferSpecification& spec);
 
 	protected:
-		FramebufferSpecification m_Spec;
+		FramebufferSpecification m_Spec{};
 	};
 }

@@ -8,11 +8,11 @@ namespace Quark {
 
 	struct Texture2DArraySpecification
 	{
-		uint32_t              Width = 0, Height = 0, Layers = 0;
+		uint32_t              Width, Height, Layers;
 		uint32_t              Samples = 1;
 		uint8_t               Levels  = 1;
 
-		ColorDataFormat       DataFormat{};
+		ColorDataFormat       DataFormat;
 		TextureRenderModes    RenderModes;
 	};
 
@@ -41,6 +41,6 @@ namespace Quark {
 		static Scope<Texture2DArray> Create(const Texture2DArraySpecification& spec);
 
 	protected:
-		Texture2DArraySpecification m_Spec;
+		Texture2DArraySpecification m_Spec{};
 	};
 }

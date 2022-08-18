@@ -8,7 +8,7 @@ namespace Quark {
 
 	struct CubemapSpecification
 	{
-		uint32_t              Width = 0, Height = 0;
+		uint32_t              Width, Height;
 		ColorDataFormat       DataFormat = ColorDataFormat::RGB16f;
 	};
 
@@ -35,6 +35,6 @@ namespace Quark {
 		static Scope<Cubemap> Create(const CubemapSpecification& spec);
 
 	protected:
-		CubemapSpecification m_Spec;
+		CubemapSpecification m_Spec{};
 	};
 }

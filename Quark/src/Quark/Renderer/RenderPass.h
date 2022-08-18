@@ -13,8 +13,8 @@ namespace Quark {
 
 	struct RenderPassSpecification
 	{
-		PipelineBindPoint BindPoint{};
-		ColorDataFormat   ColorFormat{};
+		PipelineBindPoint BindPoint;
+		ColorDataFormat   ColorFormat;
 		bool ClearBuffers = false;
 	};
 
@@ -32,6 +32,6 @@ namespace Quark {
 		static Scope<RenderPass> Create(const RenderPassSpecification& spec);
 
 	protected:
-		RenderPassSpecification m_Spec;
+		RenderPassSpecification m_Spec{};
 	};
 }

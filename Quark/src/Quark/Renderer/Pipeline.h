@@ -12,13 +12,13 @@ namespace Quark {
 
 	struct PipelineSpecification
 	{
-		uint32_t            ViewportWidth = 0, ViewportHeight = 0;
-		size_t              CameraUniformBufferSize = 0;
-		UniformBuffer*      UniformBuffer = nullptr;
+		uint32_t            ViewportWidth, ViewportHeight;
+		size_t              CameraUniformBufferSize;
+		UniformBuffer*      UniformBuffer;
 
 		BufferLayout        Layout;
-		Shader*             Shader = nullptr;
-		RenderPass*         RenderPass = nullptr;
+		Shader*             Shader;
+		RenderPass*         RenderPass;
 	};
 
 	class Pipeline
@@ -39,6 +39,6 @@ namespace Quark {
 		static Scope<Pipeline> Create(const PipelineSpecification& spec);
 
 	protected:
-		PipelineSpecification m_Spec;
+		PipelineSpecification m_Spec{};
 	};
 }
