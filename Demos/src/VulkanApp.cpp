@@ -1,8 +1,6 @@
 #include "VulkanApp.h"
 #include "Quark/Scripts/CameraController.h"
 
-#include <charconv>
-
 VulkanApp::VulkanApp(const ApplicationOptions& options)
 	: Application(options)
 {
@@ -27,9 +25,9 @@ VulkanApp::VulkanApp(const ApplicationOptions& options)
 		auto& transform = sprite.AddComponent<Transform3DComponent>();
 
 		Vec3f axis = { randomFloat.Next(), randomFloat.Next(), randomFloat.Next() };
+		transform.Position = Vec3f{ random(), random(), random() };
 		transform.Scale = axis;
 		transform.Rotate(randomFloat.Next() * glm::radians(360.0f), axis);
-		transform.Position = Vec3f{ random(), random(), random() };
 
 		auto& src = sprite.AddComponent<TexturedSpriteRendererComponent>();
 		src.Texture = randomBool.Next() ? texture1 : texture2;
@@ -75,30 +73,23 @@ void VulkanApp::OnUpdate(Timestep elapsedTime)
 	m_Scene->OnUpdate(elapsedTime);
 }
 
-bool VulkanApp::OnMouseButtonPressed(MouseButtonPressedEvent& e)
+void VulkanApp::OnMouseButtonPressed(MouseButtonPressedEvent& e)
 {
-	bool wasSelected = GetWindow()->IsCursorEnabled();
 	if (e.GetMouseButton() == MouseCode::ButtonLeft)
 	{
 		m_ViewportSelected = true;
 		GetWindow()->DisableCursor();
 	}
-
-	return wasSelected;
 }
 
-bool VulkanApp::OnKeyPressed(KeyPressedEvent& e)
+void VulkanApp::OnKeyPressed(KeyPressedEvent& e)
 {
 	switch (e.GetKeyCode())
 	{
 		case KeyCode::Escape:
 		{
-			bool wasDeselected = !GetWindow()->IsCursorEnabled();
 			m_ViewportSelected = false;
 			GetWindow()->EnableCursor();
-			return wasDeselected;
 		}
 	}
-
-	return false;
 }

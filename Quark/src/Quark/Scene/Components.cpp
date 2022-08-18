@@ -53,8 +53,7 @@ namespace Quark {
 
 	Mat4 Transform3DComponent::GetMatrix() const
 	{
-		return glm::translate(Mat4(1.f), Position)
-			* glm::toMat4(Orientation)
+		return glm::translate(Mat4(1.f), Position) * glm::toMat4(Orientation)
 			* glm::scale(Mat4(1.f), Scale);
 	}
 

@@ -32,10 +32,7 @@ namespace Quark {
 			auto& sceneCamera = m_Scene->m_PrimaryCameraEntity.GetComponent<CameraComponent>().Camera;
 			auto& cameraTransform = m_Scene->m_PrimaryCameraEntity.GetComponent<Transform3DComponent>();
 
-			Mat4f cameraRotate = glm::toMat4(cameraTransform.Orientation);
-			Mat4f cameraView = glm::translate(cameraRotate, (Vec3f)-cameraTransform.Position);
-
-			Renderer2D::BeginScene(sceneCamera.GetProjection(), cameraView);
+			Renderer2D::BeginScene(sceneCamera, cameraTransform);
 
 			// Colored sprites
 			{
@@ -63,6 +60,9 @@ namespace Quark {
 			{
 				RenderCommand::SetCullFace(RenderCullMode::Front);
 				RenderCommand::SetDepthFunction(RenderDepthFunction::LessEqual);
+
+				Mat4f cameraRotate = glm::toMat4(cameraTransform.Orientation);
+				Mat4f cameraView = glm::translate(cameraRotate, (Vec3f)-cameraTransform.Position);
 
 				m_Data.Env->SkyboxShader->SetMat4f("u_View", cameraView);
 				m_Data.Env->SkyboxShader->SetMat4f("u_Projection", sceneCamera.GetProjection());

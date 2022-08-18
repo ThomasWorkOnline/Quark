@@ -14,8 +14,8 @@ public:
 	virtual void OnUpdate(Timestep elapsedTime) override;
 
 private:
-	bool OnMouseButtonPressed(MouseButtonPressedEvent& e);
-	bool OnKeyPressed(KeyPressedEvent& e);
+	void OnMouseButtonPressed(MouseButtonPressedEvent& e);
+	void OnKeyPressed(KeyPressedEvent& e);
 
 private:
 	Ref<Scene> m_Scene;
