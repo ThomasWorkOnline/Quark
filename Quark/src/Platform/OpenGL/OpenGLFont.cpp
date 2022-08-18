@@ -54,7 +54,11 @@ namespace Quark {
 
 		glGenTextures(1, &m_RendererID);
 		glBindTexture(GL_TEXTURE_2D, m_RendererID);
+
+		GLint swizzleMask[] = { GL_ONE, GL_ONE, GL_ONE, GL_RED };
+		glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask);
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, w, h, 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
 
 		Glyph* m_GlyphPtr = m_Glyphs;
@@ -122,6 +126,14 @@ namespace Quark {
 	std::string_view OpenGLFont::GetFamilyName() const
 	{
 		return m_Face->family_name;
+	}
+
+	bool OpenGLFont::operator==(const Texture& other) const
+	{
+		if (auto o = dynamic_cast<decltype(this)>(&other))
+			return m_RendererID == o->m_RendererID;
+
+		return false;
 	}
 
 	void OpenGLFont::Init()

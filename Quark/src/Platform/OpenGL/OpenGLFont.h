@@ -33,10 +33,7 @@ namespace Quark {
 		virtual std::string_view GetStyleName() const override;
 		virtual std::string_view GetFamilyName() const override;
 
-		virtual bool operator==(const Font& other) const override
-		{
-			return m_RendererID == reinterpret_cast<decltype(*this)&>(other).m_RendererID;
-		}
+		virtual bool operator==(const Texture& other) const override;
 
 		// Non-Copyable
 		OpenGLFont(const OpenGLFont&) = delete;

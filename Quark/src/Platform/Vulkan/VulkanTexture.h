@@ -20,7 +20,7 @@ namespace Quark {
 		virtual void SetData(const void* data, size_t size) override {}
 		virtual void GenerateMipmaps() override {}
 
-		virtual bool operator==(const Texture2D& other) const override
+		virtual bool operator==(const Texture& other) const override
 		{
 			return false;
 		}

@@ -14,7 +14,6 @@
 #include "RenderPass.h"
 #include "Shader.h"
 #include "Texture.h"
-#include "TextureArray.h"
 #include "UniformBuffer.h"
 
 namespace Quark {

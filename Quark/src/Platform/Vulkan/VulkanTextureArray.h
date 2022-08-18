@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Quark/Renderer/TextureArray.h"
+#include "Quark/Renderer/Texture.h"
 #include "VulkanDevice.h"
 
 #include <vulkan/vulkan.h>
@@ -19,7 +19,7 @@ namespace Quark {
 		virtual void SetData(const void* data, size_t size, uint32_t layer) override {}
 		virtual void GenerateMipmaps() override {}
 
-		virtual bool operator==(const Texture2DArray& other) const override
+		virtual bool operator==(const Texture& other) const override
 		{
 			return false;
 		}

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Quark/Renderer/TextureArray.h"
+#include "Quark/Renderer/Texture.h"
 
 typedef unsigned int GLenum;
 typedef unsigned int GLuint;
@@ -19,10 +19,7 @@ namespace Quark {
 		virtual void SetData(const void* data, size_t size, uint32_t layer) override;
 		virtual void GenerateMipmaps() override;
 
-		virtual bool operator==(const Texture2DArray& other) const override
-		{
-			return m_RendererID == reinterpret_cast<decltype(*this)&>(other).m_RendererID;
-		}
+		virtual bool operator==(const Texture& other) const override;
 
 		// Non-Copyable
 		OpenGLTexture2DArray(const OpenGLTexture2DArray&) = delete;

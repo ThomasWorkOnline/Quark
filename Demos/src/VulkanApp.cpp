@@ -63,7 +63,7 @@ void VulkanApp::OnRender()
 
 	auto& pos = m_CameraEntity.GetComponent<Transform3DComponent>().Position;
 	auto posStr = glm::to_string(pos);
-	Renderer2D::DrawText(posStr, m_Font.get());
+	Renderer2D::DrawText(posStr, m_Font.get(), { 0.0f, 1.0f, 1.0f, 0.2f });
 
 	Renderer2D::EndScene();
 }

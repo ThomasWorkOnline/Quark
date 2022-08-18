@@ -48,7 +48,6 @@
 #include "Quark/Renderer/Shader.h"
 #include "Quark/Renderer/SubTexture.h"
 #include "Quark/Renderer/Texture.h"
-#include "Quark/Renderer/TextureArray.h"
 #include "Quark/Renderer/TextureFormats.h"
 #include "Quark/Renderer/UniformBuffer.h"
 

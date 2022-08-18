@@ -14,7 +14,6 @@
 #include "Shader.h"
 #include "SubTexture.h"
 #include "Texture.h"
-#include "TextureArray.h"
 
 namespace Quark {
 
@@ -32,8 +31,8 @@ namespace Quark {
 		static void BeginScene(const Mat4f& cameraProjection, const Mat4f& cameraView);
 		static void EndScene();
 
-		static void DrawSprite(Texture2D* texture, const Vec4f& tint = Vec4(1.0f), const Mat4f& transform = Mat4f(1.0f));
-		static void DrawSprite(Texture2D* texture, const Vec2f* texCoords, const Vec4f& tint = Vec4(1.0f), const Mat4f& transform = Mat4f(1.0f));
+		static void DrawSprite(Texture* texture, const Vec4f& tint = Vec4(1.0f), const Mat4f& transform = Mat4f(1.0f));
+		static void DrawSprite(Texture* texture, const Vec2f* texCoords, const Vec4f& tint = Vec4(1.0f), const Mat4f& transform = Mat4f(1.0f));
 		static void DrawSprite(const SubTexture2D& subTexture, const Vec4f& tint = Vec4(1.0f), const Mat4f& transform = Mat4f(1.0f));
 		static void DrawSprite(const Vec4f& color, const Mat4f& transform = Mat4f(1.0f));
 

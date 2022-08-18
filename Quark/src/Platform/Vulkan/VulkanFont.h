@@ -26,7 +26,7 @@ namespace Quark {
 		virtual std::string_view GetStyleName() const override { return std::string_view(); }
 		virtual std::string_view GetFamilyName() const override { return std::string_view(); }
 
-		virtual bool operator==(const Font& other) const override
+		virtual bool operator==(const Texture& other) const override
 		{
 			return false;
 		}

@@ -98,4 +98,12 @@ namespace Quark {
 
 		QK_DEBUG_CALL(glBindTexture(target, 0));
 	}
+
+	bool OpenGLTexture2DArray::operator==(const Texture& other) const
+	{
+		if (auto o = dynamic_cast<decltype(this)>(&other))
+			return m_RendererID == o->m_RendererID;
+
+		return false;
+	}
 }

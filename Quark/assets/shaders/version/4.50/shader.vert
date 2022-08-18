@@ -5,8 +5,7 @@ layout(location = 1) in vec3 a_Color;
 
 layout(location = 0) out vec3 v_FragColor;
 
-layout(binding = 0) uniform Camera
-{
+layout(binding = 0) uniform Camera {
 	mat4 View;
 	mat4 Projection;
 } u_Camera;
