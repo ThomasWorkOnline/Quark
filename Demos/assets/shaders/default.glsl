@@ -6,15 +6,13 @@ layout(location = 1) in vec2 a_TexCoord;
 layout(location = 2) in vec4 a_Color;
 layout(location = 3) in int  a_TexIndex;
 
-layout(std140, binding = 0) uniform Camera
-{
+layout(std140, binding = 0) uniform Camera {
     mat4 u_ViewProjection;
 };
 
 uniform mat4 u_Model;
 
-out VertexOutput
-{
+out VertexOutput {
     vec2 TexCoord;
     vec4 Color;
     flat int TexIndex;
@@ -34,8 +32,7 @@ void main()
 
 uniform sampler2D u_Samplers[32];
 
-in VertexOutput
-{
+in VertexOutput {
     vec2 TexCoord;
     vec4 Color;
     flat int TexIndex;

@@ -5,15 +5,13 @@ layout(location = 0) in vec3 a_Position;
 layout(location = 1) in vec2 a_TexCoord;
 layout(location = 2) in int  a_TexIndex;
 
-layout(std140, binding = 0) uniform Camera
-{
+layout(std140, binding = 0) uniform Camera {
     mat4 u_ViewProjection;
 };
 
 uniform mat4 u_Model;
 
-out VertexOuput
-{
+out VertexOuput {
     vec2 TexCoord;
     flat int TexIndex;
 } v_Output;
@@ -31,8 +29,7 @@ void main()
 
 uniform sampler2DArray u_Sampler;
 
-in VertexOuput
-{
+in VertexOuput {
     vec2 TexCoord;
     flat int TexIndex;
 } v_Input;

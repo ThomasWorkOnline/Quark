@@ -15,7 +15,6 @@ namespace Quark {
 	static FT_Library s_Library;
 
 	OpenGLFont::OpenGLFont(std::string_view filepath, uint32_t fontSize)
-		: m_FontSize(fontSize)
 	{
 		QK_PROFILE_FUNCTION();
 
@@ -29,7 +28,7 @@ namespace Quark {
 		QK_RUNTIME_VERIFY(error == FT_Err_Ok, "Could not load new font face at path: '{0}'", filepath);
 
 		error = FT_Set_Pixel_Sizes(m_Face, 0, fontSize);
-		QK_RUNTIME_VERIFY(error == FT_Err_Ok, "Could not set font dimensions.");
+		QK_CORE_ASSERT(error == FT_Err_Ok, "Could not set font dimensions.");
 
 		QK_CORE_TRACE("Loading {0} glyphs from font at path: '{1}'", s_GlyphCount, filepath);
 
@@ -45,7 +44,7 @@ namespace Quark {
 				continue;
 			}
 
-			w += g->bitmap.width;
+			w += g->bitmap.width + 1;
 			h = std::max(h, g->bitmap.rows);
 		}
 
@@ -77,7 +76,7 @@ namespace Quark {
 			m_GlyphPtr->OffsetX = x;
 			m_GlyphPtr++;
 
-			x += g->bitmap.width;
+			x += g->bitmap.width + 1;
 		}
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -116,6 +115,16 @@ namespace Quark {
 	{
 		QK_CORE_ASSERT(charcode >= s_ASCII_Start, "Invalid charcode");
 		return m_Glyphs[charcode - s_ASCII_Start];
+	}
+
+	uint32_t OpenGLFont::GetGlyphCount() const
+	{
+		return static_cast<uint32_t>(s_GlyphCount);
+	}
+
+	uint32_t OpenGLFont::GetFontSize() const
+	{
+		return m_Face->size->metrics.x_ppem;
 	}
 
 	std::string_view OpenGLFont::GetStyleName() const

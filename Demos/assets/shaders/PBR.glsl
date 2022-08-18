@@ -5,15 +5,13 @@ layout(location = 0) in vec3 a_Position;
 layout(location = 1) in vec2 a_TexCoord;
 layout(location = 2) in vec3 a_Normal;
 
-layout(std140, binding = 0) uniform Camera
-{
+layout(std140, binding = 0) uniform Camera {
     mat4 u_ViewProjection;
 };
 
 uniform mat4 u_Model;
 
-out VertexOutput
-{
+out VertexOutput {
     vec3 Position;
     vec2 TexCoord;
     vec3 Normal;
@@ -40,8 +38,7 @@ float GeometrySchlickGGX(float nDotV, float k);
 float GeometrySmith(vec3 n, vec3 v, vec3 l, float k);
 vec3  FresnelSchlick(float cosTheta, vec3 f0);
 
-in VertexOutput
-{
+in VertexOutput {
     vec3 Position;
     vec2 TexCoord;
     vec3 Normal;

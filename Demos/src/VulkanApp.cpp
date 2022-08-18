@@ -8,8 +8,10 @@ VulkanApp::VulkanApp(const ApplicationOptions& options)
 	m_CameraEntity = m_Scene->CreatePrimaryCamera();
 	m_CameraEntity.AddNativeScript<CameraController>();
 
-	Ref<Texture2D> texture1 = Texture2D::Create("assets/textures/pbr/streaked-metal/albedo.png");
-	Ref<Texture2D> texture2 = Texture2D::Create("assets/textures/pbr/copper-rock/copper-rock1-alb.png");
+	TextureRenderModes renderModes;
+	renderModes.MagFilteringMode = TextureFilteringMode::Nearest;
+	Ref<Texture2D> texture1 = Texture2D::Create("assets/textures/pbr/streaked-metal/albedo.png", renderModes);
+	Ref<Texture2D> texture2 = Texture2D::Create("assets/textures/pbr/copper-rock/copper-rock1-alb.png", renderModes);
 
 	m_Font = Font::Create("assets/fonts/arial.ttf", 64);
 	m_Text.SetFont(m_Font);
@@ -18,7 +20,7 @@ VulkanApp::VulkanApp(const ApplicationOptions& options)
 	Random<float> randomFloat;
 	auto random = [&]() -> auto { return randomFloat.Next() * 1000.0f; };
 
-	for (uint32_t i = 0; i < 50000; i++)
+	for (uint32_t i = 0; i < 10000; i++)
 	{
 		auto sprite = m_Scene->CreateEntity();
 
@@ -63,7 +65,7 @@ void VulkanApp::OnRender()
 
 	auto& pos = m_CameraEntity.GetComponent<Transform3DComponent>().Position;
 	auto posStr = glm::to_string(pos);
-	Renderer2D::DrawText(posStr, m_Font.get(), { 0.0f, 1.0f, 1.0f, 0.2f });
+	Renderer2D::DrawText(posStr, m_Font.get(), { 0.0f, 1.0f, 1.0f, 0.8f });
 
 	Renderer2D::EndScene();
 }

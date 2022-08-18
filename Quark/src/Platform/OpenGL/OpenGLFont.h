@@ -24,9 +24,9 @@ namespace Quark {
 		virtual void Detach() const override;
 
 		virtual const Glyph& GetGlyph(uint8_t charcode) const override;
-		virtual uint32_t GetGlyphCount() const override { return static_cast<uint32_t>(s_GlyphCount); }
+		virtual uint32_t GetGlyphCount() const override;
 
-		virtual uint32_t GetFontSize() const override { return m_FontSize; }
+		virtual uint32_t GetFontSize() const override;
 		virtual uint32_t GetAtlasWidth() const override { return m_AtlasWidth; }
 		virtual uint32_t GetAtlasHeight() const override { return m_AtlasHeight; }
 
@@ -45,7 +45,6 @@ namespace Quark {
 
 	private:
 		GLuint m_RendererID = 0;
-		uint32_t m_FontSize = 0;
 		uint32_t m_AtlasWidth = 0, m_AtlasHeight = 0;
 
 		Face m_Face;
