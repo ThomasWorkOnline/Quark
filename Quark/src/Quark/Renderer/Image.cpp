@@ -97,11 +97,6 @@ namespace Quark {
 		DeallocateImageDataCallback(m_ImageData);
 	}
 
-	size_t Image::GetSize() const
-	{
-		return (size_t)m_Metadata.Width * m_Metadata.Height * (m_Metadata.BitsPerPixel >> 3);
-	}
-
 	void Image::DecodePNG(FileStream& in)
 	{	
 		QK_PROFILE_FUNCTION();
@@ -140,6 +135,7 @@ namespace Quark {
 		m_Metadata.Channels = channels;
 		m_Metadata.BitsPerPixel = bpp;
 		m_Metadata.DataFormat = Utils::GetDataFormat(channels, bpp, state.info_png.srgb_defined, false);
+		m_Metadata.Size = (size_t)width * height * (bpp >> 3);
 
 		lodepng_state_cleanup(&state);
 	}
@@ -155,16 +151,19 @@ namespace Quark {
 
 		QK_RUNTIME_VERIFY(imageData, "Failed to load image data");
 
-		uint8_t bpc;
+		uint8_t bitsPerChannel;
 		stbi_is_16_bit_from_file(in.GetHandle())
-			? bpc = 16
-			: bpc = 32;
+			? bitsPerChannel = 16
+			: bitsPerChannel = 32;
+
+		uint8_t bpp = bitsPerChannel * channels;
 
 		m_ImageData = imageData;
 		m_Metadata.Width = width;
 		m_Metadata.Height = height;
 		m_Metadata.Channels = channels;
-		m_Metadata.BitsPerPixel = bpc * channels;
-		m_Metadata.DataFormat = Utils::GetDataFormat(channels, bpc * channels, false, true);
+		m_Metadata.BitsPerPixel = bpp;
+		m_Metadata.DataFormat = Utils::GetDataFormat(channels, bpp, false, true);
+		m_Metadata.Size = (size_t)width * height * (bpp >> 3);
 	}
 }

@@ -510,7 +510,7 @@ namespace Quark {
 		s_Data->QuadVertices = new QuadVertex[Renderer2DData::MaxVertices];
 
 		uint32_t textureColor = 0xffffffff;
-		Texture2DSpecification spec = { 1, 1, 1,
+		Texture2DSpecification spec = { 1, 1, 1, 0,
 			ColorDataFormat::RGBA8,
 			TextureFilteringMode::Nearest, TextureFilteringMode::Nearest, TextureTilingMode::Repeat
 		};

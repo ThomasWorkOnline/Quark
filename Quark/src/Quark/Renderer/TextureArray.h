@@ -10,7 +10,7 @@ namespace Quark {
 	{
 		uint32_t              Width, Height, Layers;
 		uint32_t              Samples = 1;
-		uint8_t               Levels  = 1;
+		uint32_t              Levels  = 0;
 
 		ColorDataFormat       DataFormat;
 		TextureRenderModes    RenderModes;

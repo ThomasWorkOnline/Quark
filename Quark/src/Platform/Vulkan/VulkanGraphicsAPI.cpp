@@ -100,9 +100,9 @@ namespace Quark {
 		return CreateScope<VulkanTexture2D>(VulkanContext::GetCurrentDevice(), spec);
 	}
 
-	Scope<Texture2D> VulkanGraphicsAPI::CreateTexture2D(std::string_view filepath, const TextureFormatDescriptor& descriptor)
+	Scope<Texture2D> VulkanGraphicsAPI::CreateTexture2D(std::string_view filepath, const TextureRenderModes& renderModes)
 	{
-		return CreateScope<VulkanTexture2D>(VulkanContext::GetCurrentDevice(), filepath, descriptor);
+		return CreateScope<VulkanTexture2D>(VulkanContext::GetCurrentDevice(), filepath, renderModes);
 	}
 
 	Scope<Texture2DArray> VulkanGraphicsAPI::CreateTexture2DArray(const Texture2DArraySpecification& spec)

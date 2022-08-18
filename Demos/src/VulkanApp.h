@@ -20,8 +20,8 @@ private:
 private:
 	Ref<Scene> m_Scene;
 	Entity m_CameraEntity;
-	Ref<Font> m_Font;
 
+	Ref<Font> m_Font;
 	Text m_Text;
 	SceneCamera m_TextCamera;
 

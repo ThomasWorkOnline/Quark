@@ -11,7 +11,7 @@ namespace Quark {
 	{
 	public:
 		OpenGLTexture2D(const Texture2DSpecification& spec);
-		OpenGLTexture2D(std::string_view filepath, const TextureFormatDescriptor& descriptor);
+		OpenGLTexture2D(std::string_view filepath, const TextureRenderModes& renderModes);
 		virtual ~OpenGLTexture2D() override;
 
 		virtual void Attach(uint32_t textureSlot = 0) const override;

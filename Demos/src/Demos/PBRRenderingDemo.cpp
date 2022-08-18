@@ -5,7 +5,7 @@
 static Scope<Texture2D> CreateTextureFromImage(const Ref<Image>& image, const Texture2DSpecification& spec)
 {
 	Scope<Texture2D> texture = Texture2D::Create(spec);
-	texture->SetData(image->GetData(), image->GetSize());
+	texture->SetData(image->GetData(), image->GetMetadata().Size);
 	texture->GenerateMipmaps();
 
 	return texture;

@@ -21,8 +21,8 @@ TextureArrayTest::TextureArrayTest(const ApplicationOptions& options)
 	spec.RenderModes.MagFilteringMode = TextureFilteringMode::Nearest;
 
 	m_TextureArray = Texture2DArray::Create(spec);
-	m_TextureArray->SetData(texture1.GetData(), texture1.GetSize(), 0);
-	m_TextureArray->SetData(texture1.GetData(), texture1.GetSize(), 1);
+	m_TextureArray->SetData(texture1.GetData(), texture1.GetMetadata().Size, 0);
+	m_TextureArray->SetData(texture1.GetData(), texture1.GetMetadata().Size, 1);
 	m_TextureArray->GenerateMipmaps();
 
 	m_Shader = Shader::Create("assets/shaders/textureArray.glsl");

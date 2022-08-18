@@ -20,9 +20,7 @@ MainLayer::MainLayer(Application* app) : Layer(app)
 	m_Text2 = Text("Hello quad", m_Font2, color1, HorizontalTextAlignment::Right, VerticalTextAlignment::Bottom);
 	m_Input = TextInput(m_Font1, HorizontalTextAlignment::Center);
 
-	TextureFormatDescriptor descriptor;
-	descriptor.SRGB = true;
-	m_Texture = Texture2D::Create("assets/textures/pbr/streaked-metal/normal-dx.png", descriptor);
+	m_Texture = Texture2D::Create("assets/textures/pbr/streaked-metal/normal-dx.png");
 
 	auto window = GetApplication()->GetWindow();
 	m_Camera.SetOrthographic((float)window->GetWidth());

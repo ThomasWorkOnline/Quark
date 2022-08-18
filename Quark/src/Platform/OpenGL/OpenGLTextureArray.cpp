@@ -10,6 +10,9 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
+		QK_CORE_ASSERT(!IsformatUsingMips(spec.RenderModes.MagFilteringMode),
+			"The magnification mode may not be set to use mipmaps");
+
 		m_InternalFormat = DataFormatToOpenGLInternalFormat(m_Spec.DataFormat);
 		m_DataFormat = DataFormatToOpenGLStorageFormat(m_Spec.DataFormat);
 
@@ -18,6 +21,8 @@ namespace Quark {
 		bool multisampled = m_Spec.Samples > 1;
 		if (multisampled)
 		{
+			QK_CORE_ASSERT(m_Spec.Levels == 0, "Mipmap level must be set to 0 when multisampling is enabled");
+
 			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE_ARRAY, m_RendererID);
 			glPixelStorei(GL_UNPACK_ALIGNMENT, IsPixel4BytesAligned(m_Spec.DataFormat) ? 4 : 1);
 			glTexImage3DMultisample(GL_TEXTURE_2D_MULTISAMPLE_ARRAY, m_Spec.Samples, m_InternalFormat, m_Spec.Width, m_Spec.Height, m_Spec.Layers, GL_FALSE);
@@ -28,7 +33,7 @@ namespace Quark {
 		{
 			glBindTexture(GL_TEXTURE_2D_ARRAY, m_RendererID);
 			glPixelStorei(GL_UNPACK_ALIGNMENT, IsPixel4BytesAligned(m_Spec.DataFormat) ? 4 : 1);
-			glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, m_InternalFormat, m_Spec.Width, m_Spec.Height, m_Spec.Layers, 0,
+			glTexImage3D(GL_TEXTURE_2D_ARRAY, m_Spec.Levels, m_InternalFormat, m_Spec.Width, m_Spec.Height, m_Spec.Layers, 0,
 				m_DataFormat, DataFormatToOpenGLDataType(m_Spec.DataFormat), nullptr);
 
 			GLenum tilingMode = TilingModeToOpenGL(m_Spec.RenderModes.TilingMode);
@@ -71,7 +76,7 @@ namespace Quark {
 		GLenum target = m_Spec.Samples > 1 ? GL_TEXTURE_2D_MULTISAMPLE_ARRAY : GL_TEXTURE_2D_ARRAY;
 		glBindTexture(target, m_RendererID);
 		glPixelStorei(GL_UNPACK_ALIGNMENT, IsPixel4BytesAligned(m_Spec.DataFormat) ? 4 : 1);
-		glTexSubImage3D(target, 0, 0, 0, layer, m_Spec.Width, m_Spec.Height, 1,
+		glTexSubImage3D(target, m_Spec.Levels, 0, 0, layer, m_Spec.Width, m_Spec.Height, 1,
 			m_DataFormat, DataFormatToOpenGLDataType(m_Spec.DataFormat), data);
 
 		QK_DEBUG_CALL(glBindTexture(target, 0));
@@ -81,7 +86,7 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		QK_CORE_ASSERT(IsformatUsingMips(m_Spec.RenderModes.MinFilteringMode) || IsformatUsingMips(m_Spec.RenderModes.MagFilteringMode),
+		QK_CORE_ASSERT(IsformatUsingMips(m_Spec.RenderModes.MinFilteringMode),
 			"Invalid texture specification for mipmaps");
 
 		GLenum target = m_Spec.Samples > 1 ? GL_TEXTURE_2D_MULTISAMPLE_ARRAY : GL_TEXTURE_2D_ARRAY;

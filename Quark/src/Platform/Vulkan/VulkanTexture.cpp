@@ -8,7 +8,7 @@ namespace Quark {
 	{
 	}
 
-	VulkanTexture2D::VulkanTexture2D(VulkanDevice* device, std::string_view filepath, const TextureFormatDescriptor& descriptor)
+	VulkanTexture2D::VulkanTexture2D(VulkanDevice* device, std::string_view filepath, const TextureRenderModes& renderModes)
 		: m_Device(device)
 	{
 	}

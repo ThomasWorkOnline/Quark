@@ -13,6 +13,10 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
+		QK_CORE_ASSERT(!IsformatUsingMips(spec.RenderModes.MagFilteringMode),
+			"The magnification mode may not be set to use mipmaps");
+
+
 		QK_CORE_ASSERT(m_Spec.Width <= GraphicsAPI::Instance->GetCapabilities().TextureConstraints.MaxPixelSize
 			&& m_Spec.Height <= GraphicsAPI::Instance->GetCapabilities().TextureConstraints.MaxPixelSize, "Texture dimensions too large");
 
@@ -25,6 +29,8 @@ namespace Quark {
 		bool multisampled = m_Spec.Samples > 1;
 		if (multisampled)
 		{
+			QK_CORE_ASSERT(m_Spec.Levels == 0, "Mipmap level must be set to 0 when multisampling is enabled");
+
 			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_RendererID);
 			glPixelStorei(GL_UNPACK_ALIGNMENT, IsPixel4BytesAligned(m_Spec.DataFormat) ? 4 : 1);
 			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Spec.Samples, m_InternalFormat, m_Spec.Width, m_Spec.Height, GL_FALSE);
@@ -35,7 +41,7 @@ namespace Quark {
 		{
 			glBindTexture(GL_TEXTURE_2D, m_RendererID);
 			glPixelStorei(GL_UNPACK_ALIGNMENT, IsPixel4BytesAligned(m_Spec.DataFormat) ? 4 : 1);
-			glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Spec.Width, m_Spec.Height, 0, m_DataFormat,
+			glTexImage2D(GL_TEXTURE_2D, m_Spec.Levels, m_InternalFormat, m_Spec.Width, m_Spec.Height, 0, m_DataFormat,
 				DataFormatToOpenGLDataType(m_Spec.DataFormat), nullptr);
 
 			GLenum tilingMode = TilingModeToOpenGL(m_Spec.RenderModes.TilingMode);
@@ -48,9 +54,12 @@ namespace Quark {
 		}
 	}
 
-	OpenGLTexture2D::OpenGLTexture2D(std::string_view filepath, const TextureFormatDescriptor& descriptor)
+	OpenGLTexture2D::OpenGLTexture2D(std::string_view filepath, const TextureRenderModes& renderModes)
 	{
 		QK_PROFILE_FUNCTION();
+
+		QK_CORE_ASSERT(!IsformatUsingMips(renderModes.MagFilteringMode),
+			"The magnification mode may not be set to use mipmaps");
 
 		Image image = filepath;
 		auto& metadata = image.GetMetadata();
@@ -59,7 +68,7 @@ namespace Quark {
 		m_Spec.Height         = metadata.Height;
 		m_Spec.DataFormat     = metadata.DataFormat;
 		m_Spec.DataFormat     = metadata.DataFormat;
-		m_Spec.RenderModes    = descriptor.RenderModes;
+		m_Spec.RenderModes    = renderModes;
 
 		QK_CORE_ASSERT(m_Spec.Width <= GraphicsAPI::Instance->GetCapabilities().TextureConstraints.MaxPixelSize
 			&& m_Spec.Height <= GraphicsAPI::Instance->GetCapabilities().TextureConstraints.MaxPixelSize, "Texture dimensions too large");
@@ -71,7 +80,7 @@ namespace Quark {
 		glGenTextures(1, &m_RendererID);
 		glBindTexture(GL_TEXTURE_2D, m_RendererID);
 		glPixelStorei(GL_UNPACK_ALIGNMENT, IsPixel4BytesAligned(m_Spec.DataFormat) ? 4 : 1);
-		glTexImage2D(GL_TEXTURE_2D, 0,
+		glTexImage2D(GL_TEXTURE_2D, m_Spec.Levels,
 			m_InternalFormat, m_Spec.Width, m_Spec.Height, 0, m_DataFormat,
 			DataFormatToOpenGLDataType(m_Spec.DataFormat), *image);
 
@@ -81,7 +90,7 @@ namespace Quark {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, tilingMode);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, tilingMode);
 
-		if (IsformatUsingMips(m_Spec.RenderModes.MinFilteringMode) || IsformatUsingMips(m_Spec.RenderModes.MagFilteringMode))
+		if (IsformatUsingMips(m_Spec.RenderModes.MinFilteringMode))
 		{
 			glGenerateMipmap(GL_TEXTURE_2D);
 		}
@@ -129,7 +138,7 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		QK_CORE_ASSERT(IsformatUsingMips(m_Spec.RenderModes.MinFilteringMode) || IsformatUsingMips(m_Spec.RenderModes.MagFilteringMode),
+		QK_CORE_ASSERT(IsformatUsingMips(m_Spec.RenderModes.MinFilteringMode),
 			"Invalid texture specification for mipmaps");
 
 		GLenum target = m_Spec.Samples > 1 ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
