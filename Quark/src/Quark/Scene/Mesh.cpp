@@ -72,7 +72,7 @@ namespace Quark {
 		21, 22, 20
 	};
 
-	static const Quark::BufferLayout s_Layout = {
+	static const BufferLayout s_Layout = {
 		{ Quark::ShaderDataType::Float3, "a_Position" },
 		{ Quark::ShaderDataType::Float2, "a_TexCoord" },
 		{ Quark::ShaderDataType::Float3, "a_Normal"   }
@@ -116,8 +116,8 @@ namespace Quark {
 		for (uint32_t i = 0; i < vertexCount; i += 3)
 		{
 			indices[i + 0] = i + 0;
-			indices[i + 1] = i + 1;
-			indices[i + 2] = i + 2;
+			indices[i + 1] = i + 2;
+			indices[i + 2] = i + 1;
 		}
 
 		Mesh mesh;
@@ -188,6 +188,11 @@ namespace Quark {
 	{
 		char* end;
 		return std::strtof(token.data(), &end);
+	}
+
+	const BufferLayout& Mesh::GetBufferLayout()
+	{
+		return s_Layout;
 	}
 
 	OBJMeshData Mesh::ReadOBJData(std::string_view filepath, const MeshFormatDescriptor& descriptor)

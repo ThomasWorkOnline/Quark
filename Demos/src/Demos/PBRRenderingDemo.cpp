@@ -2,16 +2,18 @@
 
 #include <Quark/Scripts/CameraController.h>
 
-static Scope<Texture2D> CreateTextureFromImage(const Ref<Image>& image, const Texture2DSpecification& spec)
+#define MATERIAL 0
+
+static Scope<Texture2D> CreateTextureFromImage(const Image* image, const Texture2DSpecification& spec)
 {
-	Scope<Texture2D> texture = Texture2D::Create(spec);
+	auto texture = Texture2D::Create(spec);
 	texture->SetData(image->GetData(), image->GetMetadata().Size);
 	texture->GenerateMipmaps();
-
 	return texture;
 }
 
-PBRRenderingDemo::PBRRenderingDemo()
+PBRRenderingDemo::PBRRenderingDemo(const ApplicationOptions& options)
+	: Application(options)
 {
 	QK_PROFILE_FUNCTION();
 
@@ -19,63 +21,169 @@ PBRRenderingDemo::PBRRenderingDemo()
 
 	m_Scene = CreateRef<PresentableScene>();
 
-	m_Player = m_Scene->CreateEntity();
-	m_Player.AddComponent<Transform3DComponent>().Position = { 0.0f, 0.0f, -2.0f };
-	m_Player.AddComponent<PhysicsComponent>();
-	m_Player.AddComponent<CameraComponent>().Camera.SetPerspective(70.0f);
-	m_Player.AddNativeScript<CameraController>();
-
-	m_Scene->SetPrimaryCamera(m_Player);
+	m_CameraEntity = m_Scene->CreatePrimaryCamera();
+	m_CameraEntity.GetComponent<Transform3DComponent>().Position = { 0.0f, 0.0f, -2.0f };
+	m_CameraEntity.AddNativeScript<CameraController>();
 
 	{
 		MeshFormatDescriptor md;
 		m_MeshDataFuture = std::async(std::launch::async, Mesh::ReadOBJData, "assets/meshes/poly_sphere.obj", md);
 	}
 
-#define MATERIAL 0
+	LoadMaterialsAsync();
 
 	{
-		const char* albedoFilepath    = nullptr;
-		const char* metallicFilepath  = nullptr;
-		const char* normalFilepath    = nullptr;
+		m_PBRShader = Shader::Create("assets/shaders/PBR.glsl");
+		m_UniformBuffer = UniformBuffer::Create(sizeof(CameraUniformBufferData), 0);
+
+		PipelineSpecification spec;
+		spec.ViewportWidth = GetWindow()->GetWidth();
+		spec.ViewportHeight = GetWindow()->GetHeight();
+		spec.CameraUniformBufferSize = sizeof(CameraUniformBufferData);
+		spec.Layout = Mesh::GetBufferLayout();
+		spec.Shader = m_PBRShader.get();
+		spec.RenderPass = Renderer::GetGeometryPass();
+
+		m_Pipeline = Pipeline::Create(spec);
+	}
+
+	static constexpr float lightPower = 10.0f;
+	static constexpr Vec3f lightColor = Vec3f(1.0f, 1.0f, 1.0f) * lightPower;
+	static constexpr Vec3f lightPositions[4] = {
+		{  0.0f,  0.0f, -3.0f },
+		{  0.0f,  2.0f,  3.0f },
+		{ -1.7f,  0.3f, -0.5f },
+		{ -2.0f,  2.0f,  2.0f }
+	};
+
+	m_PBRShader->SetInt("u_Material.AlbedoMap", 0);
+	m_PBRShader->SetInt("u_Material.NormalMap", 1);
+	m_PBRShader->SetInt("u_Material.MetallicMap", 2);
+	m_PBRShader->SetInt("u_Material.RoughnessMap", 3);
+	m_PBRShader->SetInt("u_Material.AmbiantOcclusionMap", 4);
+	m_PBRShader->SetInt("u_Material.IrradianceMap", 5);
+
+	m_PBRShader->SetVec3f("u_LightColors[0]", lightColor);
+	m_PBRShader->SetVec3f("u_LightColors[1]", lightColor);
+	m_PBRShader->SetVec3f("u_LightColors[2]", lightColor);
+	m_PBRShader->SetVec3f("u_LightColors[3]", lightColor);
+
+	m_PBRShader->SetVec3f("u_LightPositions[0]", lightPositions[0]);
+	m_PBRShader->SetVec3f("u_LightPositions[1]", lightPositions[1]);
+	m_PBRShader->SetVec3f("u_LightPositions[2]", lightPositions[2]);
+	m_PBRShader->SetVec3f("u_LightPositions[3]", lightPositions[3]);
+}
+
+void PBRRenderingDemo::OnUpdate(Timestep elapsedTime)
+{
+	m_Scene->OnUpdate(elapsedTime);
+}
+
+void PBRRenderingDemo::OnRender()
+{
+	UploadAssets();
+
+	if (m_Albedo) m_Albedo->Attach(0);
+	if (m_Normal) m_Normal->Attach(1);
+	if (m_Metallic) m_Metallic->Attach(2);
+	if (m_Roughness) m_Roughness->Attach(3);
+	if (m_AO) m_AO->Attach(4);
+
+	const auto& camera = m_CameraEntity.GetComponent<CameraComponent>().Camera;
+	const auto& transform = m_CameraEntity.GetComponent<Transform3DComponent>();
+
+	Mat4f cameraRotate = glm::toMat4(transform.Orientation);
+	Mat4f cameraView = glm::translate(cameraRotate, (Vec3f)-transform.Position);
+
+	m_PBRShader->SetVec3f("u_CameraPos", transform.Position);
+	m_UniformBufferData.ViewProjection = camera.GetProjection() * cameraView;
+	m_UniformBuffer->SetData(&m_UniformBufferData, sizeof(CameraUniformBufferData));
+
+	if (m_Body)
+	{
+		Renderer::BindPipeline(m_Pipeline.get());
+		Renderer::Submit(m_Body.GetVertexBuffer(), m_Body.GetIndexBuffer());
+	}
+}
+
+void PBRRenderingDemo::OnEvent(Event& e)
+{
+	EventDispatcher dispatcher(e);
+	dispatcher.Dispatch<KeyPressedEvent>(ATTACH_EVENT_FN(OnKeyPressed));
+	dispatcher.Dispatch<MouseMovedEvent>(ATTACH_EVENT_FN(OnMouseMoved));
+	dispatcher.Dispatch<MouseButtonPressedEvent>(ATTACH_EVENT_FN(OnMouseButtonPressed));
+
+	e.Handled = e.IsInCategory(EventCategory::Input) && GetWindow()->IsCursorEnabled();
+
+	if (!e.Handled)
+		m_Scene->OnEvent(e);
+}
+
+bool PBRRenderingDemo::OnMouseMoved(MouseMovedEvent& e)
+{
+	return GetWindow()->IsCursorEnabled();
+}
+
+void PBRRenderingDemo::OnMouseButtonPressed(MouseButtonPressedEvent& e)
+{
+	GetWindow()->DisableCursor();
+}
+
+void PBRRenderingDemo::OnKeyPressed(KeyPressedEvent& e)
+{
+	switch (e.GetKeyCode())
+	{
+		case KeyCode::Escape:
+			auto window = GetWindow();
+			window->EnableCursor();
+			break;
+	}
+}
+
+void PBRRenderingDemo::LoadMaterialsAsync()
+{
+	{
+		const char* albedoFilepath = nullptr;
+		const char* metallicFilepath = nullptr;
+		const char* normalFilepath = nullptr;
 		const char* roughnessFilepath = nullptr;
-		const char* aoFilepath        = nullptr;
+		const char* aoFilepath = nullptr;
 
 #if MATERIAL == 0
-		albedoFilepath    = "assets/textures/pbr/greasy-pan/greasy-pan-2-albedo.png";
-		metallicFilepath  = "assets/textures/pbr/greasy-pan/greasy-pan-2-metal.png";
-		normalFilepath    = "assets/textures/pbr/greasy-pan/greasy-pan-2-normal.png";
+		albedoFilepath = "assets/textures/pbr/greasy-pan/greasy-pan-2-albedo.png";
+		metallicFilepath = "assets/textures/pbr/greasy-pan/greasy-pan-2-metal.png";
+		normalFilepath = "assets/textures/pbr/greasy-pan/greasy-pan-2-normal.png";
 		roughnessFilepath = "assets/textures/pbr/greasy-pan/greasy-pan-2-roughness.png";
 #endif
 
 #if MATERIAL == 1
-		albedoFilepath    = "assets/textures/pbr/streaked-metal/albedo.png";
-		metallicFilepath  = "assets/textures/pbr/streaked-metal/metalness.png";
-		normalFilepath    = "assets/textures/pbr/streaked-metal/normal-dx.png";
+		albedoFilepath = "assets/textures/pbr/streaked-metal/albedo.png";
+		metallicFilepath = "assets/textures/pbr/streaked-metal/metalness.png";
+		normalFilepath = "assets/textures/pbr/streaked-metal/normal-dx.png";
 		roughnessFilepath = "assets/textures/pbr/streaked-metal/rough.png";
 #endif
 
 #if MATERIAL == 2
-		albedoFilepath    = "assets/textures/pbr/rustediron/rustediron2_basecolor.png";
-		metallicFilepath  = "assets/textures/pbr/rustediron/rustediron2_metallic.png";
-		normalFilepath    = "assets/textures/pbr/rustediron/rustediron2_normal.png";
+		albedoFilepath = "assets/textures/pbr/rustediron/rustediron2_basecolor.png";
+		metallicFilepath = "assets/textures/pbr/rustediron/rustediron2_metallic.png";
+		normalFilepath = "assets/textures/pbr/rustediron/rustediron2_normal.png";
 		roughnessFilepath = "assets/textures/pbr/rustediron/rustediron2_roughness.png";
 #endif
 
 #if MATERIAL == 3
-		albedoFilepath    = "assets/textures/pbr/gray-granite/gray-granite-flecks-albedo.png";
-		metallicFilepath  = "assets/textures/pbr/gray-granite/gray-granite-flecks-Metallic.png";
-		normalFilepath    = "assets/textures/pbr/gray-granite/gray-granite-flecks-Normal-dx.png";
+		albedoFilepath = "assets/textures/pbr/gray-granite/gray-granite-flecks-albedo.png";
+		metallicFilepath = "assets/textures/pbr/gray-granite/gray-granite-flecks-Metallic.png";
+		normalFilepath = "assets/textures/pbr/gray-granite/gray-granite-flecks-Normal-dx.png";
 		roughnessFilepath = "assets/textures/pbr/gray-granite/gray-granite-flecks-Roughness.png";
-		aoFilepath        = "assets/textures/pbr/gray-granite/gray-granite-flecks-ao.png";
+		aoFilepath = "assets/textures/pbr/gray-granite/gray-granite-flecks-ao.png";
 #endif
 
 #if MATERIAL == 4
-		albedoFilepath    = "assets/textures/pbr/marble-speckled/marble-speckled-albedo.png";
-		metallicFilepath  = "assets/textures/pbr/marble-speckled/marble-speckled-metalness.png";
-		normalFilepath    = "assets/textures/pbr/marble-speckled/marble-speckled-normal.png";
+		albedoFilepath = "assets/textures/pbr/marble-speckled/marble-speckled-albedo.png";
+		metallicFilepath = "assets/textures/pbr/marble-speckled/marble-speckled-metalness.png";
+		normalFilepath = "assets/textures/pbr/marble-speckled/marble-speckled-normal.png";
 		roughnessFilepath = "assets/textures/pbr/marble-speckled/marble-speckled-roughness.png";
-		aoFilepath        = "assets/textures/pbr/gray-granite/gray-granite-flecks-ao.png";
+		aoFilepath = "assets/textures/pbr/gray-granite/gray-granite-flecks-ao.png";
 #endif
 
 #if 1
@@ -84,9 +192,9 @@ PBRRenderingDemo::PBRRenderingDemo()
 			return CreateScope<Image>(filepath);
 		};
 
-		m_AlbedoFuture    = std::async(std::launch::async, newImageLambda, albedoFilepath);
-		m_MetallicFuture  = std::async(std::launch::async, newImageLambda, metallicFilepath);
-		m_NormalFuture    = std::async(std::launch::async, newImageLambda, normalFilepath);
+		m_AlbedoFuture = std::async(std::launch::async, newImageLambda, albedoFilepath);
+		m_MetallicFuture = std::async(std::launch::async, newImageLambda, metallicFilepath);
+		m_NormalFuture = std::async(std::launch::async, newImageLambda, normalFilepath);
 		m_RoughnessFuture = std::async(std::launch::async, newImageLambda, roughnessFilepath);
 #else
 
@@ -153,6 +261,8 @@ PBRRenderingDemo::PBRRenderingDemo()
 			spec.Width = 1;
 			spec.Height = 1;
 			spec.DataFormat = ColorDataFormat::Red8;
+			spec.RenderModes.MagFilteringMode = TextureFilteringMode::Nearest;
+			spec.RenderModes.MinFilteringMode = TextureFilteringMode::Nearest;
 
 			uint8_t data = 0xff;
 
@@ -160,118 +270,6 @@ PBRRenderingDemo::PBRRenderingDemo()
 			m_AO->SetData(&data, sizeof(uint8_t));
 		}
 	}
-
-	m_PBRShader = Shader::Create("assets/shaders/PBR.glsl");
-
-	static constexpr float lightPower = 10.0f;
-	static constexpr Vec3f lightColor = Vec3f(1.0f, 1.0f, 1.0f) * lightPower;
-	static constexpr Vec3f lightPositions[4] = {
-		{  0.0f,  0.0f, -3.0f },
-		{  0.0f,  2.0f,  3.0f },
-		{ -1.7f,  0.3f, -0.5f },
-		{ -2.0f,  2.0f,  2.0f }
-	};
-
-	m_PBRShader->SetMat4f("u_Model", Mat4f(1.0f));
-	m_PBRShader->SetInt("u_AlbedoMap", 0);
-	m_PBRShader->SetInt("u_NormalMap", 1);
-	m_PBRShader->SetInt("u_MetallicMap", 2);
-	m_PBRShader->SetInt("u_RoughnessMap", 3);
-	m_PBRShader->SetInt("u_AmbiantOcclusionMap", 4);
-	m_PBRShader->SetInt("u_IrradianceMap", 5);
-
-	m_PBRShader->SetVec3f("u_LightColors[0]", lightColor);
-	m_PBRShader->SetVec3f("u_LightColors[1]", lightColor);
-	m_PBRShader->SetVec3f("u_LightColors[2]", lightColor);
-	m_PBRShader->SetVec3f("u_LightColors[3]", lightColor);
-
-	m_PBRShader->SetVec3f("u_LightPositions[0]", lightPositions[0]);
-	m_PBRShader->SetVec3f("u_LightPositions[1]", lightPositions[1]);
-	m_PBRShader->SetVec3f("u_LightPositions[2]", lightPositions[2]);
-	m_PBRShader->SetVec3f("u_LightPositions[3]", lightPositions[3]);
-
-	m_UniformBuffer = UniformBuffer::Create(sizeof(CameraUniformBufferData), 0);
-}
-
-void PBRRenderingDemo::OnUpdate(Timestep elapsedTime)
-{
-	m_Scene->OnUpdate(elapsedTime);
-}
-
-void PBRRenderingDemo::OnRender()
-{
-	Timer t;
-	t.Start();
-
-	UploadAssets();
-
-	if (m_Albedo) m_Albedo->Attach(0);
-	if (m_Normal) m_Normal->Attach(1);
-	if (m_Metallic) m_Metallic->Attach(2);
-	if (m_Roughness) m_Roughness->Attach(3);
-	if (m_AO) m_AO->Attach(4);
-
-	const auto& camera = m_Player.GetComponent<CameraComponent>().Camera;
-	const auto& transform = m_Player.GetComponent<Transform3DComponent>();
-
-	m_PBRShader->SetVec3f("u_CameraPos", transform.Position);
-
-	Mat4f cameraRotate = glm::toMat4(transform.Orientation);
-	Mat4f cameraView = glm::translate(cameraRotate, (Vec3f)-transform.Position);
-
-	m_UniformBufferData.ViewProjection = camera.GetProjection() * cameraView;
-	m_UniformBuffer->SetData(&m_UniformBufferData, sizeof(CameraUniformBufferData));
-
-	if (m_Body)
-	{
-		Renderer::Submit(m_Body.GetVertexBuffer(), m_Body.GetIndexBuffer());
-	}
-
-	t.Stop();
-	auto ms = t.Microseconds().count() / 1000.0f;
-	QK_CORE_INFO("Frametime: {0}ms", ms);
-}
-
-void PBRRenderingDemo::OnEvent(Event& e)
-{
-	EventDispatcher dispatcher(e);
-	dispatcher.Dispatch<KeyPressedEvent>(ATTACH_EVENT_FN(OnKeyPressed));
-	dispatcher.Dispatch<MouseMovedEvent>(ATTACH_EVENT_FN(OnMouseMoved));
-	dispatcher.Dispatch<MouseButtonPressedEvent>(ATTACH_EVENT_FN(OnMouseButtonPressed));
-	dispatcher.Dispatch<MouseButtonReleasedEvent>(ATTACH_EVENT_FN(OnMouseButtonReleased));
-
-	e.Handled = e.IsInCategory(EventCategory::Input) && GetWindow()->IsCursorEnabled();
-
-	if (!e.Handled)
-		m_Scene->OnEvent(e);
-}
-
-bool PBRRenderingDemo::OnKeyPressed(KeyPressedEvent& e)
-{
-	switch (e.GetKeyCode())
-	{
-		case KeyCode::Escape:
-			auto window = GetWindow();
-			window->EnableCursor();
-			break;
-	}
-	return false;
-}
-
-bool PBRRenderingDemo::OnMouseMoved(MouseMovedEvent& e)
-{
-	return GetWindow()->IsCursorEnabled();
-}
-
-bool PBRRenderingDemo::OnMouseButtonPressed(MouseButtonPressedEvent& e)
-{
-	GetWindow()->DisableCursor();
-	return false;
-}
-
-bool PBRRenderingDemo::OnMouseButtonReleased(MouseButtonReleasedEvent& e)
-{
-	return false;
 }
 
 void PBRRenderingDemo::UploadAssets()
@@ -284,7 +282,7 @@ void PBRRenderingDemo::UploadAssets()
 
 	if (m_AlbedoFuture.valid() && m_AlbedoFuture.wait_for(std::chrono::microseconds(0)) == std::future_status::ready)
 	{	
-		Ref<Image> image = m_AlbedoFuture.get();
+		auto image = m_AlbedoFuture.get();
 
 		Texture2DSpecification spec;
 		spec.Width = image->Width();
@@ -293,12 +291,12 @@ void PBRRenderingDemo::UploadAssets()
 		spec.RenderModes.MagFilteringMode = TextureFilteringMode::Linear;
 		spec.RenderModes.MinFilteringMode = TextureFilteringMode::LinearMipmapLinear;
 
-		m_Albedo = CreateTextureFromImage(image, spec);
+		m_Albedo = CreateTextureFromImage(image.get(), spec);
 	}
 
 	if (m_MetallicFuture.valid() && m_MetallicFuture.wait_for(std::chrono::microseconds(0)) == std::future_status::ready)
 	{
-		Ref<Image> image = m_MetallicFuture.get();
+		auto image = m_MetallicFuture.get();
 
 		Texture2DSpecification spec;
 		spec.Width = image->Width();
@@ -307,12 +305,12 @@ void PBRRenderingDemo::UploadAssets()
 		spec.RenderModes.MagFilteringMode = TextureFilteringMode::Linear;
 		spec.RenderModes.MinFilteringMode = TextureFilteringMode::LinearMipmapLinear;
 
-		m_Metallic = CreateTextureFromImage(image, spec);
+		m_Metallic = CreateTextureFromImage(image.get(), spec);
 	}
 
 	if (m_NormalFuture.valid() && m_NormalFuture.wait_for(std::chrono::microseconds(0)) == std::future_status::ready)
 	{
-		Ref<Image> image = m_NormalFuture.get();
+		auto image = m_NormalFuture.get();
 
 		Texture2DSpecification spec;
 		spec.Width = image->Width();
@@ -321,12 +319,12 @@ void PBRRenderingDemo::UploadAssets()
 		spec.RenderModes.MagFilteringMode = TextureFilteringMode::Linear;
 		spec.RenderModes.MinFilteringMode = TextureFilteringMode::LinearMipmapLinear;
 
-		m_Normal = CreateTextureFromImage(image, spec);
+		m_Normal = CreateTextureFromImage(image.get(), spec);
 	}
 
 	if (m_RoughnessFuture.valid() && m_RoughnessFuture.wait_for(std::chrono::microseconds(0)) == std::future_status::ready)
 	{
-		Ref<Image> image = m_RoughnessFuture.get();
+		auto image = m_RoughnessFuture.get();
 
 		Texture2DSpecification spec;
 		spec.Width = image->Width();
@@ -335,12 +333,12 @@ void PBRRenderingDemo::UploadAssets()
 		spec.RenderModes.MagFilteringMode = TextureFilteringMode::Linear;
 		spec.RenderModes.MinFilteringMode = TextureFilteringMode::LinearMipmapLinear;
 
-		m_Roughness = CreateTextureFromImage(image, spec);
+		m_Roughness = CreateTextureFromImage(image.get(), spec);
 	}
 
 	if (m_AOFuture.valid() && m_AOFuture.wait_for(std::chrono::microseconds(0)) == std::future_status::ready)
 	{
-		Ref<Image> image = m_AOFuture.get();
+		auto image = m_AOFuture.get();
 
 		Texture2DSpecification spec;
 		spec.Width = image->Width();
@@ -349,6 +347,6 @@ void PBRRenderingDemo::UploadAssets()
 		spec.RenderModes.MagFilteringMode = TextureFilteringMode::Linear;
 		spec.RenderModes.MinFilteringMode = TextureFilteringMode::LinearMipmapLinear;
 
-		m_AO = CreateTextureFromImage(image, spec);
+		m_AO = CreateTextureFromImage(image.get(), spec);
 	}
 }

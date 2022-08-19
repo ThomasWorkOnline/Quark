@@ -62,6 +62,7 @@ void TextureArrayTest::OnUpdate(Timestep elapsedTime)
 void TextureArrayTest::OnRender()
 {
 	static constexpr Vec4f color = { 1.0f, 1.0f, 0.0f, 1.0f };
+
 	Renderer2D::BeginScene(m_Camera.GetProjection(), m_CameraTransform);
 
 	Renderer2D::DrawSprite(color);

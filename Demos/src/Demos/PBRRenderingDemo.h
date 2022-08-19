@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Quark.h>
+
 #include <future>
 
 using namespace Quark;
@@ -8,17 +9,18 @@ using namespace Quark;
 class PBRRenderingDemo : public Application
 {
 public:
-	PBRRenderingDemo();
+	PBRRenderingDemo(const ApplicationOptions& options);
 
 	void OnUpdate(Timestep elapsedTime) override;
 	void OnRender() override;
 	void OnEvent(Event& e) override;
 
 private:
-	bool OnKeyPressed(KeyPressedEvent& e);
 	bool OnMouseMoved(MouseMovedEvent& e);
-	bool OnMouseButtonPressed(MouseButtonPressedEvent& e);
-	bool OnMouseButtonReleased(MouseButtonReleasedEvent& e);
+	void OnMouseButtonPressed(MouseButtonPressedEvent& e);
+	void OnKeyPressed(KeyPressedEvent& e);
+
+	void LoadMaterialsAsync();
 	void UploadAssets();
 
 private:
@@ -28,7 +30,8 @@ private:
 	};
 
 	Ref<PresentableScene> m_Scene;
-	Entity m_Player;
+	Entity m_CameraEntity;
+	Mesh m_Body;
 
 	Scope<Texture2D> m_Albedo;
 	Scope<Texture2D> m_Metallic;
@@ -39,8 +42,7 @@ private:
 	Scope<Shader> m_PBRShader;
 	Scope<UniformBuffer> m_UniformBuffer;
 	CameraUniformBufferData m_UniformBufferData;
-
-	Mesh m_Body;
+	Scope<Pipeline> m_Pipeline;
 
 	std::future<OBJMeshData> m_MeshDataFuture;
 	std::future<Scope<Image>> m_AlbedoFuture;

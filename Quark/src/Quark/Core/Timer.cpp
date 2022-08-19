@@ -13,13 +13,18 @@ namespace Quark {
 		m_End = std::chrono::steady_clock::now();
 	}
 
-	std::chrono::microseconds Timer::Microseconds() const
+	std::chrono::seconds Timer::Seconds() const
 	{
-		return std::chrono::duration_cast<std::chrono::microseconds>(m_End - m_Start);
+		return std::chrono::duration_cast<std::chrono::seconds>(m_End - m_Start);
 	}
 
 	std::chrono::milliseconds Timer::Milliseconds() const
 	{
 		return std::chrono::duration_cast<std::chrono::milliseconds>(m_End - m_Start);
+	}
+
+	std::chrono::microseconds Timer::Microseconds() const
+	{
+		return std::chrono::duration_cast<std::chrono::microseconds>(m_End - m_Start);
 	}
 }

@@ -53,6 +53,7 @@ namespace Quark {
 		static Mesh ConstructMeshFromOBJData(const OBJMeshData& data);
 		static Mesh GenerateUnitCube();
 
+		static const BufferLayout& GetBufferLayout();
 		static OBJMeshData ReadOBJData(std::string_view filepath, const MeshFormatDescriptor& descriptor = {});
 
 		operator bool() const { return m_VertexBuffer != nullptr; }
