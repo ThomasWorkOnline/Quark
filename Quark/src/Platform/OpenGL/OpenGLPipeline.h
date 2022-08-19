@@ -13,8 +13,6 @@ namespace Quark {
 		OpenGLPipeline(const PipelineSpecification& spec);
 		virtual ~OpenGLPipeline() override;
 
-		virtual void SetViewport(uint32_t viewportWidth, uint32_t viewportHeight) override {}
-
 		virtual bool operator==(const Pipeline& other) const override
 		{
 			return false;

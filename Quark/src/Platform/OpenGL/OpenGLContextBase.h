@@ -12,7 +12,7 @@ namespace Quark {
 		virtual void StartFrame() override;
 
 		virtual void Submit() override;
-		virtual void SetViewport(uint32_t x, uint32_t y, uint32_t viewportWidth, uint32_t viewportHeight) override;
+		virtual void Resize(uint32_t viewportWidth, uint32_t viewportHeight) override;
 
 		virtual uint32_t GetCurrentImageIndex() const override { return 0; }
 		virtual uint32_t GetSwapChainImageCount() const override { return 1; }

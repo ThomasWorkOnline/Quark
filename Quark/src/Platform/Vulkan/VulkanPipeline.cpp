@@ -100,42 +100,6 @@ namespace Quark {
 			}
 		}
 
-		Invalidate();
-	}
-
-	VulkanPipeline::~VulkanPipeline()
-	{
-		QK_PROFILE_FUNCTION();
-
-		m_Device->WaitIdle();
-
-		vkDestroyPipeline(m_Device->GetVkHandle(), m_Pipeline, nullptr);
-		vkDestroyPipelineLayout(m_Device->GetVkHandle(), m_PipelineLayout, nullptr);
-		vkDestroyDescriptorSetLayout(m_Device->GetVkHandle(), m_DescriptorSetLayout, nullptr);
-		vkDestroyDescriptorPool(m_Device->GetVkHandle(), m_DescriptorPool, nullptr);
-	}
-
-	void VulkanPipeline::SetViewport(uint32_t viewportWidth, uint32_t viewportHeight)
-	{
-		m_Spec.ViewportWidth = viewportWidth;
-		m_Spec.ViewportHeight = viewportHeight;
-
-		Invalidate();
-	}
-
-	VkDescriptorSet VulkanPipeline::GetDescriptorSet() const
-	{
-		return m_DescriptorSets[VulkanContext::Get()->GetCurrentFrameIndex()];
-	}
-
-	void VulkanPipeline::Invalidate()
-	{
-		if (m_Pipeline)
-		{
-			vkDestroyPipeline(m_Device->GetVkHandle(), m_Pipeline, nullptr);
-			vkDestroyPipelineLayout(m_Device->GetVkHandle(), m_PipelineLayout, nullptr);
-		}
-
 		// Vertex input 
 		auto bindingDescription = Utils::GetBindingDescription(m_Spec.Layout);
 
@@ -163,25 +127,10 @@ namespace Quark {
 		inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 		inputAssembly.primitiveRestartEnable = VK_FALSE;
 
-		// Viewport
-		VkViewport viewport{};
-		viewport.x = 0.0f;
-		viewport.y = 0.0f;
-		viewport.width = (float)m_Spec.ViewportWidth;
-		viewport.height = (float)m_Spec.ViewportHeight;
-		viewport.minDepth = 0.0f;
-		viewport.maxDepth = 1.0f;
-
-		VkRect2D scissor{};
-		scissor.offset = { 0, 0 };
-		scissor.extent = VkExtent2D{ m_Spec.ViewportWidth, m_Spec.ViewportHeight };
-
 		VkPipelineViewportStateCreateInfo viewportState{};
 		viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
 		viewportState.viewportCount = 1;
-		viewportState.pViewports = &viewport;
 		viewportState.scissorCount = 1;
-		viewportState.pScissors = &scissor;
 
 		// Rasterization
 		VkPipelineRasterizationStateCreateInfo rasterizer{};
@@ -221,22 +170,21 @@ namespace Quark {
 		colorBlending.attachmentCount = 1;
 		colorBlending.pAttachments = &colorBlendAttachment;
 
-#if 0
+		// Dynamic states
 		VkDynamicState dynamicStates[] = {
-			VK_DYNAMIC_STATE_VIEWPORT,
-			VK_DYNAMIC_STATE_LINE_WIDTH
+			VK_DYNAMIC_STATE_LINE_WIDTH,
+			VK_DYNAMIC_STATE_SCISSOR,
+			VK_DYNAMIC_STATE_VIEWPORT
 		};
 
 		VkPipelineDynamicStateCreateInfo dynamicState{};
 		dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-		dynamicState.dynamicStateCount = static_cast<uint32_t>(sizeof(dynamicStates));
+		dynamicState.dynamicStateCount = sizeof_array(dynamicStates);
 		dynamicState.pDynamicStates = dynamicStates;
-#endif
 
 		// Pipeline creation
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		pipelineLayoutInfo.setLayoutCount = 0;
 		pipelineLayoutInfo.pushConstantRangeCount = 0;
 		pipelineLayoutInfo.setLayoutCount = 1;
 		pipelineLayoutInfo.pSetLayouts = &m_DescriptorSetLayout;
@@ -265,17 +213,37 @@ namespace Quark {
 		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 		pipelineInfo.stageCount = static_cast<uint32_t>(stageCount);
 		pipelineInfo.pStages = stages;
+
 		pipelineInfo.pVertexInputState = &vertexInputInfo;
 		pipelineInfo.pInputAssemblyState = &inputAssembly;
+
 		pipelineInfo.pViewportState = &viewportState;
 		pipelineInfo.pRasterizationState = &rasterizer;
 		pipelineInfo.pMultisampleState = &multisampling;
 		pipelineInfo.pColorBlendState = &colorBlending;
+		pipelineInfo.pDynamicState = &dynamicState;
+
 		pipelineInfo.layout = m_PipelineLayout;
 		pipelineInfo.renderPass = static_cast<VulkanRenderPass*>(m_Spec.RenderPass)->GetVkHandle();
 		pipelineInfo.subpass = 0;
 
 		VkResult vkRes = vkCreateGraphicsPipelines(m_Device->GetVkHandle(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_Pipeline);
 		QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Could not create the graphics pipeline");
+	}
+
+	VulkanPipeline::~VulkanPipeline()
+	{
+		QK_PROFILE_FUNCTION();
+
+		vkDeviceWaitIdle(m_Device->GetVkHandle());
+		vkDestroyPipeline(m_Device->GetVkHandle(), m_Pipeline, nullptr);
+		vkDestroyPipelineLayout(m_Device->GetVkHandle(), m_PipelineLayout, nullptr);
+		vkDestroyDescriptorSetLayout(m_Device->GetVkHandle(), m_DescriptorSetLayout, nullptr);
+		vkDestroyDescriptorPool(m_Device->GetVkHandle(), m_DescriptorPool, nullptr);
+	}
+
+	VkDescriptorSet VulkanPipeline::GetDescriptorSet() const
+	{
+		return m_DescriptorSets[VulkanContext::Get()->GetCurrentFrameIndex()];
 	}
 }

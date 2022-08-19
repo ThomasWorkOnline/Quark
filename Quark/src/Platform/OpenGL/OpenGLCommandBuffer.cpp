@@ -15,6 +15,11 @@ namespace Quark {
 		glUseProgram(rendererID);
 	}
 
+	void OpenGLCommandBuffer::SetViewport(uint32_t viewportWidth, uint32_t viewportHeight)
+	{
+		glViewport(0, 0, viewportWidth, viewportHeight);
+	}
+
 	void OpenGLCommandBuffer::BeginRenderPass(RenderPass* renderPass, Framebuffer* framebuffer)
 	{
 		framebuffer ? framebuffer->Attach() : glBindFramebuffer(GL_FRAMEBUFFER, 0);

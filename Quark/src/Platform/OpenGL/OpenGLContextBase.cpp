@@ -82,8 +82,7 @@ namespace Quark {
 	{
 	}
 
-	void OpenGLContextBase::SetViewport(uint32_t x, uint32_t y, uint32_t viewportWidth, uint32_t viewportHeight)
+	void OpenGLContextBase::Resize(uint32_t viewportWidth, uint32_t viewportHeight)
 	{
-		glViewport(x, y, viewportWidth, viewportHeight);
 	}
 }

@@ -26,15 +26,13 @@ PBRRenderingDemo::PBRRenderingDemo(const ApplicationOptions& options)
 
 	{
 		m_PBRShader = Shader::Create("assets/shaders/PBR.glsl");
-		m_UniformBuffer = UniformBuffer::Create(sizeof(CameraUniformBufferData), 0);
+		m_UniformBuffer = UniformBuffer::Create(sizeof(m_UniformBufferData), 0);
 
 		PipelineSpecification spec;
-		spec.ViewportWidth = GetWindow()->GetWidth();
-		spec.ViewportHeight = GetWindow()->GetHeight();
-		spec.CameraUniformBufferSize = sizeof(CameraUniformBufferData);
 		spec.Layout = Mesh::GetBufferLayout();
 		spec.Shader = m_PBRShader.get();
 		spec.RenderPass = Renderer::GetGeometryPass();
+		spec.UniformBuffer = m_UniformBuffer.get();
 
 		m_Pipeline = Pipeline::Create(spec);
 	}
@@ -89,7 +87,7 @@ void PBRRenderingDemo::OnRender()
 
 	m_PBRShader->SetVec3f("u_CameraPos", transform.Position);
 	m_UniformBufferData.ViewProjection = camera.GetProjection() * cameraView;
-	m_UniformBuffer->SetData(&m_UniformBufferData, sizeof(CameraUniformBufferData));
+	m_UniformBuffer->SetData(&m_UniformBufferData, sizeof(m_UniformBufferData));
 
 	if (m_Body)
 	{

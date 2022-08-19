@@ -119,6 +119,7 @@ namespace Quark {
 	void VulkanContextBase::StartFrame()
 	{
 		m_Data.CurrentFrameIndex = (m_Data.CurrentFrameIndex + 1) % FramesInFlight;
+
 		{
 			VkFence waitFence = m_Data.InFlightFences[m_Data.CurrentFrameIndex];
 
@@ -161,10 +162,10 @@ namespace Quark {
 		m_SwapChain->Present(presentQueue, renderFinishedSemaphore);
 	}
 
-	void VulkanContextBase::SetViewport(uint32_t x, uint32_t y, uint32_t viewportWidth, uint32_t viewportHeight)
+	void VulkanContextBase::Resize(uint32_t viewportWidth, uint32_t viewportHeight)
 	{
 		m_Device->WaitIdle();
-		m_SwapChain->Resize(viewportWidth - x, viewportHeight - y);
+		m_SwapChain->Resize(viewportWidth, viewportHeight);
 	}
 
 	uint32_t VulkanContextBase::GetSwapChainImageCount() const

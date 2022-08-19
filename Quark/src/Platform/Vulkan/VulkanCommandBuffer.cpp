@@ -41,6 +41,21 @@ namespace Quark {
 			0, 1, &descriptorSet, 0, nullptr);
 	}
 
+	void VulkanCommandBuffer::SetViewport(uint32_t viewportWidth, uint32_t viewportHeight)
+	{
+		VkViewport viewport{};
+		viewport.width = (float)viewportWidth;
+		viewport.height = (float)viewportHeight;
+		viewport.minDepth = 0.0f;
+		viewport.maxDepth = 1.0f;
+		vkCmdSetViewport(m_CommandBuffer, 0, 1, &viewport);
+
+		VkRect2D scissor{};
+		scissor.offset = { 0, 0 };
+		scissor.extent = VkExtent2D{ viewportWidth, viewportHeight };
+		vkCmdSetScissor(m_CommandBuffer, 0, 1, &scissor);
+	}
+
 	void VulkanCommandBuffer::BeginRenderPass(RenderPass* renderPass, Framebuffer* framebuffer)
 	{
 		auto vkFramebuffer = static_cast<VulkanFramebuffer*>(framebuffer)->GetVkHandle();

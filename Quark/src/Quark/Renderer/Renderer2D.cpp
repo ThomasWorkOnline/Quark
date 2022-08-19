@@ -361,12 +361,6 @@ namespace Quark {
 		DrawText(text, traits.Font.get(), traits.Color, transform);
 	}
 
-	void Renderer2D::SetViewport(uint32_t x, uint32_t y, uint32_t viewportWidth, uint32_t viewportHeight)
-	{
-		s_Data->QuadRendererPipeline->SetViewport(viewportWidth, viewportHeight);
-		s_Data->LineRendererPipeline->SetViewport(viewportWidth, viewportHeight);
-	}
-
 	void Renderer2D::StartBatch()
 	{
 		s_Data->QuadVertexPtr    = s_Data->QuadVertices;
@@ -490,12 +484,10 @@ namespace Quark {
 
 		{
 			PipelineSpecification spec;
-			spec.ViewportWidth = Renderer::GetViewportExtent().Width;
-			spec.ViewportHeight = Renderer::GetViewportExtent().Height;
-			spec.CameraUniformBufferSize = sizeof(Renderer2DData::CameraBufferData);
 			spec.Layout = s_QuadVertexLayout;
 			spec.RenderPass = Renderer::GetGeometryPass();
 			spec.Shader = s_Data->QuadShader.get();
+			spec.UniformBuffer = s_Data->CameraUniformBuffer.get();
 
 			s_Data->QuadRendererPipeline = Pipeline::Create(spec);
 		}
@@ -518,12 +510,10 @@ namespace Quark {
 
 		{
 			PipelineSpecification spec;
-			spec.ViewportWidth = Renderer::GetViewportExtent().Width;
-			spec.ViewportHeight = Renderer::GetViewportExtent().Height;
-			spec.CameraUniformBufferSize = sizeof(Renderer2DData::CameraBufferData);
 			spec.Layout = s_LineVertexLayout;
 			spec.RenderPass = Renderer::GetGeometryPass();
 			spec.Shader = s_Data->LineShader.get();
+			spec.UniformBuffer = s_Data->CameraUniformBuffer.get();
 
 			s_Data->LineRendererPipeline = Pipeline::Create(spec);
 		}

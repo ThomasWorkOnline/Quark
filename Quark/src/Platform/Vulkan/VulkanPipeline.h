@@ -16,8 +16,6 @@ namespace Quark {
 		VulkanPipeline(VulkanDevice* device, const PipelineSpecification& spec);
 		virtual ~VulkanPipeline() override;
 
-		virtual void SetViewport(uint32_t viewportWidth, uint32_t viewportHeight) override;
-
 		virtual bool operator==(const Pipeline& other) const override
 		{
 			return m_Pipeline == reinterpret_cast<const VulkanPipeline&>(other).m_Pipeline;
@@ -30,9 +28,6 @@ namespace Quark {
 		// Non-Copyable
 		VulkanPipeline(const VulkanPipeline&) = delete;
 		VulkanPipeline& operator=(const VulkanPipeline&) = delete;
-
-	private:
-		void Invalidate();
 
 	private:
 		VulkanDevice* m_Device = nullptr;

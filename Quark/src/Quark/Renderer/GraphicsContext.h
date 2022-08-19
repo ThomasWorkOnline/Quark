@@ -16,7 +16,7 @@ namespace Quark {
 
 		virtual void Submit() = 0;
 		virtual void SwapBuffers() = 0;
-		virtual void SetViewport(uint32_t x, uint32_t y, uint32_t viewportWidth, uint32_t viewportHeight) = 0;
+		virtual void Resize(uint32_t viewportWidth, uint32_t viewportHeight) = 0;
 
 		virtual uint32_t GetCurrentImageIndex() const = 0;
 		virtual uint32_t GetSwapChainImageCount() const = 0;

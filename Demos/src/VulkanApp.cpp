@@ -37,7 +37,6 @@ VulkanApp::VulkanApp(const ApplicationOptions& options)
 	
 	auto* window = GetWindow();
 	window->SetVSync(false);
-	window->SetFullscreen(true);
 
 	m_TextCamera.SetOrthographic((float)window->GetWidth());
 	m_TextCamera.Resize(window->GetWidth(), window->GetHeight());
@@ -53,9 +52,9 @@ void VulkanApp::OnEvent(Event& e)
 		m_TextCamera.Resize(e.GetWidth(), e.GetHeight());
 	});
 
-	bool ignoreEvent = !m_ViewportSelected && e.IsInCategory(EventCategory::Input);
+	e.Handled = !m_ViewportSelected && e.IsInCategory(EventCategory::Input);
 
-	if (!e.Handled && !ignoreEvent)
+	if (!e.Handled)
 		m_Scene->OnEvent(e);
 
 	DefaultEventHandler(e);

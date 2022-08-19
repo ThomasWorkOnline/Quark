@@ -24,6 +24,12 @@ private:
 	void UploadAssets();
 
 private:
+	struct Light
+	{
+		Vec4f Color;
+		Vec4f Position;
+	};
+
 	struct CameraUniformBufferData
 	{
 		Mat4f ViewProjection;

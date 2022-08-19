@@ -70,14 +70,15 @@ namespace Quark {
 		s_Data->ActiveCommandBuffer->DrawLines(vertexCount);
 	}
 
-	void Renderer::SetViewport(uint32_t x, uint32_t y, uint32_t viewportWidth, uint32_t viewportHeight)
+	void Renderer::SetViewport(uint32_t viewportWidth, uint32_t viewportHeight)
 	{
 		QK_ASSERT_RENDER_THREAD();
 
 		s_ViewportExtent.Width = viewportWidth;
 		s_ViewportExtent.Height = viewportHeight;
+		s_Data->ActiveCommandBuffer->SetViewport(viewportWidth, viewportHeight);
 
-		GraphicsContext::Get()->SetViewport(x, y, viewportWidth, viewportHeight);
+		GraphicsContext::Get()->Resize(viewportWidth, viewportHeight);
 	}
 
 	RenderPass* Renderer::GetGeometryPass()
