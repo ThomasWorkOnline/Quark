@@ -1,6 +1,8 @@
 #include "qkpch.h"
 #include "OpenGLFont.h"
 
+#include "Quark/Renderer/GraphicsAPI.h"
+
 #pragma warning(push, 0)
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -59,6 +61,9 @@ namespace Quark {
 
 		m_AtlasWidth = w;
 		m_AtlasHeight = h;
+
+		QK_CORE_ASSERT(m_AtlasWidth <= GraphicsAPI::Instance->GetCapabilities().TextureConstraints.MaxPixelSize
+			&& m_AtlasHeight <= GraphicsAPI::Instance->GetCapabilities().TextureConstraints.MaxPixelSize, "Font atlas dimensions too large");
 
 		glGenTextures(1, &m_RendererID);
 		glBindTexture(GL_TEXTURE_2D, m_RendererID);
