@@ -357,14 +357,8 @@ namespace Quark {
 
 	void Renderer2D::DrawText(const Text& text)
 	{
-		auto& traits = text.GetRenderTraits();
-		DrawText(text.GetText(), traits.FontStyle.get(), traits.Color);
-	}
-
-	void Renderer2D::DrawTextInput(const TextInput& input)
-	{
-		auto& traits = input.GetRenderTraits();
-		DrawText(input.GetText(), traits.FontStyle.get(), traits.Color);
+		auto& traits = text.GetStyle();
+		DrawText(text, traits.Font.get(), traits.Color);
 	}
 
 	void Renderer2D::SetViewport(uint32_t x, uint32_t y, uint32_t viewportWidth, uint32_t viewportHeight)

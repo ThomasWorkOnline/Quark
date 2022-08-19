@@ -2,29 +2,61 @@
 
 #include "Quark/Core/Core.h"
 #include "Quark/Renderer/Font.h"
-#include "Quark/Renderer/TextRendererTraits.h"
 
 #include "UIElement.h"
 
 namespace Quark {
 
-	class Text final : public UIElement
+	enum class HorizontalTextAlignment
+	{
+		Left = 0,
+		Right,
+		Center,
+
+		Default = Left
+	};
+
+	enum class VerticalTextAlignment
+	{
+		Bottom = 0,
+		Top,
+		Center,
+
+		Default = Bottom
+	};
+
+	struct TextStyle
+	{
+		HorizontalTextAlignment HorizontalAlign{};
+		VerticalTextAlignment   VerticalAlign{};
+		Ref<Font>               Font;
+		Vec4f                   Color = Vec4f(1.0f);
+	};
+
+	class Text : public UIElement
 	{
 	public:
 		Text() = default;
-		Text(const std::string& text, const Ref<Font>& font, const Vec4f& color,
-			HorizontalTextAlignment hAlign = HorizontalTextAlignment::Default, VerticalTextAlignment vAlign = VerticalTextAlignment::Default);
+		Text(const TextStyle& style);
+		Text(std::string_view text, const TextStyle& style);
 
-		std::string_view GetText() const { return m_Text; }
-		void SetText(const std::string&text);
-		void SetFont(const Ref<Font>& font);
-		void SetHorizontalAlignment(HorizontalTextAlignment align) { m_RenderTraits.HAlign = align; }
-		void SetVerticalAlignment(VerticalTextAlignment align) { m_RenderTraits.VAlign = align; }
+		Text& SetValue(std::string_view text);
+		Text& SetFont(const Ref<Font>& font);
+		Text& SetHorizontalAlignment(HorizontalTextAlignment alignment);
+		Text& SetVerticalAlignment(VerticalTextAlignment alignment);
 
-		const TextRenderTraits& GetRenderTraits() const { return m_RenderTraits; }
+		std::string_view GetValue() const { return m_Value; }
+		operator std::string_view() const { return GetValue(); }
 
-	private:
-		std::string m_Text;
-		TextRenderTraits m_RenderTraits{};
+		const TextStyle& GetStyle() const { return m_Style; }
+		TextStyle& GetStyle() { return m_Style; }
+
+		int32_t GetOriginX() const;
+		int32_t GetOriginY() const;
+
+	protected:
+		std::string m_Value;
+		TextStyle m_Style{};
+		int32_t m_Width = 0, m_Height = 0;
 	};
 }

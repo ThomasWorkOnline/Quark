@@ -2,25 +2,31 @@
 
 MainLayer::MainLayer(Application* app) : Layer(app)
 {
-	Texture2DArraySpecification spec;
-	spec.Width = 48;
-	spec.Height = 48;
-	spec.Layers = 1;
-	spec.DataFormat = ColorDataFormat::RGBA8;
-	spec.RenderModes.MinFilteringMode = TextureFilteringMode::Linear;
-	spec.RenderModes.MagFilteringMode = TextureFilteringMode::Nearest;
+	m_Texture = Texture2D::Create("assets/textures/pbr/streaked-metal/normal-dx.png");
 
 	m_Font1 = m_Library.Load("arial-regular", "assets/fonts/arial.ttf", 48);
 	m_Font2 = m_Library.Load("agency-regular", "assets/fonts/ANTQUAI.TTF", 64);
 
-	static constexpr Vec4f color1 = { 1.0f, 1.0f, 0.0f, 1.0f };
-	static constexpr Vec4f color2 = { 1.0f, 0.0f, 1.0f, 0.5f };
+	{
+		static constexpr Vec4f color1 = { 1.0f, 1.0f, 0.0f, 1.0f };
+		static constexpr Vec4f color2 = { 1.0f, 0.0f, 1.0f, 0.5f };
 
-	m_Text  = Text("Hello quad", m_Font1, color1, HorizontalTextAlignment::Left, VerticalTextAlignment::Center);
-	m_Text2 = Text("Hello quad", m_Font2, color1, HorizontalTextAlignment::Right, VerticalTextAlignment::Bottom);
-	m_Input = TextInput(m_Font1, HorizontalTextAlignment::Center);
+		TextStyle style1;
+		style1.HorizontalAlign = HorizontalTextAlignment::Left;
+		style1.VerticalAlign = VerticalTextAlignment::Center;
+		style1.Font = m_Font1;
+		style1.Color = color1;
 
-	m_Texture = Texture2D::Create("assets/textures/pbr/streaked-metal/normal-dx.png");
+		TextStyle style2;
+		style1.HorizontalAlign = HorizontalTextAlignment::Right;
+		style1.VerticalAlign = VerticalTextAlignment::Bottom;
+		style2.Font = m_Font2;
+		style2.Color = color2;
+
+		m_Text1 = Text("Hello quad", style1);
+		m_Text2 = Text("Hello quad", style2);
+		m_Input = TextInput(style1);
+	}
 
 	auto window = GetApplication()->GetWindow();
 	m_Camera.SetOrthographic((float)window->GetWidth());
@@ -34,7 +40,7 @@ void MainLayer::OnUpdate(Timestep elapsedTime)
 void MainLayer::OnRender()
 {
 	Renderer2D::BeginScene(m_Camera.GetProjection(), Mat4f(1.0f));
-	Renderer2D::DrawTextInput(m_Input);
+	Renderer2D::DrawText(m_Input);
 	Renderer2D::EndScene();
 }
 
@@ -48,13 +54,12 @@ void MainLayer::OnEvent(Event& e)
 		m_Input.OnEvent(e);
 }
 
-bool MainLayer::OnWindowResized(WindowResizedEvent& e)
+void MainLayer::OnWindowResized(WindowResizedEvent& e)
 {
 	m_Camera.Resize(e.GetWidth(), e.GetHeight());
-	return false;
 }
 
-bool MainLayer::OnKeyPressed(KeyPressedEvent& e)
+void MainLayer::OnKeyPressed(KeyPressedEvent& e)
 {
 	switch (e.GetKeyCode())
 	{
@@ -66,26 +71,38 @@ bool MainLayer::OnKeyPressed(KeyPressedEvent& e)
 			break;
 		}
 		case KeyCode::Left:
-			m_Text.SetHorizontalAlignment(HorizontalTextAlignment::Left);
+		{
+			m_Text1.SetHorizontalAlignment(HorizontalTextAlignment::Left);
 			break;
+		}
 		case KeyCode::Right:
-			m_Text.SetHorizontalAlignment(HorizontalTextAlignment::Right);
+		{
+			m_Text1.SetHorizontalAlignment(HorizontalTextAlignment::Right);
 			break;
+		}
 		case KeyCode::Up:
-			m_Text.SetVerticalAlignment(VerticalTextAlignment::Top);
+		{
+			m_Text1.SetVerticalAlignment(VerticalTextAlignment::Top);
 			break;
+		}
 		case KeyCode::Down:
-			m_Text.SetVerticalAlignment(VerticalTextAlignment::Bottom);
+		{
+			m_Text1.SetVerticalAlignment(VerticalTextAlignment::Bottom);
 			break;
+		}
 		case KeyCode::N:
-			m_Text.SetText("New text is now longer!");
+		{
+			m_Text1.SetValue("New text is now longer!");
 			break;
+		} 
 		case KeyCode::F:
-			if (*m_Text.GetRenderTraits().FontStyle == *m_Font1)
-				m_Text.SetFont(m_Font2);
+		{
+			if (*m_Text1.GetStyle().Font == *m_Font1)
+				m_Text1.SetFont(m_Font2);
 			else
-				m_Text.SetFont(m_Font1);
+				m_Text1.SetFont(m_Font1);
+
 			break;
+		} 
 	}
-	return false;
 }

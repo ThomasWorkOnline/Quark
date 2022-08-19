@@ -39,7 +39,6 @@ namespace Quark {
 		static void DrawLine(const Vec3f& p1, const Vec3f& p2, const Vec4f& beginColor, const Vec4f& endColor);
 		static void DrawText(std::string_view text, Font* font, const Vec4f& color = Vec4f(1.0f));
 		static void DrawText(const Text& text);
-		static void DrawTextInput(const TextInput& input);
 
 		static const Renderer2DStats& GetStats() { return s_Stats; }
 

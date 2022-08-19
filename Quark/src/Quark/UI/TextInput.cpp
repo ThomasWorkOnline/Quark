@@ -3,12 +3,8 @@
 
 namespace Quark {
 
-	TextInput::TextInput(const Ref<Font>& font,
-		HorizontalTextAlignment hAlign, VerticalTextAlignment vAlign)
+	TextInput::TextInput(const TextStyle& style) : Text(style)
 	{
-		m_RenderTraits.FontStyle = font;
-		m_RenderTraits.HAlign    = hAlign;
-		m_RenderTraits.VAlign    = vAlign;
 	}
 
 	void TextInput::OnEvent(Event& e)
@@ -18,25 +14,21 @@ namespace Quark {
 		dispatcher.Dispatch<KeyTypedEvent>(ATTACH_EVENT_FN(TextInput::OnKeyTyped));
 	}
 
-	void TextInput::SetFont(const Ref<Font>& font)
-	{
-		m_RenderTraits.FontStyle = font;
-	}
-
 	void TextInput::OnKeyPressed(KeyPressedEvent& e)
 	{
 		switch (e.GetKeyCode())
 		{
 			case KeyCode::Backspace:
 			{
-				if (m_Input.size() > 0)
-					m_Input.pop_back();
+				if (m_Value.size() > 0)
+					m_Value.pop_back();
+
 			} break;
 		}
 	}
 
 	void TextInput::OnKeyTyped(KeyTypedEvent& e)
 	{
-		m_Input.push_back(static_cast<char>(e.GetKeyCode()));
+		m_Value.push_back(static_cast<char>(e.GetKeyCode()));
 	}
 }

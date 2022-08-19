@@ -14,8 +14,8 @@ public:
 	virtual void OnEvent(Event& e) override;
 
 private:
-	bool OnWindowResized(WindowResizedEvent& e);
-	bool OnKeyPressed(KeyPressedEvent& e);
+	void OnWindowResized(WindowResizedEvent& e);
+	void OnKeyPressed(KeyPressedEvent& e);
 
 private:
 	FontLibrary m_Library;
@@ -23,7 +23,7 @@ private:
 	Ref<Font> m_Font2;
 
 	Scope<Texture2D> m_Texture;
-	Text m_Text;
+	Text m_Text1;
 	Text m_Text2;
 	TextInput m_Input;
 
