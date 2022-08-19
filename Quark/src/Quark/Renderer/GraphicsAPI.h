@@ -24,14 +24,8 @@ namespace Quark {
 		None = 0,
 		OpenGL,
 		Vulkan,
-
-#ifdef QK_PLATFORM_APPLE
 		Metal
-#endif
 	};
-
-	// To be defined by each supported platform
-	extern RHI GetDefaultRHIForPlatform();
 
 	class GraphicsAPI
 	{
@@ -90,9 +84,8 @@ namespace Quark {
 									         
 		const                                GraphicsAPICapabilities& GetCapabilities() const { return m_Capabilities; }
 										     
-		static RHI                           GetDefaultForPlatform() { return GetDefaultRHIForPlatform(); }
 		static RHI                           GetAPI() { return s_API; }
-		static Scope<GraphicsAPI>            Instantiate(RHI api);
+		static Scope<GraphicsAPI>            Instantiate();
 
 	protected:
 		GraphicsAPICapabilities m_Capabilities{};
@@ -100,4 +93,8 @@ namespace Quark {
 	private:
 		static RHI s_API;
 	};
+	
+	// To be defined by each supported platform
+	extern RHI GetDefaultRHIForPlatform();
+	extern Scope<GraphicsAPI> CreateDefaultRHIForPlatform();
 }
