@@ -25,10 +25,10 @@ namespace Quark {
 
 		FT_Error error;
 		error = FT_New_Face(s_Library, filepath.data(), 0, &m_Face);
-		QK_RUNTIME_VERIFY(error == FT_Err_Ok, "Could not load new font face at path: '{0}'", filepath);
+		QK_RUNTIME_VERIFY(error == FT_Err_Ok, "Could not load new font face at path: '{0}' ({1})", filepath, FT_Error_String(error));
 
 		error = FT_Set_Pixel_Sizes(m_Face, 0, fontSize);
-		QK_CORE_ASSERT(error == FT_Err_Ok, "Could not set font dimensions.");
+		QK_RUNTIME_VERIFY(error == FT_Err_Ok, "Could not set font dimensions. ({0}: {1} requested)", FT_Error_String(error), fontSize);
 
 		QK_CORE_TRACE("Loading {0} glyphs from font at path: '{1}'", s_GlyphCount, filepath);
 
@@ -38,7 +38,7 @@ namespace Quark {
 
 		for (uint8_t i = s_ASCII_Start; i < s_ASCII_End; i++)
 		{
-			if (FT_Load_Char(m_Face, i, FT_LOAD_RENDER))
+			if (FT_Load_Char(m_Face, i, FT_LOAD_RENDER) != FT_Err_Ok)
 			{
 				QK_CORE_ERROR("Failed to load char: '{0}'", i);
 				continue;
@@ -65,7 +65,7 @@ namespace Quark {
 		uint32_t x = 0;
 		for (uint32_t i = 0; i < s_GlyphCount; i++)
 		{
-			if (FT_Load_Char(m_Face, i + s_ASCII_Start, FT_LOAD_RENDER))
+			if (FT_Load_Char(m_Face, i + s_ASCII_Start, FT_LOAD_RENDER) != FT_Err_Ok)
 				continue;
 
 			glTexSubImage2D(GL_TEXTURE_2D, 0, x, 0, g->bitmap.width, g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, g->bitmap.buffer);
@@ -92,10 +92,11 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		glDeleteTextures(1, &m_RendererID);
-		FT_Done_Face(m_Face);
+
+		FT_Error error = FT_Done_Face(m_Face);
+		QK_CORE_ASSERT(error == FT_Err_Ok, "Could not delete font! ({0})", FT_Error_String(error));
 
 		--s_FontCount;
-
 		if (s_FontCount == 0)
 			Shutdown();
 	}
@@ -150,13 +151,14 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		FT_Error error = FT_Init_FreeType(&s_Library);
-		QK_CORE_ASSERT(error == FT_Err_Ok, "Could not initialize freetype!");
+		QK_CORE_ASSERT(error == FT_Err_Ok, "Could not initialize freetype! ({0})", FT_Error_String(error));
 	}
 
 	void OpenGLFont::Shutdown()
 	{
 		QK_PROFILE_FUNCTION();
 
-		FT_Done_FreeType(s_Library);
+		FT_Error error = FT_Done_FreeType(s_Library);
+		QK_CORE_ASSERT(error == FT_Err_Ok, "Could not shutdown freetype! ({0})", FT_Error_String(error));
 	}
 }

@@ -13,7 +13,7 @@ VulkanApp::VulkanApp(const ApplicationOptions& options)
 	Ref<Texture2D> texture1 = Texture2D::Create("assets/textures/pbr/streaked-metal/albedo.png", renderModes);
 	Ref<Texture2D> texture2 = Texture2D::Create("assets/textures/pbr/copper-rock/copper-rock1-alb.png", renderModes);
 
-	m_Font = Font::Create("assets/fonts/arial.ttf", 64);
+	m_Font = Font::Create("assets/fonts/arial.ttf", 48);
 	m_Text.SetFont(m_Font);
 
 	Random<bool> randomBool;

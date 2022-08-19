@@ -75,6 +75,11 @@ project "freetype"
         runtime "Debug"
         symbols "On"
 
+		defines
+		{
+			"FT_CONFIG_OPTION_ERROR_STRINGS"
+		}
+
     filter "configurations:Release"
         runtime "Release"
         optimize "On"
