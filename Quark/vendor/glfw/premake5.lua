@@ -91,7 +91,7 @@ project "GLFW"
 	filter "configurations:Release"
 		runtime "Release"
 		optimize "On"
-		symbols	"Off"
+		symbols	"On"
 
 		flags
 		{
@@ -100,7 +100,7 @@ project "GLFW"
 
 	filter "configurations:Dist"
 		runtime "Release"
-		optimize "On"
+		optimize "Full"
 		symbols	"Off"
 
 		flags

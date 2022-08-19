@@ -28,7 +28,7 @@ project "Glad"
 	filter "configurations:Release"
 		runtime "Release"
 		optimize "On"
-		symbols	"Off"
+		symbols	"On"
 
 		flags
 		{
@@ -37,7 +37,7 @@ project "Glad"
 	
 	filter "configurations:Dist"
 		runtime "Release"
-		optimize "On"
+		optimize "Full"
 		symbols	"Off"
 
 		flags

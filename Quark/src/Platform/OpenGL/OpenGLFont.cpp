@@ -33,6 +33,8 @@ namespace Quark {
 		QK_CORE_TRACE("Loading {0} glyphs from font at path: '{1}'", s_GlyphCount, filepath);
 
 		FT_GlyphSlot g = m_Face->glyph;
+		Glyph* glyphPtr = m_Glyphs;
+
 		uint32_t w = 0;
 		uint32_t h = 0;
 
@@ -40,9 +42,16 @@ namespace Quark {
 		{
 			if (FT_Load_Char(m_Face, i, FT_LOAD_RENDER) != FT_Err_Ok)
 			{
+				*glyphPtr = {};
 				QK_CORE_ERROR("Failed to load char: '{0}'", i);
 				continue;
 			}
+
+			glyphPtr->Size    = { g->bitmap.width, g->bitmap.rows };
+			glyphPtr->Bearing = { g->bitmap_left, g->bitmap_top };
+			glyphPtr->Advance = { g->advance.x, g->advance.y };
+			glyphPtr->OffsetX = w;
+			glyphPtr++;
 
 			w += g->bitmap.width + 1;
 			h = std::max(h, g->bitmap.rows);
@@ -53,32 +62,20 @@ namespace Quark {
 
 		glGenTextures(1, &m_RendererID);
 		glBindTexture(GL_TEXTURE_2D, m_RendererID);
-
-		GLint swizzleMask[] = { GL_ONE, GL_ONE, GL_ONE, GL_RED };
-		glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask);
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, w, h, 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
 
-		Glyph* m_GlyphPtr = m_Glyphs;
-
-		uint32_t x = 0;
-		for (uint32_t i = 0; i < s_GlyphCount; i++)
+		for (uint8_t i = 0; i < s_GlyphCount; i++)
 		{
 			if (FT_Load_Char(m_Face, i + s_ASCII_Start, FT_LOAD_RENDER) != FT_Err_Ok)
 				continue;
 
-			glTexSubImage2D(GL_TEXTURE_2D, 0, x, 0, g->bitmap.width, g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, g->bitmap.buffer);
-
-			m_GlyphPtr->Size    = { g->bitmap.width, g->bitmap.rows };
-			m_GlyphPtr->Bearing = { g->bitmap_left, g->bitmap_top };
-			m_GlyphPtr->Advance = { g->advance.x, g->advance.y };
-			m_GlyphPtr->OffsetX = x;
-			m_GlyphPtr++;
-
-			x += g->bitmap.width + 1;
+			Glyph& glyph = m_Glyphs[i];
+			glTexSubImage2D(GL_TEXTURE_2D, 0, glyph.OffsetX, 0, g->bitmap.width, g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, g->bitmap.buffer);
 		}
 
+		GLint swizzleMask[] = { GL_ONE, GL_ONE, GL_ONE, GL_RED };
+		glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
