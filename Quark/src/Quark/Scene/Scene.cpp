@@ -92,22 +92,22 @@ namespace Quark {
 	}
 
 	template<>
-	void Scene::OnComponentAdded<ColoredSpriteRendererComponent>(Entity entity, ColoredSpriteRendererComponent& csr)
+	void Scene::OnComponentAdded<SpriteRendererComponent>(Entity entity, SpriteRendererComponent& src)
 	{
 	}
 
 	template<>
-	void Scene::OnComponentRemove<ColoredSpriteRendererComponent>(Entity entity, ColoredSpriteRendererComponent& csr)
+	void Scene::OnComponentRemove<SpriteRendererComponent>(Entity entity, SpriteRendererComponent& src)
 	{
 	}
 
 	template<>
-	void Scene::OnComponentAdded<TexturedSpriteRendererComponent>(Entity entity, TexturedSpriteRendererComponent& tsr)
+	void Scene::OnComponentAdded<TexturedSpriteRendererComponent>(Entity entity, TexturedSpriteRendererComponent& tsrc)
 	{
 	}
 
 	template<>
-	void Scene::OnComponentRemove<TexturedSpriteRendererComponent>(Entity entity, TexturedSpriteRendererComponent& tsr)
+	void Scene::OnComponentRemove<TexturedSpriteRendererComponent>(Entity entity, TexturedSpriteRendererComponent& tsrc)
 	{
 	}
 

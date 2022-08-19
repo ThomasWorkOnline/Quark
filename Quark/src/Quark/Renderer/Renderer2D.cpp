@@ -255,7 +255,7 @@ namespace Quark {
 		s_Stats.LinesDrawn++;
 	}
 
-	void Renderer2D::DrawText(std::string_view text, Font* font, const Vec4f& color)
+	void Renderer2D::DrawText(std::string_view text, Font* font, const Vec4f& color, const Mat4f& transform)
 	{
 		QK_ASSERT_RENDER_THREAD();
 
@@ -323,28 +323,28 @@ namespace Quark {
 			float h = (float)g.Size.y;
 
 			// Vertex [-, -]
-			s_Data->QuadVertexPtr->Position = Vec4f(xpos, (ypos - h), 0.0f, 1.0f);
+			s_Data->QuadVertexPtr->Position = transform * Vec4f(xpos, (ypos - h), 0.0f, 1.0f);
 			s_Data->QuadVertexPtr->TexCoord = { tx, h / (float)atlasHeight };
 			s_Data->QuadVertexPtr->Color    = color;
 			s_Data->QuadVertexPtr->TexIndex = textureIndex;
 			s_Data->QuadVertexPtr++;
 
 			// Vertex [+, -]
-			s_Data->QuadVertexPtr->Position = Vec4f(xpos + w, (ypos - h), 0.0f, 1.0f);
+			s_Data->QuadVertexPtr->Position = transform * Vec4f(xpos + w, (ypos - h), 0.0f, 1.0f);
 			s_Data->QuadVertexPtr->TexCoord = { tx + w / (float)atlasWidth, h / (float)atlasHeight };
 			s_Data->QuadVertexPtr->Color    = color;
 			s_Data->QuadVertexPtr->TexIndex = textureIndex;
 			s_Data->QuadVertexPtr++;
 
 			// Vertex [+, +]
-			s_Data->QuadVertexPtr->Position = Vec4f(xpos + w, ypos, 0.0f, 1.0f);
+			s_Data->QuadVertexPtr->Position = transform * Vec4f(xpos + w, ypos, 0.0f, 1.0f);
 			s_Data->QuadVertexPtr->TexCoord = { tx + w / (float)atlasWidth, 0.0f };
 			s_Data->QuadVertexPtr->Color    = color;
 			s_Data->QuadVertexPtr->TexIndex = textureIndex;
 			s_Data->QuadVertexPtr++;
 
 			// Vertex [-, +]
-			s_Data->QuadVertexPtr->Position = Vec4f(xpos, ypos, 0.0f, 1.0f);
+			s_Data->QuadVertexPtr->Position = transform * Vec4f(xpos, ypos, 0.0f, 1.0f);
 			s_Data->QuadVertexPtr->TexCoord = { tx, 0.0f };
 			s_Data->QuadVertexPtr->Color    = color;
 			s_Data->QuadVertexPtr->TexIndex = textureIndex;
@@ -355,10 +355,10 @@ namespace Quark {
 		}
 	}
 
-	void Renderer2D::DrawText(const Text& text)
+	void Renderer2D::DrawText(const Text& text, const Mat4f& transform)
 	{
 		auto& traits = text.GetStyle();
-		DrawText(text, traits.Font.get(), traits.Color);
+		DrawText(text, traits.Font.get(), traits.Color, transform);
 	}
 
 	void Renderer2D::SetViewport(uint32_t x, uint32_t y, uint32_t viewportWidth, uint32_t viewportHeight)

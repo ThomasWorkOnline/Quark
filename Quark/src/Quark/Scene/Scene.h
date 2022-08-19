@@ -48,13 +48,12 @@ namespace Quark {
 		template<typename Component>
 		void OnComponentRemove(Entity entity, Component& c);
 
-	private:
+	protected:
 		entt::registry m_Registry;
 		Entity m_PrimaryCameraEntity;
 
 		SceneSettings m_Settings;
 
 		friend class Entity;
-		friend class SceneRenderer;
 	};
 }

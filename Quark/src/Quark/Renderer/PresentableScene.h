@@ -6,20 +6,15 @@
 #include "Buffer.h"
 #include "Cubemap.h"
 #include "Framebuffer.h"
-#include "Pipeline.h"
-#include "RenderPass.h"
 #include "Shader.h"
-#include "UniformBuffer.h"
 
 namespace Quark {
 
-	class SceneRenderer
+	class PresentableScene : public Scene
 	{
 	public:
 		void OnRender();
 		void OnViewportResized(uint32_t viewportWidth, uint32_t viewportHeight);
-
-		void SetContext(Ref<Scene> scene);
 		void SetEnvironment(std::string_view filepath);
 
 	private:
@@ -44,7 +39,6 @@ namespace Quark {
 			Scope<EnvironmentData> Env;
 		};
 
-		Ref<Scene> m_Scene;
 		SceneData m_Data;
 	};
 }

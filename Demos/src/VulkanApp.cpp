@@ -4,7 +4,7 @@
 VulkanApp::VulkanApp(const ApplicationOptions& options)
 	: Application(options)
 {
-	m_Scene = CreateRef<Scene>();
+	m_Scene = CreateRef<PresentableScene>();
 	m_CameraEntity = m_Scene->CreatePrimaryCamera();
 	m_CameraEntity.AddNativeScript<CameraController>();
 
@@ -36,11 +36,10 @@ VulkanApp::VulkanApp(const ApplicationOptions& options)
 		src.Tint = { axis, 1.0f };
 	}
 
-	m_SceneRenderer.SetContext(m_Scene);
-
 	auto window = GetWindow();
 	m_TextCamera.SetOrthographic((float)window->GetWidth());
 	m_TextCamera.Resize(window->GetWidth(), window->GetHeight());
+	m_Scene->OnViewportResized(window->GetWidth(), window->GetHeight());
 }
 
 void VulkanApp::OnEvent(Event& e)
@@ -50,7 +49,7 @@ void VulkanApp::OnEvent(Event& e)
 	dispatcher.Dispatch<KeyPressedEvent>(ATTACH_EVENT_FN(OnKeyPressed));
 	dispatcher.Dispatch<WindowResizedEvent>([&](WindowResizedEvent& e)
 	{
-		m_SceneRenderer.OnViewportResized(e.GetWidth(), e.GetHeight());
+		m_Scene->OnViewportResized(e.GetWidth(), e.GetHeight());
 	});
 
 	if (!e.Handled && m_ViewportSelected)
@@ -59,7 +58,7 @@ void VulkanApp::OnEvent(Event& e)
 
 void VulkanApp::OnRender()
 {
-	m_SceneRenderer.OnRender();
+	m_Scene->OnRender();
 
 	Renderer2D::BeginScene(m_TextCamera.GetProjection(), Mat4f(1.f));
 

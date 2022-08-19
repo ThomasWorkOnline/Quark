@@ -2,6 +2,7 @@
 
 #include "Quark/Core/Core.h"
 #include "Quark/Renderer/Texture.h"
+#include "Quark/UI/Text.h"
 
 #include "Mesh.h"
 #include "SceneCamera.h"
@@ -62,7 +63,7 @@ namespace Quark {
 		}
 	};
 
-	struct ColoredSpriteRendererComponent
+	struct SpriteRendererComponent
 	{
 		Vec4f Color = { 1.0f, 1.0f, 1.0f, 1.0f };
 	};
@@ -71,6 +72,11 @@ namespace Quark {
 	{
 		Ref<Texture2D> Texture;
 		Vec4f Tint = { 1.0f, 1.0f, 1.0f, 1.0f };
+	};
+
+	struct TextRendererComponent
+	{
+		Text Label;
 	};
 
 	class Scene;

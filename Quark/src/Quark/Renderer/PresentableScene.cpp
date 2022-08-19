@@ -1,61 +1,56 @@
 #include "qkpch.h"
-#include "SceneRenderer.h"
+#include "PresentableScene.h"
 
 #include "Renderer.h"
 #include "Renderer2D.h"
-#include "RenderCommand.h"
 
 #include "Quark/Core/Application.h"
 #include "Quark/Scene/Components.h"
 
 namespace Quark {
 
-	void SceneRenderer::SetContext(Ref<Scene> scene)
+	void PresentableScene::OnRender()
 	{
-		QK_CORE_ASSERT(scene, "Scene is nullptr!");
-
-		m_Scene = std::move(scene);
-
-		if (m_Scene->HasPrimaryCamera())
+		if (HasPrimaryCamera())
 		{
-			auto& viewport = Renderer::GetViewportExtent();
-
-			auto& cc = m_Scene->m_PrimaryCameraEntity.GetComponent<CameraComponent>();
-			cc.Camera.Resize(viewport.Width, viewport.Height);
-		}
-	}
-
-	void SceneRenderer::OnRender()
-	{
-		if (m_Scene && m_Scene->HasPrimaryCamera())
-		{
-			auto& sceneCamera = m_Scene->m_PrimaryCameraEntity.GetComponent<CameraComponent>().Camera;
-			auto& cameraTransform = m_Scene->m_PrimaryCameraEntity.GetComponent<Transform3DComponent>();
+			auto& sceneCamera = m_PrimaryCameraEntity.GetComponent<CameraComponent>().Camera;
+			auto& cameraTransform = m_PrimaryCameraEntity.GetComponent<Transform3DComponent>();
 
 			Renderer2D::BeginScene(sceneCamera, cameraTransform);
 
 			// Colored sprites
 			{
-				auto view = m_Scene->m_Registry.view<ColoredSpriteRendererComponent, Transform3DComponent>();
+				auto view = m_Registry.view<SpriteRendererComponent, Transform3DComponent>();
 				for (auto entity : view)
 				{
-					auto [csr, transform] = view.get<ColoredSpriteRendererComponent, Transform3DComponent>(entity);
-					Renderer2D::DrawSprite(csr.Color, transform);
+					auto [csrc, transform] = view.get<SpriteRendererComponent, Transform3DComponent>(entity);
+					Renderer2D::DrawSprite(csrc.Color, transform);
 				}
 			}
 
 			// Textured sprites
 			{
-				auto view = m_Scene->m_Registry.view<TexturedSpriteRendererComponent, Transform3DComponent>();
+				auto view = m_Registry.view<TexturedSpriteRendererComponent, Transform3DComponent>();
 				for (auto entity : view)
 				{
-					auto [tsr, transform] = view.get<TexturedSpriteRendererComponent, Transform3DComponent>(entity);
-					Renderer2D::DrawSprite(tsr.Texture.get(), tsr.Tint, transform);
+					auto [tsrc, transform] = view.get<TexturedSpriteRendererComponent, Transform3DComponent>(entity);
+					Renderer2D::DrawSprite(tsrc.Texture.get(), tsrc.Tint, transform);
+				}
+			}
+
+			// Text renderer components
+			{
+				auto view = m_Registry.view<TextRendererComponent, Transform3DComponent>();
+				for (auto entity : view)
+				{
+					auto [trc, transform] = view.get<TextRendererComponent, Transform3DComponent>(entity);
+					Renderer2D::DrawText(trc.Label, transform);
 				}
 			}
 
 			Renderer2D::EndScene();
 
+#if 0
 			if (m_Data.Env)
 			{
 				RenderCommand::SetCullFace(RenderCullMode::Front);
@@ -76,25 +71,27 @@ namespace Quark {
 				RenderCommand::SetCullFace(RenderCullMode::Default);
 				RenderCommand::SetDepthFunction(RenderDepthFunction::Default);
 			}
+#endif
 		}
 	}
 
-	void SceneRenderer::OnViewportResized(uint32_t viewportWidth, uint32_t viewportHeight)
+	void PresentableScene::OnViewportResized(uint32_t viewportWidth, uint32_t viewportHeight)
 	{
-		if (m_Scene && m_Scene->HasPrimaryCamera())
+		if (HasPrimaryCamera())
 		{
-			auto& cc = m_Scene->m_PrimaryCameraEntity.GetComponent<CameraComponent>();
+			auto& cc = m_PrimaryCameraEntity.GetComponent<CameraComponent>();
 			cc.Camera.Resize(viewportWidth, viewportHeight);
 		}
 	}
 
-	void SceneRenderer::SetEnvironment(std::string_view filepath)
+	void PresentableScene::SetEnvironment(std::string_view filepath)
 	{
 		NewEnvironment(filepath);
 	}
 
-	void SceneRenderer::NewEnvironment(std::string_view filepath)
+	void PresentableScene::NewEnvironment(std::string_view filepath)
 	{
+#if 0
 		QK_PROFILE_FUNCTION();
 
 		if (!m_Data.Env)
@@ -188,5 +185,6 @@ namespace Quark {
 
 		RenderCommand::SetCullFace(RenderCullMode::Default);
 		RenderCommand::SetDepthFunction(RenderDepthFunction::Default);
+#endif
 	}
 }

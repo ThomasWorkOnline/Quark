@@ -23,8 +23,10 @@ namespace Quark {
 	private:
 		struct TextSelection
 		{
-			std::string::iterator Start;
+			std::string::iterator Begin;
 			std::string::iterator End;
 		};
+
+		TextSelection m_CurrentSelection;
 	};
 }
