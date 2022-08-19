@@ -10,6 +10,7 @@ project "freetype"
 	{
 		"_LIB",
 		"FT2_BUILD_LIBRARY",
+		"FT_CONFIG_OPTION_ERROR_STRINGS",
 		"_CRT_SECURE_NO_WARNINGS"
 	}
 
@@ -74,11 +75,6 @@ project "freetype"
     filter "configurations:Debug"
         runtime "Debug"
         symbols "On"
-
-		defines
-		{
-			"FT_CONFIG_OPTION_ERROR_STRINGS"
-		}
 
     filter "configurations:Release"
         runtime "Release"
