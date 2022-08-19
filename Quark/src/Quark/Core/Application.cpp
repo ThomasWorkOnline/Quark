@@ -123,6 +123,22 @@ namespace Quark {
 		}
 	}
 
+	bool Application::DefaultEventHandler(Event& e)
+	{
+		EventDispatcher dispatcher(e);
+		dispatcher.Dispatch<KeyPressedEvent>(ATTACH_EVENT_FN(OnKeyPressed));
+
+		return false;
+	}
+
+	void Application::OnKeyPressed(KeyPressedEvent& e)
+	{
+		if (e.GetKeyCode() == m_Options.FullscreenKey)
+		{
+			m_Window->SetFullscreen(!m_Window->IsFullscreen());
+		}
+	}
+
 	void Application::PushLayer(Layer* layer)
 	{
 		m_Layers.push_back(layer);

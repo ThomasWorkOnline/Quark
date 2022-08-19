@@ -67,7 +67,7 @@ void MainLayer::OnKeyPressed(KeyPressedEvent& e)
 		{
 			auto window = GetApplication()->GetWindow();
 			bool fullscreen = window->IsFullscreen();
-			window->SetFullScreen(!fullscreen);
+			window->SetFullscreen(!fullscreen);
 			break;
 		}
 		case KeyCode::Left:

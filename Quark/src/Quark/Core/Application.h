@@ -23,9 +23,11 @@ namespace Quark {
 		uint32_t Width = 1280, Height = 720;
 		std::string AppName;
 
-		ApplicationFlag Flags{};
 		std::filesystem::path AssetDir;
 		std::filesystem::path CoreAssetDir;
+
+		ApplicationFlag Flags{};
+		KeyCode FullscreenKey = KeyCode::F11;
 
 		bool HasFlag(ApplicationFlag flag) const { return Flags & flag; }
 	};
@@ -56,8 +58,12 @@ namespace Quark {
 		Window* GetWindow() const { return m_Window.get(); }
 		AudioOutputDevice* GetAudioOutputDevice() const { return m_AudioOutputDevice.get(); }
 
+	protected:
+		bool DefaultEventHandler(Event& e);
+
 	private:
 		void OnEventInternal(Event& e);
+		void OnKeyPressed(KeyPressedEvent& e);
 
 	private:
 		ApplicationOptions m_Options;

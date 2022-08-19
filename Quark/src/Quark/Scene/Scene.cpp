@@ -45,6 +45,8 @@ namespace Quark {
 
 	void Scene::OnEvent(Event& e)
 	{
+		if (!this) return; // In the case we call an event on an orphan entity
+
 		// Events on native scripts
 		{
 			auto view = m_Registry.view<NativeScriptComponent>();

@@ -328,7 +328,7 @@ namespace Quark {
 		m_Data.VSync = enabled;
 	}
 
-	void GLFWWindow::SetFullScreen(bool enabled)
+	void GLFWWindow::SetFullscreen(bool enabled)
 	{
 		if (IsFullscreen() == enabled) return;
 

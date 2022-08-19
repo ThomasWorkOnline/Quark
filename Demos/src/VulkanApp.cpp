@@ -34,8 +34,11 @@ VulkanApp::VulkanApp(const ApplicationOptions& options)
 
 	m_Font = Font::Create("assets/fonts/arial.ttf", 48);
 	m_Text.SetFont(m_Font);
+	
+	auto* window = GetWindow();
+	window->SetVSync(false);
+	window->SetFullscreen(true);
 
-	auto window = GetWindow();
 	m_TextCamera.SetOrthographic((float)window->GetWidth());
 	m_TextCamera.Resize(window->GetWidth(), window->GetHeight());
 }
@@ -54,6 +57,8 @@ void VulkanApp::OnEvent(Event& e)
 
 	if (!e.Handled && !ignoreEvent)
 		m_Scene->OnEvent(e);
+
+	DefaultEventHandler(e);
 }
 
 void VulkanApp::OnRender()
@@ -90,7 +95,9 @@ void VulkanApp::OnKeyPressed(KeyPressedEvent& e)
 		case KeyCode::Escape:
 		{
 			m_ViewportSelected = false;
-			GetWindow()->EnableCursor();
+			auto* window = GetWindow();
+			window->EnableCursor();
+			break;
 		}
 	}
 }

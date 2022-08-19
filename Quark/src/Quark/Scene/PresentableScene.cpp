@@ -11,7 +11,7 @@ namespace Quark {
 
 	void PresentableScene::OnRender()
 	{
-		if (HasPrimaryCamera())
+		if (m_PrimaryCameraEntity)
 		{
 			auto& sceneCamera = m_PrimaryCameraEntity.GetComponent<CameraComponent>().Camera;
 			auto& cameraTransform = m_PrimaryCameraEntity.GetComponent<Transform3DComponent>();
@@ -77,6 +77,8 @@ namespace Quark {
 
 	void PresentableScene::OnEvent(Event& e)
 	{
+		if (!this) return; // In the case we call an event on an orphan entity
+
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowResizedEvent>(ATTACH_EVENT_FN(OnWindowResized));
 

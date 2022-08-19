@@ -33,7 +33,7 @@ namespace Quark {
 		virtual void DisableCursor() override {}
 		virtual void EnableCursor() override {}
 		virtual void SetVSync(bool enabled) override;
-		virtual void SetFullScreen(bool enabled) override {}
+		virtual void SetFullscreen(bool enabled) override {}
 
 		virtual bool IsFocused() const override;
 		virtual bool IsMinimized() const override;
