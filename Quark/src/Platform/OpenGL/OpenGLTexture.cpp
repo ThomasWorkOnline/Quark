@@ -9,7 +9,8 @@
 
 namespace Quark {
 
-	OpenGLTexture2D::OpenGLTexture2D(const Texture2DSpecification& spec) : Texture2D(spec)
+	OpenGLTexture2D::OpenGLTexture2D(const Texture2DSpecification& spec)
+		: Texture2D(spec)
 	{
 		QK_PROFILE_FUNCTION();
 

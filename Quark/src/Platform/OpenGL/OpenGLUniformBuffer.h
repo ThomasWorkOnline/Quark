@@ -10,7 +10,7 @@ namespace Quark {
 	{
 	public:
 		OpenGLUniformBuffer() = default;
-		OpenGLUniformBuffer(size_t size, uint32_t binding);
+		OpenGLUniformBuffer(const UniformBufferSpecification& spec);
 		virtual ~OpenGLUniformBuffer() override;
 
 		virtual void SetData(const void* data, size_t size, size_t offset = 0) override;
@@ -26,6 +26,5 @@ namespace Quark {
 
 	private:
 		GLuint m_RendererID = 0;
-		uint32_t m_Binding = 0;
 	};
 }

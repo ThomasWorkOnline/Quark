@@ -14,19 +14,19 @@ namespace Quark {
 
 		virtual void Begin() override;
 		virtual void End() override;
+		virtual void Reset() override;
 
 		virtual void BindPipeline(Pipeline* pipeline) override;
 		virtual void SetViewport(uint32_t viewportWidth, uint32_t viewportHeight) override;
+		virtual void SetPrimitiveTopology(PrimitiveTopology topology) override;
 
 		virtual void BeginRenderPass(RenderPass* renderPass, Framebuffer* framebuffer) override;
 		virtual void EndRenderPass() override;
 
-		virtual void Reset() override;
-		virtual void Draw(uint32_t vertexOffset, uint32_t vertexCount) override;
+		virtual void Draw(uint32_t vertexCount, uint32_t vertexOffset) override;
 		virtual void DrawIndexed(uint32_t indexCount) override;
-		virtual void DrawIndexedInstanced(uint32_t instanceCount, uint32_t indexCount) override;
-
-		virtual void DrawLines(uint32_t vertexCount) override;
+		virtual void DrawInstanced(uint32_t vertexCount, uint32_t vertexOffset, uint32_t instanceCount) override;
+		virtual void DrawIndexedInstanced(uint32_t indexCount, uint32_t instanceCount) override;
 
 		virtual void BindVertexBuffer(VertexBuffer* vertexBuffer) override;
 		virtual void BindIndexBuffer(IndexBuffer* indexBuffer) override;

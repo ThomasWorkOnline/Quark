@@ -216,9 +216,9 @@ namespace Quark {
 		return CreateScope<OpenGLTexture2DArray>(spec);
 	}
 
-	Scope<UniformBuffer> OpenGLGraphicsAPI::CreateUniformBuffer(size_t size, uint32_t binding)
+	Scope<UniformBuffer> OpenGLGraphicsAPI::CreateUniformBuffer(const UniformBufferSpecification& spec)
 	{
-		return CreateScope<OpenGLUniformBuffer>(size, binding);
+		return CreateScope<OpenGLUniformBuffer>(spec);
 	}
 
 	std::string OpenGLGraphicsAPI::GetSpecification() const

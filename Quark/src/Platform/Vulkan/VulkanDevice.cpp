@@ -118,9 +118,9 @@ namespace Quark {
 	}
 
 	VulkanDevice::VulkanDevice(VkPhysicalDevice vkPhysicalDevice, const std::vector<VkDeviceQueueCreateInfo>& queueCreateInfos, QueueFamilyIndices queueFamilyIndices, SwapChainSupportDetails supportDetails)
-		: m_PhysicalDevice(vkPhysicalDevice),
-		m_QueueFamilyIndices(std::move(queueFamilyIndices)),
-		m_SupportDetails(std::move(supportDetails))
+		: m_PhysicalDevice(vkPhysicalDevice)
+		, m_QueueFamilyIndices(std::move(queueFamilyIndices))
+		, m_SupportDetails(std::move(supportDetails))
 	{
 		QK_PROFILE_FUNCTION();
 

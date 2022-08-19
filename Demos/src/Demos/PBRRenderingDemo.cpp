@@ -24,16 +24,21 @@ PBRRenderingDemo::PBRRenderingDemo(const ApplicationOptions& options)
 
 	LoadMaterialsAsync();
 
-	{
-		m_PBRShader = Shader::Create("assets/shaders/PBR.glsl");
-		m_UniformBuffer = UniformBuffer::Create(sizeof(m_UniformBufferData), 0);
+	m_PBRShader = Shader::Create("assets/shaders/PBR.glsl");
 
+	{
+		UniformBufferSpecification spec;
+		spec.Size = sizeof(m_UniformBufferData);
+		spec.Binding = 0;
+		m_UniformBuffer = UniformBuffer::Create(spec);
+	}
+
+	{
 		PipelineSpecification spec;
 		spec.Layout = Mesh::GetBufferLayout();
 		spec.Shader = m_PBRShader.get();
 		spec.RenderPass = Renderer::GetGeometryPass();
 		spec.UniformBuffer = m_UniformBuffer.get();
-
 		m_Pipeline = Pipeline::Create(spec);
 	}
 

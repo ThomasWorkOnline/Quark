@@ -4,7 +4,8 @@
 namespace Quark {
 
 	VulkanTexture2D::VulkanTexture2D(VulkanDevice* device, const Texture2DSpecification& spec)
-		: m_Device(device)
+		: Texture2D(spec)
+		, m_Device(device)
 	{
 	}
 

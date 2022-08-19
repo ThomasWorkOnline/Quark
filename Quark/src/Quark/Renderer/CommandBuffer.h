@@ -9,6 +9,16 @@
 
 namespace Quark {
 
+	enum PrimitiveTopology
+	{
+		PointList,
+		LineList,
+		LineStrip,
+		TriangleList,
+		TriangleStrip,
+		TriangleFan
+	};
+
 	class CommandBuffer
 	{
 	public:
@@ -16,19 +26,19 @@ namespace Quark {
 
 		virtual void Begin() = 0;
 		virtual void End() = 0;
+		virtual void Reset() = 0;
 
 		virtual void BindPipeline(Pipeline* pipeline) = 0;
 		virtual void SetViewport(uint32_t viewportWidth, uint32_t viewportHeight) = 0;
+		virtual void SetPrimitiveTopology(PrimitiveTopology topology) = 0;
 
 		virtual void BeginRenderPass(RenderPass* renderPass, Framebuffer* framebuffer) = 0;
 		virtual void EndRenderPass() = 0;
 
-		virtual void Reset() = 0;
-		virtual void Draw(uint32_t vertexOffset, uint32_t vertexCount) = 0;
+		virtual void Draw(uint32_t vertexCount, uint32_t vertexOffset) = 0;
 		virtual void DrawIndexed(uint32_t indexCount) = 0;
-		virtual void DrawIndexedInstanced(uint32_t instanceCount, uint32_t indexCount) = 0;
-
-		QK_DEPRECATED virtual void DrawLines(uint32_t vertexCount) = 0;
+		virtual void DrawInstanced(uint32_t vertexCount, uint32_t vertexOffset, uint32_t instanceCount) = 0;
+		virtual void DrawIndexedInstanced(uint32_t indexCount, uint32_t instanceCount) = 0;
 
 		virtual void BindVertexBuffer(VertexBuffer* vertexBuffer) = 0;
 		virtual void BindIndexBuffer(IndexBuffer* indexBuffer) = 0;

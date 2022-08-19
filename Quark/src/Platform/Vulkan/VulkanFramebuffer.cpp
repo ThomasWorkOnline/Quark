@@ -11,7 +11,8 @@
 
 namespace Quark {
 
-	VulkanFramebufferAttachment::VulkanFramebufferAttachment(void* data, const FramebufferAttachmentSpecification& spec) : FramebufferAttachment(spec)
+	VulkanFramebufferAttachment::VulkanFramebufferAttachment(void* data, const FramebufferAttachmentSpecification& spec)
+		: FramebufferAttachment(spec)
 	{
 	}
 
@@ -23,8 +24,9 @@ namespace Quark {
 	{
 	}
 
-	VulkanFramebuffer::VulkanFramebuffer(VulkanDevice* device, const FramebufferSpecification& spec) : Framebuffer(spec),
-		m_Device(device)
+	VulkanFramebuffer::VulkanFramebuffer(VulkanDevice* device, const FramebufferSpecification& spec)
+		: Framebuffer(spec)
+		, m_Device(device)
 	{
 		Invalidate();
 	}

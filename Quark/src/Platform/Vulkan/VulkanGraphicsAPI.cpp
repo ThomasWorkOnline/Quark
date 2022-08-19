@@ -110,8 +110,8 @@ namespace Quark {
 		return CreateScope<VulkanTexture2DArray>(VulkanContext::GetCurrentDevice(), spec);
 	}
 
-	Scope<UniformBuffer> VulkanGraphicsAPI::CreateUniformBuffer(size_t size, uint32_t binding)
+	Scope<UniformBuffer> VulkanGraphicsAPI::CreateUniformBuffer(const UniformBufferSpecification& spec)
 	{
-		return CreateScope<VulkanUniformBuffer>(VulkanContext::GetCurrentDevice(), size, binding);
+		return CreateScope<VulkanUniformBuffer>(VulkanContext::GetCurrentDevice(), spec);
 	}
 }

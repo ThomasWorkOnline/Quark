@@ -26,8 +26,9 @@ namespace Quark {
 		}
 	}
 
-	VulkanPipeline::VulkanPipeline(VulkanDevice* device, const PipelineSpecification& spec) : Pipeline(spec),
-		m_Device(device)
+	VulkanPipeline::VulkanPipeline(VulkanDevice* device, const PipelineSpecification& spec)
+		: Pipeline(spec)
+		, m_Device(device)
 	{
 		QK_PROFILE_FUNCTION();
 
@@ -48,17 +49,24 @@ namespace Quark {
 
 		// Descriptor set layout
 		{
-			VkDescriptorSetLayoutBinding uboLayoutBinding{};
-			uboLayoutBinding.binding = 0;
-			uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			uboLayoutBinding.descriptorCount = 1;
-			uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-
+			std::vector<VkDescriptorSetLayoutBinding> bindings;
+			
 			VkDescriptorSetLayoutCreateInfo layoutInfo{};
 			layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-			layoutInfo.bindingCount = 1;
-			layoutInfo.pBindings = &uboLayoutBinding;
 
+			if (m_Spec.UniformBuffer)
+			{
+				VkDescriptorSetLayoutBinding uboLayoutBinding{};
+				uboLayoutBinding.binding = 0;
+				uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+				uboLayoutBinding.descriptorCount = 1;
+				uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+
+				bindings.push_back(uboLayoutBinding);
+			}
+
+			layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
+			layoutInfo.pBindings = bindings.data();
 			vkCreateDescriptorSetLayout(m_Device->GetVkHandle(), &layoutInfo, nullptr, &m_DescriptorSetLayout);
 		}
 
@@ -122,6 +130,7 @@ namespace Quark {
 		vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
 		vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions;
 
+		// Dynamic state
 		VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
 		inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
 		inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
@@ -173,6 +182,7 @@ namespace Quark {
 		// Dynamic states
 		VkDynamicState dynamicStates[] = {
 			VK_DYNAMIC_STATE_LINE_WIDTH,
+			VK_DYNAMIC_STATE_PRIMITIVE_TOPOLOGY,
 			VK_DYNAMIC_STATE_SCISSOR,
 			VK_DYNAMIC_STATE_VIEWPORT
 		};

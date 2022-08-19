@@ -6,7 +6,8 @@
 
 namespace Quark {
 
-	OpenGLCubemap::OpenGLCubemap(const CubemapSpecification& spec) : Cubemap(spec)
+	OpenGLCubemap::OpenGLCubemap(const CubemapSpecification& spec)
+		: Cubemap(spec)
 	{
 		QK_PROFILE_FUNCTION();
 

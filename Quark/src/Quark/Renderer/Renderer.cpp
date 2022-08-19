@@ -50,6 +50,7 @@ namespace Quark {
 
 		s_Data->ActiveCommandBuffer->BindVertexBuffer(vertexBuffer);
 		s_Data->ActiveCommandBuffer->BindIndexBuffer(indexBuffer);
+		s_Data->ActiveCommandBuffer->SetPrimitiveTopology(PrimitiveTopology::TriangleList);
 		s_Data->ActiveCommandBuffer->DrawIndexed(indexBuffer->GetCount());
 	}
 
@@ -59,6 +60,7 @@ namespace Quark {
 
 		s_Data->ActiveCommandBuffer->BindVertexBuffer(vertexBuffer);
 		s_Data->ActiveCommandBuffer->BindIndexBuffer(indexBuffer);
+		s_Data->ActiveCommandBuffer->SetPrimitiveTopology(PrimitiveTopology::TriangleList);
 		s_Data->ActiveCommandBuffer->DrawIndexed(indexCount);
 	}
 
@@ -67,7 +69,8 @@ namespace Quark {
 		QK_ASSERT_RENDER_THREAD();
 
 		s_Data->ActiveCommandBuffer->BindVertexBuffer(vertexBuffer);
-		s_Data->ActiveCommandBuffer->DrawLines(vertexCount);
+		s_Data->ActiveCommandBuffer->SetPrimitiveTopology(PrimitiveTopology::LineList);
+		s_Data->ActiveCommandBuffer->Draw(vertexCount, 0);
 	}
 
 	void Renderer::SetViewport(uint32_t viewportWidth, uint32_t viewportHeight)

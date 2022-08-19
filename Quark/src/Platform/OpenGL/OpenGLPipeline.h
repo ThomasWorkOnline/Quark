@@ -2,9 +2,6 @@
 
 #include "Quark/Renderer/Pipeline.h"
 
-typedef unsigned int GLenum;
-#define GL_NONE 0
-
 namespace Quark {
 
 	class OpenGLPipeline final : public Pipeline
@@ -21,10 +18,5 @@ namespace Quark {
 		// Non-Copyable
 		OpenGLPipeline(const OpenGLPipeline&) = delete;
 		OpenGLPipeline& operator=(const OpenGLPipeline&) = delete;
-
-		GLenum GetPrimitiveTopologyState() const { return m_PrimitiveTopology; }
-
-	private:
-		GLenum m_PrimitiveTopology = GL_NONE;
 	};
 }

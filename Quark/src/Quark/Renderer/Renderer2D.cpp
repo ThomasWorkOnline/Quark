@@ -415,8 +415,13 @@ namespace Quark {
 		s_Data->MaxSamplers = GraphicsAPI::Instance->GetCapabilities().TextureConstraints.MaxTextureSlots;
 		QK_CORE_ASSERT(s_Data->MaxSamplers > 0, "Platform does not support texture samplers");
 
-		// Camera
-		s_Data->CameraUniformBuffer = UniformBuffer::Create(sizeof(Renderer2DData::CameraData), 0);
+		// Camera buffer
+		{
+			UniformBufferSpecification spec;
+			spec.Size = sizeof(Renderer2DData::CameraData);
+			spec.Binding = 0;
+			s_Data->CameraUniformBuffer = UniformBuffer::Create(spec);
+		}
 
 		SetupQuadRenderer();
 		SetupLineRenderer();

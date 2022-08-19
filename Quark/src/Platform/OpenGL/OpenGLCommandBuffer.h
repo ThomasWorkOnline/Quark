@@ -1,7 +1,10 @@
 #pragma once
 
 #include "Quark/Renderer/CommandBuffer.h"
-#include "OpenGLPipeline.h"
+
+typedef unsigned int GLenum;
+
+#define GL_TRIANGLES 0x0004
 
 namespace Quark {
 
@@ -13,19 +16,19 @@ namespace Quark {
 
 		virtual void Begin() final override {}
 		virtual void End() final override {}
+		virtual void Reset() final override {}
 
 		virtual void BindPipeline(Pipeline* pipeline) final override;
-		virtual void SetViewport(uint32_t viewportWidth, uint32_t viewportHeight) override;
+		virtual void SetViewport(uint32_t viewportWidth, uint32_t viewportHeight) final override;
+		virtual void SetPrimitiveTopology(PrimitiveTopology topology) final override;
 
 		virtual void BeginRenderPass(RenderPass* renderPass, Framebuffer* framebuffer) final override;
 		virtual void EndRenderPass() final override;
 
-		virtual void Reset() final override {}
-		virtual void Draw(uint32_t vertexOffset, uint32_t vertexCount) final override;
+		virtual void Draw(uint32_t vertexCount, uint32_t vertexOffset) final override;
 		virtual void DrawIndexed(uint32_t indexCount) final override;
-		virtual void DrawIndexedInstanced(uint32_t instanceCount, uint32_t indexCount) final override;
-
-		virtual void DrawLines(uint32_t vertexCount) final override;
+		virtual void DrawInstanced(uint32_t vertexCount, uint32_t vertexOffset, uint32_t instanceCount) final override;
+		virtual void DrawIndexedInstanced(uint32_t indexCount, uint32_t instanceCount) final override;
 
 		virtual void BindVertexBuffer(VertexBuffer* vertexBuffer) final override;
 		virtual void BindIndexBuffer(IndexBuffer* indexBuffer) final override;
@@ -40,6 +43,6 @@ namespace Quark {
 		OpenGLCommandBuffer& operator=(const OpenGLCommandBuffer&) = delete;
 
 	private:
-		OpenGLPipeline* m_BoundPipeline = nullptr;
+		GLenum m_PrimitiveTopology = GL_TRIANGLES;
 	};
 }

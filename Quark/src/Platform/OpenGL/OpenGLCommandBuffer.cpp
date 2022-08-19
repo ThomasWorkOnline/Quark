@@ -8,9 +8,28 @@
 
 namespace Quark {
 
+	namespace Utils {
+
+		GLenum PrimitiveTopologyToOpenGL(PrimitiveTopology topology)
+		{
+			switch (topology)
+			{
+				case PointList:     return GL_POINTS;
+				case LineList:      return GL_LINES;
+				case LineStrip:     return GL_LINE_STRIP;
+				case TriangleList:  return GL_TRIANGLES;
+				case TriangleStrip: return GL_TRIANGLE_STRIP;
+				case TriangleFan:   return GL_TRIANGLE_FAN;
+
+				QK_ASSERT_NO_DEFAULT("Unknown primitive topology");
+			}
+
+			return GL_NONE;
+		}
+	}
+
 	void OpenGLCommandBuffer::BindPipeline(Pipeline* pipeline)
 	{
-		m_BoundPipeline = reinterpret_cast<OpenGLPipeline*>(pipeline);
 		GLuint rendererID = reinterpret_cast<OpenGLShader*>(pipeline->GetSpecification().Shader)->GetRendererID();
 		glUseProgram(rendererID);
 	}
@@ -18,6 +37,11 @@ namespace Quark {
 	void OpenGLCommandBuffer::SetViewport(uint32_t viewportWidth, uint32_t viewportHeight)
 	{
 		glViewport(0, 0, viewportWidth, viewportHeight);
+	}
+
+	void OpenGLCommandBuffer::SetPrimitiveTopology(PrimitiveTopology topology)
+	{
+		m_PrimitiveTopology = Utils::PrimitiveTopologyToOpenGL(topology);
 	}
 
 	void OpenGLCommandBuffer::BeginRenderPass(RenderPass* renderPass, Framebuffer* framebuffer)
@@ -35,28 +59,24 @@ namespace Quark {
 	{
 	}
 
-	void OpenGLCommandBuffer::Draw(uint32_t vertexOffset, uint32_t vertexCount)
+	void OpenGLCommandBuffer::Draw(uint32_t vertexCount, uint32_t vertexOffset)
 	{
-		GLenum type = m_BoundPipeline->GetPrimitiveTopologyState();
-		glDrawArrays(type, vertexOffset, vertexCount);
+		glDrawArrays(m_PrimitiveTopology, vertexOffset, vertexCount);
 	}
 
 	void OpenGLCommandBuffer::DrawIndexed(uint32_t indexCount)
 	{
-		GLenum type = m_BoundPipeline->GetPrimitiveTopologyState();
-		glDrawElements(type, indexCount, GL_UNSIGNED_INT, nullptr);
+		glDrawElements(m_PrimitiveTopology, indexCount, GL_UNSIGNED_INT, nullptr);
 	}
 
-	void OpenGLCommandBuffer::DrawIndexedInstanced(uint32_t instanceCount, uint32_t indexCount)
+	void OpenGLCommandBuffer::DrawInstanced(uint32_t vertexCount, uint32_t vertexOffset, uint32_t instanceCount)
 	{
-		GLenum type = m_BoundPipeline->GetPrimitiveTopologyState();
-		glDrawElementsInstanced(type, indexCount, GL_UNSIGNED_INT, nullptr, instanceCount);
+		glDrawArraysInstanced(m_PrimitiveTopology, vertexOffset, vertexCount, instanceCount);
 	}
 
-	void OpenGLCommandBuffer::DrawLines(uint32_t vertexCount)
+	void OpenGLCommandBuffer::DrawIndexedInstanced(uint32_t indexCount, uint32_t instanceCount)
 	{
-		// TODO: set pipeline topology state to GL_LINES
-		glDrawArrays(GL_LINES, 0, vertexCount);
+		glDrawElementsInstanced(m_PrimitiveTopology, indexCount, GL_UNSIGNED_INT, nullptr, instanceCount);
 	}
 
 	void OpenGLCommandBuffer::BindVertexBuffer(VertexBuffer* vertexBuffer)

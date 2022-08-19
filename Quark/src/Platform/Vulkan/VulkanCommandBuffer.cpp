@@ -31,6 +31,11 @@ namespace Quark {
 		vkEndCommandBuffer(m_CommandBuffer);
 	}
 
+	void VulkanCommandBuffer::Reset()
+	{
+		vkResetCommandBuffer(m_CommandBuffer, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
+	}
+
 	void VulkanCommandBuffer::BindPipeline(Pipeline* pipeline)
 	{
 		auto vulkanPipeline = static_cast<VulkanPipeline*>(pipeline);
@@ -54,6 +59,11 @@ namespace Quark {
 		scissor.offset = { 0, 0 };
 		scissor.extent = VkExtent2D{ viewportWidth, viewportHeight };
 		vkCmdSetScissor(m_CommandBuffer, 0, 1, &scissor);
+	}
+
+	void VulkanCommandBuffer::SetPrimitiveTopology(PrimitiveTopology topology)
+	{
+		vkCmdSetPrimitiveTopology(m_CommandBuffer, (VkPrimitiveTopology)topology);
 	}
 
 	void VulkanCommandBuffer::BeginRenderPass(RenderPass* renderPass, Framebuffer* framebuffer)
@@ -85,12 +95,7 @@ namespace Quark {
 		vkCmdEndRenderPass(m_CommandBuffer);
 	}
 
-	void VulkanCommandBuffer::Reset()
-	{
-		vkResetCommandBuffer(m_CommandBuffer, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
-	}
-
-	void VulkanCommandBuffer::Draw(uint32_t vertexOffset, uint32_t vertexCount)
+	void VulkanCommandBuffer::Draw(uint32_t vertexCount, uint32_t vertexOffset)
 	{
 		vkCmdDraw(m_CommandBuffer, vertexCount, 1, vertexOffset, 0);
 	}
@@ -100,14 +105,14 @@ namespace Quark {
 		vkCmdDrawIndexed(m_CommandBuffer, indexCount, 1, 0, 0, 0);
 	}
 
-	void VulkanCommandBuffer::DrawIndexedInstanced(uint32_t instanceCount, uint32_t indexCount)
+	void VulkanCommandBuffer::DrawInstanced(uint32_t vertexCount, uint32_t vertexOffset, uint32_t instanceCount)
 	{
-		QK_CORE_ASSERT(false, "Vulkan instance rendering is not yet implemented");
+		vkCmdDraw(m_CommandBuffer, vertexCount, instanceCount, vertexOffset, 0);
 	}
 
-	void VulkanCommandBuffer::DrawLines(uint32_t vertexCount)
+	void VulkanCommandBuffer::DrawIndexedInstanced(uint32_t indexCount, uint32_t instanceCount)
 	{
-		vkCmdDraw(m_CommandBuffer, vertexCount, 1, 0, 0);
+		vkCmdDrawIndexed(m_CommandBuffer, indexCount, instanceCount, 0, 0, 0);
 	}
 
 	void VulkanCommandBuffer::BindVertexBuffer(VertexBuffer* vertexBuffer)

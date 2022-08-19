@@ -3,7 +3,8 @@
 
 namespace Quark {
 
-	OpenGLRenderPass::OpenGLRenderPass(const RenderPassSpecification& spec) : RenderPass(spec)
+	OpenGLRenderPass::OpenGLRenderPass(const RenderPassSpecification& spec)
+		: RenderPass(spec)
 	{
 	}
 }

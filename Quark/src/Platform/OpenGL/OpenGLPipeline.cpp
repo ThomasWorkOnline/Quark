@@ -5,8 +5,8 @@
 
 namespace Quark {
 
-	OpenGLPipeline::OpenGLPipeline(const PipelineSpecification& spec) : Pipeline(spec),
-		m_PrimitiveTopology(GL_TRIANGLES)
+	OpenGLPipeline::OpenGLPipeline(const PipelineSpecification& spec)
+		: Pipeline(spec)
 	{
 	}
 

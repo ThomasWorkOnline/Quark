@@ -34,7 +34,8 @@ namespace Quark {
 		}
 	}
 
-	OpenGLFramebufferAttachment::OpenGLFramebufferAttachment(void* image, const FramebufferAttachmentSpecification& spec) : FramebufferAttachment(spec)
+	OpenGLFramebufferAttachment::OpenGLFramebufferAttachment(void* image, const FramebufferAttachmentSpecification& spec)
+		: FramebufferAttachment(spec)
 	{
 	}
 
@@ -42,7 +43,8 @@ namespace Quark {
 	{
 	}
 
-	OpenGLFramebuffer::OpenGLFramebuffer(const FramebufferSpecification& spec) : Framebuffer(spec)
+	OpenGLFramebuffer::OpenGLFramebuffer(const FramebufferSpecification& spec)
+		: Framebuffer(spec)
 	{
 		QK_PROFILE_FUNCTION();
 

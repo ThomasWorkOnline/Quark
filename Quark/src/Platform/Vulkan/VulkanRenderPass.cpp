@@ -21,8 +21,9 @@ namespace Quark {
 		}
 	}
 
-	VulkanRenderPass::VulkanRenderPass(VulkanDevice* device, const RenderPassSpecification& spec) : RenderPass(spec),
-		m_Device(device)
+	VulkanRenderPass::VulkanRenderPass(VulkanDevice* device, const RenderPassSpecification& spec)
+		: RenderPass(spec)
+		, m_Device(device)
 	{
 		VkAttachmentDescription colorAttachment{};
 		colorAttachment.format = InternalFormatToVulkan(spec.ColorFormat);

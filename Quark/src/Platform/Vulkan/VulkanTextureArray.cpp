@@ -3,8 +3,9 @@
 
 namespace Quark {
 
-	VulkanTexture2DArray::VulkanTexture2DArray(VulkanDevice* device, const Texture2DArraySpecification& spec) : Texture2DArray(spec),
-		m_Device(device)
+	VulkanTexture2DArray::VulkanTexture2DArray(VulkanDevice* device, const Texture2DArraySpecification& spec)
+		: Texture2DArray(spec)
+		, m_Device(device)
 	{
 	}
 }
