@@ -4,14 +4,6 @@
 
 #define MATERIAL 0
 
-static Scope<Texture2D> CreateTextureFromImage(const Image* image, const Texture2DSpecification& spec)
-{
-	auto texture = Texture2D::Create(spec);
-	texture->SetData(image->GetData(), image->GetMetadata().Size);
-	texture->GenerateMipmaps();
-	return texture;
-}
-
 PBRRenderingDemo::PBRRenderingDemo(const ApplicationOptions& options)
 	: Application(options)
 {
@@ -117,6 +109,8 @@ void PBRRenderingDemo::OnEvent(Event& e)
 
 	if (!e.Handled)
 		m_Scene->OnEvent(e);
+
+	DefaultEventHandler(e);
 }
 
 bool PBRRenderingDemo::OnMouseMoved(MouseMovedEvent& e)
@@ -134,10 +128,20 @@ void PBRRenderingDemo::OnKeyPressed(KeyPressedEvent& e)
 	switch (e.GetKeyCode())
 	{
 		case KeyCode::Escape:
+		{
 			auto window = GetWindow();
 			window->EnableCursor();
 			break;
+		}
 	}
+}
+
+static Scope<Texture2D> CreateTextureFromImage(const Image* image, const Texture2DSpecification& spec)
+{
+	auto texture = Texture2D::Create(spec);
+	texture->SetData(image->GetData(), image->GetMetadata().Size);
+	texture->GenerateMipmaps();
+	return texture;
 }
 
 void PBRRenderingDemo::LoadMaterialsAsync()
