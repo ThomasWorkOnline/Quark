@@ -25,16 +25,15 @@ namespace Quark {
 		return std::hash<std::string_view>()(name);
 	}
 
-	void ShaderLibrary::Add(std::string_view name, Ref<Shader> shader)
+	void ShaderLibrary::Add(std::string_view name, const Ref<Shader>& shader)
 	{
 		QK_CORE_ASSERT(!Exists(name), "Shader already exists!");
-		m_Shaders[GetHashedName(name)] = std::move(shader);
+		m_Shaders[GetHashedName(name)] = shader;
 	}
 
-	void ShaderLibrary::Add(Ref<Shader> shader)
+	void ShaderLibrary::Add(const Ref<Shader>& shader)
 	{
-		auto shaderName = shader->GetName();
-		Add(shaderName, std::move(shader));
+		Add(shader->GetName(), shader);
 	}
 
 	bool ShaderLibrary::Exists(std::string_view name) const
@@ -44,14 +43,14 @@ namespace Quark {
 
 	Ref<Shader> ShaderLibrary::Load(std::string_view filepath)
 	{
-		Ref<Shader> shader(Shader::Create(filepath));
+		Ref<Shader> shader = Shader::Create(filepath);
 		Add(shader);
 		return shader;
 	}
 
 	Ref<Shader> ShaderLibrary::Load(std::string_view name, std::string_view filepath)
 	{
-		Ref<Shader> shader(Shader::Create(filepath));
+		Ref<Shader> shader = Shader::Create(filepath);
 		Add(name, shader);
 		return shader;
 	}

@@ -17,8 +17,8 @@ namespace Quark {
 
 	Ref<Font> FontLibrary::Load(std::string_view name, std::string_view filepath, uint32_t fontSize)
 	{
-		Ref<Font> font(Font::Create(filepath, fontSize));
-		Add(font, name);
+		Ref<Font> font = Font::Create(filepath, fontSize);
+		Add(name, font);
 		return font;
 	}
 
@@ -28,10 +28,10 @@ namespace Quark {
 		return m_Fonts.at(GetHashedName(name));
 	}
 
-	void FontLibrary::Add(Ref<Font> font, std::string_view name)
+	void FontLibrary::Add(std::string_view name, const Ref<Font>& font)
 	{
 		QK_CORE_ASSERT(!Exists(name), "Font already exists!");
-		m_Fonts[GetHashedName(name)] = std::move(font);
+		m_Fonts[GetHashedName(name)] = font;
 	}
 
 	bool FontLibrary::Exists(std::string_view name) const

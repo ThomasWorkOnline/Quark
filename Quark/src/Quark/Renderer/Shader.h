@@ -48,8 +48,8 @@ namespace Quark {
 	class ShaderLibrary
 	{
 	public:
-		void Add(std::string_view name, Ref<Shader> shader);
-		void Add(Ref<Shader> shader);
+		void Add(std::string_view name, const Ref<Shader>& shader);
+		void Add(const Ref<Shader>& shader);
 		bool Exists(std::string_view name) const;
 
 		Ref<Shader> Load(std::string_view filepath);
