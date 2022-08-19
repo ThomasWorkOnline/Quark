@@ -27,7 +27,7 @@ private:
 		Mat4f ViewProjection;
 	};
 
-	Ref<Scene> m_Scene;
+	Ref<PresentableScene> m_Scene;
 	Entity m_Player;
 
 	Scope<Texture2D> m_Albedo;

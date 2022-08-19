@@ -5,8 +5,8 @@
 
 namespace Quark {
 
-	AudioSource* AudioSource::Create()
+	Scope<AudioSource> AudioSource::Create()
 	{
-		return new OpenALAudioSource();
+		return CreateScope<OpenALAudioSource>();
 	}
 }

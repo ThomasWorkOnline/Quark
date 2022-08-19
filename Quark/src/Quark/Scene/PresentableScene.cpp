@@ -75,18 +75,41 @@ namespace Quark {
 		}
 	}
 
-	void PresentableScene::OnViewportResized(uint32_t viewportWidth, uint32_t viewportHeight)
+	void PresentableScene::OnEvent(Event& e)
 	{
-		if (HasPrimaryCamera())
-		{
-			auto& cc = m_PrimaryCameraEntity.GetComponent<CameraComponent>();
-			cc.Camera.Resize(viewportWidth, viewportHeight);
-		}
+		EventDispatcher dispatcher(e);
+		dispatcher.Dispatch<WindowResizedEvent>(ATTACH_EVENT_FN(OnWindowResized));
+
+		Scene::OnEvent(e);
+	}
+
+	Entity PresentableScene::CreatePrimaryCamera()
+	{
+		auto entity = CreateEntity();
+		entity.AddComponent<Transform3DComponent>();
+		entity.AddComponent<PhysicsComponent>();
+		entity.AddComponent<CameraComponent>().Camera.SetPerspective(90.0f);
+		return m_PrimaryCameraEntity = entity;
+	}
+
+	void PresentableScene::SetPrimaryCamera(Entity cameraEntity)
+	{
+		QK_CORE_ASSERT(cameraEntity.HasComponent<CameraComponent>(), "Entity must have a camera component");
+		m_PrimaryCameraEntity = cameraEntity;
 	}
 
 	void PresentableScene::SetEnvironment(std::string_view filepath)
 	{
 		NewEnvironment(filepath);
+	}
+
+	void PresentableScene::OnWindowResized(WindowResizedEvent& e)
+	{
+		if (m_PrimaryCameraEntity)
+		{
+			auto& cc = m_PrimaryCameraEntity.GetComponent<CameraComponent>();
+			cc.Camera.Resize(e.GetWidth(), e.GetHeight());
+		}
 	}
 
 	void PresentableScene::NewEnvironment(std::string_view filepath)

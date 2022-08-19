@@ -17,7 +17,7 @@ PBRRenderingDemo::PBRRenderingDemo()
 
 	GetWindow()->SetVSync(true);
 
-	m_Scene = CreateRef<Scene>();
+	m_Scene = CreateRef<PresentableScene>();
 
 	m_Player = m_Scene->CreateEntity();
 	m_Player.AddComponent<Transform3DComponent>().Position = { 0.0f, 0.0f, -2.0f };

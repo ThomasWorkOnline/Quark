@@ -8,20 +8,15 @@ Pong::Pong()
 	m_Entity = m_Scene.CreateEntity();
 	m_Entity.AddComponent<Transform3DComponent>();
 	m_Entity.AddComponent<PhysicsComponent>();
-	auto& camera = m_Entity.AddComponent<CameraComponent>().Camera;
-	camera.SetPerspective(70.0f);
-	camera.Resize(window->GetWidth(), window->GetHeight());
+	m_Entity.AddComponent<CameraComponent>().Camera.SetPerspective(70.0f);
 
 	m_BallTransform.Position = Vec3f(0.0f, 0.0f, 10.0f);
-
-	m_Shader = Shader::Create("assets/shaders/PBR.glsl");
 	m_Ball = Mesh::LoadFromFile("assets/meshes/sphere.obj");
+	m_Shader = Shader::Create("assets/shaders/PBR.glsl");
 
-	m_AudioBuffer.reset(AudioBuffer::Create("assets/sounds/file_example_WAV_1MG.wav"));
-
-	m_AudioSource.reset(AudioSource::Create());
+	m_AudioBuffer = AudioBuffer::Create("assets/sounds/file_example_WAV_1MG.wav");
+	m_AudioSource = AudioSource::Create();
 	m_AudioSource->SetBuffer(m_AudioBuffer.get());
-
 	m_AudioSource->Play();
 	m_AudioPlaying = true;
 

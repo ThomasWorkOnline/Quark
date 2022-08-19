@@ -13,9 +13,6 @@ VulkanApp::VulkanApp(const ApplicationOptions& options)
 	Ref<Texture2D> texture1 = Texture2D::Create("assets/textures/pbr/streaked-metal/albedo.png", renderModes);
 	Ref<Texture2D> texture2 = Texture2D::Create("assets/textures/pbr/copper-rock/copper-rock1-alb.png", renderModes);
 
-	m_Font = Font::Create("assets/fonts/arial.ttf", 48);
-	m_Text.SetFont(m_Font);
-
 	Random<bool> randomBool;
 	Random<float> randomFloat;
 	auto random = [&]() -> auto { return randomFloat.Next() * 1000.0f; };
@@ -24,9 +21,8 @@ VulkanApp::VulkanApp(const ApplicationOptions& options)
 	{
 		auto sprite = m_Scene->CreateEntity();
 
-		auto& transform = sprite.AddComponent<Transform3DComponent>();
-
 		Vec3f axis = { randomFloat.Next(), randomFloat.Next(), randomFloat.Next() };
+		auto& transform = sprite.AddComponent<Transform3DComponent>();
 		transform.Position = Vec3f{ random(), random(), random() };
 		transform.Scale = axis;
 		transform.Rotate(randomFloat.Next() * glm::radians(360.0f), axis);
@@ -36,10 +32,12 @@ VulkanApp::VulkanApp(const ApplicationOptions& options)
 		src.Tint = { axis, 1.0f };
 	}
 
+	m_Font = Font::Create("assets/fonts/arial.ttf", 48);
+	m_Text.SetFont(m_Font);
+
 	auto window = GetWindow();
 	m_TextCamera.SetOrthographic((float)window->GetWidth());
 	m_TextCamera.Resize(window->GetWidth(), window->GetHeight());
-	m_Scene->OnViewportResized(window->GetWidth(), window->GetHeight());
 }
 
 void VulkanApp::OnEvent(Event& e)
@@ -49,10 +47,12 @@ void VulkanApp::OnEvent(Event& e)
 	dispatcher.Dispatch<KeyPressedEvent>(ATTACH_EVENT_FN(OnKeyPressed));
 	dispatcher.Dispatch<WindowResizedEvent>([&](WindowResizedEvent& e)
 	{
-		m_Scene->OnViewportResized(e.GetWidth(), e.GetHeight());
+		m_TextCamera.Resize(e.GetWidth(), e.GetHeight());
 	});
 
-	if (!e.Handled && m_ViewportSelected)
+	bool ignoreEvent = !m_ViewportSelected && e.IsInCategory(EventCategory::Input);
+
+	if (!e.Handled && !ignoreEvent)
 		m_Scene->OnEvent(e);
 }
 

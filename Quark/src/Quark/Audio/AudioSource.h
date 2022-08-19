@@ -16,6 +16,6 @@ namespace Quark {
 		virtual void Stop() = 0;
 		virtual void Pause() = 0;
 
-		static AudioSource* Create();
+		static Scope<AudioSource> Create();
 	};
 }

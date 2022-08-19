@@ -61,25 +61,15 @@ namespace Quark {
 		return { m_Registry.create(), this };
 	}
 
-	Entity Scene::CreatePrimaryCamera()
-	{
-		auto entity = CreateEntity();
-		entity.AddComponent<Transform3DComponent>();
-		entity.AddComponent<PhysicsComponent>();
-		entity.AddComponent<CameraComponent>().Camera.SetPerspective(90.0f);
-		return m_PrimaryCameraEntity = entity;
-	}
-
 	void Scene::DeleteEntity(Entity entity)
 	{
 		m_Registry.destroy(entity);
 	}
+}
 
-	void Scene::SetPrimaryCamera(Entity cameraEntity)
-	{
-		QK_CORE_ASSERT(cameraEntity.HasComponent<CameraComponent>(), "Entity must have a camera component");
-		m_PrimaryCameraEntity = cameraEntity;
-	}
+#include "Quark/Renderer/Renderer.h"
+
+namespace Quark {
 
 	template<typename Component>
 	void Scene::OnComponentAdded(Entity entity, Component& c)
@@ -91,6 +81,58 @@ namespace Quark {
 	{
 	}
 
+	template<>
+	void Scene::OnComponentAdded<CameraComponent>(Entity entity, CameraComponent& cc)
+	{
+		auto extent = Renderer::GetViewportExtent();
+		cc.Camera.Resize(extent.Width, extent.Height);
+	}
+
+	template<>
+	void Scene::OnComponentRemove<CameraComponent>(Entity entity, CameraComponent& cc)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentAdded<TagComponent>(Entity entity, TagComponent& tag)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentRemove<TagComponent>(Entity entity, TagComponent& tag)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentRemove<Transform3DComponent>(Entity entity, Transform3DComponent& tc)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentAdded<Transform3DComponent>(Entity entity, Transform3DComponent& tc)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentRemove<PhysicsComponent>(Entity entity, PhysicsComponent& psc)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentAdded<PhysicsComponent>(Entity entity, PhysicsComponent& psc)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentRemove<MeshComponent>(Entity entity, MeshComponent& mc)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentAdded<MeshComponent>(Entity entity, MeshComponent& mc)
+	{
+	}
+	
 	template<>
 	void Scene::OnComponentAdded<SpriteRendererComponent>(Entity entity, SpriteRendererComponent& src)
 	{
@@ -108,6 +150,16 @@ namespace Quark {
 
 	template<>
 	void Scene::OnComponentRemove<TexturedSpriteRendererComponent>(Entity entity, TexturedSpriteRendererComponent& tsrc)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentAdded<TextRendererComponent>(Entity entity, TextRendererComponent& trc)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentRemove<TextRendererComponent>(Entity entity, TextRendererComponent& trc)
 	{
 	}
 

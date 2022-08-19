@@ -24,8 +24,8 @@ namespace Quark {
 
 		const AudioBufferSpecification& GetSpecification() const { return m_Spec; }
 
-		static AudioBuffer* Create(std::string_view filepath);
-		static AudioBuffer* Create(const AudioBufferSpecification& spec, const void* data);
+		static Scope<AudioBuffer> Create(std::string_view filepath);
+		static Scope<AudioBuffer> Create(const AudioBufferSpecification& spec, const void* data);
 
 	protected:
 		AudioBufferSpecification m_Spec{};

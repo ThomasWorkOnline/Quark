@@ -1,6 +1,9 @@
 #pragma once
 
 #include "Quark/Core/Core.h"
+#include "Quark/Event/Event.h"
+#include "Quark/Event/WindowEvent.h"
+
 #include "Quark/Renderer/Buffer.h"
 #include "Quark/Renderer/Cubemap.h"
 #include "Quark/Renderer/Framebuffer.h"
@@ -14,10 +17,15 @@ namespace Quark {
 	{
 	public:
 		void OnRender();
-		void OnViewportResized(uint32_t viewportWidth, uint32_t viewportHeight);
+		void OnEvent(Event& e);
+
+		Entity CreatePrimaryCamera();
+		void SetPrimaryCamera(Entity cameraEntity);
 		void SetEnvironment(std::string_view filepath);
+		bool HasPrimaryCamera() const { return (bool)m_PrimaryCameraEntity; }
 
 	private:
+		void OnWindowResized(WindowResizedEvent& e);
 		void NewEnvironment(std::string_view filepath);
 
 	private:
@@ -40,5 +48,6 @@ namespace Quark {
 		};
 
 		SceneData m_Data;
+		Entity m_PrimaryCameraEntity;
 	};
 }

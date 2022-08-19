@@ -19,18 +19,13 @@ namespace Quark {
 	{
 	public:
 		Scene() = default;
-		~Scene();
+		virtual ~Scene();
 
 		void OnUpdate(Timestep elapsedTime);
 		void OnEvent(Event& e);
 
 		Entity CreateEntity();
-		Entity CreatePrimaryCamera();
-
 		void DeleteEntity(Entity entity);
-		void SetPrimaryCamera(Entity cameraEntity);
-
-		bool HasPrimaryCamera() const { return (bool)m_PrimaryCameraEntity; }
 
 		const SceneSettings& GetSettings() const { return m_Settings; }
 		SceneSettings& GetSettings() { return m_Settings; }
@@ -38,20 +33,15 @@ namespace Quark {
 		const entt::registry& GetRegistry() const { return m_Registry; }
 		entt::registry& GetRegistry() { return m_Registry; }
 
-		operator const entt::registry& () const { return m_Registry; }
-		operator entt::registry&() { return m_Registry; }
-
-	private:
+	protected:
 		template<typename Component>
-		void OnComponentAdded(Entity entity, Component& c);
+		inline void OnComponentAdded(Entity entity, Component& c);
 
 		template<typename Component>
-		void OnComponentRemove(Entity entity, Component& c);
+		inline void OnComponentRemove(Entity entity, Component& c);
 
 	protected:
 		entt::registry m_Registry;
-		Entity m_PrimaryCameraEntity;
-
 		SceneSettings m_Settings;
 
 		friend class Entity;
