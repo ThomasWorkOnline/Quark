@@ -1,12 +1,12 @@
 #pragma once
 
 #include "Quark/Core/Core.h"
-#include "Quark/Scene/Scene.h"
+#include "Quark/Renderer/Buffer.h"
+#include "Quark/Renderer/Cubemap.h"
+#include "Quark/Renderer/Framebuffer.h"
+#include "Quark/Renderer/Shader.h"
 
-#include "Buffer.h"
-#include "Cubemap.h"
-#include "Framebuffer.h"
-#include "Shader.h"
+#include "Scene.h"
 
 namespace Quark {
 

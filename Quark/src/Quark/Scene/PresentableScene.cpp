@@ -1,11 +1,11 @@
 #include "qkpch.h"
 #include "PresentableScene.h"
 
-#include "Renderer.h"
-#include "Renderer2D.h"
-
 #include "Quark/Core/Application.h"
-#include "Quark/Scene/Components.h"
+#include "Quark/Renderer/Renderer.h"
+#include "Quark/Renderer/Renderer2D.h"
+
+#include "Components.h"
 
 namespace Quark {
 
