@@ -45,7 +45,7 @@ namespace Quark {
 
 	void Scene::OnEvent(Event& e)
 	{
-		if (!this) return; // In the case we call an event on an orphan entity
+		if (!this) return; // In the case we call an event on an empty scene
 
 		// Events on native scripts
 		{

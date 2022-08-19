@@ -77,7 +77,7 @@ namespace Quark {
 
 	void PresentableScene::OnEvent(Event& e)
 	{
-		if (!this) return; // In the case we call an event on an orphan entity
+		if (!this) return; // In the case we call an event on an empty scene
 
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowResizedEvent>(ATTACH_EVENT_FN(OnWindowResized));

@@ -15,9 +15,9 @@ VulkanApp::VulkanApp(const ApplicationOptions& options)
 
 	Random<bool> randomBool;
 	Random<float> randomFloat;
-	auto random = [&]() -> auto { return randomFloat.Next() * 1000.0f; };
+	auto random = [&]() -> auto { return (randomFloat.Next() - 0.5f) * 1000.0f; };
 
-	for (uint32_t i = 0; i < 10000; i++)
+	for (uint32_t i = 0; i < 20000; i++)
 	{
 		auto sprite = m_Scene->CreateEntity();
 
@@ -65,13 +65,16 @@ void VulkanApp::OnRender()
 {
 	m_Scene->OnRender();
 
-	Renderer2D::BeginScene(m_TextCamera.GetProjection(), Mat4f(1.f));
+	if (m_PositionOverlay)
+	{
+		Renderer2D::BeginScene(m_TextCamera.GetProjection(), Mat4f(1.f));
 
-	auto& pos = m_CameraEntity.GetComponent<Transform3DComponent>().Position;
-	auto posStr = glm::to_string(pos);
-	Renderer2D::DrawText(posStr, m_Font.get(), { 0.0f, 1.0f, 1.0f, 0.8f });
+		auto& pos = m_CameraEntity.GetComponent<Transform3DComponent>().Position;
+		auto posStr = glm::to_string(pos);
+		Renderer2D::DrawText(posStr, m_Font.get(), { 0.0f, 1.0f, 1.0f, 0.8f });
 
-	Renderer2D::EndScene();
+		Renderer2D::EndScene();
+	}
 }
 
 void VulkanApp::OnUpdate(Timestep elapsedTime)
@@ -81,10 +84,19 @@ void VulkanApp::OnUpdate(Timestep elapsedTime)
 
 void VulkanApp::OnMouseButtonPressed(MouseButtonPressedEvent& e)
 {
-	if (e.GetMouseButton() == MouseCode::ButtonLeft)
+	switch (e.GetMouseButton())
 	{
-		m_ViewportSelected = true;
-		GetWindow()->DisableCursor();
+		case MouseCode::ButtonLeft:
+		{
+			m_ViewportSelected = true;
+			GetWindow()->DisableCursor();
+			break;
+		}
+		case MouseCode::ButtonRight:
+		{
+			m_PositionOverlay = !m_PositionOverlay;
+			break;
+		}
 	}
 }
 
