@@ -44,6 +44,7 @@ private:
 	Scope<Texture2D> m_Normal;
 	Scope<Texture2D> m_Roughness;
 	Scope<Texture2D> m_AO;
+	Scope<Cubemap> m_Irradiance;
 
 	Scope<Shader> m_PBRShader;
 	Scope<UniformBuffer> m_UniformBuffer;

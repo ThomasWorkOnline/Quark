@@ -48,9 +48,9 @@ struct Material
 	sampler2D MetallicMap;
 	sampler2D RoughnessMap;
 	sampler2D AmbiantOcclusionMap;
-	samplerCube IrradianceMap;
 };
 
+uniform samplerCube u_IrradianceMap;
 uniform Material u_Material;
 uniform vec3 u_CameraPos;
 
@@ -120,7 +120,7 @@ void main()
 	vec3 kS               = FresnelSchlick(max(dot(N, V), 0.0), F0);
 	vec3 kD               = 1.0 - kS;
 	kD                   *= 1.0 - metallic;
-	vec3 irradiance       = texture(u_Material.IrradianceMap, N).rgb;
+	vec3 irradiance       = texture(u_IrradianceMap, N).rgb;
 	vec3 diffuse          = irradiance * albedo;
 	vec3 ambient          = (kD * diffuse) * ao;
 	

@@ -17,11 +17,15 @@ namespace Quark {
 			case ColorDataFormat::RGB12:
 			case ColorDataFormat::RGB16:
 			case ColorDataFormat::RGB32:
+			case ColorDataFormat::RGB16f:
+			case ColorDataFormat::RGB32f:
 			case ColorDataFormat::RGB8_SRGB:
 				return GL_RGB;
 			case ColorDataFormat::RGBA8:
 			case ColorDataFormat::RGBA12:
 			case ColorDataFormat::RGBA16:
+			case ColorDataFormat::RGBA16f:
+			case ColorDataFormat::RGBA32f:
 			case ColorDataFormat::RGBA8_SRGB:
 				return GL_RGBA;
 			case ColorDataFormat::BGR8_SRGB:
@@ -30,8 +34,9 @@ namespace Quark {
 			case ColorDataFormat::Red8:
 				return GL_RED;
 			case ColorDataFormat::Depth24:
-			case ColorDataFormat::Depth24Stencil8:
 				return GL_DEPTH_COMPONENT;
+			case ColorDataFormat::Depth24Stencil8:
+				return GL_DEPTH_STENCIL;
 
 			QK_ASSERT_NO_DEFAULT("Invalid color data format");
 		}

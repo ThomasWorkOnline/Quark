@@ -24,6 +24,21 @@ PBRRenderingDemo::PBRRenderingDemo(const ApplicationOptions& options)
 
 	LoadMaterialsAsync();
 
+	{
+		CubemapSpecification spec;
+		spec.Width = 1;
+		spec.Height = 1;
+		spec.DataFormat = ColorDataFormat::RGB32f;
+
+		m_Irradiance = Cubemap::Create(spec);
+
+		float data[3] = { 1.0f, 1.0f, 1.0f };
+		for (auto i = 0; i < 6; i++)
+		{
+			m_Irradiance->SetData(i, data, sizeof(data));
+		}
+	}
+
 	m_PBRShader = Shader::Create("assets/shaders/PBR.glsl");
 
 	{
@@ -39,6 +54,7 @@ PBRRenderingDemo::PBRRenderingDemo(const ApplicationOptions& options)
 		spec.Shader = m_PBRShader.get();
 		spec.RenderPass = Renderer::GetGeometryPass();
 		spec.UniformBuffer = m_UniformBuffer.get();
+
 		m_Pipeline = Pipeline::Create(spec);
 	}
 
@@ -56,7 +72,7 @@ PBRRenderingDemo::PBRRenderingDemo(const ApplicationOptions& options)
 	m_PBRShader->SetInt("u_Material.MetallicMap", 2);
 	m_PBRShader->SetInt("u_Material.RoughnessMap", 3);
 	m_PBRShader->SetInt("u_Material.AmbiantOcclusionMap", 4);
-	m_PBRShader->SetInt("u_Material.IrradianceMap", 5);
+	m_PBRShader->SetInt("u_IrradianceMap", 5);
 
 	m_PBRShader->SetVec3f("u_LightColors[0]", lightColor);
 	m_PBRShader->SetVec3f("u_LightColors[1]", lightColor);
@@ -67,6 +83,8 @@ PBRRenderingDemo::PBRRenderingDemo(const ApplicationOptions& options)
 	m_PBRShader->SetVec3f("u_LightPositions[1]", lightPositions[1]);
 	m_PBRShader->SetVec3f("u_LightPositions[2]", lightPositions[2]);
 	m_PBRShader->SetVec3f("u_LightPositions[3]", lightPositions[3]);
+
+	m_Irradiance->Attach(5);
 }
 
 void PBRRenderingDemo::OnUpdate(Timestep elapsedTime)
@@ -77,12 +95,6 @@ void PBRRenderingDemo::OnUpdate(Timestep elapsedTime)
 void PBRRenderingDemo::OnRender()
 {
 	UploadAssets();
-
-	if (m_Albedo) m_Albedo->Attach(0);
-	if (m_Normal) m_Normal->Attach(1);
-	if (m_Metallic) m_Metallic->Attach(2);
-	if (m_Roughness) m_Roughness->Attach(3);
-	if (m_AO) m_AO->Attach(4);
 
 	const auto& camera = m_CameraEntity.GetComponent<CameraComponent>().Camera;
 	const auto& transform = m_CameraEntity.GetComponent<Transform3DComponent>();
@@ -96,9 +108,17 @@ void PBRRenderingDemo::OnRender()
 
 	if (m_Body)
 	{
+		if (m_Albedo) m_Albedo->Attach(0);
+		if (m_Normal) m_Normal->Attach(1);
+		if (m_Metallic) m_Metallic->Attach(2);
+		if (m_Roughness) m_Roughness->Attach(3);
+		if (m_AO) m_AO->Attach(4);
+
 		Renderer::BindPipeline(m_Pipeline.get());
 		Renderer::Submit(m_Body.GetVertexBuffer(), m_Body.GetIndexBuffer());
 	}
+
+	m_Scene->OnRender();
 }
 
 void PBRRenderingDemo::OnEvent(Event& e)
@@ -199,9 +219,9 @@ void PBRRenderingDemo::LoadMaterialsAsync()
 			return CreateScope<Image>(filepath);
 		};
 
-		m_AlbedoFuture = std::async(std::launch::async, newImageLambda, albedoFilepath);
-		m_MetallicFuture = std::async(std::launch::async, newImageLambda, metallicFilepath);
-		m_NormalFuture = std::async(std::launch::async, newImageLambda, normalFilepath);
+		m_AlbedoFuture    = std::async(std::launch::async, newImageLambda, albedoFilepath);
+		m_MetallicFuture  = std::async(std::launch::async, newImageLambda, metallicFilepath);
+		m_NormalFuture    = std::async(std::launch::async, newImageLambda, normalFilepath);
 		m_RoughnessFuture = std::async(std::launch::async, newImageLambda, roughnessFilepath);
 #else
 
