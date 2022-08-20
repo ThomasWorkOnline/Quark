@@ -24,31 +24,30 @@ private:
 	void UploadAssets();
 
 private:
-	struct Light
+	struct Material
 	{
-		Vec4f Color;
-		Vec4f Position;
+		Scope<Texture2D> Albedo;
+		Scope<Texture2D> Metallic;
+		Scope<Texture2D> Normal;
+		Scope<Texture2D> Roughness;
+		Scope<Texture2D> AO;
 	};
 
 	struct CameraUniformBufferData
 	{
 		Mat4f ViewProjection;
+		Vec4f CameraPosition;
 	};
 
-	Ref<PresentableScene> m_Scene;
+	Scope<PresentableScene> m_Scene;
 	Entity m_CameraEntity;
 	Mesh m_Body;
-
-	Scope<Texture2D> m_Albedo;
-	Scope<Texture2D> m_Metallic;
-	Scope<Texture2D> m_Normal;
-	Scope<Texture2D> m_Roughness;
-	Scope<Texture2D> m_AO;
-	Scope<Cubemap> m_Irradiance;
+	Material m_Material;
 
 	Scope<Shader> m_PBRShader;
-	Scope<UniformBuffer> m_UniformBuffer;
-	CameraUniformBufferData m_UniformBufferData;
+	Scope<Cubemap> m_Irradiance;
+	Scope<UniformBuffer> m_CameraUniformBuffer;
+	CameraUniformBufferData m_CameraBufferData;
 	Scope<Pipeline> m_Pipeline;
 
 	std::future<OBJMeshData> m_MeshDataFuture;

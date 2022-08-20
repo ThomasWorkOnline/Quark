@@ -7,6 +7,7 @@ layout(location = 2) in vec3 a_Normal;
 
 layout(std140, binding = 0) uniform Camera {
 	mat4 u_ViewProjection;
+	vec4 u_CameraPosition;
 };
 
 layout(location = 0) out VertexOutput {
@@ -35,6 +36,11 @@ float GeometrySchlickGGX(float nDotV, float k);
 float GeometrySmith(vec3 n, vec3 v, vec3 l, float k);
 vec3  FresnelSchlick(float cosTheta, vec3 f0);
 
+layout(std140, binding = 0) uniform Camera {
+	mat4 u_ViewProjection;
+	vec4 u_CameraPosition;
+};
+
 layout(location = 0) in VertexOutput {
 	vec3 Position;
 	vec2 TexCoord;
@@ -50,13 +56,13 @@ struct Material
 	sampler2D AmbiantOcclusionMap;
 };
 
-uniform samplerCube u_IrradianceMap;
-uniform Material u_Material;
-uniform vec3 u_CameraPos;
-
 const uint s_LightCount = 4;
 uniform vec3 u_LightPositions[s_LightCount];
 uniform vec3 u_LightColors[s_LightCount];
+
+uniform samplerCube u_IrradianceMap;
+uniform Material u_Material;
+
 
 layout(location = 0) out vec4 o_Color;
 
@@ -70,7 +76,7 @@ void main()
 	float ao        = texture(u_Material.AmbiantOcclusionMap, Input.TexCoord).r;
 	
 	vec3 N = GetNormalFromMap();
-	vec3 V = normalize(u_CameraPos - Input.Position);
+	vec3 V = normalize(u_CameraPosition.xyz - Input.Position);
 	vec3 R = reflect(-V, N);
 	
 	// Calculate reflectance at normal incidence; if dia-electric (like plastic) use F0

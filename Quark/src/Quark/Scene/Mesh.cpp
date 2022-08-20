@@ -83,11 +83,6 @@ namespace Quark {
 	{
 	}
 
-	Mesh Mesh::LoadFromFile(std::string_view filepath, const MeshFormatDescriptor& descriptor)
-	{
-		return ReadOBJData(filepath, descriptor);
-	}
-
 	// TODO: rework all this mess
 	Mesh Mesh::ConstructMeshFromOBJData(const OBJMeshData& data)
 	{
@@ -195,7 +190,7 @@ namespace Quark {
 		return s_Layout;
 	}
 
-	OBJMeshData Mesh::ReadOBJData(std::string_view filepath, const MeshFormatDescriptor& descriptor)
+	OBJMeshData Mesh::ReadOBJData(std::string_view filepath)
 	{
 		QK_PROFILE_FUNCTION();
 
@@ -204,8 +199,6 @@ namespace Quark {
 		OBJMeshData data;
 		std::string_view file = fileRaw;
 		std::vector<std::string_view> tokens(4);
-
-		float Zflip = descriptor.ZFlip ? -1.0f : 1.0f;
 
 		size_t pos = 0;
 		size_t eol;
@@ -220,7 +213,7 @@ namespace Quark {
 				data.Positions.emplace_back(
 					ExtractFromToken(tokens[1]),
 					ExtractFromToken(tokens[2]),
-					ExtractFromToken(tokens[3]) * Zflip
+					ExtractFromToken(tokens[3])
 				);
 			}
 			else if (line.substr(0, 2) == "vt" && tokens.size() >= 3)
@@ -235,7 +228,7 @@ namespace Quark {
 				data.Normals.emplace_back(
 					ExtractFromToken(tokens[1]),
 					ExtractFromToken(tokens[2]),
-					ExtractFromToken(tokens[3]) * Zflip
+					ExtractFromToken(tokens[3])
 				);
 			}
 			else if (line.substr(0, 1) == "f" && tokens.size() >= 4)

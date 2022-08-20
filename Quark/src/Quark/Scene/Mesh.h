@@ -49,12 +49,11 @@ namespace Quark {
 		VertexBuffer* GetVertexBuffer() const { return m_VertexBuffer.get(); }
 		IndexBuffer* GetIndexBuffer() const { return m_IndexBuffer.get(); }
 
-		static Mesh LoadFromFile(std::string_view filepath, const MeshFormatDescriptor& descriptor = {});
 		static Mesh ConstructMeshFromOBJData(const OBJMeshData& data);
 		static Mesh GenerateUnitCube();
 
 		static const BufferLayout& GetBufferLayout();
-		static OBJMeshData ReadOBJData(std::string_view filepath, const MeshFormatDescriptor& descriptor = {});
+		static OBJMeshData ReadOBJData(std::string_view filepath);
 
 		operator bool() const { return m_VertexBuffer != nullptr; }
 
