@@ -9,7 +9,6 @@ VulkanApp::VulkanApp(const ApplicationOptions& options)
 	m_CameraEntity.AddNativeScript<CameraController>();
 
 	TextureRenderModes renderModes;
-	renderModes.MagFilteringMode = TextureFilteringMode::Nearest;
 	Ref<Texture2D> texture1 = Texture2D::Create("assets/textures/pbr/streaked-metal/albedo.png", renderModes);
 	Ref<Texture2D> texture2 = Texture2D::Create("assets/textures/pbr/copper-rock/copper-rock1-alb.png", renderModes);
 
@@ -27,9 +26,12 @@ VulkanApp::VulkanApp(const ApplicationOptions& options)
 		transform.Scale = axis;
 		transform.Rotate(randomFloat.Next() * glm::radians(360.0f), axis);
 
+		auto& physics = sprite.AddComponent<PhysicsComponent>();
+		physics.Velocity = (axis - 0.5f) * 100.0f;
+
 		auto& src = sprite.AddComponent<TexturedSpriteRendererComponent>();
 		src.Texture = randomBool.Next() ? texture1 : texture2;
-		src.Tint = { axis, 1.0f };
+		src.Tint = { randomFloat.Next(), randomFloat.Next(), randomFloat.Next(), 1.0f };
 	}
 
 	m_Font = Font::Create("assets/fonts/arial.ttf", 48);
@@ -66,6 +68,7 @@ void VulkanApp::OnRender()
 
 	if (m_PositionOverlay)
 	{
+		glm::identity<glm::mat4>();
 		Renderer2D::BeginScene(m_TextCamera.GetProjection(), Mat4f(1.f));
 
 		auto& pos = m_CameraEntity.GetComponent<Transform3DComponent>().Position;

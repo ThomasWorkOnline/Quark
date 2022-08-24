@@ -3,18 +3,20 @@
 
 namespace Quark {
 
-	static constexpr float s_RollSensitivity = 1.0f;
 	static constexpr float s_MovementSpeed = 12.0f;
 	static constexpr float s_MouseSensitivity = 0.002f;
 	static constexpr float s_MouseScrollSensitivity = 1.0f;
+	static constexpr float s_RollSensitivity = 4.0f;
+	static constexpr float s_RollFrictionCoeff = 4.0f;
 
+	static constexpr float s_MinFov = 1.0f;
+	static constexpr float s_MaxFov = 90.0f;
 	static constexpr float s_ZoomFrictionCoeff = 8.0f;
 
 	void CameraController::OnUpdate(Timestep elapsedTime)
 	{
 		auto& transform = GetComponent<Transform3DComponent>();
 		auto& physics = GetComponent<PhysicsComponent>();
-		auto& camera = GetComponent<CameraComponent>().Camera;
 
 		// Boost Key
 		if (Input::IsKeyPressed(KeyCode::LeftControl))
@@ -61,13 +63,16 @@ namespace Quark {
 
 		if (Input::IsKeyPressed(KeyCode::Q))
 		{
-			transform.Rotate(elapsedTime * s_RollSensitivity, -transform.GetFrontVector());
+			m_AugularMomentum -= s_RollSensitivity * elapsedTime;
 		}
 
 		if (Input::IsKeyPressed(KeyCode::E))
 		{
-			transform.Rotate(elapsedTime * s_RollSensitivity, transform.GetFrontVector());
+			m_AugularMomentum += s_RollSensitivity * elapsedTime;
 		}
+
+		m_AugularMomentum -= (m_AugularMomentum * s_RollFrictionCoeff) * elapsedTime;
+		transform.Rotate(m_AugularMomentum * elapsedTime, transform.GetFrontVector());
 
 		if (Input::IsKeyPressed(KeyCode::D0))
 		{
@@ -77,23 +82,25 @@ namespace Quark {
 			QK_CORE_TRACE("Teleported to world origin");
 		}
 
+		auto& camera = GetComponent<CameraComponent>().Camera;
+
 		// Zooming
 		m_ZoomSpeed -= (m_ZoomSpeed * s_ZoomFrictionCoeff) * elapsedTime;
 
 		// Check if the fov needs to be changed
-		if (std::abs(m_ZoomSpeed) > glm::epsilon<Float>())
+		if (glm::abs(m_ZoomSpeed) > glm::epsilon<Float>())
 		{
 			camera.SetFov(camera.GetFov() - m_ZoomSpeed * elapsedTime * camera.GetFov());
 		}
 
-		if (camera.GetFov() < 1.0f)
+		if (camera.GetFov() < s_MinFov)
 		{
-			camera.SetFov(1.0f);
+			camera.SetFov(s_MinFov);
 			m_ZoomSpeed = 0.0f;
 		}
-		else if (camera.GetFov() > 90.0f)
+		else if (camera.GetFov() > s_MaxFov)
 		{
-			camera.SetFov(90.0f);
+			camera.SetFov(s_MaxFov);
 			m_ZoomSpeed = 0.0f;
 		}
 	}
@@ -101,17 +108,16 @@ namespace Quark {
 	void CameraController::OnEvent(Event& e)
 	{
 		EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<MouseScrolledEvent>(ATTACH_EVENT_FN(CameraController::OnMouseScrolled));
-		dispatcher.Dispatch<MouseMovedEvent>(ATTACH_EVENT_FN(CameraController::OnMouseMoved));
+		dispatcher.Dispatch<MouseScrolledEvent>(ATTACH_EVENT_FN(OnMouseScrolled));
+		dispatcher.Dispatch<MouseMovedEvent>(ATTACH_EVENT_FN(OnMouseMoved));
 	}
 
-	bool CameraController::OnMouseScrolled(MouseScrolledEvent& e)
+	void CameraController::OnMouseScrolled(MouseScrolledEvent& e)
 	{
 		m_ZoomSpeed += e.GetYOffset() * s_MouseScrollSensitivity;
-		return false;
 	}
 
-	bool CameraController::OnMouseMoved(MouseMovedEvent& e)
+	void CameraController::OnMouseMoved(MouseMovedEvent& e)
 	{
 		auto& transform = GetComponent<Transform3DComponent>();
 		auto& camera = GetComponent<CameraComponent>().Camera;
@@ -121,6 +127,5 @@ namespace Quark {
 		Quatf qPitch    = glm::angleAxis(-mouseMove.y * s_MouseSensitivity * camera.GetFov() / 90.0f, Vec3(1.0f, 0.0f, 0.0f) * transform.Orientation);
 
 		transform.Rotate(qPitch * qYaw);
-		return false;
 	}
 }
