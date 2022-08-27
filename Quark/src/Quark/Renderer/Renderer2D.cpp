@@ -482,8 +482,8 @@ namespace Quark {
 		s_Data->Textures[0] = s_Data->DefaultTexture.get();
 
 		auto& assetDir = Application::Get()->GetOptions().CoreAssetDir;
-		std::string spriteVertexSource = Filesystem::ReadTextFile((assetDir / "bin-spirv/sprite.vert.spv").string());
-		std::string spriteFragmentSource = Filesystem::ReadTextFile((assetDir / "bin-spirv/sprite.frag.spv").string());
+		auto spriteVertexSource = ReadSpirvFile((assetDir / "bin-spirv/sprite.vert.spv").string());
+		auto spriteFragmentSource = ReadSpirvFile((assetDir / "bin-spirv/sprite.frag.spv").string());
 
 		s_Data->QuadShader = Shader::Create("defaultSprite", spriteVertexSource, spriteFragmentSource);
 
@@ -508,8 +508,8 @@ namespace Quark {
 		s_Data->LineVertices = new LineVertex[Renderer2DData::MaxVertices];
 
 		auto& assetDir = Application::Get()->GetOptions().CoreAssetDir;
-		std::string lineVertexSource = Filesystem::ReadTextFile((assetDir / "bin-spirv/line.vert.spv").string());
-		std::string lineFragmentSource = Filesystem::ReadTextFile((assetDir / "bin-spirv/line.frag.spv").string());
+		auto lineVertexSource = ReadSpirvFile((assetDir / "bin-spirv/line.vert.spv").string());
+		auto lineFragmentSource = ReadSpirvFile((assetDir / "bin-spirv/line.frag.spv").string());
 
 		s_Data->LineShader = Shader::Create("defaultLine", lineVertexSource, lineFragmentSource);
 

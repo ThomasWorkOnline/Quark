@@ -86,11 +86,14 @@ namespace Quark {
 
 	RenderPass* Renderer::GetGeometryPass()
 	{
+		QK_ASSERT_RENDER_THREAD();
 		return s_Data->GeometryPass.get();
 	}
 
 	Framebuffer* Renderer::GetTargetFramebuffer()
 	{
+		QK_ASSERT_RENDER_THREAD();
+
 		const uint32_t imageIndex = GraphicsContext::Get()->GetCurrentImageIndex();
 		return s_Data->Framebuffers[imageIndex].get();
 	}
@@ -98,7 +101,7 @@ namespace Quark {
 	CommandBuffer* Renderer::GetCommandBuffer()
 	{
 		QK_ASSERT_RENDER_THREAD();
-		return GraphicsContext::Get()->GetCommandBuffer();
+		return s_Data->ActiveCommandBuffer;
 	}
 
 	Renderer::ViewportExtent Renderer::GetViewportExtent()
@@ -117,7 +120,7 @@ namespace Quark {
 
 		GraphicsContext::Get()->StartFrame();
 
-		s_Data->ActiveCommandBuffer = GetCommandBuffer();
+		s_Data->ActiveCommandBuffer = GraphicsContext::Get()->GetCommandBuffer();
 		s_Data->ActiveCommandBuffer->Reset();
 		s_Data->ActiveCommandBuffer->Begin();
 
@@ -148,13 +151,6 @@ namespace Quark {
 
 		s_Data = new RendererData();
 
-#if 0
-		std::string vertexSource = Filesystem::ReadTextFile("../Quark/assets/shaders/version/4.50/bin/shader.vert.spv");
-		std::string fragmentSource = Filesystem::ReadTextFile("../Quark/assets/shaders/version/4.50/bin/shader.frag.spv");
-
-		s_Data->Shader = Shader::Create("shader", vertexSource, fragmentSource);
-#endif
-
 		{
 			RenderPassSpecification spec;
 			spec.BindPoint = PipelineBindPoint::Graphics;
@@ -166,22 +162,24 @@ namespace Quark {
 		const uint32_t swapChainImages = GraphicsContext::Get()->GetSwapChainImageCount();
 		s_Data->Framebuffers.resize(swapChainImages);
 
-#if 0
 		// Target the default framebuffer when using OpenGL
 		if (GraphicsAPI::GetAPI() == RHI::Vulkan)
 		{
 			FramebufferSpecification fbSpec;
 			fbSpec.Width = s_ViewportExtent.Width;
 			fbSpec.Height = s_ViewportExtent.Height;
-			fbSpec.SwapChainTarget = true;
 			fbSpec.RenderPass = s_Data->GeometryPass.get();
+			fbSpec.SwapChainTarget = true;
 
 			for (uint32_t i = 0; i < swapChainImages; i++)
 			{
-				s_Data->Framebuffers[i].reset(Framebuffer::Create(fbSpec));
+				auto* attachment = GraphicsContext::Get()->GetColorAttachment(i);
+
+				fbSpec.AttachmentCount = 1;
+				fbSpec.Attachments = &attachment;
+				s_Data->Framebuffers[i] = Framebuffer::Create(fbSpec);
 			}
 		}
-#endif
 	}
 
 	void Renderer::Dispose()

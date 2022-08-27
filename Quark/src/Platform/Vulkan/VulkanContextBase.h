@@ -30,6 +30,8 @@ namespace Quark {
 
 		virtual uint32_t GetCurrentImageIndex() const override;
 		virtual uint32_t GetSwapChainImageCount() const override;
+		virtual void* GetColorAttachment(uint32_t index) const override;
+
 		virtual CommandBuffer* GetCommandBuffer() override;
 
 		void CreateInstance(VkInstanceCreateInfo& createInfo);

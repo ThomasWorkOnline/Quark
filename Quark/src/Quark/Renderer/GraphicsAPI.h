@@ -66,11 +66,11 @@ namespace Quark {
 		virtual Scope<Font>                  CreateFont(std::string_view filepath, uint32_t fontSize) = 0;
 									       
 		virtual Scope<Framebuffer>           CreateFramebuffer(const FramebufferSpecification& spec) = 0;
-		virtual Scope<FramebufferAttachment> CreateFramebufferAttachment(void* image, const FramebufferAttachmentSpecification& spec) = 0;
+		virtual Scope<FramebufferAttachment> CreateFramebufferAttachment(const FramebufferAttachmentSpecification& spec) = 0;
 		
 		virtual Scope<Shader>                CreateShader(std::string_view filepath) = 0;
-		virtual Scope<Shader>                CreateShader(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource) = 0;
-		virtual Scope<Shader>                CreateShader(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource) = 0;
+		virtual Scope<Shader>                CreateShader(std::string_view name, SpirvSource vertexSource, SpirvSource fragmentSource) = 0;
+		virtual Scope<Shader>                CreateShader(std::string_view name, SpirvSource vertexSource, SpirvSource geometrySource, SpirvSource fragmentSource) = 0;
 									       
 		virtual Scope<Texture2D>             CreateTexture2D(const Texture2DSpecification& spec) = 0;
 		virtual Scope<Texture2D>             CreateTexture2D(std::string_view filepath, const TextureRenderModes& renderModes = {}) = 0;

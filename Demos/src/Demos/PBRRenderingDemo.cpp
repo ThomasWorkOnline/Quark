@@ -12,6 +12,7 @@ PBRRenderingDemo::PBRRenderingDemo(const ApplicationOptions& options)
 	GetWindow()->SetVSync(true);
 
 	m_Scene = CreateScope<PresentableScene>();
+	m_Scene->GetSettings().GlobalFrictionCoeff = 4.0f;
 	m_CameraEntity = m_Scene->CreatePrimaryCamera();
 	m_CameraEntity.GetComponent<Transform3DComponent>().Position = { 0.0f, 0.0f, -2.0f };
 	m_CameraEntity.AddNativeScript<CameraController>();

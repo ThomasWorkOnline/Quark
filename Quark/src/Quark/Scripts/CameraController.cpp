@@ -6,8 +6,8 @@ namespace Quark {
 	static constexpr float s_MovementSpeed = 12.0f;
 	static constexpr float s_MouseSensitivity = 0.002f;
 	static constexpr float s_MouseScrollSensitivity = 1.0f;
-	static constexpr float s_RollSensitivity = 4.0f;
-	static constexpr float s_RollFrictionCoeff = 4.0f;
+	static constexpr float s_RollSensitivity = 12.0f;
+	static constexpr float s_RollFrictionCoeff = 8.0f;
 
 	static constexpr float s_MinFov = 1.0f;
 	static constexpr float s_MaxFov = 90.0f;

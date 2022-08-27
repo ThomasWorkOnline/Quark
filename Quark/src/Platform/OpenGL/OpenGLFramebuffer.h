@@ -9,7 +9,7 @@ namespace Quark {
 	class OpenGLFramebufferAttachment final : public FramebufferAttachment
 	{
 	public:
-		OpenGLFramebufferAttachment(void* image, const FramebufferAttachmentSpecification& spec);
+		OpenGLFramebufferAttachment(const FramebufferAttachmentSpecification& spec);
 		virtual ~OpenGLFramebufferAttachment() = default;
 
 		virtual void SetData(void* data) override;

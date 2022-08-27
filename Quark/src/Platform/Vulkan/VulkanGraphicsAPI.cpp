@@ -75,9 +75,9 @@ namespace Quark {
 		return CreateScope<VulkanFramebuffer>(VulkanContext::GetCurrentDevice(), spec);
 	}
 
-	Scope<FramebufferAttachment> VulkanGraphicsAPI::CreateFramebufferAttachment(void* image, const FramebufferAttachmentSpecification& spec)
+	Scope<FramebufferAttachment> VulkanGraphicsAPI::CreateFramebufferAttachment(const FramebufferAttachmentSpecification& spec)
 	{
-		return CreateScope<VulkanFramebufferAttachment>(image, spec);
+		return CreateScope<VulkanFramebufferAttachment>(spec);
 	}
 
 	Scope<Shader> VulkanGraphicsAPI::CreateShader(std::string_view filepath)
@@ -85,12 +85,12 @@ namespace Quark {
 		return CreateScope<VulkanShader>(VulkanContext::GetCurrentDevice(), filepath);
 	}
 
-	Scope<Shader> VulkanGraphicsAPI::CreateShader(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource)
+	Scope<Shader> VulkanGraphicsAPI::CreateShader(std::string_view name, SpirvSource vertexSource, SpirvSource fragmentSource)
 	{
 		return CreateScope<VulkanShader>(VulkanContext::GetCurrentDevice(), name, vertexSource, fragmentSource);
 	}
 
-	Scope<Shader> VulkanGraphicsAPI::CreateShader(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource)
+	Scope<Shader> VulkanGraphicsAPI::CreateShader(std::string_view name, SpirvSource vertexSource, SpirvSource geometrySource, SpirvSource fragmentSource)
 	{
 		return CreateScope<VulkanShader>(VulkanContext::GetCurrentDevice(), name, vertexSource, geometrySource, fragmentSource);
 	}

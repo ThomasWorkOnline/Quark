@@ -63,7 +63,6 @@ uniform vec3 u_LightColors[s_LightCount];
 uniform samplerCube u_IrradianceMap;
 uniform Material u_Material;
 
-
 layout(location = 0) out vec4 o_Color;
 
 // Shader source from learnopengl:
@@ -122,7 +121,7 @@ void main()
 		Lo               += (kD * albedo / PI + specular) * radiance * NdotL; // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
 	}   
 	
-	// ambient lighting (we now use IBL as the ambient term)
+	// Ambient lighting (we now use IBL as the ambient term)
 	vec3 kS               = FresnelSchlick(max(dot(N, V), 0.0), F0);
 	vec3 kD               = 1.0 - kS;
 	kD                   *= 1.0 - metallic;

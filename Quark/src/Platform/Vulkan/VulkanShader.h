@@ -12,8 +12,8 @@ namespace Quark {
 	{
 	public:
 		VulkanShader(VulkanDevice* device, std::string_view filepath);
-		VulkanShader(VulkanDevice* device, std::string_view name, SPIRVBinary vertexSource, SPIRVBinary fragmentSource);
-		VulkanShader(VulkanDevice* device, std::string_view name, SPIRVBinary vertexSource, SPIRVBinary geometrySource, SPIRVBinary fragmentSource);
+		VulkanShader(VulkanDevice* device, std::string_view name, SpirvSource vertexSource, SpirvSource fragmentSource);
+		VulkanShader(VulkanDevice* device, std::string_view name, SpirvSource vertexSource, SpirvSource geometrySource, SpirvSource fragmentSource);
 		virtual ~VulkanShader() override;
 
 		virtual void SetInt(std::string_view name, int32_t value) override {}
@@ -54,7 +54,8 @@ namespace Quark {
 		const std::unordered_map<VkShaderStageFlagBits, VkShaderModule>& GetShaderStages() const { return m_ShaderStages; }
 
 	private:
-		VkShaderModule CreateShader(SPIRVBinary spirvSource);
+		VkShaderModule CreateShader(VkShaderStageFlagBits stage, SpirvSource spirvSource);
+		void Reflect(VkShaderStageFlagBits stage, SpirvSource spirvSource);
 
 	private:
 		VulkanDevice* m_Device;

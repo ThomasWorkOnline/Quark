@@ -23,7 +23,7 @@ namespace Quark {
 		virtual void SetData(void* data) = 0;
 		const FramebufferAttachmentSpecification& GetSpecification() const { return m_Spec; }
 
-		static Scope<FramebufferAttachment> Create(void* image, const FramebufferAttachmentSpecification& spec);
+		static Scope<FramebufferAttachment> Create(const FramebufferAttachmentSpecification& spec);
 
 	protected:
 		FramebufferAttachmentSpecification m_Spec{};
@@ -31,12 +31,14 @@ namespace Quark {
 
 	struct FramebufferSpecification
 	{
-		uint32_t Width, Height;
+		uint32_t Width = 0, Height = 0;
 		uint32_t Samples = 1;
 
-		RenderPass* RenderPass;
-		std::vector<Ref<FramebufferAttachment>> Attachments;
+		RenderPass* RenderPass = nullptr;
 		bool SwapChainTarget = false;
+
+		uint32_t AttachmentCount = 0;
+		void** Attachments = nullptr;
 	};
 
 	class Framebuffer
@@ -45,8 +47,8 @@ namespace Quark {
 		Framebuffer(const FramebufferSpecification& spec);
 		virtual ~Framebuffer() = default;
 
-		virtual void Attach() = 0;
-		virtual void Detach() = 0;
+		QK_DEPRECATED virtual void Attach() = 0;
+		QK_DEPRECATED virtual void Detach() = 0;
 
 		virtual void Resize(uint32_t width, uint32_t height) = 0;
 

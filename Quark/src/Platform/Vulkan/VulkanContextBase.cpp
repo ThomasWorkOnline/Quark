@@ -173,6 +173,11 @@ namespace Quark {
 		return m_SwapChain->GetImageCount();
 	}
 
+	void* VulkanContextBase::GetColorAttachment(uint32_t index) const
+	{
+		return m_SwapChain->GetImageView(index);
+	}
+
 	uint32_t VulkanContextBase::GetCurrentImageIndex() const
 	{
 		return m_SwapChain->GetCurrentImageIndex();

@@ -85,4 +85,9 @@ namespace Quark {
 	void OpenGLContextBase::Resize(uint32_t viewportWidth, uint32_t viewportHeight)
 	{
 	}
+
+	void* OpenGLContextBase::GetColorAttachment(uint32_t index) const
+	{
+		return nullptr;
+	}
 }

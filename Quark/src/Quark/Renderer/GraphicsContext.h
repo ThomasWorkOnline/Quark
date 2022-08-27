@@ -20,6 +20,8 @@ namespace Quark {
 
 		virtual uint32_t GetCurrentImageIndex() const = 0;
 		virtual uint32_t GetSwapChainImageCount() const = 0;
+		virtual void* GetColorAttachment(uint32_t index) const = 0;
+
 		virtual CommandBuffer* GetCommandBuffer() = 0;
 
 		static Scope<GraphicsContext> Create(void* windowHandle);

@@ -3,19 +3,46 @@
 
 #include "GraphicsAPI.h"
 
+#include <fstream>
+
 namespace Quark {
+
+	std::vector<uint32_t> ReadSpirvFile(std::string_view filepath)
+	{
+		std::vector<uint32_t> result;
+		std::ifstream in(filepath.data(), std::ios::in | std::ios::binary);
+		if (in)
+		{
+			in.seekg(0, std::ios::end);
+			size_t size = in.tellg();
+			QK_RUNTIME_VERIFY(size % sizeof(uint32_t) == 0, "Invalid byte alignment for file: '{0}' (SPIR-V required 4-byte alignment)", filepath);
+
+			if (size != -1)
+			{
+				result.resize(size / 4);
+				in.seekg(0, std::ios::beg);
+				in.read((char*)result.data(), size);
+				in.close();
+
+				return result;
+			}
+		}
+
+		QK_RUNTIME_ERROR("Could not open file '{0}'", filepath);
+		return result;
+	}
 
 	Scope<Shader> Shader::Create(std::string_view filepath)
 	{
 		return GraphicsAPI::Instance->CreateShader(filepath);
 	}
 
-	Scope<Shader> Shader::Create(std::string_view name, SPIRVBinary vertexSource, SPIRVBinary fragmentSource)
+	Scope<Shader> Shader::Create(std::string_view name, SpirvSource vertexSource, SpirvSource fragmentSource)
 	{
 		return GraphicsAPI::Instance->CreateShader(name, vertexSource, fragmentSource);
 	}
 
-	Scope<Shader> Shader::Create(std::string_view name, SPIRVBinary vertexSource, SPIRVBinary geometrySource, SPIRVBinary fragmentSource)
+	Scope<Shader> Shader::Create(std::string_view name, SpirvSource vertexSource, SpirvSource geometrySource, SpirvSource fragmentSource)
 	{
 		return GraphicsAPI::Instance->CreateShader(name, vertexSource, geometrySource, fragmentSource);
 	}

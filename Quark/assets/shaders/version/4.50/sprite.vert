@@ -6,8 +6,8 @@ layout(location = 2) in vec4 a_Tint;
 layout(location = 3) in int  a_TexIndex;
 
 layout(std140, binding = 0) uniform Camera {
-	mat4 u_ViewProjection;
-};
+	mat4 ViewProjection;
+} u_Camera;
 
 layout(location = 0) out VertexOutput {
 	vec2 TexCoord;
@@ -17,7 +17,7 @@ layout(location = 0) out VertexOutput {
 
 void main()
 {
-	gl_Position = u_ViewProjection * vec4(a_Position, 1.0);
+	gl_Position = u_Camera.ViewProjection * vec4(a_Position, 1.0);
 	Output.TexCoord = a_TexCoord;
 	Output.Tint     = a_Tint;
 	Output.TexIndex = a_TexIndex;

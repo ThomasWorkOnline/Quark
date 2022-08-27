@@ -16,6 +16,7 @@ namespace Quark {
 
 		virtual uint32_t GetCurrentImageIndex() const override { return 0; }
 		virtual uint32_t GetSwapChainImageCount() const override { return 1; }
+		virtual void* GetColorAttachment(uint32_t index) const override;
 
 		// We use the empty base optimization trick here since command buffers do not exist in OpenGL.
 		// We return this, the GL context shares virtual functions with the command buffer object

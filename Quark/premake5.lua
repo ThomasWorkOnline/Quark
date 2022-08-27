@@ -143,6 +143,13 @@ project "Quark"
 		runtime "Debug"
 		symbols "On"
 
+		links
+		{
+			"%{Library.ShaderC_Debug}",
+			"%{Library.SPIRVCross_Debug}",
+			"%{Library.SPIRVCross_GLSL_Debug}"
+		}
+
 	filter "configurations:Release"
 		defines "QK_RELEASE"
 		runtime "Release"
@@ -154,6 +161,13 @@ project "Quark"
 			"LinkTimeOptimization"
 		}
 
+		links
+		{
+			"%{Library.ShaderC_Release}",
+			"%{Library.SPIRVCross_Release}",
+			"%{Library.SPIRVCross_GLSL_Release}"
+		}
+
 	filter "configurations:Dist"
 		defines "QK_DIST"
 		runtime "Release"
@@ -163,4 +177,11 @@ project "Quark"
 		flags
 		{
 			"LinkTimeOptimization"
+		}
+
+		links
+		{
+			"%{Library.ShaderC_Release}",
+			"%{Library.SPIRVCross_Release}",
+			"%{Library.SPIRVCross_GLSL_Release}"
 		}

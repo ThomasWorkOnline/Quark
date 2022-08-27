@@ -181,9 +181,9 @@ namespace Quark {
 		return CreateScope<OpenGLFramebuffer>(spec);
 	}
 
-	Scope<FramebufferAttachment> OpenGLGraphicsAPI::CreateFramebufferAttachment(void* image, const FramebufferAttachmentSpecification& spec)
+	Scope<FramebufferAttachment> OpenGLGraphicsAPI::CreateFramebufferAttachment(const FramebufferAttachmentSpecification& spec)
 	{
-		return CreateScope<OpenGLFramebufferAttachment>(image, spec);
+		return CreateScope<OpenGLFramebufferAttachment>(spec);
 	}
 
 	Scope<Shader> OpenGLGraphicsAPI::CreateShader(std::string_view filepath)
@@ -191,12 +191,12 @@ namespace Quark {
 		return CreateScope<OpenGLShader>(filepath);
 	}
 
-	Scope<Shader> OpenGLGraphicsAPI::CreateShader(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource)
+	Scope<Shader> OpenGLGraphicsAPI::CreateShader(std::string_view name, SpirvSource vertexSource, SpirvSource fragmentSource)
 	{
 		return CreateScope<OpenGLShader>(name, vertexSource, fragmentSource);
 	}
 
-	Scope<Shader> OpenGLGraphicsAPI::CreateShader(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource)
+	Scope<Shader> OpenGLGraphicsAPI::CreateShader(std::string_view name, SpirvSource vertexSource, SpirvSource geometrySource, SpirvSource fragmentSource)
 	{
 		return CreateScope<OpenGLShader>(name, vertexSource, geometrySource, fragmentSource);
 	}

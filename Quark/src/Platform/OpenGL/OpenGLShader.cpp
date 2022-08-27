@@ -25,8 +25,25 @@ namespace Quark {
 				return GL_FRAGMENT_SHADER;
 			else if (type == "geometry")
 				return GL_GEOMETRY_SHADER;
+			else if (type == "compute")
+				return GL_COMPUTE_SHADER;
 
 			return GL_NONE;
+		}
+
+		static constexpr const char* GetShaderStageToString(GLenum stage)
+		{
+			switch (stage)
+			{
+				case GL_VERTEX_SHADER:   return "VK_SHADER_STAGE_VERTEX_BIT";
+				case GL_FRAGMENT_SHADER: return "VK_SHADER_STAGE_FRAGMENT_BIT";
+				case GL_GEOMETRY_SHADER: return "VK_SHADER_STAGE_GEOMETRY_BIT";
+				case GL_COMPUTE_SHADER:  return "VK_SHADER_STAGE_COMPUTE_BIT";
+
+				QK_ASSERT_NO_DEFAULT("Unknown shader stage");
+			}
+
+			return nullptr;
 		}
 
 		static constexpr std::string_view ExtractNameFromPath(std::string_view filepath)
@@ -51,23 +68,23 @@ namespace Quark {
 		CompileSources(shaderSources);
 	}
 
-	OpenGLShader::OpenGLShader(std::string_view name, SPIRVBinary vertexSource, SPIRVBinary fragmentSource)
+	OpenGLShader::OpenGLShader(std::string_view name, SpirvSource vertexSource, SpirvSource fragmentSource)
 		: m_Name(name)
 	{
 		QK_PROFILE_FUNCTION();
 
-		std::unordered_map<GLenum, SPIRVBinary> sources{2};
+		std::unordered_map<GLenum, SpirvSource> sources{2};
 		sources[GL_VERTEX_SHADER]   = vertexSource;
 		sources[GL_FRAGMENT_SHADER] = fragmentSource;
 		CompileSPIRV(sources);
 	}
 
-	OpenGLShader::OpenGLShader(std::string_view name, SPIRVBinary vertexSource, SPIRVBinary geometrySource, SPIRVBinary fragmentSource)
+	OpenGLShader::OpenGLShader(std::string_view name, SpirvSource vertexSource, SpirvSource geometrySource, SpirvSource fragmentSource)
 		: m_Name(name)
 	{
 		QK_PROFILE_FUNCTION();
 
-		std::unordered_map<GLenum, SPIRVBinary> sources{3};
+		std::unordered_map<GLenum, SpirvSource> sources{3};
 		sources[GL_VERTEX_SHADER]   = vertexSource;
 		sources[GL_FRAGMENT_SHADER] = fragmentSource;
 		sources[GL_GEOMETRY_SHADER] = geometrySource;
@@ -168,7 +185,7 @@ namespace Quark {
 		m_RendererID = program;
 	}
 
-	void OpenGLShader::CompileSPIRV(const std::unordered_map<GLenum, SPIRVBinary>& spirvBinaries)
+	void OpenGLShader::CompileSPIRV(const std::unordered_map<GLenum, SpirvSource>& spirvBinaries)
 	{
 		GLuint program = glCreateProgram();
 
@@ -176,10 +193,15 @@ namespace Quark {
 		uint32_t glShaderIDIndex = 0;
 		for (auto& [stage, binary] : spirvBinaries)
 		{
+			Reflect(stage, binary);
+
 			GLuint shader = glCreateShader(stage);
 			glShaderIDs[glShaderIDIndex++] = shader;
 
-			glShaderBinary(1, &shader, GL_SHADER_BINARY_FORMAT_SPIR_V, (const void*)binary.data(), (GLsizei)binary.size());
+			glShaderBinary(1, &shader, GL_SHADER_BINARY_FORMAT_SPIR_V,
+				(const void*)binary.Data,
+				(GLsizei)(binary.WordCount * sizeof(uint32_t)));
+
 			glSpecializeShader(shader, "main", 0, nullptr, nullptr);
 			glAttachShader(program, shader);
 		}
@@ -187,6 +209,30 @@ namespace Quark {
 		LinkProgram(program, glShaderIDs, glShaderIDIndex);
 
 		m_RendererID = program;
+	}
+
+	void OpenGLShader::Reflect(GLenum stage, SpirvSource spirvSource)
+	{
+		spirv_cross::Compiler compiler(spirvSource.Data, spirvSource.WordCount);
+		spirv_cross::ShaderResources resources = compiler.get_shader_resources();
+
+		QK_CORE_TRACE("OpenGLShader::Reflect - {0} '{1}'", Utils::GetShaderStageToString(stage), m_Name);
+		QK_CORE_TRACE("    {0} uniform buffers", resources.uniform_buffers.size());
+		QK_CORE_TRACE("    {0} resources", resources.sampled_images.size());
+
+		QK_CORE_TRACE("Uniform buffers:");
+		for (const auto& resource : resources.uniform_buffers)
+		{
+			const auto& bufferType = compiler.get_type(resource.base_type_id);
+			size_t bufferSize = compiler.get_declared_struct_size(bufferType);
+			uint32_t binding = compiler.get_decoration(resource.id, spv::DecorationBinding);
+			size_t memberCount = bufferType.member_types.size();
+
+			QK_CORE_TRACE(" \"{0}\"", resource.name);
+			QK_CORE_TRACE("    Size = {0}", bufferSize);
+			QK_CORE_TRACE("    Binding = {0}", binding);
+			QK_CORE_TRACE("    Members = {0}", memberCount);
+		}
 	}
 
 	void OpenGLShader::LinkProgram(GLuint program, const GLenum* glShaderIDs, uint32_t shaderCount)

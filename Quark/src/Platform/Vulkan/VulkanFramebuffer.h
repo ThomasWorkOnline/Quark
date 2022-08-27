@@ -10,7 +10,7 @@ namespace Quark {
 	class VulkanFramebufferAttachment final : public FramebufferAttachment
 	{
 	public:
-		VulkanFramebufferAttachment(void* data, const FramebufferAttachmentSpecification& spec);
+		VulkanFramebufferAttachment(const FramebufferAttachmentSpecification& spec);
 		virtual ~VulkanFramebufferAttachment() override;
 
 		virtual void SetData(void* data) override;

@@ -5,11 +5,23 @@
 
 namespace Quark {
 
+	struct SpirvSource
+	{
+		const uint32_t* Data = nullptr;
+		size_t          WordCount = 0;
+
+		SpirvSource() = default;
+		SpirvSource(const std::vector<uint32_t>& src)
+			: Data(src.data()), WordCount(src.size())
+		{
+		}
+	};
+
+	std::vector<uint32_t> ReadSpirvFile(std::string_view filepath);
+
 	class Shader
 	{
 	public:
-		using SPIRVBinary = std::string_view;
-
 		virtual ~Shader() = default;
 
 		virtual void SetInt(std::string_view name, int32_t value) = 0;
@@ -41,8 +53,8 @@ namespace Quark {
 		virtual bool operator==(const Shader& other) const = 0;
 
 		static Scope<Shader> Create(std::string_view filepath);
-		static Scope<Shader> Create(std::string_view name, SPIRVBinary vertexSource, SPIRVBinary fragmentSource);
-		static Scope<Shader> Create(std::string_view name, SPIRVBinary vertexSource, SPIRVBinary geometrySource, SPIRVBinary fragmentSource);
+		static Scope<Shader> Create(std::string_view name, SpirvSource vertexSource, SpirvSource fragmentSource);
+		static Scope<Shader> Create(std::string_view name, SpirvSource vertexSource, SpirvSource geometrySource, SpirvSource fragmentSource);
 	};
 
 	class ShaderLibrary

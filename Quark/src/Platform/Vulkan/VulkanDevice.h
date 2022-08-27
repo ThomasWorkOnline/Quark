@@ -35,10 +35,7 @@ namespace Quark {
 
 		VkQueue GetGraphicsQueue() const { return m_GraphicsQueue; }
 		VkQueue GetPresentQueue() const { return m_PresentQueue; }
-
 		VkDevice GetVkHandle() const { return m_Device; }
-
-		operator VkDevice () const { return GetVkHandle(); }
 
 		const QueueFamilyIndices& GetQueueFamilyIndices() const { return m_QueueFamilyIndices; }
 		const SwapChainSupportDetails& GetSupportDetails() const { return m_SupportDetails; }
