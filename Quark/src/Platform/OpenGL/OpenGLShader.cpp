@@ -35,10 +35,10 @@ namespace Quark {
 		{
 			switch (stage)
 			{
-				case GL_VERTEX_SHADER:   return "VK_SHADER_STAGE_VERTEX_BIT";
-				case GL_FRAGMENT_SHADER: return "VK_SHADER_STAGE_FRAGMENT_BIT";
-				case GL_GEOMETRY_SHADER: return "VK_SHADER_STAGE_GEOMETRY_BIT";
-				case GL_COMPUTE_SHADER:  return "VK_SHADER_STAGE_COMPUTE_BIT";
+				case GL_VERTEX_SHADER:   return "GL_VERTEX_SHADER";
+				case GL_FRAGMENT_SHADER: return "GL_FRAGMENT_SHADER";
+				case GL_GEOMETRY_SHADER: return "GL_GEOMETRY_SHADER";
+				case GL_COMPUTE_SHADER:  return "GL_COMPUTE_SHADER";
 
 				QK_ASSERT_NO_DEFAULT("Unknown shader stage");
 			}
