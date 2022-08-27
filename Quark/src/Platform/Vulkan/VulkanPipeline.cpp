@@ -15,7 +15,7 @@ namespace Quark {
 
 	namespace Utils {
 
-		static QK_CONSTEXPR20 VkVertexInputBindingDescription GetBindingDescription(const BufferLayout& layout)
+		static VkVertexInputBindingDescription GetBindingDescription(const BufferLayout& layout)
 		{
 			VkVertexInputBindingDescription bindingDescription{};
 			bindingDescription.binding = 0;
@@ -49,24 +49,26 @@ namespace Quark {
 
 		// Descriptor set layout
 		{
-			std::vector<VkDescriptorSetLayoutBinding> bindings;
-			
+			auto* descriptorSetLayoutBindings = static_cast<VkDescriptorSetLayoutBinding*>(alloca(m_Spec.UniformBuffers.size() * sizeof(VkDescriptorSetLayoutBinding)));
+			auto* descriptorSetLayoutbindingPtr = descriptorSetLayoutBindings;
+
 			VkDescriptorSetLayoutCreateInfo layoutInfo{};
 			layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 
-			if (m_Spec.UniformBuffer)
+			for (auto* uniformBuffer : m_Spec.UniformBuffers)
 			{
-				VkDescriptorSetLayoutBinding uboLayoutBinding{};
-				uboLayoutBinding.binding = 0;
-				uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-				uboLayoutBinding.descriptorCount = 1;
-				uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+				auto* ub = static_cast<VulkanUniformBuffer*>(uniformBuffer);
 
-				bindings.push_back(uboLayoutBinding);
+				*descriptorSetLayoutbindingPtr = {};
+				descriptorSetLayoutbindingPtr->binding = uniformBuffer->GetBinding();
+				descriptorSetLayoutbindingPtr->descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+				descriptorSetLayoutbindingPtr->descriptorCount = 1;
+				descriptorSetLayoutbindingPtr->stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+				descriptorSetLayoutbindingPtr++;
 			}
 
-			layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
-			layoutInfo.pBindings = bindings.data();
+			layoutInfo.bindingCount = static_cast<uint32_t>(m_Spec.UniformBuffers.size());
+			layoutInfo.pBindings = descriptorSetLayoutBindings;
 			vkCreateDescriptorSetLayout(m_Device->GetVkHandle(), &layoutInfo, nullptr, &m_DescriptorSetLayout);
 		}
 
@@ -85,12 +87,14 @@ namespace Quark {
 
 			vkAllocateDescriptorSets(m_Device->GetVkHandle(), &allocInfo, m_DescriptorSets);
 			
-			if (m_Spec.UniformBuffer)
+			for (auto* uniformBuffer : m_Spec.UniformBuffers)
 			{
+				auto* ub = static_cast<VulkanUniformBuffer*>(uniformBuffer);
+
 				VkDescriptorBufferInfo bufferInfo{};
-				bufferInfo.buffer = static_cast<VulkanUniformBuffer*>(m_Spec.UniformBuffer)->GetVkHandle();
+				bufferInfo.buffer = ub->GetVkHandle();
 				bufferInfo.offset = 0;
-				bufferInfo.range = m_Spec.UniformBuffer->GetSize();
+				bufferInfo.range = ub->GetSize();
 
 				VkWriteDescriptorSet descriptorWrite{};
 				descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -100,9 +104,9 @@ namespace Quark {
 				descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 				descriptorWrite.pBufferInfo = &bufferInfo;
 
-				for (uint32_t i = 0; i < VulkanContext::FramesInFlight; i++)
+				for (uint32_t j = 0; j < VulkanContext::FramesInFlight; j++)
 				{
-					descriptorWrite.dstSet = m_DescriptorSets[i];
+					descriptorWrite.dstSet = m_DescriptorSets[j];
 					vkUpdateDescriptorSets(m_Device->GetVkHandle(), 1, &descriptorWrite, 0, nullptr);
 				}
 			}
@@ -130,10 +134,9 @@ namespace Quark {
 		vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
 		vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions;
 
-		// Dynamic state
 		VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
 		inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-		inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+		inputAssembly.topology = (VkPrimitiveTopology)m_Spec.Topology;
 		inputAssembly.primitiveRestartEnable = VK_FALSE;
 
 		VkPipelineViewportStateCreateInfo viewportState{};
@@ -182,7 +185,6 @@ namespace Quark {
 		// Dynamic states
 		VkDynamicState dynamicStates[] = {
 			VK_DYNAMIC_STATE_LINE_WIDTH,
-			VK_DYNAMIC_STATE_PRIMITIVE_TOPOLOGY,
 			VK_DYNAMIC_STATE_SCISSOR,
 			VK_DYNAMIC_STATE_VIEWPORT
 		};

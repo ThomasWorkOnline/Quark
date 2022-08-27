@@ -10,12 +10,24 @@
 
 namespace Quark {
 
+	enum PrimitiveTopology
+	{
+		PointList,
+		LineList,
+		LineStrip,
+		TriangleList,
+		TriangleStrip,
+		TriangleFan
+	};
+
 	struct PipelineSpecification
 	{
 		BufferLayout        Layout;
+		PrimitiveTopology   Topology{};
 		Shader*             Shader = nullptr;
 		RenderPass*         RenderPass = nullptr;
-		UniformBuffer*      UniformBuffer = nullptr;
+
+		std::vector<UniformBuffer*> UniformBuffers;
 	};
 
 	class Pipeline

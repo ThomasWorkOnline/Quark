@@ -3,6 +3,7 @@
 
 #include "OpenGLBuffer.h"
 #include "OpenGLShader.h"
+#include "OpenGLUniformBuffer.h"
 
 #include <glad/glad.h>
 
@@ -30,18 +31,21 @@ namespace Quark {
 
 	void OpenGLCommandBuffer::BindPipeline(Pipeline* pipeline)
 	{
+		m_PrimitiveTopology = Utils::PrimitiveTopologyToOpenGL(pipeline->GetSpecification().Topology);
+
 		GLuint rendererID = reinterpret_cast<OpenGLShader*>(pipeline->GetSpecification().Shader)->GetRendererID();
 		glUseProgram(rendererID);
+
+		for (auto* uniformBuffer : pipeline->GetSpecification().UniformBuffers)
+		{
+			auto* ub = static_cast<OpenGLUniformBuffer*>(uniformBuffer);
+			glBindBufferBase(GL_UNIFORM_BUFFER, ub->GetBinding(), ub->GetRendererID());
+		}
 	}
 
 	void OpenGLCommandBuffer::SetViewport(uint32_t viewportWidth, uint32_t viewportHeight)
 	{
 		glViewport(0, 0, viewportWidth, viewportHeight);
-	}
-
-	void OpenGLCommandBuffer::SetPrimitiveTopology(PrimitiveTopology topology)
-	{
-		m_PrimitiveTopology = Utils::PrimitiveTopologyToOpenGL(topology);
 	}
 
 	void OpenGLCommandBuffer::BeginRenderPass(RenderPass* renderPass, Framebuffer* framebuffer)
@@ -50,7 +54,8 @@ namespace Quark {
 
 		if (renderPass->GetSpecification().ClearBuffers)
 		{
-			glClearColor(0.01f, 0.01f, 0.01f, 1.0f);
+			auto& color = renderPass->GetSpecification().ClearColor;
+			glClearColor(color.r, color.g, color.b, color.a);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		}
 	}

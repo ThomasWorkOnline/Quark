@@ -30,9 +30,9 @@ namespace Quark {
 		static void BeginGeometryPass();
 		static void EndRenderPass();
 
+		static void Submit(VertexBuffer* vertexBuffer, uint32_t vertexCount);
 		static void Submit(VertexBuffer* vertexBuffer, IndexBuffer* indexBuffer);
 		static void Submit(VertexBuffer* vertexBuffer, IndexBuffer* indexBuffer, uint32_t indexCount);
-		static void DrawLines(VertexBuffer* vertexBuffer, uint32_t vertexCount);
 
 		static void SetViewport(uint32_t viewportWidth, uint32_t viewportHeight);
 

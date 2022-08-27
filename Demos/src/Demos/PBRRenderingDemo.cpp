@@ -48,9 +48,10 @@ PBRRenderingDemo::PBRRenderingDemo(const ApplicationOptions& options)
 	{
 		PipelineSpecification spec;
 		spec.Layout = Mesh::GetBufferLayout();
+		spec.Topology = PrimitiveTopology::TriangleList;
 		spec.Shader = m_PBRShader.get();
 		spec.RenderPass = Renderer::GetGeometryPass();
-		spec.UniformBuffer = m_CameraUniformBuffer.get();
+		spec.UniformBuffers = { m_CameraUniformBuffer.get() };
 
 		m_Pipeline = Pipeline::Create(spec);
 	}
@@ -100,7 +101,7 @@ void PBRRenderingDemo::OnRender()
 	Mat4f cameraView = glm::translate(cameraRotate, (Vec3f)-transform.Position);
 
 	m_CameraBufferData.ViewProjection = camera.GetProjection() * cameraView;
-	m_CameraBufferData.CameraPosition = Vec4f(transform.Position, 1.0);
+	m_CameraBufferData.CameraPosition = Vec4f(transform.Position, 1.0f);
 	m_CameraUniformBuffer->SetData(&m_CameraBufferData, sizeof(m_CameraBufferData));
 
 	if (m_Body)

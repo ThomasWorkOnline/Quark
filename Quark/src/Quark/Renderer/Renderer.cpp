@@ -44,13 +44,20 @@ namespace Quark {
 		s_Data->ActiveCommandBuffer->EndRenderPass();
 	}
 
+	void Renderer::Submit(VertexBuffer* vertexBuffer, uint32_t vertexCount)
+	{
+		QK_ASSERT_RENDER_THREAD();
+
+		s_Data->ActiveCommandBuffer->BindVertexBuffer(vertexBuffer);
+		s_Data->ActiveCommandBuffer->Draw(vertexCount, 0);
+	}
+
 	void Renderer::Submit(VertexBuffer* vertexBuffer, IndexBuffer* indexBuffer)
 	{
 		QK_ASSERT_RENDER_THREAD();
 
 		s_Data->ActiveCommandBuffer->BindVertexBuffer(vertexBuffer);
 		s_Data->ActiveCommandBuffer->BindIndexBuffer(indexBuffer);
-		s_Data->ActiveCommandBuffer->SetPrimitiveTopology(PrimitiveTopology::TriangleList);
 		s_Data->ActiveCommandBuffer->DrawIndexed(indexBuffer->GetCount());
 	}
 
@@ -60,17 +67,7 @@ namespace Quark {
 
 		s_Data->ActiveCommandBuffer->BindVertexBuffer(vertexBuffer);
 		s_Data->ActiveCommandBuffer->BindIndexBuffer(indexBuffer);
-		s_Data->ActiveCommandBuffer->SetPrimitiveTopology(PrimitiveTopology::TriangleList);
 		s_Data->ActiveCommandBuffer->DrawIndexed(indexCount);
-	}
-
-	void Renderer::DrawLines(VertexBuffer* vertexBuffer, uint32_t vertexCount)
-	{
-		QK_ASSERT_RENDER_THREAD();
-
-		s_Data->ActiveCommandBuffer->BindVertexBuffer(vertexBuffer);
-		s_Data->ActiveCommandBuffer->SetPrimitiveTopology(PrimitiveTopology::LineList);
-		s_Data->ActiveCommandBuffer->Draw(vertexCount, 0);
 	}
 
 	void Renderer::SetViewport(uint32_t viewportWidth, uint32_t viewportHeight)

@@ -24,6 +24,8 @@ namespace Quark {
 		OpenGLUniformBuffer(const OpenGLUniformBuffer&) = delete;
 		OpenGLUniformBuffer& operator=(const OpenGLUniformBuffer&) = delete;
 
+		GLuint GetRendererID() const { return m_RendererID; }
+
 	private:
 		GLuint m_RendererID = 0;
 	};

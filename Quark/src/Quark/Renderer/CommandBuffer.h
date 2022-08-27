@@ -9,16 +9,6 @@
 
 namespace Quark {
 
-	enum PrimitiveTopology
-	{
-		PointList,
-		LineList,
-		LineStrip,
-		TriangleList,
-		TriangleStrip,
-		TriangleFan
-	};
-
 	class CommandBuffer
 	{
 	public:
@@ -30,7 +20,6 @@ namespace Quark {
 
 		virtual void BindPipeline(Pipeline* pipeline) = 0;
 		virtual void SetViewport(uint32_t viewportWidth, uint32_t viewportHeight) = 0;
-		virtual void SetPrimitiveTopology(PrimitiveTopology topology) = 0;
 
 		virtual void BeginRenderPass(RenderPass* renderPass, Framebuffer* framebuffer) = 0;
 		virtual void EndRenderPass() = 0;

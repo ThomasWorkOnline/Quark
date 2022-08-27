@@ -61,11 +61,6 @@ namespace Quark {
 		vkCmdSetScissor(m_CommandBuffer, 0, 1, &scissor);
 	}
 
-	void VulkanCommandBuffer::SetPrimitiveTopology(PrimitiveTopology topology)
-	{
-		vkCmdSetPrimitiveTopology(m_CommandBuffer, (VkPrimitiveTopology)topology);
-	}
-
 	void VulkanCommandBuffer::BeginRenderPass(RenderPass* renderPass, Framebuffer* framebuffer)
 	{
 		auto vkFramebuffer = static_cast<VulkanFramebuffer*>(framebuffer)->GetVkHandle();
@@ -82,7 +77,8 @@ namespace Quark {
 
 		if (renderPass->GetSpecification().ClearBuffers)
 		{
-			VkClearValue clearColor = { 0.01f, 0.01f, 0.01f, 1.0f };
+			auto& color = renderPass->GetSpecification().ClearColor;
+			VkClearValue clearColor = { color.r, color.g, color.b, color.a };
 			renderPassInfo.clearValueCount = 1;
 			renderPassInfo.pClearValues = &clearColor;
 		}

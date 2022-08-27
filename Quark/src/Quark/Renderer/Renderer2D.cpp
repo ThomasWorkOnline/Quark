@@ -237,7 +237,7 @@ namespace Quark {
 		QK_ASSERT_RENDER_THREAD();
 
 		// Check if buffer is full
-		size_t count = s_Data->LineVertexPtr - s_Data->LineVertices;
+		uint32_t count = (uint32_t)(s_Data->LineVertexPtr - s_Data->LineVertices);
 		if (count >= Renderer2DData::MaxVertices)
 		{
 			PushBatch();
@@ -391,7 +391,7 @@ namespace Quark {
 			s_Data->LineVertexBuffer->SetData(s_Data->LineVertices, size);
 
 			Renderer::BindPipeline(s_Data->LineRendererPipeline.get());
-			Renderer::DrawLines(s_Data->LineVertexBuffer.get(), vertexCount);
+			Renderer::Submit(s_Data->LineVertexBuffer.get(), vertexCount);
 			s_Stats.DrawCalls++;
 		}
 	}
@@ -490,9 +490,10 @@ namespace Quark {
 		{
 			PipelineSpecification spec;
 			spec.Layout = s_QuadVertexLayout;
+			spec.Topology = PrimitiveTopology::TriangleList;
 			spec.RenderPass = Renderer::GetGeometryPass();
 			spec.Shader = s_Data->QuadShader.get();
-			spec.UniformBuffer = s_Data->CameraUniformBuffer.get();
+			spec.UniformBuffers = { s_Data->CameraUniformBuffer.get() };
 
 			s_Data->QuadRendererPipeline = Pipeline::Create(spec);
 		}
@@ -516,9 +517,10 @@ namespace Quark {
 		{
 			PipelineSpecification spec;
 			spec.Layout = s_LineVertexLayout;
+			spec.Topology = PrimitiveTopology::LineList;
 			spec.RenderPass = Renderer::GetGeometryPass();
 			spec.Shader = s_Data->LineShader.get();
-			spec.UniformBuffer = s_Data->CameraUniformBuffer.get();
+			spec.UniformBuffers = { s_Data->CameraUniformBuffer.get() };
 
 			s_Data->LineRendererPipeline = Pipeline::Create(spec);
 		}
