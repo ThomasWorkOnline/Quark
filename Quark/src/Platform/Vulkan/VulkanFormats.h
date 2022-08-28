@@ -10,7 +10,7 @@
 
 namespace Quark {
 
-	constexpr VkFormat InternalFormatToVulkan(ColorDataFormat format)
+	constexpr VkFormat DataFormatToVulkan(ColorDataFormat format)
 	{
 		switch (format)
 		{

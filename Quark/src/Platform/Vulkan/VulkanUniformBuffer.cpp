@@ -31,22 +31,4 @@ namespace Quark {
 		std::memcpy(mappedMemory, data, size);
 		vkUnmapMemory(m_Device->GetVkHandle(), m_BufferMemory);
 	}
-
-	VkWriteDescriptorSet VulkanUniformBuffer::GetDescriptorSet()
-	{
-		VkDescriptorBufferInfo bufferInfo{};
-		bufferInfo.buffer = m_Buffer;
-		bufferInfo.offset = 0;
-		bufferInfo.range = m_Spec.Size;
-
-		VkWriteDescriptorSet descriptorWrite{};
-		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrite.dstBinding = 0;
-		descriptorWrite.dstArrayElement = 0;
-		descriptorWrite.descriptorCount = 1;
-		descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		descriptorWrite.pBufferInfo = &bufferInfo;
-
-		return descriptorWrite;
-	}
 }

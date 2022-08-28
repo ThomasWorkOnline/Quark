@@ -9,6 +9,7 @@
 #include "VulkanFramebuffer.h"
 #include "VulkanPipeline.h"
 #include "VulkanRenderPass.h"
+#include "VulkanSampler.h"
 #include "VulkanShader.h"
 #include "VulkanTexture.h"
 #include "VulkanTextureArray.h"
@@ -77,7 +78,7 @@ namespace Quark {
 
 	Scope<FramebufferAttachment> VulkanGraphicsAPI::CreateFramebufferAttachment(const FramebufferAttachmentSpecification& spec)
 	{
-		return CreateScope<VulkanFramebufferAttachment>(spec);
+		return CreateScope<VulkanFramebufferAttachment>(VulkanContext::GetCurrentDevice(), spec);
 	}
 
 	Scope<Shader> VulkanGraphicsAPI::CreateShader(std::string_view filepath)
@@ -85,14 +86,19 @@ namespace Quark {
 		return CreateScope<VulkanShader>(VulkanContext::GetCurrentDevice(), filepath);
 	}
 
-	Scope<Shader> VulkanGraphicsAPI::CreateShader(std::string_view name, SpirvSource vertexSource, SpirvSource fragmentSource)
+	Scope<Shader> VulkanGraphicsAPI::CreateShader(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& fragmentSource)
 	{
 		return CreateScope<VulkanShader>(VulkanContext::GetCurrentDevice(), name, vertexSource, fragmentSource);
 	}
 
-	Scope<Shader> VulkanGraphicsAPI::CreateShader(std::string_view name, SpirvSource vertexSource, SpirvSource geometrySource, SpirvSource fragmentSource)
+	Scope<Shader> VulkanGraphicsAPI::CreateShader(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& geometrySource, const SpirvSource& fragmentSource)
 	{
 		return CreateScope<VulkanShader>(VulkanContext::GetCurrentDevice(), name, vertexSource, geometrySource, fragmentSource);
+	}
+
+	Scope<Sampler2D> VulkanGraphicsAPI::CreateSampler2D(const Sampler2DSpecification& spec)
+	{
+		return CreateScope<VulkanSampler2D>(VulkanContext::GetCurrentDevice(), spec);
 	}
 
 	Scope<Texture2D> VulkanGraphicsAPI::CreateTexture2D(const Texture2DSpecification& spec)

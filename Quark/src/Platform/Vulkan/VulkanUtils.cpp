@@ -39,8 +39,6 @@ namespace Quark {
 
 		VkBuffer AllocateBuffer(VulkanDevice* device, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkDeviceMemory& bufferMemory)
 		{
-			QK_PROFILE_FUNCTION();
-
 			VkBufferCreateInfo bufferInfo{};
 			bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 			bufferInfo.size = size;
@@ -69,8 +67,6 @@ namespace Quark {
 		// TODO: copy allocator
 		void CopyBuffer(VulkanDevice* device, VkBuffer dstBuffer, VkBuffer srcBuffer, size_t size)
 		{
-			QK_PROFILE_FUNCTION();
-
 			auto commandPool = device->GetCommandPool();
 
 			VkCommandBufferAllocateInfo allocInfo{};

@@ -8,6 +8,7 @@
 #include "OpenGLFramebuffer.h"
 #include "OpenGLPipeline.h"
 #include "OpenGLRenderPass.h"
+#include "OpenGLSampler.h"
 #include "OpenGLShader.h"
 #include "OpenGLTexture.h"
 #include "OpenGLTextureArray.h"
@@ -191,14 +192,19 @@ namespace Quark {
 		return CreateScope<OpenGLShader>(filepath);
 	}
 
-	Scope<Shader> OpenGLGraphicsAPI::CreateShader(std::string_view name, SpirvSource vertexSource, SpirvSource fragmentSource)
+	Scope<Shader> OpenGLGraphicsAPI::CreateShader(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& fragmentSource)
 	{
 		return CreateScope<OpenGLShader>(name, vertexSource, fragmentSource);
 	}
 
-	Scope<Shader> OpenGLGraphicsAPI::CreateShader(std::string_view name, SpirvSource vertexSource, SpirvSource geometrySource, SpirvSource fragmentSource)
+	Scope<Shader> OpenGLGraphicsAPI::CreateShader(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& geometrySource, const SpirvSource& fragmentSource)
 	{
 		return CreateScope<OpenGLShader>(name, vertexSource, geometrySource, fragmentSource);
+	}
+
+	Scope<Sampler2D> OpenGLGraphicsAPI::CreateSampler2D(const Sampler2DSpecification& spec)
+	{
+		return CreateScope<OpenGLSampler2D>(spec);
 	}
 
 	Scope<Texture2D> OpenGLGraphicsAPI::CreateTexture2D(const Texture2DSpecification& spec)

@@ -23,14 +23,17 @@ namespace Quark {
 
 		virtual ~VulkanContextBase() override;
 		virtual void StartFrame() override;
+		virtual void WaitUntilIdle() override;
 
 		virtual void Submit() override;
 		virtual void SwapBuffers() override;
+		virtual void SetSwapInterval(int interval) override;
+
 		virtual void Resize(uint32_t viewportWidth, uint32_t viewportHeight) override;
 
 		virtual uint32_t GetCurrentImageIndex() const override;
 		virtual uint32_t GetSwapChainImageCount() const override;
-		virtual void* GetColorAttachment(uint32_t index) const override;
+		virtual FramebufferAttachment* GetColorAttachment(uint32_t index) const override;
 
 		virtual CommandBuffer* GetCommandBuffer() override;
 
@@ -48,7 +51,8 @@ namespace Quark {
 			VkSemaphore ImageAvailableSemaphores[FramesInFlight];
 			Scope<VulkanCommandBuffer> CommandBuffers[FramesInFlight];
 
-			uint32_t CurrentFrameIndex = static_cast<uint32_t>(-1);
+			uint32_t FrameCounterIndex = static_cast<uint32_t>(-1);
+			uint32_t CurrentFrameIndex = 0;
 		};
 
 		VkInstance m_Instance = VK_NULL_HANDLE;

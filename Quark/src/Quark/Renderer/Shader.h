@@ -6,12 +6,30 @@
 
 namespace Quark {
 
-	struct SpirvSource;
-	struct ShaderResources;
+	using SpirvSource = std::vector<uint32_t>;
+
+	struct UniformBufferResource
+	{
+		size_t   Size;
+		uint32_t Binding;
+	};
+
+	struct CombinedSamplerResource
+	{
+		uint32_t SamplerCount;
+		uint32_t Binding;
+	};
+
+	struct ShaderResources
+	{
+		std::vector<UniformBufferResource> UniformBuffers;
+		std::vector<CombinedSamplerResource> CombinedSamplers;
+	};
 
 	class Shader
 	{
 	public:
+		Shader(std::string_view name);
 		virtual ~Shader() = default;
 
 		virtual void SetInt(std::string_view name, int32_t value) = 0;
@@ -38,41 +56,29 @@ namespace Quark {
 		virtual void SetMat3d(std::string_view name, const Mat3d& matrix) = 0;
 		virtual void SetMat4d(std::string_view name, const Mat4d& matrix) = 0;
 
-		virtual std::string_view GetName() const = 0;
-
-		virtual const ShaderResources& GetShaderResources() const = 0;
-
 		virtual bool operator==(const Shader& other) const = 0;
 
+		std::string_view GetName() const { return m_Name; }
+
+		const ShaderResources& GetShaderResources() const { return m_ShaderResources; }
+		uint32_t GetBindingCount() const { return m_BindingCount; }
+		uint32_t GetDescriptorCount() const { return m_DescriptorCount; }
+
 		static Scope<Shader> Create(std::string_view filepath);
-		static Scope<Shader> Create(std::string_view name, SpirvSource vertexSource, SpirvSource fragmentSource);
-		static Scope<Shader> Create(std::string_view name, SpirvSource vertexSource, SpirvSource geometrySource, SpirvSource fragmentSource);
+		static Scope<Shader> Create(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& fragmentSource);
+		static Scope<Shader> Create(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& geometrySource, const SpirvSource& fragmentSource);
+
+	protected:
+		void Reflect(const char* stageName, const SpirvSource& spirvSource);
+
+	protected:
+		std::string m_Name;
+		ShaderResources m_ShaderResources;
+		uint32_t m_BindingCount = 0;
+		uint32_t m_DescriptorCount = 0;
 	};
 
-	struct UniformBufferResource
-	{
-		size_t   Size;
-		uint32_t Binding;
-	};
-
-	struct ShaderResources
-	{
-		std::vector<UniformBufferResource> UniformBuffers;
-	};
-
-	struct SpirvSource
-	{
-		const uint32_t* Data = nullptr;
-		size_t          WordCount = 0;
-
-		SpirvSource() = default;
-		SpirvSource(const std::vector<uint32_t>& src)
-			: Data(src.data()), WordCount(src.size())
-		{
-		}
-	};
-
-	std::vector<uint32_t> ReadSpirvFile(std::string_view filepath);
+	SpirvSource ReadSpirvFile(std::string_view filepath);
 
 	class ShaderLibrary
 	{

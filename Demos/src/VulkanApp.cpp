@@ -38,8 +38,6 @@ VulkanApp::VulkanApp(const ApplicationOptions& options)
 	m_Text.SetFont(m_Font);
 	
 	auto* window = GetWindow();
-	window->SetVSync(false);
-
 	m_TextCamera.SetOrthographic((float)window->GetWidth());
 	m_TextCamera.Resize(window->GetWidth(), window->GetHeight());
 }

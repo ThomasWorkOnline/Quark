@@ -61,6 +61,11 @@ namespace Quark {
 		vkCmdSetScissor(m_CommandBuffer, 0, 1, &scissor);
 	}
 
+	void VulkanCommandBuffer::SetLineWidth(float width)
+	{
+		vkCmdSetLineWidth(m_CommandBuffer, width);
+	}
+
 	void VulkanCommandBuffer::BeginRenderPass(RenderPass* renderPass, Framebuffer* framebuffer)
 	{
 		auto vkFramebuffer = static_cast<VulkanFramebuffer*>(framebuffer)->GetVkHandle();
@@ -75,12 +80,13 @@ namespace Quark {
 		renderPassInfo.renderArea.offset = VkOffset2D{ 0, 0 };
 		renderPassInfo.renderArea.extent = VkExtent2D{ framebuffer->GetWidth(), framebuffer->GetHeight() };
 
+		VkClearValue clearValue{};
 		if (renderPass->GetSpecification().ClearBuffers)
 		{
 			auto& color = renderPass->GetSpecification().ClearColor;
-			VkClearValue clearColor = { color.r, color.g, color.b, color.a };
+			clearValue.color = { color.r, color.g, color.b, color.a };
 			renderPassInfo.clearValueCount = 1;
-			renderPassInfo.pClearValues = &clearColor;
+			renderPassInfo.pClearValues = &clearValue;
 		}
 
 		vkCmdBeginRenderPass(m_CommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);

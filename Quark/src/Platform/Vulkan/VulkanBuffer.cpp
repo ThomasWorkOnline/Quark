@@ -54,7 +54,6 @@ namespace Quark {
 
 	void VulkanVertexBuffer::SetData(const void* data, size_t size, size_t offset)
 	{
-		QK_PROFILE_FUNCTION();
 		QK_CORE_ASSERT(offset == 0, "offsets are currently not supported");
 
 		VkDeviceMemory stagingBufferMemory;
@@ -128,7 +127,6 @@ namespace Quark {
 
 	void VulkanIndexBuffer::SetData(const uint32_t* data, uint32_t count, size_t offset)
 	{
-		QK_PROFILE_FUNCTION();
 		QK_CORE_ASSERT(offset == 0, "offsets are currently not supported");
 
 		size_t size = count * sizeof(uint32_t);

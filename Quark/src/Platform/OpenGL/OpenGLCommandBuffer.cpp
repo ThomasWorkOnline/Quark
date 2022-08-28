@@ -2,7 +2,6 @@
 #include "OpenGLCommandBuffer.h"
 
 #include "OpenGLBuffer.h"
-#include "OpenGLUniformBuffer.h"
 
 #include <glad/glad.h>
 
@@ -11,18 +10,17 @@ namespace Quark {
 	void OpenGLCommandBuffer::BindPipeline(Pipeline* pipeline)
 	{
 		m_Pipeline = static_cast<OpenGLPipeline*>(pipeline);
-		m_Pipeline->BindShader();
-
-		for (auto* uniformBuffer : pipeline->GetSpecification().UniformBuffers)
-		{
-			auto* ub = static_cast<OpenGLUniformBuffer*>(uniformBuffer);
-			glBindBufferBase(GL_UNIFORM_BUFFER, ub->GetBinding(), ub->GetRendererID());
-		}
+		m_Pipeline->Bind();
 	}
 
 	void OpenGLCommandBuffer::SetViewport(uint32_t viewportWidth, uint32_t viewportHeight)
 	{
 		glViewport(0, 0, viewportWidth, viewportHeight);
+	}
+
+	void OpenGLCommandBuffer::SetLineWidth(float width)
+	{
+		glLineWidth(width);
 	}
 
 	void OpenGLCommandBuffer::BeginRenderPass(RenderPass* renderPass, Framebuffer* framebuffer)

@@ -99,7 +99,6 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		m_Device->WaitIdle();
 		for (uint32_t i = 0; i < FramesInFlight; i++)
 		{
 			vkDestroyFence(m_Device->GetVkHandle(), m_Data.InFlightFences[i], nullptr);
@@ -110,6 +109,7 @@ namespace Quark {
 		m_SwapChain.reset();
 		m_Device.reset();
 
+
 		DestroyDebugUtilsMessengerEXT(m_Instance, m_VkDebugMessenger, nullptr);
 
 		vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
@@ -118,7 +118,8 @@ namespace Quark {
 
 	void VulkanContextBase::StartFrame()
 	{
-		m_Data.CurrentFrameIndex = (m_Data.CurrentFrameIndex + 1) % FramesInFlight;
+		m_Data.FrameCounterIndex = (m_Data.FrameCounterIndex + 1) % FramesInFlight;
+		m_Data.CurrentFrameIndex = m_Data.FrameCounterIndex;
 
 		{
 			VkFence waitFence = m_Data.InFlightFences[m_Data.CurrentFrameIndex];
@@ -127,8 +128,13 @@ namespace Quark {
 			QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Could not wait for fences");
 			vkResetFences(m_Device->GetVkHandle(), 1, &waitFence);
 		}
-
+		
 		m_SwapChain->AcquireNextImage(m_Data.ImageAvailableSemaphores[m_Data.CurrentFrameIndex]);
+	}
+
+	void VulkanContextBase::WaitUntilIdle()
+	{
+		m_Device->WaitIdle();
 	}
 
 	void VulkanContextBase::Submit()
@@ -162,6 +168,10 @@ namespace Quark {
 		m_SwapChain->Present(presentQueue, renderFinishedSemaphore);
 	}
 
+	void VulkanContextBase::SetSwapInterval(int interval)
+	{
+	}
+
 	void VulkanContextBase::Resize(uint32_t viewportWidth, uint32_t viewportHeight)
 	{
 		m_Device->WaitIdle();
@@ -173,9 +183,9 @@ namespace Quark {
 		return m_SwapChain->GetImageCount();
 	}
 
-	void* VulkanContextBase::GetColorAttachment(uint32_t index) const
+	FramebufferAttachment* VulkanContextBase::GetColorAttachment(uint32_t index) const
 	{
-		return m_SwapChain->GetImageView(index);
+		return m_SwapChain->GetAttachment(index);
 	}
 
 	uint32_t VulkanContextBase::GetCurrentImageIndex() const

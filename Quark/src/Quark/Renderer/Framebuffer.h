@@ -17,10 +17,12 @@ namespace Quark {
 	class FramebufferAttachment
 	{
 	public:
+		FramebufferAttachment() = default;
 		FramebufferAttachment(const FramebufferAttachmentSpecification& spec);
 		virtual ~FramebufferAttachment() = default;
 
-		virtual void SetData(void* data) = 0;
+		virtual void SetData(const void* data) = 0;
+
 		const FramebufferAttachmentSpecification& GetSpecification() const { return m_Spec; }
 
 		static Scope<FramebufferAttachment> Create(const FramebufferAttachmentSpecification& spec);
@@ -37,8 +39,7 @@ namespace Quark {
 		RenderPass* RenderPass = nullptr;
 		bool SwapChainTarget = false;
 
-		uint32_t AttachmentCount = 0;
-		void** Attachments = nullptr;
+		std::vector<FramebufferAttachment*> Attachments;
 	};
 
 	class Framebuffer

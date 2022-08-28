@@ -1,8 +1,6 @@
 #pragma once
 
 #include "Quark/Renderer/Shader.h"
-
-#include <spirv_cross/spirv_cross.hpp>
 #include <unordered_map>
 
 typedef unsigned int GLenum;
@@ -15,8 +13,8 @@ namespace Quark {
 	{
 	public:
 		OpenGLShader(std::string_view filepath);
-		OpenGLShader(std::string_view name, SpirvSource vertexSource, SpirvSource fragmentSource);
-		OpenGLShader(std::string_view name, SpirvSource vertexSource, SpirvSource geometrySource, SpirvSource fragmentSource);
+		OpenGLShader(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& fragmentSource);
+		OpenGLShader(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& geometrySource, const SpirvSource& fragmentSource);
 		virtual ~OpenGLShader() override;
 
 		virtual void SetInt(std::string_view name, int32_t value) override;
@@ -42,10 +40,6 @@ namespace Quark {
 
 		virtual void SetMat3d(std::string_view name, const Mat3d& matrix) override;
 		virtual void SetMat4d(std::string_view name, const Mat4d& matrix) override;
-
-		virtual std::string_view GetName() const override { return m_Name; }
-
-		virtual const ShaderResources& GetShaderResources() const override { return m_ShaderResources; }
 
 		virtual bool operator==(const Shader& other) const override
 		{
@@ -86,16 +80,13 @@ namespace Quark {
 
 		static std::unordered_map<GLenum, std::string> PreProcess(std::string_view source);
 
-		void CompileSources(const std::unordered_map<GLenum, std::string>& shaderSources);
-		void CompileSPIRV(const std::unordered_map<GLenum, SpirvSource>& spirvBinaries);
-
-		void Reflect(GLenum stage, SpirvSource spirvSource);
+		GLuint CompileSources(const std::unordered_map<GLenum, std::string>& shaderSources);
+		GLuint CompileSPIRV(const std::unordered_map<GLenum, SpirvSource>& spirvBinaries);
 		void LinkProgram(GLuint program, const GLenum* glShaderIDs, uint32_t shaderCount);
 
 	private:
 		GLuint m_RendererID = 0;
-		std::string m_Name;
-		ShaderResources m_ShaderResources;
+		std::unordered_map<GLenum, std::vector<uint32_t>> m_SpirvSources;
 
 		mutable std::unordered_map<size_t, GLint> m_UniformLocationCache;
 	};

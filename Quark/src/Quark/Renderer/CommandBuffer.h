@@ -20,6 +20,7 @@ namespace Quark {
 
 		virtual void BindPipeline(Pipeline* pipeline) = 0;
 		virtual void SetViewport(uint32_t viewportWidth, uint32_t viewportHeight) = 0;
+		virtual void SetLineWidth(float width) = 0;
 
 		virtual void BeginRenderPass(RenderPass* renderPass, Framebuffer* framebuffer) = 0;
 		virtual void EndRenderPass() = 0;

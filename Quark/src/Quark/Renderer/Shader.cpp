@@ -2,29 +2,99 @@
 #include "Shader.h"
 
 #include "GraphicsAPI.h"
-
 #include <fstream>
 
+#include <shaderc/shaderc.hpp>
+#include <spirv_cross/spirv_cross.hpp>
+
 namespace Quark {
+
+	Shader::Shader(std::string_view name)
+		: m_Name(name)
+	{
+	}
+
+	void Shader::Reflect(const char* stageName, const SpirvSource& spirvSource)
+	{
+		QK_PROFILE_FUNCTION();
+
+		spirv_cross::Compiler compiler(spirvSource.data(), spirvSource.size());
+		spirv_cross::ShaderResources resources = compiler.get_shader_resources();
+
+		QK_CORE_TRACE("Shader::Reflect - {0} '{1}'", stageName, m_Name);
+		QK_CORE_TRACE("    {0} uniform buffers", resources.uniform_buffers.size());
+		QK_CORE_TRACE("    {0} sampled images", resources.sampled_images.size());
+
+		auto entryPoints = compiler.get_entry_points_and_stages();
+		QK_CORE_ASSERT(entryPoints.size() == 1, "Shaders currently don't support multiple entry points");
+
+		m_BindingCount += (uint32_t)resources.uniform_buffers.size();
+		m_BindingCount += (uint32_t)resources.sampled_images.size();
+
+		QK_CORE_TRACE("Uniform buffers:");
+		for (const auto& resource : resources.uniform_buffers)
+		{
+			const auto& type = compiler.get_type(resource.base_type_id);
+			uint32_t binding = compiler.get_decoration(resource.id, spv::DecorationBinding);
+			size_t bufferSize = compiler.get_declared_struct_size(type);
+			size_t memberCount = type.member_types.size();
+
+			UniformBufferResource ubResource{};
+			ubResource.Size = bufferSize;
+			ubResource.Binding = binding;
+			m_ShaderResources.UniformBuffers.push_back(ubResource);
+			m_DescriptorCount += 1;
+
+			QK_CORE_TRACE(" \"{0}\"", resource.name);
+			QK_CORE_TRACE("    Size = {0}", bufferSize);
+			QK_CORE_TRACE("    Binding = {0}", binding);
+			QK_CORE_TRACE("    Members = {0}", memberCount);
+		}
+
+		QK_CORE_TRACE("Image samplers:");
+		for (const auto& resource : resources.sampled_images)
+		{
+			const auto& type = compiler.get_type(resource.type_id);
+			uint32_t binding = compiler.get_decoration(resource.id, spv::DecorationBinding);
+			size_t dimension = type.array.size();
+			
+			uint32_t samplerCount = 0;
+			for (size_t i = 0; i < dimension; i++)
+			{
+				uint32_t length = type.array[i];
+				samplerCount += length;
+			}
+
+			CombinedSamplerResource sResource{};
+			sResource.SamplerCount = samplerCount;
+			sResource.Binding = binding;
+			m_ShaderResources.CombinedSamplers.push_back(sResource);
+			m_DescriptorCount += samplerCount;
+
+			QK_CORE_TRACE(" \"{0}\"", resource.name);
+			QK_CORE_TRACE("    Samplers = {0}", samplerCount);
+			QK_CORE_TRACE("    Binding = {0}", binding);
+;		}
+	}
 
 	Scope<Shader> Shader::Create(std::string_view filepath)
 	{
 		return GraphicsAPI::Instance->CreateShader(filepath);
 	}
 
-	Scope<Shader> Shader::Create(std::string_view name, SpirvSource vertexSource, SpirvSource fragmentSource)
+	Scope<Shader> Shader::Create(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& fragmentSource)
 	{
 		return GraphicsAPI::Instance->CreateShader(name, vertexSource, fragmentSource);
 	}
 
-	Scope<Shader> Shader::Create(std::string_view name, SpirvSource vertexSource, SpirvSource geometrySource, SpirvSource fragmentSource)
+	Scope<Shader> Shader::Create(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& geometrySource, const SpirvSource& fragmentSource)
 	{
 		return GraphicsAPI::Instance->CreateShader(name, vertexSource, geometrySource, fragmentSource);
 	}
 
-	std::vector<uint32_t> ReadSpirvFile(std::string_view filepath)
+	SpirvSource ReadSpirvFile(std::string_view filepath)
 	{
-		std::vector<uint32_t> result;
+		SpirvSource result;
 		std::ifstream in(filepath.data(), std::ios::in | std::ios::binary);
 		if (in)
 		{

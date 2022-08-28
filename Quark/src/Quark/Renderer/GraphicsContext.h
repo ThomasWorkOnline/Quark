@@ -13,14 +13,17 @@ namespace Quark {
 
 		virtual void Init() = 0;
 		virtual void StartFrame() = 0;
+		virtual void WaitUntilIdle() = 0;
 
 		virtual void Submit() = 0;
 		virtual void SwapBuffers() = 0;
+		virtual void SetSwapInterval(int interval) = 0;
+
 		virtual void Resize(uint32_t viewportWidth, uint32_t viewportHeight) = 0;
 
 		virtual uint32_t GetCurrentImageIndex() const = 0;
 		virtual uint32_t GetSwapChainImageCount() const = 0;
-		virtual void* GetColorAttachment(uint32_t index) const = 0;
+		virtual FramebufferAttachment* GetColorAttachment(uint32_t index) const = 0;
 
 		virtual CommandBuffer* GetCommandBuffer() = 0;
 

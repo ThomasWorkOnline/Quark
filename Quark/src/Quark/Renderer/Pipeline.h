@@ -5,6 +5,7 @@
 
 #include "Buffer.h"
 #include "RenderPass.h"
+#include "Sampler.h"
 #include "Shader.h"
 #include "UniformBuffer.h"
 
@@ -28,6 +29,7 @@ namespace Quark {
 		RenderPass*         RenderPass = nullptr;
 
 		std::vector<UniformBuffer*> UniformBuffers;
+		std::vector<Sampler2D*> Samplers;
 	};
 
 	class Pipeline

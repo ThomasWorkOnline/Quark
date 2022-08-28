@@ -25,6 +25,11 @@ TextureArrayTest::TextureArrayTest(const ApplicationOptions& options)
 	m_TextureArray->SetData(texture1.GetData(), texture1.GetMetadata().Size, 1);
 	m_TextureArray->GenerateMipmaps();
 
+	auto* window = GetWindow();
+	m_Camera.SetPerspective(70.0f);
+	m_Camera.Resize(window->GetWidth(), window->GetHeight());
+
+#if 0
 	m_Shader = Shader::Create("assets/shaders/textureArray.glsl");
 	m_Shader->SetInt("u_Sampler", 0);
 
@@ -48,10 +53,7 @@ TextureArrayTest::TextureArrayTest(const ApplicationOptions& options)
 	});
 
 	m_IndexBuffer = IndexBuffer::Create(indices, sizeof_array(indices));
-
-	auto window = GetWindow();
-	m_Camera.SetPerspective(70.0f);
-	m_Camera.Resize(window->GetWidth(), window->GetHeight());
+#endif
 }
 
 void TextureArrayTest::OnUpdate(Timestep elapsedTime)

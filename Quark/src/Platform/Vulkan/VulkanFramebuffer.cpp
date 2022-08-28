@@ -11,17 +11,50 @@
 
 namespace Quark {
 
-	VulkanFramebufferAttachment::VulkanFramebufferAttachment(const FramebufferAttachmentSpecification& spec)
-		: FramebufferAttachment(spec)
+	VulkanFramebufferAttachment::VulkanFramebufferAttachment(VulkanDevice* device, const FramebufferAttachmentSpecification& spec)
+		: FramebufferAttachment(spec), m_Device(device)
 	{
+	}
+
+	VulkanFramebufferAttachment::VulkanFramebufferAttachment(VulkanDevice* device, VkImage image, VkFormat format)
+		: m_Device(device), m_Format(format)
+	{
+		VkImageViewCreateInfo imageViewInfo{};
+		imageViewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		imageViewInfo.image = image;
+		imageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		imageViewInfo.format = m_Format;
+		imageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		imageViewInfo.subresourceRange.baseMipLevel = 0;
+		imageViewInfo.subresourceRange.levelCount = 1;
+		imageViewInfo.subresourceRange.baseArrayLayer = 0;
+		imageViewInfo.subresourceRange.layerCount = 1;
+
+		vkCreateImageView(m_Device->GetVkHandle(), &imageViewInfo, nullptr, &m_ImageView);
 	}
 
 	VulkanFramebufferAttachment::~VulkanFramebufferAttachment()
 	{
+		vkDestroyImageView(m_Device->GetVkHandle(), m_ImageView, nullptr);
 	}
 
-	void VulkanFramebufferAttachment::SetData(void* data)
+	void VulkanFramebufferAttachment::SetData(const void* data)
 	{
+		if (m_ImageView)
+			vkDestroyImageView(m_Device->GetVkHandle(), m_ImageView, nullptr);
+
+		VkImageViewCreateInfo imageViewInfo{};
+		imageViewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		imageViewInfo.image = (VkImage)data;
+		imageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		imageViewInfo.format = m_Format;
+		imageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		imageViewInfo.subresourceRange.baseMipLevel = 0;
+		imageViewInfo.subresourceRange.levelCount = 1;
+		imageViewInfo.subresourceRange.baseArrayLayer = 0;
+		imageViewInfo.subresourceRange.layerCount = 1;
+
+		vkCreateImageView(m_Device->GetVkHandle(), &imageViewInfo, nullptr, &m_ImageView);
 	}
 
 	VulkanFramebuffer::VulkanFramebuffer(VulkanDevice* device, const FramebufferSpecification& spec)
@@ -38,6 +71,8 @@ namespace Quark {
 
 	void VulkanFramebuffer::Resize(uint32_t width, uint32_t height)
 	{
+		if (width == 0 || height == 0) return;
+
 		m_Spec.Width = width;
 		m_Spec.Height = height;
 
@@ -51,20 +86,22 @@ namespace Quark {
 			vkDestroyFramebuffer(m_Device->GetVkHandle(), m_Framebuffer, nullptr);
 		}
 
-		QK_CORE_ASSERT(m_Spec.AttachmentCount, "AttachmentCount must be non zero");
-		QK_CORE_ASSERT(m_Spec.Attachments, "Attachments must be a valid pointer to an array of framebuffer attachments");
+		QK_CORE_ASSERT(m_Spec.Attachments.size(), "AttachmentCount must be non zero");
 		QK_CORE_ASSERT(m_Spec.RenderPass, "RenderPass must be a valid pointer to a render pass");
 
-		auto* attachments = static_cast<VkImageView*>(alloca(m_Spec.AttachmentCount * sizeof(VkImageView)));
-		for (size_t i = 0; i < m_Spec.AttachmentCount; i++)
+		auto* attachments = (VkImageView*)alloca(m_Spec.Attachments.size() * sizeof(VkImageView));
+		auto* attachmentPtr = attachments;
+
+		for (auto* attachment : m_Spec.Attachments)
 		{
-			attachments[i] = static_cast<VkImageView>(m_Spec.Attachments[i]);
+			*attachmentPtr = static_cast<VulkanFramebufferAttachment*>(attachment)->GetVkHandle();
+			attachmentPtr++;
 		}
 
 		VkFramebufferCreateInfo framebufferInfo{};
 		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 		framebufferInfo.renderPass = static_cast<VulkanRenderPass*>(m_Spec.RenderPass)->GetVkHandle();
-		framebufferInfo.attachmentCount = m_Spec.AttachmentCount;
+		framebufferInfo.attachmentCount = (uint32_t)m_Spec.Attachments.size();
 		framebufferInfo.pAttachments = attachments;
 		framebufferInfo.width = m_Spec.Width;
 		framebufferInfo.height = m_Spec.Height;

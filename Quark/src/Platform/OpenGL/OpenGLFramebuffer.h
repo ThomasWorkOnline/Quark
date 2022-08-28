@@ -12,7 +12,7 @@ namespace Quark {
 		OpenGLFramebufferAttachment(const FramebufferAttachmentSpecification& spec);
 		virtual ~OpenGLFramebufferAttachment() = default;
 
-		virtual void SetData(void* data) override;
+		virtual void SetData(const void* data) override;
 
 		// Non-Copyable
 		OpenGLFramebufferAttachment(const OpenGLFramebufferAttachment&) = delete;

@@ -17,6 +17,7 @@ namespace Quark {
 
 		virtual void BindPipeline(Pipeline* pipeline) final override;
 		virtual void SetViewport(uint32_t viewportWidth, uint32_t viewportHeight) final override;
+		virtual void SetLineWidth(float width) final override;
 
 		virtual void BeginRenderPass(RenderPass* renderPass, Framebuffer* framebuffer) final override;
 		virtual void EndRenderPass() final override;

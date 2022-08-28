@@ -21,7 +21,7 @@ namespace Quark {
 		OpenGLPipeline(const OpenGLPipeline&) = delete;
 		OpenGLPipeline& operator=(const OpenGLPipeline&) = delete;
 
-		void BindShader();
+		void Bind();
 		void BindVertexAttrib();
 
 		GLenum GetPrimitiveTopology() const { return m_PrimitiveTopology; }

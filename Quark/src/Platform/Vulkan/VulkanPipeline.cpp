@@ -8,6 +8,7 @@
 #include "VulkanUniformBuffer.h"
 
 #include <shaderc/shaderc.hpp>
+#include <spirv_cross/spirv_cross.hpp>
 
 // disable alloca failure warning
 // since variable size stack arrays are not supported by all compilers
@@ -25,7 +26,7 @@ namespace Quark {
 		{
 			VkDescriptorPoolSize poolSize{};
 			poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			poolSize.descriptorCount = (uint32_t)m_Spec.UniformBuffers.size() * VulkanContext::FramesInFlight;
+			poolSize.descriptorCount = m_Spec.Shader->GetDescriptorCount() * VulkanContext::FramesInFlight;
 
 			VkDescriptorPoolCreateInfo poolInfo{};
 			poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
@@ -40,11 +41,9 @@ namespace Quark {
 		{
 			auto& shaderResources = m_Spec.Shader->GetShaderResources();
 
-			auto* descriptorSetLayoutBindings = (VkDescriptorSetLayoutBinding*)alloca(shaderResources.UniformBuffers.size() * sizeof(VkDescriptorSetLayoutBinding));
+			uint32_t bindingCount = m_Spec.Shader->GetBindingCount();
+			auto* descriptorSetLayoutBindings = (VkDescriptorSetLayoutBinding*)alloca(bindingCount * sizeof(VkDescriptorSetLayoutBinding));
 			auto* descriptorSetLayoutbindingPtr = descriptorSetLayoutBindings;
-
-			VkDescriptorSetLayoutCreateInfo layoutInfo{};
-			layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 
 			for (auto& uniformBuffer : shaderResources.UniformBuffers)
 			{
@@ -56,7 +55,19 @@ namespace Quark {
 				descriptorSetLayoutbindingPtr++;
 			}
 
-			layoutInfo.bindingCount = static_cast<uint32_t>(shaderResources.UniformBuffers.size());
+			for (auto& sampler : shaderResources.CombinedSamplers)
+			{
+				*descriptorSetLayoutbindingPtr = {};
+				descriptorSetLayoutbindingPtr->binding = sampler.Binding;
+				descriptorSetLayoutbindingPtr->descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+				descriptorSetLayoutbindingPtr->descriptorCount = sampler.SamplerCount;
+				descriptorSetLayoutbindingPtr->stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+				descriptorSetLayoutbindingPtr++;
+			}
+
+			VkDescriptorSetLayoutCreateInfo layoutInfo{};
+			layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+			layoutInfo.bindingCount = bindingCount;
 			layoutInfo.pBindings = descriptorSetLayoutBindings;
 
 			vkCreateDescriptorSetLayout(m_Device->GetVkHandle(), &layoutInfo, nullptr, &m_DescriptorSetLayout);
@@ -76,20 +87,9 @@ namespace Quark {
 			allocInfo.pSetLayouts = layouts;
 
 			vkAllocateDescriptorSets(m_Device->GetVkHandle(), &allocInfo, m_DescriptorSets);
-			
-			for (auto* uniformBuffer : m_Spec.UniformBuffers)
-			{
-				auto* ub = static_cast<VulkanUniformBuffer*>(uniformBuffer);
-
-				VkWriteDescriptorSet descriptorWrite = ub->GetDescriptorSet();
-
-				for (uint32_t j = 0; j < VulkanContext::FramesInFlight; j++)
-				{
-					descriptorWrite.dstSet = m_DescriptorSets[j];
-					vkUpdateDescriptorSets(m_Device->GetVkHandle(), 1, &descriptorWrite, 0, nullptr);
-				}
-			}
 		}
+
+		UpdateDescriptors();
 
 		// Vertex input 
 		VkVertexInputBindingDescription bindingDescription{};
@@ -197,8 +197,8 @@ namespace Quark {
 			stages[stageIndex] = {};
 			stages[stageIndex].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 			stages[stageIndex].stage = shaderStage;
-			stages[stageIndex].module = shaderModule;
-			stages[stageIndex].pName = "main";
+			stages[stageIndex].module = shaderModule.Module;
+			stages[stageIndex].pName = shaderModule.EntryPoint.c_str();
 			stages[stageIndex].pSpecializationInfo = nullptr;
 			stageIndex++;
 		}
@@ -239,5 +239,32 @@ namespace Quark {
 	VkDescriptorSet VulkanPipeline::GetDescriptorSet() const
 	{
 		return m_DescriptorSets[VulkanContext::Get()->GetCurrentFrameIndex()];
+	}
+
+	void VulkanPipeline::UpdateDescriptors()
+	{
+		for (auto* uniformBuffer : m_Spec.UniformBuffers)
+		{
+			auto* ub = static_cast<VulkanUniformBuffer*>(uniformBuffer);
+
+			VkDescriptorBufferInfo bufferInfo{};
+			bufferInfo.buffer = ub->GetVkHandle();
+			bufferInfo.offset = 0;
+			bufferInfo.range = ub->GetSize();
+
+			VkWriteDescriptorSet descriptorWrite{};
+			descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrite.dstBinding = 0;
+			descriptorWrite.dstArrayElement = 0;
+			descriptorWrite.descriptorCount = 1;
+			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			descriptorWrite.pBufferInfo = &bufferInfo;
+
+			for (uint32_t j = 0; j < VulkanContext::FramesInFlight; j++)
+			{
+				descriptorWrite.dstSet = m_DescriptorSets[j];
+				vkUpdateDescriptorSets(m_Device->GetVkHandle(), 1, &descriptorWrite, 0, nullptr);
+			}
+		}
 	}
 }

@@ -1,6 +1,9 @@
 #include "qkpch.h"
 #include "OpenGLPipeline.h"
+
+#include "OpenGLSampler.h"
 #include "OpenGLShader.h"
+#include "OpenGLUniformBuffer.h"
 
 #include <glad/glad.h>
 
@@ -64,10 +67,27 @@ namespace Quark {
 	{
 	}
 
-	void OpenGLPipeline::BindShader()
+	void OpenGLPipeline::Bind()
 	{
-		GLuint rendererID = static_cast<OpenGLShader*>(m_Spec.Shader)->GetRendererID();
-		glUseProgram(rendererID);
+		// Shader
+		{
+			GLuint rendererID = static_cast<OpenGLShader*>(m_Spec.Shader)->GetRendererID();
+			glUseProgram(rendererID);
+		}
+
+		// Uniform buffers
+		for (auto* uniformBuffer : m_Spec.UniformBuffers)
+		{
+			auto* ub = static_cast<OpenGLUniformBuffer*>(uniformBuffer);
+			glBindBufferBase(GL_UNIFORM_BUFFER, ub->GetBinding(), ub->GetRendererID());
+		}
+
+		// Samplers
+		for (auto* sampler : m_Spec.Samplers)
+		{
+			GLuint rendererID = static_cast<OpenGLSampler2D*>(sampler)->GetRendererID();
+			glBindSampler(sampler->GetSpecification().Binding, rendererID);
+		}
 	}
 
 	void OpenGLPipeline::BindVertexAttrib()

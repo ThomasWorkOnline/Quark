@@ -63,4 +63,8 @@ namespace Quark {
 	{
 		::SwapBuffers(m_DeviceContext);
 	}
+
+	void OpenGLWin32Context::SetSwapInterval(int interval)
+	{
+	}
 }

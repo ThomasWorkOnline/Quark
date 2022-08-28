@@ -15,6 +15,7 @@ namespace Quark {
 
 		virtual void Init() override;
 		virtual void SwapBuffers() override;
+		virtual void SetSwapInterval(int interval) override;
 
 		// Non-Copyable
 		OpenGLWin32Context(const OpenGLWin32Context&) = delete;

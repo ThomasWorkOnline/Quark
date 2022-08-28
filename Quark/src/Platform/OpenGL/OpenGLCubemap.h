@@ -27,6 +27,6 @@ namespace Quark {
 		OpenGLCubemap& operator=(const OpenGLCubemap&) = delete;
 
 	private:
-		GLuint m_RendererID = 0;
+		GLuint m_RendererID;
 	};
 }

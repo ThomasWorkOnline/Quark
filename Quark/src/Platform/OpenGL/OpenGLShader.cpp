@@ -6,9 +6,6 @@
 #include <glad/glad.h>
 #include <glm/gtc/type_ptr.hpp>
 
-#include <shaderc/shaderc.hpp>
-#include <spirv_cross/spirv_cross.hpp>
-
 #include <vector>
 #include <unordered_map>
 #include <sstream>
@@ -59,36 +56,34 @@ namespace Quark {
 	static constexpr size_t s_MaxShaders = 3;
 
 	OpenGLShader::OpenGLShader(std::string_view filepath)
-		: m_Name(Utils::ExtractNameFromPath(filepath))
+		: Shader(Utils::ExtractNameFromPath(filepath))
 	{
 		QK_PROFILE_FUNCTION();
 
 		std::string source = Filesystem::ReadTextFile(filepath);
 		auto shaderSources = PreProcess(source);
-		CompileSources(shaderSources);
+		m_RendererID = CompileSources(shaderSources);
 	}
 
-	OpenGLShader::OpenGLShader(std::string_view name, SpirvSource vertexSource, SpirvSource fragmentSource)
-		: m_Name(name)
+	OpenGLShader::OpenGLShader(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& fragmentSource)
+		: Shader(name), m_SpirvSources(2)
 	{
 		QK_PROFILE_FUNCTION();
 
-		std::unordered_map<GLenum, SpirvSource> sources{2};
-		sources[GL_VERTEX_SHADER]   = vertexSource;
-		sources[GL_FRAGMENT_SHADER] = fragmentSource;
-		CompileSPIRV(sources);
+		m_SpirvSources[GL_VERTEX_SHADER]   = vertexSource;
+		m_SpirvSources[GL_FRAGMENT_SHADER] = fragmentSource;
+		m_RendererID = CompileSPIRV(m_SpirvSources);
 	}
 
-	OpenGLShader::OpenGLShader(std::string_view name, SpirvSource vertexSource, SpirvSource geometrySource, SpirvSource fragmentSource)
-		: m_Name(name)
+	OpenGLShader::OpenGLShader(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& geometrySource, const SpirvSource& fragmentSource)
+		: Shader(name), m_SpirvSources(3)
 	{
 		QK_PROFILE_FUNCTION();
 
-		std::unordered_map<GLenum, SpirvSource> sources{3};
-		sources[GL_VERTEX_SHADER]   = vertexSource;
-		sources[GL_FRAGMENT_SHADER] = fragmentSource;
-		sources[GL_GEOMETRY_SHADER] = geometrySource;
-		CompileSPIRV(sources);
+		m_SpirvSources[GL_VERTEX_SHADER]   = vertexSource;
+		m_SpirvSources[GL_FRAGMENT_SHADER] = fragmentSource;
+		m_SpirvSources[GL_GEOMETRY_SHADER] = geometrySource;
+		m_RendererID = CompileSPIRV(m_SpirvSources);
 	}
 
 	OpenGLShader::~OpenGLShader()
@@ -138,7 +133,7 @@ namespace Quark {
 		return shaderSources;
 	}
 
-	void OpenGLShader::CompileSources(const std::unordered_map<GLenum, std::string>& shaderSources)
+	GLuint OpenGLShader::CompileSources(const std::unordered_map<GLenum, std::string>& shaderSources)
 	{
 		QK_CORE_ASSERT(shaderSources.size() <= s_MaxShaders, "Maximum number of shaders per program is 3");
 
@@ -174,18 +169,17 @@ namespace Quark {
 				glDeleteProgram(program);
 
 				QK_CORE_ERROR("Shader compilation failure (compiling: {0}):\n{1}", m_Name, (const GLchar*)infoLog.data());
-				return;
+				return 0;
 			}
 
 			glAttachShader(program, shader);
 		}
 
 		LinkProgram(program, glShaderIDs, glShaderIDIndex);
-
-		m_RendererID = program;
+		return program;
 	}
 
-	void OpenGLShader::CompileSPIRV(const std::unordered_map<GLenum, SpirvSource>& spirvBinaries)
+	GLuint OpenGLShader::CompileSPIRV(const std::unordered_map<GLenum, SpirvSource>& spirvBinaries)
 	{
 		GLuint program = glCreateProgram();
 
@@ -197,49 +191,17 @@ namespace Quark {
 			glShaderIDs[glShaderIDIndex++] = shader;
 
 			glShaderBinary(1, &shader, GL_SHADER_BINARY_FORMAT_SPIR_V,
-				(const void*)binary.Data,
-				(GLsizei)(binary.WordCount * sizeof(uint32_t)));
+				(const void*)binary.data(),
+				(GLsizei)(binary.size() * sizeof(uint32_t)));
 
 			glSpecializeShader(shader, "main", 0, nullptr, nullptr);
 			glAttachShader(program, shader);
 
-			Reflect(stage, binary);
+			Reflect(Utils::GetShaderStageToString(stage), binary);
 		}
 
 		LinkProgram(program, glShaderIDs, glShaderIDIndex);
-
-		m_RendererID = program;
-	}
-
-	void OpenGLShader::Reflect(GLenum stage, SpirvSource spirvSource)
-	{
-		spirv_cross::Compiler compiler(spirvSource.Data, spirvSource.WordCount);
-		spirv_cross::ShaderResources resources = compiler.get_shader_resources();
-
-		QK_CORE_TRACE("OpenGLShader::Reflect - {0} '{1}'", Utils::GetShaderStageToString(stage), m_Name);
-		QK_CORE_TRACE("    {0} uniform buffers", resources.uniform_buffers.size());
-		QK_CORE_TRACE("    {0} resources", resources.sampled_images.size());
-
-		m_ShaderResources.UniformBuffers.reserve(resources.uniform_buffers.size());
-
-		QK_CORE_TRACE("Uniform buffers:");
-		for (const auto& resource : resources.uniform_buffers)
-		{
-			const auto& bufferType = compiler.get_type(resource.base_type_id);
-			size_t bufferSize = compiler.get_declared_struct_size(bufferType);
-			uint32_t binding = compiler.get_decoration(resource.id, spv::DecorationBinding);
-			size_t memberCount = bufferType.member_types.size();
-
-			UniformBufferResource ubResource{};
-			ubResource.Size = bufferSize;
-			ubResource.Binding = binding;
-			m_ShaderResources.UniformBuffers.push_back(ubResource);
-
-			QK_CORE_TRACE(" \"{0}\"", resource.name);
-			QK_CORE_TRACE("    Size = {0}", bufferSize);
-			QK_CORE_TRACE("    Binding = {0}", binding);
-			QK_CORE_TRACE("    Members = {0}", memberCount);
-		}
+		return program;
 	}
 
 	void OpenGLShader::LinkProgram(GLuint program, const GLenum* glShaderIDs, uint32_t shaderCount)

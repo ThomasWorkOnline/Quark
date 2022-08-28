@@ -76,9 +76,15 @@ namespace Quark {
 
 		s_ViewportExtent.Width = viewportWidth;
 		s_ViewportExtent.Height = viewportHeight;
-		s_Data->ActiveCommandBuffer->SetViewport(viewportWidth, viewportHeight);
-
 		GraphicsContext::Get()->Resize(viewportWidth, viewportHeight);
+
+		if (GraphicsAPI::GetAPI() == RHI::Vulkan)
+		{
+			for (auto& framebuffer : s_Data->Framebuffers)
+			{
+				framebuffer->Resize(viewportWidth, viewportHeight);
+			}
+		}
 	}
 
 	void Renderer::SetClearColor(const Vec4f& clearColor)
@@ -131,6 +137,7 @@ namespace Quark {
 		s_Data->ActiveCommandBuffer = GraphicsContext::Get()->GetCommandBuffer();
 		s_Data->ActiveCommandBuffer->Reset();
 		s_Data->ActiveCommandBuffer->Begin();
+		s_Data->ActiveCommandBuffer->SetViewport(s_ViewportExtent.Width, s_ViewportExtent.Height);
 
 		BeginGeometryPass();
 	}
@@ -184,8 +191,7 @@ namespace Quark {
 			{
 				auto* attachment = GraphicsContext::Get()->GetColorAttachment(i);
 
-				fbSpec.AttachmentCount = 1;
-				fbSpec.Attachments = &attachment;
+				fbSpec.Attachments = { attachment };
 				s_Data->Framebuffers[i] = Framebuffer::Create(fbSpec);
 			}
 		}
@@ -194,6 +200,8 @@ namespace Quark {
 	void Renderer::Dispose()
 	{
 		QK_PROFILE_FUNCTION();
+
+		GraphicsContext::Get()->WaitUntilIdle();
 
 		delete s_Data;
 		s_Data = nullptr;

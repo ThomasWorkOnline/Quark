@@ -39,7 +39,7 @@ namespace Quark {
 	{
 	}
 
-	void OpenGLFramebufferAttachment::SetData(void* data)
+	void OpenGLFramebufferAttachment::SetData(const void* data)
 	{
 	}
 
@@ -48,19 +48,15 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		QK_CORE_ASSERT(m_Spec.AttachmentCount <= GraphicsAPI::Instance->GetCapabilities().FramebufferConstraints.MaxAttachments, "Framebuffer contains too many attachments");
+		QK_CORE_ASSERT(m_Spec.Attachments.size() <= GraphicsAPI::Instance->GetCapabilities().FramebufferConstraints.MaxAttachments, "Framebuffer contains too many attachments");
 
-		QK_CORE_ASSERT(false, "Not Implemented");
-#if 0
-		for (uint32_t i = 0; i < m_Spec.AttachmentCount; i++)
+		for (auto* attachment : m_Spec.Attachments)
 		{
-			auto& s = m_Spec.Attachments[i];
-			if (Utils::IsDepthAttachment(s->GetSpecification().DataFormat))
-				m_DepthSpec = s->GetSpecification();
+			if (Utils::IsDepthAttachment(attachment->GetSpecification().DataFormat))
+				m_DepthSpec = attachment->GetSpecification();
 			else
-				m_ColorSpecs.emplace_back(s->GetSpecification());
+				m_ColorSpecs.emplace_back(attachment->GetSpecification());
 		}
-#endif
 
 		Invalidate();
 	}

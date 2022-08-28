@@ -52,8 +52,8 @@ namespace Quark {
 		for (size_t i = 0; i < m_Layers.size(); i++)
 			delete m_Layers[i];
 
-		Renderer2D::Dispose();
 		Renderer::Dispose();
+		Renderer2D::Dispose();
 	}
 
 	void Application::Stop()
@@ -81,16 +81,14 @@ namespace Quark {
 					m_Layers[i]->OnUpdate(elapsedTime);
 			}
 
+			Renderer::BeginFrame();
 			{
-				Renderer::BeginFrame();
-
 				OnRender();
 
 				for (auto layer : m_Layers)
 					layer->OnRender();
-
-				Renderer::EndFrame();
 			}
+			Renderer::EndFrame();
 
 			m_Window->OnUpdate();
 		}

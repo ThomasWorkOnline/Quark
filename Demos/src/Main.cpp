@@ -10,7 +10,7 @@ namespace Quark {
 
 	Application* CreateApplication()
 	{
-		using App = FontTest;
+		using App = PBRRenderingDemo;
 
 		ApplicationOptions options;
 		options.AppName = "Demo Application";

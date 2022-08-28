@@ -324,7 +324,7 @@ namespace Quark {
 
 	void GLFWWindow::SetVSync(bool enabled)
 	{
-		glfwSwapInterval(enabled);
+		m_Data.Context->SetSwapInterval(enabled);
 		m_Data.VSync = enabled;
 	}
 
@@ -342,7 +342,7 @@ namespace Quark {
 
 			// Switch to full screen
 			glfwSetWindowMonitor(m_Window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
-			glfwSwapInterval(m_Data.VSync);
+			m_Data.Context->SetSwapInterval(m_Data.VSync);
 		}
 		else
 		{

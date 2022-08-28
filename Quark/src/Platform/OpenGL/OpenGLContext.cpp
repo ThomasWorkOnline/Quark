@@ -33,4 +33,9 @@ namespace Quark {
 	{
 		glfwSwapBuffers(m_WindowHandle);
 	}
+
+	void OpenGLContext::SetSwapInterval(int interval)
+	{
+		glfwSwapInterval(interval);
+	}
 }

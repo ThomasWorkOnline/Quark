@@ -44,6 +44,7 @@
 #include "Quark/Renderer/Renderer2D.h"
 #include "Quark/Renderer/RenderModes.h"
 #include "Quark/Renderer/RenderPass.h"
+#include "Quark/Renderer/Sampler.h"
 #include "Quark/Renderer/Shader.h"
 #include "Quark/Renderer/SubTexture.h"
 #include "Quark/Renderer/Texture.h"

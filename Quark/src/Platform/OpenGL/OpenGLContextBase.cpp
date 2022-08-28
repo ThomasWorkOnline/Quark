@@ -71,22 +71,7 @@ namespace Quark {
 		QK_CORE_TRACE("Created OpenGL graphics context!");
 	}
 
-	void OpenGLContextBase::StartFrame()
-	{
-		// TODO(TEMPORARY): remove, part of the renderpass
-		glClearColor(0.01f, 0.01f, 0.01f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	}
-
-	void OpenGLContextBase::Submit()
-	{
-	}
-
-	void OpenGLContextBase::Resize(uint32_t viewportWidth, uint32_t viewportHeight)
-	{
-	}
-
-	void* OpenGLContextBase::GetColorAttachment(uint32_t index) const
+	FramebufferAttachment* OpenGLContextBase::GetColorAttachment(uint32_t index) const
 	{
 		return nullptr;
 	}

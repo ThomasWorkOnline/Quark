@@ -55,8 +55,8 @@ namespace Quark {
 		}
 	}
 
-	VulkanSwapChain::VulkanSwapChain(VulkanDevice* device, void* window, VkSurfaceKHR surface)
-		: m_Device(device), m_WindowHandle(static_cast<GLFWwindow*>(window)), m_Surface(surface)
+	VulkanSwapChain::VulkanSwapChain(VulkanDevice* device, GLFWwindow* window, VkSurfaceKHR surface)
+		: m_Device(device), m_WindowHandle(window), m_Surface(surface)
 	{
 		auto& supportDetails = m_Device->GetSupportDetails();
 
@@ -101,7 +101,8 @@ namespace Quark {
 
 	void VulkanSwapChain::Resize(uint32_t viewportWidth, uint32_t viewportHeight)
 	{
-		// FIX: this will fail if extent dimensions is zero
+		if (viewportWidth == 0 || viewportHeight == 0) return;
+
 		if (m_Format.Extent.width != viewportWidth || m_Format.Extent.height != viewportHeight)
 		{
 			m_Format.Extent.width = viewportWidth;
@@ -115,10 +116,7 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		for (auto& imageView : m_Attachments)
-		{
-			vkDestroyImageView(m_Device->GetVkHandle(), imageView, nullptr);
-		}
+		bool isNew = !m_SwapChain;
 
 		VkSwapchainCreateInfoKHR createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
@@ -160,20 +158,19 @@ namespace Quark {
 
 		vkGetSwapchainImagesKHR(m_Device->GetVkHandle(), m_SwapChain, &m_ImageCount, m_SwapChainImages.data());
 
-		VkImageViewCreateInfo imageViewInfo{};
-		imageViewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		imageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-		imageViewInfo.format = m_Format.SurfaceFormat.format;
-		imageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		imageViewInfo.subresourceRange.baseMipLevel = 0;
-		imageViewInfo.subresourceRange.levelCount = 1;
-		imageViewInfo.subresourceRange.baseArrayLayer = 0;
-		imageViewInfo.subresourceRange.layerCount = 1;
-
-		for (size_t i = 0; i < m_ImageCount; i++)
+		if (isNew)
 		{
-			imageViewInfo.image = m_SwapChainImages[i];
-			vkCreateImageView(m_Device->GetVkHandle(), &imageViewInfo, nullptr, &m_Attachments[i]);
+			for (size_t i = 0; i < m_ImageCount; i++)
+			{
+				m_Attachments[i] = CreateScope<VulkanFramebufferAttachment>(m_Device, m_SwapChainImages[i], m_Format.SurfaceFormat.format);
+			}
+		}
+		else
+		{
+			for (size_t i = 0; i < m_ImageCount; i++)
+			{
+				m_Attachments[i]->SetData(m_SwapChainImages[i]);
+			}
 		}
 	}
 }
