@@ -134,46 +134,44 @@ namespace Quark {
 
 		vkCreatePipelineLayout(m_Device->GetVkHandle(), &pipelineLayoutInfo, nullptr, &m_PipelineLayout);
 
+		auto* vulkanShader = static_cast<VulkanShader*>(m_Spec.Shader);
+		auto& shaderStages = vulkanShader->GetShaderStages();
+		size_t stageCount = shaderStages.size();
+
+		AutoRelease<VkPipelineShaderStageCreateInfo> stages = StackAlloc(stageCount * sizeof(VkPipelineShaderStageCreateInfo));
+
+		size_t stageIndex = 0;
+		for (auto& [shaderStage, shaderModule] : shaderStages)
 		{
-			auto* vulkanShader = static_cast<VulkanShader*>(m_Spec.Shader);
-			auto& shaderStages = vulkanShader->GetShaderStages();
-			size_t stageCount = shaderStages.size();
-
-			AutoRelease<VkPipelineShaderStageCreateInfo> stages = StackAlloc(stageCount * sizeof(VkPipelineShaderStageCreateInfo));
-
-			size_t stageIndex = 0;
-			for (auto& [shaderStage, shaderModule] : shaderStages)
-			{
-				stages[stageIndex] = {};
-				stages[stageIndex].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-				stages[stageIndex].stage = shaderStage;
-				stages[stageIndex].module = shaderModule.Module;
-				stages[stageIndex].pName = shaderModule.EntryPoint.c_str();
-				stages[stageIndex].pSpecializationInfo = nullptr;
-				stageIndex++;
-			}
-
-			VkGraphicsPipelineCreateInfo pipelineInfo{};
-			pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-			pipelineInfo.stageCount = (uint32_t)stageCount;
-			pipelineInfo.pStages = stages;
-
-			pipelineInfo.pVertexInputState = &vertexInputInfo;
-			pipelineInfo.pInputAssemblyState = &inputAssembly;
-
-			pipelineInfo.pViewportState = &viewportState;
-			pipelineInfo.pRasterizationState = &rasterizer;
-			pipelineInfo.pMultisampleState = &multisampling;
-			pipelineInfo.pColorBlendState = &colorBlending;
-			pipelineInfo.pDynamicState = &dynamicState;
-
-			pipelineInfo.layout = m_PipelineLayout;
-			pipelineInfo.renderPass = static_cast<VulkanRenderPass*>(m_Spec.RenderPass)->GetVkHandle();
-			pipelineInfo.subpass = 0;
-
-			VkResult vkRes = vkCreateGraphicsPipelines(m_Device->GetVkHandle(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_Pipeline);
-			QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Could not create the graphics pipeline");
+			stages[stageIndex] = {};
+			stages[stageIndex].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+			stages[stageIndex].stage = shaderStage;
+			stages[stageIndex].module = shaderModule.Module;
+			stages[stageIndex].pName = shaderModule.EntryPoint.c_str();
+			stages[stageIndex].pSpecializationInfo = nullptr;
+			stageIndex++;
 		}
+
+		VkGraphicsPipelineCreateInfo pipelineInfo{};
+		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+		pipelineInfo.stageCount = (uint32_t)stageCount;
+		pipelineInfo.pStages = stages;
+
+		pipelineInfo.pVertexInputState = &vertexInputInfo;
+		pipelineInfo.pInputAssemblyState = &inputAssembly;
+
+		pipelineInfo.pViewportState = &viewportState;
+		pipelineInfo.pRasterizationState = &rasterizer;
+		pipelineInfo.pMultisampleState = &multisampling;
+		pipelineInfo.pColorBlendState = &colorBlending;
+		pipelineInfo.pDynamicState = &dynamicState;
+
+		pipelineInfo.layout = m_PipelineLayout;
+		pipelineInfo.renderPass = static_cast<VulkanRenderPass*>(m_Spec.RenderPass)->GetVkHandle();
+		pipelineInfo.subpass = 0;
+
+		VkResult vkRes = vkCreateGraphicsPipelines(m_Device->GetVkHandle(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_Pipeline);
+		QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Could not create the graphics pipeline");
 	}
 
 	VulkanPipeline::~VulkanPipeline()

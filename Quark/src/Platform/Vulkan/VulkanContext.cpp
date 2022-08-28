@@ -66,13 +66,6 @@ namespace Quark {
 		m_Device = VulkanDevice::CreateDefaultForSurface(m_Instance, m_Surface);
 		m_SwapChain = CreateScope<VulkanSwapChain>(m_Device.get(), m_WindowHandle, m_Surface);
 
-		CreateSyncObjects();
-
-		for (uint32_t i = 0; i < FramesInFlight; i++)
-		{
-			m_Data.CommandBuffers[i] = CreateScope<VulkanCommandBuffer>(m_Device.get());
-		}
-
-		QK_CORE_TRACE("Created Vulkan graphics context!");
+		VulkanContextBase::Init();
 	}
 }

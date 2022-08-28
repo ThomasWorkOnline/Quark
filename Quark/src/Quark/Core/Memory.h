@@ -4,19 +4,8 @@
 #include <stdexcept>
 
 #if defined QK_PLATFORM_WINDOWS
-#	define Freea   _freea
-
-	static inline void* StackAllocate(size_t size)
-	{
-		if (void* mem = _malloca(size))
-		{
-			return mem;
-		}
-
-		throw std::bad_alloc();
-	}
-
-#	define StackAlloc StackAllocate
+#	define Freea      _freea
+#	define StackAlloc _malloca
 #else
 	// Automatic stack cleanup
 #	define Freea

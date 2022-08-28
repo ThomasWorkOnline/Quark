@@ -20,8 +20,8 @@ namespace Quark {
 	{
 	public:
 		static constexpr uint32_t FramesInFlight = 2;
-
 		virtual ~VulkanContextBase() override;
+
 		virtual void StartFrame() override;
 		virtual void WaitUntilIdle() override;
 
@@ -37,22 +37,19 @@ namespace Quark {
 
 		virtual CommandBuffer* GetCommandBuffer() override;
 
+		void Init();
 		void CreateInstance(VkInstanceCreateInfo& createInfo);
-		void CreateSyncObjects();
 
 		VulkanSwapChain* GetSwapChain() { return m_SwapChain.get(); }
-		uint32_t GetCurrentFrameIndex() const { return m_Data.CurrentFrameIndex; }
+		uint32_t GetCurrentFrameIndex() const { return m_CurrentFrameIndex; }
 
 	protected:
-		struct VulkanData
+		struct FrameData
 		{
-			VkFence InFlightFences[FramesInFlight];
-			VkSemaphore RenderFinishedSemaphores[FramesInFlight];
-			VkSemaphore ImageAvailableSemaphores[FramesInFlight];
-			Scope<VulkanCommandBuffer> CommandBuffers[FramesInFlight];
-
-			uint32_t FrameCounterIndex = static_cast<uint32_t>(-1);
-			uint32_t CurrentFrameIndex = 0;
+			VkFence InFlightFence{};
+			VkSemaphore RenderFinishedSemaphore{};
+			VkSemaphore ImageAvailableSemaphore{};
+			VulkanCommandBuffer CommandBuffer;
 		};
 
 		VkInstance m_Instance = VK_NULL_HANDLE;
@@ -61,7 +58,9 @@ namespace Quark {
 		Scope<VulkanDevice> m_Device;
 		Scope<VulkanSwapChain> m_SwapChain;
 
-		VulkanData m_Data{};
+		FrameData m_Frames[FramesInFlight];
+		uint32_t m_FrameCounterIndex = static_cast<uint32_t>(-1);
+		uint32_t m_CurrentFrameIndex = 0;
 
 #ifdef QK_ENABLE_VULKAN_VALIDATION_LAYERS
 		VkDebugUtilsMessengerEXT m_VkDebugMessenger = VK_NULL_HANDLE;
