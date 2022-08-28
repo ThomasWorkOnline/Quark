@@ -9,19 +9,37 @@
 
 namespace Quark {
 
+	namespace Utils {
+
+		constexpr const char* ShaderStageToString(ShaderStage stage)
+		{
+			switch (stage)
+			{
+				case ShaderStage::VertexStage:   return "VertexStage";
+				case ShaderStage::GeometryStage: return "GeometryStage";
+				case ShaderStage::FragmentStage: return "FragmentStage";
+				case ShaderStage::ComputeStage:  return "ComputeStage";
+
+				QK_ASSERT_NO_DEFAULT("Unknown shader stage");
+			}
+
+			return nullptr;
+		}
+	}
+
 	Shader::Shader(std::string_view name)
 		: m_Name(name)
 	{
 	}
 
-	void Shader::Reflect(const char* stageName, const SpirvSource& spirvSource)
+	void Shader::Reflect(ShaderStage stage, const SpirvSource& spirvSource)
 	{
 		QK_PROFILE_FUNCTION();
 
 		spirv_cross::Compiler compiler(spirvSource.data(), spirvSource.size());
 		spirv_cross::ShaderResources resources = compiler.get_shader_resources();
 
-		QK_CORE_TRACE("Shader::Reflect - {0} '{1}'", stageName, m_Name);
+		QK_CORE_TRACE("Shader::Reflect - {0} '{1}'", Utils::ShaderStageToString(stage), m_Name);
 		QK_CORE_TRACE("    {0} uniform buffers", resources.uniform_buffers.size());
 		QK_CORE_TRACE("    {0} sampled images", resources.sampled_images.size());
 
@@ -42,6 +60,7 @@ namespace Quark {
 			UniformBufferResource ubResource{};
 			ubResource.Size = bufferSize;
 			ubResource.Binding = binding;
+			ubResource.Stage = stage;
 			m_ShaderResources.UniformBuffers.push_back(ubResource);
 			m_DescriptorCount += 1;
 
@@ -68,6 +87,7 @@ namespace Quark {
 			CombinedSamplerResource sResource{};
 			sResource.SamplerCount = samplerCount;
 			sResource.Binding = binding;
+			sResource.Stage = stage;
 			m_ShaderResources.CombinedSamplers.push_back(sResource);
 			m_DescriptorCount += samplerCount;
 

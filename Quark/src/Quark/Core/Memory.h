@@ -3,6 +3,26 @@
 #include <memory>
 #include <stdexcept>
 
+#if defined QK_PLATFORM_WINDOWS
+#	define Freea   _freea
+
+	static inline void* StackAllocate(size_t size)
+	{
+		if (void* mem = _malloca(size))
+		{
+			return mem;
+		}
+
+		throw std::bad_alloc();
+	}
+
+#	define StackAlloc StackAllocate
+#else
+	// Automatic stack cleanup
+#	define Freea
+#	define StackAlloc alloca
+#endif
+
 #define sizeof_array(x) (sizeof(x) / sizeof(x[0]))
 
 namespace Quark {
@@ -37,6 +57,31 @@ namespace Quark {
 
 	extern void  Free(void* memory, std::size_t size);
 	extern void  Free(void* memory);
+
+	template<typename T>
+	class AutoRelease
+	{
+	public:
+		AutoRelease(void* memory) noexcept
+			: m_Pointer(static_cast<T*>(memory))
+		{}
+
+		~AutoRelease() noexcept
+		{
+			Freea(m_Pointer);
+		}
+
+		operator T* () const { return m_Pointer; }
+
+		const T& operator* () const { return *m_Pointer; }
+		T& operator* () { return *m_Pointer; }
+
+		const T& operator->() const { return *m_Pointer; }
+		T& operator->() { return *m_Pointer; }
+
+	private:
+		T* m_Pointer = nullptr;
+	};
 
 	template<typename T>
 	class Singleton

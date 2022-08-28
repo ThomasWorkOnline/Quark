@@ -30,15 +30,17 @@ namespace Quark {
 		VulkanPipeline& operator=(const VulkanPipeline&) = delete;
 
 		void UpdateDescriptors();
+		void CreateDescriptorSetLayout();
+		void CreateDescriptorPoolAndSets();
 
 	private:
 		VulkanDevice* m_Device = nullptr;
 
 		VkDescriptorPool m_DescriptorPool = VK_NULL_HANDLE;
 		VkDescriptorSetLayout m_DescriptorSetLayout = VK_NULL_HANDLE;
+		VkDescriptorSet m_DescriptorSets[VulkanContext::FramesInFlight]{};
+
 		VkPipelineLayout m_PipelineLayout = VK_NULL_HANDLE;
 		VkPipeline m_Pipeline = VK_NULL_HANDLE;
-
-		VkDescriptorSet m_DescriptorSets[VulkanContext::FramesInFlight]{};
 	};
 }

@@ -4,7 +4,6 @@
 #include "Config.h"
 #include "Platform.h"
 #include "Tweaks.h"
-#include "Memory.h"
 
 #include <functional>
 
@@ -30,6 +29,7 @@
 #include "Assertions.h"
 #include "Timer.h"
 #include "Timestep.h"
+#include "Memory.h"
 
 #include "Quark/Debug/Logger.h"
 #include "Quark/Debug/LogUtils.h"

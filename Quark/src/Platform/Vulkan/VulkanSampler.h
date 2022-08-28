@@ -17,6 +17,8 @@ namespace Quark {
 		VulkanSampler2D(const VulkanSampler2D&) = delete;
 		VulkanSampler2D& operator=(const VulkanSampler2D&) = delete;
 
+		VkSampler GetVkHandle() const { return m_Sampler; }
+
 	private:
 		VulkanDevice* m_Device;
 		VkSampler m_Sampler;

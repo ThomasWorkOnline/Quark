@@ -4,7 +4,7 @@
 #include "Platform/OpenGL/OpenGLGraphicsAPI.h"
 #include "Platform/Vulkan/VulkanGraphicsAPI.h"
 
-#define USE_VULKAN 0
+#define USE_VULKAN 1
 
 namespace Quark {
 

@@ -20,21 +20,6 @@ namespace Quark {
 			QK_CORE_ASSERT(stage, "Could not find the type of shader");
 			return stage;
 		}
-
-		static constexpr const char* GetShaderStageToString(VkShaderStageFlags stage)
-		{
-			switch (stage)
-			{
-				case VK_SHADER_STAGE_VERTEX_BIT:   return "VK_SHADER_STAGE_VERTEX_BIT";
-				case VK_SHADER_STAGE_FRAGMENT_BIT: return "VK_SHADER_STAGE_FRAGMENT_BIT";
-				case VK_SHADER_STAGE_GEOMETRY_BIT: return "VK_SHADER_STAGE_GEOMETRY_BIT";
-				case VK_SHADER_STAGE_COMPUTE_BIT:  return "VK_SHADER_STAGE_COMPUTE_BIT";
-
-				QK_ASSERT_NO_DEFAULT("Unknown shader stage");
-			}
-
-			return nullptr;
-		}
 	}
 
 	VulkanShader::VulkanShader(VulkanDevice* device, std::string_view filepath)
@@ -48,8 +33,8 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		m_ShaderStages[VK_SHADER_STAGE_VERTEX_BIT]   = CreateShader(VK_SHADER_STAGE_VERTEX_BIT, vertexSource);
-		m_ShaderStages[VK_SHADER_STAGE_FRAGMENT_BIT] = CreateShader(VK_SHADER_STAGE_FRAGMENT_BIT, fragmentSource);
+		m_ShaderStages[VK_SHADER_STAGE_VERTEX_BIT]   = CreateShader(ShaderStage::VertexStage, vertexSource);
+		m_ShaderStages[VK_SHADER_STAGE_FRAGMENT_BIT] = CreateShader(ShaderStage::FragmentStage, fragmentSource);
 	}
 
 	VulkanShader::VulkanShader(VulkanDevice* device, std::string_view name, const SpirvSource& vertexSource, const SpirvSource& geometrySource, const SpirvSource& fragmentSource)
@@ -57,9 +42,9 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		m_ShaderStages[VK_SHADER_STAGE_VERTEX_BIT]   = CreateShader(VK_SHADER_STAGE_VERTEX_BIT, vertexSource);
-		m_ShaderStages[VK_SHADER_STAGE_GEOMETRY_BIT] = CreateShader(VK_SHADER_STAGE_GEOMETRY_BIT, geometrySource);
-		m_ShaderStages[VK_SHADER_STAGE_FRAGMENT_BIT] = CreateShader(VK_SHADER_STAGE_FRAGMENT_BIT, fragmentSource);
+		m_ShaderStages[VK_SHADER_STAGE_VERTEX_BIT]   = CreateShader(ShaderStage::VertexStage, vertexSource);
+		m_ShaderStages[VK_SHADER_STAGE_GEOMETRY_BIT] = CreateShader(ShaderStage::GeometryStage, geometrySource);
+		m_ShaderStages[VK_SHADER_STAGE_FRAGMENT_BIT] = CreateShader(ShaderStage::FragmentStage, fragmentSource);
 	}
 
 	VulkanShader::~VulkanShader()
@@ -72,7 +57,7 @@ namespace Quark {
 		}
 	}
 
-	VulkanShaderModule VulkanShader::CreateShader(VkShaderStageFlagBits stage, const SpirvSource& spirvSource)
+	VulkanShaderModule VulkanShader::CreateShader(ShaderStage stage, const SpirvSource& spirvSource)
 	{
 		VkShaderModuleCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -84,7 +69,7 @@ namespace Quark {
 
 		shaderModule.VulkanSpirv = spirvSource;
 		shaderModule.EntryPoint = "main";
-		Reflect(Utils::GetShaderStageToString(stage), spirvSource);
+		Reflect(stage, spirvSource);
 
 		return shaderModule;
 	}

@@ -59,7 +59,7 @@ namespace Quark {
 		const std::unordered_map<VkShaderStageFlagBits, VulkanShaderModule>& GetShaderStages() const { return m_ShaderStages; }
 
 	private:
-		VulkanShaderModule CreateShader(VkShaderStageFlagBits stage, const SpirvSource& spirvSource);
+		VulkanShaderModule CreateShader(ShaderStage stage, const SpirvSource& spirvSource);
 
 	private:
 		VulkanDevice* m_Device;

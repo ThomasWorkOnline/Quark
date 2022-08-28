@@ -6,6 +6,7 @@ namespace Quark {
 
 	struct Sampler2DSpecification
 	{
+		uint32_t SamplerCount = 0;
 		uint32_t Binding = 0;
 	};
 
@@ -14,6 +15,8 @@ namespace Quark {
 	public:
 		Sampler2D(const Sampler2DSpecification& spec);
 		virtual ~Sampler2D() = default;
+
+		uint32_t GetBinding() const { return m_Spec.Binding; }
 
 		const Sampler2DSpecification& GetSpecification() const { return m_Spec; }
 

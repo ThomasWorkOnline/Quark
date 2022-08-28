@@ -103,7 +103,6 @@ namespace Quark {
 
 		uint32_t MaxSamplers = 0;
 		uint32_t TextureSamplerIndex = 1; // Next texture slot to be attached, 0 is reserved for default texture
-		std::vector<Scope<Sampler2D>> Samplers;
 
 		Scope<Texture2D> DefaultTexture;
 		Texture** Textures = nullptr;
@@ -471,14 +470,6 @@ namespace Quark {
 
 		s_Data->QuadVertices = new QuadVertex[Renderer2DData::MaxVertices];
 
-		s_Data->Samplers.reserve(s_Data->MaxSamplers);
-		for (uint32_t i = 0; i < s_Data->MaxSamplers; i++)
-		{
-			Sampler2DSpecification samplerSpec;
-			samplerSpec.Binding = i;
-			s_Data->Samplers.push_back(Sampler2D::Create(samplerSpec));
-		}
-
 		uint32_t textureColor = 0xffffffff;
 		Texture2DSpecification spec = { 1, 1, 1, 0,
 			ColorDataFormat::RGBA8,
@@ -498,7 +489,7 @@ namespace Quark {
 
 		s_Data->QuadShader = Shader::Create("defaultSprite", spriteVertexSource, spriteFragmentSource);
 
-		int32_t* samplers = (int32_t*)alloca(s_Data->MaxSamplers * sizeof(int32_t));
+		AutoRelease<int32_t> samplers = StackAlloc(s_Data->MaxSamplers * sizeof(int32_t));
 		for (uint32_t i = 0; i < s_Data->MaxSamplers; i++)
 			samplers[i] = i;
 
@@ -511,10 +502,6 @@ namespace Quark {
 			spec.RenderPass = Renderer::GetGeometryPass();
 			spec.Shader = s_Data->QuadShader.get();
 			spec.UniformBuffers = { s_Data->CameraUniformBuffer.get() };
-
-			spec.Samplers.reserve(s_Data->Samplers.size());
-			for (auto& sampler : s_Data->Samplers)
-				spec.Samplers.push_back(sampler.get());
 
 			s_Data->QuadRendererPipeline = Pipeline::Create(spec);
 		}

@@ -28,19 +28,19 @@ namespace Quark {
 			return GL_NONE;
 		}
 
-		static constexpr const char* GetShaderStageToString(GLenum stage)
+		static constexpr ShaderStage GetShaderStageFromOpenGLType(GLenum stage)
 		{
 			switch (stage)
 			{
-				case GL_VERTEX_SHADER:   return "GL_VERTEX_SHADER";
-				case GL_FRAGMENT_SHADER: return "GL_FRAGMENT_SHADER";
-				case GL_GEOMETRY_SHADER: return "GL_GEOMETRY_SHADER";
-				case GL_COMPUTE_SHADER:  return "GL_COMPUTE_SHADER";
+				case GL_VERTEX_SHADER:   return ShaderStage::VertexStage;
+				case GL_GEOMETRY_SHADER: return ShaderStage::GeometryStage;
+				case GL_FRAGMENT_SHADER: return ShaderStage::FragmentStage;
+				case GL_COMPUTE_SHADER:  return ShaderStage::ComputeStage;
 
-				QK_ASSERT_NO_DEFAULT("Unknown shader stage");
+				QK_ASSERT_NO_DEFAULT("Unknown OpenGL shader stage");
 			}
 
-			return nullptr;
+			return ShaderStage::None;
 		}
 
 		static constexpr std::string_view ExtractNameFromPath(std::string_view filepath)
@@ -197,7 +197,7 @@ namespace Quark {
 			glSpecializeShader(shader, "main", 0, nullptr, nullptr);
 			glAttachShader(program, shader);
 
-			Reflect(Utils::GetShaderStageToString(stage), binary);
+			Reflect(Utils::GetShaderStageFromOpenGLType(stage), binary);
 		}
 
 		LinkProgram(program, glShaderIDs, glShaderIDIndex);

@@ -8,21 +8,32 @@ namespace Quark {
 
 	using SpirvSource = std::vector<uint32_t>;
 
+	enum class ShaderStage
+	{
+		None = 0,
+		VertexStage,
+		GeometryStage,
+		FragmentStage,
+		ComputeStage
+	};
+
 	struct UniformBufferResource
 	{
-		size_t   Size;
-		uint32_t Binding;
+		size_t      Size;
+		uint32_t    Binding;
+		ShaderStage Stage;
 	};
 
 	struct CombinedSamplerResource
 	{
-		uint32_t SamplerCount;
-		uint32_t Binding;
+		uint32_t    SamplerCount;
+		uint32_t    Binding;
+		ShaderStage Stage;
 	};
 
 	struct ShaderResources
 	{
-		std::vector<UniformBufferResource> UniformBuffers;
+		std::vector<UniformBufferResource>   UniformBuffers;
 		std::vector<CombinedSamplerResource> CombinedSamplers;
 	};
 
@@ -61,21 +72,21 @@ namespace Quark {
 		std::string_view GetName() const { return m_Name; }
 
 		const ShaderResources& GetShaderResources() const { return m_ShaderResources; }
-		uint32_t GetBindingCount() const { return m_BindingCount; }
 		uint32_t GetDescriptorCount() const { return m_DescriptorCount; }
+		uint32_t GetBindingCount() const { return m_BindingCount; }
 
 		static Scope<Shader> Create(std::string_view filepath);
 		static Scope<Shader> Create(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& fragmentSource);
 		static Scope<Shader> Create(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& geometrySource, const SpirvSource& fragmentSource);
 
 	protected:
-		void Reflect(const char* stageName, const SpirvSource& spirvSource);
+		void Reflect(ShaderStage stage, const SpirvSource& spirvSource);
 
 	protected:
 		std::string m_Name;
 		ShaderResources m_ShaderResources;
-		uint32_t m_BindingCount = 0;
 		uint32_t m_DescriptorCount = 0;
+		uint32_t m_BindingCount = 0;
 	};
 
 	SpirvSource ReadSpirvFile(std::string_view filepath);

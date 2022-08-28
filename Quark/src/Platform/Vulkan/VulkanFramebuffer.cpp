@@ -89,8 +89,8 @@ namespace Quark {
 		QK_CORE_ASSERT(m_Spec.Attachments.size(), "AttachmentCount must be non zero");
 		QK_CORE_ASSERT(m_Spec.RenderPass, "RenderPass must be a valid pointer to a render pass");
 
-		auto* attachments = (VkImageView*)alloca(m_Spec.Attachments.size() * sizeof(VkImageView));
-		auto* attachmentPtr = attachments;
+		AutoRelease<VkImageView> attachments = StackAlloc(m_Spec.Attachments.size() * sizeof(VkImageView));
+		VkImageView* attachmentPtr = attachments;
 
 		for (auto* attachment : m_Spec.Attachments)
 		{
