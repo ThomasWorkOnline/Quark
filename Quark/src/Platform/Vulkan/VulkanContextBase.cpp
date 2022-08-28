@@ -27,10 +27,6 @@
 
 namespace Quark {
 
-	const char* g_ValidationLayers[] = {
-		"VK_LAYER_KHRONOS_validation"
-	};
-
 	static VKAPI_ATTR VkBool32 VKAPI_CALL VkDebugCallback(
 		VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 		VkDebugUtilsMessageTypeFlagsEXT messageType,

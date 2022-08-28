@@ -16,6 +16,10 @@
 
 namespace Quark {
 
+	inline const char* g_ValidationLayers[] = {
+		"VK_LAYER_KHRONOS_validation"
+	};
+
 	class VulkanContextBase : public GraphicsContext
 	{
 	public:
@@ -40,6 +44,7 @@ namespace Quark {
 		void Init();
 		void CreateInstance(VkInstanceCreateInfo& createInfo);
 
+		VkInstance GetInstance() const { return m_Instance; }
 		VulkanSwapChain* GetSwapChain() { return m_SwapChain.get(); }
 		uint32_t GetCurrentFrameIndex() const { return m_CurrentFrameIndex; }
 

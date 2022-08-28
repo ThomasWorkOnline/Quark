@@ -2,6 +2,7 @@
 #include "VulkanDevice.h"
 
 #include "VulkanUtils.h"
+#include "VulkanContext.h"
 
 #include <set>
 
@@ -142,6 +143,12 @@ namespace Quark {
 
 		vkCreateDevice(vkPhysicalDevice, &createInfo, nullptr, &m_Device);
 
+		VmaAllocatorCreateInfo allocatorInfo{};
+		allocatorInfo.physicalDevice = m_PhysicalDevice;
+		allocatorInfo.device = m_Device;
+		allocatorInfo.instance = VulkanContext::Get()->GetInstance();
+		vmaCreateAllocator(&allocatorInfo, &m_Allocator);
+
 		{
 			VkCommandPoolCreateInfo poolInfo{};
 			poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -159,6 +166,7 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
+		vmaDestroyAllocator(m_Allocator);
 		vkDestroyCommandPool(m_Device, m_CommandPool, nullptr);
 		vkDestroyDevice(m_Device, nullptr);
 	}

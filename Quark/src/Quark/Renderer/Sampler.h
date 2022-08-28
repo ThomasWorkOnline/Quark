@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Quark/Core/Core.h"
+#include "TextureFormats.h"
 
 namespace Quark {
 
@@ -8,6 +9,7 @@ namespace Quark {
 	{
 		uint32_t SamplerCount = 0;
 		uint32_t Binding = 0;
+		TextureRenderModes RenderModes{};
 	};
 
 	class Sampler2D

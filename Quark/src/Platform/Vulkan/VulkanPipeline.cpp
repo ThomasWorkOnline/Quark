@@ -226,13 +226,14 @@ namespace Quark {
 			VkDescriptorImageInfo imageInfo{};
 			imageInfo.sampler = sp->GetVkHandle();
 			imageInfo.imageView = nullptr;
-			imageInfo.imageLayout = {};
+			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
 			VkWriteDescriptorSet writeDescriptorSet{};
 			writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 			writeDescriptorSet.dstBinding = sp->GetBinding();
 			writeDescriptorSet.dstArrayElement = 0;
 			writeDescriptorSet.descriptorCount = sp->GetSpecification().SamplerCount;
+			writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 			writeDescriptorSet.pImageInfo = &imageInfo;
 
 			for (uint32_t i = 0; i < VulkanContext::FramesInFlight; i++)
@@ -289,7 +290,7 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		// Descriptor pool
+		// Descriptor pool shared for all frames in flight
 		{
 			VkDescriptorPoolSize poolSize{};
 			poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -314,7 +315,7 @@ namespace Quark {
 			VkDescriptorSetAllocateInfo allocInfo{};
 			allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 			allocInfo.descriptorPool = m_DescriptorPool;
-			allocInfo.descriptorSetCount = VulkanContext::FramesInFlight;
+			allocInfo.descriptorSetCount = 1 * VulkanContext::FramesInFlight;
 			allocInfo.pSetLayouts = layouts;
 
 			vkAllocateDescriptorSets(m_Device->GetVkHandle(), &allocInfo, m_DescriptorSets);

@@ -5,6 +5,7 @@ VulkanApp::VulkanApp(const ApplicationOptions& options)
 	: Application(options)
 {
 	m_Scene = CreateRef<PresentableScene>();
+	m_Scene->GetSettings().GlobalFrictionCoeff = 4.0f;
 	m_CameraEntity = m_Scene->CreatePrimaryCamera();
 	m_CameraEntity.AddNativeScript<CameraController>();
 
@@ -14,9 +15,9 @@ VulkanApp::VulkanApp(const ApplicationOptions& options)
 
 	Random<bool> randomBool;
 	Random<float> randomFloat;
-	auto random = [&]() -> auto { return (randomFloat.Next() - 0.5f) * 1000.0f; };
+	auto random = [&]() -> auto { return (randomFloat.Next() - 0.5f) * 100.0f; };
 
-	for (uint32_t i = 0; i < 20000; i++)
+	for (uint32_t i = 0; i < 100; i++)
 	{
 		auto sprite = m_Scene->CreateEntity();
 
@@ -25,9 +26,6 @@ VulkanApp::VulkanApp(const ApplicationOptions& options)
 		transform.Position = Vec3f{ random(), random(), random() };
 		transform.Scale = axis;
 		transform.Rotate(randomFloat.Next() * glm::radians(360.0f), axis);
-
-		auto& physics = sprite.AddComponent<PhysicsComponent>();
-		physics.Velocity = (axis - 0.5f) * 100.0f;
 
 		auto& src = sprite.AddComponent<TexturedSpriteRendererComponent>();
 		src.Texture = randomBool.Next() ? texture1 : texture2;

@@ -101,8 +101,9 @@ namespace Quark {
 		Scope<VertexBuffer> LineVertexBuffer;
 		Scope<Pipeline> LineRendererPipeline;
 
-		uint32_t MaxSamplers = 0;
+		uint32_t MaxSamplerDestinations = 0;
 		uint32_t TextureSamplerIndex = 1; // Next texture slot to be attached, 0 is reserved for default texture
+		Scope<Sampler2D> Sampler;
 
 		Scope<Texture2D> DefaultTexture;
 		Texture** Textures = nullptr;
@@ -178,7 +179,7 @@ namespace Quark {
 		if (textureIndex == 0)
 		{
 			// If not enough space to attach new texture
-			if (s_Data->TextureSamplerIndex >= s_Data->MaxSamplers)
+			if (s_Data->TextureSamplerIndex >= s_Data->MaxSamplerDestinations)
 			{
 				PushBatch();
 				StartBatch();
@@ -282,7 +283,7 @@ namespace Quark {
 		if (textureIndex == 0)
 		{
 			// If not enough space to attach new font texture
-			if (s_Data->TextureSamplerIndex >= s_Data->MaxSamplers)
+			if (s_Data->TextureSamplerIndex >= s_Data->MaxSamplerDestinations)
 			{
 				PushBatch();
 				StartBatch();
@@ -414,8 +415,8 @@ namespace Quark {
 		s_Data = new Renderer2DData();
 
 		// Samplers
-		s_Data->MaxSamplers = GraphicsAPI::Instance->GetCapabilities().TextureConstraints.MaxTextureSlots;
-		QK_CORE_ASSERT(s_Data->MaxSamplers > 0, "Platform does not support texture samplers");
+		s_Data->MaxSamplerDestinations = GraphicsAPI::Instance->GetCapabilities().TextureConstraints.MaxTextureSlots;
+		QK_CORE_ASSERT(s_Data->MaxSamplerDestinations > 0, "Platform does not support texture samplers");
 
 		// Camera buffer
 		{
@@ -478,22 +479,26 @@ namespace Quark {
 
 		s_Data->DefaultTexture = Texture2D::Create(spec);
 		s_Data->DefaultTexture->SetData(&textureColor, sizeof(textureColor));
-		s_Data->Textures = new Texture*[s_Data->MaxSamplers];
+		s_Data->Textures = new Texture*[s_Data->MaxSamplerDestinations];
 
-		std::memset(s_Data->Textures, 0, s_Data->MaxSamplers * sizeof(Texture*));
+		std::memset(s_Data->Textures, 0, s_Data->MaxSamplerDestinations * sizeof(Texture*));
 		s_Data->Textures[0] = s_Data->DefaultTexture.get();
 
 		auto& assetDir = Application::Get()->GetOptions().CoreAssetDir;
 		auto spriteVertexSource = ReadSpirvFile((assetDir / "bin-spirv/sprite.vert.spv").string());
 		auto spriteFragmentSource = ReadSpirvFile((assetDir / "bin-spirv/sprite.frag.spv").string());
 
-		s_Data->QuadShader = Shader::Create("defaultSprite", spriteVertexSource, spriteFragmentSource);
+		Sampler2DSpecification samplerSpec;
+		samplerSpec.Binding = 1;
+		samplerSpec.SamplerCount = s_Data->MaxSamplerDestinations;
+		s_Data->Sampler = Sampler2D::Create(samplerSpec);
 
-		AutoRelease<int32_t> samplers = StackAlloc(s_Data->MaxSamplers * sizeof(int32_t));
-		for (uint32_t i = 0; i < s_Data->MaxSamplers; i++)
+		AutoRelease<int32_t> samplers = StackAlloc(s_Data->MaxSamplerDestinations * sizeof(int32_t));
+		for (uint32_t i = 0; i < s_Data->MaxSamplerDestinations; i++)
 			samplers[i] = i;
 
-		s_Data->QuadShader->SetIntArray("u_Samplers", samplers, s_Data->MaxSamplers);
+		s_Data->QuadShader = Shader::Create("defaultSprite", spriteVertexSource, spriteFragmentSource);
+		s_Data->QuadShader->SetIntArray("u_Samplers", samplers, s_Data->MaxSamplerDestinations);
 
 		{
 			PipelineSpecification spec;
@@ -502,6 +507,7 @@ namespace Quark {
 			spec.RenderPass = Renderer::GetGeometryPass();
 			spec.Shader = s_Data->QuadShader.get();
 			spec.UniformBuffers = { s_Data->CameraUniformBuffer.get() };
+			//spec.Samplers = { s_Data->Sampler.get() };
 
 			s_Data->QuadRendererPipeline = Pipeline::Create(spec);
 		}

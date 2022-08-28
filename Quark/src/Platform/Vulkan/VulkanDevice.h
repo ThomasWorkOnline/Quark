@@ -3,6 +3,8 @@
 #include "Quark/Core/Core.h"
 
 #include <vulkan/vulkan.h>
+#include <vma/vk_mem_alloc.h>
+
 #include <optional>
 
 namespace Quark {
@@ -30,12 +32,14 @@ namespace Quark {
 
 		void WaitIdle() const;
 
-		VkCommandPool GetCommandPool() const { return m_CommandPool; }
+		VkDevice GetVkHandle() const { return m_Device; }
 		VkPhysicalDevice GetPhysicalDevice() const { return m_PhysicalDevice; }
+
+		VmaAllocator GetAllocator() const { return m_Allocator; }
 
 		VkQueue GetGraphicsQueue() const { return m_GraphicsQueue; }
 		VkQueue GetPresentQueue() const { return m_PresentQueue; }
-		VkDevice GetVkHandle() const { return m_Device; }
+		VkCommandPool GetCommandPool() const { return m_CommandPool; }
 
 		const QueueFamilyIndices& GetQueueFamilyIndices() const { return m_QueueFamilyIndices; }
 		const SwapChainSupportDetails& GetSupportDetails() const { return m_SupportDetails; }
@@ -49,6 +53,8 @@ namespace Quark {
 	private:
 		VkDevice m_Device;
 		VkPhysicalDevice m_PhysicalDevice;
+
+		VmaAllocator m_Allocator;
 
 		VkQueue m_GraphicsQueue;
 		VkQueue m_PresentQueue;
