@@ -2,6 +2,7 @@
 
 #include "Quark/Renderer/Shader.h"
 
+#include <spirv_cross/spirv_cross.hpp>
 #include <unordered_map>
 
 typedef unsigned int GLenum;
@@ -43,6 +44,8 @@ namespace Quark {
 		virtual void SetMat4d(std::string_view name, const Mat4d& matrix) override;
 
 		virtual std::string_view GetName() const override { return m_Name; }
+
+		virtual const ShaderResources& GetShaderResources() const override { return m_ShaderResources; }
 
 		virtual bool operator==(const Shader& other) const override
 		{
@@ -92,7 +95,8 @@ namespace Quark {
 	private:
 		GLuint m_RendererID = 0;
 		std::string m_Name;
+		ShaderResources m_ShaderResources;
 
-		mutable std::unordered_map<std::size_t, GLint> m_UniformLocationCache;
+		mutable std::unordered_map<size_t, GLint> m_UniformLocationCache;
 	};
 }

@@ -94,6 +94,8 @@ namespace Quark {
 		QK_CORE_TRACE("    {0} uniform buffers", resources.uniform_buffers.size());
 		QK_CORE_TRACE("    {0} resources", resources.sampled_images.size());
 
+		m_ShaderResources.UniformBuffers.reserve(resources.uniform_buffers.size());
+
 		QK_CORE_TRACE("Uniform buffers:");
 		for (const auto& resource : resources.uniform_buffers)
 		{
@@ -101,6 +103,11 @@ namespace Quark {
 			size_t bufferSize = compiler.get_declared_struct_size(bufferType);
 			uint32_t binding = compiler.get_decoration(resource.id, spv::DecorationBinding);
 			size_t memberCount = bufferType.member_types.size();
+
+			UniformBufferResource ubResource{};
+			ubResource.Size = bufferSize;
+			ubResource.Binding = binding;
+			m_ShaderResources.UniformBuffers.push_back(ubResource);
 
 			QK_CORE_TRACE(" \"{0}\"", resource.name);
 			QK_CORE_TRACE("    Size = {0}", bufferSize);

@@ -5,46 +5,15 @@
 
 namespace Quark {
 
-	namespace Utils {
-
-		static constexpr GLenum ShaderDataTypeToOpenGLBaseType(ShaderDataType type)
-		{
-			switch (type)
-			{
-				case ShaderDataType::Float:		return GL_FLOAT;
-				case ShaderDataType::Float2:	return GL_FLOAT;
-				case ShaderDataType::Float3:	return GL_FLOAT;
-				case ShaderDataType::Float4:	return GL_FLOAT;
-				case ShaderDataType::Double:	return GL_DOUBLE;
-				case ShaderDataType::Double2:	return GL_DOUBLE;
-				case ShaderDataType::Double3:	return GL_DOUBLE;
-				case ShaderDataType::Double4:	return GL_DOUBLE;
-				case ShaderDataType::Mat3f:		return GL_FLOAT;
-				case ShaderDataType::Mat4f:		return GL_FLOAT;
-				case ShaderDataType::Mat3d:     return GL_DOUBLE;
-				case ShaderDataType::Mat4d:     return GL_DOUBLE;
-				case ShaderDataType::Int:		return GL_INT;
-				case ShaderDataType::Int2:		return GL_INT;
-				case ShaderDataType::Int3:		return GL_INT;
-				case ShaderDataType::Int4:		return GL_INT;
-				case ShaderDataType::Bool:		return GL_BOOL;
-
-				QK_ASSERT_NO_DEFAULT("Unknown ShaderDataType");
-			}
-
-			return GL_NONE;
-		}
-	}
-
 	OpenGLVertexBuffer::OpenGLVertexBuffer(size_t size)
 	{
 		QK_PROFILE_FUNCTION();
 
-		glGenVertexArrays(1, &m_VAORendererID);
 		glGenBuffers(1, &m_RendererID);
 		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
 		glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
 
+		QK_CORE_TRACE("  Vertex buffer is optimized for GL_DYNAMIC_DRAW");
 		QK_DEBUG_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
 	}
 
@@ -52,11 +21,11 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		glGenVertexArrays(1, &m_VAORendererID);
 		glGenBuffers(1, &m_RendererID);
 		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
 		glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
 
+		QK_CORE_TRACE("  Vertex buffer is optimized for GL_STATIC_DRAW");
 		QK_DEBUG_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
 	}
 
@@ -65,7 +34,6 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		glDeleteBuffers(1, &m_RendererID);
-		glDeleteVertexArrays(1, &m_VAORendererID);
 	}
 
 	void OpenGLVertexBuffer::SetData(const void* data, size_t size, size_t offset)
@@ -74,106 +42,6 @@ namespace Quark {
 		glBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
 
 		QK_DEBUG_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
-	}
-
-	void OpenGLVertexBuffer::SetLayout(const BufferLayout& layout)
-	{
-		m_Layout = layout;
-
-		glBindVertexArray(m_VAORendererID);
-		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
-
-		QK_CORE_ASSERT(m_Layout.GetCount() > 0, "Layout is empty");
-
-		GLuint vertexBufferIndex = 0;
-		for (const auto& element : m_Layout)
-		{
-			switch (element.Type)
-			{
-				case ShaderDataType::Float:
-				case ShaderDataType::Float2:
-				case ShaderDataType::Float3:
-				case ShaderDataType::Float4:
-				{
-					glEnableVertexAttribArray(vertexBufferIndex);
-					glVertexAttribPointer(vertexBufferIndex,
-						element.GetComponentCount(),
-						Utils::ShaderDataTypeToOpenGLBaseType(element.Type),
-						element.Normalized ? GL_TRUE : GL_FALSE,
-						(GLsizei)m_Layout.GetStride(),
-						(const void*)element.Offset);
-					vertexBufferIndex++;
-					break;
-				}
-				case ShaderDataType::Double:
-				case ShaderDataType::Double2:
-				case ShaderDataType::Double3:
-				case ShaderDataType::Double4:
-				{
-					glEnableVertexAttribArray(vertexBufferIndex);
-					glVertexAttribLPointer(vertexBufferIndex,
-						element.GetComponentCount(),
-						Utils::ShaderDataTypeToOpenGLBaseType(element.Type),
-						(GLsizei)m_Layout.GetStride(),
-						(const void*)element.Offset);
-					vertexBufferIndex++;
-					break;
-				}
-				case ShaderDataType::Int:
-				case ShaderDataType::Int2:
-				case ShaderDataType::Int3:
-				case ShaderDataType::Int4:
-				case ShaderDataType::Bool:
-				{
-					glEnableVertexAttribArray(vertexBufferIndex);
-					glVertexAttribIPointer(vertexBufferIndex,
-						element.GetComponentCount(),
-						Utils::ShaderDataTypeToOpenGLBaseType(element.Type),
-						(GLsizei)m_Layout.GetStride(),
-						(const void*)element.Offset);
-					vertexBufferIndex++;
-					break;
-				}
-				case ShaderDataType::Mat3f:
-				case ShaderDataType::Mat4f:
-				{
-					uint32_t count = element.GetComponentCount();
-					for (uint32_t i = 0; i < count; i++)
-					{
-						glEnableVertexAttribArray(vertexBufferIndex);
-						glVertexAttribPointer(vertexBufferIndex,
-							count,
-							Utils::ShaderDataTypeToOpenGLBaseType(element.Type),
-							element.Normalized ? GL_TRUE : GL_FALSE,
-							(GLsizei)m_Layout.GetStride(),
-							(const void*)(sizeof(float) * count * i));
-						vertexBufferIndex++;
-					}
-					break;
-				}
-				case ShaderDataType::Mat3d:
-				case ShaderDataType::Mat4d:
-				{
-					uint32_t count = element.GetComponentCount();
-					for (uint32_t i = 0; i < count; i++)
-					{
-						glEnableVertexAttribArray(vertexBufferIndex);
-						glVertexAttribPointer(vertexBufferIndex,
-							count,
-							Utils::ShaderDataTypeToOpenGLBaseType(element.Type),
-							element.Normalized ? GL_TRUE : GL_FALSE,
-							(GLsizei)m_Layout.GetStride(),
-							(const void*)(sizeof(double) * count * i));
-						vertexBufferIndex++;
-					}
-					break;
-				}
-
-				QK_ASSERT_NO_DEFAULT("Unknown ShaderDataType");
-			}
-		}
-
-		glBindVertexArray(0);
 	}
 
 	OpenGLIndexBuffer::OpenGLIndexBuffer(uint32_t count)
@@ -185,6 +53,7 @@ namespace Quark {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), nullptr, GL_DYNAMIC_DRAW);
 
+		QK_CORE_TRACE("  Index buffer is optimized for GL_DYNAMIC_DRAW");
 		QK_DEBUG_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 	}
 
@@ -197,6 +66,7 @@ namespace Quark {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), indices, GL_STATIC_DRAW);
 
+		QK_CORE_TRACE("  Index buffer is optimized for GL_STATIC_DRAW");
 		QK_DEBUG_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 	}
 

@@ -7,6 +7,21 @@
 
 namespace Quark {
 
+	Scope<Shader> Shader::Create(std::string_view filepath)
+	{
+		return GraphicsAPI::Instance->CreateShader(filepath);
+	}
+
+	Scope<Shader> Shader::Create(std::string_view name, SpirvSource vertexSource, SpirvSource fragmentSource)
+	{
+		return GraphicsAPI::Instance->CreateShader(name, vertexSource, fragmentSource);
+	}
+
+	Scope<Shader> Shader::Create(std::string_view name, SpirvSource vertexSource, SpirvSource geometrySource, SpirvSource fragmentSource)
+	{
+		return GraphicsAPI::Instance->CreateShader(name, vertexSource, geometrySource, fragmentSource);
+	}
+
 	std::vector<uint32_t> ReadSpirvFile(std::string_view filepath)
 	{
 		std::vector<uint32_t> result;
@@ -30,21 +45,6 @@ namespace Quark {
 
 		QK_RUNTIME_ERROR("Could not open file '{0}'", filepath);
 		return result;
-	}
-
-	Scope<Shader> Shader::Create(std::string_view filepath)
-	{
-		return GraphicsAPI::Instance->CreateShader(filepath);
-	}
-
-	Scope<Shader> Shader::Create(std::string_view name, SpirvSource vertexSource, SpirvSource fragmentSource)
-	{
-		return GraphicsAPI::Instance->CreateShader(name, vertexSource, fragmentSource);
-	}
-
-	Scope<Shader> Shader::Create(std::string_view name, SpirvSource vertexSource, SpirvSource geometrySource, SpirvSource fragmentSource)
-	{
-		return GraphicsAPI::Instance->CreateShader(name, vertexSource, geometrySource, fragmentSource);
 	}
 
 	static size_t GetHashedName(std::string_view name)

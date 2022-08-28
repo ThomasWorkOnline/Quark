@@ -22,7 +22,6 @@ private:
 	Ref<Font> m_Font1;
 	Ref<Font> m_Font2;
 
-	Scope<Texture2D> m_Texture;
 	Text m_Text1;
 	Text m_Text2;
 	TextInput m_Input;

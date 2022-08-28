@@ -2,39 +2,16 @@
 #include "OpenGLCommandBuffer.h"
 
 #include "OpenGLBuffer.h"
-#include "OpenGLShader.h"
 #include "OpenGLUniformBuffer.h"
 
 #include <glad/glad.h>
 
 namespace Quark {
 
-	namespace Utils {
-
-		GLenum PrimitiveTopologyToOpenGL(PrimitiveTopology topology)
-		{
-			switch (topology)
-			{
-				case PointList:     return GL_POINTS;
-				case LineList:      return GL_LINES;
-				case LineStrip:     return GL_LINE_STRIP;
-				case TriangleList:  return GL_TRIANGLES;
-				case TriangleStrip: return GL_TRIANGLE_STRIP;
-				case TriangleFan:   return GL_TRIANGLE_FAN;
-
-				QK_ASSERT_NO_DEFAULT("Unknown primitive topology");
-			}
-
-			return GL_NONE;
-		}
-	}
-
 	void OpenGLCommandBuffer::BindPipeline(Pipeline* pipeline)
 	{
-		m_PrimitiveTopology = Utils::PrimitiveTopologyToOpenGL(pipeline->GetSpecification().Topology);
-
-		GLuint rendererID = reinterpret_cast<OpenGLShader*>(pipeline->GetSpecification().Shader)->GetRendererID();
-		glUseProgram(rendererID);
+		m_Pipeline = static_cast<OpenGLPipeline*>(pipeline);
+		m_Pipeline->BindShader();
 
 		for (auto* uniformBuffer : pipeline->GetSpecification().UniformBuffers)
 		{
@@ -66,28 +43,31 @@ namespace Quark {
 
 	void OpenGLCommandBuffer::Draw(uint32_t vertexCount, uint32_t vertexOffset)
 	{
-		glDrawArrays(m_PrimitiveTopology, vertexOffset, vertexCount);
+		glDrawArrays(m_Pipeline->GetPrimitiveTopology(), vertexOffset, vertexCount);
 	}
 
 	void OpenGLCommandBuffer::DrawIndexed(uint32_t indexCount)
 	{
-		glDrawElements(m_PrimitiveTopology, indexCount, GL_UNSIGNED_INT, nullptr);
+		glDrawElements(m_Pipeline->GetPrimitiveTopology(), indexCount, GL_UNSIGNED_INT, nullptr);
 	}
 
 	void OpenGLCommandBuffer::DrawInstanced(uint32_t vertexCount, uint32_t vertexOffset, uint32_t instanceCount)
 	{
-		glDrawArraysInstanced(m_PrimitiveTopology, vertexOffset, vertexCount, instanceCount);
+		glDrawArraysInstanced(m_Pipeline->GetPrimitiveTopology(), vertexOffset, vertexCount, instanceCount);
 	}
 
 	void OpenGLCommandBuffer::DrawIndexedInstanced(uint32_t indexCount, uint32_t instanceCount)
 	{
-		glDrawElementsInstanced(m_PrimitiveTopology, indexCount, GL_UNSIGNED_INT, nullptr, instanceCount);
+		glDrawElementsInstanced(m_Pipeline->GetPrimitiveTopology(), indexCount, GL_UNSIGNED_INT, nullptr, instanceCount);
 	}
 
 	void OpenGLCommandBuffer::BindVertexBuffer(VertexBuffer* vertexBuffer)
 	{
-		GLuint vaoRendererID = static_cast<OpenGLVertexBuffer*>(vertexBuffer)->GetVAORendererID();
-		glBindVertexArray(vaoRendererID);
+		QK_CORE_ASSERT(vertexBuffer->GetLayout() == m_Pipeline->GetLayout(), "Buffer layout does not match the currently bound pipeline layout");
+
+		GLuint rendererID = static_cast<OpenGLVertexBuffer*>(vertexBuffer)->GetRendererID();
+		glBindBuffer(GL_ARRAY_BUFFER, rendererID);
+		m_Pipeline->BindVertexAttrib();
 	}
 
 	void OpenGLCommandBuffer::BindIndexBuffer(IndexBuffer* indexBuffer)

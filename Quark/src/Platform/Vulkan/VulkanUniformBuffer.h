@@ -25,6 +25,7 @@ namespace Quark {
 		VulkanUniformBuffer& operator=(const VulkanUniformBuffer&) = delete;
 
 		VkBuffer GetVkHandle() const { return m_Buffer; }
+		VkWriteDescriptorSet GetDescriptorSet();
 
 	private:
 		VulkanDevice* m_Device;

@@ -135,6 +135,19 @@ namespace Quark {
 			return m_Elements[index];
 		}
 
+		QK_CONSTEXPR20 bool operator==(const BufferLayout& other) const
+		{
+			if (GetCount() != other.GetCount()) return false;
+
+			for (size_t i = 0; i < m_Elements.size(); i++)
+			{
+				if (m_Elements[i].Type != other.m_Elements[i].Type)
+					return false;
+			}
+
+			return true;
+		}
+
 		QK_CONSTEXPR20 std::vector<BufferElement>::iterator begin() { return m_Elements.begin(); }
 		QK_CONSTEXPR20 std::vector<BufferElement>::iterator end() { return m_Elements.end(); }
 		QK_CONSTEXPR20 std::vector<BufferElement>::const_iterator begin() const { return m_Elements.begin(); }
@@ -164,7 +177,7 @@ namespace Quark {
 		virtual void SetData(const void* data, size_t size, size_t offset = 0) = 0;
 
 		const BufferLayout& GetLayout() const { return m_Layout; }
-		virtual void SetLayout(const BufferLayout& layout) { m_Layout = layout; }
+		void SetLayout(const BufferLayout& layout) { m_Layout = layout; }
 
 		virtual bool operator==(const VertexBuffer& other) const = 0;
 

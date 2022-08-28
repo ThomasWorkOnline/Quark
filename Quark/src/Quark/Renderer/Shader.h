@@ -1,23 +1,13 @@
 #pragma once
 
 #include "Quark/Core/Core.h"
+
 #include <unordered_map>
 
 namespace Quark {
 
-	struct SpirvSource
-	{
-		const uint32_t* Data = nullptr;
-		size_t          WordCount = 0;
-
-		SpirvSource() = default;
-		SpirvSource(const std::vector<uint32_t>& src)
-			: Data(src.data()), WordCount(src.size())
-		{
-		}
-	};
-
-	std::vector<uint32_t> ReadSpirvFile(std::string_view filepath);
+	struct SpirvSource;
+	struct ShaderResources;
 
 	class Shader
 	{
@@ -50,12 +40,39 @@ namespace Quark {
 
 		virtual std::string_view GetName() const = 0;
 
+		virtual const ShaderResources& GetShaderResources() const = 0;
+
 		virtual bool operator==(const Shader& other) const = 0;
 
 		static Scope<Shader> Create(std::string_view filepath);
 		static Scope<Shader> Create(std::string_view name, SpirvSource vertexSource, SpirvSource fragmentSource);
 		static Scope<Shader> Create(std::string_view name, SpirvSource vertexSource, SpirvSource geometrySource, SpirvSource fragmentSource);
 	};
+
+	struct UniformBufferResource
+	{
+		size_t   Size;
+		uint32_t Binding;
+	};
+
+	struct ShaderResources
+	{
+		std::vector<UniformBufferResource> UniformBuffers;
+	};
+
+	struct SpirvSource
+	{
+		const uint32_t* Data = nullptr;
+		size_t          WordCount = 0;
+
+		SpirvSource() = default;
+		SpirvSource(const std::vector<uint32_t>& src)
+			: Data(src.data()), WordCount(src.size())
+		{
+		}
+	};
+
+	std::vector<uint32_t> ReadSpirvFile(std::string_view filepath);
 
 	class ShaderLibrary
 	{

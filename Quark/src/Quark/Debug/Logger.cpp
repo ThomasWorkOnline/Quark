@@ -4,6 +4,8 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 
+#include <filesystem>
+
 #ifdef QK_PLATFORM_WINDOWS
 #	include <Windows.h>
 #endif
@@ -36,15 +38,30 @@ namespace Quark {
 
 		spdlog::register_logger(m_CoreLogger);
 		spdlog::register_logger(m_ClientLogger);
+
+		auto t = std::time(nullptr);
+
+		std::stringstream ss;
+		ss << std::put_time(std::localtime(&t), "%d-%m-%Y_%H-%M-%S");
+
+		std::filesystem::create_directories("logs/" QK_CONFIG_NAME);
+		std::string filepath = fmt::format("logs/{0}/runtime_{1}.log", QK_CONFIG_NAME, ss.str());
+		m_Output.open(filepath);
+	}
+
+	void Logger::DumpToFile(const char* string)
+	{
+		std::lock_guard lock(GetOutputLock());
+		GetOutputStream() << string << std::endl;
 	}
 
 	Logger* Logger::GetInstance()
 	{
-#ifdef SPDLOG_COMPILED_LIB
+#ifdef QK_ENABLE_CONSOLE_LOG
 		static Logger instance;
 		return &instance;
 #else
 		return nullptr;
-#endif /*QK_ENABLE_CONSOLE_LOG*/
+#endif
 	}
 }

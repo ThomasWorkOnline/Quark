@@ -1,14 +1,22 @@
 #include "qkpch.h"
 #include "Profiling.h"
 
-#if defined(QK_DEBUG)
-#	define CONFIG_NAME "debug"
-#elif defined(QK_RELEASE)
-#	define CONFIG_NAME "release"
-#elif defined(QK_DIST)
-#	define CONFIG_NAME "dist"
+#ifdef QK_ENABLE_PROFILE_LOG
+#	define LogProfileResult(scope, start, elapsed) \
+									QK_CORE_INFO("'{0}'\t took: {1}us ({2:.2f}ms)", scope, elapsed.count(), elapsed.count() / 1000.f)
 #else
-#	warning "Undefined build configuration assuming debug"
+#	define LogProfileResult(scope, start, elapsed)
+#endif
+
+#ifdef QK_ENABLE_PROFILE_DUMP
+#	define DumpProfileResult(scope, start, elapsed) { InstrumentorProfile result; \
+									result.ScopeName = scope; \
+									result.Start = std::chrono::time_point_cast<std::chrono::microseconds>(start).time_since_epoch(); \
+									result.Duration = elapsed; \
+									result.ThreadID = std::this_thread::get_id(); \
+									Instrumentor::Get().WriteProfile(result); }
+#else
+#	define DumpProfileResult(scope, start, elapsed)
 #endif
 
 namespace Quark {
@@ -17,7 +25,7 @@ namespace Quark {
 
 		struct InstrumentorSettings
 		{
-			static inline const char* OutputDir = "instrumentor/" CONFIG_NAME "/";
+			static inline const char* OutputDir = "instrumentor/" QK_CONFIG_NAME "/";
 		};
 
 		void Instrumentor::BeginSession(const std::string& sessionName)
@@ -91,18 +99,9 @@ namespace Quark {
 
 			auto elapsed = Microseconds();
 
-#if defined(QK_ENABLE_PROFILE_DUMP) && defined(QK_ENABLE_PROFILING)
-			InstrumentorProfile result;
-			result.ScopeName = m_Scope;
-			result.Start = std::chrono::time_point_cast<std::chrono::microseconds>(m_Start).time_since_epoch();
-			result.Duration = elapsed;
-			result.ThreadID = std::this_thread::get_id();
-
-			Instrumentor::Get().WriteProfile(result);
-#endif
-
-#if defined(QK_ENABLE_PROFILE_LOG) && defined(QK_ENABLE_PROFILING)
-			QK_CORE_INFO("'{0}'\t took: {1}us ({2}ms)", m_Scope, elapsed.count(), elapsed.count() / 1000.f);
+#ifdef QK_ENABLE_PROFILING
+			DumpProfileResult(m_Scope, m_Start, elapsed);
+			LogProfileResult(m_Scope, m_Start, elapsed);
 #endif
 		}
 	}

@@ -55,7 +55,7 @@ namespace Quark {
 			glyphPtr->OffsetX = w;
 			glyphPtr++;
 
-			w += g->bitmap.width + 1;
+			w += g->bitmap.width + 2;
 			h = std::max(h, g->bitmap.rows);
 		}
 

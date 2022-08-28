@@ -1,10 +1,7 @@
 #pragma once
 
 #include "Quark/Renderer/CommandBuffer.h"
-
-typedef unsigned int GLenum;
-
-#define GL_TRIANGLES 0x0004
+#include "OpenGLPipeline.h"
 
 namespace Quark {
 
@@ -42,6 +39,6 @@ namespace Quark {
 		OpenGLCommandBuffer& operator=(const OpenGLCommandBuffer&) = delete;
 
 	private:
-		GLenum m_PrimitiveTopology = GL_TRIANGLES;
+		OpenGLPipeline* m_Pipeline = nullptr;
 	};
 }

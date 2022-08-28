@@ -14,7 +14,6 @@ namespace Quark {
 		virtual ~OpenGLVertexBuffer() override;
 
 		virtual void SetData(const void* data, size_t size, size_t offset) override;
-		virtual void SetLayout(const BufferLayout& layout) override;
 
 		virtual bool operator==(const VertexBuffer& other) const override
 		{
@@ -26,11 +25,9 @@ namespace Quark {
 		OpenGLVertexBuffer& operator=(const OpenGLVertexBuffer&) = delete;
 
 		GLuint GetRendererID() const { return m_RendererID; }
-		GLuint GetVAORendererID() const { return m_VAORendererID; }
 
 	private:
 		GLuint m_RendererID;
-		GLuint m_VAORendererID;
 	};
 
 	class OpenGLIndexBuffer final : public IndexBuffer

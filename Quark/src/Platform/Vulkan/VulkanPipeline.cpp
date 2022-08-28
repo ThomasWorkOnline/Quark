@@ -7,24 +7,13 @@
 #include "VulkanShader.h"
 #include "VulkanUniformBuffer.h"
 
+#include <shaderc/shaderc.hpp>
+
 // disable alloca failure warning
 // since variable size stack arrays are not supported by all compilers
 #pragma warning(disable : 6255)
 
 namespace Quark {
-
-	namespace Utils {
-
-		static VkVertexInputBindingDescription GetBindingDescription(const BufferLayout& layout)
-		{
-			VkVertexInputBindingDescription bindingDescription{};
-			bindingDescription.binding = 0;
-			bindingDescription.stride = static_cast<uint32_t>(layout.GetStride());
-			bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-
-			return bindingDescription;
-		}
-	}
 
 	VulkanPipeline::VulkanPipeline(VulkanDevice* device, const PipelineSpecification& spec)
 		: Pipeline(spec)
@@ -36,7 +25,7 @@ namespace Quark {
 		{
 			VkDescriptorPoolSize poolSize{};
 			poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			poolSize.descriptorCount = VulkanContext::FramesInFlight;
+			poolSize.descriptorCount = (uint32_t)m_Spec.UniformBuffers.size() * VulkanContext::FramesInFlight;
 
 			VkDescriptorPoolCreateInfo poolInfo{};
 			poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
@@ -49,33 +38,34 @@ namespace Quark {
 
 		// Descriptor set layout
 		{
-			auto* descriptorSetLayoutBindings = static_cast<VkDescriptorSetLayoutBinding*>(alloca(m_Spec.UniformBuffers.size() * sizeof(VkDescriptorSetLayoutBinding)));
+			auto& shaderResources = m_Spec.Shader->GetShaderResources();
+
+			auto* descriptorSetLayoutBindings = (VkDescriptorSetLayoutBinding*)alloca(shaderResources.UniformBuffers.size() * sizeof(VkDescriptorSetLayoutBinding));
 			auto* descriptorSetLayoutbindingPtr = descriptorSetLayoutBindings;
 
 			VkDescriptorSetLayoutCreateInfo layoutInfo{};
 			layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 
-			for (auto* uniformBuffer : m_Spec.UniformBuffers)
+			for (auto& uniformBuffer : shaderResources.UniformBuffers)
 			{
-				auto* ub = static_cast<VulkanUniformBuffer*>(uniformBuffer);
-
 				*descriptorSetLayoutbindingPtr = {};
-				descriptorSetLayoutbindingPtr->binding = uniformBuffer->GetBinding();
+				descriptorSetLayoutbindingPtr->binding = uniformBuffer.Binding;
 				descriptorSetLayoutbindingPtr->descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 				descriptorSetLayoutbindingPtr->descriptorCount = 1;
 				descriptorSetLayoutbindingPtr->stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 				descriptorSetLayoutbindingPtr++;
 			}
 
-			layoutInfo.bindingCount = static_cast<uint32_t>(m_Spec.UniformBuffers.size());
+			layoutInfo.bindingCount = static_cast<uint32_t>(shaderResources.UniformBuffers.size());
 			layoutInfo.pBindings = descriptorSetLayoutBindings;
+
 			vkCreateDescriptorSetLayout(m_Device->GetVkHandle(), &layoutInfo, nullptr, &m_DescriptorSetLayout);
 		}
 
 		// Descriptor sets
 		{
 			// Copy each layout for each frame in flight
-			auto* layouts = static_cast<VkDescriptorSetLayout*>(alloca(VulkanContext::FramesInFlight * sizeof(VkDescriptorSetLayout)));
+			auto* layouts = (VkDescriptorSetLayout*)alloca(VulkanContext::FramesInFlight * sizeof(VkDescriptorSetLayout));
 			for (uint32_t i = 0; i < VulkanContext::FramesInFlight; i++)
 				layouts[i] = m_DescriptorSetLayout;
 
@@ -91,18 +81,7 @@ namespace Quark {
 			{
 				auto* ub = static_cast<VulkanUniformBuffer*>(uniformBuffer);
 
-				VkDescriptorBufferInfo bufferInfo{};
-				bufferInfo.buffer = ub->GetVkHandle();
-				bufferInfo.offset = 0;
-				bufferInfo.range = ub->GetSize();
-
-				VkWriteDescriptorSet descriptorWrite{};
-				descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-				descriptorWrite.dstBinding = 0;
-				descriptorWrite.dstArrayElement = 0;
-				descriptorWrite.descriptorCount = 1;
-				descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-				descriptorWrite.pBufferInfo = &bufferInfo;
+				VkWriteDescriptorSet descriptorWrite = ub->GetDescriptorSet();
 
 				for (uint32_t j = 0; j < VulkanContext::FramesInFlight; j++)
 				{
@@ -113,10 +92,13 @@ namespace Quark {
 		}
 
 		// Vertex input 
-		auto bindingDescription = Utils::GetBindingDescription(m_Spec.Layout);
+		VkVertexInputBindingDescription bindingDescription{};
+		bindingDescription.binding = 0;
+		bindingDescription.stride = (uint32_t)m_Spec.Layout.GetStride();
+		bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
 		QK_CORE_ASSERT(m_Spec.Layout.GetCount() > 0, "A vertex layout must be set for the pipeline");
-		auto* attributeDescriptions = static_cast<VkVertexInputAttributeDescription*>(alloca(m_Spec.Layout.GetCount() * sizeof(VkVertexInputAttributeDescription)));
+		auto* attributeDescriptions = (VkVertexInputAttributeDescription*)alloca(m_Spec.Layout.GetCount() * sizeof(VkVertexInputAttributeDescription));
 
 		for (uint32_t i = 0; i < m_Spec.Layout.GetCount(); i++)
 		{
@@ -124,7 +106,7 @@ namespace Quark {
 			attributeDescriptions[i].location = i;
 			attributeDescriptions[i].binding = 0;
 			attributeDescriptions[i].format = ShaderDataTypeToVulkan(m_Spec.Layout[i].Type);
-			attributeDescriptions[i].offset = static_cast<uint32_t>(m_Spec.Layout[i].Offset);
+			attributeDescriptions[i].offset = (uint32_t)m_Spec.Layout[i].Offset;
 		}
 
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
@@ -203,11 +185,11 @@ namespace Quark {
 
 		vkCreatePipelineLayout(m_Device->GetVkHandle(), &pipelineLayoutInfo, nullptr, &m_PipelineLayout);
 
-		auto* vulkanShader = reinterpret_cast<VulkanShader*>(m_Spec.Shader);
+		auto* vulkanShader = static_cast<VulkanShader*>(m_Spec.Shader);
 		auto& shaderStages = vulkanShader->GetShaderStages();
 		size_t stageCount = shaderStages.size();
 
-		auto* stages = static_cast<VkPipelineShaderStageCreateInfo*>(alloca(stageCount * sizeof(VkPipelineShaderStageCreateInfo)));
+		auto* stages = (VkPipelineShaderStageCreateInfo*)alloca(stageCount * sizeof(VkPipelineShaderStageCreateInfo));
 
 		size_t stageIndex = 0;
 		for (auto& [shaderStage, shaderModule] : shaderStages)
@@ -223,7 +205,7 @@ namespace Quark {
 
 		VkGraphicsPipelineCreateInfo pipelineInfo{};
 		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-		pipelineInfo.stageCount = static_cast<uint32_t>(stageCount);
+		pipelineInfo.stageCount = (uint32_t)stageCount;
 		pipelineInfo.pStages = stages;
 
 		pipelineInfo.pVertexInputState = &vertexInputInfo;

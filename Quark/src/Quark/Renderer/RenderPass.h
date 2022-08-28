@@ -28,6 +28,8 @@ namespace Quark {
 		virtual ~RenderPass() = default;
 		virtual bool operator==(const RenderPass& other) const = 0;
 
+		void SetClearColor(const Vec4f& clearColor) { m_Spec.ClearColor = clearColor; }
+
 		const RenderPassSpecification& GetSpecification() const { return m_Spec; }
 
 		static Scope<RenderPass> Create(const RenderPassSpecification& spec);

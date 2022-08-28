@@ -7,6 +7,7 @@ bin-spirv
 
 # Instrumentation
 instrumentor
+logs
 
 # MacOS files
 .DS_Store

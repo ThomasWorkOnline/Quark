@@ -35,11 +35,13 @@ namespace Quark {
 		static void Submit(VertexBuffer* vertexBuffer, IndexBuffer* indexBuffer, uint32_t indexCount);
 
 		static void SetViewport(uint32_t viewportWidth, uint32_t viewportHeight);
+		static void SetClearColor(const Vec4f& clearColor);
+
+		static const Vec4f& GetClearColor();
 
 		static RenderPass* GetGeometryPass();
 		static Framebuffer* GetTargetFramebuffer();
 		static CommandBuffer* GetCommandBuffer();
-
 		static ViewportExtent GetViewportExtent();
 
 		static ShaderLibrary& GetShaderLibrary();

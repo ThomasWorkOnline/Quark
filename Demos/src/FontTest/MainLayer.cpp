@@ -2,7 +2,8 @@
 
 MainLayer::MainLayer(Application* app) : Layer(app)
 {
-	m_Texture = Texture2D::Create("assets/textures/pbr/streaked-metal/normal-dx.png");
+	auto window = GetApplication()->GetWindow();
+	window->SetVSync(true);
 
 	m_Font1 = m_Library.Load("arial-regular", "assets/fonts/arial.ttf", 48);
 	m_Font2 = m_Library.Load("agency-regular", "assets/fonts/ANTQUAI.TTF", 64);
@@ -28,7 +29,6 @@ MainLayer::MainLayer(Application* app) : Layer(app)
 		m_Input = TextInput(style1);
 	}
 
-	auto window = GetApplication()->GetWindow();
 	m_Camera.SetOrthographic((float)window->GetWidth());
 	m_Camera.Resize(window->GetWidth(), window->GetHeight());
 }
@@ -39,8 +39,14 @@ void MainLayer::OnUpdate(Timestep elapsedTime)
 
 void MainLayer::OnRender()
 {
+	auto t = std::time(nullptr);
+
+	std::stringstream ss;
+	ss << std::put_time(std::localtime(&t), "%H:%M:%S");
+
 	Renderer2D::BeginScene(m_Camera.GetProjection(), Mat4f(1.0f));
-	Renderer2D::DrawText(m_Input);
+	Renderer2D::DrawText(ss.str(), m_Font1.get());
+	//Renderer2D::DrawText(m_Input);
 	Renderer2D::EndScene();
 }
 

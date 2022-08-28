@@ -42,6 +42,8 @@ namespace Quark {
 
 		virtual std::string_view GetName() const override { return m_Name; };
 
+		virtual const ShaderResources& GetShaderResources() const override { return m_ShaderResources; }
+
 		virtual bool operator==(const Shader& other) const override
 		{
 			return m_Name == reinterpret_cast<const VulkanShader&>(other).m_Name;
@@ -61,5 +63,6 @@ namespace Quark {
 		VulkanDevice* m_Device;
 		std::string m_Name;
 		std::unordered_map<VkShaderStageFlagBits, VkShaderModule> m_ShaderStages;
+		ShaderResources m_ShaderResources;
 	};
 }

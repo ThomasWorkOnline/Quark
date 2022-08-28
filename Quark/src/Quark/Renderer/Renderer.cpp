@@ -81,6 +81,17 @@ namespace Quark {
 		GraphicsContext::Get()->Resize(viewportWidth, viewportHeight);
 	}
 
+	void Renderer::SetClearColor(const Vec4f& clearColor)
+	{
+		QK_ASSERT_RENDER_THREAD();
+		s_Data->GeometryPass->SetClearColor(clearColor);
+	}
+
+	const Vec4f& Renderer::GetClearColor()
+	{
+		return s_Data->GeometryPass->GetSpecification().ClearColor;
+	}
+
 	RenderPass* Renderer::GetGeometryPass()
 	{
 		QK_ASSERT_RENDER_THREAD();
@@ -152,6 +163,7 @@ namespace Quark {
 			RenderPassSpecification spec;
 			spec.BindPoint = PipelineBindPoint::Graphics;
 			spec.ColorFormat = ColorDataFormat::BGRA8_SRGB;
+			spec.ClearColor = { 0.01f, 0.01f, 0.01f, 1.0f };
 			spec.ClearBuffers = true;
 			s_Data->GeometryPass = RenderPass::Create(spec);
 		}

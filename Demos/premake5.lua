@@ -43,6 +43,12 @@ project "Demos"
 	filter { "configurations:Dist", "system:windows" }
 		kind "WindowedApp"
 
+	filter "system:windows"
+		defines
+		{
+			"_CRT_SECURE_NO_WARNINGS"
+		}
+
 	filter "system:macosx"
 		kind "WindowedApp"
 		
