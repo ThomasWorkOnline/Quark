@@ -94,8 +94,7 @@ namespace Quark {
 		presentInfo.pSwapchains = &m_SwapChain;
 		presentInfo.pImageIndices = &m_ImageIndex;
 
-		VkResult vkRes = vkQueuePresentKHR(presentQueue, &presentInfo);
-		QK_CORE_ASSERT(vkRes == VK_SUCCESS || vkRes == VK_SUBOPTIMAL_KHR || vkRes == VK_ERROR_OUT_OF_DATE_KHR, "Could not present");
+		vkQueuePresentKHR(presentQueue, &presentInfo);
 	}
 
 	void VulkanSwapChain::Resize(uint32_t viewportWidth, uint32_t viewportHeight)
@@ -150,25 +149,27 @@ namespace Quark {
 		}
 
 		vkCreateSwapchainKHR(m_Device->GetVkHandle(), &createInfo, nullptr, &m_SwapChain);
-		vkGetSwapchainImagesKHR(m_Device->GetVkHandle(), m_SwapChain, &m_ImageCount, nullptr);
 
+		vkGetSwapchainImagesKHR(m_Device->GetVkHandle(), m_SwapChain, &m_ImageCount, nullptr);
 		m_SwapChainImages.resize(m_ImageCount);
-		m_Attachments.resize(m_ImageCount);
 
 		vkGetSwapchainImagesKHR(m_Device->GetVkHandle(), m_SwapChain, &m_ImageCount, m_SwapChainImages.data());
 
-		if (isNew)
+		bool invalidated = isNew || m_ImageCount != m_Attachments.size();
+		if (invalidated)
 		{
+			m_Attachments.clear();
+			m_Attachments.reserve(m_ImageCount);
 			for (size_t i = 0; i < m_ImageCount; i++)
 			{
-				m_Attachments[i] = CreateScope<VulkanFramebufferAttachment>(m_Device, m_SwapChainImages[i], m_Format.SurfaceFormat.format);
+				m_Attachments.emplace_back(m_Device, m_SwapChainImages[i], m_Format.SurfaceFormat.format);
 			}
 		}
 		else
 		{
 			for (size_t i = 0; i < m_ImageCount; i++)
 			{
-				m_Attachments[i]->SetData(m_SwapChainImages[i]);
+				m_Attachments[i].SetData(m_SwapChainImages[i]);
 			}
 		}
 	}

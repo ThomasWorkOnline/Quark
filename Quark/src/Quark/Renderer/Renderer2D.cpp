@@ -103,7 +103,7 @@ namespace Quark {
 
 		uint32_t MaxSamplerDestinations = 0;
 		uint32_t TextureSamplerIndex = 1; // Next texture slot to be attached, 0 is reserved for default texture
-		Scope<Sampler2D> Sampler;
+		std::vector<Scope<Sampler2D>> Samplers;
 
 		Scope<Texture2D> DefaultTexture;
 		Texture** Textures = nullptr;
@@ -480,6 +480,7 @@ namespace Quark {
 		s_Data->DefaultTexture = Texture2D::Create(spec);
 		s_Data->DefaultTexture->SetData(&textureColor, sizeof(textureColor));
 		s_Data->Textures = new Texture*[s_Data->MaxSamplerDestinations];
+		s_Data->Samplers.resize(s_Data->MaxSamplerDestinations);
 
 		std::memset(s_Data->Textures, 0, s_Data->MaxSamplerDestinations * sizeof(Texture*));
 		s_Data->Textures[0] = s_Data->DefaultTexture.get();
@@ -491,23 +492,32 @@ namespace Quark {
 		Sampler2DSpecification samplerSpec;
 		samplerSpec.Binding = 1;
 		samplerSpec.SamplerCount = s_Data->MaxSamplerDestinations;
-		s_Data->Sampler = Sampler2D::Create(samplerSpec);
+		for (size_t i = 0; i < s_Data->MaxSamplerDestinations; i++)
+		{
+			s_Data->Samplers[i] = Sampler2D::Create(samplerSpec);
+		}
 
-		AutoRelease<int32_t> samplers = StackAlloc(s_Data->MaxSamplerDestinations * sizeof(int32_t));
+		AutoRelease<int32_t> samplersDests = StackAlloc(s_Data->MaxSamplerDestinations * sizeof(int32_t));
 		for (uint32_t i = 0; i < s_Data->MaxSamplerDestinations; i++)
-			samplers[i] = i;
+			samplersDests[i] = i;
 
 		s_Data->QuadShader = Shader::Create("defaultSprite", spriteVertexSource, spriteFragmentSource);
-		s_Data->QuadShader->SetIntArray("u_Samplers", samplers, s_Data->MaxSamplerDestinations);
+		s_Data->QuadShader->SetIntArray("u_Samplers", samplersDests, s_Data->MaxSamplerDestinations);
 
 		{
+			std::vector<Sampler2D*> samplerArray(s_Data->MaxSamplerDestinations);
+			for (size_t i = 0; i < samplerArray.size(); i++)
+			{
+				samplerArray[i] = s_Data->Samplers[i].get();
+			}
+
 			PipelineSpecification spec;
 			spec.Layout = s_QuadVertexLayout;
 			spec.Topology = PrimitiveTopology::TriangleList;
 			spec.RenderPass = Renderer::GetGeometryPass();
 			spec.Shader = s_Data->QuadShader.get();
 			spec.UniformBuffers = { s_Data->CameraUniformBuffer.get() };
-			//spec.Samplers = { s_Data->Sampler.get() };
+			spec.SamplersArray = { std::move(samplerArray) };
 
 			s_Data->QuadRendererPipeline = Pipeline::Create(spec);
 		}

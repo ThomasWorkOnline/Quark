@@ -87,7 +87,7 @@ namespace Quark {
 			| VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT
 			| VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
 
-		messengerCreateInfo.pfnUserCallback = (PFN_vkDebugUtilsMessengerCallbackEXT)VkDebugCallback;
+		messengerCreateInfo.pfnUserCallback = VkDebugCallback;
 		return messengerCreateInfo;
 	}
 

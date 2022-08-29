@@ -40,9 +40,6 @@ namespace Quark {
 
 	void VulkanFramebufferAttachment::SetData(const void* data)
 	{
-		if (m_ImageView)
-			vkDestroyImageView(m_Device->GetVkHandle(), m_ImageView, nullptr);
-
 		VkImageViewCreateInfo imageViewInfo{};
 		imageViewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 		imageViewInfo.image = (VkImage)data;
@@ -54,6 +51,7 @@ namespace Quark {
 		imageViewInfo.subresourceRange.baseArrayLayer = 0;
 		imageViewInfo.subresourceRange.layerCount = 1;
 
+		vkDestroyImageView(m_Device->GetVkHandle(), m_ImageView, nullptr);
 		vkCreateImageView(m_Device->GetVkHandle(), &imageViewInfo, nullptr, &m_ImageView);
 	}
 

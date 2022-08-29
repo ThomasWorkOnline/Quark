@@ -51,13 +51,31 @@ namespace Quark {
 	class AutoRelease
 	{
 	public:
+		AutoRelease() = default;
 		AutoRelease(void* memory) noexcept
 			: m_Pointer(static_cast<T*>(memory))
 		{}
 
+		AutoRelease(AutoRelease&& other)
+			: m_Pointer(other.m_Pointer)
+		{
+			other.m_Pointer = nullptr;
+		}
+
+		AutoRelease& operator=(AutoRelease&& other)
+		{
+			Exchange(other);
+			return *this;
+		}
+
 		~AutoRelease() noexcept
 		{
 			Freea(m_Pointer);
+		}
+
+		void Exchange(AutoRelease&& other)
+		{
+			std::swap(m_Pointer, other.m_Pointer);
 		}
 
 		operator T* () const { return m_Pointer; }
@@ -67,6 +85,10 @@ namespace Quark {
 
 		const T& operator->() const { return *m_Pointer; }
 		T& operator->() { return *m_Pointer; }
+
+		// Non-copyable
+		AutoRelease(const AutoRelease&) = delete;
+		AutoRelease& operator=(const AutoRelease&) = delete;
 
 	private:
 		T* m_Pointer = nullptr;

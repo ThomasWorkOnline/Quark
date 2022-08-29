@@ -83,10 +83,13 @@ namespace Quark {
 		}
 
 		// Samplers
-		for (auto* sampler : m_Spec.Samplers)
+		for (auto& samplerArray : m_Spec.SamplersArray)
 		{
-			GLuint rendererID = static_cast<OpenGLSampler2D*>(sampler)->GetRendererID();
-			glBindSampler(sampler->GetSpecification().Binding, rendererID);
+			for (auto* sampler : samplerArray)
+			{
+				GLuint rendererID = static_cast<OpenGLSampler2D*>(sampler)->GetRendererID();
+				glBindSampler(sampler->GetSpecification().Binding, rendererID);
+			}
 		}
 	}
 

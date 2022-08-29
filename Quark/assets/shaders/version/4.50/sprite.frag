@@ -1,6 +1,6 @@
 #version 450 core
 
-//layout(binding = 1) uniform sampler2D u_Samplers[32];
+layout(set = 0, binding = 1) uniform sampler2D u_Samplers[32];
 
 layout(location = 0) in VertexOutput {
 	vec2 TexCoord;

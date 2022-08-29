@@ -29,7 +29,7 @@ namespace Quark {
 		RenderPass*         RenderPass = nullptr;
 
 		std::vector<UniformBuffer*> UniformBuffers;
-		std::vector<Sampler2D*> Samplers;
+		std::vector<std::vector<Sampler2D*>> SamplersArray;
 	};
 
 	class Pipeline

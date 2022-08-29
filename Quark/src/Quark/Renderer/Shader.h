@@ -17,24 +17,30 @@ namespace Quark {
 		ComputeStage
 	};
 
+	struct ResourceDecorators
+	{
+		uint32_t Set;
+		uint32_t Binding;
+	};
+
 	struct UniformBufferResource
 	{
 		size_t      Size;
-		uint32_t    Binding;
 		ShaderStage Stage;
+		ResourceDecorators Decorators;
 	};
 
-	struct CombinedSamplerResource
+	struct SamplerArrayResource
 	{
 		uint32_t    SamplerCount;
-		uint32_t    Binding;
 		ShaderStage Stage;
+		ResourceDecorators Decorators;
 	};
 
 	struct ShaderResources
 	{
-		std::vector<UniformBufferResource>   UniformBuffers;
-		std::vector<CombinedSamplerResource> CombinedSamplers;
+		std::vector<UniformBufferResource> UniformBuffers;
+		std::vector<SamplerArrayResource>  SamplerArrays;
 	};
 
 	class Shader

@@ -1,10 +1,6 @@
 #include "qkpch.h"
 #include "VulkanContext.h"
 
-#include <fstream>
-#include <set>
-#include <sstream>
-
 #include <GLFW/glfw3.h>
 
 namespace Quark {

@@ -26,7 +26,7 @@ namespace Quark {
 		void Present(VkQueue presentQueue, VkSemaphore renderFinishedSemaphore);
 		void Resize(uint32_t viewportWidth, uint32_t viewportHeight);
 
-		VulkanFramebufferAttachment* GetAttachment(uint32_t imageIndex) const { return m_Attachments[imageIndex].get(); }
+		VulkanFramebufferAttachment* GetAttachment(uint32_t imageIndex) const { return &m_Attachments[imageIndex]; }
 
 		// Non-Copyable
 		VulkanSwapChain(const VulkanSwapChain&) = delete;
@@ -50,7 +50,7 @@ namespace Quark {
 		VkSwapchainKHR m_SwapChain = VK_NULL_HANDLE;
 
 		std::vector<VkImage> m_SwapChainImages;
-		std::vector<Scope<VulkanFramebufferAttachment>> m_Attachments;
+		mutable std::vector<VulkanFramebufferAttachment> m_Attachments;
 
 		Format m_Format;
 		uint32_t m_ImageCount;
