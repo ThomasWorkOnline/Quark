@@ -135,6 +135,7 @@ namespace Quark {
 	void VulkanContextBase::Submit()
 	{
 		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+		VkSemaphore waitSemaphores = m_Frames[m_CurrentFrameIndex].ImageAvailableSemaphore;
 
 		VkSubmitInfo submitInfo{};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -142,7 +143,6 @@ namespace Quark {
 
 		if (m_SwapchainValid)
 		{
-			VkSemaphore waitSemaphores = m_Frames[m_CurrentFrameIndex].ImageAvailableSemaphore;
 			submitInfo.waitSemaphoreCount = 1;
 			submitInfo.pWaitSemaphores = &waitSemaphores;
 		}
