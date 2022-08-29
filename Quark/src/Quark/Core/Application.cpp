@@ -82,12 +82,12 @@ namespace Quark {
 			}
 
 			Renderer::BeginFrame();
-			{
-				OnRender();
 
-				for (auto layer : m_Layers)
-					layer->OnRender();
-			}
+			OnRender();
+
+			for (auto layer : m_Layers)
+				layer->OnRender();
+
 			Renderer::EndFrame();
 
 			m_Window->OnUpdate();

@@ -78,10 +78,10 @@ namespace Quark {
 		vkDestroySwapchainKHR(m_Device->GetVkHandle(), m_SwapChain, nullptr);
 	}
 
-	void VulkanSwapChain::AcquireNextImage(VkSemaphore imageAvailableSemaphore)
+	bool VulkanSwapChain::AcquireNextImage(VkSemaphore imageAvailableSemaphore)
 	{
 		VkResult vkRes = vkAcquireNextImageKHR(m_Device->GetVkHandle(), m_SwapChain, UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &m_ImageIndex);
-		QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Could not acquire next image in swap chain");
+		return (vkRes == VK_SUCCESS);
 	}
 
 	void VulkanSwapChain::Present(VkQueue presentQueue, VkSemaphore renderFinishedSemaphore)
@@ -90,13 +90,12 @@ namespace Quark {
 		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 		presentInfo.waitSemaphoreCount = 1;
 		presentInfo.pWaitSemaphores = &renderFinishedSemaphore;
-
 		presentInfo.swapchainCount = 1;
 		presentInfo.pSwapchains = &m_SwapChain;
 		presentInfo.pImageIndices = &m_ImageIndex;
 
 		VkResult vkRes = vkQueuePresentKHR(presentQueue, &presentInfo);
-		QK_CORE_ASSERT(vkRes == VK_SUCCESS || vkRes == VK_SUBOPTIMAL_KHR, "Could not present");
+		QK_CORE_ASSERT(vkRes == VK_SUCCESS || vkRes == VK_SUBOPTIMAL_KHR || vkRes == VK_ERROR_OUT_OF_DATE_KHR, "Could not present");
 	}
 
 	void VulkanSwapChain::Resize(uint32_t viewportWidth, uint32_t viewportHeight)
@@ -141,7 +140,7 @@ namespace Quark {
 		if (m_Device->GetQueueFamilyIndices().GraphicsFamily != m_Device->GetQueueFamilyIndices().PresentFamily)
 		{
 			createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
-			createInfo.queueFamilyIndexCount = sizeof(queueFamilyIndices);
+			createInfo.queueFamilyIndexCount = sizeof_array(queueFamilyIndices);
 			createInfo.pQueueFamilyIndices = queueFamilyIndices;
 		}
 		else

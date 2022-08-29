@@ -10,7 +10,7 @@ namespace Quark {
 
 	Application* CreateApplication()
 	{
-		using App = VulkanApp;
+		using App = BasicRenderingApplication;
 
 		ApplicationOptions options;
 		options.AppName = "Demo Application";

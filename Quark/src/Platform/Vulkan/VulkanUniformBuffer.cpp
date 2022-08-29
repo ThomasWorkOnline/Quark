@@ -2,7 +2,6 @@
 #include "VulkanUniformBuffer.h"
 
 #include "VulkanUtils.h"
-#include "VulkanBuffer.cpp"
 
 namespace Quark {
 

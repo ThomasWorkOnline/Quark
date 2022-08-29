@@ -124,7 +124,7 @@ namespace Quark {
 			vkResetFences(m_Device->GetVkHandle(), 1, &waitFence);
 		}
 		
-		m_SwapChain->AcquireNextImage(m_Frames[m_CurrentFrameIndex].ImageAvailableSemaphore);
+		m_SwapchainValid = m_SwapChain->AcquireNextImage(m_Frames[m_CurrentFrameIndex].ImageAvailableSemaphore);
 	}
 
 	void VulkanContextBase::WaitUntilIdle()
@@ -135,13 +135,17 @@ namespace Quark {
 	void VulkanContextBase::Submit()
 	{
 		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-		VkSemaphore waitSemaphores = m_Frames[m_CurrentFrameIndex].ImageAvailableSemaphore;
 
 		VkSubmitInfo submitInfo{};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		submitInfo.waitSemaphoreCount = 1;
-		submitInfo.pWaitSemaphores = &waitSemaphores;
 		submitInfo.pWaitDstStageMask = waitStages;
+
+		if (m_SwapchainValid)
+		{
+			VkSemaphore waitSemaphores = m_Frames[m_CurrentFrameIndex].ImageAvailableSemaphore;
+			submitInfo.waitSemaphoreCount = 1;
+			submitInfo.pWaitSemaphores = &waitSemaphores;
+		}
 
 		VkCommandBuffer commandBuffer = m_Frames[m_CurrentFrameIndex].CommandBuffer.GetVkHandle();
 		submitInfo.commandBufferCount = 1;
@@ -158,7 +162,7 @@ namespace Quark {
 	{
 		auto presentQueue = m_Device->GetPresentQueue();
 		auto renderFinishedSemaphore = m_Frames[m_CurrentFrameIndex].RenderFinishedSemaphore;
-
+		
 		m_SwapChain->Present(presentQueue, renderFinishedSemaphore);
 	}
 

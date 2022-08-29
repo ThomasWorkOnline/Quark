@@ -17,6 +17,8 @@
 #	define QK_CONSTEXPR20 inline
 #endif
 
+#define QK_NODISCARD [[nodiscard]]
+
 #ifndef QK_IGNORE_DEPRECATED_SYMBOLS
 #	define QK_DEPRECATED [[deprecated]]
 #else

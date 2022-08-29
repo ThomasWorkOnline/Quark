@@ -74,8 +74,6 @@ namespace Quark {
 	{
 		QK_ASSERT_RENDER_THREAD();
 
-		s_ViewportExtent.Width = viewportWidth;
-		s_ViewportExtent.Height = viewportHeight;
 		GraphicsContext::Get()->Resize(viewportWidth, viewportHeight);
 
 		if (GraphicsAPI::GetAPI() == RHI::Vulkan)
@@ -84,6 +82,12 @@ namespace Quark {
 			{
 				framebuffer->Resize(viewportWidth, viewportHeight);
 			}
+		}
+
+		if (viewportWidth != 0 && viewportHeight != 0)
+		{
+			s_ViewportExtent.Width = viewportWidth;
+			s_ViewportExtent.Height = viewportHeight;
 		}
 	}
 
@@ -149,6 +153,7 @@ namespace Quark {
 		EndRenderPass();
 
 		s_Data->ActiveCommandBuffer->End();
+
 		GraphicsContext::Get()->Submit();
 	}
 

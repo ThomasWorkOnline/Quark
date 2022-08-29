@@ -4,6 +4,7 @@
 #include "VulkanDevice.h"
 
 #include <vulkan/vulkan.h>
+#include <vma/vk_mem_alloc.h>
 
 namespace Quark {
 
@@ -12,7 +13,7 @@ namespace Quark {
 	public:
 		VulkanTexture2D(VulkanDevice* device, const Texture2DSpecification& spec);
 		VulkanTexture2D(VulkanDevice* device, std::string_view filepath, const TextureRenderModes& renderModes = {});
-		virtual ~VulkanTexture2D() override = default;
+		virtual ~VulkanTexture2D() override;
 
 		virtual void Attach(uint32_t textureSlot = 0) const override {}
 		virtual void Detach() const override {}
@@ -20,10 +21,7 @@ namespace Quark {
 		virtual void SetData(const void* data, size_t size) override {}
 		virtual void GenerateMipmaps() override {}
 
-		virtual bool operator==(const Texture& other) const override
-		{
-			return false;
-		}
+		virtual bool operator==(const Texture& other) const override;
 
 		// Non-Copyable
 		VulkanTexture2D(const VulkanTexture2D&) = delete;
@@ -31,5 +29,8 @@ namespace Quark {
 
 	private:
 		VulkanDevice* m_Device;
+		VkImage m_Image = VK_NULL_HANDLE;
+		VkImageView m_ImageView = VK_NULL_HANDLE;
+		VkDeviceMemory m_BufferMemory = VK_NULL_HANDLE;
 	};
 }

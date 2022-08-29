@@ -81,11 +81,6 @@ namespace Quark {
 
 	void VulkanFramebuffer::Invalidate()
 	{
-		if (m_Framebuffer)
-		{
-			vkDestroyFramebuffer(m_Device->GetVkHandle(), m_Framebuffer, nullptr);
-		}
-
 		QK_CORE_ASSERT(m_Spec.Attachments.size(), "AttachmentCount must be non zero");
 		QK_CORE_ASSERT(m_Spec.RenderPass, "RenderPass must be a valid pointer to a render pass");
 
@@ -107,6 +102,7 @@ namespace Quark {
 		framebufferInfo.height = m_Spec.Height;
 		framebufferInfo.layers = 1;
 
+		vkDestroyFramebuffer(m_Device->GetVkHandle(), m_Framebuffer, nullptr);
 		vkCreateFramebuffer(m_Device->GetVkHandle(), &framebufferInfo, nullptr, &m_Framebuffer);
 	}
 }
