@@ -31,7 +31,7 @@ namespace Quark {
 	class GraphicsAPI;
 
 	// To be defined by each supported platform
-	extern RHI GetDefaultRHIForPlatform();
+	extern RHI                GetDefaultRHIForPlatform();
 	extern Scope<GraphicsAPI> CreateRHIForPlatform(RHI api);
 
 	class GraphicsAPI

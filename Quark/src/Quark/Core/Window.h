@@ -58,14 +58,6 @@ namespace Quark {
 
 		virtual void* GetNativeWindow() const = 0;
 
-		// Non-Copyable
-		Window(const Window&) = delete;
-		Window& operator=(const Window&) = delete;
-
-		// Non-Movable
-		Window(Window&&) = delete;
-		Window& operator=(Window&&) = delete;
-
 		static Scope<Window> Create(const WindowSpecification& spec);
 	};
 }

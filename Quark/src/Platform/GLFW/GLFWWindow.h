@@ -48,6 +48,10 @@ namespace Quark {
 		GLFWWindow(const GLFWWindow&) = delete;
 		GLFWWindow& operator=(const GLFWWindow&) = delete;
 
+		// Non-Movable
+		GLFWWindow(GLFWWindow&&) = delete;
+		GLFWWindow& operator=(GLFWWindow&&) = delete;
+
 	private:
 		void Init(const WindowSpecification& spec);
 		void Shutdown();

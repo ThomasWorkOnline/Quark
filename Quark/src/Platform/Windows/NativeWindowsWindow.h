@@ -48,6 +48,10 @@ namespace Quark {
 		NativeWindowsWindow(const NativeWindowsWindow&) = delete;
 		NativeWindowsWindow& operator=(const NativeWindowsWindow&) = delete;
 
+		// Non-Movable
+		NativeWindowsWindow(NativeWindowsWindow&&) = delete;
+		NativeWindowsWindow& operator=(NativeWindowsWindow&&) = delete;
+
 	private:
 		void Init();
 		void Shutdown();

@@ -6,11 +6,6 @@
 
 namespace Quark {
 
-	static constexpr ModifierKey GetModKey(int mod)
-	{
-		return static_cast<ModifierKey>(mod);
-	}
-
 	static void SetContextRelatedHints()
 	{
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -178,7 +173,7 @@ namespace Quark {
 		glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
 			{
 				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-				ModifierKey modKeys = GetModKey(mods);
+				ModifierKey modKeys = static_cast<ModifierKey>(mods);
 
 				switch (action)
 				{
