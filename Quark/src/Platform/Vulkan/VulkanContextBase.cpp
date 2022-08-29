@@ -147,15 +147,19 @@ namespace Quark {
 			submitInfo.pWaitSemaphores = &waitSemaphores;
 		}
 
-		VkCommandBuffer commandBuffer = m_Frames[m_CurrentFrameIndex].CommandBuffer.GetVkHandle();
-		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &commandBuffer;
+		VkCommandBuffer commandBuffers[] = {
+			m_Frames[m_CurrentFrameIndex].CommandBuffer.GetVkHandle()
+		};
+
+		submitInfo.commandBufferCount = sizeof_array(commandBuffers);
+		submitInfo.pCommandBuffers = commandBuffers;
 
 		VkSemaphore signalSemaphore = m_Frames[m_CurrentFrameIndex].RenderFinishedSemaphore;
 		submitInfo.signalSemaphoreCount = 1;
 		submitInfo.pSignalSemaphores = &signalSemaphore;
 
-		vkQueueSubmit(m_Device->GetGraphicsQueue(), 1, &submitInfo, m_Frames[m_CurrentFrameIndex].InFlightFence);
+		VkQueue graphicsQueue = m_Device->GetGraphicsQueue();
+		vkQueueSubmit(graphicsQueue, 1, &submitInfo, m_Frames[m_CurrentFrameIndex].InFlightFence);
 	}
 
 	void VulkanContextBase::SwapBuffers()

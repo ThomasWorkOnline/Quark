@@ -108,16 +108,7 @@ namespace Quark {
 		{
 			QK_PROFILE_FUNCTION();
 
-			auto commandPool = device->GetCommandPool();
-
-			VkCommandBufferAllocateInfo allocInfo{};
-			allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-			allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-			allocInfo.commandPool = commandPool;
-			allocInfo.commandBufferCount = 1;
-
-			VkCommandBuffer commandBuffer;
-			vkAllocateCommandBuffers(device->GetVkHandle(), &allocInfo, &commandBuffer);
+			VkCommandBuffer commandBuffer = device->GetCopyCommandBuffer();
 
 			VkCommandBufferBeginInfo beginInfo{};
 			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -135,28 +126,16 @@ namespace Quark {
 			submitInfo.commandBufferCount = 1;
 			submitInfo.pCommandBuffers = &commandBuffer;
 
-			auto graphicsQueue = device->GetGraphicsQueue();
-
+			VkQueue graphicsQueue = device->GetGraphicsQueue();
 			vkQueueSubmit(graphicsQueue, 1, &submitInfo, nullptr);
 			vkQueueWaitIdle(graphicsQueue);
-
-			vkFreeCommandBuffers(device->GetVkHandle(), commandPool, 1, &commandBuffer);
 		}
 
 		void CopyBufferToImage(VulkanDevice* device, VkImage dstImage, VkBuffer srcBuffer, VkExtent3D extent)
 		{
 			QK_PROFILE_FUNCTION();
 
-			auto commandPool = device->GetCommandPool();
-
-			VkCommandBufferAllocateInfo allocInfo{};
-			allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-			allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-			allocInfo.commandPool = commandPool;
-			allocInfo.commandBufferCount = 1;
-
-			VkCommandBuffer commandBuffer;
-			vkAllocateCommandBuffers(device->GetVkHandle(), &allocInfo, &commandBuffer);
+			VkCommandBuffer commandBuffer = device->GetCopyCommandBuffer();
 
 			VkCommandBufferBeginInfo beginInfo{};
 			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -201,17 +180,14 @@ namespace Quark {
 			vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, NULL, 0, NULL, 1, &useBarrier);
 			vkEndCommandBuffer(commandBuffer);
 
-			auto graphicsQueue = device->GetGraphicsQueue();
-
 			VkSubmitInfo submitInfo{};
 			submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 			submitInfo.commandBufferCount = 1;
 			submitInfo.pCommandBuffers = &commandBuffer;
 
+			VkQueue graphicsQueue = device->GetGraphicsQueue();
 			vkQueueSubmit(graphicsQueue, 1, &submitInfo, nullptr);
 			vkQueueWaitIdle(graphicsQueue);
-
-			vkFreeCommandBuffers(device->GetVkHandle(), commandPool, 1, &commandBuffer);
 		}
 	}
 }

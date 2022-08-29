@@ -15,9 +15,9 @@ VulkanApp::VulkanApp(const ApplicationOptions& options)
 
 	Random<bool> randomBool;
 	Random<float> randomFloat;
-	auto random = [&]() -> auto { return (randomFloat.Next() - 0.5f) * 100.0f; };
+	auto random = [&]() -> auto { return (randomFloat.Next() - 0.5f) * 1000.0f; };
 
-	for (uint32_t i = 0; i < 100; i++)
+	for (uint32_t i = 0; i < 10000; i++)
 	{
 		auto sprite = m_Scene->CreateEntity();
 

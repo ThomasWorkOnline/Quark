@@ -39,7 +39,9 @@ namespace Quark {
 
 		VkQueue GetGraphicsQueue() const { return m_GraphicsQueue; }
 		VkQueue GetPresentQueue() const { return m_PresentQueue; }
+
 		VkCommandPool GetCommandPool() const { return m_CommandPool; }
+		VkCommandBuffer GetCopyCommandBuffer() const { return m_CopyCommandBuffer; }
 
 		const QueueFamilyIndices& GetQueueFamilyIndices() const { return m_QueueFamilyIndices; }
 		const SwapChainSupportDetails& GetSupportDetails() const { return m_SupportDetails; }
@@ -59,6 +61,7 @@ namespace Quark {
 		VkQueue m_GraphicsQueue;
 		VkQueue m_PresentQueue;
 		VkCommandPool m_CommandPool;
+		VkCommandBuffer m_CopyCommandBuffer;
 
 		QueueFamilyIndices m_QueueFamilyIndices;
 		SwapChainSupportDetails m_SupportDetails;

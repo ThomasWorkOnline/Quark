@@ -159,6 +159,14 @@ namespace Quark {
 			vkGetDeviceQueue(m_Device, m_QueueFamilyIndices.PresentFamily.value(), 0, &m_PresentQueue);
 
 			vkCreateCommandPool(m_Device, &poolInfo, nullptr, &m_CommandPool);
+
+			VkCommandBufferAllocateInfo allocInfo{};
+			allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+			allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+			allocInfo.commandPool = m_CommandPool;
+			allocInfo.commandBufferCount = 1;
+
+			vkAllocateCommandBuffers(m_Device, &allocInfo, &m_CopyCommandBuffer);
 		}
 	}
 
@@ -166,8 +174,9 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		vmaDestroyAllocator(m_Allocator);
+		vkFreeCommandBuffers(m_Device, m_CommandPool, 1, &m_CopyCommandBuffer);
 		vkDestroyCommandPool(m_Device, m_CommandPool, nullptr);
+		vmaDestroyAllocator(m_Allocator);
 		vkDestroyDevice(m_Device, nullptr);
 	}
 
