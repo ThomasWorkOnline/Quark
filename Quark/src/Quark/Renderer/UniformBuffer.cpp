@@ -1,12 +1,12 @@
 #include "qkpch.h"
 #include "UniformBuffer.h"
 
-#include "GraphicsAPI.h"
+#include "GraphicsAPI.cpp"
 
 namespace Quark {
 
 	Scope<UniformBuffer> UniformBuffer::Create(const UniformBufferSpecification& spec)
 	{
-		return GraphicsAPI::Instance->CreateUniformBuffer(spec);
+		return s_GraphicsAPI->CreateUniformBuffer(spec);
 	}
 }

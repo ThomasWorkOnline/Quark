@@ -20,8 +20,8 @@ namespace Quark {
 		virtual uint32_t GetHeight() const override { return m_Data.Height; }
 		virtual std::string_view GetTitle() const override { return m_Data.Title; }
 
-		virtual Window& SetTitle(std::string_view title) override;
-		virtual Window& AppendTitle(std::string_view title) override;
+		virtual Window& SetTitle(std::string title) override;
+		virtual Window& AppendTitle(std::string title) override;
 
 		virtual void Resize(uint32_t width, uint32_t height) override;
 

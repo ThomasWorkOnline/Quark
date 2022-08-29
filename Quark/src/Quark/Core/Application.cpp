@@ -1,10 +1,8 @@
 #include "qkpch.h"
 #include "Application.h"
 
-#include "Core.h"
 #include "Quark/Renderer/Renderer.h"
 #include "Quark/Renderer/Renderer2D.h"
-#include "Quark/Renderer/GraphicsAPI.h"
 
 #include <ctime>
 #include <filesystem>
@@ -21,6 +19,8 @@ namespace Quark {
 		if (!m_Options.AssetDir.empty())
 			std::filesystem::current_path(m_Options.AssetDir);
 
+		Renderer::Configure(m_Options.GraphicsAPI);
+
 		WindowSpecification spec = {
 			m_Options.AppName.empty() ? "Quark Engine" : m_Options.AppName, m_Options.Width, m_Options.Height, 4
 		};
@@ -28,16 +28,12 @@ namespace Quark {
 		m_Window = Window::Create(spec);
 		m_Window->SetEventCallback(ATTACH_EVENT_FN(Application::OnEventInternal));
 
-		if (m_Options.HasFlag(ShowApiInWindowTitle))
-		{
-			auto title = GraphicsAPI::Instance->GetName();
-			m_Window->AppendTitle(" - ").AppendTitle(title);
-		}
-
 		Renderer::Initialize(m_Window->GetWidth(), m_Window->GetHeight());
 		Renderer2D::Initialize();
 
-		QK_CORE_INFO(GraphicsAPI::Instance->GetSpecification());
+		m_Window->AppendTitle(fmt::format(" - {0} ({1})", QK_PLATFORM_NAME, Renderer::GetAPIName()));
+
+		QK_CORE_INFO(Renderer::GetSpecification());
 
 		m_AudioOutputDevice = AudioOutputDevice::Create();
 		QK_CORE_INFO("Opened audio device: {0}", m_AudioOutputDevice->GetDeviceName());

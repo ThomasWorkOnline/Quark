@@ -1,6 +1,5 @@
 #include "qkpch.h"
 #include "Renderer2D.h"
-#include "GraphicsAPI.h"
 
 #include "Quark/Core/Application.h"
 #include "Quark/Renderer/Renderer.h"
@@ -415,7 +414,7 @@ namespace Quark {
 		s_Data = new Renderer2DData();
 
 		// Samplers
-		s_Data->MaxSamplerDestinations = GraphicsAPI::Instance->GetCapabilities().TextureConstraints.MaxTextureSlots;
+		s_Data->MaxSamplerDestinations = Renderer::GetCapabilities().TextureConstraints.MaxTextureSlots;
 		QK_CORE_ASSERT(s_Data->MaxSamplerDestinations > 0, "Platform does not support texture samplers");
 
 		// Camera buffer

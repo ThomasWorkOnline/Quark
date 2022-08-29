@@ -1,12 +1,12 @@
 #include "qkpch.h"
 #include "Cubemap.h"
 
-#include "GraphicsAPI.h"
+#include "GraphicsAPI.cpp"
 
 namespace Quark {
 
 	Scope<Cubemap> Cubemap::Create(const CubemapSpecification& spec)
 	{
-		return GraphicsAPI::Instance->CreateCubemap(spec);
+		return s_GraphicsAPI->CreateCubemap(spec);
 	}
 }

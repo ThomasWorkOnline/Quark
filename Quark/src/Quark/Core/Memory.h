@@ -41,12 +41,6 @@ namespace Quark {
 	template<typename T>
 	using WeakRef = std::weak_ptr<T>;
 
-	extern void* Malloc(std::size_t size);
-	extern void* Realloc(void* memory, std::size_t size);
-
-	extern void  Free(void* memory, std::size_t size);
-	extern void  Free(void* memory);
-
 	template<typename T>
 	class AutoRelease
 	{

@@ -1,7 +1,7 @@
 #include "qkpch.h"
 #include "Framebuffer.h"
 
-#include "GraphicsAPI.h"
+#include "GraphicsAPI.cpp"
 
 namespace Quark {
 
@@ -12,7 +12,7 @@ namespace Quark {
 
 	Scope<FramebufferAttachment> FramebufferAttachment::Create(const FramebufferAttachmentSpecification& spec)
 	{
-		return GraphicsAPI::Instance->CreateFramebufferAttachment(spec);
+		return s_GraphicsAPI->CreateFramebufferAttachment(spec);
 	}
 
 	Framebuffer::Framebuffer(const FramebufferSpecification& spec)
@@ -22,6 +22,6 @@ namespace Quark {
 
 	Scope<Framebuffer> Framebuffer::Create(const FramebufferSpecification& spec)
 	{
-		return GraphicsAPI::Instance->CreateFramebuffer(spec);
+		return s_GraphicsAPI->CreateFramebuffer(spec);
 	}
 }

@@ -30,12 +30,11 @@ namespace Quark {
 			Init();
 
 		m_Data.Title = spec.Title;
-		m_Data.Title.append(" - " QK_PLATFORM_NAME " (" QK_CONFIG_NAME ")");
 		m_WindowHandle = CreateWindowEx(
-			0,                                           // Optional window styles.
-			s_ClassName,                                 // Window class
-			Utils::ConvertToWideString(spec.Title).c_str(),     // Window text
-			WS_OVERLAPPEDWINDOW | WS_VISIBLE,            // Window style
+			0,                                              // Optional window styles.
+			s_ClassName,                                    // Window class
+			Utils::ConvertToWideString(spec.Title).c_str(), // Window text
+			WS_OVERLAPPEDWINDOW | WS_VISIBLE,               // Window style
 
 			// Size and position
 			CW_USEDEFAULT, CW_USEDEFAULT, spec.Width, spec.Height,
@@ -78,16 +77,16 @@ namespace Quark {
 		}
 	}
 
-	Window& NativeWindowsWindow::SetTitle(std::string_view title)
+	Window& NativeWindowsWindow::SetTitle(std::string title)
 	{
-		m_Data.Title = title;
+		m_Data.Title = std::move(title);
 		SetWindowText(m_WindowHandle, Utils::ConvertToWideString(m_Data.Title).c_str());
 		return *this;
 	}
 
-	Window& NativeWindowsWindow::AppendTitle(std::string_view title)
+	Window& NativeWindowsWindow::AppendTitle(std::string title)
 	{
-		m_Data.Title.append(title);
+		m_Data.Title.append(std::move(title));
 		SetWindowText(m_WindowHandle, Utils::ConvertToWideString(m_Data.Title).c_str());
 		return *this;
 	}
@@ -131,6 +130,7 @@ namespace Quark {
 
 	void NativeWindowsWindow::SetVSync(bool enabled)
 	{
+		m_Data.Context->SetSwapInterval(enabled);
 	}
 
 	bool NativeWindowsWindow::IsFocused() const

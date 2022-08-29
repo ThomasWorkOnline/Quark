@@ -2,6 +2,7 @@
 #include "GraphicsAPI.h"
 
 #include "Platform/OpenGL/OpenGLGraphicsAPI.h"
+#include "Platform/Vulkan/VulkanGraphicsAPI.h"
 
 namespace Quark {
 
@@ -10,8 +11,16 @@ namespace Quark {
 		return RHI::OpenGL;
 	}
 
-	Scope<GraphicsAPI> CreateDefaultRHIForPlatform()
+	Scope<GraphicsAPI> CreateRHIForPlatform(RHI api)
 	{
-		return CreateScope<OpenGLGraphicsAPI>();
+		switch (api)
+		{
+			case RHI::OpenGL: return CreateScope<OpenGLGraphicsAPI>();
+			case RHI::Vulkan: return CreateScope<VulkanGraphicsAPI>();
+
+			QK_ASSERT_NO_DEFAULT("Graphics API is not supported!");
+		}
+
+		return nullptr;
 	}
 }

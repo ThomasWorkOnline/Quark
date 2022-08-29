@@ -1,7 +1,7 @@
 #include "qkpch.h"
 #include "Sampler.h"
 
-#include "GraphicsAPI.h"
+#include "GraphicsAPI.cpp"
 
 namespace Quark {
 
@@ -12,6 +12,6 @@ namespace Quark {
 
 	Scope<Sampler2D> Sampler2D::Create(const Sampler2DSpecification& spec)
 	{
-		return GraphicsAPI::Instance->CreateSampler2D(spec);
+		return s_GraphicsAPI->CreateSampler2D(spec);
 	}
 }

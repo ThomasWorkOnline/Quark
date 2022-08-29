@@ -109,6 +109,7 @@ namespace Quark {
 			QK_PROFILE_FUNCTION();
 
 			VkCommandBuffer commandBuffer = device->GetCopyCommandBuffer();
+			vkResetCommandBuffer(commandBuffer, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
 
 			VkCommandBufferBeginInfo beginInfo{};
 			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -136,6 +137,7 @@ namespace Quark {
 			QK_PROFILE_FUNCTION();
 
 			VkCommandBuffer commandBuffer = device->GetCopyCommandBuffer();
+			vkResetCommandBuffer(commandBuffer, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
 
 			VkCommandBufferBeginInfo beginInfo{};
 			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;

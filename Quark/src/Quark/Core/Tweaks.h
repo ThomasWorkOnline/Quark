@@ -12,7 +12,6 @@
 //#define QK_VERBOSE_FUNCTION_SIG
 
 //#define QK_ENABLE_ALL_METRICS
-//#define QK_ENABLE_MEMORY_METRICS
 
 /////////////////////////////////////////////////////
 /// MISC

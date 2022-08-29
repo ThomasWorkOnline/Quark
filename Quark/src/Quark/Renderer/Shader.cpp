@@ -1,11 +1,12 @@
 #include "qkpch.h"
 #include "Shader.h"
 
-#include "GraphicsAPI.h"
-#include <fstream>
-
 #include <shaderc/shaderc.hpp>
 #include <spirv_cross/spirv_cross.hpp>
+
+#include <fstream>
+
+#include "GraphicsAPI.cpp"
 
 namespace Quark {
 
@@ -109,17 +110,17 @@ namespace Quark {
 
 	Scope<Shader> Shader::Create(std::string_view filepath)
 	{
-		return GraphicsAPI::Instance->CreateShader(filepath);
+		return s_GraphicsAPI->CreateShader(filepath);
 	}
 
 	Scope<Shader> Shader::Create(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& fragmentSource)
 	{
-		return GraphicsAPI::Instance->CreateShader(name, vertexSource, fragmentSource);
+		return s_GraphicsAPI->CreateShader(name, vertexSource, fragmentSource);
 	}
 
 	Scope<Shader> Shader::Create(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& geometrySource, const SpirvSource& fragmentSource)
 	{
-		return GraphicsAPI::Instance->CreateShader(name, vertexSource, geometrySource, fragmentSource);
+		return s_GraphicsAPI->CreateShader(name, vertexSource, geometrySource, fragmentSource);
 	}
 
 	SpirvSource ReadSpirvFile(std::string_view filepath)

@@ -1,11 +1,12 @@
 #include "qkpch.h"
 #include "Renderer.h"
 
+#include "Quark/Filesystem/Filesystem.h"
+
 #include "CommandBuffer.h"
 #include "GraphicsContext.h"
-#include "RenderCommand.h"
 
-#include "Quark/Filesystem/Filesystem.h"
+#include "GraphicsAPI.cpp"
 
 namespace Quark {
 
@@ -102,6 +103,11 @@ namespace Quark {
 		return s_Data->GeometryPass->GetSpecification().ClearColor;
 	}
 
+	const GraphicsAPICapabilities& Renderer::GetCapabilities()
+	{
+		return s_GraphicsAPI->GetCapabilities();
+	}
+
 	RenderPass* Renderer::GetGeometryPass()
 	{
 		QK_ASSERT_RENDER_THREAD();
@@ -132,6 +138,16 @@ namespace Quark {
 		return s_Data->ShaderLib;
 	}
 
+	std::string Renderer::GetSpecification()
+	{
+		return s_GraphicsAPI->GetSpecification();
+	}
+
+	const char* Renderer::GetAPIName()
+	{
+		return s_GraphicsAPI->GetName();
+	}
+
 	void Renderer::BeginFrame()
 	{
 		QK_ASSERT_RENDER_THREAD();
@@ -157,6 +173,11 @@ namespace Quark {
 		GraphicsContext::Get()->Submit();
 	}
 
+	void Renderer::Configure(RHI api)
+	{
+		s_GraphicsAPI = GraphicsAPI::Instantiate(GetDefaultRHIForPlatform());
+	}
+
 	void Renderer::Initialize(uint32_t viewportWidth, uint32_t viewportHeight)
 	{
 		QK_PROFILE_FUNCTION();
@@ -165,10 +186,9 @@ namespace Quark {
 
 		s_ViewportExtent.Width = viewportWidth;
 		s_ViewportExtent.Height = viewportHeight;
-
 		s_ThreadId = std::this_thread::get_id();
-		RenderCommand::Init();
 
+		s_GraphicsAPI->Init();
 		s_Data = new RendererData();
 
 		{

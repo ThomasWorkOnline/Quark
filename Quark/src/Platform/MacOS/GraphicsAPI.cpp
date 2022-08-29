@@ -2,6 +2,8 @@
 #include "GraphicsAPI.h"
 
 #include "Metal/MetalGraphicsAPI.h"
+#include "Platform/OpenGL/OpenGLGraphicsAPI.h"
+#include "Platform/Vulkan/VulkanGraphicsAPI.h"
 
 namespace Quark {
 
@@ -10,8 +12,17 @@ namespace Quark {
 		return RHI::Metal;
 	}
 
-	Scope<GraphicsAPI> CreateDefaultRHIForPlatform()
+	Scope<GraphicsAPI> CreateRHIForPlatform(RHI api)
 	{
-		return CreateScope<MetalGraphicsAPI>();
+		switch (api)
+		{
+			case RHI::OpenGL: return CreateScope<OpenGLGraphicsAPI>();
+			case RHI::Vulkan: return CreateScope<VulkanGraphicsAPI>();
+			case RHI::Metal:  return CreateScope<MetalGraphicsAPI>();
+
+			QK_ASSERT_NO_DEFAULT("Graphics API is not supported!");
+		}
+
+		return nullptr;
 	}
 }

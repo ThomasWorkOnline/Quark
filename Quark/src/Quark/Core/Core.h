@@ -36,7 +36,6 @@
 #include "Quark/Debug/Logger.h"
 #include "Quark/Debug/LogUtils.h"
 #include "Quark/Debug/Profiling.h"
-#include "Quark/Debug/MemoryContext.h"
 
 ////////////////////////////////////////////////////////////////
 // Logging Macros

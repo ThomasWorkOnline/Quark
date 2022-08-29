@@ -3,12 +3,5 @@
 
 namespace Quark {
 
-	RHI GraphicsAPI::s_API = RHI::None;
-	Scope<GraphicsAPI> GraphicsAPI::Instance = Instantiate();
-
-	Scope<GraphicsAPI> GraphicsAPI::Instantiate()
-	{
-		s_API = GetDefaultRHIForPlatform();
-		return CreateDefaultRHIForPlatform();
-	}
+	inline Scope<GraphicsAPI> s_GraphicsAPI = nullptr;
 }

@@ -1,12 +1,12 @@
 #include "qkpch.h"
 #include "CommandBuffer.h"
 
-#include "GraphicsAPI.h"
+#include "GraphicsAPI.cpp"
 
 namespace Quark {
 
 	Scope<CommandBuffer> CommandBuffer::Create()
 	{
-		return GraphicsAPI::Instance->CreateCommandBuffer();
+		return s_GraphicsAPI->CreateCommandBuffer();
 	}
 }

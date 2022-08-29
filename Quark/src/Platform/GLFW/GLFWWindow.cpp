@@ -65,7 +65,6 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		m_Data.Title = spec.Title;
-		m_Data.Title.append(" - " QK_PLATFORM_NAME " (" QK_CONFIG_NAME ")");
 		m_Data.Width   = spec.Width;
 		m_Data.Height  = spec.Height;
 		m_Data.Samples = spec.Samples;
@@ -268,16 +267,16 @@ namespace Quark {
 			glfwTerminate();
 	}
 
-	Window& GLFWWindow::SetTitle(std::string_view title)
+	Window& GLFWWindow::SetTitle(std::string title)
 	{
-		m_Data.Title = title;
+		m_Data.Title = std::move(title);
 		glfwSetWindowTitle(m_Window, m_Data.Title.c_str());
 		return *this;
 	}
 
-	Window& GLFWWindow::AppendTitle(std::string_view title)
+	Window& GLFWWindow::AppendTitle(std::string title)
 	{
-		m_Data.Title.append(title);
+		m_Data.Title.append(std::move(title));
 		glfwSetWindowTitle(m_Window, m_Data.Title.c_str());
 		return *this;
 	}

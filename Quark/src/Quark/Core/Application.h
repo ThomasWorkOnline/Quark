@@ -6,13 +6,14 @@
 
 #include "Quark/Audio/AudioDevice.h"
 #include "Quark/Event/ApplicationEvent.h"
+#include "Quark/Renderer/GraphicsAPI.h"
 
 #include <thread>
 #include <filesystem>
 
 namespace Quark {
 
-	enum ApplicationFlag
+	enum ApplicationFlagBits
 	{
 		ApplicationFlagNone  = 0,
 		ShowApiInWindowTitle = BIT(0)
@@ -26,10 +27,11 @@ namespace Quark {
 		std::filesystem::path AssetDir;
 		std::filesystem::path CoreAssetDir;
 
-		ApplicationFlag Flags{};
+		ApplicationFlagBits Flags{};
 		KeyCode FullscreenKey = KeyCode::F11;
+		RHI GraphicsAPI = GetDefaultRHIForPlatform();
 
-		bool HasFlag(ApplicationFlag flag) const { return Flags & flag; }
+		bool HasFlag(ApplicationFlagBits flag) const { return Flags & flag; }
 	};
 
 	class Application : public Singleton<Application>
@@ -69,6 +71,7 @@ namespace Quark {
 		ApplicationOptions m_Options;
 		Scope<Window> m_Window;
 		Scope<AudioOutputDevice> m_AudioOutputDevice;
+
 		std::thread::id m_AppMainThreadId;
 		std::vector<Layer*> m_Layers;
 

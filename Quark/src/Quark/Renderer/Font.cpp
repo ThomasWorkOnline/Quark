@@ -1,13 +1,13 @@
 #include "qkpch.h"
 #include "Font.h"
 
-#include "GraphicsAPI.h"
+#include "GraphicsAPI.cpp"
 
 namespace Quark {
 
 	Scope<Font> Font::Create(std::string_view filepath, uint32_t fontSize)
 	{
-		return GraphicsAPI::Instance->CreateFont(filepath, fontSize);
+		return s_GraphicsAPI->CreateFont(filepath, fontSize);
 	}
 
 	static size_t GetHashedName(std::string_view name)

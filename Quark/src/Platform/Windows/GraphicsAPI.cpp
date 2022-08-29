@@ -4,25 +4,23 @@
 #include "Platform/OpenGL/OpenGLGraphicsAPI.h"
 #include "Platform/Vulkan/VulkanGraphicsAPI.h"
 
-#define USE_VULKAN 1
-
 namespace Quark {
 
 	RHI GetDefaultRHIForPlatform()
 	{
-#if USE_VULKAN
 		return RHI::Vulkan;
-#else
-		return RHI::OpenGL;
-#endif
 	}
 
-	Scope<GraphicsAPI> CreateDefaultRHIForPlatform()
+	Scope<GraphicsAPI> CreateRHIForPlatform(RHI api)
 	{
-#if USE_VULKAN
-		return CreateScope<VulkanGraphicsAPI>();
-#else
-		return CreateScope<OpenGLGraphicsAPI>();
-#endif
+		switch (api)
+		{
+			case RHI::OpenGL: return CreateScope<OpenGLGraphicsAPI>();
+			case RHI::Vulkan: return CreateScope<VulkanGraphicsAPI>();
+
+			QK_ASSERT_NO_DEFAULT("Graphics API is not supported!");
+		}
+
+		return nullptr;
 	}
 }

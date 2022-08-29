@@ -6,6 +6,7 @@
 #include "Camera.h"
 #include "CommandBuffer.h"
 #include "Framebuffer.h"
+#include "GraphicsAPI.h"
 #include "Pipeline.h"
 #include "RenderPass.h"
 #include "Shader.h"
@@ -38,6 +39,7 @@ namespace Quark {
 		static void SetClearColor(const Vec4f& clearColor);
 
 		static const Vec4f& GetClearColor();
+		static const GraphicsAPICapabilities& GetCapabilities();
 
 		static RenderPass* GetGeometryPass();
 		static Framebuffer* GetTargetFramebuffer();
@@ -46,11 +48,14 @@ namespace Quark {
 
 		static ShaderLibrary& GetShaderLibrary();
 		static std::thread::id GetThreadId() { return s_ThreadId; }
+		static std::string GetSpecification();
+		static const char* GetAPIName();
 
 	private:
 		static void BeginFrame();
 		static void EndFrame();
 
+		static void Configure(RHI api);
 		static void Initialize(uint32_t viewportWidth, uint32_t viewportHeight);
 		static void Dispose();
 

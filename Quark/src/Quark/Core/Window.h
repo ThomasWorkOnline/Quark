@@ -34,8 +34,8 @@ namespace Quark {
 		virtual uint32_t GetHeight() const = 0;
 		virtual std::string_view GetTitle() const = 0;
 
-		virtual Window& SetTitle(std::string_view title) = 0;
-		virtual Window& AppendTitle(std::string_view title) = 0;
+		virtual Window& SetTitle(std::string title) = 0;
+		virtual Window& AppendTitle(std::string title) = 0;
 
 		virtual void Resize(uint32_t width, uint32_t height) = 0;
 

@@ -3,7 +3,7 @@
 #include "OpenGLFormats.h"
 
 #include "Quark/Renderer/Image.h"
-#include "Quark/Renderer/GraphicsAPI.h"
+#include "Quark/Renderer/Renderer.h"
 
 #include <glad/glad.h>
 
@@ -17,8 +17,8 @@ namespace Quark {
 		QK_CORE_ASSERT(!IsformatUsingMips(spec.RenderModes.MagFilteringMode),
 			"The magnification mode may not be set to use mipmaps");
 
-		QK_CORE_ASSERT(m_Spec.Width <= GraphicsAPI::Instance->GetCapabilities().TextureConstraints.MaxPixelSize
-			&& m_Spec.Height <= GraphicsAPI::Instance->GetCapabilities().TextureConstraints.MaxPixelSize, "Texture dimensions too large");
+		QK_CORE_ASSERT(m_Spec.Width <= Renderer::GetCapabilities().TextureConstraints.MaxPixelSize
+			&& m_Spec.Height <= Renderer::GetCapabilities().TextureConstraints.MaxPixelSize, "Texture dimensions too large");
 
 		m_InternalFormat = DataFormatToOpenGLInternalFormat(m_Spec.DataFormat);
 		m_DataFormat = DataFormatToOpenGLStorageFormat(m_Spec.DataFormat);
@@ -76,8 +76,8 @@ namespace Quark {
 		m_Spec.DataFormat     = metadata.DataFormat;
 		m_Spec.RenderModes    = renderModes;
 
-		QK_CORE_ASSERT(m_Spec.Width <= GraphicsAPI::Instance->GetCapabilities().TextureConstraints.MaxPixelSize
-			&& m_Spec.Height <= GraphicsAPI::Instance->GetCapabilities().TextureConstraints.MaxPixelSize, "Texture dimensions too large");
+		QK_CORE_ASSERT(m_Spec.Width <= Renderer::GetCapabilities().TextureConstraints.MaxPixelSize
+			&& m_Spec.Height <= Renderer::GetCapabilities().TextureConstraints.MaxPixelSize, "Texture dimensions too large");
 
 		m_DataFormat = DataFormatToOpenGLStorageFormat(m_Spec.DataFormat);
 		m_InternalFormat = DataFormatToOpenGLInternalFormat(m_Spec.DataFormat);

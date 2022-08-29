@@ -1,30 +1,8 @@
 #include "qkpch.h"
 #include "Image.h"
 
-extern "C" {
-
-	static inline void* Quark_Malloc(size_t size)
-	{
-		return Quark::Malloc(size);
-	}
-
-	static inline void* Quark_Realloc(void* memory, size_t size)
-	{
-		return Quark::Realloc(memory, size);
-	}
-
-	static inline void Quark_Free(void* memory)
-	{
-		Quark::Free(memory);
-	}
-}
-
 #define STB_IMAGE_STATIC
 #define STB_IMAGE_IMPLEMENTATION
-
-#define STBI_MALLOC        Quark_Malloc
-#define STBI_REALLOC       Quark_Realloc
-#define STBI_FREE          Quark_Free
 
 #include <stb_image.h>
 #include <lodepng.h>

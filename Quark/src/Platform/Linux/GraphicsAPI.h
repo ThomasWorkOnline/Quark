@@ -5,5 +5,5 @@
 namespace Quark {
 
 	RHI GetDefaultRHIForPlatform();
-	Scope<GraphicsAPI> CreateDefaultRHIForPlatform();
+	Scope<GraphicsAPI> CreateRHIForPlatform(RHI api);
 }
