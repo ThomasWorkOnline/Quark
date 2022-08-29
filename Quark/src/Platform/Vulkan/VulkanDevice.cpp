@@ -180,7 +180,7 @@ namespace Quark {
 		vkDestroyDevice(m_Device, nullptr);
 	}
 
-	void VulkanDevice::WaitIdle() const
+	void VulkanDevice::WaitUntilIdle() const
 	{
 		QK_PROFILE_FUNCTION();
 

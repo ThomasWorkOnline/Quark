@@ -175,7 +175,7 @@ namespace Quark {
 
 	void Renderer::Configure(RHI api)
 	{
-		s_GraphicsAPI = GraphicsAPI::Instantiate(GetDefaultRHIForPlatform());
+		s_GraphicsAPI = GraphicsAPI::Instantiate(api);
 	}
 
 	void Renderer::Initialize(uint32_t viewportWidth, uint32_t viewportHeight)
@@ -226,7 +226,7 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		GraphicsContext::Get()->WaitUntilIdle();
+		GraphicsContext::Get()->WaitUntilDeviceIdle();
 
 		delete s_Data;
 		s_Data = nullptr;

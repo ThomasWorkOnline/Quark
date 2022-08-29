@@ -7,12 +7,12 @@
 
 namespace Quark {
 
-	RHI GetDefaultRHIForPlatform()
+	RHI GraphicsAPI::GetDefaultRHIForPlatform()
 	{
 		return RHI::OpenGL;
 	}
 
-	Scope<GraphicsAPI> CreateRHIForPlatform(RHI api)
+	Scope<GraphicsAPI> GraphicsAPI::CreateRHIForPlatform(RHI api)
 	{
 		switch (api)
 		{

@@ -30,7 +30,7 @@ namespace Quark {
 		VulkanDevice(VkPhysicalDevice vkPhysicalDevice, const std::vector<VkDeviceQueueCreateInfo>& queueCreateInfos, QueueFamilyIndices queueFamilyIndices, SwapChainSupportDetails supportDetails);
 		~VulkanDevice();
 
-		void WaitIdle() const;
+		void WaitUntilIdle() const;
 
 		VkDevice GetVkHandle() const { return m_Device; }
 		VkPhysicalDevice GetPhysicalDevice() const { return m_PhysicalDevice; }
@@ -51,6 +51,10 @@ namespace Quark {
 		// Non-Copyable
 		VulkanDevice(const VulkanDevice&) = delete;
 		VulkanDevice& operator=(const VulkanDevice&) = delete;
+
+		// Non-Movable
+		VulkanDevice(VulkanDevice&&) = delete;
+		VulkanDevice& operator=(VulkanDevice&&) = delete;
 
 	private:
 		VkDevice m_Device;

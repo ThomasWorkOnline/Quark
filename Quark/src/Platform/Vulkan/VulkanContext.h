@@ -20,10 +20,6 @@ namespace Quark {
 		static VulkanContext* Get() { return GraphicsContext::Get<VulkanContext>(); }
 		static VulkanDevice*  GetCurrentDevice() { return Get()->m_Device.get(); }
 
-		// Non-Copyable
-		VulkanContext(const VulkanContext&) = delete;
-		VulkanContext& operator=(const VulkanContext&) = delete;
-
 	private:
 		GLFWwindow* m_WindowHandle;
 	};

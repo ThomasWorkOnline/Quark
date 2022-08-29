@@ -127,9 +127,9 @@ namespace Quark {
 		m_SwapchainValid = m_SwapChain->AcquireNextImage(m_Frames[m_CurrentFrameIndex].ImageAvailableSemaphore);
 	}
 
-	void VulkanContextBase::WaitUntilIdle()
+	void VulkanContextBase::WaitUntilDeviceIdle()
 	{
-		m_Device->WaitIdle();
+		m_Device->WaitUntilIdle();
 	}
 
 	void VulkanContextBase::Submit()
@@ -176,7 +176,7 @@ namespace Quark {
 
 	void VulkanContextBase::Resize(uint32_t viewportWidth, uint32_t viewportHeight)
 	{
-		m_Device->WaitIdle();
+		m_Device->WaitUntilIdle();
 		m_SwapChain->Resize(viewportWidth, viewportHeight);
 	}
 

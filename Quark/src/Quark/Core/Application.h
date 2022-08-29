@@ -29,7 +29,7 @@ namespace Quark {
 
 		ApplicationFlagBits Flags{};
 		KeyCode FullscreenKey = KeyCode::F11;
-		RHI GraphicsAPI = GetDefaultRHIForPlatform();
+		RHI GraphicsAPI = GraphicsAPI::GetDefaultRHIForPlatform();
 
 		bool HasFlag(ApplicationFlagBits flag) const { return Flags & flag; }
 	};

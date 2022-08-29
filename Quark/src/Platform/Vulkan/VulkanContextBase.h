@@ -27,7 +27,7 @@ namespace Quark {
 		virtual ~VulkanContextBase() override;
 
 		virtual void StartFrame() override;
-		virtual void WaitUntilIdle() override;
+		virtual void WaitUntilDeviceIdle() override;
 
 		virtual void Submit() override;
 		virtual void SwapBuffers() override;

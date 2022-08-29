@@ -13,7 +13,7 @@ namespace Quark {
 
 		virtual void Init() = 0;
 		virtual void StartFrame() = 0;
-		virtual void WaitUntilIdle() = 0;
+		virtual void WaitUntilDeviceIdle() = 0;
 
 		virtual void Submit() = 0;
 		virtual void SwapBuffers() = 0;

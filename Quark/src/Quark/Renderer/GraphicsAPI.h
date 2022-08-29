@@ -28,12 +28,6 @@ namespace Quark {
 		Metal
 	};
 
-	class GraphicsAPI;
-
-	// To be defined by each supported platform
-	extern RHI                GetDefaultRHIForPlatform();
-	extern Scope<GraphicsAPI> CreateRHIForPlatform(RHI api);
-
 	class GraphicsAPI
 	{
 	public:
@@ -90,7 +84,9 @@ namespace Quark {
 		virtual std::string                  GetSpecification() const = 0;
 									         
 		const                                GraphicsAPICapabilities& GetCapabilities() const { return m_Capabilities; }
-										     
+				
+		// To be defined by each supported platform
+		static RHI                           GetDefaultRHIForPlatform();
 		static RHI                           GetAPI() { return s_API; }
 
 	protected:
@@ -103,9 +99,11 @@ namespace Quark {
 			return CreateRHIForPlatform(api);
 		}
 
-		friend class Renderer;
+		// To be defined by each supported platform
+		static Scope<GraphicsAPI> CreateRHIForPlatform(RHI api);
 
 	private:
+		friend class Renderer;
 		static inline RHI s_API = RHI::None;
 	};
 }
