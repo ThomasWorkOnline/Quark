@@ -35,8 +35,11 @@ namespace Quark {
 
 		QK_CORE_INFO(Renderer::GetSpecification());
 
-		m_AudioOutputDevice = AudioOutputDevice::Create();
-		QK_CORE_INFO("Opened audio device: {0}", m_AudioOutputDevice->GetDeviceName());
+		if (m_Options.HasFlag(ApplicationFlagBits::EnableAudioOutputDevice))
+		{
+			m_AudioOutputDevice = AudioOutputDevice::Create();
+			QK_CORE_INFO("Opened audio device: {0}", m_AudioOutputDevice->GetDeviceName());
+		}
 	}
 
 	Application::~Application()
@@ -116,6 +119,12 @@ namespace Quark {
 			if (e.Handled)
 				break;
 		}
+	}
+
+	AudioOutputDevice* Application::OpenAudioOutputDevice(const char* deviceName)
+	{
+		m_AudioOutputDevice = AudioOutputDevice::Create(deviceName);
+		return m_AudioOutputDevice.get();
 	}
 
 	bool Application::DefaultEventHandler(Event& e)

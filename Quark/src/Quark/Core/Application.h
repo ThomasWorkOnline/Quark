@@ -13,10 +13,10 @@
 
 namespace Quark {
 
-	enum ApplicationFlagBits
+	enum class ApplicationFlagBits : uint8_t
 	{
-		ApplicationFlagNone  = 0,
-		ShowApiInWindowTitle = BIT(0)
+		None                    = 0,
+		EnableAudioOutputDevice = BIT(0)
 	};
 
 	struct ApplicationOptions
@@ -31,7 +31,7 @@ namespace Quark {
 		KeyCode FullscreenKey = KeyCode::F11;
 		RHI GraphicsAPI = GraphicsAPI::GetDefaultRHIForPlatform();
 
-		bool HasFlag(ApplicationFlagBits flag) const { return Flags & flag; }
+		bool HasFlag(ApplicationFlagBits flag) const { return (uint8_t)Flags & (uint8_t)flag; }
 	};
 
 	class Application : public Singleton<Application>
@@ -59,6 +59,8 @@ namespace Quark {
 
 		Window* GetWindow() const { return m_Window.get(); }
 		AudioOutputDevice* GetAudioOutputDevice() const { return m_AudioOutputDevice.get(); }
+
+		AudioOutputDevice* OpenAudioOutputDevice(const char* deviceName = nullptr);
 
 	protected:
 		bool DefaultEventHandler(Event& e);
