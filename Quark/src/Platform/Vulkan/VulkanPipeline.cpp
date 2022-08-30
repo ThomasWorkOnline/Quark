@@ -39,8 +39,172 @@ namespace Quark {
 
 		CreateDescriptorSetLayout();
 		CreateDescriptorPoolAndSets();
-		UpdateDescriptors();
+		CreatePipeline();
 
+		UpdateDescriptorSets();
+	}
+
+	VulkanPipeline::~VulkanPipeline()
+	{
+		QK_PROFILE_FUNCTION();
+
+		vkDestroyPipeline(m_Device->GetVkHandle(), m_Pipeline, nullptr);
+		vkDestroyPipelineLayout(m_Device->GetVkHandle(), m_PipelineLayout, nullptr);
+		vkDestroyDescriptorSetLayout(m_Device->GetVkHandle(), m_DescriptorSetLayout, nullptr);
+		vkDestroyDescriptorPool(m_Device->GetVkHandle(), m_DescriptorPool, nullptr);
+	}
+
+	VkDescriptorSet VulkanPipeline::GetDescriptorSet() const
+	{
+		return m_DescriptorSets[VulkanContext::Get()->GetCurrentFrameIndex()];
+	}
+
+	void VulkanPipeline::UpdateDescriptorSets()
+	{
+		// Uniform Buffers
+		for (auto* uniformBuffer : m_Spec.UniformBuffers)
+		{
+			auto* ub = static_cast<VulkanUniformBuffer*>(uniformBuffer);
+			for (uint32_t i = 0; i < VulkanContext::FramesInFlight; i++)
+			{
+				ub->UpdateDescriptorSet(m_DescriptorSets[i]);
+			}
+		}
+
+#if 0
+		// Samplers
+		for (auto& samplerArray : m_Spec.SamplersArray)
+		{
+			for (auto* sampler : samplerArray)
+			{
+				auto* sp = static_cast<VulkanSampler2D*>(sampler);
+
+				VkDescriptorImageInfo imageInfo{};
+				imageInfo.sampler = sp->GetVkHandle();
+				imageInfo.imageView = nullptr;
+				imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+				VkWriteDescriptorSet writeDescriptorSet{};
+				writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+				writeDescriptorSet.dstBinding = sp->GetBinding();
+				writeDescriptorSet.dstArrayElement = 0;
+				writeDescriptorSet.descriptorCount = sp->GetSpecification().SamplerCount;
+				writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+				writeDescriptorSet.pImageInfo = &imageInfo;
+
+				for (uint32_t i = 0; i < VulkanContext::FramesInFlight; i++)
+				{
+					writeDescriptorSet.dstSet = m_DescriptorSets[i];
+					vkUpdateDescriptorSets(m_Device->GetVkHandle(), 1, &writeDescriptorSet, 0, nullptr);
+				}
+			}
+		}
+#endif
+	}
+
+	void VulkanPipeline::CreateDescriptorSetLayout()
+	{
+		QK_PROFILE_FUNCTION();
+
+		const auto& shaderResources = m_Spec.Shader->GetShaderResources();
+
+		uint32_t bindingCount = m_Spec.Shader->GetBindingCount();
+		AutoRelease<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings = StackAlloc(bindingCount * sizeof(VkDescriptorSetLayoutBinding));
+		VkDescriptorSetLayoutBinding* descriptorSetLayoutbindingPtr = descriptorSetLayoutBindings;
+
+		QK_CORE_ASSERT(shaderResources.UniformBuffers.size() == m_Spec.UniformBuffers.size(), "Mismatch number of uniform buffer objects!");
+
+		for (auto& uniformBuffer : shaderResources.UniformBuffers)
+		{
+			*descriptorSetLayoutbindingPtr = {};
+			descriptorSetLayoutbindingPtr->binding = uniformBuffer.Decorators.Binding;
+			descriptorSetLayoutbindingPtr->descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			descriptorSetLayoutbindingPtr->descriptorCount = 1;
+			descriptorSetLayoutbindingPtr->stageFlags = Utils::ShaderStageToVulkan(uniformBuffer.Stage);
+			descriptorSetLayoutbindingPtr++;
+		}
+
+		QK_CORE_ASSERT(shaderResources.SamplerArrays.size() == m_Spec.SamplersArray.size(), "Mismatch number of sampler objects!");
+
+		uint32_t samplersIndex = 0;
+		std::vector<AutoRelease<VkSampler>> samplers(shaderResources.SamplerArrays.size());
+
+		for (uint32_t i = 0; i < samplers.size(); i++)
+		{
+			auto& samplerArray = shaderResources.SamplerArrays[i];
+			QK_CORE_ASSERT(samplerArray.SamplerCount == m_Spec.SamplersArray[i].size(),
+				"Sampler array contains {0} samplers, specification requires {1}", m_Spec.SamplersArray[i].size(), samplerArray.SamplerCount);
+
+			samplers[i] = StackAlloc(samplerArray.SamplerCount * sizeof(VkSampler));
+		}
+
+		for (auto& sampler : shaderResources.SamplerArrays)
+		{
+			for (uint32_t i = 0; i < sampler.SamplerCount; i++)
+			{
+				auto& samplerArray = m_Spec.SamplersArray[samplersIndex];
+				samplers[samplersIndex][i] = static_cast<VulkanSampler2D*>(samplerArray[i])->GetVkHandle();
+			}
+
+			*descriptorSetLayoutbindingPtr = {};
+			descriptorSetLayoutbindingPtr->binding = sampler.Decorators.Binding;
+			descriptorSetLayoutbindingPtr->descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			descriptorSetLayoutbindingPtr->descriptorCount = sampler.SamplerCount;
+			descriptorSetLayoutbindingPtr->stageFlags = Utils::ShaderStageToVulkan(sampler.Stage);
+			descriptorSetLayoutbindingPtr->pImmutableSamplers = samplers[samplersIndex];
+			descriptorSetLayoutbindingPtr++;
+			samplersIndex++;
+		}
+
+		VkDescriptorSetLayoutCreateInfo layoutInfo{};
+		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+		layoutInfo.bindingCount = bindingCount;
+		layoutInfo.pBindings = descriptorSetLayoutBindings;
+
+		vkCreateDescriptorSetLayout(m_Device->GetVkHandle(), &layoutInfo, nullptr, &m_DescriptorSetLayout);
+	}
+
+	void VulkanPipeline::CreateDescriptorPoolAndSets()
+	{
+		QK_PROFILE_FUNCTION();
+
+		// Descriptor pool shared for all frames in flight
+		{
+			VkDescriptorPoolSize poolSize[2]{};
+			poolSize[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+			poolSize[0].descriptorCount = 1 * VulkanContext::FramesInFlight;
+
+			poolSize[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			poolSize[1].descriptorCount = 32 * VulkanContext::FramesInFlight;
+
+			VkDescriptorPoolCreateInfo poolInfo{};
+			poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+			poolInfo.poolSizeCount = sizeof_array(poolSize);
+			poolInfo.pPoolSizes = poolSize;
+			poolInfo.maxSets = VulkanContext::FramesInFlight;
+
+			vkCreateDescriptorPool(m_Device->GetVkHandle(), &poolInfo, nullptr, &m_DescriptorPool);
+		}
+
+		// Descriptor sets
+		{
+			// Copy each layout for each frame in flight
+			VkDescriptorSetLayout layouts[VulkanContext::FramesInFlight]{};
+			for (uint32_t i = 0; i < VulkanContext::FramesInFlight; i++)
+				layouts[i] = m_DescriptorSetLayout;
+
+			VkDescriptorSetAllocateInfo allocInfo{};
+			allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+			allocInfo.descriptorPool = m_DescriptorPool;
+			allocInfo.descriptorSetCount = 1 * VulkanContext::FramesInFlight;
+			allocInfo.pSetLayouts = layouts;
+
+			vkAllocateDescriptorSets(m_Device->GetVkHandle(), &allocInfo, m_DescriptorSets);
+		}
+	}
+
+	void VulkanPipeline::CreatePipeline()
+	{
 		// Vertex input 
 		VkVertexInputBindingDescription bindingDescription{};
 		bindingDescription.binding = 0;
@@ -171,179 +335,5 @@ namespace Quark {
 		pipelineInfo.subpass = 0;
 
 		vkCreateGraphicsPipelines(m_Device->GetVkHandle(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_Pipeline);
-	}
-
-	VulkanPipeline::~VulkanPipeline()
-	{
-		QK_PROFILE_FUNCTION();
-
-		vkDestroyPipeline(m_Device->GetVkHandle(), m_Pipeline, nullptr);
-		vkDestroyPipelineLayout(m_Device->GetVkHandle(), m_PipelineLayout, nullptr);
-		vkDestroyDescriptorSetLayout(m_Device->GetVkHandle(), m_DescriptorSetLayout, nullptr);
-		vkDestroyDescriptorPool(m_Device->GetVkHandle(), m_DescriptorPool, nullptr);
-	}
-
-	VkDescriptorSet VulkanPipeline::GetDescriptorSet() const
-	{
-		return m_DescriptorSets[VulkanContext::Get()->GetCurrentFrameIndex()];
-	}
-
-	void VulkanPipeline::UpdateDescriptors()
-	{
-		// Uniform Buffers
-		for (auto* uniformBuffer : m_Spec.UniformBuffers)
-		{
-			auto* ub = static_cast<VulkanUniformBuffer*>(uniformBuffer);
-
-			VkDescriptorBufferInfo bufferInfo{};
-			bufferInfo.buffer = ub->GetVkHandle();
-			bufferInfo.offset = 0;
-			bufferInfo.range = ub->GetSize();
-
-			VkWriteDescriptorSet writeDescriptorSet{};
-			writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			writeDescriptorSet.dstBinding = ub->GetBinding();
-			writeDescriptorSet.dstArrayElement = 0;
-			writeDescriptorSet.descriptorCount = 1;
-			writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			writeDescriptorSet.pBufferInfo = &bufferInfo;
-
-			for (uint32_t i = 0; i < VulkanContext::FramesInFlight; i++)
-			{
-				writeDescriptorSet.dstSet = m_DescriptorSets[i];
-				vkUpdateDescriptorSets(m_Device->GetVkHandle(), 1, &writeDescriptorSet, 0, nullptr);
-			}
-		}
-
-#if 0
-		// Samplers
-		for (auto& samplerArray : m_Spec.SamplersArray)
-		{
-			for (auto* sampler : samplerArray)
-			{
-				auto* sp = static_cast<VulkanSampler2D*>(sampler);
-
-				VkDescriptorImageInfo imageInfo{};
-				imageInfo.sampler = sp->GetVkHandle();
-				imageInfo.imageView = nullptr;
-				imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-
-				VkWriteDescriptorSet writeDescriptorSet{};
-				writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-				writeDescriptorSet.dstBinding = sp->GetBinding();
-				writeDescriptorSet.dstArrayElement = 0;
-				writeDescriptorSet.descriptorCount = sp->GetSpecification().SamplerCount;
-				writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-				writeDescriptorSet.pImageInfo = &imageInfo;
-
-				for (uint32_t i = 0; i < VulkanContext::FramesInFlight; i++)
-				{
-					writeDescriptorSet.dstSet = m_DescriptorSets[i];
-					vkUpdateDescriptorSets(m_Device->GetVkHandle(), 1, &writeDescriptorSet, 0, nullptr);
-				}
-			}
-		}
-#endif
-	}
-
-	void VulkanPipeline::CreateDescriptorSetLayout()
-	{
-		QK_PROFILE_FUNCTION();
-
-		const auto& shaderResources = m_Spec.Shader->GetShaderResources();
-
-		uint32_t bindingCount = m_Spec.Shader->GetBindingCount();
-		AutoRelease<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings = StackAlloc(bindingCount * sizeof(VkDescriptorSetLayoutBinding));
-		VkDescriptorSetLayoutBinding* descriptorSetLayoutbindingPtr = descriptorSetLayoutBindings;
-
-		QK_CORE_ASSERT(shaderResources.UniformBuffers.size() == m_Spec.UniformBuffers.size(), "Mismatch number of uniform buffer objects!");
-
-		for (auto& uniformBuffer : shaderResources.UniformBuffers)
-		{
-			*descriptorSetLayoutbindingPtr = {};
-			descriptorSetLayoutbindingPtr->binding = uniformBuffer.Decorators.Binding;
-			descriptorSetLayoutbindingPtr->descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			descriptorSetLayoutbindingPtr->descriptorCount = 1;
-			descriptorSetLayoutbindingPtr->stageFlags = Utils::ShaderStageToVulkan(uniformBuffer.Stage);
-			descriptorSetLayoutbindingPtr++;
-		}
-
-		QK_CORE_ASSERT(shaderResources.SamplerArrays.size() == m_Spec.SamplersArray.size(), "Mismatch number of sampler objects!");
-
-		uint32_t samplersIndex = 0;
-		std::vector<AutoRelease<VkSampler>> samplers(shaderResources.SamplerArrays.size());
-
-		for (uint32_t i = 0; i < samplers.size(); i++)
-		{
-			auto& samplerArray = shaderResources.SamplerArrays[i];
-			QK_CORE_ASSERT(samplerArray.SamplerCount == m_Spec.SamplersArray[i].size(),
-				"Sampler array contains {0} samplers, specification requires {1}", m_Spec.SamplersArray[i].size(), samplerArray.SamplerCount);
-
-			samplers[i].Exchange(StackAlloc(samplerArray.SamplerCount * sizeof(VkSampler)));
-		}
-
-		for (auto& sampler : shaderResources.SamplerArrays)
-		{
-			for (uint32_t i = 0; i < sampler.SamplerCount; i++)
-			{
-				auto& samplerArray = m_Spec.SamplersArray[samplersIndex];
-				samplers[samplersIndex][i] = static_cast<VulkanSampler2D*>(samplerArray[i])->GetVkHandle();
-			}
-
-			*descriptorSetLayoutbindingPtr = {};
-			descriptorSetLayoutbindingPtr->binding = sampler.Decorators.Binding;
-			descriptorSetLayoutbindingPtr->descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			descriptorSetLayoutbindingPtr->descriptorCount = sampler.SamplerCount;
-			descriptorSetLayoutbindingPtr->stageFlags = Utils::ShaderStageToVulkan(sampler.Stage);
-			descriptorSetLayoutbindingPtr->pImmutableSamplers = samplers[samplersIndex];
-			descriptorSetLayoutbindingPtr++;
-			samplersIndex++;
-		}
-
-		VkDescriptorSetLayoutCreateInfo layoutInfo{};
-		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-		layoutInfo.bindingCount = bindingCount;
-		layoutInfo.pBindings = descriptorSetLayoutBindings;
-
-		vkCreateDescriptorSetLayout(m_Device->GetVkHandle(), &layoutInfo, nullptr, &m_DescriptorSetLayout);
-	}
-
-	void VulkanPipeline::CreateDescriptorPoolAndSets()
-	{
-		QK_PROFILE_FUNCTION();
-
-		// Descriptor pool shared for all frames in flight
-		{
-			VkDescriptorPoolSize poolSize[2]{};
-			poolSize[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
-			poolSize[0].descriptorCount = 1 * VulkanContext::FramesInFlight;
-
-			poolSize[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			poolSize[1].descriptorCount = 32 * VulkanContext::FramesInFlight;
-
-			VkDescriptorPoolCreateInfo poolInfo{};
-			poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-			poolInfo.poolSizeCount = sizeof_array(poolSize);
-			poolInfo.pPoolSizes = poolSize;
-			poolInfo.maxSets = VulkanContext::FramesInFlight;
-
-			vkCreateDescriptorPool(m_Device->GetVkHandle(), &poolInfo, nullptr, &m_DescriptorPool);
-		}
-
-		// Descriptor sets
-		{
-			// Copy each layout for each frame in flight
-			AutoRelease<VkDescriptorSetLayout> layouts = StackAlloc(VulkanContext::FramesInFlight * sizeof(VkDescriptorSetLayout));
-			for (uint32_t i = 0; i < VulkanContext::FramesInFlight; i++)
-				layouts[i] = m_DescriptorSetLayout;
-
-			VkDescriptorSetAllocateInfo allocInfo{};
-			allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-			allocInfo.descriptorPool = m_DescriptorPool;
-			allocInfo.descriptorSetCount = 1 * VulkanContext::FramesInFlight;
-			allocInfo.pSetLayouts = layouts;
-
-			vkAllocateDescriptorSets(m_Device->GetVkHandle(), &allocInfo, m_DescriptorSets);
-		}
 	}
 }

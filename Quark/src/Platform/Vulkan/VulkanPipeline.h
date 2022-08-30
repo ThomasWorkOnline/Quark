@@ -29,9 +29,10 @@ namespace Quark {
 		VulkanPipeline(const VulkanPipeline&) = delete;
 		VulkanPipeline& operator=(const VulkanPipeline&) = delete;
 
-		void UpdateDescriptors();
+		void UpdateDescriptorSets();
 		void CreateDescriptorSetLayout();
 		void CreateDescriptorPoolAndSets();
+		void CreatePipeline();
 
 	private:
 		VulkanDevice* m_Device = nullptr;

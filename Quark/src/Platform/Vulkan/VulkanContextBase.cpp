@@ -254,16 +254,16 @@ namespace Quark {
 		VkResult vkRes = vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 		QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Error enumerating Vulkan validation layer properties");
 
-		std::vector<VkLayerProperties> availableLayers(layerCount);
-		vkRes = vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+		AutoRelease<VkLayerProperties> availableLayers = StackAlloc(layerCount * sizeof(VkLayerProperties));
+		vkRes = vkEnumerateInstanceLayerProperties(&layerCount, availableLayers);
 		QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Error enumerating Vulkan validation layer properties");
 
 		for (const char* layerName : g_ValidationLayers)
 		{
 			bool layerFound = false;
-			for (const auto& layerProperties : availableLayers)
+			for (size_t i = 0; i < layerCount; i++)
 			{
-				if (std::strcmp(layerName, layerProperties.layerName) == 0)
+				if (std::strcmp(layerName, availableLayers[i].layerName) == 0)
 				{
 					layerFound = true;
 					break;

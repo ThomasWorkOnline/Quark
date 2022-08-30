@@ -1,11 +1,13 @@
 #include "qkpch.h"
 #include "Image.h"
 
+#include <fpng/fpng.h>
+#include <fpng/fpng.cpp>
+#include <lodepng/lodepng.h>
+
 #define STB_IMAGE_STATIC
 #define STB_IMAGE_IMPLEMENTATION
-
-#include <stb_image.h>
-#include <lodepng.h>
+#include <stb/stb_image.h>
 
 namespace Quark {
 

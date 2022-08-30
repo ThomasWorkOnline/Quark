@@ -42,15 +42,14 @@ project "Quark"
 	includedirs
 	{
 		"src",
+		"%{VendorDir}",
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.freetype}",
 		"%{IncludeDir.glad}",
 		"%{IncludeDir.glfw}",
 		"%{IncludeDir.glm}",
-		"%{IncludeDir.lodepng}",
 		"%{IncludeDir.OpenAL}",
 		"%{IncludeDir.spdlog}",
-		"%{IncludeDir.stb}",
 		"%{IncludeDir.VulkanSDK}"
 	}
 
@@ -97,7 +96,7 @@ project "Quark"
 
 		postbuildcommands
 		{
-			'%{wks.location}/Scripts/Windows/CompileShaders.bat'
+			"%{wks.location}/Scripts/Windows/CompileShaders.bat"
 		}
 
 	filter "system:macosx"

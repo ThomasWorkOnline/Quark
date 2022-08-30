@@ -24,14 +24,7 @@ project "Demos"
 
 	links
 	{
-		"Quark",
-		"freetype",
-		"Glad",
-		"GLFW",
-		"lodepng",
-		"spdlog",
-
-		"%{Library.Vulkan}"
+		"Quark"
 	}
 
 	flags
@@ -54,6 +47,13 @@ project "Demos"
 		
 		links
 		{
+			"freetype",
+			"Glad",
+			"GLFW",
+			"lodepng",
+			"spdlog",
+			"%{Library.Vulkan}",
+
 			"Cocoa.framework",
 			"CoreVideo.framework",
 			"Foundation.framework",
@@ -67,6 +67,13 @@ project "Demos"
 	filter "system:linux"
 		links
 		{
+			"freetype",
+			"Glad",
+			"GLFW",
+			"lodepng",
+			"spdlog",
+			"%{Library.Vulkan}",
+
 			"GL",
 			"X11",
 			"openal"

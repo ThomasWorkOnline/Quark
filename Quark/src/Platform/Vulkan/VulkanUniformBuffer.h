@@ -26,6 +26,8 @@ namespace Quark {
 
 		VkBuffer GetVkHandle() const { return m_Buffer; }
 
+		void UpdateDescriptorSet(VkDescriptorSet dstSet);
+
 	private:
 		VulkanDevice* m_Device;
 

@@ -158,8 +158,8 @@ namespace Quark {
 				GLint maxLength = 0;
 				glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
 
-				std::vector<GLchar> infoLog(maxLength);
-				glGetShaderInfoLog(shader, maxLength, &maxLength, infoLog.data());
+				AutoRelease<GLchar> infoLog = StackAlloc(maxLength * sizeof(GLchar));
+				glGetShaderInfoLog(shader, maxLength, &maxLength, infoLog);
 
 				for (uint32_t i = 0; i < glShaderIDIndex; i++)
 				{
@@ -168,7 +168,7 @@ namespace Quark {
 
 				glDeleteProgram(program);
 
-				QK_CORE_ERROR("Shader compilation failure (compiling: {0}):\n{1}", m_Name, (const GLchar*)infoLog.data());
+				QK_CORE_ERROR("Shader compilation failure (compiling: {0}):\n{1}", m_Name, (const GLchar*)infoLog);
 				return 0;
 			}
 
@@ -215,8 +215,8 @@ namespace Quark {
 			GLint maxLength = 0;
 			glGetProgramiv(program, GL_INFO_LOG_LENGTH, &maxLength);
 
-			std::vector<GLchar> infoLog(maxLength);
-			glGetProgramInfoLog(program, maxLength, &maxLength, infoLog.data());
+			AutoRelease<GLchar> infoLog = StackAlloc(maxLength * sizeof(GLchar));
+			glGetProgramInfoLog(program, maxLength, &maxLength, infoLog);
 
 			for (uint32_t i = 0; i < shaderCount; i++)
 			{
@@ -226,7 +226,7 @@ namespace Quark {
 
 			glDeleteProgram(program);
 
-			QK_CORE_ERROR("Shader link failure (linking {0}):\n{1}", m_Name, (const GLchar*)infoLog.data());
+			QK_CORE_ERROR("Shader link failure (linking {0}):\n{1}", m_Name, (const GLchar*)infoLog);
 			return;
 		}
 

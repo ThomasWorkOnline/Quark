@@ -41,6 +41,12 @@ namespace Quark {
 	template<typename T>
 	using WeakRef = std::weak_ptr<T>;
 
+	/*
+	* Hold a pointer of T allocated on the stack via alloca() or _malloca()
+	* Memory is automatically freed after instance lifetime
+	* NOTE: _malloca() may allocate using malloc() if the requested size is greater than the stack limit
+	*		Not safe to use in time critical operations
+	*/
 	template<typename T>
 	class AutoRelease
 	{
@@ -50,15 +56,14 @@ namespace Quark {
 			: m_Pointer(static_cast<T*>(memory))
 		{}
 
-		AutoRelease(AutoRelease&& other)
-			: m_Pointer(other.m_Pointer)
+		AutoRelease(AutoRelease&& other) noexcept
 		{
-			other.m_Pointer = nullptr;
+			std::swap(m_Pointer, other.m_Pointer);
 		}
 
-		AutoRelease& operator=(AutoRelease&& other)
+		AutoRelease& operator=(AutoRelease&& other) noexcept
 		{
-			Exchange(other);
+			std::swap(m_Pointer, other.m_Pointer);
 			return *this;
 		}
 
@@ -67,12 +72,8 @@ namespace Quark {
 			Freea(m_Pointer);
 		}
 
-		void Exchange(AutoRelease&& other)
-		{
-			std::swap(m_Pointer, other.m_Pointer);
-		}
-
-		operator T* () const { return m_Pointer; }
+		operator const T* () const { return m_Pointer; }
+		operator T* () { return m_Pointer; }
 
 		const T& operator* () const { return *m_Pointer; }
 		T& operator* () { return *m_Pointer; }
