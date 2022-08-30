@@ -28,11 +28,6 @@ Note: *On Visual Studio, your configuration will automatically be set and can be
 ## On Linux
 Coming soon!
 
-## Building Quark without Premake
-1. Run `Scripts/GenInclude_<platform>` script. This will generate the `include` directory.
-
-Note: *`GenInclude_...` will also create a 'lib' directory and copy the binaries inside if they are built.*
-
 ## Dependencies
 - [glm](https://github.com/g-truc/glm)
 - [entt](https://github.com/skypjack/entt)
