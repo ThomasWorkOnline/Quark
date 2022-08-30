@@ -38,13 +38,26 @@ All you need to do is to include the designated 'Quark/premake5.lua' build step 
 
 ## Build Configurations
 ### Debug
-This config includes no optimizations and enables asserts aswell as logging. It is well suited for testing.
+- This config includes no optimizations.
+- Enables assertions.
+- Warnings, logs, traces and errors are always displayed.
+- Enables most runtime validators.
+- It is well suited for testing.
+
 ### Release
-This config includes optimizations and strips assertions and log traces. Performance metrics are present. I would not suggest you run tests using this config. Use this config to run benchmarks and test your app's performance.
+- This config includes optimizations.
+- Strips assertions and log traces. 
+- Warnings, logs and errors are always displayed.
+- Performance metrics are present.
+*I would not suggest you run tests using this config. Use this config to run benchmarks and test your app's performance.*
+
 ### Dist
-This config includes full optimizations, strips assertions and log traces. Warnings and errors are always displayed.
-On Windows, the app will not launch a debugging console.
-Use this config to ship your distributable application.
+- This config includes full optimizations.
+- Strips assertions and log traces.
+- All warnings, logs and error messages are disabled.
+- The logger is not linked to your program.
+- Use this config to ship your distributable application.
+- On Windows, the app will not launch a debugging console.
 
 *I encourage using dist builds with optimizations for distribution and debug while testing.
 Release mode can be useful when you need to test performance.*
