@@ -131,7 +131,7 @@ namespace Quark {
 		{
 			in.seekg(0, std::ios::end);
 			size_t size = in.tellg();
-			QK_RUNTIME_VERIFY(size % sizeof(uint32_t) == 0, "Invalid byte alignment for file: '{0}' (SPIR-V required 4-byte alignment)", filepath);
+			QK_CORE_RUNTIME_VERIFY(size % sizeof(uint32_t) == 0, "Invalid byte alignment for file: '{0}' (SPIR-V required 4-byte alignment)", filepath);
 
 			if (size != -1)
 			{
@@ -144,7 +144,7 @@ namespace Quark {
 			}
 		}
 
-		QK_RUNTIME_ERROR("Could not open file '{0}'", filepath);
+		QK_CORE_RUNTIME_ERROR("Could not open file '{0}'", filepath);
 		return result;
 	}
 

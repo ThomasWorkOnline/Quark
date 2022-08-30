@@ -25,7 +25,12 @@ namespace Quark {
 
 		struct InstrumentorSettings
 		{
-			static inline const char* OutputDir = "instrumentor/" QK_CONFIG_NAME "/";
+			static std::string CreateOutputDir()
+			{
+				return fmt::format("instrumentor/{0}/", GetConfigurationName());
+			}
+
+			static inline std::string OutputDir = CreateOutputDir();
 		};
 
 		void Instrumentor::BeginSession(const std::string& sessionName)
@@ -83,7 +88,7 @@ namespace Quark {
 		}
 
 		ScopeTimer::ScopeTimer(const char* scope)
-			: m_Scope(scope)
+			: m_ScopeName(scope)
 		{
 			Start();
 		}
@@ -100,8 +105,8 @@ namespace Quark {
 			auto elapsed = Microseconds();
 
 #ifdef QK_ENABLE_PROFILING
-			DumpProfileResult(m_Scope, m_Start, elapsed);
-			LogProfileResult(m_Scope, m_Start, elapsed);
+			DumpProfileResult(m_ScopeName, m_Start, elapsed);
+			LogProfileResult(m_ScopeName, m_Start, elapsed);
 #endif
 		}
 	}

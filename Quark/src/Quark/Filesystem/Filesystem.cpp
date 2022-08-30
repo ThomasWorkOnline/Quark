@@ -26,7 +26,7 @@ namespace Quark {
 				}
 			}
 
-			QK_RUNTIME_ERROR("Could not open file '{0}'", filepath);
+			QK_CORE_RUNTIME_ERROR("Could not open file '{0}'", filepath);
 			return result;
 		}
 	}

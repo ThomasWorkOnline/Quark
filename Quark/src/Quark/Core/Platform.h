@@ -1,5 +1,6 @@
 #pragma once
 
+// Platform detection
 #ifdef _WIN32
 #	ifdef _WIN64
 		// We're on windows x64
@@ -43,3 +44,10 @@
 #else
 #	error "Unknown platform"
 #endif
+
+#include <cstdint>
+
+namespace Quark {
+
+	extern uint32_t GetCurrentProcessId();
+}

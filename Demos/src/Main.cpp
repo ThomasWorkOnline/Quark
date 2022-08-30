@@ -10,12 +10,12 @@ namespace Quark {
 
 	Application* CreateApplication()
 	{
-		using App = VulkanApp;
+		using App = BasicRenderingApplication;
 
 		ApplicationOptions options;
 		options.AppName = "Demo Application";
 		options.CoreAssetDir = "../";
-		options.GraphicsAPI = RHI::Vulkan;
+		options.GraphicsAPI = RHI::OpenGL;
 
 		return new App(options);
 	}

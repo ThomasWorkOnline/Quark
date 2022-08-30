@@ -93,14 +93,14 @@ namespace Quark {
 			fileData.reserve(fileSize);
 
 			size_t readSize = std::fread(fileData.data(), 1, fileSize, in.GetHandle());
-			QK_RUNTIME_VERIFY(readSize == fileSize, "Expected size and read size do not match");
+			QK_CORE_RUNTIME_VERIFY(readSize == fileSize, "Expected size and read size do not match");
 			
 			unsigned int error = lodepng_decode(&imageData, &width, &height, &state, fileData.data(), fileSize);
 
 			if (error)
 			{
 				lodepng_state_cleanup(&state);
-				QK_RUNTIME_ERROR("Failed to decode image: {0}", lodepng_error_text(error));
+				QK_CORE_RUNTIME_ERROR("Failed to decode image: {0}", lodepng_error_text(error));
 			}
 		}
 
@@ -125,7 +125,7 @@ namespace Quark {
 		int width, height, channels;
 		float* imageData = stbi_loadf_from_file(in.GetHandle(), &width, &height, &channels, 0);
 
-		QK_RUNTIME_VERIFY(imageData, "Failed to load image data");
+		QK_CORE_RUNTIME_VERIFY(imageData, "Failed to load image data");
 
 		uint8_t bitsPerChannel;
 		stbi_is_16_bit_from_file(in.GetHandle())

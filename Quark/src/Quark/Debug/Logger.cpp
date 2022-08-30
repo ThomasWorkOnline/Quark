@@ -39,14 +39,18 @@ namespace Quark {
 		spdlog::register_logger(m_CoreLogger);
 		spdlog::register_logger(m_ClientLogger);
 
+#ifdef QK_ENABLE_DUMP_LOG
 		auto t = std::time(nullptr);
 
 		std::stringstream ss;
 		ss << std::put_time(std::localtime(&t), "%d-%m-%Y_%H-%M-%S");
 
-		std::filesystem::create_directories("logs/" QK_CONFIG_NAME);
-		std::string filepath = fmt::format("logs/{0}/runtime_{1}.log", QK_CONFIG_NAME, ss.str());
+		std::string logsPath = fmt::format("logs/{0}/", GetConfigurationName());
+		std::filesystem::create_directories(logsPath);
+
+		std::string filepath = fmt::format("{0}/runtime_{1}.log", logsPath, ss.str());
 		m_Output.open(filepath);
+#endif
 	}
 
 	void Logger::DumpToFile(const char* string)

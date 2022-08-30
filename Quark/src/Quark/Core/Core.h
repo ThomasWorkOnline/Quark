@@ -1,17 +1,14 @@
 #pragma once
 
-// Platform detection
+#include "Tweaks.h"
 #include "Config.h"
 #include "Platform.h"
-#include "Tweaks.h"
+#include "Assertions.h"
 
-#include <functional>
-
-#define ATTACH_EVENT_FN(fn) [&](auto&&... args) -> decltype(auto) { return fn(std::forward<decltype(args)>(args)...); }
-#define BIT(x) (1 << x)
+#include <utility>
 
 #if __cplusplus >= 202002L
-	// C++20 and later
+	// C++20 and forward
 #	define QK_CONSTEXPR20 constexpr
 #else
 #	define QK_CONSTEXPR20 inline
@@ -25,13 +22,15 @@
 #	define QK_DEPRECATED
 #endif
 
-// GLM standards configuration
-#include "Quark/Math/Types.h"
+#define ATTACH_EVENT_FN(fn) [&](auto&&... args) -> decltype(auto) { return fn(std::forward<decltype(args)>(args)...); }
+#define BIT(x) (1 << x)
 
-#include "Assertions.h"
 #include "Timer.h"
 #include "Timestep.h"
 #include "Memory.h"
+
+// GLM standards configuration
+#include "Quark/Math/Types.h"
 
 #include "Quark/Debug/Logger.h"
 #include "Quark/Debug/LogUtils.h"

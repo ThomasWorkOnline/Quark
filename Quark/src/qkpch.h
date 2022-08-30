@@ -1,14 +1,15 @@
-#include "Quark/Core/Core.h"
-
 #include <array>
 #include <cstdio>
 #include <cstdint>
 #include <cstdlib>
 #include <filesystem>
+#include <functional>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <ostream>
 #include <sstream>
 #include <string>
 #include <string_view>
-#include <fstream>
+#include <utility>
 #include <vector>
