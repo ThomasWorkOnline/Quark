@@ -37,6 +37,7 @@ namespace Quark {
 
 		static void SetViewport(uint32_t viewportWidth, uint32_t viewportHeight);
 		static void SetClearColor(const Vec4f& clearColor);
+		static void WaitUntilDeviceIdle();
 
 		static const Vec4f& GetClearColor();
 		static const GraphicsAPICapabilities& GetCapabilities();
@@ -48,6 +49,7 @@ namespace Quark {
 
 		static ShaderLibrary& GetShaderLibrary();
 		static std::thread::id GetThreadId() { return s_ThreadId; }
+
 		static std::string GetSpecification();
 		static const char* GetAPIName();
 

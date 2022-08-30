@@ -42,8 +42,6 @@ namespace Quark {
 
 	private:
 		ImageMetadata m_Metadata{};
-
 		void* m_ImageData = nullptr;
-		void (*DeallocateImageDataCallback)(void*);
 	};
 }

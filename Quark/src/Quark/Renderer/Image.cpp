@@ -72,14 +72,12 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		DeallocateImageDataCallback(m_ImageData);
+		free(m_ImageData);
 	}
 
 	void Image::DecodePNG(FileStream& in)
 	{	
 		QK_PROFILE_FUNCTION();
-
-		DeallocateImageDataCallback = free;
 
 		LodePNGState state;
 		lodepng_state_init(&state);
@@ -121,8 +119,6 @@ namespace Quark {
 	void Image::DecodeHDR(FileStream& in)
 	{
 		QK_PROFILE_FUNCTION();
-
-		DeallocateImageDataCallback = stbi_image_free;
 
 		int width, height, channels;
 		float* imageData = stbi_loadf_from_file(in.GetHandle(), &width, &height, &channels, 0);

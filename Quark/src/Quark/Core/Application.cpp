@@ -88,6 +88,8 @@ namespace Quark {
 
 			m_Window->OnUpdate();
 		}
+
+		Renderer::WaitUntilDeviceIdle();
 	}
 
 	void Application::OnEventInternal(Event& e)

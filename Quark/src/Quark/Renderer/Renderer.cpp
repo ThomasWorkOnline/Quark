@@ -98,6 +98,14 @@ namespace Quark {
 		s_Data->GeometryPass->SetClearColor(clearColor);
 	}
 
+	void Renderer::WaitUntilDeviceIdle()
+	{
+		QK_ASSERT_RENDER_THREAD();
+		QK_PROFILE_FUNCTION();
+
+		GraphicsContext::Get()->WaitUntilDeviceIdle();
+	}
+
 	const Vec4f& Renderer::GetClearColor()
 	{
 		return s_Data->GeometryPass->GetSpecification().ClearColor;
@@ -225,8 +233,6 @@ namespace Quark {
 	void Renderer::Dispose()
 	{
 		QK_PROFILE_FUNCTION();
-
-		GraphicsContext::Get()->WaitUntilDeviceIdle();
 
 		delete s_Data;
 		s_Data = nullptr;
