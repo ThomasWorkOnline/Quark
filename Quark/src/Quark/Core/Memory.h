@@ -14,6 +14,8 @@
 
 #define sizeof_array(x) (sizeof(x) / sizeof(x[0]))
 
+#include <cassert>
+
 namespace Quark {
 
 	template<typename T, typename Deleter = std::default_delete<T>>
@@ -42,7 +44,7 @@ namespace Quark {
 	using WeakRef = std::weak_ptr<T>;
 
 	/*
-	* Hold a pointer of T allocated on the stack via alloca() or _malloca()
+	* Holds a pointer of T allocated on the stack via alloca() or _malloca()
 	* Memory is automatically freed after instance lifetime
 	* NOTE: _malloca() may allocate using malloc() if the requested size is greater than the stack limit
 	*		Not safe to use in time critical operations
@@ -57,8 +59,9 @@ namespace Quark {
 		{}
 
 		AutoRelease(AutoRelease&& other) noexcept
+			: m_Pointer(other.m_Pointer)
 		{
-			std::swap(m_Pointer, other.m_Pointer);
+			other.m_Pointer = nullptr;
 		}
 
 		AutoRelease& operator=(AutoRelease&& other) noexcept

@@ -170,18 +170,38 @@ namespace Quark {
 
 		// Descriptor pool shared for all frames in flight
 		{
-			VkDescriptorPoolSize poolSize[2]{};
-			poolSize[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
-			poolSize[0].descriptorCount = 1 * VulkanContext::FramesInFlight;
+			uint32_t poolSizeCount = 0;
 
-			poolSize[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			poolSize[1].descriptorCount = 32 * VulkanContext::FramesInFlight;
+			uint32_t ubDescriptorCount = (uint32_t)m_Spec.UniformBuffers.size();
+			poolSizeCount += (ubDescriptorCount > 0);
+
+			uint32_t samplerDescriptorCount = (uint32_t)m_Spec.SamplersArray.size();
+			poolSizeCount += (samplerDescriptorCount > 0);
+
+			AutoRelease<VkDescriptorPoolSize> poolSizes = StackAlloc(poolSizeCount * sizeof(VkDescriptorPoolSize));
+			VkDescriptorPoolSize* poolSizesPtr = poolSizes;
+
+			// Uniform Buffers
+			if (ubDescriptorCount)
+			{
+				poolSizesPtr->type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+				poolSizesPtr->descriptorCount = ubDescriptorCount * VulkanContext::FramesInFlight;
+				poolSizesPtr++;
+			}
+			
+			// Samplers
+			if (samplerDescriptorCount)
+			{
+				poolSizesPtr->type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+				poolSizesPtr->descriptorCount = samplerDescriptorCount * VulkanContext::FramesInFlight;
+				poolSizesPtr++;
+			}
 
 			VkDescriptorPoolCreateInfo poolInfo{};
 			poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-			poolInfo.poolSizeCount = sizeof_array(poolSize);
-			poolInfo.pPoolSizes = poolSize;
 			poolInfo.maxSets = VulkanContext::FramesInFlight;
+			poolInfo.poolSizeCount = poolSizeCount;
+			poolInfo.pPoolSizes = poolSizes;
 
 			vkCreateDescriptorPool(m_Device->GetVkHandle(), &poolInfo, nullptr, &m_DescriptorPool);
 		}

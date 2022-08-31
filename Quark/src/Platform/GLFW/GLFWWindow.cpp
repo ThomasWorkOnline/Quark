@@ -59,7 +59,7 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		m_Data.Title = spec.Title;
+		m_Data.Title   = spec.Title;
 		m_Data.Width   = spec.Width;
 		m_Data.Height  = spec.Height;
 		m_Data.Samples = spec.Samples;

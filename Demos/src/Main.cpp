@@ -15,7 +15,7 @@ namespace Quark {
 		ApplicationOptions options;
 		options.AppName = "Demo Application";
 		options.CoreAssetDir = "../";
-		options.GraphicsAPI = RHI::OpenGL;
+		options.GraphicsAPI = RHI::Vulkan;
 
 		return new App(options);
 	}
