@@ -9,7 +9,7 @@ namespace Quark {
 	public:
 		OpenGLRenderPass(const RenderPassSpecification& spec);
 
-		virtual bool operator==(const RenderPass& other) const override
+		virtual bool operator==(const RenderPass& other) const final override
 		{
 			return false;
 		}

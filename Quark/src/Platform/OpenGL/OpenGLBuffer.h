@@ -11,11 +11,11 @@ namespace Quark {
 	public:
 		OpenGLVertexBuffer(size_t size);
 		OpenGLVertexBuffer(const void* vertices, size_t size);
-		virtual ~OpenGLVertexBuffer() override;
+		virtual ~OpenGLVertexBuffer() final override;
 
-		virtual void SetData(const void* data, size_t size, size_t offset) override;
+		virtual void SetData(const void* data, size_t size, size_t offset) final override;
 
-		virtual bool operator==(const VertexBuffer& other) const override
+		virtual bool operator==(const VertexBuffer& other) const final override
 		{
 			return m_RendererID == reinterpret_cast<decltype(*this)&>(other).m_RendererID;
 		}
@@ -35,12 +35,12 @@ namespace Quark {
 	public:
 		OpenGLIndexBuffer(uint32_t count);
 		OpenGLIndexBuffer(const uint32_t* indices, uint32_t count);
-		virtual ~OpenGLIndexBuffer();
+		virtual ~OpenGLIndexBuffer() final override;
 
-		virtual void SetData(const uint32_t* data, uint32_t count, size_t offset) override;
-		virtual uint32_t GetCount() const override { return m_Count; };
+		virtual void SetData(const uint32_t* data, uint32_t count, size_t offset) final override;
+		virtual uint32_t GetCount() const final override { return m_Count; };
 
-		virtual bool operator==(const IndexBuffer& other) const override
+		virtual bool operator==(const IndexBuffer& other) const final override
 		{
 			return m_RendererID == reinterpret_cast<decltype(*this)&>(other).m_RendererID;
 		}

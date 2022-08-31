@@ -11,14 +11,14 @@ namespace Quark {
 	{
 	public:
 		VulkanCubemap(VulkanDevice* device, const CubemapSpecification& spec);
-		virtual ~VulkanCubemap() override = default;
+		virtual ~VulkanCubemap() final override = default;
 
-		virtual void Attach(uint32_t textureSlot = 0) const override {}
-		virtual void Detach() const override {}
+		virtual void Attach(uint32_t textureSlot = 0) const final override {}
+		virtual void Detach() const final override {}
 
-		virtual void SetData(uint32_t index, const void* data, size_t size) override {}
+		virtual void SetData(uint32_t index, const void* data, size_t size) final override {}
 
-		virtual bool operator==(const Cubemap& other) const override
+		virtual bool operator==(const Cubemap& other) const final override
 		{
 			return false;
 		}

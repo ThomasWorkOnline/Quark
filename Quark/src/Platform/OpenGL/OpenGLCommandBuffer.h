@@ -9,7 +9,7 @@ namespace Quark {
 	{
 	public:
 		OpenGLCommandBuffer() = default;
-		virtual ~OpenGLCommandBuffer() = default;
+		virtual ~OpenGLCommandBuffer() override = default;
 
 		virtual void Begin() final override {}
 		virtual void End() final override {}

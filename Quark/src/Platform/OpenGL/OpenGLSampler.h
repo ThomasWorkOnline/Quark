@@ -10,7 +10,12 @@ namespace Quark {
 	{
 	public:
 		OpenGLSampler2D(const Sampler2DSpecification& spec);
-		virtual ~OpenGLSampler2D() override;
+		virtual ~OpenGLSampler2D() final override;
+
+		virtual bool operator==(const Sampler2D& other) const final override
+		{
+			return m_RendererID == reinterpret_cast<decltype(*this)&>(other).m_RendererID;
+		}
 
 		GLuint GetRendererID() const { return m_RendererID; }
 

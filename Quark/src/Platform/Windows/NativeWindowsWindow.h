@@ -11,38 +11,38 @@ namespace Quark {
 	{
 	public:
 		NativeWindowsWindow(const WindowSpecification& spec);
-		virtual ~NativeWindowsWindow() override;
+		virtual ~NativeWindowsWindow() final override;
 
-		virtual void SetEventCallback(const EventCallbackFn& callback) override { m_Data.EventCallback = callback; }
-		virtual void OnUpdate() override;
+		virtual void SetEventCallback(const EventCallbackFn& callback) final override { m_Data.EventCallback = callback; }
+		virtual void OnUpdate() final override;
 
-		virtual uint32_t GetWidth() const override { return m_Data.Width; }
-		virtual uint32_t GetHeight() const override { return m_Data.Height; }
-		virtual std::string_view GetTitle() const override { return m_Data.Title; }
+		virtual uint32_t GetWidth() const final override { return m_Data.Width; }
+		virtual uint32_t GetHeight() const final override { return m_Data.Height; }
+		virtual std::string_view GetTitle() const final override { return m_Data.Title; }
 
-		virtual Window& SetTitle(std::string title) override;
-		virtual Window& AppendTitle(std::string title) override;
+		virtual Window& SetTitle(std::string title) final override;
+		virtual Window& AppendTitle(std::string title) final override;
 
-		virtual void Resize(uint32_t width, uint32_t height) override;
+		virtual void Resize(uint32_t width, uint32_t height) final override;
 
-		virtual void Focus() override;
-		virtual void Minimize() override;
-		virtual void Maximize() override;
-		virtual void Restore() override;
-		virtual void RequestAttention() override;
-		virtual void DisableCursor() override {}
-		virtual void EnableCursor() override {}
-		virtual void SetVSync(bool enabled) override;
-		virtual void SetFullscreen(bool enabled) override {}
+		virtual void Focus() final override;
+		virtual void Minimize() final override;
+		virtual void Maximize() final override;
+		virtual void Restore() final override;
+		virtual void RequestAttention() final override;
+		virtual void DisableCursor() final override {}
+		virtual void EnableCursor() final override {}
+		virtual void SetVSync(bool enabled) final override;
+		virtual void SetFullscreen(bool enabled) final override {}
 
-		virtual bool IsFocused() const override;
-		virtual bool IsMinimized() const override;
-		virtual bool IsMaximized() const override;
-		virtual bool IsCursorEnabled() const override { return false; }
-		virtual bool IsVSync() const override { return false; }
-		virtual bool IsFullscreen() const override { return false; }
+		virtual bool IsFocused() const final override;
+		virtual bool IsMinimized() const final override;
+		virtual bool IsMaximized() const final override;
+		virtual bool IsCursorEnabled() const final override { return false; }
+		virtual bool IsVSync() const final override { return false; }
+		virtual bool IsFullscreen() const final override { return false; }
 
-		virtual void* GetNativeWindow() const override { return m_WindowHandle; }
+		virtual void* GetNativeWindow() const final override { return m_WindowHandle; }
 
 		// Non-Copyable
 		NativeWindowsWindow(const NativeWindowsWindow&) = delete;

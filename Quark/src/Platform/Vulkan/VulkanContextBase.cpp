@@ -91,6 +91,32 @@ namespace Quark {
 		return messengerCreateInfo;
 	}
 
+	void VulkanContextBase::Init()
+	{
+		QK_PROFILE_FUNCTION();
+
+		// Synchronization
+		VkFenceCreateInfo fenceInfo{};
+		fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+		fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+		VkSemaphoreCreateInfo semaphoreInfo{};
+		semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+		for (auto& data : m_Frames)
+		{
+			vkCreateFence(m_Device->GetVkHandle(), &fenceInfo, nullptr, &data.InFlightFence);
+			vkCreateSemaphore(m_Device->GetVkHandle(), &semaphoreInfo, nullptr, &data.RenderFinishedSemaphore);
+			vkCreateSemaphore(m_Device->GetVkHandle(), &semaphoreInfo, nullptr, &data.ImageAvailableSemaphore);
+		}
+
+		for (uint32_t i = 0; i < FramesInFlight; i++)
+		{
+			m_Frames[i].CommandBuffer = { m_Device.get() };
+		}
+
+		QK_CORE_TRACE("Created Vulkan graphics context!");
+	}
+
 	VulkanContextBase::~VulkanContextBase()
 	{
 		QK_PROFILE_FUNCTION();
@@ -111,7 +137,7 @@ namespace Quark {
 		vkDestroyInstance(m_Instance, nullptr);
 	}
 
-	void VulkanContextBase::StartFrame()
+	void VulkanContextBase::BeginFrame()
 	{
 		m_FrameCounterIndex = (m_FrameCounterIndex + 1) % FramesInFlight;
 		m_CurrentFrameIndex = m_FrameCounterIndex;
@@ -132,7 +158,7 @@ namespace Quark {
 		m_Device->WaitUntilIdle();
 	}
 
-	void VulkanContextBase::Submit()
+	void VulkanContextBase::EndFrame()
 	{
 		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 		VkSemaphore waitSemaphores = m_Frames[m_CurrentFrameIndex].ImageAvailableSemaphore;
@@ -198,32 +224,6 @@ namespace Quark {
 	CommandBuffer* VulkanContextBase::GetCommandBuffer()
 	{
 		return &m_Frames[m_CurrentFrameIndex].CommandBuffer;
-	}
-
-	void VulkanContextBase::Init()
-	{
-		QK_PROFILE_FUNCTION();
-
-		// Synchronization
-		VkFenceCreateInfo fenceInfo{};
-		fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-		fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-
-		VkSemaphoreCreateInfo semaphoreInfo{};
-		semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-		for (auto& data : m_Frames)
-		{
-			vkCreateFence(m_Device->GetVkHandle(), &fenceInfo, nullptr, &data.InFlightFence);
-			vkCreateSemaphore(m_Device->GetVkHandle(), &semaphoreInfo, nullptr, &data.RenderFinishedSemaphore);
-			vkCreateSemaphore(m_Device->GetVkHandle(), &semaphoreInfo, nullptr, &data.ImageAvailableSemaphore);
-		}
-
-		for (uint32_t i = 0; i < FramesInFlight; i++)
-		{
-			m_Frames[i].CommandBuffer = { m_Device.get() };
-		}
-
-		QK_CORE_TRACE("Created Vulkan graphics context!");
 	}
 
 	void VulkanContextBase::CreateInstance(VkInstanceCreateInfo& createInfo)

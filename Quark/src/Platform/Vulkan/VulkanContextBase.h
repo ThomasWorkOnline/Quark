@@ -24,24 +24,27 @@ namespace Quark {
 	{
 	public:
 		static constexpr uint32_t FramesInFlight = 2;
+
+	public:
 		virtual ~VulkanContextBase() override;
 
-		virtual void StartFrame() override;
-		virtual void WaitUntilDeviceIdle() override;
+		virtual void Init() override;
+		virtual void WaitUntilDeviceIdle() final override;
 
-		virtual void Submit() override;
-		virtual void SwapBuffers() override;
-		virtual void SetSwapInterval(int interval) override;
+		virtual void BeginFrame() final override;
+		virtual void EndFrame() final override;
 
-		virtual void Resize(uint32_t viewportWidth, uint32_t viewportHeight) override;
+		virtual void SwapBuffers() final override;
+		virtual void SetSwapInterval(int interval) final override;
 
-		virtual uint32_t GetCurrentImageIndex() const override;
-		virtual uint32_t GetSwapChainImageCount() const override;
-		virtual FramebufferAttachment* GetColorAttachment(uint32_t index) const override;
+		virtual void Resize(uint32_t viewportWidth, uint32_t viewportHeight) final override;
 
-		virtual CommandBuffer* GetCommandBuffer() override;
+		virtual uint32_t GetCurrentImageIndex() const final override;
+		virtual uint32_t GetSwapChainImageCount() const final override;
+		virtual FramebufferAttachment* GetColorAttachment(uint32_t index) const final override;
 
-		void Init();
+		virtual CommandBuffer* GetCommandBuffer() final override;
+
 		void CreateInstance(VkInstanceCreateInfo& createInfo);
 
 		VkInstance GetInstance() const { return m_Instance; }

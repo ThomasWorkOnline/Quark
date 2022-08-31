@@ -160,7 +160,7 @@ namespace Quark {
 	{
 		QK_ASSERT_RENDER_THREAD();
 
-		GraphicsContext::Get()->StartFrame();
+		GraphicsContext::Get()->BeginFrame();
 
 		s_Data->ActiveCommandBuffer = GraphicsContext::Get()->GetCommandBuffer();
 		s_Data->ActiveCommandBuffer->Reset();
@@ -177,8 +177,7 @@ namespace Quark {
 		EndRenderPass();
 
 		s_Data->ActiveCommandBuffer->End();
-
-		GraphicsContext::Get()->Submit();
+		GraphicsContext::Get()->EndFrame();
 	}
 
 	void Renderer::Configure(RHI api)

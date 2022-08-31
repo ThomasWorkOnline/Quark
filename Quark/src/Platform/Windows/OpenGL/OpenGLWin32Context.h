@@ -11,11 +11,12 @@ namespace Quark {
 	{
 	public:
 		OpenGLWin32Context(void* windowHandle);
-		virtual ~OpenGLWin32Context() override;
+		virtual ~OpenGLWin32Context() final override;
 
-		virtual void Init() override;
-		virtual void SwapBuffers() override;
-		virtual void SetSwapInterval(int interval) override;
+		virtual void Init() final override;
+
+		virtual void SwapBuffers() final override;
+		virtual void SetSwapInterval(int interval) final override;
 
 	private:
 		HWND m_WindowHandle;

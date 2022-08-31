@@ -13,9 +13,14 @@ namespace Quark {
 		VulkanFramebufferAttachment() = default;
 		VulkanFramebufferAttachment(VulkanDevice* device, const FramebufferAttachmentSpecification& spec);
 		VulkanFramebufferAttachment(VulkanDevice* device, VkImage image, VkFormat format);
-		virtual ~VulkanFramebufferAttachment() override;
+		virtual ~VulkanFramebufferAttachment() final override;
 
-		virtual void SetData(const void* data) override;
+		virtual void SetData(const void* data) final override;
+
+		virtual bool operator==(const FramebufferAttachment& other) const final override
+		{
+			return m_ImageView == reinterpret_cast<const VulkanFramebufferAttachment&>(other).m_ImageView;
+		}
 
 		VkImageView GetVkHandle() const { return m_ImageView; }
 
@@ -29,19 +34,19 @@ namespace Quark {
 	{
 	public:
 		VulkanFramebuffer(VulkanDevice* device, const FramebufferSpecification& spec);
-		virtual ~VulkanFramebuffer() override;
+		virtual ~VulkanFramebuffer() final override;
 
-		virtual void Attach() override {}
-		virtual void Detach() override {}
+		virtual void Attach() final override {}
+		virtual void Detach() final override {}
 
-		virtual void Resize(uint32_t width, uint32_t height) override;
+		virtual void Resize(uint32_t width, uint32_t height) final override;
 
-		VkFramebuffer GetVkHandle() const { return m_Framebuffer; }
-
-		virtual bool operator==(const Framebuffer& other) const override
+		virtual bool operator==(const Framebuffer& other) const final override
 		{
 			return m_Framebuffer == reinterpret_cast<const VulkanFramebuffer&>(other).m_Framebuffer;
 		}
+
+		VkFramebuffer GetVkHandle() const { return m_Framebuffer; }
 
 		// Non-Copyable
 		VulkanFramebuffer(const VulkanFramebuffer&) = delete;

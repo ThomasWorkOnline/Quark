@@ -13,15 +13,15 @@ namespace Quark {
 	public:
 		VulkanTexture2D(VulkanDevice* device, const Texture2DSpecification& spec);
 		VulkanTexture2D(VulkanDevice* device, std::string_view filepath, const TextureRenderModes& renderModes = {});
-		virtual ~VulkanTexture2D() override;
+		virtual ~VulkanTexture2D() final override;
 
-		virtual void Attach(uint32_t textureSlot = 0) const override {}
-		virtual void Detach() const override {}
+		virtual void Attach(uint32_t textureSlot = 0) const final override {}
+		virtual void Detach() const final override {}
 
-		virtual void SetData(const void* data, size_t size) override {}
-		virtual void GenerateMipmaps() override {}
+		virtual void SetData(const void* data, size_t size) final override {}
+		virtual void GenerateMipmaps() final override {}
 
-		virtual bool operator==(const Texture& other) const override;
+		virtual bool operator==(const Texture& other) const final override;
 
 		// Non-Copyable
 		VulkanTexture2D(const VulkanTexture2D&) = delete;

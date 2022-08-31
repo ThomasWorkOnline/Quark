@@ -18,6 +18,8 @@ namespace Quark {
 		Sampler2D(const Sampler2DSpecification& spec);
 		virtual ~Sampler2D() = default;
 
+		virtual bool operator==(const Sampler2D& other) const = 0;
+
 		uint32_t GetBinding() const { return m_Spec.Binding; }
 
 		const Sampler2DSpecification& GetSpecification() const { return m_Spec; }

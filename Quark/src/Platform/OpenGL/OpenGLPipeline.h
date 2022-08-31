@@ -10,9 +10,9 @@ namespace Quark {
 	{
 	public:
 		OpenGLPipeline(const PipelineSpecification& spec);
-		virtual ~OpenGLPipeline() override;
+		virtual ~OpenGLPipeline() final override;
 
-		virtual bool operator==(const Pipeline& other) const override
+		virtual bool operator==(const Pipeline& other) const final override
 		{
 			return false;
 		}

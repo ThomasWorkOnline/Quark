@@ -18,22 +18,22 @@ namespace Quark {
 	{
 	public:
 		OpenGLFont(std::string_view filepath, uint32_t fontSize);
-		virtual ~OpenGLFont() override;
+		virtual ~OpenGLFont() final override;
 
-		virtual void Attach(uint32_t textureSlot = 0) const override;
-		virtual void Detach() const override;
+		virtual void Attach(uint32_t textureSlot = 0) const final override;
+		virtual void Detach() const final override;
 
-		virtual const Glyph& GetGlyph(uint8_t charcode) const override;
-		virtual uint32_t GetGlyphCount() const override;
+		virtual const Glyph& GetGlyph(uint8_t charcode) const final override;
+		virtual uint32_t GetGlyphCount() const final override;
 
-		virtual uint32_t GetFontSize() const override;
-		virtual uint32_t GetAtlasWidth() const override { return m_AtlasWidth; }
-		virtual uint32_t GetAtlasHeight() const override { return m_AtlasHeight; }
+		virtual uint32_t GetFontSize() const final override;
+		virtual uint32_t GetAtlasWidth() const final override { return m_AtlasWidth; }
+		virtual uint32_t GetAtlasHeight() const final override { return m_AtlasHeight; }
 
-		virtual std::string_view GetStyleName() const override;
-		virtual std::string_view GetFamilyName() const override;
+		virtual std::string_view GetStyleName() const final override;
+		virtual std::string_view GetFamilyName() const final override;
 
-		virtual bool operator==(const Texture& other) const override;
+		virtual bool operator==(const Texture& other) const final override;
 
 		// Non-Copyable
 		OpenGLFont(const OpenGLFont&) = delete;

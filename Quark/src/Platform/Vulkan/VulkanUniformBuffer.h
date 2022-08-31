@@ -11,11 +11,11 @@ namespace Quark {
 	{
 	public:
 		VulkanUniformBuffer(VulkanDevice* device, const UniformBufferSpecification& spec);
-		virtual ~VulkanUniformBuffer() override;
+		virtual ~VulkanUniformBuffer() final override;
 
-		virtual void SetData(const void* data, size_t size, size_t offset = 0) override;
+		virtual void SetData(const void* data, size_t size, size_t offset = 0) final override;
 
-		virtual bool operator==(const UniformBuffer& other) const override
+		virtual bool operator==(const UniformBuffer& other) const final override
 		{
 			return m_Buffer == reinterpret_cast<const VulkanUniformBuffer&>(other).m_Buffer;
 		}

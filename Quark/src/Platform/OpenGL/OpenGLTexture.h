@@ -12,15 +12,15 @@ namespace Quark {
 	public:
 		OpenGLTexture2D(const Texture2DSpecification& spec);
 		OpenGLTexture2D(std::string_view filepath, const TextureRenderModes& renderModes);
-		virtual ~OpenGLTexture2D() override;
+		virtual ~OpenGLTexture2D() final override;
 
-		virtual void Attach(uint32_t textureSlot = 0) const override;
-		virtual void Detach() const override;
+		virtual void Attach(uint32_t textureSlot = 0) const final override;
+		virtual void Detach() const final override;
 
-		virtual void SetData(const void* data, size_t size) override;
-		virtual void GenerateMipmaps() override;
+		virtual void SetData(const void* data, size_t size) final override;
+		virtual void GenerateMipmaps() final override;
 
-		virtual bool operator==(const Texture& other) const override;
+		virtual bool operator==(const Texture& other) const final override;
 
 		// Non-Copyable
 		OpenGLTexture2D(const OpenGLTexture2D&) = delete;

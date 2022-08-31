@@ -12,11 +12,11 @@ namespace Quark {
 	public:
 		VulkanVertexBuffer(VulkanDevice* device, size_t size);
 		VulkanVertexBuffer(VulkanDevice* device, const void* vertices, size_t size);
-		virtual ~VulkanVertexBuffer();
+		virtual ~VulkanVertexBuffer() final override;
 
-		virtual void SetData(const void* data, size_t size, size_t offset = 0) override;
+		virtual void SetData(const void* data, size_t size, size_t offset = 0) final override;
 
-		virtual bool operator==(const VertexBuffer& other) const override
+		virtual bool operator==(const VertexBuffer& other) const final override
 		{
 			return m_Buffer == reinterpret_cast<const VulkanVertexBuffer&>(other).m_Buffer;
 		}
@@ -39,12 +39,12 @@ namespace Quark {
 	public:
 		VulkanIndexBuffer(VulkanDevice* device, uint32_t count);
 		VulkanIndexBuffer(VulkanDevice* device, const uint32_t* indices, uint32_t count);
-		virtual ~VulkanIndexBuffer() override;
+		virtual ~VulkanIndexBuffer() final override;
 
-		virtual void SetData(const uint32_t* data, uint32_t count, size_t offset = 0) override;
-		virtual uint32_t GetCount() const override { return m_Count; }
+		virtual void SetData(const uint32_t* data, uint32_t count, size_t offset = 0) final override;
+		virtual uint32_t GetCount() const final override { return m_Count; }
 
-		virtual bool operator==(const IndexBuffer& other) const override
+		virtual bool operator==(const IndexBuffer& other) const final override
 		{
 			return m_Buffer == reinterpret_cast<const VulkanIndexBuffer&>(other).m_Buffer;
 		}

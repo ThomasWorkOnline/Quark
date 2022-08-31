@@ -12,10 +12,11 @@ namespace Quark {
 		virtual ~GraphicsContext() = default;
 
 		virtual void Init() = 0;
-		virtual void StartFrame() = 0;
 		virtual void WaitUntilDeviceIdle() = 0;
 
-		virtual void Submit() = 0;
+		virtual void BeginFrame() = 0;
+		virtual void EndFrame() = 0;
+
 		virtual void SwapBuffers() = 0;
 		virtual void SetSwapInterval(int interval) = 0;
 

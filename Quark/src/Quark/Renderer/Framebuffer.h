@@ -23,6 +23,8 @@ namespace Quark {
 
 		virtual void SetData(const void* data) = 0;
 
+		virtual bool operator==(const FramebufferAttachment& other) const = 0;
+
 		const FramebufferAttachmentSpecification& GetSpecification() const { return m_Spec; }
 
 		static Scope<FramebufferAttachment> Create(const FramebufferAttachmentSpecification& spec);

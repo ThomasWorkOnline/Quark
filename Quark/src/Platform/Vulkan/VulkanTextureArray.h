@@ -11,15 +11,15 @@ namespace Quark {
 	{
 	public:
 		VulkanTexture2DArray(VulkanDevice* device, const Texture2DArraySpecification& spec);
-		virtual ~VulkanTexture2DArray() override = default;
+		virtual ~VulkanTexture2DArray() final override = default;
 
-		virtual void Attach(uint32_t textureSlot = 0) const override {}
-		virtual void Detach() const override {}
+		virtual void Attach(uint32_t textureSlot = 0) const final override {}
+		virtual void Detach() const final override {}
 
-		virtual void SetData(const void* data, size_t size, uint32_t layer) override {}
-		virtual void GenerateMipmaps() override {}
+		virtual void SetData(const void* data, size_t size, uint32_t layer) final override {}
+		virtual void GenerateMipmaps() final override {}
 
-		virtual bool operator==(const Texture& other) const override
+		virtual bool operator==(const Texture& other) const final override
 		{
 			return false;
 		}

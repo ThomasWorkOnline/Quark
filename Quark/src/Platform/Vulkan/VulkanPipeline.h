@@ -16,18 +16,18 @@ namespace Quark {
 		VulkanPipeline(VulkanDevice* device, const PipelineSpecification& spec);
 		virtual ~VulkanPipeline() override;
 
-		virtual bool operator==(const Pipeline& other) const override
+		virtual bool operator==(const Pipeline& other) const final override
 		{
 			return m_Pipeline == reinterpret_cast<const VulkanPipeline&>(other).m_Pipeline;
 		}
 
-		VkPipeline GetVkHandle() const { return m_Pipeline; }
-		VkPipelineLayout GetPipelineLayout() const { return m_PipelineLayout; }
-		VkDescriptorSet GetDescriptorSet() const;
-
 		// Non-Copyable
 		VulkanPipeline(const VulkanPipeline&) = delete;
 		VulkanPipeline& operator=(const VulkanPipeline&) = delete;
+
+		VkPipeline GetVkHandle() const { return m_Pipeline; }
+		VkPipelineLayout GetPipelineLayout() const { return m_PipelineLayout; }
+		VkDescriptorSet GetDescriptorSet() const;
 
 		void UpdateDescriptorSets();
 		void CreateDescriptorSetLayout();

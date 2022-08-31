@@ -11,9 +11,9 @@ namespace Quark {
 	{
 	public:
 		VulkanRenderPass(VulkanDevice* device, const RenderPassSpecification& spec);
-		virtual ~VulkanRenderPass() override;
+		virtual ~VulkanRenderPass() final override;
 
-		virtual bool operator==(const RenderPass& other) const override
+		virtual bool operator==(const RenderPass& other) const final override
 		{
 			return m_RenderPass == reinterpret_cast<const VulkanRenderPass&>(other).m_RenderPass;
 		}
@@ -26,7 +26,6 @@ namespace Quark {
 
 	private:
 		VulkanDevice* m_Device;
-
 		VkRenderPass m_RenderPass = VK_NULL_HANDLE;
 	};
 }
