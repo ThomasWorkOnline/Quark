@@ -81,16 +81,6 @@ namespace Quark {
 			auto* ub = static_cast<OpenGLUniformBuffer*>(uniformBuffer);
 			glBindBufferBase(GL_UNIFORM_BUFFER, ub->GetBinding(), ub->GetRendererID());
 		}
-
-		// Samplers
-		for (auto& samplerArray : m_Spec.SamplersArray)
-		{
-			for (auto* sampler : samplerArray)
-			{
-				GLuint rendererID = static_cast<OpenGLSampler2D*>(sampler)->GetRendererID();
-				glBindSampler(sampler->GetSpecification().Binding, rendererID);
-			}
-		}
 	}
 
 	void OpenGLPipeline::BindVertexAttrib()

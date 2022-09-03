@@ -13,9 +13,9 @@
 
 namespace Quark {
 
-	enum class ApplicationFlagBits : uint8_t
+	enum ApplicationFlagBits : uint8_t
 	{
-		None                    = 0,
+		ApplicationFlagBitsNone = 0,
 		EnableAudioOutputDevice = BIT(0)
 	};
 
@@ -31,7 +31,7 @@ namespace Quark {
 		KeyCode FullscreenKey = KeyCode::F11;
 		RHI GraphicsAPI = GraphicsAPI::GetDefaultRHIForPlatform();
 
-		bool HasFlag(ApplicationFlagBits flag) const { return (uint8_t)Flags & (uint8_t)flag; }
+		bool HasFlag(ApplicationFlagBits flag) const { return Flags & flag; }
 	};
 
 	class Application : public Singleton<Application>

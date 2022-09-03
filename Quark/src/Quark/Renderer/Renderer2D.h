@@ -32,11 +32,13 @@ namespace Quark {
 		static void EndScene();
 
 		static void DrawSprite(Texture* texture, const Vec4f& tint = Vec4(1.0f), const Mat4f& transform = Mat4f(1.0f));
+		static void DrawSprite(Texture* texture, float aspectRatio, const Vec4f& tint = Vec4(1.0f));
 		static void DrawSprite(Texture* texture, const Vec2f* texCoords, const Vec4f& tint = Vec4(1.0f), const Mat4f& transform = Mat4f(1.0f));
 		static void DrawSprite(const SubTexture2D& subTexture, const Vec4f& tint = Vec4(1.0f), const Mat4f& transform = Mat4f(1.0f));
 		static void DrawSprite(const Vec4f& color, const Mat4f& transform = Mat4f(1.0f));
 
 		static void DrawLine(const Vec3f& p1, const Vec3f& p2, const Vec4f& beginColor, const Vec4f& endColor);
+
 		static void DrawText(std::string_view text, Font* font, const Vec4f& color = Vec4f(1.0f), const Mat4f& transform = Mat4f(1.0f));
 		static void DrawText(const Text& text, const Mat4f& transform = Mat4f(1.0f));
 

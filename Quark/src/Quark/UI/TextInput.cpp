@@ -22,8 +22,13 @@ namespace Quark {
 			{
 				if (m_Value.size() > 0)
 					m_Value.pop_back();
-
-			} break;
+				break;
+			}
+			case KeyCode::Enter:
+			{
+				m_Value.push_back('\n');
+				break;
+			}
 		}
 	}
 

@@ -5,7 +5,7 @@ MainLayer::MainLayer(Application* app) : Layer(app)
 	auto window = GetApplication()->GetWindow();
 	window->SetVSync(true);
 
-	m_Font1 = m_Library.Load("arial-regular", "assets/fonts/arial.ttf", 48);
+	m_Font1 = m_Library.Load("arial-regular", "assets/fonts/arial.ttf", 64);
 	m_Font2 = m_Library.Load("agency-regular", "assets/fonts/ANTQUAI.TTF", 64);
 
 	{
@@ -45,8 +45,8 @@ void MainLayer::OnRender()
 	ss << std::put_time(std::localtime(&t), "%H:%M:%S");
 
 	Renderer2D::BeginScene(m_Camera.GetProjection(), Mat4f(1.0f));
-	Renderer2D::DrawText(ss.str(), m_Font1.get());
-	//Renderer2D::DrawText(m_Input);
+	//Renderer2D::DrawText(ss.str(), m_Font1.get());
+	Renderer2D::DrawText(m_Input);
 	Renderer2D::EndScene();
 }
 

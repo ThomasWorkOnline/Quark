@@ -1,7 +1,7 @@
 #include "Pong.h"
 
-Pong::Pong()
-	: Application(ApplicationOptions{ 1280, 720, "Pong" })
+Pong::Pong(const ApplicationOptions& options)
+	: Application(options)
 {
 	auto window = GetWindow();
 
@@ -14,7 +14,7 @@ Pong::Pong()
 	m_Ball = Mesh::ReadOBJData("assets/meshes/sphere.obj");
 	m_Shader = Shader::Create("assets/shaders/PBR.glsl");
 
-	m_AudioBuffer = AudioBuffer::Create("assets/sounds/file_example_WAV_1MG.wav");
+	m_AudioBuffer = AudioBuffer::Create("assets/sounds/Down V1.2.wav");
 	m_AudioSource = AudioSource::Create();
 	m_AudioSource->SetBuffer(m_AudioBuffer.get());
 	m_AudioSource->Play();

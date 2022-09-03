@@ -5,9 +5,9 @@
 #	ifdef _WIN64
 		// We're on windows x64
 #		define QK_PLATFORM_WINDOWS
-#		define QK_PLATFORM_NAME "Windows x64"
+#		define QK_PLATFORM_NAME "Windows 64-bit"
 #	else
-#		define QK_PLATFORM_NAME "Windows x86"
+#		define QK_PLATFORM_NAME "Windows 32-bit"
 #		error "x86 is not supported"
 #	endif
 #elif defined(__APPLE__) && defined(__MACH__)

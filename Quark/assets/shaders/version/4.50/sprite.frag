@@ -12,7 +12,6 @@ layout(location = 0) out vec4 o_Color;
 
 void main()
 {
-	//vec4 color = texture(u_Samplers[Input.TexIndex], Input.TexCoord.xy);
-	//o_Color = Input.Tint * color;
-	o_Color = Input.Tint;
+	vec4 color = texture(u_Samplers[Input.TexIndex], Input.TexCoord.xy);
+	o_Color = Input.Tint * color;
 }
