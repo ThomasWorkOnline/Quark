@@ -65,6 +65,7 @@ namespace Quark {
 
 	OpenGLPipeline::~OpenGLPipeline()
 	{
+		glDeleteVertexArrays(1, &m_RendererID);
 	}
 
 	void OpenGLPipeline::Bind()
@@ -85,6 +86,15 @@ namespace Quark {
 
 	void OpenGLPipeline::BindVertexAttrib()
 	{
+		if (m_RendererID)
+		{
+			glBindVertexArray(m_RendererID);
+			return;
+		}
+
+		glGenVertexArrays(1, &m_RendererID);
+		glBindVertexArray(m_RendererID);
+
 		GLuint vertexBufferIndex = 0;
 		for (const auto& element : m_Spec.Layout)
 		{

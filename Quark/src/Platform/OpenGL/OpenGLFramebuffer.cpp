@@ -157,13 +157,11 @@ namespace Quark {
 				// Depth stencil format
 				GLenum attachmentTarget = Utils::GetDepthAttachmentTarget(attachment.GetSpecification().DataFormat);
 
-				//glBindTexture(attachment.m_Target, attachment.m_RendererID);
 				glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentTarget, attachment.m_Target, attachment.m_RendererID, 0);
 			}
 			else
 			{
 				// Color format
-				//glBindTexture(attachment.m_Target, attachment.m_RendererID);
 				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + colorAttachmentIndex, attachment.m_Target, attachment.m_RendererID, 0);
 				colorAttachmentIndex++;
 			}

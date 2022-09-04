@@ -2,6 +2,7 @@
 
 #include "Quark/Renderer/Pipeline.h"
 
+typedef unsigned int GLuint;
 typedef unsigned int GLenum;
 
 namespace Quark {
@@ -27,6 +28,7 @@ namespace Quark {
 		GLenum GetPrimitiveTopology() const { return m_PrimitiveTopology; }
 
 	private:
+		GLuint m_RendererID = 0;
 		GLenum m_PrimitiveTopology = 0;
 	};
 }

@@ -78,6 +78,8 @@ namespace Quark {
 
 	void VulkanCommandBuffer::BeginRenderPass(RenderPass* renderPass, Framebuffer* framebuffer)
 	{
+		m_CurrentRenderPass = renderPass;
+
 		auto vkFramebuffer = static_cast<VulkanFramebuffer*>(framebuffer)->GetVkHandle();
 		auto vkRenderPass = static_cast<VulkanRenderPass*>(renderPass)->GetVkHandle();
 
@@ -105,6 +107,7 @@ namespace Quark {
 	void VulkanCommandBuffer::EndRenderPass()
 	{
 		vkCmdEndRenderPass(m_CommandBuffer);
+		m_CurrentRenderPass = nullptr;
 	}
 
 	void VulkanCommandBuffer::Draw(uint32_t vertexCount, uint32_t vertexOffset)
@@ -142,6 +145,6 @@ namespace Quark {
 
 	bool VulkanCommandBuffer::IsInsideRenderPass() const
 	{
-		return false;
+		return m_CurrentRenderPass;
 	}
 }

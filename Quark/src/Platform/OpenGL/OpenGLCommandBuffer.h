@@ -45,6 +45,7 @@ namespace Quark {
 		OpenGLCommandBuffer& operator=(const OpenGLCommandBuffer&) = delete;
 
 	private:
-		OpenGLPipeline* m_Pipeline = nullptr;
+		OpenGLPipeline* m_BoundPipeline = nullptr;
+		RenderPass* m_CurrentRenderPass = nullptr;
 	};
 }

@@ -46,5 +46,6 @@ namespace Quark {
 
 	private:
 		VkCommandBuffer m_CommandBuffer = VK_NULL_HANDLE;
+		RenderPass* m_CurrentRenderPass = nullptr;
 	};
 }

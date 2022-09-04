@@ -62,8 +62,8 @@ namespace Quark {
 
 	void OpenGLCommandBuffer::BindPipeline(Pipeline* pipeline)
 	{
-		m_Pipeline = static_cast<OpenGLPipeline*>(pipeline);
-		m_Pipeline->Bind();
+		m_BoundPipeline = static_cast<OpenGLPipeline*>(pipeline);
+		m_BoundPipeline->Bind();
 	}
 
 	void OpenGLCommandBuffer::SetViewport(uint32_t viewportWidth, uint32_t viewportHeight)
@@ -78,13 +78,14 @@ namespace Quark {
 
 	void OpenGLCommandBuffer::BeginRenderPass(RenderPass* renderPass, Framebuffer* framebuffer)
 	{
-		QK_ASSERT_PIPELINE_VALID_STATE(m_Pipeline);
+		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
 
 		framebuffer ? static_cast<OpenGLFramebuffer*>(framebuffer)->Bind() : OpenGLFramebuffer::Bind(0);
 
-		if (renderPass->GetSpecification().ClearBuffers)
+		m_CurrentRenderPass = renderPass;
+		if (m_CurrentRenderPass->GetSpecification().ClearBuffers)
 		{
-			auto& color = renderPass->GetSpecification().ClearColor;
+			auto& color = m_CurrentRenderPass->GetSpecification().ClearColor;
 			glClearColor(color.r, color.g, color.b, color.a);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		}
@@ -92,45 +93,46 @@ namespace Quark {
 
 	void OpenGLCommandBuffer::EndRenderPass()
 	{
+		m_CurrentRenderPass = nullptr;
 	}
 
 	void OpenGLCommandBuffer::Draw(uint32_t vertexCount, uint32_t vertexOffset)
 	{
-		QK_ASSERT_PIPELINE_VALID_STATE(m_Pipeline);
-		glDrawArrays(m_Pipeline->GetPrimitiveTopology(), vertexOffset, vertexCount);
+		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
+		glDrawArrays(m_BoundPipeline->GetPrimitiveTopology(), vertexOffset, vertexCount);
 	}
 
 	void OpenGLCommandBuffer::DrawIndexed(uint32_t indexCount)
 	{
-		QK_ASSERT_PIPELINE_VALID_STATE(m_Pipeline);
-		glDrawElements(m_Pipeline->GetPrimitiveTopology(), indexCount, GL_UNSIGNED_INT, nullptr);
+		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
+		glDrawElements(m_BoundPipeline->GetPrimitiveTopology(), indexCount, GL_UNSIGNED_INT, nullptr);
 	}
 
 	void OpenGLCommandBuffer::DrawInstanced(uint32_t vertexCount, uint32_t vertexOffset, uint32_t instanceCount)
 	{
-		QK_ASSERT_PIPELINE_VALID_STATE(m_Pipeline);
-		glDrawArraysInstanced(m_Pipeline->GetPrimitiveTopology(), vertexOffset, vertexCount, instanceCount);
+		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
+		glDrawArraysInstanced(m_BoundPipeline->GetPrimitiveTopology(), vertexOffset, vertexCount, instanceCount);
 	}
 
 	void OpenGLCommandBuffer::DrawIndexedInstanced(uint32_t indexCount, uint32_t instanceCount)
 	{
-		QK_ASSERT_PIPELINE_VALID_STATE(m_Pipeline);
-		glDrawElementsInstanced(m_Pipeline->GetPrimitiveTopology(), indexCount, GL_UNSIGNED_INT, nullptr, instanceCount);
+		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
+		glDrawElementsInstanced(m_BoundPipeline->GetPrimitiveTopology(), indexCount, GL_UNSIGNED_INT, nullptr, instanceCount);
 	}
 
 	void OpenGLCommandBuffer::BindVertexBuffer(VertexBuffer* vertexBuffer)
 	{
-		QK_ASSERT_PIPELINE_VALID_STATE(m_Pipeline);
-		QK_CORE_ASSERT(vertexBuffer->GetLayout() == m_Pipeline->GetLayout(), "Buffer layout does not match the currently bound pipeline layout");
+		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
+		QK_CORE_ASSERT(vertexBuffer->GetLayout() == m_BoundPipeline->GetLayout(), "Buffer layout does not match the currently bound pipeline layout");
 
 		GLuint rendererID = static_cast<OpenGLVertexBuffer*>(vertexBuffer)->GetRendererID();
 		glBindBuffer(GL_ARRAY_BUFFER, rendererID);
-		m_Pipeline->BindVertexAttrib();
+		m_BoundPipeline->BindVertexAttrib();
 	}
 
 	void OpenGLCommandBuffer::BindIndexBuffer(IndexBuffer* indexBuffer)
 	{
-		QK_ASSERT_PIPELINE_VALID_STATE(m_Pipeline);
+		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
 
 		GLuint rendererID = static_cast<OpenGLIndexBuffer*>(indexBuffer)->GetRendererID();
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, rendererID);
@@ -138,6 +140,6 @@ namespace Quark {
 
 	bool OpenGLCommandBuffer::IsInsideRenderPass() const
 	{
-		return false;
+		return m_CurrentRenderPass;
 	}
 }
