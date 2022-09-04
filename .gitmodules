@@ -1,6 +1,3 @@
-[submodule "Quark/vendor/spdlog"]
-	path = Quark/vendor/spdlog
-	url = https://github.com/ThomasWorkOnline/spdlog.git
 [submodule "Quark/vendor/glm"]
 	path = Quark/vendor/glm
 	url = https://github.com/g-truc/glm.git
@@ -10,3 +7,6 @@
 [submodule "Quark/vendor/lodepng"]
 	path = Quark/vendor/lodepng
 	url = https://github.com/ThomasWorkOnline/lodepng.git
+[submodule "Quark/vendor/spdlog"]
+	path = Quark/vendor/spdlog
+	url = https://github.com/ThomasWorkOnline/spdlog.git
