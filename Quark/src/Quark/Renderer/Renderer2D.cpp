@@ -383,24 +383,26 @@ namespace Quark {
 	{
 		if (s_Data->QuadIndexCount > 0)
 		{
+			Renderer::BindPipeline(s_Data->QuadRendererPipeline.get());
+
 			size_t size = ((uint8_t*)s_Data->QuadVertexPtr - (uint8_t*)s_Data->QuadVertices);
 			s_Data->QuadVertexBuffer->SetData(s_Data->QuadVertices, size);
 
 			for (uint32_t i = 0; i < s_Data->TextureSamplerIndex; i++)
 				s_Data->Textures[i]->Attach(i);
 
-			Renderer::BindPipeline(s_Data->QuadRendererPipeline.get());
 			Renderer::Submit(s_Data->QuadVertexBuffer.get(), s_Data->QuadIndexBuffer.get(), s_Data->QuadIndexCount);
 			s_Stats.DrawCalls++;
 		}
 
 		if (uint32_t vertexCount = (uint32_t)(s_Data->LineVertexPtr - s_Data->LineVertices))
 		{
+			Renderer::BindPipeline(s_Data->LineRendererPipeline.get());
+			Renderer::GetCommandBuffer()->SetLineWidth(1.0f);
+
 			size_t size = ((uint8_t*)s_Data->LineVertexPtr - (uint8_t*)s_Data->LineVertices);
 			s_Data->LineVertexBuffer->SetData(s_Data->LineVertices, size);
 
-			Renderer::GetCommandBuffer()->SetLineWidth(1.0f);
-			Renderer::BindPipeline(s_Data->LineRendererPipeline.get());
 			Renderer::Submit(s_Data->LineVertexBuffer.get(), vertexCount);
 			s_Stats.DrawCalls++;
 		}

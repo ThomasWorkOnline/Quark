@@ -38,10 +38,12 @@ namespace Quark {
 
 	void VulkanCommandBuffer::SetCullFace(RenderCullMode mode)
 	{
+		QK_CORE_ASSERT(false, "Not implemented");
 	}
 
 	void VulkanCommandBuffer::SetDepthFunction(RenderDepthFunction func)
 	{
+		QK_CORE_ASSERT(false, "Not implemented");
 	}
 
 	void VulkanCommandBuffer::BindPipeline(Pipeline* pipeline)

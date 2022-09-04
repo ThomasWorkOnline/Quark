@@ -78,8 +78,6 @@ namespace Quark {
 
 	void OpenGLCommandBuffer::BeginRenderPass(RenderPass* renderPass, Framebuffer* framebuffer)
 	{
-		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
-
 		framebuffer ? static_cast<OpenGLFramebuffer*>(framebuffer)->Bind() : OpenGLFramebuffer::Bind(0);
 
 		m_CurrentRenderPass = renderPass;

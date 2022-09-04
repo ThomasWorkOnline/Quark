@@ -11,7 +11,7 @@ public:
 		: Application(options)
 	{
 		// Loading our texture
-		m_Texture = Texture2D::Create("assets/Textures/Voxelcraft Montains.PNG");
+		m_Texture = Texture2D::Create("assets/Textures/Example1_BasicRendering.png");
 
 		// Setting the projection type to be orthographic in screen space [-1, 1]
 		m_Camera.SetOrthographic(1.0f);
@@ -38,11 +38,8 @@ public:
 		// Starting a fresh 2D scene
 		Renderer2D::BeginScene(m_Camera.GetProjection(), Mat4f(1.0f)); // <-- This is the camera view matrix, we'll stick to a unit matrix
 
-		auto window = GetWindow();
-		float aspectRatio = window->GetAspectRatio();
-
 		// Submitting a unit sprite with our given texture
-		Renderer2D::DrawSprite(m_Texture.get(), aspectRatio);
+		Renderer2D::DrawSprite(m_Texture.get());
 		//Renderer2D::DrawSprite(Vec4f(1.0f, 0.0f, 0.0f, 1.0f));
 
 		// Telling Quark we are done with the current scene

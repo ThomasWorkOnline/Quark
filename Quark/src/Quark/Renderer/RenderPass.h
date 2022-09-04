@@ -7,8 +7,7 @@ namespace Quark {
 
 	enum class PipelineBindPoint
 	{
-		None = 0,
-		Graphics,
+		Graphics = 0,
 		Compute
 	};
 
