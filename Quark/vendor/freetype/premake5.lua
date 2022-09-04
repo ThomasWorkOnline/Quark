@@ -1,4 +1,4 @@
-project "freetype"
+project "FreeType"
 	kind "StaticLib"
 	language "C"
 	staticruntime "Off"

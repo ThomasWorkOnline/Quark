@@ -5,8 +5,8 @@ VendorDir = "%{wks.location}/Quark/vendor"
 
 IncludeDir = {}
 IncludeDir["entt"]       = "%{VendorDir}/entt/single_include"
-IncludeDir["freetype"]   = "%{VendorDir}/freetype/include"
-IncludeDir["glad"]       = "%{VendorDir}/glad/include"
+IncludeDir["FreeType"]   = "%{VendorDir}/freetype/include"
+IncludeDir["Glad"]       = "%{VendorDir}/glad/include"
 IncludeDir["glfw"]       = "%{VendorDir}/glfw/include"
 IncludeDir["glm"]        = "%{VendorDir}/glm"
 IncludeDir["Metal"]      = "%{VendorDir}/metal"

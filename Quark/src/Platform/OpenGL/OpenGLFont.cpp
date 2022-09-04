@@ -153,7 +153,7 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		FT_Error error = FT_Init_FreeType(&s_Library);
-		QK_CORE_ASSERT(error == FT_Err_Ok, "Could not initialize freetype! ({0})", FT_Error_String(error));
+		QK_CORE_ASSERT(error == FT_Err_Ok, "Could not initialize FreeType! ({0})", FT_Error_String(error));
 	}
 
 	void OpenGLFont::Shutdown()
@@ -161,6 +161,6 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		FT_Error error = FT_Done_FreeType(s_Library);
-		QK_CORE_ASSERT(error == FT_Err_Ok, "Could not shutdown freetype! ({0})", FT_Error_String(error));
+		QK_CORE_ASSERT(error == FT_Err_Ok, "Could not shutdown FreeType! ({0})", FT_Error_String(error));
 	}
 }

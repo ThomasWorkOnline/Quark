@@ -73,9 +73,9 @@ namespace Quark {
 	};
 
 	static const BufferLayout s_Layout = {
-		{ Quark::ShaderDataType::Float3, "a_Position" },
-		{ Quark::ShaderDataType::Float2, "a_TexCoord" },
-		{ Quark::ShaderDataType::Float3, "a_Normal"   }
+		{ ShaderDataType::Float3, "a_Position" },
+		{ ShaderDataType::Float2, "a_TexCoord" },
+		{ ShaderDataType::Float3, "a_Normal"   }
 	};
 
 	Mesh::Mesh(const OBJMeshData& meshData)
@@ -194,6 +194,7 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
+#if 1
 		const std::string fileRaw = Filesystem::ReadTextFile(filepath);
 
 		OBJMeshData data;
@@ -271,5 +272,6 @@ namespace Quark {
 		}
 
 		return data;
+#endif
 	}
 }

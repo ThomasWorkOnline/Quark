@@ -44,8 +44,8 @@ project "Quark"
 		"src",
 		"%{VendorDir}",
 		"%{IncludeDir.entt}",
-		"%{IncludeDir.freetype}",
-		"%{IncludeDir.glad}",
+		"%{IncludeDir.FreeType}",
+		"%{IncludeDir.Glad}",
 		"%{IncludeDir.glfw}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.OpenAL}",
@@ -55,7 +55,7 @@ project "Quark"
 
 	links
 	{
-		"freetype",
+		"FreeType",
 		"Glad",
 		"GLFW",
 		"lodepng",
