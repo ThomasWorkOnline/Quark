@@ -13,11 +13,13 @@ PBRRenderingDemo::PBRRenderingDemo(const ApplicationOptions& options)
 
 	m_Scene = CreateScope<PresentableScene>();
 	m_Scene->GetSettings().GlobalFrictionCoeff = 4.0f;
+	m_Scene->SetEnvironment("assets/Environments/MonValley_G_DirtRoad_3k.hdr");
+
 	m_CameraEntity = m_Scene->CreatePrimaryCamera();
 	m_CameraEntity.GetComponent<Transform3DComponent>().Position = { 0.0f, 0.0f, -2.0f };
 	m_CameraEntity.AddNativeScript<CameraController>();
 
-	m_MeshDataFuture = std::async(std::launch::async, Mesh::ReadOBJData, "assets/meshes/poly_sphere.obj");
+	m_MeshDataFuture = std::async(std::launch::async, Mesh::ReadOBJData, "assets/Models/poly_sphere.obj");
 
 	LoadMaterialsAsync();
 
@@ -36,7 +38,7 @@ PBRRenderingDemo::PBRRenderingDemo(const ApplicationOptions& options)
 		}
 	}
 
-	m_PBRShader = Shader::Create("assets/shaders/PBR.glsl");
+	m_PBRShader = Shader::Create("assets/Shaders/PBR.glsl");
 
 	{
 		UniformBufferSpecification spec;
@@ -175,40 +177,40 @@ void PBRRenderingDemo::LoadMaterialsAsync()
 		const char* aoFilepath = nullptr;
 
 #if MATERIAL == 0
-		albedoFilepath = "assets/textures/pbr/greasy-pan/greasy-pan-2-albedo.png";
-		metallicFilepath = "assets/textures/pbr/greasy-pan/greasy-pan-2-metal.png";
-		normalFilepath = "assets/textures/pbr/greasy-pan/greasy-pan-2-normal.png";
-		roughnessFilepath = "assets/textures/pbr/greasy-pan/greasy-pan-2-roughness.png";
+		albedoFilepath = "assets/Textures/pbr/greasy-pan/greasy-pan-2-albedo.png";
+		metallicFilepath = "assets/Textures/pbr/greasy-pan/greasy-pan-2-metal.png";
+		normalFilepath = "assets/Textures/pbr/greasy-pan/greasy-pan-2-normal.png";
+		roughnessFilepath = "assets/Textures/pbr/greasy-pan/greasy-pan-2-roughness.png";
 #endif
 
 #if MATERIAL == 1
-		albedoFilepath = "assets/textures/pbr/streaked-metal/albedo.png";
-		metallicFilepath = "assets/textures/pbr/streaked-metal/metalness.png";
-		normalFilepath = "assets/textures/pbr/streaked-metal/normal-dx.png";
-		roughnessFilepath = "assets/textures/pbr/streaked-metal/rough.png";
+		albedoFilepath = "assets/Textures/pbr/streaked-metal/albedo.png";
+		metallicFilepath = "assets/Textures/pbr/streaked-metal/metalness.png";
+		normalFilepath = "assets/Textures/pbr/streaked-metal/normal-dx.png";
+		roughnessFilepath = "assets/Textures/pbr/streaked-metal/rough.png";
 #endif
 
 #if MATERIAL == 2
-		albedoFilepath = "assets/textures/pbr/rustediron/rustediron2_basecolor.png";
-		metallicFilepath = "assets/textures/pbr/rustediron/rustediron2_metallic.png";
-		normalFilepath = "assets/textures/pbr/rustediron/rustediron2_normal.png";
-		roughnessFilepath = "assets/textures/pbr/rustediron/rustediron2_roughness.png";
+		albedoFilepath = "assets/Textures/pbr/rustediron/rustediron2_basecolor.png";
+		metallicFilepath = "assets/Textures/pbr/rustediron/rustediron2_metallic.png";
+		normalFilepath = "assets/Textures/pbr/rustediron/rustediron2_normal.png";
+		roughnessFilepath = "assets/Textures/pbr/rustediron/rustediron2_roughness.png";
 #endif
 
 #if MATERIAL == 3
-		albedoFilepath = "assets/textures/pbr/gray-granite/gray-granite-flecks-albedo.png";
-		metallicFilepath = "assets/textures/pbr/gray-granite/gray-granite-flecks-Metallic.png";
-		normalFilepath = "assets/textures/pbr/gray-granite/gray-granite-flecks-Normal-dx.png";
-		roughnessFilepath = "assets/textures/pbr/gray-granite/gray-granite-flecks-Roughness.png";
-		aoFilepath = "assets/textures/pbr/gray-granite/gray-granite-flecks-ao.png";
+		albedoFilepath = "assets/Textures/pbr/gray-granite/gray-granite-flecks-albedo.png";
+		metallicFilepath = "assets/Textures/pbr/gray-granite/gray-granite-flecks-Metallic.png";
+		normalFilepath = "assets/Textures/pbr/gray-granite/gray-granite-flecks-Normal-dx.png";
+		roughnessFilepath = "assets/Textures/pbr/gray-granite/gray-granite-flecks-Roughness.png";
+		aoFilepath = "assets/Textures/pbr/gray-granite/gray-granite-flecks-ao.png";
 #endif
 
 #if MATERIAL == 4
-		albedoFilepath = "assets/textures/pbr/marble-speckled/marble-speckled-albedo.png";
-		metallicFilepath = "assets/textures/pbr/marble-speckled/marble-speckled-metalness.png";
-		normalFilepath = "assets/textures/pbr/marble-speckled/marble-speckled-normal.png";
-		roughnessFilepath = "assets/textures/pbr/marble-speckled/marble-speckled-roughness.png";
-		aoFilepath = "assets/textures/pbr/gray-granite/gray-granite-flecks-ao.png";
+		albedoFilepath = "assets/Textures/pbr/marble-speckled/marble-speckled-albedo.png";
+		metallicFilepath = "assets/Textures/pbr/marble-speckled/marble-speckled-metalness.png";
+		normalFilepath = "assets/Textures/pbr/marble-speckled/marble-speckled-normal.png";
+		roughnessFilepath = "assets/Textures/pbr/marble-speckled/marble-speckled-roughness.png";
+		aoFilepath = "assets/Textures/pbr/gray-granite/gray-granite-flecks-ao.png";
 #endif
 
 #if 1

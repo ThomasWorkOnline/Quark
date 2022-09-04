@@ -93,6 +93,146 @@ namespace Quark {
 	};
 
 	template<typename T>
+	class ArrayIterator
+	{
+	public:
+		using value_type      = T;
+		using difference_type = size_t;
+		using pointer         = T*;
+		using reference       = value_type&;
+
+	public:
+		ArrayIterator() = default;
+		ArrayIterator(T* ptr)
+			: m_Pointer(ptr)
+		{}
+
+		QK_CONSTEXPR20 bool operator==(const ArrayIterator& other) const {
+			return this->m_Pointer == other.m_Pointer;
+		}
+
+		QK_CONSTEXPR20 bool operator!=(const ArrayIterator& other) const {
+			return this->m_Pointer != other.m_Pointer;
+		}
+
+		QK_CONSTEXPR20 reference operator*() const noexcept { return *m_Pointer; }
+
+		QK_CONSTEXPR20 pointer operator->() const noexcept { return m_Pointer; }
+
+		QK_CONSTEXPR20 ArrayIterator& operator++() noexcept {
+			m_Pointer++;
+			return *this;
+		}
+
+		QK_CONSTEXPR20 ArrayIterator  operator++(int) noexcept {
+			ArrayIterator tmp = *this;
+			m_Pointer++;
+			return tmp;
+		}
+
+		QK_CONSTEXPR20 ArrayIterator& operator--() noexcept {
+			m_Pointer--;
+			return *this;
+		}
+
+		QK_CONSTEXPR20 ArrayIterator  operator--(int) noexcept {
+			ArrayIterator tmp = *this;
+			m_Pointer--;
+			return tmp;
+		}
+
+		QK_CONSTEXPR20 ArrayIterator& operator+=(const difference_type offset) noexcept {
+			m_Pointer += offset;
+			return *this;
+		}
+
+		QK_CONSTEXPR20 ArrayIterator  operator +(const difference_type offset) const noexcept {
+			return (*this) + offset;
+		}
+
+		QK_CONSTEXPR20 ArrayIterator& operator-=(const difference_type offset) noexcept {
+			m_Pointer -= offset;
+			return *this;
+		}
+
+		QK_CONSTEXPR20 ArrayIterator  operator-(const difference_type offset) const noexcept {
+			return (*this) - offset;
+		}
+
+	private:
+		T* m_Pointer = nullptr;
+	};
+
+	template<typename T>
+	class Array
+	{
+	public:
+		using iterator = ArrayIterator<T>;
+		using const_iterator = const ArrayIterator<T>;
+
+		Array() = default;
+		Array(size_t elementCount)
+			: m_Size(elementCount)
+		{
+			m_Memory = new T[elementCount];
+		}
+
+		Array(Array&& other) noexcept
+			: m_Size(other.m_Size)
+			, m_Memory(other.m_Memory)
+		{
+			other.m_Size = 0;
+			other.m_Memory = nullptr;
+		}
+
+		Array& operator=(Array&& other) noexcept
+		{
+			m_Size = other.m_Size;
+			m_Memory = other.m_Memory;
+			other.m_Size = 0;
+			other.m_Memory = nullptr;
+			return *this;
+		}
+
+		~Array()
+		{
+			delete[](m_Memory);
+		}
+
+		size_t GetSize() const { return m_Size; }
+
+		const T& operator[](size_t index) const
+		{
+			return m_Memory[index];
+		}
+
+		T& operator[](size_t index)
+		{
+			return m_Memory[index];
+		}
+
+		operator const T* () const { return m_Memory; }
+		operator T* () { return m_Memory; }
+
+		const T& operator* () const { return *m_Memory; }
+		T& operator* () { return *m_Memory; }
+
+		iterator begin() { return m_Memory; }
+		iterator end() { return (m_Memory + m_Size); }
+
+		const_iterator begin() const { return m_Memory; }
+		const_iterator end() const { return (m_Memory + m_Size); }
+
+		// Non-copyable
+		Array(const Array&) = delete;
+		Array& operator=(const Array&) = delete;
+
+	private:
+		size_t m_Size = 0;
+		T* m_Memory = nullptr;
+	};
+
+	template<typename T>
 	class Singleton
 	{
 	public:

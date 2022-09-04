@@ -18,6 +18,9 @@ namespace Quark {
 		virtual void End() = 0;
 		virtual void Reset() = 0;
 
+		virtual void SetCullFace(RenderCullMode mode) = 0;
+		virtual void SetDepthFunction(RenderDepthFunction func) = 0;
+
 		virtual void BindPipeline(Pipeline* pipeline) = 0;
 		virtual void SetViewport(uint32_t viewportWidth, uint32_t viewportHeight) = 0;
 		virtual void SetLineWidth(float width) = 0;
@@ -32,6 +35,8 @@ namespace Quark {
 
 		virtual void BindVertexBuffer(VertexBuffer* vertexBuffer) = 0;
 		virtual void BindIndexBuffer(IndexBuffer* indexBuffer) = 0;
+
+		virtual bool IsInsideRenderPass() const = 0;
 
 		virtual bool operator==(const CommandBuffer& other) const = 0;
 

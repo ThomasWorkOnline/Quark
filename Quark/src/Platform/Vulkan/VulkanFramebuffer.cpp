@@ -79,18 +79,19 @@ namespace Quark {
 
 	void VulkanFramebuffer::Invalidate()
 	{
-		QK_CORE_ASSERT(m_Spec.Attachments.size(), "AttachmentCount must be non zero");
+		QK_CORE_ASSERT(m_Spec.Specifications.size(), "Attachment Count must be non zero");
 		QK_CORE_ASSERT(m_Spec.RenderPass, "RenderPass must be a valid pointer to a render pass");
 
-		AutoRelease<VkImageView> attachments = StackAlloc(m_Spec.Attachments.size() * sizeof(VkImageView));
+		AutoRelease<VkImageView> attachments = StackAlloc(m_Spec.Specifications.size() * sizeof(VkImageView));
 		VkImageView* attachmentPtr = attachments;
 
-		for (auto* attachment : m_Spec.Attachments)
+		for (auto& specification : m_Spec.Specifications)
 		{
-			*attachmentPtr = static_cast<VulkanFramebufferAttachment*>(attachment)->GetVkHandle();
-			attachmentPtr++;
+			//*attachmentPtr = static_cast<VulkanFramebufferAttachment*>(attachment)->GetVkHandle();
+			//attachmentPtr++;
 		}
 
+#if 0
 		VkFramebufferCreateInfo framebufferInfo{};
 		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 		framebufferInfo.renderPass = static_cast<VulkanRenderPass*>(m_Spec.RenderPass)->GetVkHandle();
@@ -102,5 +103,6 @@ namespace Quark {
 
 		vkDestroyFramebuffer(m_Device->GetVkHandle(), m_Framebuffer, nullptr);
 		vkCreateFramebuffer(m_Device->GetVkHandle(), &framebufferInfo, nullptr, &m_Framebuffer);
+#endif
 	}
 }

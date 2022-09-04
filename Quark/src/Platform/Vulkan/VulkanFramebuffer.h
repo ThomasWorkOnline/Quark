@@ -36,9 +36,6 @@ namespace Quark {
 		VulkanFramebuffer(VulkanDevice* device, const FramebufferSpecification& spec);
 		virtual ~VulkanFramebuffer() final override;
 
-		virtual void Attach() final override {}
-		virtual void Detach() final override {}
-
 		virtual void Resize(uint32_t width, uint32_t height) final override;
 
 		virtual bool operator==(const Framebuffer& other) const final override

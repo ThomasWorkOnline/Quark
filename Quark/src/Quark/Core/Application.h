@@ -24,8 +24,8 @@ namespace Quark {
 		uint32_t Width = 1280, Height = 720;
 		std::string AppName;
 
+		std::filesystem::path CoreDir;
 		std::filesystem::path AssetDir;
-		std::filesystem::path CoreAssetDir;
 
 		ApplicationFlagBits Flags{};
 		KeyCode FullscreenKey = KeyCode::F11;

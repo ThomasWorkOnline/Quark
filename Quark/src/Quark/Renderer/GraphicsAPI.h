@@ -42,10 +42,6 @@ namespace Quark {
 										     
 		virtual                              Version GetVersion() const = 0;
 									         
-		virtual void                         SetClearColor(const Vec4f& rgba) = 0;
-		virtual void                         SetCullFace(RenderCullMode face) = 0;
-		virtual void                         SetDepthFunction(RenderDepthFunction func) = 0;
-									         
 		virtual void                         SetLineThickness(float thickness) = 0;
 		virtual float                        GetLineThickness() const = 0;
 									         

@@ -5,8 +5,8 @@ MainLayer::MainLayer(Application* app) : Layer(app)
 	auto window = GetApplication()->GetWindow();
 	window->SetVSync(true);
 
-	m_Font1 = m_Library.Load("arial-regular", "assets/fonts/arial.ttf", 64);
-	m_Font2 = m_Library.Load("agency-regular", "assets/fonts/ANTQUAI.TTF", 64);
+	m_Font1 = m_Library.Load("arial-regular", "assets/Fonts/arial.ttf", 64);
+	m_Font2 = m_Library.Load("agency-regular", "assets/Fonts/ANTQUAI.TTF", 64);
 
 	{
 		static constexpr Vec4f color1 = { 1.0f, 1.0f, 0.0f, 1.0f };

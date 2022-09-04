@@ -50,14 +50,14 @@ namespace Quark {
 
 			Renderer2D::EndScene();
 
-#if 0
 			if (m_Data.Env)
 			{
-				RenderCommand::SetCullFace(RenderCullMode::Front);
-				RenderCommand::SetDepthFunction(RenderDepthFunction::LessEqual);
+				Renderer::GetCommandBuffer()->SetCullFace(RenderCullMode::Back);
+				Renderer::GetCommandBuffer()->SetDepthFunction(RenderDepthFunction::LessEqual);
+				Renderer::BindPipeline(m_Data.Env->SkyboxPipeline.get());
 
 				Mat4f cameraRotate = glm::toMat4(cameraTransform.Orientation);
-				Mat4f cameraView = glm::translate(cameraRotate, (Vec3f)-cameraTransform.Position);
+				Mat4f cameraView = (Mat3f)cameraRotate;
 
 				m_Data.Env->SkyboxShader->SetMat4f("u_View", cameraView);
 				m_Data.Env->SkyboxShader->SetMat4f("u_Projection", sceneCamera.GetProjection());
@@ -67,11 +67,10 @@ namespace Quark {
 				m_Data.Env->Environment->Attach(0);
 				m_Data.Env->Irradiance->Attach(5); // TODO: put inside scene uniform buffer
 
-				Renderer::Submit(m_Data.Env->CubemapVertexBuffer.get(), m_Data.Env->CubemapIndexBuffer.get());
-				RenderCommand::SetCullFace(RenderCullMode::Default);
-				RenderCommand::SetDepthFunction(RenderDepthFunction::Default);
+				Renderer::Submit(m_Data.Env->CubemapBox.GetVertexBuffer(), m_Data.Env->CubemapBox.GetIndexBuffer());
+				Renderer::GetCommandBuffer()->SetCullFace(RenderCullMode::Default);
+				Renderer::GetCommandBuffer()->SetDepthFunction(RenderDepthFunction::Default);
 			}
-#endif
 		}
 	}
 
@@ -116,44 +115,86 @@ namespace Quark {
 
 	void PresentableScene::NewEnvironment(std::string_view filepath)
 	{
-#if 0
 		QK_PROFILE_FUNCTION();
 
 		if (!m_Data.Env)
 		{
-			auto& assetDir = Application::Get()->GetOptions().AssetDir;
+			auto& coreDirectory = Application::Get()->GetOptions().CoreDir;
+
+			QK_CORE_INFO(std::filesystem::current_path().string());
 
 			m_Data.Env = CreateScope<EnvironmentData>();
-			m_Data.Env->SkyboxShader = Shader::Create((assetDir / "assets/shaders/version/3.30/cubemap.glsl").string());
-			m_Data.Env->IrradianceShader = Shader::Create((assetDir / "assets/shaders/version/3.30/irradiance.glsl").string());
-			m_Data.Env->EquirectangleToCubemapShader = Shader::Create((assetDir / "assets/shaders/version/3.30/equirectangle_to_cubemap.glsl").string());
+			m_Data.Env->SkyboxShader = Shader::Create((coreDirectory / "Quark/assets/shaders/version/3.30/cubemap.glsl").string());
+			m_Data.Env->IrradianceShader = Shader::Create((coreDirectory / "Quark/assets/shaders/version/3.30/irradiance.glsl").string());
+			m_Data.Env->EquirectangleToCubemapShader = Shader::Create((coreDirectory / "Quark/assets/shaders/version/3.30/equirectangle_to_cubemap.glsl").string());
+
+			m_Data.Env->CubemapBox = Mesh::GenerateUnitCube();
 
 			{
-				Mesh cube = Mesh::GenerateUnitCube();
-				m_Data.Env->CubemapVertexBuffer.reset(cube.GetVertexBuffer());
-				m_Data.Env->CubemapIndexBuffer.reset(cube.GetIndexBuffer());
+				CubemapSpecification environmentSpec;
+				environmentSpec.Width = 2048;
+				environmentSpec.Height = 2048;
+				m_Data.Env->Environment = Cubemap::Create(environmentSpec);
+
+				CubemapSpecification irradianceSpec;
+				irradianceSpec.Width = 32;
+				irradianceSpec.Height = 32;
+				m_Data.Env->Irradiance = Cubemap::Create(irradianceSpec);
 			}
 
 			{
-				CubemapSpecification spec;
-				spec.Width = 2048;
-				spec.Height = 2048;
-				m_Data.Env->Environment = Cubemap::Create(spec);
+				RenderPassSpecification spec;
+				spec.BindPoint = PipelineBindPoint::Graphics;
+				spec.ColorFormat = ColorDataFormat::RGBA8;
+				spec.ClearBuffers = true;
 
-				spec.Width = 32;
-				spec.Height = 32;
-				m_Data.Env->Irradiance = Cubemap::Create(spec);
+				m_Data.Env->RenderPass = RenderPass::Create(spec);
+			}
+
+			{
+				PipelineSpecification spec;
+				spec.Layout = Mesh::GetBufferLayout();
+				spec.Topology = PrimitiveTopology::TriangleList;
+				spec.Shader = m_Data.Env->IrradianceShader.get();
+				spec.RenderPass = m_Data.Env->RenderPass.get();
+
+				m_Data.Env->IrradiancePipeline = Pipeline::Create(spec);
+			}
+
+			{
+				PipelineSpecification spec;
+				spec.Layout = Mesh::GetBufferLayout();
+				spec.Topology = PrimitiveTopology::TriangleList;
+				spec.Shader = m_Data.Env->EquirectangleToCubemapShader.get();
+				spec.RenderPass = m_Data.Env->RenderPass.get();
+
+				m_Data.Env->EnvironmentMapPipeline = Pipeline::Create(spec);
+			}
+
+			{
+				PipelineSpecification spec;
+				spec.Layout = Mesh::GetBufferLayout();
+				spec.Topology = PrimitiveTopology::TriangleList;
+				spec.Shader = m_Data.Env->SkyboxShader.get();
+				spec.RenderPass = m_Data.Env->RenderPass.get();
+
+				m_Data.Env->SkyboxPipeline = Pipeline::Create(spec);
 			}
 
 			{
 				FramebufferAttachmentSpecification attachmentSpec = {
+					2048,
+					2048,
+					1,
 					ColorDataFormat::RGBA16f
 				};
 
 				FramebufferSpecification spec;
 				spec.Width = 2048;
 				spec.Height = 2048;
-				spec.Attachments = { Ref<FramebufferAttachment>(FramebufferAttachment::Create(nullptr, attachmentSpec)) };
+				spec.RenderPass = m_Data.Env->RenderPass.get();
+				spec.Specifications = { attachmentSpec };
+
 				m_Data.Env->Framebuffer = Framebuffer::Create(spec);
 			}
 		}
@@ -171,45 +212,53 @@ namespace Quark {
 		auto hdrTexture = Texture2D::Create(filepath);
 		hdrTexture->Attach(0);
 
-		m_Data.Env->Framebuffer->Attach();
-		m_Data.Env->EquirectangleToCubemapShader->SetInt("u_EquirectangularMap", 0);
-		m_Data.Env->EquirectangleToCubemapShader->SetMat4f("u_Projection", captureProjection);
+		Renderer::GetCommandBuffer()->SetCullFace(RenderCullMode::Front);
+		Renderer::GetCommandBuffer()->SetDepthFunction(RenderDepthFunction::LessEqual);
 
-		RenderCommand::SetCullFace(RenderCullMode::Front);
-		RenderCommand::SetDepthFunction(RenderDepthFunction::LessEqual);
-
-		for (uint8_t i = 0; i < 6; i++)
 		{
-			m_Data.Env->EquirectangleToCubemapShader->SetMat4f("u_View", captureViews[i]);
-			//m_Data.Env->Framebuffer->AttachColorTextureTarget(0x8515 + i, m_Data.Env->Environment->GetRendererID());
+			Renderer::BindPipeline(m_Data.Env->EnvironmentMapPipeline.get());
+			Renderer::BeginRenderPass(m_Data.Env->RenderPass.get(), m_Data.Env->Framebuffer.get());
 
-			// FIX:
-			//RenderCommand::Clear();
-			Renderer::Submit(m_Data.Env->CubemapVertexBuffer.get(), m_Data.Env->CubemapIndexBuffer.get());
+			m_Data.Env->EquirectangleToCubemapShader->SetInt("u_EquirectangularMap", 0);
+			m_Data.Env->EquirectangleToCubemapShader->SetMat4f("u_Projection", captureProjection);
+
+			for (uint8_t i = 0; i < 6; i++)
+			{
+				m_Data.Env->EquirectangleToCubemapShader->SetMat4f("u_View", captureViews[i]);
+				//m_Data.Env->Framebuffer->AttachColorTextureTarget(0x8515 + i, m_Data.Env->Environment->GetRendererID());
+
+				// FIX:
+				//RenderCommand::Clear();
+				Renderer::Submit(m_Data.Env->CubemapBox.GetVertexBuffer(), m_Data.Env->CubemapBox.GetIndexBuffer());
+			}
+
+			Renderer::EndRenderPass();
 		}
 
-		m_Data.Env->Framebuffer->Detach();
 		m_Data.Env->Framebuffer->Resize(32, 32);
-		m_Data.Env->Framebuffer->Attach();
 
-		m_Data.Env->IrradianceShader->SetInt("u_EnvironmentMap", 0);
-		m_Data.Env->IrradianceShader->SetMat4f("u_Projection", captureProjection);
-		m_Data.Env->Environment->Attach(0);
-
-		for (uint8_t i = 0; i < 6; i++)
 		{
-			m_Data.Env->IrradianceShader->SetMat4f("u_View", captureViews[i]);
-			//m_Data.Env->Framebuffer->AttachColorTextureTarget(0x8515 + i, m_Data.Env->Irradiance->GetRendererID());
+			Renderer::BindPipeline(m_Data.Env->IrradiancePipeline.get());
+			Renderer::BeginRenderPass(m_Data.Env->RenderPass.get(), m_Data.Env->Framebuffer.get());
 
-			// FIX:
-			//RenderCommand::Clear();
-			Renderer::Submit(m_Data.Env->CubemapVertexBuffer.get(), m_Data.Env->CubemapIndexBuffer.get());
+			m_Data.Env->IrradianceShader->SetInt("u_EnvironmentMap", 0);
+			m_Data.Env->IrradianceShader->SetMat4f("u_Projection", captureProjection);
+			m_Data.Env->Environment->Attach(0);
+
+			for (uint8_t i = 0; i < 6; i++)
+			{
+				m_Data.Env->IrradianceShader->SetMat4f("u_View", captureViews[i]);
+				//m_Data.Env->Framebuffer->AttachColorTextureTarget(0x8515 + i, m_Data.Env->Irradiance->GetRendererID());
+
+				// FIX:
+				//RenderCommand::Clear();
+				Renderer::Submit(m_Data.Env->CubemapBox.GetVertexBuffer(), m_Data.Env->CubemapBox.GetIndexBuffer());
+			}
+
+			Renderer::EndRenderPass();
 		}
 
-		m_Data.Env->Framebuffer->Detach();
-
-		RenderCommand::SetCullFace(RenderCullMode::Default);
-		RenderCommand::SetDepthFunction(RenderDepthFunction::Default);
-#endif
+		Renderer::GetCommandBuffer()->SetCullFace(RenderCullMode::Default);
+		Renderer::GetCommandBuffer()->SetDepthFunction(RenderDepthFunction::Default);
 	}
 }

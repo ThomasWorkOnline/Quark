@@ -10,8 +10,8 @@ VulkanApp::VulkanApp(const ApplicationOptions& options)
 	m_CameraEntity.AddNativeScript<CameraController>();
 
 	TextureRenderModes renderModes;
-	Ref<Texture2D> texture1 = Texture2D::Create("assets/textures/pbr/streaked-metal/albedo.png", renderModes);
-	Ref<Texture2D> texture2 = Texture2D::Create("assets/textures/pbr/copper-rock/copper-rock1-alb.png", renderModes);
+	Ref<Texture2D> texture1 = Texture2D::Create("assets/Textures/streaked-metal/albedo.png", renderModes);
+	Ref<Texture2D> texture2 = Texture2D::Create("assets/Textures/pbr/copper-rock/copper-rock1-alb.png", renderModes);
 
 	Random<bool> randomBool;
 	Random<float> randomFloat;
@@ -36,7 +36,7 @@ VulkanApp::VulkanApp(const ApplicationOptions& options)
 		src.Tint = { randomFloat.Next(), randomFloat.Next(), randomFloat.Next(), 1.0f };
 	}
 
-	m_Font = Font::Create("assets/fonts/arial.ttf", 48);
+	m_Font = Font::Create("assets/Fonts/arial.ttf", 48);
 	m_Text.SetFont(m_Font);
 	
 	auto* window = GetWindow();

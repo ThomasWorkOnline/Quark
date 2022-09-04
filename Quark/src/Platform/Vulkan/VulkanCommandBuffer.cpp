@@ -36,6 +36,14 @@ namespace Quark {
 		vkResetCommandBuffer(m_CommandBuffer, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
 	}
 
+	void VulkanCommandBuffer::SetCullFace(RenderCullMode mode)
+	{
+	}
+
+	void VulkanCommandBuffer::SetDepthFunction(RenderDepthFunction func)
+	{
+	}
+
 	void VulkanCommandBuffer::BindPipeline(Pipeline* pipeline)
 	{
 		auto vulkanPipeline = static_cast<VulkanPipeline*>(pipeline);
@@ -130,5 +138,10 @@ namespace Quark {
 	{
 		VkBuffer buffer = static_cast<VulkanIndexBuffer*>(indexBuffer)->GetVkHandle();
 		vkCmdBindIndexBuffer(m_CommandBuffer, buffer, 0, VK_INDEX_TYPE_UINT32);
+	}
+
+	bool VulkanCommandBuffer::IsInsideRenderPass() const
+	{
+		return false;
 	}
 }

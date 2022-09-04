@@ -4,10 +4,8 @@
 #include "Quark/Event/Event.h"
 #include "Quark/Event/WindowEvent.h"
 
-#include "Quark/Renderer/Buffer.h"
+#include "Quark/Renderer/Renderer.h"
 #include "Quark/Renderer/Cubemap.h"
-#include "Quark/Renderer/Framebuffer.h"
-#include "Quark/Renderer/Shader.h"
 
 #include "Scene.h"
 
@@ -34,9 +32,14 @@ namespace Quark {
 			Scope<Shader> SkyboxShader;
 			Scope<Shader> IrradianceShader;
 			Scope<Shader> EquirectangleToCubemapShader;
-			Scope<VertexBuffer> CubemapVertexBuffer;
-			Scope<IndexBuffer> CubemapIndexBuffer;
+			Scope<RenderPass>  RenderPass;
 			Scope<Framebuffer> Framebuffer;
+
+			Scope<Pipeline> EnvironmentMapPipeline;
+			Scope<Pipeline> IrradiancePipeline;
+			Scope<Pipeline> SkyboxPipeline;
+
+			Mesh CubemapBox;
 
 			Scope<Cubemap> Environment;
 			Scope<Cubemap> Irradiance;

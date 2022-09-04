@@ -15,6 +15,9 @@ namespace Quark {
 		virtual void End() final override {}
 		virtual void Reset() final override {}
 
+		virtual void SetCullFace(RenderCullMode mode) final override;
+		virtual void SetDepthFunction(RenderDepthFunction func) final override;
+
 		virtual void BindPipeline(Pipeline* pipeline) final override;
 		virtual void SetViewport(uint32_t viewportWidth, uint32_t viewportHeight) final override;
 		virtual void SetLineWidth(float width) final override;
@@ -29,6 +32,8 @@ namespace Quark {
 
 		virtual void BindVertexBuffer(VertexBuffer* vertexBuffer) final override;
 		virtual void BindIndexBuffer(IndexBuffer* indexBuffer) final override;
+
+		virtual bool IsInsideRenderPass() const final override;
 
 		virtual bool operator==(const CommandBuffer& other) const final override
 		{

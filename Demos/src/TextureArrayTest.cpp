@@ -10,7 +10,7 @@ struct SpriteVertex
 TextureArrayTest::TextureArrayTest(const ApplicationOptions& options)
 	: Application(options)
 {
-	Image texture1 = Image("assets/textures/Example1_BasicRendering.png");
+	Image texture1 = Image("assets/Textures/Example1_BasicRendering.png");
 
 	Texture2DArraySpecification spec;
 	spec.DataFormat = ColorDataFormat::RGBA8_SRGB;
@@ -30,7 +30,7 @@ TextureArrayTest::TextureArrayTest(const ApplicationOptions& options)
 	m_Camera.Resize(window->GetWidth(), window->GetHeight());
 
 #if 0
-	m_Shader = Shader::Create("assets/shaders/textureArray.glsl");
+	m_Shader = Shader::Create("assets/Shaders/textureArray.glsl");
 	m_Shader->SetInt("u_Sampler", 0);
 
 	static constexpr SpriteVertex vertices[] = {

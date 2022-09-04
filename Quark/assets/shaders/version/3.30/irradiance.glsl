@@ -1,43 +1,42 @@
 #type vertex
-#version 330 core
+#version 450 core
+
 layout (location = 0) in vec3 a_Position;
 
 uniform mat4 u_View;
 uniform mat4 u_Projection;
 
-out VertexOutput
-{
+layout(location = 0) out VertexOutput {
     vec3 Position;
-} v_Output;
+} Output;
 
 void main()
 {
     gl_Position = u_Projection * u_View * vec4(a_Position, 1.0);
-    v_Output.Position = a_Position;
+    Output.Position = a_Position;
 }
 
 #type fragment
-#version 330 core
+#version 450 core
 
-in VertexOutput
-{
+layout(location = 0) in VertexOutput {
     vec3 Position;
-} v_Input;
+} Input;
 
 uniform samplerCube u_EnvironmentMap;
 
 const float PI = 3.14159265359;
 
-out vec4 o_Color;
+layout(location = 0) out vec4 o_Color;
 
 void main()
 {		
 	// The world vector acts as the normal of a tangent surface
-    // from the origin, aligned to v_Input.Position. Given this normal, calculate all
+    // from the origin, aligned to Input.Position. Given this normal, calculate all
     // incoming radiance of the environment. The result of this radiance
     // is the radiance of light coming from -Normal direction, which is what
     // we use in the PBR shader to sample irradiance.
-    vec3 N = normalize(v_Input.Position);
+    vec3 N = normalize(Input.Position);
 
     vec3 irradiance = vec3(0.0);   
     

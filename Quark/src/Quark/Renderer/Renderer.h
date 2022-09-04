@@ -27,6 +27,7 @@ namespace Quark {
 		};
 
 		static void BindPipeline(Pipeline* pipeline);
+
 		static void BeginRenderPass(RenderPass* renderPass, Framebuffer* framebuffer);
 		static void BeginGeometryPass();
 		static void EndRenderPass();

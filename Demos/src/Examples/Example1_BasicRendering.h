@@ -11,7 +11,7 @@ public:
 		: Application(options)
 	{
 		// Loading our texture
-		m_Texture = Texture2D::Create("assets/textures/Voxelcraft Montains.PNG");
+		m_Texture = Texture2D::Create("assets/Textures/Voxelcraft Montains.PNG");
 
 		// Setting the projection type to be orthographic in screen space [-1, 1]
 		m_Camera.SetOrthographic(1.0f);

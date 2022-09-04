@@ -1,32 +1,33 @@
 #type vertex
-#version 330 core
+#version 450 core
+
 layout (location = 0) in vec3 a_Position;
 
 uniform mat4 u_View;
 uniform mat4 u_Projection;
 
-out VertexOutput
-{
+layout(location = 0) out VertexOutput {
     vec3 Position;
-} v_Output;
+} Output;
 
 void main()
 {
     gl_Position = u_Projection * u_View * vec4(a_Position, 1.0);
-    v_Output.Position.x =  a_Position.x;
-    v_Output.Position.y = -a_Position.y;
-    v_Output.Position.z =  a_Position.z;
+    Output.Position.x =  a_Position.x;
+    Output.Position.y = -a_Position.y;
+    Output.Position.z =  a_Position.z;
 }
 
 #type fragment
-#version 330 core
+#version 450 core
 
-in VertexOutput
-{
+layout(location = 0) in VertexOutput {
     vec3 Position;
-} v_Input;
+} Input;
 
 uniform sampler2D u_EquirectangularMap;
+
+layout(location = 0) out vec4 o_Color;
 
 const vec2 invAtan = vec2(0.1591, 0.3183);
 vec2 SampleSphericalMap(vec3 v)
@@ -37,11 +38,9 @@ vec2 SampleSphericalMap(vec3 v)
     return uv;
 }
 
-out vec4 o_Color;
-
 void main()
 {		
-    vec2 uv = SampleSphericalMap(normalize(v_Input.Position));
+    vec2 uv = SampleSphericalMap(normalize(Input.Position));
     vec3 color = texture(u_EquirectangularMap, uv).rgb;
 
     o_Color = vec4(color, 1.0);

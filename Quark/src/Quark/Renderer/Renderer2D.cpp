@@ -492,9 +492,9 @@ namespace Quark {
 		std::memset(s_Data->Textures, 0, s_Data->MaxSamplerDestinations * sizeof(Texture*));
 		s_Data->Textures[0] = s_Data->DefaultTexture.get();
 
-		auto& assetDir = Application::Get()->GetOptions().CoreAssetDir;
-		auto spriteVertexSource = ReadSpirvFile((assetDir / "bin-spirv/sprite.vert.spv").string());
-		auto spriteFragmentSource = ReadSpirvFile((assetDir / "bin-spirv/sprite.frag.spv").string());
+		auto& coreDirectory = Application::Get()->GetOptions().CoreDir;
+		auto spriteVertexSource = ReadSpirvFile((coreDirectory / "bin-spirv/sprite.vert.spv").string());
+		auto spriteFragmentSource = ReadSpirvFile((coreDirectory / "bin-spirv/sprite.frag.spv").string());
 
 		Sampler2DSpecification samplerSpec;
 		samplerSpec.Binding = 1;
@@ -539,9 +539,9 @@ namespace Quark {
 
 		s_Data->LineVertices = new LineVertex[Renderer2DData::MaxVertices];
 
-		auto& assetDir = Application::Get()->GetOptions().CoreAssetDir;
-		auto lineVertexSource = ReadSpirvFile((assetDir / "bin-spirv/line.vert.spv").string());
-		auto lineFragmentSource = ReadSpirvFile((assetDir / "bin-spirv/line.frag.spv").string());
+		auto& coreDirectory = Application::Get()->GetOptions().CoreDir;
+		auto lineVertexSource = ReadSpirvFile((coreDirectory / "bin-spirv/line.vert.spv").string());
+		auto lineFragmentSource = ReadSpirvFile((coreDirectory / "bin-spirv/line.frag.spv").string());
 
 		s_Data->LineShader = Shader::Create("defaultLine", lineVertexSource, lineFragmentSource);
 

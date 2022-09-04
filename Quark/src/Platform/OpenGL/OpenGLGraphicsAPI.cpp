@@ -60,64 +60,9 @@ namespace Quark {
 		}
 	}
 
-	void OpenGLGraphicsAPI::SetCullFace(RenderCullMode face)
-	{
-		switch (face)
-		{
-		case RenderCullMode::None:
-			glDisable(GL_CULL_FACE);
-			break;
-		case RenderCullMode::Front:
-			glEnable(GL_CULL_FACE);
-			glCullFace(GL_FRONT);
-			break;
-		case RenderCullMode::Back:
-			glEnable(GL_CULL_FACE);
-			glCullFace(GL_BACK);
-			break;
-		case RenderCullMode::FrontAndBack:
-			glEnable(GL_CULL_FACE);
-			glCullFace(GL_FRONT_AND_BACK);
-			break;
-		}
-	}
-
-	void OpenGLGraphicsAPI::SetDepthFunction(RenderDepthFunction func)
-	{
-		switch (func)
-		{
-		case RenderDepthFunction::Never:
-			glDepthFunc(GL_NEVER);
-			break;
-		case RenderDepthFunction::Always:
-			glDepthFunc(GL_ALWAYS);
-			break;
-		case RenderDepthFunction::NotEqual:
-			glDepthFunc(GL_NOTEQUAL);
-			break;
-		case RenderDepthFunction::Less:
-			glDepthFunc(GL_LESS);
-			break;
-		case RenderDepthFunction::LessEqual:
-			glDepthFunc(GL_LEQUAL);
-			break;
-		case RenderDepthFunction::Greater:
-			glDepthFunc(GL_GREATER);
-			break;
-		case RenderDepthFunction::GreaterEqual:
-			glDepthFunc(GL_GEQUAL);
-			break;
-		}
-	}
-
 	GraphicsAPI::Version OpenGLGraphicsAPI::GetVersion() const
 	{
 		return { GLVersion.major, GLVersion.minor };
-	}
-
-	void OpenGLGraphicsAPI::SetClearColor(const Vec4f& rgba)
-	{
-		glClearColor(rgba.x, rgba.y, rgba.z, rgba.w);
 	}
 
 	void OpenGLGraphicsAPI::SetLineThickness(float thickness)

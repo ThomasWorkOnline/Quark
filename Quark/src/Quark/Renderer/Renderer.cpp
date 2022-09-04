@@ -30,6 +30,8 @@ namespace Quark {
 	void Renderer::BeginRenderPass(RenderPass* renderPass, Framebuffer* framebuffer)
 	{
 		QK_ASSERT_RENDER_THREAD();
+		QK_CORE_ASSERT(!s_Data->ActiveCommandBuffer->IsInsideRenderPass(), "Active command buffer is already inside a render pass!");
+
 		s_Data->ActiveCommandBuffer->BeginRenderPass(renderPass, framebuffer);
 	}
 
@@ -198,6 +200,8 @@ namespace Quark {
 		s_GraphicsAPI->Init();
 		s_Data = new RendererData();
 
+		s_Data->ActiveCommandBuffer = GraphicsContext::Get()->GetCommandBuffer();
+
 		{
 			RenderPassSpecification spec;
 			spec.BindPoint = PipelineBindPoint::Graphics;
@@ -221,9 +225,6 @@ namespace Quark {
 
 			for (uint32_t i = 0; i < swapChainImages; i++)
 			{
-				auto* attachment = GraphicsContext::Get()->GetColorAttachment(i);
-
-				fbSpec.Attachments = { attachment };
 				s_Data->Framebuffers[i] = Framebuffer::Create(fbSpec);
 			}
 		}

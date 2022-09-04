@@ -11,10 +11,6 @@ namespace Quark {
 									       
 		virtual                              Version GetVersion() const final override;
 									         
-		virtual void                         SetClearColor(const Vec4f& rgba) final override;
-		virtual void                         SetCullFace(RenderCullMode face) final override;
-		virtual void                         SetDepthFunction(RenderDepthFunction func) final override;
-									         
 		virtual void                         SetLineThickness(float thickness) final override;
 		virtual float                        GetLineThickness() const final override;
 									         

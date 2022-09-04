@@ -11,6 +11,8 @@ namespace Quark {
 
 	struct FramebufferAttachmentSpecification
 	{
+		uint32_t Width = 0, Height = 0;
+		uint32_t Samples = 1;
 		ColorDataFormat DataFormat{};
 	};
 
@@ -41,7 +43,7 @@ namespace Quark {
 		RenderPass* RenderPass = nullptr;
 		bool SwapChainTarget = false;
 
-		std::vector<FramebufferAttachment*> Attachments;
+		std::vector<FramebufferAttachmentSpecification> Specifications;
 	};
 
 	class Framebuffer
@@ -49,9 +51,6 @@ namespace Quark {
 	public:
 		Framebuffer(const FramebufferSpecification& spec);
 		virtual ~Framebuffer() = default;
-
-		QK_DEPRECATED virtual void Attach() = 0;
-		QK_DEPRECATED virtual void Detach() = 0;
 
 		virtual void Resize(uint32_t width, uint32_t height) = 0;
 

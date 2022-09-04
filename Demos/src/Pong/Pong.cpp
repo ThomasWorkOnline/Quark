@@ -11,10 +11,10 @@ Pong::Pong(const ApplicationOptions& options)
 	m_Entity.AddComponent<CameraComponent>().Camera.SetPerspective(70.0f);
 
 	m_BallTransform.Position = Vec3f(0.0f, 0.0f, 10.0f);
-	m_Ball = Mesh::ReadOBJData("assets/meshes/sphere.obj");
-	m_Shader = Shader::Create("assets/shaders/PBR.glsl");
+	m_Ball = Mesh::ReadOBJData("assets/Models/sphere.obj");
+	m_Shader = Shader::Create("assets/Shaders/PBR.glsl");
 
-	m_AudioBuffer = AudioBuffer::Create("assets/sounds/Down V1.2.wav");
+	m_AudioBuffer = AudioBuffer::Create("assets/Audio/Down V1.2.wav");
 	m_AudioSource = AudioSource::Create();
 	m_AudioSource->SetBuffer(m_AudioBuffer.get());
 	m_AudioSource->Play();
