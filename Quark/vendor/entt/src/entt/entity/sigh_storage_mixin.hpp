@@ -27,24 +27,15 @@ class sigh_storage_mixin final: public Type {
     using sigh_type = sigh<void(basic_registry<typename Type::entity_type> &, const typename Type::entity_type), typename Type::allocator_type>;
     using basic_iterator = typename Type::basic_iterator;
 
-    template<typename Func>
-    void notify_destruction(basic_iterator first, basic_iterator last, Func func) {
+    void pop(basic_iterator first, basic_iterator last) override {
         ENTT_ASSERT(owner != nullptr, "Invalid pointer to registry");
 
         for(; first != last; ++first) {
             const auto entt = *first;
             destruction.publish(*owner, entt);
             const auto it = Type::find(entt);
-            func(it, it + 1u);
+            Type::pop(it, it + 1u);
         }
-    }
-
-    void swap_and_pop(basic_iterator first, basic_iterator last) final {
-        notify_destruction(std::move(first), std::move(last), [this](auto... args) { Type::swap_and_pop(args...); });
-    }
-
-    void in_place_pop(basic_iterator first, basic_iterator last) final {
-        notify_destruction(std::move(first), std::move(last), [this](auto... args) { Type::in_place_pop(args...); });
     }
 
     basic_iterator try_emplace(const typename Type::entity_type entt, const bool force_back, const void *value) final {
@@ -79,7 +70,7 @@ public:
      * @brief Move constructor.
      * @param other The instance to move from.
      */
-    sigh_storage_mixin(sigh_storage_mixin &&other) ENTT_NOEXCEPT
+    sigh_storage_mixin(sigh_storage_mixin &&other) noexcept
         : Type{std::move(other)},
           owner{other.owner},
           construction{std::move(other.construction)},
@@ -91,7 +82,7 @@ public:
      * @param other The instance to move from.
      * @param allocator The allocator to use.
      */
-    sigh_storage_mixin(sigh_storage_mixin &&other, const allocator_type &allocator) ENTT_NOEXCEPT
+    sigh_storage_mixin(sigh_storage_mixin &&other, const allocator_type &allocator) noexcept
         : Type{std::move(other), allocator},
           owner{other.owner},
           construction{std::move(other.construction), allocator},
@@ -103,7 +94,7 @@ public:
      * @param other The instance to move from.
      * @return This storage.
      */
-    sigh_storage_mixin &operator=(sigh_storage_mixin &&other) ENTT_NOEXCEPT {
+    sigh_storage_mixin &operator=(sigh_storage_mixin &&other) noexcept {
         Type::operator=(std::move(other));
         owner = other.owner;
         construction = std::move(other.construction);
@@ -136,7 +127,7 @@ public:
      *
      * @return A temporary sink object.
      */
-    [[nodiscard]] auto on_construct() ENTT_NOEXCEPT {
+    [[nodiscard]] auto on_construct() noexcept {
         return sink{construction};
     }
 
@@ -151,7 +142,7 @@ public:
      *
      * @return A temporary sink object.
      */
-    [[nodiscard]] auto on_update() ENTT_NOEXCEPT {
+    [[nodiscard]] auto on_update() noexcept {
         return sink{update};
     }
 
@@ -166,7 +157,7 @@ public:
      *
      * @return A temporary sink object.
      */
-    [[nodiscard]] auto on_destroy() ENTT_NOEXCEPT {
+    [[nodiscard]] auto on_destroy() noexcept {
         return sink{destruction};
     }
 
@@ -221,10 +212,10 @@ public:
     }
 
     /**
-     * @brief Forwards variables to mixins, if any.
+     * @brief Forwards variables to derived classes, if any.
      * @param value A variable wrapped in an opaque container.
      */
-    void bind(any value) ENTT_NOEXCEPT final {
+    void bind(any value) noexcept final {
         auto *reg = any_cast<basic_registry<entity_type>>(&value);
         owner = reg ? reg : owner;
         Type::bind(std::move(value));

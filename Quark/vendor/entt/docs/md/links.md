@@ -54,7 +54,7 @@ I hope this list can grow much more in the future:
     puzzler with logic gates and other cool stuff.
     [Check it out](https://indi-kernick.itch.io/the-machine-web-version).
   * [EnTTPong](https://github.com/DomRe/EnttPong): a basic game made to showcase
-    different parts of EnTT and C++17.
+    different parts of `EnTT` and C++17.
   * [Randballs](https://github.com/gale93/randballs): simple `SFML` and `EnTT`
     playground.
   * [EnTT Tower Defense](https://github.com/Daivuk/tddod): a data oriented tower
@@ -94,6 +94,12 @@ I hope this list can grow much more in the future:
     town, before it's too late.
   * [City Builder Game](https://github.com/PhiGei2000/CityBuilderGame): a simple
     city-building game using C++ and OpenGL.
+  * [BattleSub](https://github.com/bfeldpw/battlesub): two player 2D submarine
+    game with some fluid dynamics.
+  * [Crimson Rush](https://github.com/WilKam01/LuaCGame): a dungeon-crawler and
+    rougelike inspired game about exploring and surviving as long as possible.
+  * [Space Fight](https://github.com/cholushkin/SpaceFight): one screen
+    multi-player arcade shooter game prototype.
 
 * Engines and the like:
   * [Aether Engine](https://hadean.com/spatial-simulation/)
@@ -158,6 +164,8 @@ I hope this list can grow much more in the future:
     cross-platform, object-oriented API to help in daily developer life.
   * [Billy Engine](https://github.com/billy4479/BillyEngine): some kind of a 2D
     engine based on `SDL2` and `EnTT`.
+  * [Ducktape](https://github.com/DucktapeEngine/Ducktape): an open source C++
+    2D & 3D game engine that focuses on being fast and powerful.
 
 * Articles, videos and blog posts:
   * [Some posts](https://skypjack.github.io/tags/#entt) on my personal

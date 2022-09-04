@@ -23,34 +23,34 @@ struct meta_range_iterator final {
     using iterator_category = std::input_iterator_tag;
     using node_type = Node;
 
-    meta_range_iterator() ENTT_NOEXCEPT
+    meta_range_iterator() noexcept
         : it{} {}
 
-    meta_range_iterator(node_type *head) ENTT_NOEXCEPT
+    meta_range_iterator(node_type *head) noexcept
         : it{head} {}
 
-    meta_range_iterator &operator++() ENTT_NOEXCEPT {
+    meta_range_iterator &operator++() noexcept {
         return (it = it->next), *this;
     }
 
-    meta_range_iterator operator++(int) ENTT_NOEXCEPT {
+    meta_range_iterator operator++(int) noexcept {
         meta_range_iterator orig = *this;
         return ++(*this), orig;
     }
 
-    [[nodiscard]] reference operator*() const ENTT_NOEXCEPT {
+    [[nodiscard]] reference operator*() const noexcept {
         return it;
     }
 
-    [[nodiscard]] pointer operator->() const ENTT_NOEXCEPT {
+    [[nodiscard]] pointer operator->() const noexcept {
         return operator*();
     }
 
-    [[nodiscard]] bool operator==(const meta_range_iterator &other) const ENTT_NOEXCEPT {
+    [[nodiscard]] bool operator==(const meta_range_iterator &other) const noexcept {
         return it == other.it;
     }
 
-    [[nodiscard]] bool operator!=(const meta_range_iterator &other) const ENTT_NOEXCEPT {
+    [[nodiscard]] bool operator!=(const meta_range_iterator &other) const noexcept {
         return !(*this == other);
     }
 
@@ -71,54 +71,7 @@ private:
  * @tparam Node Type of meta nodes iterated.
  */
 template<typename Type, typename Node = typename Type::node_type>
-struct meta_range final {
-    /*! @brief Node type. */
-    using node_type = Node;
-    /*! @brief Input iterator type. */
-    using iterator = internal::meta_range_iterator<Type, Node>;
-    /*! @brief Constant input iterator type. */
-    using const_iterator = iterator;
-
-    /*! @brief Default constructor. */
-    meta_range() ENTT_NOEXCEPT = default;
-
-    /**
-     * @brief Constructs a meta range from a given node.
-     * @param head The underlying node with which to construct the range.
-     */
-    meta_range(node_type *head) ENTT_NOEXCEPT
-        : node{head} {}
-
-    /**
-     * @brief Returns an iterator to the beginning.
-     * @return An iterator to the first meta object of the range.
-     */
-    [[nodiscard]] const_iterator cbegin() const ENTT_NOEXCEPT {
-        return iterator{node};
-    }
-
-    /*! @copydoc cbegin */
-    [[nodiscard]] iterator begin() const ENTT_NOEXCEPT {
-        return cbegin();
-    }
-
-    /**
-     * @brief Returns an iterator to the end.
-     * @return An iterator to the element following the last meta object of the
-     * range.
-     */
-    [[nodiscard]] const_iterator cend() const ENTT_NOEXCEPT {
-        return iterator{};
-    }
-
-    /*! @copydoc cend */
-    [[nodiscard]] iterator end() const ENTT_NOEXCEPT {
-        return cend();
-    }
-
-private:
-    node_type *node{nullptr};
-};
+using meta_range = iterable_adaptor<internal::meta_range_iterator<Type, Node>>;
 
 } // namespace entt
 

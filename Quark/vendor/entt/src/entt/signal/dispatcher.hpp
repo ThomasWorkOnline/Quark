@@ -1,13 +1,12 @@
 #ifndef ENTT_SIGNAL_DISPATCHER_HPP
 #define ENTT_SIGNAL_DISPATCHER_HPP
 
-#include <algorithm>
 #include <cstddef>
+#include <functional>
 #include <memory>
 #include <type_traits>
 #include <utility>
 #include <vector>
-#include "../config/config.h"
 #include "../container/dense_map.hpp"
 #include "../core/compressed_pair.hpp"
 #include "../core/fwd.hpp"
@@ -29,8 +28,8 @@ struct basic_dispatcher_handler {
     virtual ~basic_dispatcher_handler() = default;
     virtual void publish() = 0;
     virtual void disconnect(void *) = 0;
-    virtual void clear() ENTT_NOEXCEPT = 0;
-    virtual std::size_t size() const ENTT_NOEXCEPT = 0;
+    virtual void clear() noexcept = 0;
+    virtual std::size_t size() const noexcept = 0;
 };
 
 template<typename Type, typename Allocator>
@@ -62,11 +61,11 @@ public:
         bucket().disconnect(instance);
     }
 
-    void clear() ENTT_NOEXCEPT override {
+    void clear() noexcept override {
         events.clear();
     }
 
-    [[nodiscard]] auto bucket() ENTT_NOEXCEPT {
+    [[nodiscard]] auto bucket() noexcept {
         return typename signal_type::sink_type{signal};
     }
 
@@ -83,7 +82,7 @@ public:
         }
     }
 
-    std::size_t size() const ENTT_NOEXCEPT override {
+    std::size_t size() const noexcept override {
         return events.size();
     }
 
@@ -124,7 +123,7 @@ class basic_dispatcher {
 
     using alloc_traits = std::allocator_traits<Allocator>;
     using container_allocator = typename alloc_traits::template rebind_alloc<std::pair<const key_type, mapped_type>>;
-    using container_type = dense_map<id_type, mapped_type, identity, std::equal_to<id_type>, container_allocator>;
+    using container_type = dense_map<key_type, mapped_type, identity, std::equal_to<key_type>, container_allocator>;
 
     template<typename Type>
     [[nodiscard]] handler_type<Type> &assure(const id_type id) {
@@ -137,18 +136,6 @@ class basic_dispatcher {
         }
 
         return static_cast<handler_type<Type> &>(*ptr);
-    }
-
-    template<typename Type>
-    [[nodiscard]] const handler_type<Type> *assure(const id_type id) const {
-        static_assert(std::is_same_v<Type, std::decay_t<Type>>, "Non-decayed types not allowed");
-        auto &container = pools.first();
-
-        if(const auto it = container.find(id); it != container.end()) {
-            return static_cast<const handler_type<Type> *>(it->second.get());
-        }
-
-        return nullptr;
     }
 
 public:
@@ -172,7 +159,7 @@ public:
      * @brief Move constructor.
      * @param other The instance to move from.
      */
-    basic_dispatcher(basic_dispatcher &&other) ENTT_NOEXCEPT
+    basic_dispatcher(basic_dispatcher &&other) noexcept
         : pools{std::move(other.pools)} {}
 
     /**
@@ -180,7 +167,7 @@ public:
      * @param other The instance to move from.
      * @param allocator The allocator to use.
      */
-    basic_dispatcher(basic_dispatcher &&other, const allocator_type &allocator) ENTT_NOEXCEPT
+    basic_dispatcher(basic_dispatcher &&other, const allocator_type &allocator) noexcept
         : pools{container_type{std::move(other.pools.first()), allocator}, allocator} {}
 
     /**
@@ -188,7 +175,7 @@ public:
      * @param other The instance to move from.
      * @return This dispatcher.
      */
-    basic_dispatcher &operator=(basic_dispatcher &&other) ENTT_NOEXCEPT {
+    basic_dispatcher &operator=(basic_dispatcher &&other) noexcept {
         pools = std::move(other.pools);
         return *this;
     }
@@ -206,7 +193,7 @@ public:
      * @brief Returns the associated allocator.
      * @return The associated allocator.
      */
-    [[nodiscard]] constexpr allocator_type get_allocator() const ENTT_NOEXCEPT {
+    [[nodiscard]] constexpr allocator_type get_allocator() const noexcept {
         return pools.second();
     }
 
@@ -217,16 +204,19 @@ public:
      * @return The number of pending events for the given type.
      */
     template<typename Type>
-    size_type size(const id_type id = type_hash<Type>::value()) const ENTT_NOEXCEPT {
-        const auto *cpool = assure<Type>(id);
-        return cpool ? cpool->size() : 0u;
+    size_type size(const id_type id = type_hash<Type>::value()) const noexcept {
+        if(auto it = pools.first().find(id); it != pools.first().cend()) {
+            return it->second->size();
+        }
+
+        return 0u;
     }
 
     /**
      * @brief Returns the total number of pending events.
      * @return The total number of pending events.
      */
-    size_type size() const ENTT_NOEXCEPT {
+    size_type size() const noexcept {
         size_type count{};
 
         for(auto &&cpool: pools.first()) {
@@ -360,7 +350,7 @@ public:
     }
 
     /*! @brief Discards all the events queued so far. */
-    void clear() ENTT_NOEXCEPT {
+    void clear() noexcept {
         for(auto &&cpool: pools.first()) {
             cpool.second->clear();
         }

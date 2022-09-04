@@ -9,6 +9,7 @@
 #include <gtest/gtest.h>
 #include <entt/core/any.hpp>
 #include <entt/core/type_info.hpp>
+#include "../common/config.h"
 
 struct empty {
     ~empty() {
@@ -59,7 +60,7 @@ struct not_movable {
     not_movable &operator=(const not_movable &) = default;
     not_movable &operator=(not_movable &&) = delete;
 
-    double payload;
+    double payload{};
 };
 
 struct alignas(64u) over_aligned {};
@@ -1192,7 +1193,7 @@ TEST_F(Any, AnyCast) {
     ASSERT_EQ(entt::any_cast<int>(entt::any{42}), 42);
 }
 
-TEST_F(AnyDeathTest, AnyCast) {
+ENTT_DEBUG_TEST_F(AnyDeathTest, AnyCast) {
     entt::any any{42};
     const auto &cany = any;
 

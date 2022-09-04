@@ -2,6 +2,7 @@
 #include <functional>
 #include <iterator>
 #include <memory>
+#include <string>
 #include <tuple>
 #include <type_traits>
 #include <utility>
@@ -10,6 +11,7 @@
 #include <entt/core/iterator.hpp>
 #include <entt/core/memory.hpp>
 #include <entt/core/utility.hpp>
+#include "../common/config.h"
 #include "../common/throwing_allocator.hpp"
 #include "../common/tracked_memory_resource.hpp"
 
@@ -788,6 +790,24 @@ TEST(DenseMap, Erase) {
     ASSERT_EQ(map.size(), 0u);
 }
 
+TEST(DenseMap, EraseWithMovableKeyValue) {
+    static constexpr std::size_t minimum_bucket_count = 8u;
+    entt::dense_map<std::string, std::size_t> map;
+
+    map.emplace("0", 0u);
+    map.emplace("1", 1u);
+
+    ASSERT_EQ(map.bucket_count(), minimum_bucket_count);
+    ASSERT_EQ(map.size(), 2u);
+
+    auto it = map.erase(map.find("0"));
+
+    ASSERT_EQ(it->first, "1");
+    ASSERT_EQ(it->second, 1u);
+    ASSERT_EQ(map.size(), 1u);
+    ASSERT_FALSE(map.contains("0"));
+}
+
 TEST(DenseMap, EraseFromBucket) {
     static constexpr std::size_t minimum_bucket_count = 8u;
     entt::dense_map<std::size_t, std::size_t, entt::identity> map;
@@ -912,7 +932,7 @@ TEST(DenseMap, Indexing) {
     ASSERT_EQ(map.at(key), 99);
 }
 
-TEST(DenseMapDeathTest, Indexing) {
+ENTT_DEBUG_TEST(DenseMapDeathTest, Indexing) {
     entt::dense_map<int, int> map;
 
     ASSERT_DEATH([[maybe_unused]] auto value = std::as_const(map).at(0), "");

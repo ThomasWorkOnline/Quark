@@ -139,8 +139,8 @@ The registry to store, the views and the groups to iterate. That's all.
 The `entt::entity` type implements the concept of _entity identifier_. An entity
 (the _E_ of an _ECS_) is an opaque element to use as-is. Inspecting it isn't
 recommended since its format can change in future.<br/>
-Components (the _C_ of an _ECS_) are both move constructible and move assignable
-types. No need to register them nor their types.<br/>
+Components (the _C_ of an _ECS_) are of any type, without any constraints, not
+even that of being movable. No need to register them nor their types.<br/>
 Systems (the _S_ of an _ECS_) can be plain functions, functors, lambdas and so
 on. It's not required to announce them in any case and have no requirements.
 
@@ -731,15 +731,15 @@ There are two aliases that use `entt::entity` as their default entity:
 Users can also easily create their own aliases for custom identifiers as:
 
 ```cpp
-using my_handle = entt::basic_handle<my_identifier>;
-using my_const_handle = entt::basic_handle<const my_identifier>;
+using my_handle = entt::basic_handle<entt::basic_registry<my_identifier>>;
+using my_const_handle = entt::basic_handle<const entt::basic_registry<my_identifier>>;
 ```
 
 Handles are also implicitly convertible to const handles out of the box but not
 the other way around.<br/>
 A handle stores a non-const pointer to a registry and therefore it can do all
-the things that can be done with a non-const registry. On the other hand, a
-const handles store const pointers to registries and offer a restricted set of
+the things that can be done with a non-const registry. On the other hand, const
+handles store const pointers to registries and offer a restricted set of
 functionalities.
 
 This class is intended to simplify function signatures. In case of functions
@@ -773,7 +773,7 @@ organizer.emplace(+[](const void *, entt::registry &) { /* ... */ });
 These are the parameters that a free function or a member function can accept:
 
 * A possibly constant reference to a registry.
-* An `entt::basic_view` with any possible combination of types.
+* An `entt::basic_view` with any possible combination of storage classes.
 * A possibly constant reference to any type `T` (that is, a context variable).
 
 The function type for free functions and decayed lambdas passed as parameters to
@@ -878,17 +878,23 @@ The context is returned via the `ctx` functions and offers a minimal set of
 feature including the following:
 
 ```cpp
-// creates a new context variable by type
+// creates a new context variable by type and returns it
 registry.ctx().emplace<my_type>(42, 'c');
 
-// creates a new context variable with a name
-registry.ctx().emplace_hint<my_type>("my_variable"_hs, 42, 'c');
+// creates a new named context variable by type and returns it
+registry.ctx().emplace_as<my_type>("my_variable"_hs, 42, 'c');
+
+// inserts or assigns a context variable by (deduced) type and returns it
+registry.ctx().insert_or_assign(my_type{42, 'c'});
+
+// inserts or assigns a named context variable by (deduced) type and returns it
+registry.ctx().insert_or_assign("my_variable"_hs, my_type{42, 'c'});
 
 // gets the context variable by type as a non-const reference from a non-const registry
-auto &var = registry.ctx().at<my_type>();
+auto &var = registry.ctx().get<my_type>();
 
 // gets the context variable by name as a const reference from either a const or a non-const registry
-const auto &cvar = registry.ctx().at<const my_type>("my_variable"_hs);
+const auto &cvar = registry.ctx().get<const my_type>("my_variable"_hs);
 
 // resets the context variable by type
 registry.ctx().erase<my_type>();
@@ -921,14 +927,19 @@ lvalue is necessarily provided as an argument:
 
 ```cpp
 time clock;
-registry.ctx().emplace<my_type &>(clock);
+registry.ctx().emplace<time &>(clock);
 ```
 
 Read-only aliased properties are created using const types instead:
 
 ```cpp
-registry.ctx().emplace<const my_type &>(clock);
+registry.ctx().emplace<const time &>(clock);
 ```
+
+Note that `insert_or_assign` doesn't support aliased properties and users must
+necessarily use `emplace` or `emplace_as` for this purpose.<br/>
+When `insert_or_assign` is used to update an aliased property, it _converts_
+the property itself into a non-aliased one.
 
 From the point of view of the user, there are no differences between a variable
 that is managed by the registry and an aliased property. However, read-only
@@ -937,7 +948,7 @@ variables aren't accessible as non-const references:
 ```cpp
 // read-only variables only support const access
 const my_type *ptr = registry.ctx().find<const my_type>();
-const my_type &var = registry.ctx().at<const my_type>();
+const my_type &var = registry.ctx().get<const my_type>();
 ```
 
 Aliased properties can be erased as it happens with any other variable.
@@ -954,9 +965,11 @@ makes it possible to use any type as a component, as long as its specialization
 of `component_traits` implements all the required functionalities.<br/>
 The non-specialized version of this class contains the following members:
 
-* `in_place_delete`: `Type::in_place_delete` if present, false otherwise.
-* `page_size`: `Type::page_size` if present, `ENTT_PACKED_PAGE` (for non-empty
-  types) or 0 (for empty types) otherwise.
+* `in_place_delete`: `Type::in_place_delete` if present, true for non-movable
+  types and false otherwise.
+
+* `page_size`: `Type::page_size` if present, `ENTT_PACKED_PAGE` for non-empty
+  types and 0 otherwise.
 
 Where `Type` is any type of component. All properties can be customized by
 specializing the above class and defining all its members, or by adding only
@@ -1634,8 +1647,8 @@ useful in this regard.
 Groups are meant to iterate multiple components at once and to offer a faster
 alternative to multi type views.<br/>
 Groups overcome the performance of the other tools available but require to get
-the ownership of components and this sets some constraints on pools. On the
-other side, groups aren't an automatism that increases memory consumption,
+the ownership of components. This sets some constraints on the pools. On the
+other hand, groups aren't an automatism that increases memory consumption,
 affects functionalities and tries to optimize iterations for all the possible
 combinations of components. Users can decide when to pay for groups and to what
 extent.<br/>

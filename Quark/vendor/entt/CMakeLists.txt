@@ -35,6 +35,12 @@ message(VERBOSE "* Copyright (c) 2017-2022 Michele Caini <michele.caini@gmail.co
 message(VERBOSE "*")
 
 #
+# CMake stuff
+#
+
+list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
+
+#
 # Compiler stuff
 #
 
@@ -147,10 +153,14 @@ if(ENTT_INCLUDE_HEADERS)
             $<BUILD_INTERFACE:${EnTT_SOURCE_DIR}/src/entt/entity/sparse_set.hpp>
             $<BUILD_INTERFACE:${EnTT_SOURCE_DIR}/src/entt/entity/storage.hpp>
             $<BUILD_INTERFACE:${EnTT_SOURCE_DIR}/src/entt/entity/view.hpp>
+            $<BUILD_INTERFACE:${EnTT_SOURCE_DIR}/src/entt/graph/adjacency_matrix.hpp>
+            $<BUILD_INTERFACE:${EnTT_SOURCE_DIR}/src/entt/graph/dot.hpp>
+            $<BUILD_INTERFACE:${EnTT_SOURCE_DIR}/src/entt/graph/flow.hpp>
+            $<BUILD_INTERFACE:${EnTT_SOURCE_DIR}/src/entt/graph/fwd.hpp>
             $<BUILD_INTERFACE:${EnTT_SOURCE_DIR}/src/entt/locator/locator.hpp>
             $<BUILD_INTERFACE:${EnTT_SOURCE_DIR}/src/entt/meta/adl_pointer.hpp>
             $<BUILD_INTERFACE:${EnTT_SOURCE_DIR}/src/entt/meta/container.hpp>
-            $<BUILD_INTERFACE:${EnTT_SOURCE_DIR}/src/entt/meta/ctx.hpp>
+            $<BUILD_INTERFACE:${EnTT_SOURCE_DIR}/src/entt/meta/context.hpp>
             $<BUILD_INTERFACE:${EnTT_SOURCE_DIR}/src/entt/meta/factory.hpp>
             $<BUILD_INTERFACE:${EnTT_SOURCE_DIR}/src/entt/meta/fwd.hpp>
             $<BUILD_INTERFACE:${EnTT_SOURCE_DIR}/src/entt/meta/meta.hpp>
@@ -165,6 +175,7 @@ if(ENTT_INCLUDE_HEADERS)
             $<BUILD_INTERFACE:${EnTT_SOURCE_DIR}/src/entt/platform/android-ndk-r17.hpp>
             $<BUILD_INTERFACE:${EnTT_SOURCE_DIR}/src/entt/poly/fwd.hpp>
             $<BUILD_INTERFACE:${EnTT_SOURCE_DIR}/src/entt/poly/poly.hpp>
+            $<BUILD_INTERFACE:${EnTT_SOURCE_DIR}/src/entt/process/fwd.hpp>
             $<BUILD_INTERFACE:${EnTT_SOURCE_DIR}/src/entt/process/process.hpp>
             $<BUILD_INTERFACE:${EnTT_SOURCE_DIR}/src/entt/process/scheduler.hpp>
             $<BUILD_INTERFACE:${EnTT_SOURCE_DIR}/src/entt/resource/cache.hpp>
@@ -189,6 +200,7 @@ if(ENTT_HAS_NATVIS)
             $<BUILD_INTERFACE:${EnTT_SOURCE_DIR}/natvis/entt/container.natvis>
             $<BUILD_INTERFACE:${EnTT_SOURCE_DIR}/natvis/entt/core.natvis>
             $<BUILD_INTERFACE:${EnTT_SOURCE_DIR}/natvis/entt/entity.natvis>
+            $<BUILD_INTERFACE:${EnTT_SOURCE_DIR}/natvis/entt/graph.natvis>
             $<BUILD_INTERFACE:${EnTT_SOURCE_DIR}/natvis/entt/locator.natvis>
             $<BUILD_INTERFACE:${EnTT_SOURCE_DIR}/natvis/entt/meta.natvis>
             $<BUILD_INTERFACE:${EnTT_SOURCE_DIR}/natvis/entt/platform.natvis>
@@ -212,7 +224,11 @@ endif()
 # Install pkg-config file
 #
 
+include(JoinPaths)
+
 set(EnTT_PKGCONFIG ${CMAKE_CURRENT_BINARY_DIR}/entt.pc)
+
+join_paths(EnTT_PKGCONFIG_INCLUDEDIR "\${prefix}" "${CMAKE_INSTALL_INCLUDEDIR}")
 
 configure_file(
     ${EnTT_SOURCE_DIR}/cmake/in/entt.pc.in
@@ -307,22 +323,3 @@ if(ENTT_BUILD_DOCS)
         add_subdirectory(docs)
     endif()
 endif()
-
-#
-# AOB
-#
-
-add_custom_target(
-    aob
-    SOURCES
-        .github/workflows/build.yml
-        .github/workflows/coverage.yml
-        .github/workflows/deploy.yml
-        .github/workflows/sanitizer.yml
-        .github/FUNDING.yml
-        AUTHORS
-        CONTRIBUTING.md
-        LICENSE
-        README.md
-        TODO
-)

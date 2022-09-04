@@ -14,6 +14,10 @@
 * [Hashed strings](#hashed-strings)
   * [Wide characters](wide-characters)
   * [Conflicts](#conflicts)
+* [Iterators](#iterators)
+  * [Input iterator pointer](#input-iterator-pointer)
+  * [Iota iterator](#iota-iterator)
+  * [Iterable adaptor](#iterable-adaptor)
 * [Memory](#memory)
   * [Power of two and fast modulus](#power-of-two-and-fast-modulus)
   * [Allocator aware unique pointers](#allocator-aware-unique-pointers)
@@ -27,6 +31,7 @@
     * [Is applicable](#is-applicable)
     * [Constness as](#constness-as)
     * [Member class type](#member-class-type)
+    * [N-th argument](#n-th-argument)
     * [Integral constant](#integral-constant)
     * [Tag](#tag)
     * [Type list and value list](#type-list-and-value-list)
@@ -370,9 +375,81 @@ and over which users have not the control. Choosing a slightly different
 identifier is probably the best solution to make the conflict disappear in this
 case.
 
+# Iterators
+
+Writing and working with iterators isn't always easy and more often than not
+leads to duplicated code.<br/>
+`EnTT` tries to overcome this problem by offering some utilities designed to
+make this hard work easier.
+
+## Input iterator pointer
+
+When writing an input iterator that returns in-place constructed values if
+dereferenced, it's not always straightforward to figure out what `value_type` is
+and how to make it behave like a full-fledged pointer.<br/>
+Conversely, it would be very useful to have an `operator->` available on the
+iterator itself that always works without too much complexity.
+
+The input iterator pointer is meant for this. It's a small class that wraps the
+in-place constructed value and adds some functions on top of it to make it
+suitable for use with input iterators: 
+
+```cpp
+struct iterator_type {
+    using value_type = std::pair<first_type, second_type>;
+    using pointer = input_iterator_pointer<value_type>;
+    using reference = value_type;
+    using difference_type = std::ptrdiff_t;
+    using iterator_category = std::input_iterator_tag;
+
+    // ...
+}
+```
+
+The library makes extensive use of this class internally. In many cases, the
+`value_type` of the returned iterators is just an input iterator pointer.
+
+## Iota iterator
+
+Waiting for C++20, this iterator accepts an integral value and returns all
+elements in a certain range:
+
+```cpp
+entt::iota_iterator first{0};
+entt::iota_iterator last{100};
+
+for(; first != last; ++first) {
+    int value = *first;
+    // ...
+}
+```
+
+In the future, views will replace this class. Meanwhile, the library makes some
+interesting uses of it when a range of integral values is to be returned to the
+user.
+
+## Iterable adaptor
+
+Typically, a container class provides `begin` and `end` member functions (with
+their const counterparts) to be iterated by the user.<br/>
+However, it can happen that a class offers multiple iteration methods or allows
+users to iterate different sets of _elements_.
+
+The iterable adaptor is an utility class that makes it easier to use and access
+data in this case.<br/>
+It accepts a couple of iterators (or an iterator and a sentinel) and offers an
+_iterable_ object with all the expected methods like `begin`, `end` and whatnot.
+
+The library uses this class extensively.<br/>
+Think for example of views, which can be iterated to access entities but also
+offer a method of obtaining an iterable object that returns tuples of entities
+and components at once.<br/>
+Another example is the registry class which allows users to iterate its storage
+by returning an iterable object for the purpose.
+
 # Memory
 
-There are a handful of tools within EnTT to interact with memory in one way or
+There are a handful of tools within `EnTT` to interact with memory in one way or
 another.<br/>
 Some are geared towards simplifying the implementation of (internal or external)
 allocator aware containers. Others, on the other hand, are designed to help the
@@ -483,7 +560,7 @@ Basically, the whole system relies on a handful of classes. In particular:
   ```cpp
   template<typename Type>
   struct entt::type_index<Type, std::void_d<decltype(Type::index())>> {
-      static entt::id_type value() ENTT_NOEXCEPT {
+      static entt::id_type value() noexcept {
           return Type::index();
       }
   };
@@ -715,6 +792,18 @@ template<typename Member>
 using clazz = entt::member_class_t<Member>;
 ```
 
+### N-th argument
+
+An utility to quickly find the n-th argument of a function, member function or
+data member (for blind operations on opaque types):
+
+```cpp
+using type = entt::nt_argument_t<1u, &clazz::member>;
+```
+
+Disambiguation of overloaded functions is the responsibility of the user, should
+it be needed.
+
 ### Integral constant
 
 Since `std::integral_constant` may be annoying because of its form that requires
@@ -762,10 +851,12 @@ Here is a (possibly incomplete) list of the functionalities that come with a
 type list:
 
 * `type_list_element[_t]` to get the N-th element of a type list.
+* `type_list_index[_v]` to get the index of a given element of a type list.
 * `type_list_cat[_t]` and a handy `operator+` to concatenate type lists.
 * `type_list_unique[_t]` to remove duplicate types from a type list.
 * `type_list_contains[_v]` to know if a type list contains a given type.
 * `type_list_diff[_t]` to remove types from type lists.
+* `type_list_transform[_t]` to _transform_ a range and create another type list.
 
 I'm also pretty sure that more and more utilities will be added over time as
 needs become apparent.<br/>
@@ -784,19 +875,19 @@ that fully embraces what the modern C++ has to offer.
 ## Compile-time generator
 
 To generate sequential numeric identifiers at compile-time, `EnTT` offers the
-`identifier` class template:
+`ident` class template:
 
 ```cpp
 // defines the identifiers for the given types
-using id = entt::identifier<a_type, another_type>;
+using id = entt::ident<a_type, another_type>;
 
 // ...
 
 switch(a_type_identifier) {
-case id::type<a_type>:
+case id::value<a_type>:
     // ...
     break;
-case id::type<another_type>:
+case id::value<another_type>:
     // ...
     break;
 default:
@@ -804,7 +895,7 @@ default:
 }
 ```
 
-This is all what this class template has to offer: a `type` inline variable that
+This is what this class template has to offer: a `value` inline variable that
 contains a numeric identifier for the given type. It can be used in any context
 where constant expressions are required.
 
@@ -816,9 +907,9 @@ the other identifiers unchanged:
 ```cpp
 template<typename> struct ignore_type {};
 
-using id = entt::identifier<
+using id = entt::ident<
     a_type_still_valid,
-    ignore_type<a_type_no_longer_valid>,
+    ignore_type<no_longer_valid_type>,
     another_type_still_valid
 >;
 ```
@@ -836,12 +927,12 @@ using id = entt::family<struct my_tag>;
 
 // ...
 
-const auto a_type_id = id::type<a_type>;
-const auto another_type_id = id::type<another_type>;
+const auto a_type_id = id::value<a_type>;
+const auto another_type_id = id::value<another_type>;
 ```
 
-This is all what a _family_ has to offer: a `type` inline variable that contains
-a numeric identifier for the given type.<br/>
+This is what a _family_ has to offer: a `value` inline variable that contains a
+numeric identifier for the given type.<br/>
 The generator is customizable, so as to get different _sequences_ for different
 purposes if needed.
 

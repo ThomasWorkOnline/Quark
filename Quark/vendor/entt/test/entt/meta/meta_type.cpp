@@ -8,12 +8,13 @@
 #include <entt/core/type_info.hpp>
 #include <entt/core/utility.hpp>
 #include <entt/meta/container.hpp>
-#include <entt/meta/ctx.hpp>
+#include <entt/meta/context.hpp>
 #include <entt/meta/factory.hpp>
 #include <entt/meta/meta.hpp>
 #include <entt/meta/pointer.hpp>
 #include <entt/meta/resolve.hpp>
 #include <entt/meta/template.hpp>
+#include "../common/config.h"
 
 template<typename Type>
 void set(Type &prop, Type value) {
@@ -66,7 +67,7 @@ struct clazz_t {
         return value;
     }
 
-    int value;
+    int value{};
 };
 
 struct overloaded_func_t {
@@ -234,6 +235,14 @@ TEST_F(MetaType, Traits) {
     ASSERT_TRUE(entt::resolve<bool>().is_arithmetic());
     ASSERT_TRUE(entt::resolve<double>().is_arithmetic());
     ASSERT_FALSE(entt::resolve<clazz_t>().is_arithmetic());
+
+    ASSERT_TRUE(entt::resolve<int>().is_integral());
+    ASSERT_FALSE(entt::resolve<double>().is_integral());
+    ASSERT_FALSE(entt::resolve<clazz_t>().is_integral());
+
+    ASSERT_TRUE(entt::resolve<long>().is_signed());
+    ASSERT_FALSE(entt::resolve<unsigned int>().is_signed());
+    ASSERT_FALSE(entt::resolve<clazz_t>().is_signed());
 
     ASSERT_TRUE(entt::resolve<int[5]>().is_array());
     ASSERT_TRUE(entt::resolve<int[5][3]>().is_array());
@@ -457,6 +466,37 @@ TEST_F(MetaType, ConstructArithmeticConversion) {
     ASSERT_EQ(any.cast<clazz_t>().value, 1);
 }
 
+TEST_F(MetaType, FromVoid) {
+    using namespace entt::literals;
+
+    ASSERT_FALSE(entt::resolve<double>().from_void(static_cast<double *>(nullptr)));
+    ASSERT_FALSE(entt::resolve<double>().from_void(static_cast<const double *>(nullptr)));
+
+    auto type = entt::resolve<double>();
+    double value = 4.2;
+
+    ASSERT_FALSE(entt::resolve<void>().from_void(static_cast<void *>(&value)));
+    ASSERT_FALSE(entt::resolve<void>().from_void(static_cast<const void *>(&value)));
+
+    auto as_void = type.from_void(static_cast<void *>(&value));
+    auto as_const_void = type.from_void(static_cast<const void *>(&value));
+
+    ASSERT_TRUE(as_void);
+    ASSERT_TRUE(as_const_void);
+
+    ASSERT_EQ(as_void.type(), entt::resolve<double>());
+    ASSERT_NE(as_void.try_cast<double>(), nullptr);
+
+    ASSERT_EQ(as_const_void.type(), entt::resolve<double>());
+    ASSERT_EQ(as_const_void.try_cast<double>(), nullptr);
+    ASSERT_NE(as_const_void.try_cast<const double>(), nullptr);
+
+    value = 1.2;
+
+    ASSERT_EQ(as_void.cast<double>(), as_const_void.cast<double>());
+    ASSERT_EQ(as_void.cast<double>(), 1.2);
+}
+
 TEST_F(MetaType, Reset) {
     using namespace entt::literals;
 
@@ -676,7 +716,7 @@ TEST_F(MetaType, NameCollision) {
     ASSERT_TRUE(entt::resolve("quux"_hs));
 }
 
-TEST_F(MetaTypeDeathTest, NameCollision) {
+ENTT_DEBUG_TEST_F(MetaTypeDeathTest, NameCollision) {
     using namespace entt::literals;
 
     ASSERT_DEATH(entt::meta<clazz_t>().type("abstract"_hs), "");

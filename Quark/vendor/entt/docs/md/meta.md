@@ -15,6 +15,7 @@
   * [Template information](#template-information)
   * [Automatic conversions](#automatic-conversions)
   * [Implicitly generated default constructor](#implicitly-generated-default-constructor)
+  * [From void to any](#from-void-to-any)
   * [Policies: the more, the less](#policies-the-more-the-less)
   * [Named constants and enums](#named-constants-and-enums)
   * [Properties and meta objects](#properties-and-meta-objects)
@@ -257,8 +258,8 @@ auto by_id = entt::resolve("reflected_type"_hs);
 auto by_type_id = entt::resolve(entt::type_id<my_type>());
 ```
 
-There exits also an overload of the `resolve` function to use to iterate all the
-reflected types at once. It returns an iterable object that can be used in a
+There exists also an overload of the `resolve` function to use to iterate all
+the reflected types at once. It returns an iterable object that can be used in a
 range-for loop:
 
 ```cpp
@@ -363,8 +364,9 @@ of the container.<br/>
 `EnTT` already exports the specializations for some common classes. In
 particular:
 
-* `std::vector` and `std::array` are exported as _sequence containers_.
-* `std::map`, `std::set` and their unordered counterparts are exported as
+* `std::vector`, `std::array`, `std::deque` and `std::list` (but not
+  `std::forward_list`) are supported as _sequence containers_.
+* `std::map`, `std::set` and their unordered counterparts are supported as
   _associative containers_.
 
 It's important to include the header file `container.hpp` to make these
@@ -490,7 +492,11 @@ to case. In particular:
 
   The function returns instances of `meta_any` that directly refer to the actual
   elements. Modifying the returned object will then directly modify the element
-  inside the container.
+  inside the container.<br/>
+  Depending on the underlying sequence container, this operation may not be as
+  efficient. For example, in the case of an `std::list`, a positional access
+  translates to a linear visit of the list itself (probably not what the user
+  expects).
 
 Similarly, also the interface of the `meta_associative_container` proxy object
 is the same for all types of associative containers. However, there are some
@@ -782,6 +788,24 @@ useful for building keys without knowing or having to register the actual types.
 
 In all cases, when users register default constructors, they are preferred both
 during searches and when the `construct` member function is invoked.
+
+## From void to any
+
+Sometimes all a user has is an opaque pointer to an object of a known meta type.
+It would be handy in this case to be able to construct a `meta_any` object from
+them.<br/>
+For this purpose, the `meta_type` class offers a `from_void` member function
+designed to convert an opaque pointer into a `meta_any`:
+
+```cpp
+entt::meta_any any = entt::resolve(id).from_void(element);
+```
+
+It goes without saying that it's not possible to do a check on the actual type.
+Therefore, this call can be considered as a _static cast_ with all the problems
+and undefined behaviors of the case following errors.<br/>
+On the other hand, the ability to construct a `meta_any` from an opaque pointer
+opens the door to some pretty interesting uses that are worth exploring.
 
 ## Policies: the more, the less
 

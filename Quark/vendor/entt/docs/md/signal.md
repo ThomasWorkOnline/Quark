@@ -32,7 +32,7 @@ it solves a problem but may not adapt well to other requirements that may arise
 from time to time.
 
 In case that the flexibility and power of an `std::function` isn't required or
-if the price to pay for them is too high,` EnTT` offers a complete set of
+if the price to pay for them is too high, `EnTT` offers a complete set of
 lightweight classes to solve the same and many other problems.
 
 # Delegate
@@ -407,6 +407,8 @@ dispatcher.sink<an_event>().connect<&listener::receive>(listener);
 dispatcher.sink<another_event>().connect<&listener::method>(listener);
 ```
 
+Note that connecting listeners within event handlers can result in undefined
+behavior.<br/>
 The `disconnect` member function is used to remove one listener at a time or all
 of them at once:
 

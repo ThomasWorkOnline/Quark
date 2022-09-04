@@ -1,3 +1,4 @@
+#include <cstddef>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -9,18 +10,28 @@ struct clazz {
 };
 
 TEST(InputIteratorPointer, Functionalities) {
-    static_assert(!std::is_default_constructible_v<entt::input_iterator_pointer<clazz>>);
-    static_assert(!std::is_copy_constructible_v<entt::input_iterator_pointer<clazz>>);
-    static_assert(std::is_move_constructible_v<entt::input_iterator_pointer<clazz>>);
-    static_assert(!std::is_copy_assignable_v<entt::input_iterator_pointer<clazz>>);
-    static_assert(std::is_move_assignable_v<entt::input_iterator_pointer<clazz>>);
-
     clazz instance{};
     entt::input_iterator_pointer ptr{std::move(instance)};
     ptr->value = 42;
 
     ASSERT_EQ(instance.value, 0);
     ASSERT_EQ(ptr->value, 42);
+    ASSERT_EQ(ptr->value, (*ptr).value);
+    ASSERT_EQ(ptr.operator->(), &ptr.operator*());
+}
+
+TEST(IotaIterator, Functionalities) {
+    entt::iota_iterator<std::size_t> first{};
+    const entt::iota_iterator<std::size_t> last{2u};
+
+    ASSERT_NE(first, last);
+    ASSERT_FALSE(first == last);
+    ASSERT_TRUE(first != last);
+
+    ASSERT_EQ(*first++, 0u);
+    ASSERT_EQ(*first, 1u);
+    ASSERT_EQ(*++first, *last);
+    ASSERT_EQ(*first, 2u);
 }
 
 TEST(IterableAdaptor, Functionalities) {
