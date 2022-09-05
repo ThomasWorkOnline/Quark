@@ -27,54 +27,42 @@ namespace Quark {
 			GLint maxWidth, maxHeight;
 			glGetIntegerv(GL_MAX_FRAMEBUFFER_WIDTH, &maxWidth);
 			glGetIntegerv(GL_MAX_FRAMEBUFFER_HEIGHT, &maxHeight);
-			m_Capabilities.FramebufferConstraints.MaxWidth = maxWidth;
-			m_Capabilities.FramebufferConstraints.MaxHeight = maxHeight;
+			m_Capabilities.FramebufferCapabilities.MaxWidth = maxWidth;
+			m_Capabilities.FramebufferCapabilities.MaxHeight = maxHeight;
 
 			GLint maxAttachments;
 			glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &maxAttachments);
-			m_Capabilities.FramebufferConstraints.MaxAttachments = maxAttachments;
+			m_Capabilities.FramebufferCapabilities.MaxAttachments = maxAttachments;
 		}
 
 		{
 			GLint maxBlockSize;
 			glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &maxBlockSize);
-			m_Capabilities.UniformBufferConstraints.MaxBufferSize = maxBlockSize;
+			m_Capabilities.UniformBufferCapabilities.MaxBufferSize = maxBlockSize;
 
 			GLint maxBindings;
 			glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, &maxBindings);
-			m_Capabilities.UniformBufferConstraints.MaxBindings = maxBindings;
+			m_Capabilities.UniformBufferCapabilities.MaxBindings = maxBindings;
 		}
 
 		{
 			GLint maxTextureSlots;
 			glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureSlots);
-			m_Capabilities.TextureConstraints.MaxTextureSlots = maxTextureSlots;
+			m_Capabilities.TextureCapabilities.MaxTextureSlots = maxTextureSlots;
 
 			GLint maxTextureSize;
 			glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTextureSize);
-			m_Capabilities.TextureConstraints.MaxPixelSize = maxTextureSize;
+			m_Capabilities.TextureCapabilities.MaxPixelSize = maxTextureSize;
 
 			GLint maxArrayTextureLayers;
 			glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &maxArrayTextureLayers);
-			m_Capabilities.TextureConstraints.MaxTextureArrayLayers = maxArrayTextureLayers;
+			m_Capabilities.TextureCapabilities.MaxTextureArrayLayers = maxArrayTextureLayers;
 		}
 	}
 
 	GraphicsAPI::Version OpenGLGraphicsAPI::GetVersion() const
 	{
 		return { GLVersion.major, GLVersion.minor };
-	}
-
-	void OpenGLGraphicsAPI::SetLineThickness(float thickness)
-	{
-		glLineWidth(thickness);
-	}
-
-	float OpenGLGraphicsAPI::GetLineThickness() const
-	{
-		GLfloat thickness;
-		glGetFloatv(GL_LINE_WIDTH, &thickness);
-		return thickness;
 	}
 
 	Scope<CommandBuffer> OpenGLGraphicsAPI::CreateCommandBuffer()
@@ -179,8 +167,8 @@ namespace Quark {
 		ss << "|\t" << glGetString(GL_VENDOR) << '\n';
 		ss << "|\t" << glGetString(GL_RENDERER) << '\n';
 		ss << "|\t" << glGetString(GL_VERSION) << '\n';
-		ss << "|\tUniform buffer bindings: " << m_Capabilities.UniformBufferConstraints.MaxBindings << '\n';
-		ss << "|\tHardware texture slots available: " << m_Capabilities.TextureConstraints.MaxTextureSlots;
+		ss << "|\tUniform buffer bindings: " << m_Capabilities.UniformBufferCapabilities.MaxBindings << '\n';
+		ss << "|\tHardware texture slots available: " << m_Capabilities.TextureCapabilities.MaxTextureSlots;
 		return ss.str();
 	}
 }

@@ -4,20 +4,29 @@
 
 namespace Quark {
 
-	struct FramebufferHardwareConstraints
+	// Supported APIs
+	enum class RHI
+	{
+		None = 0,
+		OpenGL,
+		Vulkan,
+		Metal
+	};
+
+	struct FramebufferCapabilities
 	{
 		uint32_t MaxWidth;
 		uint32_t MaxHeight;
 		uint32_t MaxAttachments;
 	};
 
-	struct UniformBufferHardwareConstraints
+	struct UniformBufferCapabilities
 	{
 		size_t MaxBufferSize;
 		uint32_t MaxBindings;
 	};
 
-	struct TextureHardwareConstraints
+	struct TextureCapabilities
 	{
 		uint32_t MaxTextureSlots;
 		uint32_t MaxPixelSize;
@@ -26,8 +35,8 @@ namespace Quark {
 
 	struct GraphicsAPICapabilities
 	{
-		FramebufferHardwareConstraints   FramebufferConstraints;
-		UniformBufferHardwareConstraints UniformBufferConstraints;
-		TextureHardwareConstraints       TextureConstraints;
+		FramebufferCapabilities   FramebufferCapabilities;
+		TextureCapabilities       TextureCapabilities;
+		UniformBufferCapabilities UniformBufferCapabilities;
 	};
 }

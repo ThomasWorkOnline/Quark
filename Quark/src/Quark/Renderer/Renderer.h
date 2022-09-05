@@ -2,15 +2,14 @@
 
 #include "Quark/Core/Core.h"
 
+#include "APICapabilities.h"
+
 #include "Buffer.h"
-#include "Camera.h"
 #include "CommandBuffer.h"
 #include "Framebuffer.h"
-#include "GraphicsAPI.h"
 #include "Pipeline.h"
 #include "RenderPass.h"
 #include "Shader.h"
-#include "Texture.h"
 
 #include <thread>
 
@@ -51,6 +50,7 @@ namespace Quark {
 		static ShaderLibrary& GetShaderLibrary();
 		static std::thread::id GetThreadId() { return s_ThreadId; }
 
+		static RHI GetPreferredRHI();
 		static std::string GetSpecification();
 		static const char* GetAPIName();
 

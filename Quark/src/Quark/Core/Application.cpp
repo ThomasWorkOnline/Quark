@@ -1,9 +1,6 @@
 #include "qkpch.h"
 #include "Application.h"
 
-#include "Quark/Renderer/Renderer.h"
-#include "Quark/Renderer/Renderer2D.h"
-
 #include <ctime>
 #include <filesystem>
 

@@ -1,8 +1,6 @@
 #pragma once
 
-#include "Quark/Renderer/GraphicsContext.h"
 #include "Platform/OpenGL/OpenGLContextBase.h"
-
 #include <Windows.h>
 
 namespace Quark {

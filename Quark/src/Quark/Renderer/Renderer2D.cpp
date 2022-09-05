@@ -2,10 +2,7 @@
 #include "Renderer2D.h"
 
 #include "Quark/Core/Application.h"
-#include "Quark/Renderer/Renderer.h"
 #include "Quark/Filesystem/Filesystem.h"
-
-#include <sstream>
 
 namespace Quark {
 
@@ -424,7 +421,7 @@ namespace Quark {
 		s_Data = new Renderer2DData();
 
 		// Samplers
-		s_Data->MaxSamplerDestinations = Renderer::GetCapabilities().TextureConstraints.MaxTextureSlots;
+		s_Data->MaxSamplerDestinations = Renderer::GetCapabilities().TextureCapabilities.MaxTextureSlots;
 		QK_CORE_ASSERT(s_Data->MaxSamplerDestinations > 0, "Platform does not support texture samplers");
 
 		// Camera buffer
@@ -495,8 +492,8 @@ namespace Quark {
 		s_Data->Textures[0] = s_Data->DefaultTexture.get();
 
 		auto& coreDirectory = Application::Get()->GetOptions().CoreDir;
-		auto spriteVertexSource = ReadSpirvFile((coreDirectory / "bin-spirv/sprite.vert.spv").string());
-		auto spriteFragmentSource = ReadSpirvFile((coreDirectory / "bin-spirv/sprite.frag.spv").string());
+		auto spriteVertexSource = ReadSpirvFile((coreDirectory / "bin-spirv/Sprite.vert.spv").string());
+		auto spriteFragmentSource = ReadSpirvFile((coreDirectory / "bin-spirv/Sprite.frag.spv").string());
 
 		Sampler2DSpecification samplerSpec;
 		samplerSpec.Binding = 1;
@@ -542,8 +539,8 @@ namespace Quark {
 		s_Data->LineVertices = new LineVertex[Renderer2DData::MaxVertices];
 
 		auto& coreDirectory = Application::Get()->GetOptions().CoreDir;
-		auto lineVertexSource = ReadSpirvFile((coreDirectory / "bin-spirv/line.vert.spv").string());
-		auto lineFragmentSource = ReadSpirvFile((coreDirectory / "bin-spirv/line.frag.spv").string());
+		auto lineVertexSource = ReadSpirvFile((coreDirectory / "bin-spirv/Line.vert.spv").string());
+		auto lineFragmentSource = ReadSpirvFile((coreDirectory / "bin-spirv/Line.frag.spv").string());
 
 		s_Data->LineShader = Shader::Create("defaultLine", lineVertexSource, lineFragmentSource);
 

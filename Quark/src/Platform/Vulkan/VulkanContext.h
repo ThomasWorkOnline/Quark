@@ -1,8 +1,6 @@
 #pragma once
 
-#include "Quark/Renderer/GraphicsContext.h"
 #include "VulkanContextBase.h"
-
 #include <vulkan/vulkan.h>
 
 typedef struct GLFWwindow GLFWwindow;

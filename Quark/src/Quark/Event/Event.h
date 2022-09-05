@@ -110,9 +110,14 @@ namespace Quark {
 				{
 					func((T&)m_Event);
 				}
-				else static_assert(false, "Event handler return value must be of type boolean or void");
+				else
+				{
+					static_assert(false, "Event handler return value must be of type boolean or void");
+				}
+
 				return true;
 			}
+
 			return false;
 		}
 

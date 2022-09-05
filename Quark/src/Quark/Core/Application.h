@@ -6,7 +6,9 @@
 
 #include "Quark/Audio/AudioDevice.h"
 #include "Quark/Event/ApplicationEvent.h"
-#include "Quark/Renderer/GraphicsAPI.h"
+
+#include "Quark/Renderer/Renderer.h"
+#include "Quark/Renderer/Renderer2D.h"
 
 #include <thread>
 #include <filesystem>
@@ -29,7 +31,7 @@ namespace Quark {
 
 		ApplicationFlagBits Flags{};
 		KeyCode FullscreenKey = KeyCode::F11;
-		RHI GraphicsAPI = GraphicsAPI::GetDefaultRHIForPlatform();
+		RHI GraphicsAPI = Renderer::GetPreferredRHI();
 
 		bool HasFlag(ApplicationFlagBits flag) const { return Flags & flag; }
 	};

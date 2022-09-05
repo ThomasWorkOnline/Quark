@@ -124,9 +124,9 @@ namespace Quark {
 			QK_CORE_INFO(std::filesystem::current_path().string());
 
 			m_Data.Env = CreateScope<EnvironmentData>();
-			m_Data.Env->SkyboxShader = Shader::Create((coreDirectory / "Quark/assets/shaders/version/3.30/cubemap.glsl").string());
-			m_Data.Env->IrradianceShader = Shader::Create((coreDirectory / "Quark/assets/shaders/version/3.30/irradiance.glsl").string());
-			m_Data.Env->EquirectangleToCubemapShader = Shader::Create((coreDirectory / "Quark/assets/shaders/version/3.30/equirectangle_to_cubemap.glsl").string());
+			m_Data.Env->SkyboxShader = Shader::Create((coreDirectory / "Quark/assets/shaders/version/3.30/CubemapSkybox.glsl").string());
+			m_Data.Env->IrradianceShader = Shader::Create((coreDirectory / "Quark/assets/shaders/version/3.30/Irradiance.glsl").string());
+			m_Data.Env->EquirectangleToCubemapShader = Shader::Create((coreDirectory / "Quark/assets/shaders/version/3.30/EquirectangleToCubemap.glsl").string());
 
 			m_Data.Env->CubemapBox = Mesh::GenerateUnitCube();
 

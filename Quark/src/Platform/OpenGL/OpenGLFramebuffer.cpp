@@ -76,7 +76,7 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		QK_CORE_ASSERT(m_Spec.Specifications.size() <= Renderer::GetCapabilities().FramebufferConstraints.MaxAttachments,
+		QK_CORE_ASSERT(m_Spec.Specifications.size() <= Renderer::GetCapabilities().FramebufferCapabilities.MaxAttachments,
 			"Framebuffer contains too many attachments");
 
 		m_ColorAttachments = Array<OpenGLFramebufferAttachment>(spec.Specifications.size());
@@ -93,7 +93,7 @@ namespace Quark {
 	void OpenGLFramebuffer::Resize(uint32_t width, uint32_t height)
 	{
 		auto& capabilities = Renderer::GetCapabilities();
-		if (width > capabilities.FramebufferConstraints.MaxWidth || height > capabilities.FramebufferConstraints.MaxHeight)
+		if (width > capabilities.FramebufferCapabilities.MaxWidth || height > capabilities.FramebufferCapabilities.MaxHeight)
 		{
 			QK_CORE_WARN("Attempted to resize a framebuffer with dimensions too large: {0}, {1}", width, height);
 			return;

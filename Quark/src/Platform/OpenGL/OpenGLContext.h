@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Quark/Renderer/GraphicsContext.h"
 #include "OpenGLContextBase.h"
 
 typedef struct GLFWwindow GLFWwindow;

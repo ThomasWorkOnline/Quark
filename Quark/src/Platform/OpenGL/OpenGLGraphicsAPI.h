@@ -11,9 +11,6 @@ namespace Quark {
 									       
 		virtual                              Version GetVersion() const final override;
 									         
-		virtual void                         SetLineThickness(float thickness) final override;
-		virtual float                        GetLineThickness() const final override;
-									         
 		virtual Scope<CommandBuffer>         CreateCommandBuffer() final override;
 								       
 		virtual Scope<Pipeline>              CreatePipeline(const PipelineSpecification& spec) final override;

@@ -8,10 +8,10 @@
 #include "Quark/Scene/Entity.h"
 #include "Quark/Scene/Scene.h"
 
+#include "Quark/Renderer/Renderer.h"
+
 #include "Camera.h"
 #include "Font.h"
-#include "Framebuffer.h"
-#include "Shader.h"
 #include "SubTexture.h"
 #include "Texture.h"
 

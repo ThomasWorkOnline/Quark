@@ -23,7 +23,7 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		m_Capabilities.TextureConstraints.MaxTextureSlots = 32; // TODO: implement caps
+		m_Capabilities.TextureCapabilities.MaxTextureSlots = 32; // TODO: implement caps
 	}
 
 	Scope<CommandBuffer> VulkanGraphicsAPI::CreateCommandBuffer()

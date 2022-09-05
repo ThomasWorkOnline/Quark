@@ -3,9 +3,7 @@
 
 #include "Quark/Filesystem/Filesystem.h"
 
-#include "CommandBuffer.h"
 #include "GraphicsContext.h"
-
 #include "GraphicsAPI.cpp"
 
 namespace Quark {
@@ -146,6 +144,11 @@ namespace Quark {
 	ShaderLibrary& Renderer::GetShaderLibrary()
 	{
 		return s_Data->ShaderLib;
+	}
+
+	RHI Renderer::GetPreferredRHI()
+	{
+		return GraphicsAPI::GetDefaultRHIForPlatform();
 	}
 
 	std::string Renderer::GetSpecification()

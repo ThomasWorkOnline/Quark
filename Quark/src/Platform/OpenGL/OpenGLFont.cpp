@@ -62,8 +62,8 @@ namespace Quark {
 		m_AtlasWidth = w;
 		m_AtlasHeight = h;
 
-		QK_CORE_ASSERT(m_AtlasWidth <= Renderer::GetCapabilities().TextureConstraints.MaxPixelSize
-			&& m_AtlasHeight <= Renderer::GetCapabilities().TextureConstraints.MaxPixelSize, "Font atlas dimensions too large");
+		QK_CORE_ASSERT(m_AtlasWidth <= Renderer::GetCapabilities().TextureCapabilities.MaxPixelSize
+			&& m_AtlasHeight <= Renderer::GetCapabilities().TextureCapabilities.MaxPixelSize, "Font atlas dimensions too large");
 
 		glGenTextures(1, &m_RendererID);
 		glBindTexture(GL_TEXTURE_2D, m_RendererID);

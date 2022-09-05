@@ -2,7 +2,6 @@
 
 #include "Quark/Core/Core.h"
 
-#include "RenderModes.h"
 #include "APICapabilities.h"
 
 #include "Buffer.h"
@@ -11,6 +10,7 @@
 #include "Font.h"
 #include "Framebuffer.h"
 #include "Pipeline.h"
+#include "RenderModes.h"
 #include "RenderPass.h"
 #include "Sampler.h"
 #include "Shader.h"
@@ -18,15 +18,6 @@
 #include "UniformBuffer.h"
 
 namespace Quark {
-
-	// Supported APIs
-	enum class RHI
-	{
-		None = 0,
-		OpenGL,
-		Vulkan,
-		Metal
-	};
 
 	class GraphicsAPI
 	{
@@ -41,9 +32,6 @@ namespace Quark {
 		virtual void                         Init() = 0;
 										     
 		virtual                              Version GetVersion() const = 0;
-									         
-		virtual void                         SetLineThickness(float thickness) = 0;
-		virtual float                        GetLineThickness() const = 0;
 									         
 		virtual Scope<CommandBuffer>         CreateCommandBuffer() = 0;
 									           
@@ -78,9 +66,9 @@ namespace Quark {
 									       
 		virtual const char*                  GetName() const = 0;
 		virtual std::string                  GetSpecification() const = 0;
-									         
+
 		const                                GraphicsAPICapabilities& GetCapabilities() const { return m_Capabilities; }
-				
+
 		// To be defined by each supported platform
 		static RHI                           GetDefaultRHIForPlatform();
 		static RHI                           GetAPI() { return s_API; }

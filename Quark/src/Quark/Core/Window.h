@@ -8,8 +8,6 @@
 #include "Quark/Event/MouseEvent.h"
 #include "Quark/Event/WindowEvent.h"
 
-#include "Quark/Renderer/GraphicsContext.h"
-
 namespace Quark {
 
 	struct WindowSpecification
