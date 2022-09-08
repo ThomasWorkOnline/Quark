@@ -13,7 +13,7 @@ namespace Quark {
 
 	Application* CreateApplication()
 	{
-		using App = PBRRenderingDemo;
+		using App = BasicRenderingApplication;
 
 		ApplicationOptions options;
 		options.AppName = "Demo Application";

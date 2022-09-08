@@ -96,7 +96,7 @@ project "Quark"
 
 		postbuildcommands
 		{
-			"%{wks.location}/Scripts/Windows/CompileShaders.bat"
+			--"%{wks.location}Scripts\\Windows\\CompileShaders.bat"
 		}
 
 	filter "system:macosx"
