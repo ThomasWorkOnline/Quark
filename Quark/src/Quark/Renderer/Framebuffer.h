@@ -43,7 +43,7 @@ namespace Quark {
 		RenderPass* RenderPass = nullptr;
 		bool SwapChainTarget = false;
 
-		std::vector<FramebufferAttachmentSpecification> Specifications;
+		std::vector<FramebufferAttachment*> Attachments;
 	};
 
 	class Framebuffer

@@ -213,6 +213,10 @@ void PBRRenderingDemo::LoadMaterialsAsync()
 		aoFilepath = "assets/Textures/pbr/gray-granite/gray-granite-flecks-ao.png";
 #endif
 
+#if MATERIAL >= 5
+#	error "Invalid material ID"
+#endif
+
 #if 1
 		auto newImageLambda = [](const char* filepath)
 		{

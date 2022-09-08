@@ -32,7 +32,9 @@ namespace Quark {
 			Scope<Shader> SkyboxShader;
 			Scope<Shader> IrradianceShader;
 			Scope<Shader> EquirectangleToCubemapShader;
+
 			Scope<RenderPass>  RenderPass;
+			Scope<FramebufferAttachment> ColorAttachment;
 			Scope<Framebuffer> Framebuffer;
 
 			Scope<Pipeline> EnvironmentMapPipeline;

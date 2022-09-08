@@ -36,7 +36,7 @@ namespace Quark {
 	void Renderer::BeginGeometryPass()
 	{
 		QK_ASSERT_RENDER_THREAD();
-		s_Data->ActiveCommandBuffer->BeginRenderPass(s_Data->GeometryPass.get(), GetTargetFramebuffer());
+		BeginRenderPass(s_Data->GeometryPass.get(), GetTargetFramebuffer());
 	}
 
 	void Renderer::EndRenderPass()
@@ -228,6 +228,7 @@ namespace Quark {
 
 			for (uint32_t i = 0; i < swapChainImages; i++)
 			{
+				fbSpec.Attachments = { GraphicsContext::Get()->GetColorAttachment(i) };
 				s_Data->Framebuffers[i] = Framebuffer::Create(fbSpec);
 			}
 		}

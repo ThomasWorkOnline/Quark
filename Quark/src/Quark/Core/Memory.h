@@ -167,14 +167,14 @@ namespace Quark {
 	class Array
 	{
 	public:
-		using iterator = ArrayIterator<T>;
+		using iterator       = ArrayIterator<T>;
 		using const_iterator = const ArrayIterator<T>;
 
 		Array() = default;
 		Array(size_t elementCount)
 			: m_Size(elementCount)
+			, m_Memory(new T[elementCount])
 		{
-			m_Memory = new T[elementCount];
 		}
 
 		Array(Array&& other) noexcept

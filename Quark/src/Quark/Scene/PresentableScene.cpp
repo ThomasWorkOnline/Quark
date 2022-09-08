@@ -121,8 +121,6 @@ namespace Quark {
 		{
 			auto& coreDirectory = Application::Get()->GetOptions().CoreDir;
 
-			QK_CORE_INFO(std::filesystem::current_path().string());
-
 			m_Data.Env = CreateScope<EnvironmentData>();
 			m_Data.Env->SkyboxShader = Shader::Create((coreDirectory / "Quark/assets/shaders/version/3.30/CubemapSkybox.glsl").string());
 			m_Data.Env->IrradianceShader = Shader::Create((coreDirectory / "Quark/assets/shaders/version/3.30/Irradiance.glsl").string());
@@ -189,11 +187,13 @@ namespace Quark {
 					ColorDataFormat::RGBA16f
 				};
 
+				m_Data.Env->ColorAttachment = FramebufferAttachment::Create(attachmentSpec);
+
 				FramebufferSpecification spec;
 				spec.Width = 2048;
 				spec.Height = 2048;
 				spec.RenderPass = m_Data.Env->RenderPass.get();
-				spec.Specifications = { attachmentSpec };
+				spec.Attachments = { m_Data.Env->ColorAttachment.get() };
 
 				m_Data.Env->Framebuffer = Framebuffer::Create(spec);
 			}

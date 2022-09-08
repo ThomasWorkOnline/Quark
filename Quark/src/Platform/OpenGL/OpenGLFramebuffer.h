@@ -25,11 +25,12 @@ namespace Quark {
 		OpenGLFramebufferAttachment(const OpenGLFramebufferAttachment&) = delete;
 		OpenGLFramebufferAttachment& operator=(const OpenGLFramebufferAttachment&) = delete;
 
+		GLuint GetRendererID() const { return m_RendererID; }
+		GLenum GetTarget() const { return m_Target; }
+
 	private:
 		GLuint m_RendererID = 0;
 		GLenum m_Target = 0;
-
-		friend class OpenGLFramebuffer;
 	};
 
 	class OpenGLFramebuffer final : public Framebuffer
@@ -59,6 +60,5 @@ namespace Quark {
 
 	private:
 		GLuint m_RendererID = 0;
-		Array<OpenGLFramebufferAttachment> m_ColorAttachments;
 	};
 }
