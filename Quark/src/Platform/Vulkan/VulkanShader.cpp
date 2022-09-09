@@ -75,6 +75,7 @@ namespace Quark {
 		VulkanShaderModule shaderModule;
 		vkCreateShaderModule(m_Device->GetVkHandle(), &createInfo, nullptr, &shaderModule.Module);
 
+		// TODO: get entry point from reflection
 		shaderModule.VulkanSpirv = spirvSource;
 		shaderModule.EntryPoint = "main";
 		Reflect(stage, spirvSource);

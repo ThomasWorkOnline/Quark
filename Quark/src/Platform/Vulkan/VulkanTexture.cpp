@@ -91,7 +91,7 @@ namespace Quark {
 
 	bool VulkanTexture2D::operator==(const Texture& other) const
 	{
-		if (auto o = dynamic_cast<const VulkanTexture2D*>(&other))
+		if (auto o = dynamic_cast<decltype(this)>(&other))
 			return m_Image == o->m_Image;
 
 		return false;
