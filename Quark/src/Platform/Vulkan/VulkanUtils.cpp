@@ -66,15 +66,15 @@ namespace Quark {
 			return buffer;
 		}
 
-		VkImage AllocateImage(VulkanDevice* device, VkExtent3D extent, VkFormat format, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkDeviceMemory& bufferMemory, size_t* outRequirementSize)
+		VkImage AllocateImage(VulkanDevice* device, VkExtent3D extent, uint32_t layers, uint32_t levels, VkFormat format, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkDeviceMemory& bufferMemory, size_t* outRequirementSize)
 		{
 			VkImageCreateInfo createInfo{};
 			createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 			createInfo.imageType = VK_IMAGE_TYPE_2D;
 			createInfo.format = format;
 			createInfo.extent = extent;
-			createInfo.mipLevels = 1; // m_Spec.Levels;
-			createInfo.arrayLayers = 1;
+			createInfo.mipLevels = levels;
+			createInfo.arrayLayers = layers;
 			createInfo.samples = VK_SAMPLE_COUNT_1_BIT;
 			createInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
 			createInfo.usage = usage;
@@ -128,7 +128,7 @@ namespace Quark {
 			vkQueueWaitIdle(graphicsQueue);
 		}
 
-		void CopyBufferToImage(VulkanDevice* device, VkImage dstImage, VkBuffer srcBuffer, VkExtent3D extent)
+		void CopyBufferToImage(VulkanDevice* device, VkImage dstImage, VkBuffer srcBuffer, VkExtent3D extent, uint32_t layers, uint32_t levels)
 		{
 			VkCommandBuffer commandBuffer = device->GetCopyCommandBuffer();
 			vkResetCommandBuffer(commandBuffer, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
@@ -148,14 +148,14 @@ namespace Quark {
 			copyBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 			copyBarrier.image = dstImage;
 			copyBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-			copyBarrier.subresourceRange.levelCount = 1;
-			copyBarrier.subresourceRange.layerCount = 1;
+			copyBarrier.subresourceRange.levelCount = levels;
+			copyBarrier.subresourceRange.layerCount = layers;
 
 			vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, NULL, 0, NULL, 1, &copyBarrier);
 
 			VkBufferImageCopy region{};
 			region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-			region.imageSubresource.layerCount = 1;
+			region.imageSubresource.layerCount = layers;
 			region.imageExtent = extent;
 
 			vkCmdCopyBufferToImage(commandBuffer, srcBuffer, dstImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
@@ -170,8 +170,8 @@ namespace Quark {
 			useBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 			useBarrier.image = dstImage;
 			useBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-			useBarrier.subresourceRange.levelCount = 1;
-			useBarrier.subresourceRange.layerCount = 1;
+			useBarrier.subresourceRange.levelCount = levels;
+			useBarrier.subresourceRange.layerCount = layers;
 
 			vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, NULL, 0, NULL, 1, &useBarrier);
 			vkEndCommandBuffer(commandBuffer);

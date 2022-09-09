@@ -32,8 +32,7 @@ namespace Quark {
 		imageExtent.depth = 1;
 
 		VkFormat format = DataFormatToVulkan(m_Spec.DataFormat);
-
-		m_Image = Utils::AllocateImage(m_Device, imageExtent, format,
+		m_Image = Utils::AllocateImage(m_Device, imageExtent, 1, m_Spec.Levels, format,
 			VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_BufferMemory);
 
@@ -45,7 +44,7 @@ namespace Quark {
 			info.viewType = VK_IMAGE_VIEW_TYPE_2D;
 			info.format = format;
 			info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-			info.subresourceRange.levelCount = 1;
+			info.subresourceRange.levelCount = m_Spec.Levels;
 			info.subresourceRange.layerCount = 1;
 
 			vkCreateImageView(m_Device->GetVkHandle(), &info, nullptr, &m_ImageView);
@@ -77,7 +76,7 @@ namespace Quark {
 			vkUnmapMemory(m_Device->GetVkHandle(), stagingBufferMemory);
 		}
 
-		Utils::CopyBufferToImage(m_Device, m_Image, stagingBuffer, imageExtent);
+		Utils::CopyBufferToImage(m_Device, m_Image, stagingBuffer, imageExtent, 1, m_Spec.Levels);
 
 		vkDestroyBuffer(m_Device->GetVkHandle(), stagingBuffer, nullptr);
 		vkFreeMemory(m_Device->GetVkHandle(), stagingBufferMemory, nullptr);
