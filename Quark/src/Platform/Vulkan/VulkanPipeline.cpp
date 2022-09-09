@@ -44,26 +44,23 @@ namespace Quark {
 		for (auto* uniformBuffer : m_Spec.UniformBuffers)
 		{
 			auto* ub = static_cast<VulkanUniformBuffer*>(uniformBuffer);
+			VkDescriptorBufferInfo bufferInfo{};
+			bufferInfo.buffer = ub->GetVkHandle();
+			bufferInfo.offset = 0;
+			bufferInfo.range = ub->GetSize();
+
+			VkWriteDescriptorSet writeDescriptorSet{};
+			writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			writeDescriptorSet.dstBinding = ub->GetBinding(); // TODO: group by binding and call vkUpdateDescriptorSets once per set
+			writeDescriptorSet.dstArrayElement = 0;
+			writeDescriptorSet.descriptorCount = 1;
+			writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			writeDescriptorSet.pBufferInfo = &bufferInfo;
+
 			for (uint32_t i = 0; i < VulkanContext::FramesInFlight; i++)
 			{
-				VkDescriptorBufferInfo bufferInfo{};
-				bufferInfo.buffer = ub->GetVkHandle();
-				bufferInfo.offset = 0;
-				bufferInfo.range = ub->GetSize();
-
-				VkWriteDescriptorSet writeDescriptorSet{};
-				writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-				writeDescriptorSet.dstBinding = ub->GetBinding(); // TODO: group by binding and call vkUpdateDescriptorSets once per set
-				writeDescriptorSet.dstArrayElement = 0;
-				writeDescriptorSet.descriptorCount = 1;
-				writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-				writeDescriptorSet.pBufferInfo = &bufferInfo;
-
-				for (uint32_t i = 0; i < VulkanContext::FramesInFlight; i++)
-				{
-					writeDescriptorSet.dstSet = m_DescriptorSets[i];
-					vkUpdateDescriptorSets(m_Device->GetVkHandle(), 1, &writeDescriptorSet, 0, nullptr);
-				}
+				writeDescriptorSet.dstSet = m_DescriptorSets[i];
+				vkUpdateDescriptorSets(m_Device->GetVkHandle(), 1, &writeDescriptorSet, 0, nullptr);
 			}
 		}
 	}
@@ -89,24 +86,21 @@ namespace Quark {
 		for (auto* uniformBuffer : m_Spec.UniformBuffers)
 		{
 			auto* ub = static_cast<VulkanUniformBuffer*>(uniformBuffer);
-			for (uint32_t i = 0; i < VulkanContext::FramesInFlight; i++)
-			{
-				VkDescriptorBufferInfo bufferInfo{};
-				bufferInfo.buffer = ub->GetVkHandle();
-				bufferInfo.offset = 0;
-				bufferInfo.range = ub->GetSize();
+			VkDescriptorBufferInfo bufferInfo{};
+			bufferInfo.buffer = ub->GetVkHandle();
+			bufferInfo.offset = 0;
+			bufferInfo.range = ub->GetSize();
 
-				VkWriteDescriptorSet writeDescriptorSet{};
-				writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-				writeDescriptorSet.dstBinding = ub->GetBinding(); // TODO: group by binding and call vkUpdateDescriptorSets once per set
-				writeDescriptorSet.dstArrayElement = 0;
-				writeDescriptorSet.descriptorCount = 1;
-				writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-				writeDescriptorSet.pBufferInfo = &bufferInfo;
-				writeDescriptorSet.dstSet = GetDescriptorSet();
+			VkWriteDescriptorSet writeDescriptorSet{};
+			writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			writeDescriptorSet.dstBinding = ub->GetBinding(); // TODO: group by binding and call vkUpdateDescriptorSets once per set
+			writeDescriptorSet.dstArrayElement = 0;
+			writeDescriptorSet.descriptorCount = 1;
+			writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			writeDescriptorSet.pBufferInfo = &bufferInfo;
+			writeDescriptorSet.dstSet = GetDescriptorSet();
 				
-				vkUpdateDescriptorSets(m_Device->GetVkHandle(), 1, &writeDescriptorSet, 0, nullptr);
-			}
+			vkUpdateDescriptorSets(m_Device->GetVkHandle(), 1, &writeDescriptorSet, 0, nullptr);
 		}
 
 #if 1

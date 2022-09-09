@@ -47,6 +47,7 @@ namespace Quark {
 	void Renderer::EndRenderPass()
 	{
 		QK_ASSERT_RENDER_THREAD();
+		QK_CORE_ASSERT(s_Data->ActiveCommandBuffer->IsInsideRenderPass(), "Active command buffer is not inside a render pass!");
 		s_Data->ActiveCommandBuffer->EndRenderPass();
 	}
 
