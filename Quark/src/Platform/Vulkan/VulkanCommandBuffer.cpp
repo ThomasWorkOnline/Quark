@@ -55,7 +55,7 @@ namespace Quark {
 		vkCmdBindDescriptorSets(m_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vulkanPipeline->GetPipelineLayout(),
 			0, 1, &descriptorSet, 0, nullptr);
 
-		//vulkanPipeline->UpdateDescriptors();
+		vulkanPipeline->UpdateDescriptorSets();
 	}
 
 	void VulkanCommandBuffer::SetViewport(uint32_t viewportWidth, uint32_t viewportHeight)

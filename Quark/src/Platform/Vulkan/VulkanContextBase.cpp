@@ -139,18 +139,12 @@ namespace Quark {
 
 	void VulkanContextBase::BeginFrame()
 	{
-		m_FrameCounterIndex = (m_FrameCounterIndex + 1) % FramesInFlight;
-		m_CurrentFrameIndex = m_FrameCounterIndex;
+		VkFence waitFence = m_Frames[m_CurrentFrameIndex].InFlightFence;
+		vkWaitForFences(m_Device->GetVkHandle(), 1, &waitFence, VK_TRUE, UINT64_MAX);
+		vkResetFences(m_Device->GetVkHandle(), 1, &waitFence);
 
-		{
-			VkFence waitFence = m_Frames[m_CurrentFrameIndex].InFlightFence;
-
-			VkResult vkRes = vkWaitForFences(m_Device->GetVkHandle(), 1, &waitFence, VK_TRUE, UINT64_MAX);
-			QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Could not wait for fences");
-			vkResetFences(m_Device->GetVkHandle(), 1, &waitFence);
-		}
-		
-		m_SwapchainValid = m_SwapChain->AcquireNextImage(m_Frames[m_CurrentFrameIndex].ImageAvailableSemaphore);
+		VkResult res = m_SwapChain->AcquireNextImage(m_Frames[m_CurrentFrameIndex].ImageAvailableSemaphore);
+		m_SwapchainValid = res == VK_SUCCESS;
 	}
 
 	void VulkanContextBase::WaitUntilDeviceIdle()
@@ -194,6 +188,7 @@ namespace Quark {
 		auto renderFinishedSemaphore = m_Frames[m_CurrentFrameIndex].RenderFinishedSemaphore;
 		
 		m_SwapChain->Present(presentQueue, renderFinishedSemaphore);
+		m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % FramesInFlight;
 	}
 
 	void VulkanContextBase::SetSwapInterval(int interval)

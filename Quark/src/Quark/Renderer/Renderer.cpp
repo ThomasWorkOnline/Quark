@@ -12,6 +12,7 @@ namespace Quark {
 	{
 		ShaderLibrary ShaderLib;
 		Scope<RenderPass> GeometryPass;
+		Scope<RenderPass> PostProcessingPass;
 
 		CommandBuffer* ActiveCommandBuffer = nullptr;
 		std::vector<Scope<Framebuffer>> Framebuffers;
@@ -35,8 +36,12 @@ namespace Quark {
 
 	void Renderer::BeginGeometryPass()
 	{
-		QK_ASSERT_RENDER_THREAD();
 		BeginRenderPass(s_Data->GeometryPass.get(), GetTargetFramebuffer());
+	}
+
+	void Renderer::BeginPostProcessingPass()
+	{
+		BeginRenderPass(s_Data->PostProcessingPass.get(), GetTargetFramebuffer());
 	}
 
 	void Renderer::EndRenderPass()
@@ -122,6 +127,12 @@ namespace Quark {
 		return s_Data->GeometryPass.get();
 	}
 
+	RenderPass* Renderer::GetPostProcessingPass()
+	{
+		QK_ASSERT_RENDER_THREAD();
+		return s_Data->PostProcessingPass.get();
+	}
+
 	Framebuffer* Renderer::GetTargetFramebuffer()
 	{
 		QK_ASSERT_RENDER_THREAD();
@@ -130,15 +141,15 @@ namespace Quark {
 		return s_Data->Framebuffers[imageIndex].get();
 	}
 
+	Renderer::ViewportExtent Renderer::GetViewportExtent()
+	{
+		return s_ViewportExtent;
+	}
+
 	CommandBuffer* Renderer::GetCommandBuffer()
 	{
 		QK_ASSERT_RENDER_THREAD();
 		return s_Data->ActiveCommandBuffer;
-	}
-
-	Renderer::ViewportExtent Renderer::GetViewportExtent()
-	{
-		return s_ViewportExtent;
 	}
 
 	ShaderLibrary& Renderer::GetShaderLibrary()

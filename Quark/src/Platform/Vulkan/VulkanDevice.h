@@ -43,6 +43,8 @@ namespace Quark {
 		VkCommandPool GetCommandPool() const { return m_CommandPool; }
 		VkCommandBuffer GetCopyCommandBuffer() const { return m_CopyCommandBuffer; }
 
+		const VkPhysicalDeviceProperties& GetPhysicalDeviceProperties() const { return m_Properties; }
+
 		const QueueFamilyIndices& GetQueueFamilyIndices() const { return m_QueueFamilyIndices; }
 		const SwapChainSupportDetails& GetSupportDetails() const { return m_SupportDetails; }
 
@@ -59,6 +61,7 @@ namespace Quark {
 	private:
 		VkDevice m_Device;
 		VkPhysicalDevice m_PhysicalDevice;
+		VkPhysicalDeviceProperties m_Properties;
 
 		VmaAllocator m_Allocator;
 

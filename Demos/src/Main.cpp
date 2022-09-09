@@ -18,7 +18,7 @@ namespace Quark {
 		ApplicationOptions options;
 		options.AppName = "Demo Application";
 		options.CoreDir = "../";
-		options.GraphicsAPI = RHI::OpenGL;
+		options.GraphicsAPI = RHI::Vulkan;
 		//options.Flags = ApplicationFlagBits::EnableAudioOutputDevice;
 
 		return new App(options);

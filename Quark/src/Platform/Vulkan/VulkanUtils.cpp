@@ -39,8 +39,6 @@ namespace Quark {
 
 		VkBuffer AllocateBuffer(VulkanDevice* device, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkDeviceMemory& bufferMemory, size_t* outRequirementSize)
 		{
-			QK_PROFILE_FUNCTION();
-
 			VkBufferCreateInfo bufferInfo{};
 			bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 			bufferInfo.size = size;
@@ -70,8 +68,6 @@ namespace Quark {
 
 		VkImage AllocateImage(VulkanDevice* device, VkExtent3D extent, VkFormat format, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkDeviceMemory& bufferMemory, size_t* outRequirementSize)
 		{
-			QK_PROFILE_FUNCTION();
-
 			VkImageCreateInfo createInfo{};
 			createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 			createInfo.imageType = VK_IMAGE_TYPE_2D;
@@ -106,8 +102,6 @@ namespace Quark {
 
 		void CopyBuffer(VulkanDevice* device, VkBuffer dstBuffer, VkBuffer srcBuffer, size_t size)
 		{
-			QK_PROFILE_FUNCTION();
-
 			VkCommandBuffer commandBuffer = device->GetCopyCommandBuffer();
 			vkResetCommandBuffer(commandBuffer, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
 
@@ -134,8 +128,6 @@ namespace Quark {
 
 		void CopyBufferToImage(VulkanDevice* device, VkImage dstImage, VkBuffer srcBuffer, VkExtent3D extent)
 		{
-			QK_PROFILE_FUNCTION();
-
 			VkCommandBuffer commandBuffer = device->GetCopyCommandBuffer();
 			vkResetCommandBuffer(commandBuffer, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
 

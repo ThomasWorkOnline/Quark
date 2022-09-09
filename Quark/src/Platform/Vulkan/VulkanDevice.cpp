@@ -107,14 +107,12 @@ namespace Quark {
 		static bool IsVkDeviceSuitable(VkPhysicalDevice device, const SwapChainSupportDetails& supportDetails, const QueueFamilyIndices& indices)
 		{
 			bool extensionsSupported = CheckVkDeviceExtensionSupport(device);
+			bool swapChainAdequate = !supportDetails.Formats.empty() && !supportDetails.PresentModes.empty();
 
-			bool swapChainAdequate = false;
-			if (extensionsSupported)
-			{
-				swapChainAdequate = !supportDetails.Formats.empty() && !supportDetails.PresentModes.empty();
-			}
+			VkPhysicalDeviceFeatures supportedFeatures;
+			vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
 
-			return indices.IsComplete() && swapChainAdequate;
+			return indices.IsComplete() && extensionsSupported && swapChainAdequate && supportedFeatures.samplerAnisotropy;
 		}
 	}
 
@@ -125,7 +123,9 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
+		vkGetPhysicalDeviceProperties(m_PhysicalDevice, &m_Properties);
 		VkPhysicalDeviceFeatures deviceFeatures{};
+		deviceFeatures.samplerAnisotropy = VK_TRUE;
 
 		VkDeviceCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -140,7 +140,6 @@ namespace Quark {
 		createInfo.enabledLayerCount = sizeof_array(g_ValidationLayers);
 		createInfo.ppEnabledLayerNames = g_ValidationLayers;
 #endif
-
 		vkCreateDevice(vkPhysicalDevice, &createInfo, nullptr, &m_Device);
 
 		VmaAllocatorCreateInfo allocatorInfo{};
@@ -189,10 +188,6 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		VkPhysicalDevice vkPhysicalDevice = VK_NULL_HANDLE;
-		QueueFamilyIndices queueFamilyIndices;
-		SwapChainSupportDetails supportDetails;
-
 		uint32_t deviceCount = 0;
 		VkResult vkRes = vkEnumeratePhysicalDevices(vkInstance, &deviceCount, nullptr);
 		QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Could not enumerate physical devices");
@@ -201,6 +196,10 @@ namespace Quark {
 		std::vector<VkPhysicalDevice> devices(deviceCount);
 		vkRes = vkEnumeratePhysicalDevices(vkInstance, &deviceCount, devices.data());
 		QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Could not enumerate physical devices");
+
+		VkPhysicalDevice vkPhysicalDevice = VK_NULL_HANDLE;
+		QueueFamilyIndices queueFamilyIndices;
+		SwapChainSupportDetails supportDetails;
 
 		for (const auto& device : devices)
 		{

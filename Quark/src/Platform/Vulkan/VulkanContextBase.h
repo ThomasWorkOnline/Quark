@@ -67,7 +67,6 @@ namespace Quark {
 		Scope<VulkanSwapChain> m_SwapChain;
 
 		FrameData m_Frames[FramesInFlight];
-		uint32_t m_FrameCounterIndex = static_cast<uint32_t>(-1);
 		uint32_t m_CurrentFrameIndex = 0;
 		bool m_SwapchainValid = false;
 
