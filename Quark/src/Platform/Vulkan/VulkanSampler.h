@@ -13,10 +13,7 @@ namespace Quark {
 		VulkanSampler2D(VulkanDevice* device, const Sampler2DSpecification& spec);
 		~VulkanSampler2D() final override;
 
-		virtual bool operator==(const Sampler2D& other) const final override
-		{
-			return m_Sampler == static_cast<const VulkanSampler2D&>(other).m_Sampler;
-		}
+		virtual bool operator==(const Sampler2D& other) const final override;
 
 		// Non-Copyable
 		VulkanSampler2D(const VulkanSampler2D&) = delete;

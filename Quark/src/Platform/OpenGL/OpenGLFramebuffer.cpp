@@ -70,6 +70,14 @@ namespace Quark {
 		QK_CORE_ASSERT(false, "TODO: invalidate framebuffer attachment");
 	}
 
+	bool OpenGLFramebufferAttachment::operator==(const FramebufferAttachment& other) const
+	{
+		if (auto* o = dynamic_cast<decltype(this)>(&other))
+			return m_RendererID == o->m_RendererID;
+
+		return false;
+	}
+
 	GLuint s_ActiveFramebuffer = 0;
 
 	OpenGLFramebuffer::OpenGLFramebuffer(const FramebufferSpecification& spec)
@@ -103,6 +111,14 @@ namespace Quark {
 		m_Spec.Height = height;
 
 		Invalidate();
+	}
+
+	bool OpenGLFramebuffer::operator==(const Framebuffer& other) const
+	{
+		if (auto* o = dynamic_cast<decltype(this)>(&other))
+			return m_RendererID == o->m_RendererID;
+
+		return false;
 	}
 
 	void OpenGLFramebuffer::Bind()

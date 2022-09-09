@@ -332,6 +332,14 @@ namespace Quark {
 		UploadUniformMat4d(name, matrix);
 	}
 
+	bool OpenGLShader::operator==(const Shader& other) const
+	{
+		if (auto* o = dynamic_cast<decltype(this)>(&other))
+			return m_RendererID == o->m_RendererID;
+
+		return false;
+	}
+
 	void OpenGLShader::UploadUniformInt(std::string_view name, int32_t value)
 	{
 		GLint location = GetUniformLocation(name);

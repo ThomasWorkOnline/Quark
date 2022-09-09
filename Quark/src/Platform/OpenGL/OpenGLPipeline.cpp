@@ -68,6 +68,14 @@ namespace Quark {
 		glDeleteVertexArrays(1, &m_RendererID);
 	}
 
+	bool OpenGLPipeline::operator==(const Pipeline& other) const
+	{
+		if (auto* o = dynamic_cast<decltype(this)>(&other))
+			return m_RendererID == o->m_RendererID;
+
+		return false;
+	}
+
 	void OpenGLPipeline::Bind()
 	{
 		// Shader

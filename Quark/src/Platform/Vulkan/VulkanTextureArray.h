@@ -19,10 +19,7 @@ namespace Quark {
 		virtual void SetData(const void* data, size_t size, uint32_t layer) final override {}
 		virtual void GenerateMipmaps() final override {}
 
-		virtual bool operator==(const Texture& other) const final override
-		{
-			return false;
-		}
+		virtual bool operator==(const Texture& other) const final override;
 
 		// Non-Copyable
 		VulkanTexture2DArray(const VulkanTexture2DArray&) = delete;

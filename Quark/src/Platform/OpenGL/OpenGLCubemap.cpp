@@ -62,4 +62,12 @@ namespace Quark {
 			DataFormatToOpenGLStorageFormat(m_Spec.DataFormat),
 			DataFormatToOpenGLDataType(m_Spec.DataFormat), data);
 	}
+
+	bool OpenGLCubemap::operator==(const Cubemap& other) const
+	{
+		if (auto* o = dynamic_cast<decltype(this)>(&other))
+			return m_RendererID == o->m_RendererID;
+
+		return false;
+	}
 }

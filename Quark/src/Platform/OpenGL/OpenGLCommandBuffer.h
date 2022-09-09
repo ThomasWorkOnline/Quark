@@ -35,10 +35,7 @@ namespace Quark {
 
 		virtual bool IsInsideRenderPass() const final override;
 
-		virtual bool operator==(const CommandBuffer& other) const final override
-		{
-			return true;
-		}
+		virtual bool operator==(const CommandBuffer& other) const final override;
 
 		// Non-Copyable
 		OpenGLCommandBuffer(const OpenGLCommandBuffer&) = delete;

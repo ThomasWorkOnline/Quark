@@ -76,6 +76,14 @@ namespace Quark {
 		vkFreeMemory(m_Device->GetVkHandle(), stagingBufferMemory, nullptr);
 	}
 
+	bool VulkanVertexBuffer::operator==(const VertexBuffer& other) const
+	{
+		if (auto* o = dynamic_cast<decltype(this)>(&other))
+			return m_Buffer == o->m_Buffer;
+
+		return false;
+	}
+
 	VulkanIndexBuffer::VulkanIndexBuffer(VulkanDevice* device, uint32_t count)
 		: m_Device(device), m_Count(count)
 	{
@@ -148,5 +156,13 @@ namespace Quark {
 
 		vkDestroyBuffer(m_Device->GetVkHandle(), stagingBuffer, nullptr);
 		vkFreeMemory(m_Device->GetVkHandle(), stagingBufferMemory, nullptr);
+	}
+
+	bool VulkanIndexBuffer::operator==(const IndexBuffer& other) const
+	{
+		if (auto* o = dynamic_cast<decltype(this)>(&other))
+			return m_Buffer == o->m_Buffer;
+
+		return false;
 	}
 }

@@ -43,6 +43,14 @@ namespace Quark {
 
 		QK_DEBUG_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
 	}
+	
+	bool OpenGLVertexBuffer::operator==(const VertexBuffer& other) const
+	{
+		if (auto* o = dynamic_cast<decltype(this)>(&other))
+			return m_RendererID == o->m_RendererID;
+
+		return false;
+	}
 
 	OpenGLIndexBuffer::OpenGLIndexBuffer(uint32_t count)
 		: m_Count(count)
@@ -83,5 +91,13 @@ namespace Quark {
 		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, offset * sizeof(uint32_t), count * sizeof(uint32_t), data);
 
 		QK_DEBUG_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+	}
+
+	bool OpenGLIndexBuffer::operator==(const IndexBuffer& other) const
+	{
+		if (auto* o = dynamic_cast<decltype(this)>(&other))
+			return m_RendererID == o->m_RendererID;
+
+		return false;
 	}
 }

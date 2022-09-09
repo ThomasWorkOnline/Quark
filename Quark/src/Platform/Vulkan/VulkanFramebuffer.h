@@ -17,10 +17,7 @@ namespace Quark {
 
 		virtual void SetData(const void* data) final override;
 
-		virtual bool operator==(const FramebufferAttachment& other) const final override
-		{
-			return m_ImageView == reinterpret_cast<const VulkanFramebufferAttachment&>(other).m_ImageView;
-		}
+		virtual bool operator==(const FramebufferAttachment& other) const final override;
 
 		VkImageView GetVkHandle() const { return m_ImageView; }
 
@@ -38,10 +35,7 @@ namespace Quark {
 
 		virtual void Resize(uint32_t width, uint32_t height) final override;
 
-		virtual bool operator==(const Framebuffer& other) const final override
-		{
-			return m_Framebuffer == reinterpret_cast<const VulkanFramebuffer&>(other).m_Framebuffer;
-		}
+		virtual bool operator==(const Framebuffer& other) const final override;
 
 		VkFramebuffer GetVkHandle() const { return m_Framebuffer; }
 

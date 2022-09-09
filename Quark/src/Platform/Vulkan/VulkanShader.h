@@ -47,10 +47,7 @@ namespace Quark {
 		virtual void SetMat3d(std::string_view name, const Mat3d& matrix) final override {}
 		virtual void SetMat4d(std::string_view name, const Mat4d& matrix) final override {}
 
-		virtual bool operator==(const Shader& other) const final override
-		{
-			return m_Name == reinterpret_cast<const VulkanShader&>(other).m_Name;
-		}
+		virtual bool operator==(const Shader& other) const final override;
 
 		// Non-Copyable
 		VulkanShader(const VulkanShader&) = delete;

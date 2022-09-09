@@ -29,4 +29,12 @@ namespace Quark {
 	{
 		vkDestroySampler(m_Device->GetVkHandle(), m_Sampler, nullptr);
 	}
+
+	bool VulkanSampler2D::operator==(const Sampler2D& other) const
+	{
+		if (auto* o = dynamic_cast<decltype(this)>(&other))
+			return m_Sampler == o->m_Sampler;
+
+		return false;
+	}
 }

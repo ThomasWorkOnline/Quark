@@ -7,4 +7,9 @@ namespace Quark {
 		: RenderPass(spec)
 	{
 	}
+
+	bool OpenGLRenderPass::operator==(const RenderPass& other) const
+	{
+		return false;
+	}
 }

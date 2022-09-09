@@ -75,6 +75,14 @@ namespace Quark {
 		vkDestroyDescriptorPool(m_Device->GetVkHandle(), m_DescriptorPool, nullptr);
 	}
 
+	bool VulkanPipeline::operator==(const Pipeline& other) const
+	{
+		if (auto* o = dynamic_cast<decltype(this)>(&other))
+			return m_Pipeline == o->m_Pipeline;
+
+		return false;
+	}
+
 	VkDescriptorSet VulkanPipeline::GetDescriptorSet() const
 	{
 		return m_DescriptorSets[VulkanContext::Get()->GetCurrentFrameIndex()];
@@ -234,12 +242,6 @@ namespace Quark {
 
 	void VulkanPipeline::CreatePipeline()
 	{
-		// Vertex input 
-		VkVertexInputBindingDescription bindingDescription{};
-		bindingDescription.binding = 0;
-		bindingDescription.stride = (uint32_t)m_Spec.Layout.GetStride();
-		bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-
 		AutoRelease<VkVertexInputAttributeDescription> attributeDescriptions = StackAlloc(m_Spec.Layout.GetCount() * sizeof(VkVertexInputAttributeDescription));
 
 		for (uint32_t i = 0; i < m_Spec.Layout.GetCount(); i++)
@@ -250,6 +252,12 @@ namespace Quark {
 			attributeDescriptions[i].format = ShaderDataTypeToVulkan(m_Spec.Layout[i].Type);
 			attributeDescriptions[i].offset = (uint32_t)m_Spec.Layout[i].Offset;
 		}
+
+		// Vertex input 
+		VkVertexInputBindingDescription bindingDescription{};
+		bindingDescription.binding = 0;
+		bindingDescription.stride = (uint32_t)m_Spec.Layout.GetStride();
+		bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
 		vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;

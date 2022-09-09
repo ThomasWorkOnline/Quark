@@ -8,4 +8,9 @@ namespace Quark {
 		, m_Device(device)
 	{
 	}
+
+	bool VulkanTexture2DArray::operator==(const Texture& other) const
+	{
+		return false;
+	}
 }

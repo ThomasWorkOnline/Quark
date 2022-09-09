@@ -16,10 +16,7 @@ namespace Quark {
 		VulkanPipeline(VulkanDevice* device, const PipelineSpecification& spec);
 		virtual ~VulkanPipeline() override;
 
-		virtual bool operator==(const Pipeline& other) const final override
-		{
-			return m_Pipeline == reinterpret_cast<const VulkanPipeline&>(other).m_Pipeline;
-		}
+		virtual bool operator==(const Pipeline& other) const final override;
 
 		// Non-Copyable
 		VulkanPipeline(const VulkanPipeline&) = delete;

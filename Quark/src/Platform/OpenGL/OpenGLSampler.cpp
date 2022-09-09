@@ -22,4 +22,12 @@ namespace Quark {
 	{
 		glDeleteSamplers(1, &m_RendererID);
 	}
+
+	bool OpenGLSampler2D::operator==(const Sampler2D& other) const
+	{
+		if (auto* o = dynamic_cast<decltype(this)>(&other))
+			return m_RendererID == o->m_RendererID;
+
+		return false;
+	}
 }

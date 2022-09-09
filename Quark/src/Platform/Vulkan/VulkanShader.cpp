@@ -57,6 +57,14 @@ namespace Quark {
 		}
 	}
 
+	bool VulkanShader::operator==(const Shader& other) const
+	{
+		if (auto* o = dynamic_cast<decltype(this)>(&other))
+			return m_Name == o->m_Name;
+
+		return false;
+	}
+
 	VulkanShaderModule VulkanShader::CreateShader(ShaderStage stage, const SpirvSource& spirvSource)
 	{
 		VkShaderModuleCreateInfo createInfo{};

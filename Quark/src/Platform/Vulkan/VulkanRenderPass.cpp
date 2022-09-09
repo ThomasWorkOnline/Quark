@@ -67,4 +67,12 @@ namespace Quark {
 	{
 		vkDestroyRenderPass(m_Device->GetVkHandle(), m_RenderPass, nullptr);
 	}
+
+	bool VulkanRenderPass::operator==(const RenderPass& other) const
+	{
+		if (auto* o = dynamic_cast<decltype(this)>(&other))
+			return m_RenderPass == o->m_RenderPass;
+
+		return false;
+	}
 }

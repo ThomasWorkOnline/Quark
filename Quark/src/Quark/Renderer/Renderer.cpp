@@ -23,6 +23,8 @@ namespace Quark {
 	void Renderer::BindPipeline(Pipeline* pipeline)
 	{
 		QK_ASSERT_RENDER_THREAD();
+		QK_CORE_ASSERT(s_Data->ActiveCommandBuffer->IsInsideRenderPass(), "Cannot bind a graphics pipeline outside of a render pass!");
+
 		s_Data->ActiveCommandBuffer->BindPipeline(pipeline);
 	}
 

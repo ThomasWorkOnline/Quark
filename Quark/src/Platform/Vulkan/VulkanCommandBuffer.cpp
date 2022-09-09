@@ -149,4 +149,12 @@ namespace Quark {
 	{
 		return m_CurrentRenderPass;
 	}
+	
+	bool VulkanCommandBuffer::operator==(const CommandBuffer& other) const
+	{
+		if (auto* o = dynamic_cast<decltype(this)>(&other))
+			return m_CommandBuffer == o->m_CommandBuffer;
+
+		return false;
+	}
 }

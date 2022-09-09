@@ -31,4 +31,12 @@ namespace Quark {
 		std::memcpy(mappedMemory, data, size);
 		vkUnmapMemory(m_Device->GetVkHandle(), m_BufferMemory);
 	}
+
+	bool VulkanUniformBuffer::operator==(const UniformBuffer& other) const
+	{
+		if (auto* o = dynamic_cast<decltype(this)>(&other))
+			return m_Buffer == o->m_Buffer;
+
+		return false;
+	}
 }

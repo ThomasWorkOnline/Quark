@@ -7,4 +7,9 @@ namespace Quark {
 		: m_Device(device)
 	{
 	}
+
+	bool VulkanFont::operator==(const Texture& other) const
+	{
+		return false;
+	}
 }

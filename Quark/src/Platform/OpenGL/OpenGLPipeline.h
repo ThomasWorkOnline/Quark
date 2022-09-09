@@ -13,10 +13,7 @@ namespace Quark {
 		OpenGLPipeline(const PipelineSpecification& spec);
 		virtual ~OpenGLPipeline() final override;
 
-		virtual bool operator==(const Pipeline& other) const final override
-		{
-			return false;
-		}
+		virtual bool operator==(const Pipeline& other) const final override;
 
 		// Non-Copyable
 		OpenGLPipeline(const OpenGLPipeline&) = delete;

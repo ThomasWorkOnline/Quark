@@ -13,10 +13,7 @@ namespace Quark {
 		VulkanRenderPass(VulkanDevice* device, const RenderPassSpecification& spec);
 		virtual ~VulkanRenderPass() final override;
 
-		virtual bool operator==(const RenderPass& other) const final override
-		{
-			return m_RenderPass == reinterpret_cast<const VulkanRenderPass&>(other).m_RenderPass;
-		}
+		virtual bool operator==(const RenderPass& other) const final override;
 
 		// Non-Copyable
 		VulkanRenderPass(const VulkanRenderPass&) = delete;

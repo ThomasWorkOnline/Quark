@@ -140,4 +140,10 @@ namespace Quark {
 	{
 		return m_CurrentRenderPass;
 	}
+
+	bool OpenGLCommandBuffer::operator==(const CommandBuffer& other) const
+	{
+		// Returns true only if other is an OpenGLCommandBuffer
+		return dynamic_cast<decltype(this)>(&other);
+	}
 }

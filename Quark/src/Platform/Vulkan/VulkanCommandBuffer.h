@@ -37,10 +37,7 @@ namespace Quark {
 
 		virtual bool IsInsideRenderPass() const final override;
 
-		virtual bool operator==(const CommandBuffer& other) const final override
-		{
-			return m_CommandBuffer == reinterpret_cast<const VulkanCommandBuffer&>(other).m_CommandBuffer;
-		}
+		virtual bool operator==(const CommandBuffer& other) const final override;
 
 		VkCommandBuffer GetVkHandle() const { return m_CommandBuffer; }
 

@@ -15,10 +15,7 @@ namespace Quark {
 
 		virtual void SetData(const void* data, size_t size, size_t offset = 0) final override;
 
-		virtual bool operator==(const UniformBuffer& other) const final override
-		{
-			return m_RendererID == reinterpret_cast<decltype(*this)&>(other).m_RendererID;
-		}
+		virtual bool operator==(const UniformBuffer& other) const final override;
 
 		// Non-Copyable
 		OpenGLUniformBuffer(const OpenGLUniformBuffer&) = delete;

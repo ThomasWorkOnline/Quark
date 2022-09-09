@@ -8,4 +8,9 @@ namespace Quark {
 		, m_Device(device)
 	{
 	}
+
+	bool VulkanCubemap::operator==(const Cubemap& other) const
+	{
+		return false;
+	}
 }

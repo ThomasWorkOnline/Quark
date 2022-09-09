@@ -26,10 +26,7 @@ namespace Quark {
 		virtual std::string_view GetStyleName() const final override { return std::string_view(); }
 		virtual std::string_view GetFamilyName() const final override { return std::string_view(); }
 
-		virtual bool operator==(const Texture& other) const final override
-		{
-			return false;
-		}
+		virtual bool operator==(const Texture& other) const final override;
 
 		// Non-Copyable
 		VulkanFont(const VulkanFont&) = delete;

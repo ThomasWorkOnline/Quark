@@ -16,10 +16,7 @@ namespace Quark {
 
 		virtual void SetData(const void* data, size_t size, size_t offset = 0) final override;
 
-		virtual bool operator==(const VertexBuffer& other) const final override
-		{
-			return m_Buffer == reinterpret_cast<const VulkanVertexBuffer&>(other).m_Buffer;
-		}
+		virtual bool operator==(const VertexBuffer& other) const final override;
 
 		// Non-Copyable
 		VulkanVertexBuffer(const VulkanVertexBuffer&) = delete;
@@ -44,10 +41,7 @@ namespace Quark {
 		virtual void SetData(const uint32_t* data, uint32_t count, size_t offset = 0) final override;
 		virtual uint32_t GetCount() const final override { return m_Count; }
 
-		virtual bool operator==(const IndexBuffer& other) const final override
-		{
-			return m_Buffer == reinterpret_cast<const VulkanIndexBuffer&>(other).m_Buffer;
-		}
+		virtual bool operator==(const IndexBuffer& other) const final override;
 
 		// Non-Copyable
 		VulkanIndexBuffer(const VulkanIndexBuffer&) = delete;

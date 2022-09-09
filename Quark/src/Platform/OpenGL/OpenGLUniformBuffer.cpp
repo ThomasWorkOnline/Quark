@@ -33,4 +33,12 @@ namespace Quark {
 
 		QK_DEBUG_CALL(glBindBuffer(GL_UNIFORM_BUFFER, 0));
 	}
+
+	bool OpenGLUniformBuffer::operator==(const UniformBuffer& other) const
+	{
+		if (auto* o = dynamic_cast<decltype(this)>(&other))
+			return m_RendererID == o->m_RendererID;
+
+		return false;
+	}
 }

@@ -18,10 +18,7 @@ namespace Quark {
 
 		virtual void SetData(uint32_t index, const void* data, size_t size) final override {}
 
-		virtual bool operator==(const Cubemap& other) const final override
-		{
-			return false;
-		}
+		virtual bool operator==(const Cubemap& other) const final override;
 
 		// Non-Copyable
 		VulkanCubemap(const VulkanCubemap&) = delete;

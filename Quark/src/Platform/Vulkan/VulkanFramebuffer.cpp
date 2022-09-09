@@ -55,6 +55,14 @@ namespace Quark {
 		vkCreateImageView(m_Device->GetVkHandle(), &imageViewInfo, nullptr, &m_ImageView);
 	}
 
+	bool VulkanFramebufferAttachment::operator==(const FramebufferAttachment& other) const
+	{
+		if (auto* o = dynamic_cast<decltype(this)>(&other))
+			return m_ImageView == o->m_ImageView;
+
+		return false;
+	}
+
 	VulkanFramebuffer::VulkanFramebuffer(VulkanDevice* device, const FramebufferSpecification& spec)
 		: Framebuffer(spec)
 		, m_Device(device)
@@ -75,6 +83,14 @@ namespace Quark {
 		m_Spec.Height = height;
 
 		Invalidate();
+	}
+
+	bool VulkanFramebuffer::operator==(const Framebuffer& other) const
+	{
+		if (auto* o = dynamic_cast<decltype(this)>(&other))
+			return m_Framebuffer == o->m_Framebuffer;
+
+		return false;
 	}
 
 	void VulkanFramebuffer::Invalidate()
