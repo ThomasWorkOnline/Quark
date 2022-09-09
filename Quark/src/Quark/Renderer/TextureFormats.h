@@ -50,4 +50,9 @@ namespace Quark {
 
 		return false;
 	}
+
+	inline uint32_t GetMipLevelsForResolution(uint32_t width, uint32_t height)
+	{
+		return (uint32_t)std::log2(std::max(width, height)) + 1;
+	}
 }

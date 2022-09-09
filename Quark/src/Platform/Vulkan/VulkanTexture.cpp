@@ -17,6 +17,11 @@ namespace Quark {
 	VulkanTexture2D::VulkanTexture2D(VulkanDevice* device, std::string_view filepath, const TextureRenderModes& renderModes)
 		: m_Device(device)
 	{
+		QK_PROFILE_FUNCTION();
+
+		QK_CORE_ASSERT(!IsformatUsingMips(renderModes.MagFilteringMode),
+			"The magnification mode may not be set to use mipmaps");
+
 		Image image = filepath;
 		auto& metadata = image.GetMetadata();
 
@@ -25,6 +30,8 @@ namespace Quark {
 		m_Spec.DataFormat = metadata.DataFormat;
 		m_Spec.DataFormat = metadata.DataFormat;
 		m_Spec.RenderModes = renderModes;
+		m_Spec.Levels = IsformatUsingMips(m_Spec.RenderModes.MinFilteringMode) && m_Spec.Levels == 0
+			? GetMipLevelsForResolution(m_Spec.Width, m_Spec.Height) : 0;
 
 		VkExtent3D imageExtent{};
 		imageExtent.width = m_Spec.Width;

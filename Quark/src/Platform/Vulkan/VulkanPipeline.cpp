@@ -111,7 +111,7 @@ namespace Quark {
 			vkUpdateDescriptorSets(m_Device->GetVkHandle(), 1, &writeDescriptorSet, 0, nullptr);
 		}
 
-#if 1
+#if 0
 		// Samplers
 		for (auto& samplerArray : m_Spec.SamplersArray)
 		{
