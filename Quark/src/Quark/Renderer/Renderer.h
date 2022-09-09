@@ -29,6 +29,7 @@ namespace Quark {
 
 		static void BeginRenderPass(RenderPass* renderPass, Framebuffer* framebuffer);
 		static void BeginGeometryPass();
+		static void BeginPostProcessingPass();
 		static void EndRenderPass();
 
 		static void Submit(VertexBuffer* vertexBuffer, uint32_t vertexCount);
@@ -43,9 +44,11 @@ namespace Quark {
 		static const GraphicsAPICapabilities& GetCapabilities();
 
 		static RenderPass* GetGeometryPass();
+		static RenderPass* GetPostProcessingPass();
+
 		static Framebuffer* GetTargetFramebuffer();
-		static CommandBuffer* GetCommandBuffer();
 		static ViewportExtent GetViewportExtent();
+		static CommandBuffer* GetCommandBuffer();
 
 		static ShaderLibrary& GetShaderLibrary();
 		static std::thread::id GetThreadId() { return s_ThreadId; }

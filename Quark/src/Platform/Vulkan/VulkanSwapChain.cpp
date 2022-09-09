@@ -78,18 +78,22 @@ namespace Quark {
 		vkDestroySwapchainKHR(m_Device->GetVkHandle(), m_SwapChain, nullptr);
 	}
 
-	bool VulkanSwapChain::AcquireNextImage(VkSemaphore imageAvailableSemaphore)
+	VkResult VulkanSwapChain::AcquireNextImage(VkSemaphore imageAvailableSemaphore)
 	{
-		VkResult vkRes = vkAcquireNextImageKHR(m_Device->GetVkHandle(), m_SwapChain, UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &m_ImageIndex);
-		return (vkRes == VK_SUCCESS);
+		return vkAcquireNextImageKHR(m_Device->GetVkHandle(), m_SwapChain, UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &m_ImageIndex);
 	}
 
 	void VulkanSwapChain::Present(VkQueue presentQueue, VkSemaphore renderFinishedSemaphore)
 	{
 		VkPresentInfoKHR presentInfo{};
 		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-		presentInfo.waitSemaphoreCount = 1;
-		presentInfo.pWaitSemaphores = &renderFinishedSemaphore;
+
+		if (renderFinishedSemaphore)
+		{
+			presentInfo.waitSemaphoreCount = 1;
+			presentInfo.pWaitSemaphores = &renderFinishedSemaphore;
+		}
+		
 		presentInfo.swapchainCount = 1;
 		presentInfo.pSwapchains = &m_SwapChain;
 		presentInfo.pImageIndices = &m_ImageIndex;

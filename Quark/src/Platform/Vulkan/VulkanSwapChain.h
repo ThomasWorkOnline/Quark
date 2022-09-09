@@ -22,7 +22,7 @@ namespace Quark {
 		uint32_t GetImageCount() const { return m_ImageCount; }
 		uint32_t GetCurrentImageIndex() const { return m_ImageIndex; }
 
-		bool AcquireNextImage(VkSemaphore imageAvailableSemaphore);
+		VkResult AcquireNextImage(VkSemaphore imageAvailableSemaphore);
 		void Present(VkQueue presentQueue, VkSemaphore renderFinishedSemaphore);
 		void Resize(uint32_t viewportWidth, uint32_t viewportHeight);
 

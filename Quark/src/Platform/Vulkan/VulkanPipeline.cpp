@@ -41,7 +41,31 @@ namespace Quark {
 		CreateDescriptorPoolAndSets();
 		CreatePipeline();
 
-		UpdateDescriptorSets();
+		for (auto* uniformBuffer : m_Spec.UniformBuffers)
+		{
+			auto* ub = static_cast<VulkanUniformBuffer*>(uniformBuffer);
+			for (uint32_t i = 0; i < VulkanContext::FramesInFlight; i++)
+			{
+				VkDescriptorBufferInfo bufferInfo{};
+				bufferInfo.buffer = ub->GetVkHandle();
+				bufferInfo.offset = 0;
+				bufferInfo.range = ub->GetSize();
+
+				VkWriteDescriptorSet writeDescriptorSet{};
+				writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+				writeDescriptorSet.dstBinding = ub->GetBinding(); // TODO: group by binding and call vkUpdateDescriptorSets once per set
+				writeDescriptorSet.dstArrayElement = 0;
+				writeDescriptorSet.descriptorCount = 1;
+				writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+				writeDescriptorSet.pBufferInfo = &bufferInfo;
+
+				for (uint32_t i = 0; i < VulkanContext::FramesInFlight; i++)
+				{
+					writeDescriptorSet.dstSet = m_DescriptorSets[i];
+					vkUpdateDescriptorSets(m_Device->GetVkHandle(), 1, &writeDescriptorSet, 0, nullptr);
+				}
+			}
+		}
 	}
 
 	VulkanPipeline::~VulkanPipeline()
@@ -67,11 +91,25 @@ namespace Quark {
 			auto* ub = static_cast<VulkanUniformBuffer*>(uniformBuffer);
 			for (uint32_t i = 0; i < VulkanContext::FramesInFlight; i++)
 			{
-				ub->UpdateDescriptorSet(m_DescriptorSets[i]);
+				VkDescriptorBufferInfo bufferInfo{};
+				bufferInfo.buffer = ub->GetVkHandle();
+				bufferInfo.offset = 0;
+				bufferInfo.range = ub->GetSize();
+
+				VkWriteDescriptorSet writeDescriptorSet{};
+				writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+				writeDescriptorSet.dstBinding = ub->GetBinding(); // TODO: group by binding and call vkUpdateDescriptorSets once per set
+				writeDescriptorSet.dstArrayElement = 0;
+				writeDescriptorSet.descriptorCount = 1;
+				writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+				writeDescriptorSet.pBufferInfo = &bufferInfo;
+				writeDescriptorSet.dstSet = GetDescriptorSet();
+				
+				vkUpdateDescriptorSets(m_Device->GetVkHandle(), 1, &writeDescriptorSet, 0, nullptr);
 			}
 		}
 
-#if 0
+#if 1
 		// Samplers
 		for (auto& samplerArray : m_Spec.SamplersArray)
 		{
@@ -91,12 +129,9 @@ namespace Quark {
 				writeDescriptorSet.descriptorCount = sp->GetSpecification().SamplerCount;
 				writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 				writeDescriptorSet.pImageInfo = &imageInfo;
-
-				for (uint32_t i = 0; i < VulkanContext::FramesInFlight; i++)
-				{
-					writeDescriptorSet.dstSet = m_DescriptorSets[i];
-					vkUpdateDescriptorSets(m_Device->GetVkHandle(), 1, &writeDescriptorSet, 0, nullptr);
-				}
+				writeDescriptorSet.dstSet = GetDescriptorSet();
+					
+				vkUpdateDescriptorSets(m_Device->GetVkHandle(), 1, &writeDescriptorSet, 0, nullptr);
 			}
 		}
 #endif
@@ -126,34 +161,15 @@ namespace Quark {
 
 		QK_CORE_ASSERT(shaderResources.SamplerArrays.size() == m_Spec.SamplersArray.size(), "Mismatch number of sampler objects!");
 
-		uint32_t samplersIndex = 0;
-		std::vector<AutoRelease<VkSampler>> samplers(shaderResources.SamplerArrays.size());
-
-		for (uint32_t i = 0; i < samplers.size(); i++)
-		{
-			auto& samplerArray = shaderResources.SamplerArrays[i];
-			QK_CORE_ASSERT(samplerArray.SamplerCount == m_Spec.SamplersArray[i].size(),
-				"Sampler array contains {0} samplers, specification requires {1}", m_Spec.SamplersArray[i].size(), samplerArray.SamplerCount);
-
-			samplers[i] = StackAlloc(samplerArray.SamplerCount * sizeof(VkSampler));
-		}
-
 		for (auto& sampler : shaderResources.SamplerArrays)
 		{
-			for (uint32_t i = 0; i < sampler.SamplerCount; i++)
-			{
-				auto& samplerArray = m_Spec.SamplersArray[samplersIndex];
-				samplers[samplersIndex][i] = static_cast<VulkanSampler2D*>(samplerArray[i])->GetVkHandle();
-			}
-
 			*descriptorSetLayoutbindingPtr = {};
 			descriptorSetLayoutbindingPtr->binding = sampler.Decorators.Binding;
 			descriptorSetLayoutbindingPtr->descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 			descriptorSetLayoutbindingPtr->descriptorCount = sampler.SamplerCount;
 			descriptorSetLayoutbindingPtr->stageFlags = Utils::ShaderStageToVulkan(sampler.Stage);
-			descriptorSetLayoutbindingPtr->pImmutableSamplers = samplers[samplersIndex];
+			descriptorSetLayoutbindingPtr->pImmutableSamplers = nullptr;
 			descriptorSetLayoutbindingPtr++;
-			samplersIndex++;
 		}
 
 		VkDescriptorSetLayoutCreateInfo layoutInfo{};
@@ -171,7 +187,6 @@ namespace Quark {
 		// Descriptor pool shared for all frames in flight
 		{
 			uint32_t poolSizeCount = 0;
-
 			uint32_t ubDescriptorCount = (uint32_t)m_Spec.UniformBuffers.size();
 			poolSizeCount += (ubDescriptorCount > 0);
 
@@ -182,7 +197,7 @@ namespace Quark {
 			VkDescriptorPoolSize* poolSizesPtr = poolSizes;
 
 			// Uniform Buffers
-			if (ubDescriptorCount)
+			if (ubDescriptorCount > 0)
 			{
 				poolSizesPtr->type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
 				poolSizesPtr->descriptorCount = ubDescriptorCount * VulkanContext::FramesInFlight;
@@ -190,7 +205,7 @@ namespace Quark {
 			}
 			
 			// Samplers
-			if (samplerDescriptorCount)
+			if (samplerDescriptorCount > 0)
 			{
 				poolSizesPtr->type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 				poolSizesPtr->descriptorCount = samplerDescriptorCount * VulkanContext::FramesInFlight;

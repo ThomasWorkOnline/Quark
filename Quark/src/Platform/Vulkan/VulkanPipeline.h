@@ -30,6 +30,8 @@ namespace Quark {
 		VkDescriptorSet GetDescriptorSet() const;
 
 		void UpdateDescriptorSets();
+
+	private:
 		void CreateDescriptorSetLayout();
 		void CreateDescriptorPoolAndSets();
 		void CreatePipeline();
