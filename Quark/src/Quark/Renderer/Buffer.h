@@ -193,7 +193,7 @@ namespace Quark {
 	public:
 		virtual ~IndexBuffer() = default;
 
-		virtual void SetData(const uint32_t* data, uint32_t count, size_t offset = 0) = 0;
+		virtual void SetData(const uint32_t* data, uint32_t count, uint32_t firstIndex = 0) = 0;
 		virtual uint32_t GetCount() const = 0;
 
 		virtual bool operator==(const IndexBuffer& other) const = 0;

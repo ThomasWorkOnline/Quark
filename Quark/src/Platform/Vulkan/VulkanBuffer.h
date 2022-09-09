@@ -38,7 +38,7 @@ namespace Quark {
 		VulkanIndexBuffer(VulkanDevice* device, const uint32_t* indices, uint32_t count);
 		virtual ~VulkanIndexBuffer() final override;
 
-		virtual void SetData(const uint32_t* data, uint32_t count, size_t offset = 0) final override;
+		virtual void SetData(const uint32_t* data, uint32_t count, uint32_t firstIndex = 0) final override;
 		virtual uint32_t GetCount() const final override { return m_Count; }
 
 		virtual bool operator==(const IndexBuffer& other) const final override;

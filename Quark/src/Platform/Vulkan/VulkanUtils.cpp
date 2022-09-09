@@ -100,7 +100,7 @@ namespace Quark {
 			return image;
 		}
 
-		void CopyBuffer(VulkanDevice* device, VkBuffer dstBuffer, VkBuffer srcBuffer, size_t size)
+		void CopyBuffer(VulkanDevice* device, VkBuffer dstBuffer, VkBuffer srcBuffer, size_t size, size_t srcOffset, size_t dstOffset)
 		{
 			VkCommandBuffer commandBuffer = device->GetCopyCommandBuffer();
 			vkResetCommandBuffer(commandBuffer, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
@@ -110,6 +110,8 @@ namespace Quark {
 			beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
 			VkBufferCopy copyRegion{};
+			copyRegion.srcOffset = srcOffset;
+			copyRegion.dstOffset = dstOffset;
 			copyRegion.size = size;
 
 			vkBeginCommandBuffer(commandBuffer, &beginInfo);

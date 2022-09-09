@@ -38,7 +38,7 @@ namespace Quark {
 			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_BufferMemory);
 
-		Utils::CopyBuffer(m_Device, m_Buffer, stagingBuffer, size);
+		Utils::CopyBuffer(m_Device, m_Buffer, stagingBuffer, size, 0, 0);
 
 		vkDestroyBuffer(m_Device->GetVkHandle(), stagingBuffer, nullptr);
 		vkFreeMemory(m_Device->GetVkHandle(), stagingBufferMemory, nullptr);
@@ -54,8 +54,6 @@ namespace Quark {
 
 	void VulkanVertexBuffer::SetData(const void* data, size_t size, size_t offset)
 	{
-		QK_CORE_ASSERT(offset == 0, "offsets are currently not supported");
-
 		VkDeviceMemory stagingBufferMemory;
 		VkBuffer stagingBuffer = Utils::AllocateBuffer(m_Device, size,
 			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
@@ -65,12 +63,12 @@ namespace Quark {
 
 		{
 			void* mappedMemory;
-			vkMapMemory(m_Device->GetVkHandle(), stagingBufferMemory, 0, size, 0, &mappedMemory);
+			vkMapMemory(m_Device->GetVkHandle(), stagingBufferMemory, offset, size, 0, &mappedMemory);
 			std::memcpy(mappedMemory, data, size);
 			vkUnmapMemory(m_Device->GetVkHandle(), stagingBufferMemory);
 		}
 
-		Utils::CopyBuffer(m_Device, m_Buffer, stagingBuffer, size);
+		Utils::CopyBuffer(m_Device, m_Buffer, stagingBuffer, size, 0, offset);
 
 		vkDestroyBuffer(m_Device->GetVkHandle(), stagingBuffer, nullptr);
 		vkFreeMemory(m_Device->GetVkHandle(), stagingBufferMemory, nullptr);
@@ -119,7 +117,7 @@ namespace Quark {
 			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_BufferMemory);
 
-		Utils::CopyBuffer(m_Device, m_Buffer, stagingBuffer, size);
+		Utils::CopyBuffer(m_Device, m_Buffer, stagingBuffer, size, 0, 0);
 
 		vkDestroyBuffer(m_Device->GetVkHandle(), stagingBuffer, nullptr);
 		vkFreeMemory(m_Device->GetVkHandle(), stagingBufferMemory, nullptr);
@@ -133,11 +131,10 @@ namespace Quark {
 		vkFreeMemory(m_Device->GetVkHandle(), m_BufferMemory, nullptr);
 	}
 
-	void VulkanIndexBuffer::SetData(const uint32_t* data, uint32_t count, size_t offset)
+	void VulkanIndexBuffer::SetData(const uint32_t* data, uint32_t count, uint32_t firstIndex)
 	{
-		QK_CORE_ASSERT(offset == 0, "offsets are currently not supported");
-
 		size_t size = count * sizeof(uint32_t);
+		size_t offset = firstIndex * sizeof(uint32_t);
 		VkDeviceMemory stagingBufferMemory;
 		VkBuffer stagingBuffer = Utils::AllocateBuffer(m_Device, size,
 			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
@@ -147,12 +144,12 @@ namespace Quark {
 
 		{
 			void* mappedMemory;
-			vkMapMemory(m_Device->GetVkHandle(), stagingBufferMemory, 0, size, 0, &mappedMemory);
+			vkMapMemory(m_Device->GetVkHandle(), stagingBufferMemory, offset, size, 0, &mappedMemory);
 			std::memcpy(mappedMemory, data, size);
 			vkUnmapMemory(m_Device->GetVkHandle(), stagingBufferMemory);
 		}
 
-		Utils::CopyBuffer(m_Device, m_Buffer, stagingBuffer, size);
+		Utils::CopyBuffer(m_Device, m_Buffer, stagingBuffer, size, 0, offset);
 
 		vkDestroyBuffer(m_Device->GetVkHandle(), stagingBuffer, nullptr);
 		vkFreeMemory(m_Device->GetVkHandle(), stagingBufferMemory, nullptr);

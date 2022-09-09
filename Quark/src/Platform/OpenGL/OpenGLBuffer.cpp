@@ -85,10 +85,10 @@ namespace Quark {
 		glDeleteBuffers(1, &m_RendererID);
 	}
 
-	void OpenGLIndexBuffer::SetData(const uint32_t* data, uint32_t count, size_t offset)
+	void OpenGLIndexBuffer::SetData(const uint32_t* data, uint32_t count, uint32_t firstIndex)
 	{
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
-		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, offset * sizeof(uint32_t), count * sizeof(uint32_t), data);
+		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, firstIndex * sizeof(uint32_t), count * sizeof(uint32_t), data);
 
 		QK_DEBUG_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 	}
