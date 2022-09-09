@@ -27,6 +27,7 @@ namespace Quark {
 
 	private:
 		GLuint m_RendererID = 0;
+		GLenum m_Target = 0;
 		GLenum m_InternalFormat, m_DataFormat;
 	};
 }

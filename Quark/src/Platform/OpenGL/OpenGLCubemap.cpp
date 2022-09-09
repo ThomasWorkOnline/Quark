@@ -56,6 +56,7 @@ namespace Quark {
 
 		size_t pSize = GetPixelFormatSize(m_Spec.DataFormat);
 		QK_CORE_ASSERT(size == m_Spec.Width * m_Spec.Height * pSize, "Data must be entire texture");
+
 		glBindTexture(GL_TEXTURE_CUBE_MAP, m_RendererID);
 		glPixelStorei(GL_UNPACK_ALIGNMENT, IsPixel4BytesAligned(m_Spec.DataFormat) ? 4 : 1);
 		glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + index, 0, 0, 0, m_Spec.Width, m_Spec.Height,
