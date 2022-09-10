@@ -65,6 +65,7 @@ namespace Quark {
 			ubResource.Stage = stage;
 			ubResource.Decorators.Set = set;
 			ubResource.Decorators.Binding = binding;
+			ubResource.Decorators.Name = compiler.get_name(resource.id);
 
 			m_ShaderResources.UniformBuffers.push_back(ubResource);
 			m_DescriptorCount += 1;
@@ -97,6 +98,7 @@ namespace Quark {
 			sResource.Stage = stage;
 			sResource.Decorators.Set = set;
 			sResource.Decorators.Binding = binding;
+			sResource.Decorators.Name = compiler.get_name(resource.id);
 
 			m_ShaderResources.SamplerArrays.push_back(sResource);
 			m_DescriptorCount += samplerCount;

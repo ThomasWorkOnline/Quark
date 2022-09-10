@@ -6,13 +6,13 @@ typedef unsigned int GLuint;
 
 namespace Quark {
 
-	class OpenGLSampler2D : public Sampler2D
+	class OpenGLSampler : public Sampler
 	{
 	public:
-		OpenGLSampler2D(const Sampler2DSpecification& spec);
-		virtual ~OpenGLSampler2D() final override;
+		OpenGLSampler(const SamplerSpecification& spec);
+		virtual ~OpenGLSampler() final override;
 
-		virtual bool operator==(const Sampler2D& other) const final override;
+		virtual bool operator==(const Sampler& other) const final override;
 
 		GLuint GetRendererID() const { return m_RendererID; }
 

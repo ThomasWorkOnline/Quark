@@ -55,7 +55,7 @@ namespace Quark {
 		virtual Scope<Shader>                CreateShader(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& fragmentSource) = 0;
 		virtual Scope<Shader>                CreateShader(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& geometrySource, const SpirvSource& fragmentSource) = 0;
 									       
-		virtual Scope<Sampler2D>             CreateSampler2D(const Sampler2DSpecification& spec) = 0;
+		virtual Scope<Sampler>               CreateSampler(const SamplerSpecification& spec) = 0;
 
 		virtual Scope<Texture2D>             CreateTexture2D(const Texture2DSpecification& spec) = 0;
 		virtual Scope<Texture2D>             CreateTexture2D(std::string_view filepath, const TextureRenderModes& renderModes = {}) = 0;

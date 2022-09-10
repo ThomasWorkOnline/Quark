@@ -1,12 +1,9 @@
 #include "qkpch.h"
 #include "VulkanPipeline.h"
 
-#include "VulkanCommandBuffer.h"
 #include "VulkanFormats.h"
 #include "VulkanRenderPass.h"
-#include "VulkanSampler.h"
 #include "VulkanShader.h"
-#include "VulkanUniformBuffer.h"
 
 #include <shaderc/shaderc.hpp>
 #include <spirv_cross/spirv_cross.hpp>
@@ -40,18 +37,20 @@ namespace Quark {
 		CreateDescriptorSetLayout();
 		CreateDescriptorPoolAndSets();
 		CreatePipeline();
+		CreatePipelineResources();
 
-		for (auto* uniformBuffer : m_Spec.UniformBuffers)
+		for (uint32_t i = 0; i < m_Spec.UniformBufferCount; i++)
 		{
-			auto* ub = static_cast<VulkanUniformBuffer*>(uniformBuffer);
+			auto* uniformBuffer = static_cast<const VulkanUniformBuffer*>(m_Spec.UniformBuffers[i]);
+
 			VkDescriptorBufferInfo bufferInfo{};
-			bufferInfo.buffer = ub->GetVkHandle();
+			bufferInfo.buffer = uniformBuffer->GetVkHandle();
 			bufferInfo.offset = 0;
-			bufferInfo.range = ub->GetSize();
+			bufferInfo.range = uniformBuffer->GetSize();
 
 			VkWriteDescriptorSet writeDescriptorSet{};
 			writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			writeDescriptorSet.dstBinding = ub->GetBinding(); // TODO: group by binding and call vkUpdateDescriptorSets once per set
+			writeDescriptorSet.dstBinding = uniformBuffer->GetBinding(); // TODO: group by binding and call vkUpdateDescriptorSets once per set
 			writeDescriptorSet.dstArrayElement = 0;
 			writeDescriptorSet.descriptorCount = 1;
 			writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -75,6 +74,60 @@ namespace Quark {
 		vkDestroyDescriptorPool(m_Device->GetVkHandle(), m_DescriptorPool, nullptr);
 	}
 
+	void VulkanPipeline::SetTexture(const Texture* texture, uint32_t textureIndex)
+	{
+		auto* vulkanTexture = dynamic_cast<const VulkanTexture2D*>(texture);
+		m_CombinedSamplers[textureIndex].Texture = vulkanTexture;
+	}
+
+	void VulkanPipeline::PushDescriptorSets()
+	{
+		// Uniform Buffers
+		for (uint32_t i = 0; i < m_Spec.UniformBufferCount; i++)
+		{
+			auto* uniformBuffer = static_cast<const VulkanUniformBuffer*>(m_Spec.UniformBuffers[i]);
+
+			VkDescriptorBufferInfo bufferInfo{};
+			bufferInfo.buffer = uniformBuffer->GetVkHandle();
+			bufferInfo.offset = 0;
+			bufferInfo.range = uniformBuffer->GetSize();
+
+			VkWriteDescriptorSet writeDescriptorSet{};
+			writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			writeDescriptorSet.dstBinding = uniformBuffer->GetBinding(); // TODO: group by binding and call vkUpdateDescriptorSets once per set
+			writeDescriptorSet.dstArrayElement = 0;
+			writeDescriptorSet.descriptorCount = 1;
+			writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			writeDescriptorSet.pBufferInfo = &bufferInfo;
+			writeDescriptorSet.dstSet = GetDescriptorSet();
+
+			vkUpdateDescriptorSets(m_Device->GetVkHandle(), 1, &writeDescriptorSet, 0, nullptr);
+		}
+
+		// Samplers
+		for (auto& combinedSampler : m_CombinedSamplers)
+		{
+			if (!combinedSampler.Texture)
+				break;
+
+			VkDescriptorImageInfo imageInfo{};
+			imageInfo.sampler = combinedSampler.Sampler->GetVkHandle();
+			imageInfo.imageView = combinedSampler.Texture->GetVkHandle();
+			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+			VkWriteDescriptorSet writeDescriptorSet{};
+			writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			writeDescriptorSet.dstBinding = combinedSampler.Sampler->GetBinding();
+			writeDescriptorSet.dstArrayElement = 0;
+			writeDescriptorSet.descriptorCount = 1;
+			writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			writeDescriptorSet.pImageInfo = &imageInfo;
+			writeDescriptorSet.dstSet = GetDescriptorSet();
+
+			vkUpdateDescriptorSets(m_Device->GetVkHandle(), 1, &writeDescriptorSet, 0, nullptr);
+		}
+	}
+
 	bool VulkanPipeline::operator==(const Pipeline& other) const
 	{
 		if (auto* o = dynamic_cast<decltype(this)>(&other))
@@ -88,57 +141,6 @@ namespace Quark {
 		return m_DescriptorSets[VulkanContext::Get()->GetCurrentFrameIndex()];
 	}
 
-	void VulkanPipeline::UpdateDescriptorSets()
-	{
-		// Uniform Buffers
-		for (auto* uniformBuffer : m_Spec.UniformBuffers)
-		{
-			auto* ub = static_cast<VulkanUniformBuffer*>(uniformBuffer);
-			VkDescriptorBufferInfo bufferInfo{};
-			bufferInfo.buffer = ub->GetVkHandle();
-			bufferInfo.offset = 0;
-			bufferInfo.range = ub->GetSize();
-
-			VkWriteDescriptorSet writeDescriptorSet{};
-			writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			writeDescriptorSet.dstBinding = ub->GetBinding(); // TODO: group by binding and call vkUpdateDescriptorSets once per set
-			writeDescriptorSet.dstArrayElement = 0;
-			writeDescriptorSet.descriptorCount = 1;
-			writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			writeDescriptorSet.pBufferInfo = &bufferInfo;
-			writeDescriptorSet.dstSet = GetDescriptorSet();
-				
-			vkUpdateDescriptorSets(m_Device->GetVkHandle(), 1, &writeDescriptorSet, 0, nullptr);
-		}
-
-#if 0
-		// Samplers
-		for (auto& samplerArray : m_Spec.SamplersArray)
-		{
-			for (auto* sampler : samplerArray)
-			{
-				auto* sp = static_cast<VulkanSampler2D*>(sampler);
-
-				VkDescriptorImageInfo imageInfo{};
-				imageInfo.sampler = sp->GetVkHandle();
-				imageInfo.imageView = nullptr;
-				imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-
-				VkWriteDescriptorSet writeDescriptorSet{};
-				writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-				writeDescriptorSet.dstBinding = sp->GetBinding();
-				writeDescriptorSet.dstArrayElement = 0;
-				writeDescriptorSet.descriptorCount = sp->GetSpecification().SamplerCount;
-				writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-				writeDescriptorSet.pImageInfo = &imageInfo;
-				writeDescriptorSet.dstSet = GetDescriptorSet();
-					
-				vkUpdateDescriptorSets(m_Device->GetVkHandle(), 1, &writeDescriptorSet, 0, nullptr);
-			}
-		}
-#endif
-	}
-
 	void VulkanPipeline::CreateDescriptorSetLayout()
 	{
 		QK_PROFILE_FUNCTION();
@@ -148,8 +150,6 @@ namespace Quark {
 		uint32_t bindingCount = m_Spec.Shader->GetBindingCount();
 		AutoRelease<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings = StackAlloc(bindingCount * sizeof(VkDescriptorSetLayoutBinding));
 		VkDescriptorSetLayoutBinding* descriptorSetLayoutbindingPtr = descriptorSetLayoutBindings;
-
-		QK_CORE_ASSERT(shaderResources.UniformBuffers.size() == m_Spec.UniformBuffers.size(), "Mismatch number of uniform buffer objects!");
 
 		for (auto& uniformBuffer : shaderResources.UniformBuffers)
 		{
@@ -161,15 +161,13 @@ namespace Quark {
 			descriptorSetLayoutbindingPtr++;
 		}
 
-		QK_CORE_ASSERT(shaderResources.SamplerArrays.size() == m_Spec.SamplersArray.size(), "Mismatch number of sampler objects!");
-
-		for (auto& sampler : shaderResources.SamplerArrays)
+		for (auto& samplerArray : shaderResources.SamplerArrays)
 		{
 			*descriptorSetLayoutbindingPtr = {};
-			descriptorSetLayoutbindingPtr->binding = sampler.Decorators.Binding;
+			descriptorSetLayoutbindingPtr->binding = samplerArray.Decorators.Binding;
 			descriptorSetLayoutbindingPtr->descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			descriptorSetLayoutbindingPtr->descriptorCount = sampler.SamplerCount;
-			descriptorSetLayoutbindingPtr->stageFlags = Utils::ShaderStageToVulkan(sampler.Stage);
+			descriptorSetLayoutbindingPtr->descriptorCount = samplerArray.SamplerCount;
+			descriptorSetLayoutbindingPtr->stageFlags = Utils::ShaderStageToVulkan(samplerArray.Stage);
 			descriptorSetLayoutbindingPtr->pImmutableSamplers = nullptr;
 			descriptorSetLayoutbindingPtr++;
 		}
@@ -186,13 +184,15 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
+		const auto& shaderResources = m_Spec.Shader->GetShaderResources();
+
 		// Descriptor pool shared for all frames in flight
 		{
 			uint32_t poolSizeCount = 0;
-			uint32_t ubDescriptorCount = (uint32_t)m_Spec.UniformBuffers.size();
+			uint32_t ubDescriptorCount = (uint32_t)shaderResources.UniformBuffers.size();
 			poolSizeCount += (ubDescriptorCount > 0);
 
-			uint32_t samplerDescriptorCount = (uint32_t)m_Spec.SamplersArray.size();
+			uint32_t samplerDescriptorCount = (uint32_t)shaderResources.SamplerArrays.size();
 			poolSizeCount += (samplerDescriptorCount > 0);
 
 			AutoRelease<VkDescriptorPoolSize> poolSizes = StackAlloc(poolSizeCount * sizeof(VkDescriptorPoolSize));
@@ -335,7 +335,7 @@ namespace Quark {
 
 		vkCreatePipelineLayout(m_Device->GetVkHandle(), &pipelineLayoutInfo, nullptr, &m_PipelineLayout);
 
-		auto* vulkanShader = static_cast<VulkanShader*>(m_Spec.Shader);
+		auto* vulkanShader = static_cast<const VulkanShader*>(m_Spec.Shader);
 		auto& shaderStages = vulkanShader->GetShaderStages();
 		size_t stageCount = shaderStages.size();
 
@@ -368,9 +368,34 @@ namespace Quark {
 		pipelineInfo.pDynamicState = &dynamicState;
 
 		pipelineInfo.layout = m_PipelineLayout;
-		pipelineInfo.renderPass = static_cast<VulkanRenderPass*>(m_Spec.RenderPass)->GetVkHandle();
+		pipelineInfo.renderPass = static_cast<const VulkanRenderPass*>(m_Spec.RenderPass)->GetVkHandle();
 		pipelineInfo.subpass = 0;
 
 		vkCreateGraphicsPipelines(m_Device->GetVkHandle(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_Pipeline);
+	}
+
+	void VulkanPipeline::CreatePipelineResources()
+	{
+		const auto& shaderResources = m_Spec.Shader->GetShaderResources();
+
+		uint32_t samplerCount = 0;
+		for (auto& samplerArray : shaderResources.SamplerArrays)
+		{
+			samplerCount += samplerArray.SamplerCount;
+		}
+
+		m_CombinedSamplers.reserve(samplerCount);
+		for (auto& samplerArray : shaderResources.SamplerArrays)
+		{
+			for (uint32_t i = 0; i < samplerArray.SamplerCount; i++)
+			{
+				SamplerSpecification spec;
+				spec.Binding = samplerArray.Decorators.Binding;
+
+				CombinedSampler cSampler;
+				cSampler.Sampler = CreateScope<VulkanSampler>(m_Device, spec);
+				m_CombinedSamplers.emplace_back(std::move(cSampler));
+			}
+		}
 	}
 }

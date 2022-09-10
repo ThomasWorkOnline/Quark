@@ -23,8 +23,9 @@ namespace Quark {
 
 	void VulkanUniformBuffer::SetData(const void* data, size_t size, size_t offset)
 	{
-		QK_CORE_ASSERT(size <= m_Spec.Size, "Size parameter must be less than or equal to the total buffer size");
 		QK_CORE_ASSERT(offset == 0, "offsets are currently not supported");
+		QK_CORE_ASSERT(size <= m_Spec.Size,
+			"Written size is too large: parameter must be less than or equal to the total buffer size: expected {0} bytes but got {1}", m_Spec.Size, size);
 
 		void* mappedMemory;
 		vkMapMemory(m_Device->GetVkHandle(), m_BufferMemory, 0, size, 0, &mappedMemory);

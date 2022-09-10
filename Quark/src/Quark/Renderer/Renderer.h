@@ -27,14 +27,14 @@ namespace Quark {
 
 		static void BindPipeline(Pipeline* pipeline);
 
-		static void BeginRenderPass(RenderPass* renderPass, Framebuffer* framebuffer);
+		static void BeginRenderPass(const RenderPass* renderPass, const Framebuffer* framebuffer);
 		static void BeginGeometryPass();
 		static void BeginPostProcessingPass();
 		static void EndRenderPass();
 
-		static void Submit(VertexBuffer* vertexBuffer, uint32_t vertexCount);
-		static void Submit(VertexBuffer* vertexBuffer, IndexBuffer* indexBuffer);
-		static void Submit(VertexBuffer* vertexBuffer, IndexBuffer* indexBuffer, uint32_t indexCount);
+		static void Submit(const VertexBuffer* vertexBuffer, uint32_t vertexCount);
+		static void Submit(const VertexBuffer* vertexBuffer, const IndexBuffer* indexBuffer);
+		static void Submit(const VertexBuffer* vertexBuffer, const IndexBuffer* indexBuffer, uint32_t indexCount);
 
 		static void SetViewport(uint32_t viewportWidth, uint32_t viewportHeight);
 		static void SetClearColor(const Vec4f& clearColor);

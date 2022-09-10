@@ -44,8 +44,8 @@ namespace Quark {
 		OpenGLFramebuffer(const OpenGLFramebuffer&) = delete;
 		OpenGLFramebuffer& operator=(const OpenGLFramebuffer&) = delete;
 
-		void Bind();
-		void Unbind();
+		void Bind() const;
+		void Unbind() const;
 
 		static void Bind(GLuint rendererID);
 

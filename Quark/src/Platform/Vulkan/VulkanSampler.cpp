@@ -3,8 +3,8 @@
 
 namespace Quark {
 
-	VulkanSampler2D::VulkanSampler2D(VulkanDevice* device, const Sampler2DSpecification& spec)
-		: Sampler2D(spec), m_Device(device)
+	VulkanSampler::VulkanSampler(VulkanDevice* device, const SamplerSpecification& spec)
+		: Sampler(spec), m_Device(device)
 	{
 		VkSamplerCreateInfo samplerInfo{};
 		samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -25,12 +25,12 @@ namespace Quark {
 		vkCreateSampler(m_Device->GetVkHandle(), &samplerInfo, nullptr, &m_Sampler);
 	}
 
-	VulkanSampler2D::~VulkanSampler2D()
+	VulkanSampler::~VulkanSampler()
 	{
 		vkDestroySampler(m_Device->GetVkHandle(), m_Sampler, nullptr);
 	}
 
-	bool VulkanSampler2D::operator==(const Sampler2D& other) const
+	bool VulkanSampler::operator==(const Sampler& other) const
 	{
 		if (auto* o = dynamic_cast<decltype(this)>(&other))
 			return m_Sampler == o->m_Sampler;

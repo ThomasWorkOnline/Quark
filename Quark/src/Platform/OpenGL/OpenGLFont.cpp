@@ -65,6 +65,7 @@ namespace Quark {
 		QK_CORE_ASSERT(m_AtlasWidth <= Renderer::GetCapabilities().TextureCapabilities.MaxPixelSize
 			&& m_AtlasHeight <= Renderer::GetCapabilities().TextureCapabilities.MaxPixelSize, "Font atlas dimensions too large");
 
+		m_Target = GL_TEXTURE_2D;
 		glGenTextures(1, &m_RendererID);
 		glBindTexture(GL_TEXTURE_2D, m_RendererID);
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -101,17 +102,6 @@ namespace Quark {
 		--s_FontCount;
 		if (s_FontCount == 0)
 			Shutdown();
-	}
-
-	void OpenGLFont::Attach(uint32_t textureSlot) const
-	{
-		glActiveTexture(GL_TEXTURE0 + textureSlot);
-		glBindTexture(GL_TEXTURE_2D, m_RendererID);
-	}
-
-	void OpenGLFont::Detach() const
-	{
-		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
 	const Glyph& OpenGLFont::GetGlyph(uint8_t charcode) const

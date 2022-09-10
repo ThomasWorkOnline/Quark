@@ -11,9 +11,7 @@ namespace Quark {
 	{
 	public:
 		virtual ~Texture() = default;
-
-		virtual void Attach(uint32_t textureSlot = 0) const = 0;
-		virtual void Detach() const = 0;
+		virtual const void* GetHandle() const = 0;
 
 		virtual bool operator==(const Texture& other) const = 0;
 	};
@@ -34,6 +32,8 @@ namespace Quark {
 		Texture2D() = default;
 		Texture2D(const Texture2DSpecification& spec)
 			: m_Spec(spec) {}
+
+		virtual ~Texture2D() = default;
 
 		virtual void SetData(const void* data, size_t size) = 0;
 		virtual void GenerateMipmaps() = 0;
@@ -65,6 +65,8 @@ namespace Quark {
 	public:
 		Texture2DArray(const Texture2DArraySpecification& spec)
 			: m_Spec(spec) {}
+
+		virtual ~Texture2DArray() = default;
 
 		virtual void SetData(const void* data, size_t size, uint32_t layer) = 0;
 		virtual void GenerateMipmaps() = 0;

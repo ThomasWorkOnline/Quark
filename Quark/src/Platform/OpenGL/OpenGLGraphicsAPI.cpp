@@ -11,7 +11,6 @@
 #include "OpenGLSampler.h"
 #include "OpenGLShader.h"
 #include "OpenGLTexture.h"
-#include "OpenGLTextureArray.h"
 #include "OpenGLUniformBuffer.h"
 
 #include <glad/glad.h>
@@ -135,9 +134,9 @@ namespace Quark {
 		return CreateScope<OpenGLShader>(name, vertexSource, geometrySource, fragmentSource);
 	}
 
-	Scope<Sampler2D> OpenGLGraphicsAPI::CreateSampler2D(const Sampler2DSpecification& spec)
+	Scope<Sampler> OpenGLGraphicsAPI::CreateSampler(const SamplerSpecification& spec)
 	{
-		return CreateScope<OpenGLSampler2D>(spec);
+		return CreateScope<OpenGLSampler>(spec);
 	}
 
 	Scope<Texture2D> OpenGLGraphicsAPI::CreateTexture2D(const Texture2DSpecification& spec)

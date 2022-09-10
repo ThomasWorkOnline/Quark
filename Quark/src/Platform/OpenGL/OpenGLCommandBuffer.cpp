@@ -60,9 +60,9 @@ namespace Quark {
 		}
 	}
 
-	void OpenGLCommandBuffer::BindPipeline(Pipeline* pipeline)
+	void OpenGLCommandBuffer::BindPipeline(const Pipeline* pipeline)
 	{
-		m_BoundPipeline = static_cast<OpenGLPipeline*>(pipeline);
+		m_BoundPipeline = static_cast<const OpenGLPipeline*>(pipeline);
 		m_BoundPipeline->Bind();
 	}
 
@@ -76,9 +76,9 @@ namespace Quark {
 		glLineWidth(width);
 	}
 
-	void OpenGLCommandBuffer::BeginRenderPass(RenderPass* renderPass, Framebuffer* framebuffer)
+	void OpenGLCommandBuffer::BeginRenderPass(const RenderPass* renderPass, const Framebuffer* framebuffer)
 	{
-		framebuffer ? static_cast<OpenGLFramebuffer*>(framebuffer)->Bind() : OpenGLFramebuffer::Bind(0);
+		framebuffer ? static_cast<const OpenGLFramebuffer*>(framebuffer)->Bind() : OpenGLFramebuffer::Bind(0);
 
 		m_CurrentRenderPass = renderPass;
 		if (m_CurrentRenderPass->GetSpecification().ClearBuffers)
@@ -118,22 +118,24 @@ namespace Quark {
 		glDrawElementsInstanced(m_BoundPipeline->GetPrimitiveTopology(), indexCount, GL_UNSIGNED_INT, nullptr, instanceCount);
 	}
 
-	void OpenGLCommandBuffer::BindVertexBuffer(VertexBuffer* vertexBuffer)
+	void OpenGLCommandBuffer::BindVertexBuffer(const VertexBuffer* vertexBuffer)
 	{
 		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
 		QK_CORE_ASSERT(vertexBuffer->GetLayout() == m_BoundPipeline->GetLayout(), "Buffer layout does not match the currently bound pipeline layout");
 
-		GLuint rendererID = static_cast<OpenGLVertexBuffer*>(vertexBuffer)->GetRendererID();
-		glBindBuffer(GL_ARRAY_BUFFER, rendererID);
+		auto* glVertexBuffer = static_cast<const OpenGLVertexBuffer*>(vertexBuffer);
+
+		glBindBuffer(GL_ARRAY_BUFFER, glVertexBuffer->GetRendererID());
 		m_BoundPipeline->BindVertexAttrib();
 	}
 
-	void OpenGLCommandBuffer::BindIndexBuffer(IndexBuffer* indexBuffer)
+	void OpenGLCommandBuffer::BindIndexBuffer(const IndexBuffer* indexBuffer)
 	{
 		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
 
-		GLuint rendererID = static_cast<OpenGLIndexBuffer*>(indexBuffer)->GetRendererID();
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, rendererID);
+		auto* glIndexBuffer = static_cast<const OpenGLIndexBuffer*>(indexBuffer);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glIndexBuffer->GetRendererID());
 	}
 
 	bool OpenGLCommandBuffer::IsInsideRenderPass() const

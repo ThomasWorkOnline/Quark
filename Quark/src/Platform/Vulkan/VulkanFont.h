@@ -13,9 +13,6 @@ namespace Quark {
 		VulkanFont(VulkanDevice* device, std::string_view filepath, uint32_t fontSize);
 		virtual ~VulkanFont() final override = default;
 
-		virtual void Attach(uint32_t textureSlot = 0) const final override {}
-		virtual void Detach() const final override {}
-
 		virtual const Glyph& GetGlyph(uint8_t charcode) const final override { return m_NullGlyph; }
 		virtual uint32_t GetGlyphCount() const final override { return 0; }
 
@@ -25,6 +22,8 @@ namespace Quark {
 
 		virtual std::string_view GetStyleName() const final override { return std::string_view(); }
 		virtual std::string_view GetFamilyName() const final override { return std::string_view(); }
+
+		virtual const void* GetHandle() const final override { return nullptr; }
 
 		virtual bool operator==(const Texture& other) const final override;
 

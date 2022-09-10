@@ -5,8 +5,8 @@
 
 namespace Quark {
 
-	OpenGLSampler2D::OpenGLSampler2D(const Sampler2DSpecification& spec)
-		: Sampler2D(spec)
+	OpenGLSampler::OpenGLSampler(const SamplerSpecification& spec)
+		: Sampler(spec)
 	{
 		glGenSamplers(1, &m_RendererID);
 
@@ -18,12 +18,12 @@ namespace Quark {
 		QK_CORE_ASSERT(glIsSampler(m_RendererID), "Sampler is incomplete!");
 	}
 
-	OpenGLSampler2D::~OpenGLSampler2D()
+	OpenGLSampler::~OpenGLSampler()
 	{
 		glDeleteSamplers(1, &m_RendererID);
 	}
 
-	bool OpenGLSampler2D::operator==(const Sampler2D& other) const
+	bool OpenGLSampler::operator==(const Sampler& other) const
 	{
 		if (auto* o = dynamic_cast<decltype(this)>(&other))
 			return m_RendererID == o->m_RendererID;

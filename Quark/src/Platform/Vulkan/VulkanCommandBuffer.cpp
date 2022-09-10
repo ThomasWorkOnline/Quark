@@ -46,16 +46,14 @@ namespace Quark {
 		QK_CORE_ASSERT(false, "Not implemented");
 	}
 
-	void VulkanCommandBuffer::BindPipeline(Pipeline* pipeline)
+	void VulkanCommandBuffer::BindPipeline(const Pipeline* pipeline)
 	{
-		auto vulkanPipeline = static_cast<VulkanPipeline*>(pipeline);
+		auto vulkanPipeline = static_cast<const VulkanPipeline*>(pipeline);
 		auto descriptorSet = vulkanPipeline->GetDescriptorSet();
 
 		vkCmdBindPipeline(m_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vulkanPipeline->GetVkHandle());
 		vkCmdBindDescriptorSets(m_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vulkanPipeline->GetPipelineLayout(),
 			0, 1, &descriptorSet, 0, nullptr);
-
-		vulkanPipeline->UpdateDescriptorSets();
 	}
 
 	void VulkanCommandBuffer::SetViewport(uint32_t viewportWidth, uint32_t viewportHeight)
@@ -78,12 +76,12 @@ namespace Quark {
 		vkCmdSetLineWidth(m_CommandBuffer, width);
 	}
 
-	void VulkanCommandBuffer::BeginRenderPass(RenderPass* renderPass, Framebuffer* framebuffer)
+	void VulkanCommandBuffer::BeginRenderPass(const RenderPass* renderPass, const Framebuffer* framebuffer)
 	{
 		m_CurrentRenderPass = renderPass;
 
-		auto vkFramebuffer = static_cast<VulkanFramebuffer*>(framebuffer)->GetVkHandle();
-		auto vkRenderPass = static_cast<VulkanRenderPass*>(renderPass)->GetVkHandle();
+		auto vkFramebuffer = static_cast<const VulkanFramebuffer*>(framebuffer)->GetVkHandle();
+		auto vkRenderPass = static_cast<const VulkanRenderPass*>(renderPass)->GetVkHandle();
 
 		VkRenderPassBeginInfo renderPassInfo{};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -132,16 +130,16 @@ namespace Quark {
 		vkCmdDrawIndexed(m_CommandBuffer, indexCount, instanceCount, 0, 0, 0);
 	}
 
-	void VulkanCommandBuffer::BindVertexBuffer(VertexBuffer* vertexBuffer)
+	void VulkanCommandBuffer::BindVertexBuffer(const VertexBuffer* vertexBuffer)
 	{
 		VkDeviceSize offsets[] = { 0 };
-		VkBuffer buffer = static_cast<VulkanVertexBuffer*>(vertexBuffer)->GetVkHandle();
+		VkBuffer buffer = static_cast<const VulkanVertexBuffer*>(vertexBuffer)->GetVkHandle();
 		vkCmdBindVertexBuffers(m_CommandBuffer, 0, 1, &buffer, offsets);
 	}
 
-	void VulkanCommandBuffer::BindIndexBuffer(IndexBuffer* indexBuffer)
+	void VulkanCommandBuffer::BindIndexBuffer(const IndexBuffer* indexBuffer)
 	{
-		VkBuffer buffer = static_cast<VulkanIndexBuffer*>(indexBuffer)->GetVkHandle();
+		VkBuffer buffer = static_cast<const VulkanIndexBuffer*>(indexBuffer)->GetVkHandle();
 		vkCmdBindIndexBuffer(m_CommandBuffer, buffer, 0, VK_INDEX_TYPE_UINT32);
 	}
 

@@ -53,7 +53,6 @@ PBRRenderingDemo::PBRRenderingDemo(const ApplicationOptions& options)
 		spec.Topology = PrimitiveTopology::TriangleList;
 		spec.Shader = m_PBRShader.get();
 		spec.RenderPass = Renderer::GetGeometryPass();
-		spec.UniformBuffers = { m_CameraUniformBuffer.get() };
 
 		m_Pipeline = Pipeline::Create(spec);
 	}
@@ -108,11 +107,11 @@ void PBRRenderingDemo::OnRender()
 
 	if (m_Body)
 	{
-		if (m_Material.Albedo) m_Material.Albedo->Attach(0);
-		if (m_Material.Normal) m_Material.Normal->Attach(1);
-		if (m_Material.Metallic) m_Material.Metallic->Attach(2);
-		if (m_Material.Roughness) m_Material.Roughness->Attach(3);
-		if (m_Material.AO) m_Material.AO->Attach(4);
+		//if (m_Material.Albedo) m_Material.Albedo->Attach(0);
+		//if (m_Material.Normal) m_Material.Normal->Attach(1);
+		//if (m_Material.Metallic) m_Material.Metallic->Attach(2);
+		//if (m_Material.Roughness) m_Material.Roughness->Attach(3);
+		//if (m_Material.AO) m_Material.AO->Attach(4);
 
 		Renderer::BindPipeline(m_Pipeline.get());
 		Renderer::Submit(m_Body.GetVertexBuffer(), m_Body.GetIndexBuffer());

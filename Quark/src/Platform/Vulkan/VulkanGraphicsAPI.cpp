@@ -12,7 +12,6 @@
 #include "VulkanSampler.h"
 #include "VulkanShader.h"
 #include "VulkanTexture.h"
-#include "VulkanTextureArray.h"
 #include "VulkanUniformBuffer.h"
 
 #include <vulkan/vulkan.h>
@@ -96,9 +95,9 @@ namespace Quark {
 		return CreateScope<VulkanShader>(VulkanContext::GetCurrentDevice(), name, vertexSource, geometrySource, fragmentSource);
 	}
 
-	Scope<Sampler2D> VulkanGraphicsAPI::CreateSampler2D(const Sampler2DSpecification& spec)
+	Scope<Sampler> VulkanGraphicsAPI::CreateSampler(const SamplerSpecification& spec)
 	{
-		return CreateScope<VulkanSampler2D>(VulkanContext::GetCurrentDevice(), spec);
+		return CreateScope<VulkanSampler>(VulkanContext::GetCurrentDevice(), spec);
 	}
 
 	Scope<Texture2D> VulkanGraphicsAPI::CreateTexture2D(const Texture2DSpecification& spec)

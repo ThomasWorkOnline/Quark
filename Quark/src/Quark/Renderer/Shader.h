@@ -21,6 +21,7 @@ namespace Quark {
 	{
 		uint32_t Set;
 		uint32_t Binding;
+		std::string Name;
 	};
 
 	struct UniformBufferResource

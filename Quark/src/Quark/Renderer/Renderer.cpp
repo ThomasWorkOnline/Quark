@@ -28,7 +28,7 @@ namespace Quark {
 		s_Data->ActiveCommandBuffer->BindPipeline(pipeline);
 	}
 
-	void Renderer::BeginRenderPass(RenderPass* renderPass, Framebuffer* framebuffer)
+	void Renderer::BeginRenderPass(const RenderPass* renderPass, const Framebuffer* framebuffer)
 	{
 		QK_ASSERT_RENDER_THREAD();
 		QK_CORE_ASSERT(!s_Data->ActiveCommandBuffer->IsInsideRenderPass(), "Active command buffer is already inside a render pass!");
@@ -53,7 +53,7 @@ namespace Quark {
 		s_Data->ActiveCommandBuffer->EndRenderPass();
 	}
 
-	void Renderer::Submit(VertexBuffer* vertexBuffer, uint32_t vertexCount)
+	void Renderer::Submit(const VertexBuffer* vertexBuffer, uint32_t vertexCount)
 	{
 		QK_ASSERT_RENDER_THREAD();
 
@@ -61,7 +61,7 @@ namespace Quark {
 		s_Data->ActiveCommandBuffer->Draw(vertexCount, 0);
 	}
 
-	void Renderer::Submit(VertexBuffer* vertexBuffer, IndexBuffer* indexBuffer)
+	void Renderer::Submit(const VertexBuffer* vertexBuffer, const IndexBuffer* indexBuffer)
 	{
 		QK_ASSERT_RENDER_THREAD();
 
@@ -70,7 +70,7 @@ namespace Quark {
 		s_Data->ActiveCommandBuffer->DrawIndexed(indexBuffer->GetCount());
 	}
 
-	void Renderer::Submit(VertexBuffer* vertexBuffer, IndexBuffer* indexBuffer, uint32_t indexCount)
+	void Renderer::Submit(const VertexBuffer* vertexBuffer, const IndexBuffer* indexBuffer, uint32_t indexCount)
 	{
 		QK_ASSERT_RENDER_THREAD();
 

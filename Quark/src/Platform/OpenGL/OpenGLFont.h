@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Quark/Renderer/Font.h"
+#include "OpenGLTexture.h"
+
 #include <vector>
 
 struct FT_FaceRec_;
@@ -14,14 +16,11 @@ static constexpr uint8_t s_GlyphCount  = s_ASCII_End - s_ASCII_Start;
 
 namespace Quark {
 
-	class OpenGLFont : public Font
+	class OpenGLFont : public Font, public OpenGLTexture
 	{
 	public:
 		OpenGLFont(std::string_view filepath, uint32_t fontSize);
 		virtual ~OpenGLFont() final override;
-
-		virtual void Attach(uint32_t textureSlot = 0) const final override;
-		virtual void Detach() const final override;
 
 		virtual const Glyph& GetGlyph(uint8_t charcode) const final override;
 		virtual uint32_t GetGlyphCount() const final override;
@@ -33,18 +32,15 @@ namespace Quark {
 		virtual std::string_view GetStyleName() const final override;
 		virtual std::string_view GetFamilyName() const final override;
 
-		virtual bool operator==(const Texture& other) const final override;
+		virtual const void* GetHandle() const final override { return static_cast<const OpenGLTexture*>(this); }
 
-		// Non-Copyable
-		OpenGLFont(const OpenGLFont&) = delete;
-		OpenGLFont& operator=(const OpenGLFont&) = delete;
+		virtual bool operator==(const Texture& other) const final override;
 
 	private:
 		void Init();
 		void Shutdown();
 
 	private:
-		GLuint m_RendererID = 0;
 		uint32_t m_AtlasWidth = 0, m_AtlasHeight = 0;
 
 		Face m_Face;

@@ -1,10 +1,12 @@
 #pragma once
 
-#include "Quark/Core/Core.h"
 #include "Quark/Renderer/Pipeline.h"
 
 #include "VulkanContext.h"
 #include "VulkanDevice.h"
+#include "VulkanSampler.h"
+#include "VulkanTexture.h"
+#include "VulkanUniformBuffer.h"
 
 #include <vulkan/vulkan.h>
 
@@ -14,7 +16,10 @@ namespace Quark {
 	{
 	public:
 		VulkanPipeline(VulkanDevice* device, const PipelineSpecification& spec);
-		virtual ~VulkanPipeline() override;
+		virtual ~VulkanPipeline() final override;
+
+		virtual void SetTexture(const Texture* texture, uint32_t textureIndex) final override;
+		virtual void PushDescriptorSets() final override;
 
 		virtual bool operator==(const Pipeline& other) const final override;
 
@@ -26,14 +31,19 @@ namespace Quark {
 		VkPipelineLayout GetPipelineLayout() const { return m_PipelineLayout; }
 		VkDescriptorSet GetDescriptorSet() const;
 
-		void UpdateDescriptorSets();
-
 	private:
 		void CreateDescriptorSetLayout();
 		void CreateDescriptorPoolAndSets();
 		void CreatePipeline();
+		void CreatePipelineResources();
 
 	private:
+		struct CombinedSampler
+		{
+			const VulkanTexture2D* Texture = nullptr;
+			Scope<VulkanSampler> Sampler;
+		};
+
 		VulkanDevice* m_Device = nullptr;
 
 		VkDescriptorPool m_DescriptorPool = VK_NULL_HANDLE;
@@ -42,5 +52,7 @@ namespace Quark {
 
 		VkPipelineLayout m_PipelineLayout = VK_NULL_HANDLE;
 		VkPipeline m_Pipeline = VK_NULL_HANDLE;
+
+		std::vector<CombinedSampler> m_CombinedSamplers;
 	};
 }

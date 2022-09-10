@@ -7,6 +7,7 @@
 #include "RenderPass.h"
 #include "Sampler.h"
 #include "Shader.h"
+#include "Texture.h"
 #include "UniformBuffer.h"
 
 namespace Quark {
@@ -23,13 +24,14 @@ namespace Quark {
 
 	struct PipelineSpecification
 	{
-		BufferLayout        Layout;
-		PrimitiveTopology   Topology{};
-		Shader*             Shader = nullptr;
-		RenderPass*         RenderPass = nullptr;
+		BufferLayout          Layout;
+		PrimitiveTopology     Topology{};
 
-		std::vector<UniformBuffer*> UniformBuffers;
-		std::vector<std::vector<Sampler2D*>> SamplersArray;
+		const Shader*         Shader = nullptr;
+		const RenderPass*     RenderPass = nullptr;
+
+		uint32_t              UniformBufferCount = 0;
+		const UniformBuffer** UniformBuffers = nullptr;
 	};
 
 	class Pipeline
@@ -39,6 +41,9 @@ namespace Quark {
 			: m_Spec(spec) {}
 
 		virtual ~Pipeline() = default;
+
+		virtual void SetTexture(const Texture* texture, uint32_t textureIndex) = 0;
+		virtual void PushDescriptorSets() = 0;
 
 		virtual bool operator==(const Pipeline& other) const = 0;
 		

@@ -99,10 +99,9 @@ namespace Quark {
 
 		uint32_t MaxSamplerDestinations = 0;
 		uint32_t TextureSamplerIndex = 1; // Next texture slot to be attached, 0 is reserved for default texture
-		std::vector<Scope<Sampler2D>> Samplers;
 
 		Scope<Texture2D> DefaultTexture;
-		Texture** Textures = nullptr;
+		const Texture** Textures = nullptr;
 
 		// Ensure std140 layout
 		struct CameraData
@@ -112,6 +111,7 @@ namespace Quark {
 
 		CameraData CameraBufferData{};
 		Scope<UniformBuffer> CameraUniformBuffer;
+		const UniformBuffer* UniformBuffers = nullptr;
 	};
 
 	Renderer2DStats Renderer2D::s_Stats;
@@ -133,7 +133,7 @@ namespace Quark {
 		QK_ASSERT_RENDER_THREAD();
 
 		s_Data->CameraBufferData.ViewProjection = cameraProjection * cameraView;
-		s_Data->CameraUniformBuffer->SetData(&s_Data->CameraBufferData, sizeof(Renderer2DData::CameraBufferData));
+		s_Data->CameraUniformBuffer->SetData(&s_Data->CameraBufferData, sizeof(s_Data->CameraBufferData));
 
 		ResetStats();
 		StartBatch();
@@ -144,18 +144,18 @@ namespace Quark {
 		PushBatch();
 	}
 	
-	void Renderer2D::DrawSprite(Texture* texture, const Vec4f& tint, const Mat4f& transform)
+	void Renderer2D::DrawSprite(const Texture* texture, const Vec4f& tint, const Mat4f& transform)
 	{
 		DrawSprite(texture, s_TextureCoords, tint, transform);
 	}
 
-	void Renderer2D::DrawSprite(Texture* texture, float aspectRatio, const Vec4f& tint)
+	void Renderer2D::DrawSprite(const Texture* texture, float aspectRatio, const Vec4f& tint)
 	{
 		Mat4f transform = glm::scale(Mat4f(1.0f), Vec3f(aspectRatio, 1.0f, 1.0f));
 		DrawSprite(texture, tint, transform);
 	}
 
-	void Renderer2D::DrawSprite(Texture* texture, const Vec2f* texCoords, const Vec4f& tint, const Mat4f& transform)
+	void Renderer2D::DrawSprite(const Texture* texture, const Vec2f* texCoords, const Vec4f& tint, const Mat4f& transform)
 	{
 		QK_ASSERT_RENDER_THREAD();
 
@@ -263,6 +263,8 @@ namespace Quark {
 	{
 		QK_ASSERT_RENDER_THREAD();
 
+		if (text.empty()) return;
+
 		// Check if buffer is full
 		if (s_Data->QuadIndexCount >= Renderer2DData::MaxIndices)
 		{
@@ -369,37 +371,37 @@ namespace Quark {
 
 	void Renderer2D::StartBatch()
 	{
-		s_Data->QuadVertexPtr    = s_Data->QuadVertices;
-		s_Data->QuadIndexCount   = 0;
+		s_Data->QuadVertexPtr       = s_Data->QuadVertices;
+		s_Data->QuadIndexCount      = 0;
 		s_Data->TextureSamplerIndex = 1; // 0 is reserved for default texture
 		
-		s_Data->LineVertexPtr    = s_Data->LineVertices;
+		s_Data->LineVertexPtr       = s_Data->LineVertices;
 	}
 
 	void Renderer2D::PushBatch()
 	{
 		if (s_Data->QuadIndexCount > 0)
 		{
-			Renderer::BindPipeline(s_Data->QuadRendererPipeline.get());
-
 			size_t size = ((uint8_t*)s_Data->QuadVertexPtr - (uint8_t*)s_Data->QuadVertices);
 			s_Data->QuadVertexBuffer->SetData(s_Data->QuadVertices, size);
 
 			for (uint32_t i = 0; i < s_Data->TextureSamplerIndex; i++)
-				s_Data->Textures[i]->Attach(i);
+				s_Data->QuadRendererPipeline->SetTexture(s_Data->Textures[i], i);
 
+			s_Data->QuadRendererPipeline->PushDescriptorSets();
+
+			Renderer::BindPipeline(s_Data->QuadRendererPipeline.get());
 			Renderer::Submit(s_Data->QuadVertexBuffer.get(), s_Data->QuadIndexBuffer.get(), s_Data->QuadIndexCount);
 			s_Stats.DrawCalls++;
 		}
 
 		if (uint32_t vertexCount = (uint32_t)(s_Data->LineVertexPtr - s_Data->LineVertices))
 		{
-			Renderer::BindPipeline(s_Data->LineRendererPipeline.get());
-			Renderer::GetCommandBuffer()->SetLineWidth(1.0f);
-
 			size_t size = ((uint8_t*)s_Data->LineVertexPtr - (uint8_t*)s_Data->LineVertices);
 			s_Data->LineVertexBuffer->SetData(s_Data->LineVertices, size);
 
+			Renderer::BindPipeline(s_Data->LineRendererPipeline.get());
+			Renderer::GetCommandBuffer()->SetLineWidth(1.0f);
 			Renderer::Submit(s_Data->LineVertexBuffer.get(), vertexCount);
 			s_Stats.DrawCalls++;
 		}
@@ -422,14 +424,14 @@ namespace Quark {
 
 		// Samplers
 		s_Data->MaxSamplerDestinations = Renderer::GetCapabilities().TextureCapabilities.MaxTextureSlots;
-		QK_CORE_ASSERT(s_Data->MaxSamplerDestinations > 0, "Platform does not support texture samplers");
 
 		// Camera buffer
 		{
 			UniformBufferSpecification spec;
-			spec.Size = sizeof(Renderer2DData::CameraData);
+			spec.Size = sizeof(s_Data->CameraBufferData);
 			spec.Binding = 0;
 			s_Data->CameraUniformBuffer = UniformBuffer::Create(spec);
+			s_Data->UniformBuffers = s_Data->CameraUniformBuffer.get();
 		}
 
 		SetupQuadRenderer();
@@ -478,15 +480,14 @@ namespace Quark {
 		s_Data->QuadVertices = new QuadVertex[Renderer2DData::MaxVertices];
 
 		uint32_t textureColor = 0xffffffff;
-		Texture2DSpecification spec = { 1, 1, 1, 0,
+		Texture2DSpecification spec = { 1, 1, 1, 1,
 			ColorDataFormat::RGBA8,
 			TextureFilteringMode::Nearest, TextureFilteringMode::Nearest, TextureTilingMode::Repeat
 		};
 
 		s_Data->DefaultTexture = Texture2D::Create(spec);
 		s_Data->DefaultTexture->SetData(&textureColor, sizeof(textureColor));
-		s_Data->Textures = new Texture*[s_Data->MaxSamplerDestinations];
-		s_Data->Samplers.resize(s_Data->MaxSamplerDestinations);
+		s_Data->Textures = new const Texture*[s_Data->MaxSamplerDestinations];
 
 		std::memset(s_Data->Textures, 0, s_Data->MaxSamplerDestinations * sizeof(Texture*));
 		s_Data->Textures[0] = s_Data->DefaultTexture.get();
@@ -494,14 +495,6 @@ namespace Quark {
 		auto& coreDirectory = Application::Get()->GetOptions().CoreDir;
 		auto spriteVertexSource = ReadSpirvFile((coreDirectory / "bin-spirv/Sprite.vert.spv").string());
 		auto spriteFragmentSource = ReadSpirvFile((coreDirectory / "bin-spirv/Sprite.frag.spv").string());
-
-		Sampler2DSpecification samplerSpec;
-		samplerSpec.Binding = 1;
-		samplerSpec.SamplerCount = s_Data->MaxSamplerDestinations;
-		for (size_t i = 0; i < s_Data->MaxSamplerDestinations; i++)
-		{
-			s_Data->Samplers[i] = Sampler2D::Create(samplerSpec);
-		}
 
 		AutoRelease<int32_t> samplersDests = StackAlloc(s_Data->MaxSamplerDestinations * sizeof(int32_t));
 		for (uint32_t i = 0; i < s_Data->MaxSamplerDestinations; i++)
@@ -511,19 +504,13 @@ namespace Quark {
 		s_Data->QuadShader->SetIntArray("u_Samplers", samplersDests, s_Data->MaxSamplerDestinations);
 
 		{
-			std::vector<Sampler2D*> samplerArray(s_Data->MaxSamplerDestinations);
-			for (size_t i = 0; i < samplerArray.size(); i++)
-			{
-				samplerArray[i] = s_Data->Samplers[i].get();
-			}
-
 			PipelineSpecification spec;
 			spec.Layout = s_QuadVertexLayout;
 			spec.Topology = PrimitiveTopology::TriangleList;
 			spec.RenderPass = Renderer::GetGeometryPass();
 			spec.Shader = s_Data->QuadShader.get();
-			spec.UniformBuffers = { s_Data->CameraUniformBuffer.get() };
-			spec.SamplersArray = { std::move(samplerArray) };
+			spec.UniformBufferCount = 1;
+			spec.UniformBuffers = &s_Data->UniformBuffers;
 
 			s_Data->QuadRendererPipeline = Pipeline::Create(spec);
 		}
@@ -550,7 +537,8 @@ namespace Quark {
 			spec.Topology = PrimitiveTopology::LineList;
 			spec.RenderPass = Renderer::GetGeometryPass();
 			spec.Shader = s_Data->LineShader.get();
-			spec.UniformBuffers = { s_Data->CameraUniformBuffer.get() };
+			spec.UniformBufferCount = 1;
+			spec.UniformBuffers = &s_Data->UniformBuffers;
 
 			s_Data->LineRendererPipeline = Pipeline::Create(spec);
 		}

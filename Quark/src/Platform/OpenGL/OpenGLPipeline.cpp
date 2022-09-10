@@ -1,9 +1,9 @@
 #include "qkpch.h"
 #include "OpenGLPipeline.h"
 
-#include "OpenGLSampler.h"
+#include "OpenGLFont.h"
 #include "OpenGLShader.h"
-#include "OpenGLUniformBuffer.h"
+#include "OpenGLTexture.h"
 
 #include <glad/glad.h>
 
@@ -61,11 +61,21 @@ namespace Quark {
 		: Pipeline(spec)
 		, m_PrimitiveTopology(Utils::PrimitiveTopologyToOpenGL(spec.Topology))
 	{
+		glGenVertexArrays(1, &m_RendererID);
+		glBindVertexArray(m_RendererID);
 	}
 
 	OpenGLPipeline::~OpenGLPipeline()
 	{
 		glDeleteVertexArrays(1, &m_RendererID);
+	}
+
+	void OpenGLPipeline::SetTexture(const Texture* texture, uint32_t textureIndex)
+	{
+		auto glTexture = static_cast<const OpenGLTexture*>(texture->GetHandle());
+
+		glActiveTexture(GL_TEXTURE0 + textureIndex);
+		glBindTexture(glTexture->GetTarget(), glTexture->GetRendererID());
 	}
 
 	bool OpenGLPipeline::operator==(const Pipeline& other) const
@@ -76,33 +86,24 @@ namespace Quark {
 		return false;
 	}
 
-	void OpenGLPipeline::Bind()
+	void OpenGLPipeline::Bind() const
 	{
 		// Shader
 		{
-			GLuint rendererID = static_cast<OpenGLShader*>(m_Spec.Shader)->GetRendererID();
-			glUseProgram(rendererID);
+			auto* glShader = static_cast<const OpenGLShader*>(m_Spec.Shader);
+			glUseProgram(glShader->GetRendererID());
 		}
 
 		// Uniform buffers
-		for (auto* uniformBuffer : m_Spec.UniformBuffers)
+		for (uint32_t i = 0; i < m_Spec.UniformBufferCount; i++)
 		{
-			auto* ub = static_cast<OpenGLUniformBuffer*>(uniformBuffer);
-			glBindBufferBase(GL_UNIFORM_BUFFER, ub->GetBinding(), ub->GetRendererID());
+			auto* uniformBuffer = static_cast<const OpenGLUniformBuffer*>(m_Spec.UniformBuffers[i]);
+			glBindBufferBase(GL_UNIFORM_BUFFER, uniformBuffer->GetBinding(), uniformBuffer->GetRendererID());
 		}
 	}
 
-	void OpenGLPipeline::BindVertexAttrib()
+	void OpenGLPipeline::BindVertexAttrib() const
 	{
-		if (m_RendererID)
-		{
-			glBindVertexArray(m_RendererID);
-			return;
-		}
-
-		glGenVertexArrays(1, &m_RendererID);
-		glBindVertexArray(m_RendererID);
-
 		GLuint vertexBufferIndex = 0;
 		for (const auto& element : m_Spec.Layout)
 		{
