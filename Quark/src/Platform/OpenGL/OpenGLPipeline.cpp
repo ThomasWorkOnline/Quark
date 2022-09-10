@@ -11,6 +11,13 @@ namespace Quark {
 
 	namespace Utils {
 
+		static bool AssureOpenGLTexture(const Texture* texture)
+		{
+			return dynamic_cast<const OpenGLFont*>(texture)
+				|| dynamic_cast<const OpenGLTexture2D*>(texture)
+				|| dynamic_cast<const OpenGLTexture2DArray*>(texture);
+		}
+
 		static constexpr GLenum ShaderDataTypeToOpenGLBaseType(ShaderDataType type)
 		{
 			switch (type)
@@ -72,6 +79,8 @@ namespace Quark {
 
 	void OpenGLPipeline::SetTexture(const Texture* texture, uint32_t textureIndex)
 	{
+		QK_CORE_ASSERT(Utils::AssureOpenGLTexture(texture), "OpenGLPipeline tried to bind a texture that wasn't created using OpenGL");
+
 		auto glTexture = static_cast<const OpenGLTexture*>(texture->GetHandle());
 
 		glActiveTexture(GL_TEXTURE0 + textureIndex);
