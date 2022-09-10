@@ -53,6 +53,10 @@ namespace Quark {
 
 		virtual bool operator==(const Texture& other) const final override;
 
+		// Non-Copyable
+		OpenGLTexture2DArray(const OpenGLTexture2DArray&) = delete;
+		OpenGLTexture2DArray& operator=(const OpenGLTexture2DArray&) = delete;
+
 	private:
 		GLenum m_InternalFormat = 0, m_DataFormat = 0;
 	};

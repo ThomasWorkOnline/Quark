@@ -36,6 +36,10 @@ namespace Quark {
 
 		virtual bool operator==(const Texture& other) const final override;
 
+		// Non-Copyable
+		OpenGLFont(const OpenGLFont&) = delete;
+		OpenGLFont& operator=(const OpenGLFont&) = delete;
+
 	private:
 		void Init();
 		void Shutdown();
