@@ -22,7 +22,43 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		m_Capabilities.TextureCapabilities.MaxTextureSlots = 32; // TODO: implement caps
+		auto& props = VulkanContext::GetCurrentDevice()->GetPhysicalDeviceProperties();
+
+		// Framebuffer capabilities
+		{
+			m_Capabilities.FramebufferCapabilities.MaxWidth = props.limits.maxFramebufferWidth;
+			m_Capabilities.FramebufferCapabilities.MaxHeight = props.limits.maxFramebufferHeight;
+			m_Capabilities.FramebufferCapabilities.MaxAttachments = props.limits.maxColorAttachments;
+		}
+
+		// Sampler capabilities
+		{
+			m_Capabilities.SamplerCapabilities.MaxPerStageSamplers = props.limits.maxPerStageDescriptorSamplers;
+		}
+
+		// Uniform buffer capabilities
+		{
+			m_Capabilities.UniformBufferCapabilities.MaxBufferSize = props.limits.maxUniformBufferRange;
+			m_Capabilities.UniformBufferCapabilities.MaxPerStageBuffers = props.limits.maxPerStageDescriptorUniformBuffers;
+		}
+
+		// Texture capabilities
+		{
+			m_Capabilities.TextureCapabilities.MaxWidth = props.limits.maxImageDimension1D;
+			m_Capabilities.TextureCapabilities.MaxHeight = props.limits.maxImageDimension2D;
+			m_Capabilities.TextureCapabilities.MaxDepth = props.limits.maxImageDimension3D;
+			m_Capabilities.TextureCapabilities.MaxArrayLayers = props.limits.maxImageArrayLayers;
+		}
+	}
+
+	VulkanGraphicsAPI::Version VulkanGraphicsAPI::GetDriverVersion() const
+	{
+		auto& props = VulkanContext::GetCurrentDevice()->GetPhysicalDeviceProperties();
+
+		Version ver{};
+		ver.Major = VK_API_VERSION_MAJOR(props.apiVersion);
+		ver.Minor = VK_API_VERSION_MINOR(props.apiVersion);
+		return ver;
 	}
 
 	Scope<CommandBuffer> VulkanGraphicsAPI::CreateCommandBuffer()
@@ -118,5 +154,21 @@ namespace Quark {
 	Scope<UniformBuffer> VulkanGraphicsAPI::CreateUniformBuffer(const UniformBufferSpecification& spec)
 	{
 		return CreateScope<VulkanUniformBuffer>(VulkanContext::GetCurrentDevice(), spec);
+	}
+
+	std::string VulkanGraphicsAPI::GetSpecification() const
+	{
+		auto ver = GetDriverVersion();
+		auto& props = VulkanContext::GetCurrentDevice()->GetPhysicalDeviceProperties();
+
+		std::stringstream ss;
+		ss << "OpenGL Info:\n";
+		ss << "|  " << "Vendor ID: " << props.vendorID << '\n';
+		ss << "|  " << VulkanContext::GetCurrentDevice()->GetName() << '\n';
+		ss << "|  " << ver.Major << '.' << ver.Minor << '\n';
+		ss << "|  Per-stage Capabilities:\n";
+		ss << "|    Max uniform buffers = " << m_Capabilities.UniformBufferCapabilities.MaxPerStageBuffers << '\n';
+		ss << "|    Max samplers        = " << m_Capabilities.SamplerCapabilities.MaxPerStageSamplers;
+		return ss.str();
 	}
 }

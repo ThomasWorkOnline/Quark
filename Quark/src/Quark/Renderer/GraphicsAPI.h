@@ -24,14 +24,14 @@ namespace Quark {
 	public:
 		struct Version
 		{
-			int Major;
-			int Minor;
+			uint32_t Major;
+			uint32_t Minor;
 		};
 
 		virtual                             ~GraphicsAPI() = default;
 		virtual void                         Init() = 0;
 										     
-		virtual                              Version GetVersion() const = 0;
+		virtual                              Version GetDriverVersion() const = 0;
 									         
 		virtual Scope<CommandBuffer>         CreateCommandBuffer() = 0;
 									           

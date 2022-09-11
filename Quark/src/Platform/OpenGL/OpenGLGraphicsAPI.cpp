@@ -22,6 +22,7 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
+		// Framebuffer capabilities
 		{
 			GLint maxWidth, maxHeight;
 			glGetIntegerv(GL_MAX_FRAMEBUFFER_WIDTH, &maxWidth);
@@ -34,6 +35,14 @@ namespace Quark {
 			m_Capabilities.FramebufferCapabilities.MaxAttachments = maxAttachments;
 		}
 
+		// Sampler capabilities
+		{
+			GLint maxSamplers;
+			glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxSamplers);
+			m_Capabilities.SamplerCapabilities.MaxPerStageSamplers = maxSamplers;
+		}
+
+		// Uniform buffer capabilities
 		{
 			GLint maxBlockSize;
 			glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &maxBlockSize);
@@ -41,27 +50,29 @@ namespace Quark {
 
 			GLint maxBindings;
 			glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, &maxBindings);
-			m_Capabilities.UniformBufferCapabilities.MaxBindings = maxBindings;
+			m_Capabilities.UniformBufferCapabilities.MaxPerStageBuffers = maxBindings;
 		}
 
+		// Texture capabilities
 		{
-			GLint maxTextureSlots;
-			glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureSlots);
-			m_Capabilities.TextureCapabilities.MaxTextureSlots = maxTextureSlots;
+			GLint maxTexture2dSize;
+			glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTexture2dSize);
+			m_Capabilities.TextureCapabilities.MaxWidth = maxTexture2dSize;
+			m_Capabilities.TextureCapabilities.MaxHeight = maxTexture2dSize;
 
-			GLint maxTextureSize;
-			glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTextureSize);
-			m_Capabilities.TextureCapabilities.MaxPixelSize = maxTextureSize;
+			GLint maxTexture3dSize;
+			glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &maxTexture3dSize);
+			m_Capabilities.TextureCapabilities.MaxDepth = maxTexture3dSize;
 
-			GLint maxArrayTextureLayers;
-			glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &maxArrayTextureLayers);
-			m_Capabilities.TextureCapabilities.MaxTextureArrayLayers = maxArrayTextureLayers;
+			GLint maxTextureArrayLayers;
+			glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &maxTextureArrayLayers);
+			m_Capabilities.TextureCapabilities.MaxArrayLayers = maxTextureArrayLayers;
 		}
 	}
 
-	GraphicsAPI::Version OpenGLGraphicsAPI::GetVersion() const
+	GraphicsAPI::Version OpenGLGraphicsAPI::GetDriverVersion() const
 	{
-		return { GLVersion.major, GLVersion.minor };
+		return { (uint32_t)GLVersion.major, (uint32_t)GLVersion.minor };
 	}
 
 	Scope<CommandBuffer> OpenGLGraphicsAPI::CreateCommandBuffer()
@@ -163,11 +174,12 @@ namespace Quark {
 	{
 		std::stringstream ss;
 		ss << "OpenGL Info:\n";
-		ss << "|\t" << glGetString(GL_VENDOR) << '\n';
-		ss << "|\t" << glGetString(GL_RENDERER) << '\n';
-		ss << "|\t" << glGetString(GL_VERSION) << '\n';
-		ss << "|\tUniform buffer bindings: " << m_Capabilities.UniformBufferCapabilities.MaxBindings << '\n';
-		ss << "|\tHardware texture slots available: " << m_Capabilities.TextureCapabilities.MaxTextureSlots;
+		ss << "|  " << glGetString(GL_VENDOR) << '\n';
+		ss << "|  " << glGetString(GL_RENDERER) << '\n';
+		ss << "|  " << glGetString(GL_VERSION) << '\n';
+		ss << "|  Per-stage Capabilities:\n";
+		ss << "|    Max uniform buffers = " << m_Capabilities.UniformBufferCapabilities.MaxPerStageBuffers << '\n';
+		ss << "|    Max samplers        = " << m_Capabilities.SamplerCapabilities.MaxPerStageSamplers;
 		return ss.str();
 	}
 }

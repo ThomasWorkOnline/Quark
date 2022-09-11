@@ -14,8 +14,9 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		QK_CORE_ASSERT(m_Spec.Width <= Renderer::GetCapabilities().TextureCapabilities.MaxPixelSize
-			&& m_Spec.Height <= Renderer::GetCapabilities().TextureCapabilities.MaxPixelSize, "Texture dimension too large");
+		QK_CORE_ASSERT(m_Spec.Width <= Renderer::GetCapabilities().TextureCapabilities.MaxWidth
+			&& m_Spec.Height <= Renderer::GetCapabilities().TextureCapabilities.MaxHeight,
+			"Texture dimensions too large: see Renderer::GetCapabilities() for more info");
 
 		QK_CORE_ASSERT(!IsformatUsingMips(spec.RenderModes.MagFilteringMode),
 			"The magnification mode may not be set to use mipmaps");
@@ -65,8 +66,9 @@ namespace Quark {
 		Image image = filepath;
 		auto& metadata = image.GetMetadata();
 
-		QK_CORE_ASSERT(metadata.Width <= Renderer::GetCapabilities().TextureCapabilities.MaxPixelSize
-			&& metadata.Height <= Renderer::GetCapabilities().TextureCapabilities.MaxPixelSize, "Texture dimension too large");
+		QK_CORE_ASSERT(metadata.Width <= Renderer::GetCapabilities().TextureCapabilities.MaxWidth
+			&& metadata.Height <= Renderer::GetCapabilities().TextureCapabilities.MaxHeight,
+			"Texture dimensions too large: see Renderer::GetCapabilities() for more info");
 
 		m_Spec.Width          = metadata.Width;
 		m_Spec.Height         = metadata.Height;
@@ -154,10 +156,10 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		QK_CORE_ASSERT(m_Spec.Width <= Renderer::GetCapabilities().TextureCapabilities.MaxPixelSize
-			&& m_Spec.Height <= Renderer::GetCapabilities().TextureCapabilities.MaxPixelSize
-			&& m_Spec.Layers <= Renderer::GetCapabilities().TextureCapabilities.MaxPixelSize,
-			"Texture dimension too large");
+		QK_CORE_ASSERT(m_Spec.Width <= Renderer::GetCapabilities().TextureCapabilities.MaxWidth
+			&& m_Spec.Height <= Renderer::GetCapabilities().TextureCapabilities.MaxHeight
+			&& m_Spec.Layers <= Renderer::GetCapabilities().TextureCapabilities.MaxArrayLayers,
+			"Texture dimensions too large: see Renderer::GetCapabilities() for more info");
 
 		QK_CORE_ASSERT(!IsformatUsingMips(spec.RenderModes.MagFilteringMode),
 			"The magnification mode may not be set to use mipmaps");

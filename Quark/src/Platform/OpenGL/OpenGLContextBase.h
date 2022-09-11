@@ -12,7 +12,7 @@ namespace Quark {
 		virtual void WaitUntilDeviceIdle() final override {}
 
 		virtual void BeginFrame() final override {}
-		virtual void EndFrame() final override {}
+		virtual void Flush() final override {}
 
 		virtual void Resize(uint32_t viewportWidth, uint32_t viewportHeight) final override {}
 

@@ -10,7 +10,7 @@ namespace Quark {
 	public:
 		virtual void                         Init() final override;
 									       
-		virtual                              Version GetVersion() const final override { return Version{}; }
+		virtual                              Version GetDriverVersion() const final override;
 									         
 		virtual Scope<CommandBuffer>         CreateCommandBuffer() final override;
 								           
@@ -44,6 +44,6 @@ namespace Quark {
 		virtual Scope<UniformBuffer>         CreateUniformBuffer(const UniformBufferSpecification& spec) final override;
 									       
 		virtual const char*                  GetName() const final override { return "Vulkan"; }
-		virtual std::string                  GetSpecification() const final override { return std::string(); }
+		virtual std::string                  GetSpecification() const final override;
 	};
 }

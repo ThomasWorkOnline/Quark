@@ -28,9 +28,9 @@ namespace Quark {
 		Renderer::Initialize(m_Window->GetWidth(), m_Window->GetHeight());
 		Renderer2D::Initialize();
 
-		m_Window->AppendTitle(fmt::format(" - {0} ({1})", QK_PLATFORM_NAME, Renderer::GetAPIName()));
-
 		QK_CORE_INFO(Renderer::GetSpecification());
+
+		m_Window->AppendTitle(fmt::format(" - {0} ({1})", QK_PLATFORM_NAME, Renderer::GetAPIName()));
 
 		if (m_Options.HasFlag(ApplicationFlagBits::EnableAudioOutputDevice))
 		{

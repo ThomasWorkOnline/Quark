@@ -20,22 +20,29 @@ namespace Quark {
 		uint32_t MaxAttachments;
 	};
 
+	struct SamplerCapabilities
+	{
+		uint32_t MaxPerStageSamplers;
+	};
+
 	struct UniformBufferCapabilities
 	{
-		size_t MaxBufferSize;
-		uint32_t MaxBindings;
+		size_t   MaxBufferSize;
+		uint32_t MaxPerStageBuffers;
 	};
 
 	struct TextureCapabilities
 	{
-		uint32_t MaxTextureSlots;
-		uint32_t MaxPixelSize;
-		uint32_t MaxTextureArrayLayers;
+		uint32_t MaxWidth;
+		uint32_t MaxHeight;
+		uint32_t MaxDepth;
+		uint32_t MaxArrayLayers;
 	};
 
 	struct GraphicsAPICapabilities
 	{
 		FramebufferCapabilities   FramebufferCapabilities;
+		SamplerCapabilities       SamplerCapabilities;
 		TextureCapabilities       TextureCapabilities;
 		UniformBufferCapabilities UniformBufferCapabilities;
 	};

@@ -152,7 +152,7 @@ namespace Quark {
 		m_Device->WaitUntilIdle();
 	}
 
-	void VulkanContextBase::EndFrame()
+	void VulkanContextBase::Flush()
 	{
 		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 		VkSemaphore waitSemaphores = m_Frames[m_CurrentFrameIndex].ImageAvailableSemaphore;

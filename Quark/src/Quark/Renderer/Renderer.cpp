@@ -194,9 +194,9 @@ namespace Quark {
 		QK_ASSERT_RENDER_THREAD();
 
 		EndRenderPass();
-
 		s_Data->ActiveCommandBuffer->End();
-		GraphicsContext::Get()->EndFrame();
+
+		GraphicsContext::Get()->Flush();
 	}
 
 	void Renderer::Configure(RHI api)

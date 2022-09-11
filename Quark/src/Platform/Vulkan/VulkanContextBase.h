@@ -32,7 +32,7 @@ namespace Quark {
 		virtual void WaitUntilDeviceIdle() final override;
 
 		virtual void BeginFrame() final override;
-		virtual void EndFrame() final override;
+		virtual void Flush() final override;
 
 		virtual void SwapBuffers() final override;
 		virtual void SetSwapInterval(int interval) final override;

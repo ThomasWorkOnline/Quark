@@ -18,8 +18,8 @@ namespace Quark {
 			return stbi_is_hdr_from_file(in.GetHandle());
 		}
 
-		//                                           Number of bits per pixel ---v
-		static constexpr ColorDataFormat GetDataFormat(uint8_t channels, uint8_t bpp, bool srgb, bool fp)
+		//                                             Number of bits per pixel ---v
+		static constexpr ColorDataFormat GetDataFormat(uint32_t channels, uint32_t bpp, bool srgb, bool fp)
 		{
 			switch (channels)
 			{
@@ -127,12 +127,12 @@ namespace Quark {
 
 		QK_CORE_RUNTIME_VERIFY(imageData, "Failed to load image data");
 
-		uint8_t bitsPerChannel;
+		uint32_t bitsPerChannel;
 		stbi_is_16_bit_from_file(in.GetHandle())
 			? bitsPerChannel = 16
 			: bitsPerChannel = 32;
 
-		uint8_t bpp = bitsPerChannel * channels;
+		uint32_t bpp = bitsPerChannel * channels;
 
 		m_ImageData = imageData;
 		m_Metadata.Width = width;

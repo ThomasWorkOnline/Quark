@@ -179,6 +179,11 @@ namespace Quark {
 		vkDestroyDevice(m_Device, nullptr);
 	}
 
+	const char* VulkanDevice::GetName() const
+	{
+		return m_Properties.deviceName;
+	}
+
 	void VulkanDevice::WaitUntilIdle() const
 	{
 		vkDeviceWaitIdle(m_Device);

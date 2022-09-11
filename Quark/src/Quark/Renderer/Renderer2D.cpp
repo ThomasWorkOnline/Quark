@@ -423,7 +423,7 @@ namespace Quark {
 		s_Data = new Renderer2DData();
 
 		// Samplers
-		s_Data->MaxSamplerDestinations = Renderer::GetCapabilities().TextureCapabilities.MaxTextureSlots;
+		s_Data->MaxSamplerDestinations = Renderer::GetCapabilities().SamplerCapabilities.MaxPerStageSamplers;
 
 		// Camera buffer
 		{

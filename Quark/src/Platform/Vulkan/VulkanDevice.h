@@ -30,6 +30,7 @@ namespace Quark {
 		VulkanDevice(VkPhysicalDevice vkPhysicalDevice, const std::vector<VkDeviceQueueCreateInfo>& queueCreateInfos, QueueFamilyIndices queueFamilyIndices, SwapChainSupportDetails supportDetails);
 		~VulkanDevice();
 
+		const char* GetName() const;
 		void WaitUntilIdle() const;
 
 		VkDevice GetVkHandle() const { return m_Device; }
