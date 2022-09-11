@@ -9,9 +9,10 @@
 #include <vulkan/vulkan.h>
 
 #if defined(QK_DEBUG)
-#	ifndef QK_ENABLE_VULKAN_VALIDATION_LAYERS
-#		define QK_ENABLE_VULKAN_VALIDATION_LAYERS
+#	ifdef QK_ENABLE_VULKAN_VALIDATION_LAYERS
+#		undef QK_ENABLE_VULKAN_VALIDATION_LAYERS
 #	endif
+#	define QK_ENABLE_VULKAN_VALIDATION_LAYERS 1
 #endif
 
 namespace Quark {
@@ -70,7 +71,7 @@ namespace Quark {
 		uint32_t m_CurrentFrameIndex = 0;
 		bool m_SwapchainValid = false;
 
-#ifdef QK_ENABLE_VULKAN_VALIDATION_LAYERS
+#if QK_ENABLE_VULKAN_VALIDATION_LAYERS
 		VkDebugUtilsMessengerEXT m_VkDebugMessenger = VK_NULL_HANDLE;
 #endif
 	};

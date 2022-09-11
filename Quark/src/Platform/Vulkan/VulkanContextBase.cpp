@@ -9,13 +9,19 @@
 #	define DestroyDebugUtilsMessengerEXT(...)
 #endif
 
-#ifdef QK_ENABLE_VULKAN_VALIDATION_LAYERS
+#if QK_ENABLE_VULKAN_VALIDATION_LAYERS
 #	define AssureDebugValidationLayerSupport ::Quark::AssureValidationLayerSupport
 #else
 #	define AssureDebugValidationLayerSupport(...)
 #endif
 
 #define QK_VULKAN_DEBUG_UTILS_VERBOSE 0
+
+#if QK_ASSERT_API_VALIDATION_ERRORS
+#	define QK_VULKAN_ERROR_CALLBACK(message) QK_CORE_ASSERT(false, message)
+#else
+#	define QK_VULKAN_ERROR_CALLBACK(message) QK_CORE_ERROR(message)
+#endif
 
 #if QK_VULKAN_DEBUG_UTILS_VERBOSE
 #	define _VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT
@@ -38,10 +44,10 @@ namespace Quark {
 
 		switch (messageSeverity)
 		{
-			case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:   QK_CORE_ASSERT(false, pCallbackData->pMessage); return VK_FALSE;
-			case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT: QK_CORE_WARN(pCallbackData->pMessage);          return VK_FALSE;
-			case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:    QK_CORE_INFO(pCallbackData->pMessage);          return VK_FALSE;
-			case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT: QK_CORE_TRACE(pCallbackData->pMessage);         return VK_FALSE;
+			case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:   QK_VULKAN_ERROR_CALLBACK(pCallbackData->pMessage); return VK_FALSE;
+			case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT: QK_CORE_WARN(pCallbackData->pMessage);             return VK_FALSE;
+			case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:    QK_CORE_INFO(pCallbackData->pMessage);             return VK_FALSE;
+			case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT: QK_CORE_TRACE(pCallbackData->pMessage);            return VK_FALSE;
 
 			QK_ASSERT_NO_DEFAULT("Unknown severity level in Vulkan message callback");
 		}
@@ -227,7 +233,7 @@ namespace Quark {
 
 		AssureDebugValidationLayerSupport();
 
-#ifdef QK_ENABLE_VULKAN_VALIDATION_LAYERS
+#if QK_ENABLE_VULKAN_VALIDATION_LAYERS
 		auto messengerCreateInfo = CreateVkDebugUtilsMessengerCreateInfoEXT();
 
 		createInfo.enabledLayerCount = sizeof_array(g_ValidationLayers);

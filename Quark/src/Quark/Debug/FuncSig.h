@@ -5,7 +5,7 @@
 #elif defined(__DMC__) && (__DMC__ >= 0x810)
 #	define QK_FUNCTION_SIG __PRETTY_FUNCTION__
 #elif (defined(__FUNCSIG__) || (_MSC_VER))
-#	ifdef QK_VERBOSE_FUNCTION_SIG
+#	if QK_VERBOSE_FUNCTION_SIG
 #		define QK_FUNCTION_SIG __FUNCSIG__
 #	else
 #		define QK_FUNCTION_SIG __FUNCTION__

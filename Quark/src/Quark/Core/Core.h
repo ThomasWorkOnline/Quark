@@ -16,10 +16,10 @@
 
 #define QK_NODISCARD [[nodiscard]]
 
-#ifndef QK_IGNORE_DEPRECATED_SYMBOLS
-#	define QK_DEPRECATED [[deprecated]]
-#else
+#if QK_IGNORE_DEPRECATED_SYMBOLS
 #	define QK_DEPRECATED
+#else
+#	define QK_DEPRECATED [[deprecated]]	
 #endif
 
 #define ATTACH_EVENT_FN(fn) [&](auto&&... args) -> decltype(auto) { return fn(std::forward<decltype(args)>(args)...); }

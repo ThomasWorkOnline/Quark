@@ -3,6 +3,12 @@
 
 #include <glad/glad.h>
 
+#if QK_ASSERT_API_VALIDATION_ERRORS
+#	define QK_OPENGL_ERROR_CALLBACK(message) QK_CORE_ASSERT(false, message)
+#else
+#	define QK_OPENGL_ERROR_CALLBACK(message) QK_CORE_ERROR(message)
+#endif
+
 namespace Quark {
 
 	static void OnOpenGLMessage(
@@ -16,10 +22,10 @@ namespace Quark {
 	{
 		switch (severity)
 		{
-			case GL_DEBUG_SEVERITY_HIGH:         QK_CORE_ASSERT(false, message); return;
-			case GL_DEBUG_SEVERITY_MEDIUM:       QK_CORE_WARN(message);          return;
-			case GL_DEBUG_SEVERITY_LOW:          QK_CORE_INFO(message);          return;
-			case GL_DEBUG_SEVERITY_NOTIFICATION: QK_CORE_TRACE(message);         return;
+			case GL_DEBUG_SEVERITY_HIGH:         QK_OPENGL_ERROR_CALLBACK(message); return;
+			case GL_DEBUG_SEVERITY_MEDIUM:       QK_CORE_WARN(message);             return;
+			case GL_DEBUG_SEVERITY_LOW:          QK_CORE_INFO(message);             return;
+			case GL_DEBUG_SEVERITY_NOTIFICATION: QK_CORE_TRACE(message);            return;
 
 			QK_ASSERT_NO_DEFAULT("OnOpenGLMessage had an unknown severity level");
 		}

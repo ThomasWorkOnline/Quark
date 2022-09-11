@@ -14,7 +14,7 @@ namespace Quark {
 
 			std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 
-#ifdef QK_ENABLE_VULKAN_VALIDATION_LAYERS
+#if QK_ENABLE_VULKAN_VALIDATION_LAYERS
 			extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 #endif
 			return extensions;

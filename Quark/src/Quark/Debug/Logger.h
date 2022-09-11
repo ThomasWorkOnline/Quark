@@ -2,10 +2,17 @@
 
 #include "Quark/Core/Core.h"
 
-#if defined(QK_DEBUG) || defined(QK_RELEASE)
-#	ifndef QK_ENABLE_CONSOLE_LOG
-#		define QK_ENABLE_CONSOLE_LOG // <--- define QK_ENABLE_CONSOLE_LOG to force logs on dist builds (see Core/Tweaks.h)
-#	endif
+// define QK_FORCE_ENABLE_CONSOLE_LOGS 1 to force logs on dist builds (see Core/Tweaks.h)
+#if defined(QK_DEBUG) || defined(QK_RELEASE) || QK_FORCE_ENABLE_CONSOLE_LOGS
+#	define QK_LOGGING_ENABLED 1
+#else
+#	define QK_LOGGING_ENABLED 0
+#endif
+
+#if QK_FORCE_ENABLE_DUMP_LOGS
+#	define QK_DUMP_LOGS_ENABLED 1
+#else
+#	define QK_DUMP_LOGS_ENABLED 0
 #endif
 
 #pragma warning(push, 0)
@@ -40,7 +47,7 @@ namespace Quark {
 	};
 }
 
-#ifdef QK_ENABLE_CONSOLE_LOG
+#if QK_LOGGING_ENABLED
 #	define QK_CORE_CONSOLE_TRACE(...)    ::Quark::Logger::GetCoreLogger()->trace   (__VA_ARGS__)
 #	define QK_CORE_CONSOLE_INFO(...)     ::Quark::Logger::GetCoreLogger()->info    (__VA_ARGS__)
 #	define QK_CORE_CONSOLE_WARN(...)     ::Quark::Logger::GetCoreLogger()->warn    (__VA_ARGS__)
@@ -66,7 +73,7 @@ namespace Quark {
 #	define QK_CLIENT_CONSOLE_CRITICAL(...)
 #endif
 
-#ifdef QK_ENABLE_DUMP_LOG
+#if QK_DUMP_LOGS_ENABLED
 #	define QK_DUMP_TRACE(...)    ::Quark::Logger::DumpToFile(("[Trace]:    " + fmt::format(__VA_ARGS__)).c_str())
 #	define QK_DUMP_INFO(...)     ::Quark::Logger::DumpToFile(("[Info]:     " + fmt::format(__VA_ARGS__)).c_str())
 #	define QK_DUMP_WARN(...)     ::Quark::Logger::DumpToFile(("[Warn]:     " + fmt::format(__VA_ARGS__)).c_str())

@@ -6,7 +6,7 @@
 #	include "Platform/MacOS/Metal/MetalContext.h"
 #endif
 
-#if defined(QK_PLATFORM_WINDOWS) && defined(QK_USE_NATIVE_APIS)
+#if defined(QK_PLATFORM_WINDOWS) && QK_USE_NATIVE_APIS
 	// Windows specific graphics context
 #	include "Platform/Windows/OpenGL/OpenGLWin32Context.h"
 #endif
@@ -25,7 +25,7 @@ namespace Quark {
 #endif
 
 			case RHI::OpenGL:
-#if defined(QK_PLATFORM_WINDOWS) && defined(QK_USE_NATIVE_APIS)
+#if defined(QK_PLATFORM_WINDOWS) && QK_USE_NATIVE_APIS
 				return CreateScope<OpenGLWin32Context>(windowHandle);
 #else
 				return CreateScope<OpenGLContext>(windowHandle);

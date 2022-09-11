@@ -136,7 +136,7 @@ namespace Quark {
 		createInfo.enabledExtensionCount = sizeof_array(s_DeviceExtensions);
 		createInfo.ppEnabledExtensionNames = s_DeviceExtensions;
 
-#ifdef QK_ENABLE_VULKAN_VALIDATION_LAYERS
+#if QK_ENABLE_VULKAN_VALIDATION_LAYERS
 		createInfo.enabledLayerCount = sizeof_array(g_ValidationLayers);
 		createInfo.ppEnabledLayerNames = g_ValidationLayers;
 #endif
