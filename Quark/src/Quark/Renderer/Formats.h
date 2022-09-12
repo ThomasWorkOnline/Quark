@@ -64,7 +64,7 @@ namespace Quark {
 	{
 		TextureFilteringMode MagFilteringMode = TextureFilteringMode::Linear;
 		TextureFilteringMode MinFilteringMode = TextureFilteringMode::LinearMipmapLinear;
-		TextureTilingMode    TilingMode = TextureTilingMode::Default;
+		TextureTilingMode    TilingMode       = TextureTilingMode::Default;
 	};
 
 	size_t   GetPixelFormatSize(ColorDataFormat format);

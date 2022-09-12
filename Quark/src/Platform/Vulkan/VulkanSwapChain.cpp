@@ -57,19 +57,19 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		VkSwapchainCreateInfoKHR createInfo{};
-		createInfo.sType            = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-		createInfo.surface          = m_Surface;
-		createInfo.minImageCount    = m_Spec.MinImageCount;
-		createInfo.imageFormat      = m_Spec.SurfaceFormat.format;
-		createInfo.imageColorSpace  = m_Spec.SurfaceFormat.colorSpace;
-		createInfo.imageExtent      = m_Spec.Extent;
-		createInfo.imageArrayLayers = 1;
-		createInfo.imageUsage       = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-		createInfo.preTransform     = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
-		createInfo.compositeAlpha   = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-		createInfo.presentMode      = m_Spec.PresentMode;
-		createInfo.clipped          = VK_TRUE;
-		createInfo.oldSwapchain     = m_SwapChain;
+		createInfo.sType                     = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+		createInfo.surface                   = m_Surface;
+		createInfo.minImageCount             = m_Spec.MinImageCount;
+		createInfo.imageFormat               = m_Spec.SurfaceFormat.format;
+		createInfo.imageColorSpace           = m_Spec.SurfaceFormat.colorSpace;
+		createInfo.imageExtent               = m_Spec.Extent;
+		createInfo.imageArrayLayers          = 1;
+		createInfo.imageUsage                = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+		createInfo.preTransform              = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+		createInfo.compositeAlpha            = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+		createInfo.presentMode               = m_Spec.PresentMode;
+		createInfo.clipped                   = VK_TRUE;
+		createInfo.oldSwapchain              = m_SwapChain;
 
 		uint32_t queueFamilyIndices[] = {
 			m_Device->GetQueueFamilyIndices().GraphicsFamily.value(),
@@ -78,13 +78,13 @@ namespace Quark {
 
 		if (m_Device->GetQueueFamilyIndices().GraphicsFamily != m_Device->GetQueueFamilyIndices().PresentFamily)
 		{
-			createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+			createInfo.imageSharingMode      = VK_SHARING_MODE_CONCURRENT;
 			createInfo.queueFamilyIndexCount = sizeof_array(queueFamilyIndices);
-			createInfo.pQueueFamilyIndices = queueFamilyIndices;
+			createInfo.pQueueFamilyIndices   = queueFamilyIndices;
 		}
 		else
 		{
-			createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+			createInfo.imageSharingMode      = VK_SHARING_MODE_EXCLUSIVE;
 			createInfo.queueFamilyIndexCount = 0;
 		}
 

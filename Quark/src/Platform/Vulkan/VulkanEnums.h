@@ -10,6 +10,11 @@
 
 namespace Quark {
 
+	inline constexpr VkAttachmentLoadOp s_VulkanClearAttachmentLoadOpsLUT[] = {
+		/*false*/           VK_ATTACHMENT_LOAD_OP_LOAD,
+		/*true*/            VK_ATTACHMENT_LOAD_OP_CLEAR
+	};
+
 	inline constexpr VkCullModeFlagBits s_VulkanCullModeLUT[] = {
 		/*None*/            VK_CULL_MODE_NONE,
 		/*Front*/           VK_CULL_MODE_FRONT_BIT,
@@ -50,6 +55,43 @@ namespace Quark {
 		/*Compute*/         VK_PIPELINE_BIND_POINT_COMPUTE
 	};
 
+	inline constexpr VkSamplerAddressMode s_VulkanSamplerAddressModeLUT[] = {
+		/*None*/            VK_SAMPLER_ADDRESS_MODE_MAX_ENUM,
+		/*ClampToBorder*/   VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER,
+		/*ClampToEdge*/     VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+		/*Repeat*/          VK_SAMPLER_ADDRESS_MODE_REPEAT
+	};
+
+	inline constexpr VkSamplerMipmapMode s_VulkanSamplerMipmapModeLUT[] = {
+		/*None*/                 VK_SAMPLER_MIPMAP_MODE_MAX_ENUM,
+		/*Nearest*/              VK_SAMPLER_MIPMAP_MODE_NEAREST,
+		/*Linear*/               VK_SAMPLER_MIPMAP_MODE_NEAREST,
+		/*NearestMipmapNearest*/ VK_SAMPLER_MIPMAP_MODE_NEAREST,
+		/*NearestMipmapLinear*/  VK_SAMPLER_MIPMAP_MODE_LINEAR,
+		/*LinearMipmapNearest*/  VK_SAMPLER_MIPMAP_MODE_NEAREST,
+		/*LinearMipmapLinear*/   VK_SAMPLER_MIPMAP_MODE_LINEAR
+	};
+
+	inline constexpr VkSampleCountFlagBits s_VulkanSampleCountLUT[] = {
+		/*SampleCount1*/    VK_SAMPLE_COUNT_1_BIT,
+		/*SampleCount2*/    VK_SAMPLE_COUNT_2_BIT,
+		/*SampleCount4*/    VK_SAMPLE_COUNT_4_BIT,
+		/*SampleCount8*/    VK_SAMPLE_COUNT_8_BIT,
+		/*SampleCount16*/   VK_SAMPLE_COUNT_16_BIT,
+		/*SampleCount32*/   VK_SAMPLE_COUNT_32_BIT,
+		/*SampleCount64*/   VK_SAMPLE_COUNT_64_BIT
+	};
+
+	inline constexpr VkFilter s_VulkanFilteringModeLUT[] = {
+		/*None*/                 VK_FILTER_MAX_ENUM,
+		/*Nearest*/              VK_FILTER_NEAREST,
+		/*Linear*/               VK_FILTER_LINEAR,
+		/*NearestMipmapNearest*/ VK_FILTER_NEAREST,
+		/*NearestMipmapLinear*/  VK_FILTER_NEAREST,
+		/*LinearMipmapNearest*/  VK_FILTER_LINEAR,
+		/*LinearMipmapLinear*/   VK_FILTER_LINEAR
+	};
+
 	inline constexpr VkFormat s_VulkanShaderDataTypeLUT[] = {
 		/*None*/            VK_FORMAT_UNDEFINED,
 		/*Float*/           VK_FORMAT_R32_SFLOAT,
@@ -84,6 +126,11 @@ namespace Quark {
 		/*Compute*/         VK_SHADER_STAGE_COMPUTE_BIT
 	};
 
+	constexpr VkAttachmentLoadOp GetVulkanLoadOrClearOp(bool clear)
+	{
+		return s_VulkanClearAttachmentLoadOpsLUT[clear];
+	}
+
 	constexpr VkCullModeFlagBits CullModeToVulkan(RenderCullMode mode)
 	{
 		return s_VulkanCullModeLUT[static_cast<size_t>(mode)];
@@ -97,6 +144,26 @@ namespace Quark {
 	constexpr VkPipelineBindPoint PipelineBindPointToVulkan(PipelineBindPoint bindpoint)
 	{
 		return s_VulkanPipelineBindPointLUT[static_cast<size_t>(bindpoint)];
+	}
+
+	constexpr VkSamplerAddressMode TextureTilingModeToVulkan(TextureTilingMode mode)
+	{
+		return s_VulkanSamplerAddressModeLUT[static_cast<size_t>(mode)];
+	}
+
+	constexpr VkSamplerMipmapMode TextureMipmapModeToVulkan(TextureFilteringMode mode)
+	{
+		return s_VulkanSamplerMipmapModeLUT[static_cast<size_t>(mode)];
+	}
+
+	constexpr VkSampleCountFlagBits SampleCountToVulkan(SampleCount samples)
+	{
+		return s_VulkanSampleCountLUT[static_cast<size_t>(samples)];
+	}
+
+	constexpr VkFilter TextureFilteringModeToVulkan(TextureFilteringMode mode)
+	{
+		return s_VulkanFilteringModeLUT[static_cast<size_t>(mode)];
 	}
 
 	constexpr VkFormat ShaderDataTypeToVulkan(ShaderDataType type)

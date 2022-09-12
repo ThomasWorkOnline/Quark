@@ -12,12 +12,24 @@ namespace Quark {
 		Compute
 	};
 
+	enum class SampleCount
+	{
+		SampleCount1 = 0,
+		SampleCount2,
+		SampleCount4,
+		SampleCount8,
+		SampleCount16,
+		SampleCount32,
+		SampleCount64
+	};
+
 	struct RenderPassSpecification
 	{
 		PipelineBindPoint BindPoint{};
 		ColorDataFormat   ColorFormat{};
 		Vec4f             ClearColor{};
 		bool              ClearBuffers = false;
+		SampleCount       Samples{};
 	};
 
 	class RenderPass
