@@ -20,25 +20,21 @@ namespace Quark {
 			vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.Capabilities);
 
 			uint32_t formatCount;
-			VkResult vkRes = vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
-			QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Could not query surface formats");
+			vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
 
 			if (formatCount != 0)
 			{
 				details.Formats.resize(formatCount);
-				VkResult vkRes = vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, details.Formats.data());
-				QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Could not query surface formats");
+				vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, details.Formats.data());
 			}
 
 			uint32_t presentModeCount;
 			vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, nullptr);
-			QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Could not query surface present modes");
 
 			if (presentModeCount != 0)
 			{
 				details.PresentModes.resize(presentModeCount);
 				vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, details.PresentModes.data());
-				QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Could not query surface present modes");
 			}
 
 			return details;
@@ -49,18 +45,16 @@ namespace Quark {
 			uint32_t queueFamilyCount = 0;
 			vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
 
-			std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-			vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+			AutoRelease<VkQueueFamilyProperties> queueFamilies = StackAlloc(queueFamilyCount * sizeof(VkQueueFamilyProperties));
+			vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies);
 
 			QueueFamilyIndices indices;
-
-			uint32_t i = 0;
-			for (const auto& queueFamily : queueFamilies)
+			for (uint32_t i = 0; i < queueFamilyCount; i++)
 			{
-				if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+				if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
 					indices.GraphicsFamily = i;
 
-				if (queueFamily.queueFlags & VK_QUEUE_TRANSFER_BIT)
+				if (queueFamilies[i].queueFlags & VK_QUEUE_TRANSFER_BIT)
 					indices.TransferFamily = i;
 
 				VkBool32 presentSupport;
@@ -81,19 +75,17 @@ namespace Quark {
 		static bool CheckVkDeviceExtensionSupport(VkPhysicalDevice device)
 		{
 			uint32_t extensionCount;
-			VkResult vkRes = vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
-			QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Could not enumerate device extension properties");
+			vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
 
-			std::vector<VkExtensionProperties> availableExtensions(extensionCount);
-			vkRes = vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
-			QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Could not enumerate device extension properties");
+			AutoRelease<VkExtensionProperties> availableExtensions = StackAlloc(extensionCount * sizeof(VkExtensionProperties));
+			vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions);
 
 			for (const char* extensionName : s_DeviceExtensions)
 			{
 				bool extensionFound = false;
-				for (auto& extension : availableExtensions)
+				for (uint32_t i = 0; i < extensionCount; i++)
 				{
-					if (std::strcmp(extensionName, extension.extensionName) == 0)
+					if (std::strcmp(extensionName, availableExtensions[i].extensionName) == 0)
 					{
 						extensionFound = true;
 						break;

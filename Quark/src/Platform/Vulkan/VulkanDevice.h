@@ -22,7 +22,7 @@ namespace Quark {
 		std::optional<uint32_t> PresentFamily;
 		std::optional<uint32_t> TransferFamily;
 
-		bool IsComplete() const { return GraphicsFamily.has_value() && PresentFamily.has_value() && TransferFamily.has_value(); }
+		bool IsComplete() const { return GraphicsFamily && PresentFamily && TransferFamily; }
 	};
 
 	class VulkanDevice
