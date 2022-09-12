@@ -45,9 +45,9 @@ namespace Quark {
 	};
 
 	inline constexpr VkPipelineBindPoint s_VulkanPipelineBindPointLUT[] = {
-		/*None*/          VK_PIPELINE_BIND_POINT_MAX_ENUM,
-		/*Graphics*/      VK_PIPELINE_BIND_POINT_GRAPHICS,
-		/*Compute*/       VK_PIPELINE_BIND_POINT_COMPUTE
+		/*None*/            VK_PIPELINE_BIND_POINT_MAX_ENUM,
+		/*Graphics*/        VK_PIPELINE_BIND_POINT_GRAPHICS,
+		/*Compute*/         VK_PIPELINE_BIND_POINT_COMPUTE
 	};
 
 	inline constexpr VkFormat s_VulkanShaderDataTypeLUT[] = {
@@ -77,11 +77,11 @@ namespace Quark {
 	};
 
 	inline constexpr VkShaderStageFlagBits s_VulkanShaderStageLUT[] = {
-		/*None*/           VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM,
-		/*Vertex*/         VK_SHADER_STAGE_VERTEX_BIT,
-		/*Geometry*/       VK_SHADER_STAGE_GEOMETRY_BIT,
-		/*Fragment*/       VK_SHADER_STAGE_FRAGMENT_BIT,
-		/*Compute*/        VK_SHADER_STAGE_COMPUTE_BIT
+		/*None*/            VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM,
+		/*Vertex*/          VK_SHADER_STAGE_VERTEX_BIT,
+		/*Geometry*/        VK_SHADER_STAGE_GEOMETRY_BIT,
+		/*Fragment*/        VK_SHADER_STAGE_FRAGMENT_BIT,
+		/*Compute*/         VK_SHADER_STAGE_COMPUTE_BIT
 	};
 
 	constexpr VkCullModeFlagBits CullModeToVulkan(RenderCullMode mode)

@@ -23,7 +23,7 @@ namespace Quark {
 
 	private:
 		VulkanDevice* m_Device = nullptr;
-		VkImageView m_ImageView = VK_NULL_HANDLE;
+		VkImageView m_ImageView = nullptr;
 		VkFormat m_Format{};
 	};
 
@@ -48,6 +48,6 @@ namespace Quark {
 
 	private:
 		VulkanDevice* m_Device;
-		VkFramebuffer m_Framebuffer = VK_NULL_HANDLE;
+		VkFramebuffer m_Framebuffer = nullptr;
 	};
 }

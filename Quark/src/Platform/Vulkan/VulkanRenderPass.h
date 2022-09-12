@@ -23,6 +23,6 @@ namespace Quark {
 
 	private:
 		VulkanDevice* m_Device;
-		VkRenderPass m_RenderPass = VK_NULL_HANDLE;
+		VkRenderPass m_RenderPass = nullptr;
 	};
 }

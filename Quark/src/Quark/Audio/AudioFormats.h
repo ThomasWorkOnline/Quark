@@ -21,23 +21,26 @@ namespace Quark {
 		switch (channels)
 		{
 			case 1:
-			switch (bitdepth)
 			{
-				case 8:  return AudioFormat::Integer8BitMono;
-				case 16: return AudioFormat::Integer16BitMono;
-				case 32: return floatingPoint ? AudioFormat::Float32BitMono : AudioFormat::Integer32BitMono;
+				switch (bitdepth)
+				{
+					case 8:  return AudioFormat::Integer8BitMono;
+					case 16: return AudioFormat::Integer16BitMono;
+					case 32: return floatingPoint ? AudioFormat::Float32BitMono : AudioFormat::Integer32BitMono;
 
-				QK_ASSERT_NO_DEFAULT("Invalid bitdepth");
+					QK_ASSERT_NO_DEFAULT("Invalid bitdepth");
+				}
 			}
-
 			case 2:
-			switch (bitdepth)
 			{
-				case 8:  return AudioFormat::Integer8BitStereo;
-				case 16: return AudioFormat::Integer16BitStereo;
-				case 32: return floatingPoint ? AudioFormat::Float32BitStereo : AudioFormat::Integer32BitStereo;
+				switch (bitdepth)
+				{
+					case 8:  return AudioFormat::Integer8BitStereo;
+					case 16: return AudioFormat::Integer16BitStereo;
+					case 32: return floatingPoint ? AudioFormat::Float32BitStereo : AudioFormat::Integer32BitStereo;
 
-				QK_ASSERT_NO_DEFAULT("Invalid bitdepth");
+					QK_ASSERT_NO_DEFAULT("Invalid bitdepth");
+				}
 			}
 
 			QK_ASSERT_NO_DEFAULT("Unknown audio format");

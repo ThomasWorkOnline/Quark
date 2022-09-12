@@ -29,9 +29,9 @@ namespace Quark {
 
 	private:
 		VulkanDevice* m_Device;
-		VkImage m_Image = VK_NULL_HANDLE;
-		VkImageView m_ImageView = VK_NULL_HANDLE;
-		VkDeviceMemory m_BufferMemory = VK_NULL_HANDLE;
+		VkImage m_Image = nullptr;
+		VkImageView m_ImageView = nullptr;
+		VkDeviceMemory m_BufferMemory = nullptr;
 	};
 
 	class VulkanTexture2DArray final : public Texture2DArray

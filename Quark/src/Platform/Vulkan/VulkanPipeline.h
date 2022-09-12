@@ -46,12 +46,12 @@ namespace Quark {
 
 		VulkanDevice* m_Device = nullptr;
 
-		VkDescriptorPool m_DescriptorPool = VK_NULL_HANDLE;
-		VkDescriptorSetLayout m_DescriptorSetLayout = VK_NULL_HANDLE;
+		VkDescriptorPool m_DescriptorPool = nullptr;
+		VkDescriptorSetLayout m_DescriptorSetLayout = nullptr;
 		VkDescriptorSet m_DescriptorSets[VulkanContext::FramesInFlight]{};
 
-		VkPipelineLayout m_PipelineLayout = VK_NULL_HANDLE;
-		VkPipeline m_Pipeline = VK_NULL_HANDLE;
+		VkPipelineLayout m_PipelineLayout = nullptr;
+		VkPipeline m_Pipeline = nullptr;
 
 		std::vector<CombinedSampler> m_CombinedSamplers;
 	};

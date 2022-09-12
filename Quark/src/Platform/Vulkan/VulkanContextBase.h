@@ -46,13 +46,26 @@ namespace Quark {
 
 		virtual CommandBuffer* GetCommandBuffer() final override;
 
-		void CreateInstance(VkInstanceCreateInfo& createInfo);
-
 		VkInstance GetInstance() const { return m_Instance; }
 		VulkanSwapChain* GetSwapChain() { return m_SwapChain.get(); }
 		uint32_t GetCurrentFrameIndex() const { return m_CurrentFrameIndex; }
 
 	protected:
+		void CreateInstance(const char* appName, const std::vector<const char*>& extensions);
+
+		VkSurfaceFormatKHR ChooseSwapSurfaceFormat(VkSurfaceFormatKHR preferred);
+		VkPresentModeKHR ChooseSwapPresentMode(VkPresentModeKHR preferred);
+		VkExtent2D ChooseSwapExtent(uint32_t width, uint32_t height);
+		uint32_t GetSwapChainImageCount();
+
+	protected:
+		VkInstance m_Instance = nullptr;
+		VkSurfaceKHR m_Surface = nullptr;
+
+		Scope<VulkanDevice> m_Device;
+		Scope<VulkanSwapChain> m_SwapChain;
+
+	private:
 		struct FrameData
 		{
 			VkFence InFlightFence{};
@@ -61,18 +74,12 @@ namespace Quark {
 			VulkanCommandBuffer CommandBuffer;
 		};
 
-		VkInstance m_Instance = VK_NULL_HANDLE;
-		VkSurfaceKHR m_Surface = VK_NULL_HANDLE;
-
-		Scope<VulkanDevice> m_Device;
-		Scope<VulkanSwapChain> m_SwapChain;
-
 		FrameData m_Frames[FramesInFlight];
 		uint32_t m_CurrentFrameIndex = 0;
 		bool m_SwapchainValid = false;
 
 #if QK_ENABLE_VULKAN_VALIDATION_LAYERS
-		VkDebugUtilsMessengerEXT m_VkDebugMessenger = VK_NULL_HANDLE;
+		VkDebugUtilsMessengerEXT m_VkDebugMessenger = nullptr;
 #endif
 	};
 }

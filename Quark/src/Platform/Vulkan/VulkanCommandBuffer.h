@@ -42,7 +42,7 @@ namespace Quark {
 		VkCommandBuffer GetVkHandle() const { return m_CommandBuffer; }
 
 	private:
-		VkCommandBuffer m_CommandBuffer = VK_NULL_HANDLE;
+		VkCommandBuffer m_CommandBuffer = nullptr;
 		const RenderPass* m_CurrentRenderPass = nullptr;
 	};
 }

@@ -227,11 +227,26 @@ namespace Quark {
 		return &m_Frames[m_CurrentFrameIndex].CommandBuffer;
 	}
 
-	void VulkanContextBase::CreateInstance(VkInstanceCreateInfo& createInfo)
+	void VulkanContextBase::CreateInstance(const char* appName, const std::vector<const char*>& extensions)
 	{
 		QK_PROFILE_FUNCTION();
 
 		AssureDebugValidationLayerSupport();
+
+		VkApplicationInfo appInfo{};
+		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+		appInfo.pApplicationName = appName;
+		appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+		appInfo.pEngineName = "Quark Engine";
+		appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
+		appInfo.apiVersion = VK_API_VERSION_1_0;
+
+		VkInstanceCreateInfo createInfo{};
+		createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+		createInfo.pApplicationInfo = &appInfo;
+
+		createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
+		createInfo.ppEnabledExtensionNames = extensions.data();
 
 #if QK_ENABLE_VULKAN_VALIDATION_LAYERS
 		auto messengerCreateInfo = CreateVkDebugUtilsMessengerCreateInfoEXT();
@@ -245,6 +260,59 @@ namespace Quark {
 
 		vkRes = CreateDebugUtilsMessengerEXT(m_Instance, &messengerCreateInfo, nullptr, &m_VkDebugMessenger);
 		QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Failed to create a Vulkan debug messenger");
+	}
+
+	VkSurfaceFormatKHR VulkanContextBase::ChooseSwapSurfaceFormat(VkSurfaceFormatKHR preferred)
+	{
+		auto& availableFormats = m_Device->GetSupportDetails().Formats;
+		for (const auto& availableFormat : availableFormats)
+		{
+			if (availableFormat.format == preferred.format && availableFormat.colorSpace == preferred.colorSpace)
+				return availableFormat;
+		}
+
+		QK_CORE_WARN("Swap surface format not found: fallback to default format 0");
+		return availableFormats[0];
+	}
+
+	VkPresentModeKHR VulkanContextBase::ChooseSwapPresentMode(VkPresentModeKHR preferred)
+	{
+		auto& availablePresentModes = m_Device->GetSupportDetails().PresentModes;
+		for (const auto& availablePresentMode : availablePresentModes)
+		{
+			if (availablePresentMode == preferred)
+				return availablePresentMode;
+		}
+
+		QK_CORE_WARN("Swap present mode not found: fallback to default FIFO present mode");
+		return VK_PRESENT_MODE_FIFO_KHR;
+	}
+
+	VkExtent2D VulkanContextBase::ChooseSwapExtent(uint32_t width, uint32_t height)
+	{
+		auto& capabilities = m_Device->GetSupportDetails().Capabilities;
+		if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
+		{
+			return capabilities.currentExtent;
+		}
+		else
+		{
+			VkExtent2D extent = { width, height };
+			extent.width = std::clamp(extent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
+			extent.height = std::clamp(extent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
+
+			return extent;
+		}
+	}
+
+	uint32_t VulkanContextBase::GetSwapChainImageCount()
+	{
+		auto& supportDetails = m_Device->GetSupportDetails();
+		uint32_t imageCount = supportDetails.Capabilities.minImageCount + 1;
+		if (imageCount > supportDetails.Capabilities.maxImageCount)
+			imageCount = supportDetails.Capabilities.maxImageCount;
+
+		return imageCount;
 	}
 
 	void AssureValidationLayerSupport()

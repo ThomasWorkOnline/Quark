@@ -38,29 +38,26 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		{
-			VkApplicationInfo appInfo{};
-			appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-			appInfo.pApplicationName = "Quark App";
-			appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-			appInfo.pEngineName = "Quark Engine";
-			appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-			appInfo.apiVersion = VK_API_VERSION_1_0;
-
-			VkInstanceCreateInfo createInfo{};
-			createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-			createInfo.pApplicationInfo = &appInfo;
-
-			auto extensions = Utils::GetRequiredVkExtensions();
-			createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
-			createInfo.ppEnabledExtensionNames = extensions.data();
-
-			CreateInstance(createInfo);
-		}
+		auto extensions = Utils::GetRequiredVkExtensions();
+		CreateInstance("Quark App", extensions);
 
 		m_Surface = Utils::CreateSurfaceForPlatform(m_Instance, m_WindowHandle);
 		m_Device = VulkanDevice::CreateDefaultForSurface(m_Instance, m_Surface);
-		m_SwapChain = CreateScope<VulkanSwapChain>(m_Device.get(), m_WindowHandle, m_Surface);
+
+		int width, height;
+		glfwGetFramebufferSize(m_WindowHandle, &width, &height);
+
+		VkSurfaceFormatKHR surfaceFormat{};
+		surfaceFormat.format = VK_FORMAT_B8G8R8A8_SRGB;
+		surfaceFormat.colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+
+		VulkanSwapChainSpecification spec;
+		spec.Width = width;
+		spec.Height = height;
+		spec.MinImageCount = GetSwapChainImageCount();
+		spec.SurfaceFormat = surfaceFormat;
+		spec.PresentMode = VK_PRESENT_MODE_MAILBOX_KHR;
+		m_SwapChain = CreateScope<VulkanSwapChain>(m_Device.get(), m_Surface, spec);
 
 		VulkanContextBase::Init();
 	}
