@@ -8,8 +8,6 @@ namespace Quark {
 
 	static void SetContextRelatedHints()
 	{
-		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-
 		if (GraphicsAPI::GetAPI() == RHI::OpenGL)
 		{
 			glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
@@ -21,6 +19,10 @@ namespace Quark {
 #ifdef QK_DEBUG
 			glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 #endif
+		}
+		else
+		{
+			glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 		}
 
 #if defined(QK_PLATFORM_MACOS)

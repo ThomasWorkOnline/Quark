@@ -116,6 +116,8 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
+		vkGetPhysicalDeviceProperties(m_PhysicalDevice, &m_Properties);
+
 		VkPhysicalDeviceFeatures deviceFeatures{};
 		deviceFeatures.samplerAnisotropy = VK_TRUE;
 
@@ -150,7 +152,6 @@ namespace Quark {
 		createInfo.enabledLayerCount = sizeof_array(g_ValidationLayers);
 		createInfo.ppEnabledLayerNames = g_ValidationLayers;
 #endif
-		vkGetPhysicalDeviceProperties(m_PhysicalDevice, &m_Properties);
 		vkCreateDevice(vkPhysicalDevice, &createInfo, nullptr, &m_Device);
 
 		VmaAllocatorCreateInfo allocatorInfo{};

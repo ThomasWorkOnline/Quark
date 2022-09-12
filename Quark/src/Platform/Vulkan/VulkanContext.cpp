@@ -19,13 +19,6 @@ namespace Quark {
 #endif
 			return extensions;
 		}
-
-		static VkSurfaceKHR CreateSurfaceForPlatform(VkInstance instance, GLFWwindow* window)
-		{
-			VkSurfaceKHR surface;
-			glfwCreateWindowSurface(instance, window, nullptr, &surface);
-			return surface;
-		}
 	}
 
 	VulkanContext::VulkanContext(void* windowHandle)
@@ -41,7 +34,7 @@ namespace Quark {
 		auto extensions = Utils::GetRequiredVkExtensions();
 		CreateInstance("Quark App", extensions);
 
-		m_Surface = Utils::CreateSurfaceForPlatform(m_Instance, m_WindowHandle);
+		glfwCreateWindowSurface(m_Instance, m_WindowHandle, nullptr, &m_Surface);
 		m_Device = VulkanDevice::CreateDefaultForSurface(m_Instance, m_Surface);
 
 		int width, height;
@@ -50,13 +43,13 @@ namespace Quark {
 		VkSurfaceFormatKHR surfaceFormat{};
 		surfaceFormat.format = VK_FORMAT_B8G8R8A8_SRGB;
 		surfaceFormat.colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
-
+		
 		VulkanSwapChainSpecification spec;
-		spec.Width = width;
-		spec.Height = height;
 		spec.MinImageCount = GetSwapChainImageCount();
-		spec.SurfaceFormat = surfaceFormat;
-		spec.PresentMode = VK_PRESENT_MODE_MAILBOX_KHR;
+		spec.Extent        = ChooseSwapExtent(width, height);
+		spec.SurfaceFormat = ChooseSwapSurfaceFormat(surfaceFormat);
+		spec.PresentMode   = ChooseSwapPresentMode(VK_PRESENT_MODE_MAILBOX_KHR);
+
 		m_SwapChain = CreateScope<VulkanSwapChain>(m_Device.get(), m_Surface, spec);
 
 		VulkanContextBase::Init();

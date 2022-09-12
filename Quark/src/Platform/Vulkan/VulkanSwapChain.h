@@ -11,10 +11,10 @@ namespace Quark {
 
 	struct VulkanSwapChainSpecification
 	{
-		uint32_t MinImageCount = 0;
-		uint32_t Width = 0, Height = 0;
+		uint32_t           MinImageCount = 0;
+		VkExtent2D         Extent{};
 		VkSurfaceFormatKHR SurfaceFormat{};
-		VkPresentModeKHR PresentMode{};
+		VkPresentModeKHR   PresentMode{};
 	};
 
 	class VulkanSwapChain
@@ -29,8 +29,8 @@ namespace Quark {
 
 		VulkanFramebufferAttachment* GetAttachment(uint32_t imageIndex) { return &m_Attachments[imageIndex]; }
 
-		uint32_t GetWidth() const { return m_Spec.Width; }
-		uint32_t GetHeight() const { return m_Spec.Height; }
+		uint32_t GetWidth() const { return m_Spec.Extent.width; }
+		uint32_t GetHeight() const { return m_Spec.Extent.width; }
 		uint32_t GetImageCount() const { return (uint32_t)m_SwapChainImages.size(); }
 		uint32_t GetCurrentImageIndex() const { return m_ImageIndex; }
 

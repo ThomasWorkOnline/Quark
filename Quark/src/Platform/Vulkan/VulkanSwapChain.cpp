@@ -43,10 +43,10 @@ namespace Quark {
 	{
 		if (viewportWidth == 0 || viewportHeight == 0) return;
 
-		if (m_Spec.Width != viewportWidth || m_Spec.Height != viewportHeight)
+		if (m_Spec.Extent.width != viewportWidth || m_Spec.Extent.height != viewportHeight)
 		{
-			m_Spec.Width = viewportWidth;
-			m_Spec.Height = viewportHeight;
+			m_Spec.Extent.width = viewportWidth;
+			m_Spec.Extent.height = viewportHeight;
 
 			Invalidate();
 		}
@@ -56,22 +56,20 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		bool isNew = !m_SwapChain;
-
 		VkSwapchainCreateInfoKHR createInfo{};
-		createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-		createInfo.surface = m_Surface;
-		createInfo.minImageCount = m_Spec.MinImageCount;
-		createInfo.imageFormat = m_Spec.SurfaceFormat.format;
-		createInfo.imageColorSpace = m_Spec.SurfaceFormat.colorSpace;
-		createInfo.imageExtent = { m_Spec.Width, m_Spec.Height };
+		createInfo.sType            = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+		createInfo.surface          = m_Surface;
+		createInfo.minImageCount    = m_Spec.MinImageCount;
+		createInfo.imageFormat      = m_Spec.SurfaceFormat.format;
+		createInfo.imageColorSpace  = m_Spec.SurfaceFormat.colorSpace;
+		createInfo.imageExtent      = m_Spec.Extent;
 		createInfo.imageArrayLayers = 1;
-		createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-		createInfo.preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
-		createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-		createInfo.presentMode = m_Spec.PresentMode;
-		createInfo.clipped = VK_TRUE;
-		createInfo.oldSwapchain = m_SwapChain;
+		createInfo.imageUsage       = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+		createInfo.preTransform     = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+		createInfo.compositeAlpha   = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+		createInfo.presentMode      = m_Spec.PresentMode;
+		createInfo.clipped          = VK_TRUE;
+		createInfo.oldSwapchain     = m_SwapChain;
 
 		uint32_t queueFamilyIndices[] = {
 			m_Device->GetQueueFamilyIndices().GraphicsFamily.value(),
@@ -90,12 +88,13 @@ namespace Quark {
 			createInfo.queueFamilyIndexCount = 0;
 		}
 
+		bool isNew = !m_SwapChain;
 		vkCreateSwapchainKHR(m_Device->GetVkHandle(), &createInfo, nullptr, &m_SwapChain);
 
 		uint32_t imageCount;
 		vkGetSwapchainImagesKHR(m_Device->GetVkHandle(), m_SwapChain, &imageCount, nullptr);
-		m_SwapChainImages.resize(imageCount);
 
+		m_SwapChainImages.resize(imageCount);
 		vkGetSwapchainImagesKHR(m_Device->GetVkHandle(), m_SwapChain, &imageCount, m_SwapChainImages.data());
 
 		bool invalidated = isNew || imageCount != m_Attachments.size();
