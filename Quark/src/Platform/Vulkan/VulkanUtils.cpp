@@ -58,7 +58,7 @@ namespace Quark {
 			VkMemoryAllocateInfo allocInfo{};
 			allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 			allocInfo.allocationSize = req.size;
-			allocInfo.memoryTypeIndex = Utils::GetBufferMemoryType(vkPhysicalDevice, req.memoryTypeBits, properties);
+			allocInfo.memoryTypeIndex = GetBufferMemoryType(vkPhysicalDevice, req.memoryTypeBits, properties);
 
 			vkAllocateMemory(device->GetVkHandle(), &allocInfo, nullptr, &bufferMemory);
 			vkBindBufferMemory(device->GetVkHandle(), buffer, bufferMemory, 0);
@@ -92,7 +92,7 @@ namespace Quark {
 			VkMemoryAllocateInfo allocInfo{};
 			allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 			allocInfo.allocationSize = req.size;
-			allocInfo.memoryTypeIndex = Utils::GetBufferMemoryType(device->GetPhysicalDevice(), req.memoryTypeBits, properties);
+			allocInfo.memoryTypeIndex = GetBufferMemoryType(device->GetPhysicalDevice(), req.memoryTypeBits, properties);
 
 			vkAllocateMemory(device->GetVkHandle(), &allocInfo, nullptr, &bufferMemory);
 			vkBindImageMemory(device->GetVkHandle(), image, bufferMemory, 0);
@@ -123,9 +123,9 @@ namespace Quark {
 			submitInfo.commandBufferCount = 1;
 			submitInfo.pCommandBuffers = &commandBuffer;
 
-			VkQueue graphicsQueue = device->GetGraphicsQueue();
-			vkQueueSubmit(graphicsQueue, 1, &submitInfo, nullptr);
-			vkQueueWaitIdle(graphicsQueue);
+			VkQueue transferQueue = device->GetTransferQueue();
+			vkQueueSubmit(transferQueue, 1, &submitInfo, nullptr);
+			vkQueueWaitIdle(transferQueue);
 		}
 
 		void CopyBufferToImage(VulkanDevice* device, VkImage dstImage, VkBuffer srcBuffer, VkExtent3D extent, uint32_t layers, uint32_t levels)
@@ -181,9 +181,9 @@ namespace Quark {
 			submitInfo.commandBufferCount = 1;
 			submitInfo.pCommandBuffers = &commandBuffer;
 
-			VkQueue graphicsQueue = device->GetGraphicsQueue();
-			vkQueueSubmit(graphicsQueue, 1, &submitInfo, nullptr);
-			vkQueueWaitIdle(graphicsQueue);
+			VkQueue transferQueue = device->GetTransferQueue();
+			vkQueueSubmit(transferQueue, 1, &submitInfo, nullptr);
+			vkQueueWaitIdle(transferQueue);
 		}
 	}
 }

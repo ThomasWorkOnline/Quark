@@ -20,14 +20,15 @@ namespace Quark {
 	{
 		std::optional<uint32_t> GraphicsFamily;
 		std::optional<uint32_t> PresentFamily;
+		std::optional<uint32_t> TransferFamily;
 
-		bool IsComplete() const { return GraphicsFamily.has_value() && PresentFamily.has_value(); }
+		bool IsComplete() const { return GraphicsFamily.has_value() && PresentFamily.has_value() && TransferFamily.has_value(); }
 	};
 
 	class VulkanDevice
 	{
 	public:
-		VulkanDevice(VkPhysicalDevice vkPhysicalDevice, const std::vector<VkDeviceQueueCreateInfo>& queueCreateInfos, QueueFamilyIndices queueFamilyIndices, SwapChainSupportDetails supportDetails);
+		VulkanDevice(VkPhysicalDevice vkPhysicalDevice, const QueueFamilyIndices& queueFamilyIndices, SwapChainSupportDetails supportDetails);
 		~VulkanDevice();
 
 		const char* GetName() const;
@@ -40,6 +41,7 @@ namespace Quark {
 
 		VkQueue GetGraphicsQueue() const { return m_GraphicsQueue; }
 		VkQueue GetPresentQueue() const { return m_PresentQueue; }
+		VkQueue GetTransferQueue() const { return m_TransferQueue; }
 
 		VkCommandPool GetCommandPool() const { return m_CommandPool; }
 		VkCommandBuffer GetCopyCommandBuffer() const { return m_CopyCommandBuffer; }
@@ -68,6 +70,8 @@ namespace Quark {
 
 		VkQueue m_GraphicsQueue;
 		VkQueue m_PresentQueue;
+		VkQueue m_TransferQueue;
+
 		VkCommandPool m_CommandPool;
 		VkCommandBuffer m_CopyCommandBuffer;
 

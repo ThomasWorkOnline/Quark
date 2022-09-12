@@ -1,6 +1,8 @@
 #include "qkpch.h"
 #include "VulkanContextBase.h"
 
+#define QK_VULKAN_DEBUG_UTILS_VERBOSE 0
+
 #if defined(QK_DEBUG)
 #	define CreateDebugUtilsMessengerEXT ::Quark::CreateVkDebugUtilsMessengerEXT
 #	define DestroyDebugUtilsMessengerEXT ::Quark::DestroyVkDebugUtilsMessengerEXT
@@ -14,8 +16,6 @@
 #else
 #	define AssureDebugValidationLayerSupport(...)
 #endif
-
-#define QK_VULKAN_DEBUG_UTILS_VERBOSE 0
 
 #if QK_ASSERT_API_VALIDATION_ERRORS
 #	define QK_VULKAN_ERROR_CALLBACK(message) QK_CORE_ASSERT(false, message)
