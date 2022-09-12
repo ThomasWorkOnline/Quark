@@ -29,6 +29,7 @@ namespace Quark {
 
 				QK_ASSERT_NO_DEFAULT("Invalid bitdepth");
 			}
+
 			case 2:
 			switch (bitdepth)
 			{
