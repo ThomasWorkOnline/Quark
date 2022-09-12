@@ -2,9 +2,10 @@
 #include "VulkanTexture.h"
 
 #include "Quark/Renderer/Image.h"
+#include "Quark/Renderer/Renderer.h"
 
+#include "VulkanEnums.h"
 #include "VulkanUtils.h"
-#include "VulkanFormats.h"
 
 namespace Quark {
 
@@ -13,6 +14,10 @@ namespace Quark {
 		, m_Device(device)
 	{
 		QK_PROFILE_FUNCTION();
+
+		QK_CORE_ASSERT(m_Spec.Width <= Renderer::GetCapabilities().TextureCapabilities.MaxWidth
+			&& m_Spec.Height <= Renderer::GetCapabilities().TextureCapabilities.MaxHeight,
+			"Texture dimensions too large: see Renderer::GetCapabilities() for more info");
 
 		QK_CORE_ASSERT(!IsformatUsingMips(m_Spec.RenderModes.MagFilteringMode),
 			"The magnification mode may not be set to use mipmaps");
@@ -32,11 +37,18 @@ namespace Quark {
 
 		// Image view allocation
 		{
+			VkComponentMapping componentsSwizzle{};
+			componentsSwizzle.r = VK_COMPONENT_SWIZZLE_R;
+			componentsSwizzle.g = VK_COMPONENT_SWIZZLE_G;
+			componentsSwizzle.b = VK_COMPONENT_SWIZZLE_B;
+			componentsSwizzle.a = VK_COMPONENT_SWIZZLE_A;
+
 			VkImageViewCreateInfo info{};
 			info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 			info.image = m_Image;
 			info.viewType = VK_IMAGE_VIEW_TYPE_2D;
 			info.format = format;
+			info.components = componentsSwizzle;
 			info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 			info.subresourceRange.levelCount = m_Spec.Levels;
 			info.subresourceRange.layerCount = 1;
@@ -55,6 +67,10 @@ namespace Quark {
 
 		Image image = filepath;
 		auto& metadata = image.GetMetadata();
+
+		QK_CORE_ASSERT(metadata.Width <= Renderer::GetCapabilities().TextureCapabilities.MaxWidth
+			&& metadata.Height <= Renderer::GetCapabilities().TextureCapabilities.MaxHeight,
+			"Texture dimensions too large: see Renderer::GetCapabilities() for more info");
 
 		m_Spec.Width = metadata.Width;
 		m_Spec.Height = metadata.Height;
@@ -75,11 +91,18 @@ namespace Quark {
 
 		// Image view allocation
 		{
+			VkComponentMapping componentsSwizzle{};
+			componentsSwizzle.r = VK_COMPONENT_SWIZZLE_R;
+			componentsSwizzle.g = VK_COMPONENT_SWIZZLE_G;
+			componentsSwizzle.b = VK_COMPONENT_SWIZZLE_B;
+			componentsSwizzle.a = VK_COMPONENT_SWIZZLE_A;
+
 			VkImageViewCreateInfo info{};
 			info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 			info.image = m_Image;
 			info.viewType = VK_IMAGE_VIEW_TYPE_2D;
 			info.format = format;
+			info.components = componentsSwizzle;
 			info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 			info.subresourceRange.levelCount = m_Spec.Levels;
 			info.subresourceRange.layerCount = 1;

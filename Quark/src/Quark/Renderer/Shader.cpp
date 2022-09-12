@@ -16,10 +16,10 @@ namespace Quark {
 		{
 			switch (stage)
 			{
-				case ShaderStage::VertexStage:   return "Vertex Stage";
-				case ShaderStage::GeometryStage: return "Geometry Stage";
-				case ShaderStage::FragmentStage: return "Fragment Stage";
-				case ShaderStage::ComputeStage:  return "Compute Stage";
+				case ShaderStage::Vertex:   return "Vertex";
+				case ShaderStage::Geometry: return "Geometry";
+				case ShaderStage::Fragment: return "Fragment";
+				case ShaderStage::Compute:  return "Compute";
 
 				QK_ASSERT_NO_DEFAULT("Unknown shader stage");
 			}

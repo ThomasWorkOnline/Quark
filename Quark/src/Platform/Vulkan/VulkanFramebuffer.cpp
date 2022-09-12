@@ -1,13 +1,9 @@
 #include "qkpch.h"
 #include "VulkanFramebuffer.h"
 
-#include "VulkanFormats.h"
+#include "VulkanEnums.h"
 #include "VulkanRenderPass.h"
 #include "VulkanUtils.h"
-
-// disable alloca failure warning
-// since variable size stack arrays are not supported by all compilers
-#pragma warning(disable : 6255)
 
 namespace Quark {
 

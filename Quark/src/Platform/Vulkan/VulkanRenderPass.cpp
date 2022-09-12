@@ -1,25 +1,9 @@
 #include "qkpch.h"
 #include "VulkanRenderPass.h"
 
-#include "VulkanFormats.h"
+#include "VulkanEnums.h"
 
 namespace Quark {
-
-	namespace Utils {
-
-		VkPipelineBindPoint BindPointToVulkan(PipelineBindPoint bindpoint)
-		{
-			switch (bindpoint)
-			{
-				case PipelineBindPoint::Graphics: return VK_PIPELINE_BIND_POINT_GRAPHICS;
-				case PipelineBindPoint::Compute:  return VK_PIPELINE_BIND_POINT_COMPUTE;
-
-				QK_ASSERT_NO_DEFAULT("Unknown bindpoint");
-			}
-
-			return VkPipelineBindPoint{};
-		}
-	}
 
 	VulkanRenderPass::VulkanRenderPass(VulkanDevice* device, const RenderPassSpecification& spec)
 		: RenderPass(spec)
@@ -39,7 +23,7 @@ namespace Quark {
 		colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
 		VkSubpassDescription subpass{};
-		subpass.pipelineBindPoint = Utils::BindPointToVulkan(m_Spec.BindPoint);
+		subpass.pipelineBindPoint = PipelineBindPointToVulkan(m_Spec.BindPoint);
 		subpass.colorAttachmentCount = 1;
 		subpass.pColorAttachments = &colorAttachmentRef;
 

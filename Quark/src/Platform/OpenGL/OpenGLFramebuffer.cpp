@@ -1,6 +1,6 @@
 #include "qkpch.h"
 #include "OpenGLFramebuffer.h"
-#include "OpenGLFormats.h"
+#include "OpenGLEnums.h"
 
 #include "Quark/Renderer/Renderer.h"
 

@@ -1,7 +1,7 @@
 #include "qkpch.h"
 #include "VulkanPipeline.h"
 
-#include "VulkanFormats.h"
+#include "VulkanEnums.h"
 #include "VulkanRenderPass.h"
 #include "VulkanShader.h"
 
@@ -9,24 +9,6 @@
 #include <spirv_cross/spirv_cross.hpp>
 
 namespace Quark {
-
-	namespace Utils {
-
-		constexpr VkShaderStageFlagBits ShaderStageToVulkan(ShaderStage	stage)
-		{
-			switch (stage)
-			{
-				case ShaderStage::VertexStage:   return VK_SHADER_STAGE_VERTEX_BIT;
-				case ShaderStage::GeometryStage: return VK_SHADER_STAGE_GEOMETRY_BIT;
-				case ShaderStage::FragmentStage: return VK_SHADER_STAGE_FRAGMENT_BIT;
-				case ShaderStage::ComputeStage:  return VK_SHADER_STAGE_COMPUTE_BIT;
-
-				QK_ASSERT_NO_DEFAULT("Unknown shader stage");
-			}
-
-			return VK_SHADER_STAGE_ALL;
-		}
-	}
 
 	VulkanPipeline::VulkanPipeline(VulkanDevice* device, const PipelineSpecification& spec)
 		: Pipeline(spec)
@@ -39,6 +21,7 @@ namespace Quark {
 		CreatePipeline();
 		CreatePipelineResources();
 
+#if 0
 		for (uint32_t i = 0; i < m_Spec.UniformBufferCount; i++)
 		{
 			auto* uniformBuffer = static_cast<const VulkanUniformBuffer*>(m_Spec.UniformBuffers[i]);
@@ -62,6 +45,7 @@ namespace Quark {
 				vkUpdateDescriptorSets(m_Device->GetVkHandle(), 1, &writeDescriptorSet, 0, nullptr);
 			}
 		}
+#endif
 	}
 
 	VulkanPipeline::~VulkanPipeline()
@@ -105,26 +89,27 @@ namespace Quark {
 		}
 
 		// Samplers
-		for (auto& combinedSampler : m_CombinedSamplers)
+		for (uint32_t i = 0; i < m_CombinedSamplers.size(); i++)
 		{
-			if (!combinedSampler.Texture)
+			if (!m_CombinedSamplers[i].Texture)
 				break;
 
 			VkDescriptorImageInfo imageInfo{};
-			imageInfo.sampler = combinedSampler.Sampler->GetVkHandle();
-			imageInfo.imageView = combinedSampler.Texture->GetVkHandle();
+			imageInfo.sampler = m_CombinedSamplers[i].Sampler->GetVkHandle();
+			imageInfo.imageView = m_CombinedSamplers[i].Texture->GetVkHandle();
 			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
 			VkWriteDescriptorSet writeDescriptorSet{};
 			writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			writeDescriptorSet.dstBinding = combinedSampler.Sampler->GetBinding();
-			writeDescriptorSet.dstArrayElement = 0;
+			writeDescriptorSet.dstBinding = m_CombinedSamplers[i].Sampler->GetBinding();
+			writeDescriptorSet.dstArrayElement = i;
 			writeDescriptorSet.descriptorCount = 1;
 			writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 			writeDescriptorSet.pImageInfo = &imageInfo;
 			writeDescriptorSet.dstSet = GetDescriptorSet();
 
 			vkUpdateDescriptorSets(m_Device->GetVkHandle(), 1, &writeDescriptorSet, 0, nullptr);
+			m_CombinedSamplers[i].Texture = nullptr;
 		}
 	}
 
@@ -157,7 +142,7 @@ namespace Quark {
 			descriptorSetLayoutbindingPtr->binding = uniformBuffer.Decorators.Binding;
 			descriptorSetLayoutbindingPtr->descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 			descriptorSetLayoutbindingPtr->descriptorCount = 1;
-			descriptorSetLayoutbindingPtr->stageFlags = Utils::ShaderStageToVulkan(uniformBuffer.Stage);
+			descriptorSetLayoutbindingPtr->stageFlags = ShaderStageToVulkan(uniformBuffer.Stage);
 			descriptorSetLayoutbindingPtr++;
 		}
 
@@ -167,7 +152,7 @@ namespace Quark {
 			descriptorSetLayoutbindingPtr->binding = samplerArray.Decorators.Binding;
 			descriptorSetLayoutbindingPtr->descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 			descriptorSetLayoutbindingPtr->descriptorCount = samplerArray.SamplerCount;
-			descriptorSetLayoutbindingPtr->stageFlags = Utils::ShaderStageToVulkan(samplerArray.Stage);
+			descriptorSetLayoutbindingPtr->stageFlags = ShaderStageToVulkan(samplerArray.Stage);
 			descriptorSetLayoutbindingPtr->pImmutableSamplers = nullptr;
 			descriptorSetLayoutbindingPtr++;
 		}

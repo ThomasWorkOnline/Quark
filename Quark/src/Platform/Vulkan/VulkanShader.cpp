@@ -33,8 +33,8 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		m_ShaderStages[VK_SHADER_STAGE_VERTEX_BIT]   = CreateShader(ShaderStage::VertexStage, vertexSource);
-		m_ShaderStages[VK_SHADER_STAGE_FRAGMENT_BIT] = CreateShader(ShaderStage::FragmentStage, fragmentSource);
+		m_ShaderStages[VK_SHADER_STAGE_VERTEX_BIT]   = CreateShader(ShaderStage::Vertex, vertexSource);
+		m_ShaderStages[VK_SHADER_STAGE_FRAGMENT_BIT] = CreateShader(ShaderStage::Fragment, fragmentSource);
 	}
 
 	VulkanShader::VulkanShader(VulkanDevice* device, std::string_view name, const SpirvSource& vertexSource, const SpirvSource& geometrySource, const SpirvSource& fragmentSource)
@@ -42,9 +42,9 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		m_ShaderStages[VK_SHADER_STAGE_VERTEX_BIT]   = CreateShader(ShaderStage::VertexStage, vertexSource);
-		m_ShaderStages[VK_SHADER_STAGE_GEOMETRY_BIT] = CreateShader(ShaderStage::GeometryStage, geometrySource);
-		m_ShaderStages[VK_SHADER_STAGE_FRAGMENT_BIT] = CreateShader(ShaderStage::FragmentStage, fragmentSource);
+		m_ShaderStages[VK_SHADER_STAGE_VERTEX_BIT]   = CreateShader(ShaderStage::Vertex, vertexSource);
+		m_ShaderStages[VK_SHADER_STAGE_GEOMETRY_BIT] = CreateShader(ShaderStage::Geometry, geometrySource);
+		m_ShaderStages[VK_SHADER_STAGE_FRAGMENT_BIT] = CreateShader(ShaderStage::Fragment, fragmentSource);
 	}
 
 	VulkanShader::~VulkanShader()

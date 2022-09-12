@@ -32,10 +32,10 @@ namespace Quark {
 		{
 			switch (stage)
 			{
-				case GL_VERTEX_SHADER:   return ShaderStage::VertexStage;
-				case GL_GEOMETRY_SHADER: return ShaderStage::GeometryStage;
-				case GL_FRAGMENT_SHADER: return ShaderStage::FragmentStage;
-				case GL_COMPUTE_SHADER:  return ShaderStage::ComputeStage;
+				case GL_VERTEX_SHADER:   return ShaderStage::Vertex;
+				case GL_GEOMETRY_SHADER: return ShaderStage::Geometry;
+				case GL_FRAGMENT_SHADER: return ShaderStage::Fragment;
+				case GL_COMPUTE_SHADER:  return ShaderStage::Compute;
 
 				QK_ASSERT_NO_DEFAULT("Unknown OpenGL shader stage");
 			}

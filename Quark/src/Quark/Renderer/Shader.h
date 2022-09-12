@@ -11,10 +11,10 @@ namespace Quark {
 	enum class ShaderStage
 	{
 		None = 0,
-		VertexStage,
-		GeometryStage,
-		FragmentStage,
-		ComputeStage
+		Vertex,
+		Geometry,
+		Fragment,
+		Compute
 	};
 
 	struct ResourceDecorators

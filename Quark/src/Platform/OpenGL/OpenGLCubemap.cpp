@@ -1,6 +1,6 @@
 #include "qkpch.h"
 #include "OpenGLCubemap.h"
-#include "OpenGLFormats.h"
+#include "OpenGLEnums.h"
 
 #include <glad/glad.h>
 

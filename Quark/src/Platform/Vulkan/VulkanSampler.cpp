@@ -1,6 +1,9 @@
 #include "qkpch.h"
 #include "VulkanSampler.h"
 
+// TODO: use vulkan enums for sampling modes
+#include "VulkanEnums.h"
+
 namespace Quark {
 
 	VulkanSampler::VulkanSampler(VulkanDevice* device, const SamplerSpecification& spec)

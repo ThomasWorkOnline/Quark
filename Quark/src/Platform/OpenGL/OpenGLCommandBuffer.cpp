@@ -2,6 +2,7 @@
 #include "OpenGLCommandBuffer.h"
 
 #include "OpenGLBuffer.h"
+#include "OpenGLEnums.h"
 #include "OpenGLFramebuffer.h"
 
 #include <glad/glad.h>
@@ -12,52 +13,16 @@ namespace Quark {
 
 	void OpenGLCommandBuffer::SetCullFace(RenderCullMode mode)
 	{
-		switch (mode)
-		{
-			case RenderCullMode::None:
-				glDisable(GL_CULL_FACE);
-				break;
-			case RenderCullMode::Front:
-				glEnable(GL_CULL_FACE);
-				glCullFace(GL_FRONT);
-				break;
-			case RenderCullMode::Back:
-				glEnable(GL_CULL_FACE);
-				glCullFace(GL_BACK);
-				break;
-			case RenderCullMode::FrontAndBack:
-				glEnable(GL_CULL_FACE);
-				glCullFace(GL_FRONT_AND_BACK);
-				break;
-		}
+		mode == RenderCullMode::None
+			? glDisable(GL_CULL_FACE)
+			: glEnable(GL_CULL_FACE);
+
+		glCullFace(CullModeToOpenGL(mode));
 	}
 
 	void OpenGLCommandBuffer::SetDepthFunction(RenderDepthFunction func)
 	{
-		switch (func)
-		{
-			case RenderDepthFunction::Never:
-				glDepthFunc(GL_NEVER);
-				break;
-			case RenderDepthFunction::Always:
-				glDepthFunc(GL_ALWAYS);
-				break;
-			case RenderDepthFunction::NotEqual:
-				glDepthFunc(GL_NOTEQUAL);
-				break;
-			case RenderDepthFunction::Less:
-				glDepthFunc(GL_LESS);
-				break;
-			case RenderDepthFunction::LessEqual:
-				glDepthFunc(GL_LEQUAL);
-				break;
-			case RenderDepthFunction::Greater:
-				glDepthFunc(GL_GREATER);
-				break;
-			case RenderDepthFunction::GreaterEqual:
-				glDepthFunc(GL_GEQUAL);
-				break;
-		}
+		glDepthFunc(DepthFunctionToOpenGL(func));
 	}
 
 	void OpenGLCommandBuffer::BindPipeline(const Pipeline* pipeline)
