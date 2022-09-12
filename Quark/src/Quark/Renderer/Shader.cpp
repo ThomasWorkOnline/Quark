@@ -128,16 +128,15 @@ namespace Quark {
 	SpirvSource ReadSpirvFile(std::string_view filepath)
 	{
 		SpirvSource result;
-		std::ifstream in(filepath.data(), std::ios::in | std::ios::binary);
+		std::ifstream in(filepath.data(), std::ios::ate | std::ios::in | std::ios::binary);
 		if (in)
 		{
-			in.seekg(0, std::ios::end);
 			size_t size = in.tellg();
-			QK_CORE_RUNTIME_VERIFY(size % sizeof(uint32_t) == 0, "Invalid byte alignment for file: '{0}' (SPIR-V required 4-byte alignment)", filepath);
+			Verify(size % sizeof(uint32_t) == 0, "Invalid byte alignment for file: '{0}' (SPIR-V requires 4-bytes per word)", filepath);
 
 			if (size != -1)
 			{
-				result.resize(size / 4);
+				result.resize(size / sizeof(uint32_t));
 				in.seekg(0, std::ios::beg);
 				in.read((char*)result.data(), size);
 				in.close();
@@ -146,7 +145,7 @@ namespace Quark {
 			}
 		}
 
-		QK_CORE_RUNTIME_ERROR("Could not open file '{0}'", filepath);
+		ThrowRuntimeError("Could not open file '{0}'", filepath);
 		return result;
 	}
 

@@ -10,10 +10,9 @@ namespace Quark {
 		std::string ReadTextFile(std::string_view filepath)
 		{
 			std::string result;
-			std::ifstream in(filepath.data(), std::ios::in | std::ios::binary);
+			std::ifstream in(filepath.data(), std::ios::ate | std::ios::in | std::ios::binary);
 			if (in)
 			{
-				in.seekg(0, std::ios::end);
 				size_t size = in.tellg();
 				if (size != -1)
 				{
@@ -26,7 +25,7 @@ namespace Quark {
 				}
 			}
 
-			QK_CORE_RUNTIME_ERROR("Could not open file '{0}'", filepath);
+			Verify("Could not open file '{0}'", filepath);
 			return result;
 		}
 	}
