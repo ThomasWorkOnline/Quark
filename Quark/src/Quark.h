@@ -30,10 +30,10 @@
 // Renderer
 #include "Quark/Renderer/Buffer.h"
 #include "Quark/Renderer/Camera.h"
-#include "Quark/Renderer/ColorFormats.h"
 #include "Quark/Renderer/CommandBuffer.h"
 #include "Quark/Renderer/Cubemap.h"
 #include "Quark/Renderer/Font.h"
+#include "Quark/Renderer/Formats.h"
 #include "Quark/Renderer/Framebuffer.h"
 #include "Quark/Renderer/Image.h"
 #include "Quark/Renderer/Material.h"
@@ -46,7 +46,6 @@
 #include "Quark/Renderer/Shader.h"
 #include "Quark/Renderer/SubTexture.h"
 #include "Quark/Renderer/Texture.h"
-#include "Quark/Renderer/TextureFormats.h"
 #include "Quark/Renderer/UniformBuffer.h"
 
 // Entity Component System

@@ -1,5 +1,5 @@
 #include "qkpch.h"
-#include "ColorFormats.h"
+#include "Formats.h"
 
 namespace Quark {
 
@@ -57,9 +57,35 @@ namespace Quark {
 		/*Depth24Stencil8*/ false
 	};
 
+	static constexpr bool s_FilteringModeHasMipsLUT[] = {
+		/*None = 0*/             false,
+		/*Nearest*/              false,
+		/*Linear*/               false,
+		/*NearestMipmapNearest*/ true,
+		/*NearestMipmapLinear*/  true,
+		/*LinearMipmapNearest*/  true,
+		/*LinearMipmapLinear*/   true
+	};
+
 	size_t GetPixelFormatSize(ColorDataFormat format)
 	{
 		return s_PixelFormatSizeLUT[static_cast<size_t>(format)];
+	}
+
+	uint32_t GetMipLevelsForResolution(uint32_t width, uint32_t height)
+	{
+		uint32_t stride = std::max(width, height);
+		uint32_t mips = 0;
+
+		while (stride >>= 1)
+			mips++;
+
+		return mips + 1;
+	}
+
+	bool IsFormatUsingMips(TextureFilteringMode mode)
+	{
+		return s_FilteringModeHasMipsLUT[static_cast<size_t>(mode)];
 	}
 
 	bool IsColorFormatAlpha(ColorDataFormat format)

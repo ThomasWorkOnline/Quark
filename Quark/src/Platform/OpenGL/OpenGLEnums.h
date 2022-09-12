@@ -1,10 +1,9 @@
 #pragma once
 
 #include "Quark/Renderer/Buffer.h"
-#include "Quark/Renderer/ColorFormats.h"
+#include "Quark/Renderer/Formats.h"
 #include "Quark/Renderer/RenderModes.h"
 #include "Quark/Renderer/Shader.h"
-#include "Quark/Renderer/TextureFormats.h"
 
 #include <glad/glad.h>
 

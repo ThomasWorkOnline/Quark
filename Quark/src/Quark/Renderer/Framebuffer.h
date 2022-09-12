@@ -1,9 +1,8 @@
 #pragma once
 
 #include "Quark/Core/Core.h"
-#include "ColorFormats.h"
+#include "Formats.h"
 #include "RenderPass.h"
-#include "TextureFormats.h"
 
 #include <vector>
 

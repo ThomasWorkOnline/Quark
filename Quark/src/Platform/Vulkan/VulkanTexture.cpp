@@ -19,10 +19,10 @@ namespace Quark {
 			&& m_Spec.Height <= Renderer::GetCapabilities().TextureCapabilities.MaxHeight,
 			"Texture dimensions too large: see Renderer::GetCapabilities() for more info");
 
-		QK_CORE_ASSERT(!IsformatUsingMips(m_Spec.RenderModes.MagFilteringMode),
+		QK_CORE_ASSERT(!IsFormatUsingMips(m_Spec.RenderModes.MagFilteringMode),
 			"The magnification mode may not be set to use mipmaps");
 
-		m_Spec.Levels = IsformatUsingMips(m_Spec.RenderModes.MinFilteringMode) && m_Spec.Levels == 0
+		m_Spec.Levels = IsFormatUsingMips(m_Spec.RenderModes.MinFilteringMode) && m_Spec.Levels == 0
 			? GetMipLevelsForResolution(m_Spec.Width, m_Spec.Height) : 1;
 
 		VkExtent3D imageExtent{};
@@ -62,7 +62,7 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		QK_CORE_ASSERT(!IsformatUsingMips(renderModes.MagFilteringMode),
+		QK_CORE_ASSERT(!IsFormatUsingMips(renderModes.MagFilteringMode),
 			"The magnification mode may not be set to use mipmaps");
 
 		Image image = filepath;
@@ -76,7 +76,7 @@ namespace Quark {
 		m_Spec.Height = metadata.Height;
 		m_Spec.DataFormat = metadata.DataFormat;
 		m_Spec.RenderModes = renderModes;
-		m_Spec.Levels = IsformatUsingMips(m_Spec.RenderModes.MinFilteringMode) && m_Spec.Levels == 0
+		m_Spec.Levels = IsFormatUsingMips(m_Spec.RenderModes.MinFilteringMode) && m_Spec.Levels == 0
 			? GetMipLevelsForResolution(m_Spec.Width, m_Spec.Height) : 1;
 
 		VkExtent3D imageExtent{};
@@ -111,14 +111,12 @@ namespace Quark {
 		}
 
 		// Staging buffer
-		size_t alignedSize;
 		VkDeviceSize size = metadata.Size;
-
 		VkDeviceMemory stagingBufferMemory;
 		VkBuffer stagingBuffer = Utils::AllocateBuffer(m_Device, size,
 			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-			stagingBufferMemory, &alignedSize
+			stagingBufferMemory
 		);
 
 		// Upload
@@ -130,7 +128,7 @@ namespace Quark {
 			VkMappedMemoryRange range{};
 			range.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
 			range.memory = stagingBufferMemory;
-			range.size = alignedSize;
+			range.size = size;
 
 			vkFlushMappedMemoryRanges(m_Device->GetVkHandle(), 1, &range);
 			vkUnmapMemory(m_Device->GetVkHandle(), stagingBufferMemory);
@@ -157,12 +155,11 @@ namespace Quark {
 		QK_CORE_ASSERT(size == m_Spec.Width * m_Spec.Height * pSize, "Data must be entire texture");
 
 		// Staging buffer
-		size_t alignedSize;
 		VkDeviceMemory stagingBufferMemory;
 		VkBuffer stagingBuffer = Utils::AllocateBuffer(m_Device, size,
 			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-			stagingBufferMemory, &alignedSize
+			stagingBufferMemory
 		);
 
 		// Upload
@@ -174,7 +171,7 @@ namespace Quark {
 			VkMappedMemoryRange range{};
 			range.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
 			range.memory = stagingBufferMemory;
-			range.size = alignedSize;
+			range.size = size;
 
 			vkFlushMappedMemoryRanges(m_Device->GetVkHandle(), 1, &range);
 			vkUnmapMemory(m_Device->GetVkHandle(), stagingBufferMemory);

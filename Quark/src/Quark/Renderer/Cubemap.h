@@ -1,8 +1,7 @@
 #pragma once
 
 #include "Quark/Core/Core.h"
-#include "ColorFormats.h"
-#include "TextureFormats.h"
+#include "Formats.h"
 
 namespace Quark {
 

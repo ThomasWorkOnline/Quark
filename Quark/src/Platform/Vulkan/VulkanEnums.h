@@ -1,11 +1,10 @@
 #pragma once
 
 #include "Quark/Renderer/Buffer.h"
-#include "Quark/Renderer/ColorFormats.h"
+#include "Quark/Renderer/Formats.h"
 #include "Quark/Renderer/RenderModes.h"
 #include "Quark/Renderer/RenderPass.h"
 #include "Quark/Renderer/Shader.h"
-#include "Quark/Renderer/TextureFormats.h"
 
 #include <vulkan/vulkan.h>
 
@@ -62,6 +61,8 @@ namespace Quark {
 		/*Double2*/         VK_FORMAT_R64G64_SFLOAT,
 		/*Double3*/         VK_FORMAT_R64G64B64_SFLOAT,
 		/*Double4*/         VK_FORMAT_R64G64B64A64_SFLOAT,
+
+		// TODO: Implement matrix data types
 
 		/*Mat3f*/           VK_FORMAT_UNDEFINED,
 		/*Mat4f*/           VK_FORMAT_UNDEFINED,

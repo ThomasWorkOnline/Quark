@@ -3,7 +3,7 @@
 #include "Quark/Core/Core.h"
 #include "Quark/Utility/FileStream.h"
 
-#include "ColorFormats.h"
+#include "Formats.h"
 
 namespace Quark {
 
