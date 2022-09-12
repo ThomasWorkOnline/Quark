@@ -25,7 +25,7 @@ namespace Quark {
 				}
 			}
 
-			Verify("Could not open file '{0}'", filepath);
+			ThrowRuntimeError("Could not open file '{0}'", filepath);
 			return result;
 		}
 	}
