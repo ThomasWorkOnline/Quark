@@ -14,6 +14,7 @@ class VulkanConfiguration:
 	requiredVulkanVersion = "1.3."
 	installVulkanVersion = "1.3.216.0"
 	vulkanDirectory = "./Vendor/VulkanSDK"
+	vulkanVersionBinary = "./Tools/Bin/InstalledVulkanVersion.exe"
 
 	@classmethod
 	def Validate(cls):
@@ -39,7 +40,7 @@ class VulkanConfiguration:
 		else:
 			print(f"Located Vulkan SDK at {vulkanSDK}")
 
-		proc = subprocess.Popen(os.path.abspath("./Tools/InstalledVulkanVersion/bin/InstalledVulkanVersion.exe"), stdout = subprocess.PIPE)
+		proc = subprocess.Popen(os.path.abspath(cls.vulkanVersionBinary), stdout = subprocess.PIPE)
 		installedVulkanVersion = proc.stdout.read().decode('UTF-8')
 
 		requiredVersionTokens = cls.requiredVulkanVersion.split('.', 2)

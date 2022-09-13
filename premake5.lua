@@ -31,4 +31,8 @@ group "Core"
 	include "Quark"
 group ""
 
+group "Tools"
+	include "Tools/InstalledVulkanVersion"
+group ""
+
 include "Demos"

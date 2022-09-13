@@ -5,6 +5,8 @@ bin
 bin-int
 bin-spirv
 
+!Tools/Bin
+
 # Instrumentation
 instrumentor
 logs
@@ -37,4 +39,3 @@ Build
 
 #VulkanSDK
 VulkanSDK
-
