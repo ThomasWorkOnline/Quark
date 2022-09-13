@@ -101,12 +101,12 @@ void MainLayer::OnKeyPressed(KeyPressedEvent& e)
 			m_Text1.SetValue("New text is now longer!");
 			break;
 		} 
-		case KeyCode::F:
+		case KeyCode::Period:
 		{
-			if (*m_Text1.GetStyle().Font == *m_Font1)
-				m_Text1.SetFont(m_Font2);
+			if (*m_Input.GetStyle().Font == *m_Font1)
+				m_Input.SetFont(m_Font2);
 			else
-				m_Text1.SetFont(m_Font1);
+				m_Input.SetFont(m_Font1);
 
 			break;
 		} 

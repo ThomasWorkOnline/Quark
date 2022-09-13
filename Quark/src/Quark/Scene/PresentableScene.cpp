@@ -101,7 +101,7 @@ namespace Quark {
 
 	void PresentableScene::SetEnvironment(std::string_view filepath)
 	{
-		NewEnvironment(filepath);
+		//NewEnvironment(filepath);
 	}
 
 	void PresentableScene::OnWindowResized(WindowResizedEvent& e)
@@ -210,7 +210,7 @@ namespace Quark {
 		};
 
 		auto hdrTexture = Texture2D::Create(filepath);
-		//hdrTexture->Attach(0);
+		m_Data.Env->EnvironmentMapPipeline->SetTexture(hdrTexture.get(), 0);
 
 		Renderer::GetCommandBuffer()->SetCullFace(RenderCullMode::Front);
 		Renderer::GetCommandBuffer()->SetDepthFunction(RenderDepthFunction::LessEqual);

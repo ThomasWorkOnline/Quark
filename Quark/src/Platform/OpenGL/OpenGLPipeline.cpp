@@ -68,6 +68,15 @@ namespace Quark {
 		: Pipeline(spec)
 		, m_PrimitiveTopology(Utils::PrimitiveTopologyToOpenGL(spec.Topology))
 	{
+		auto& shaderResources = m_Spec.Shader->GetShaderResources();
+
+		// Shader reflection does not work for shaders compiled from text sources. TODO: fix
+#if 0
+		QK_CORE_ASSERT(m_Spec.UniformBufferCount == shaderResources.UniformBuffers.size(),
+			"Mismatch between shader resources and uniform buffers provided: {0} given but pipeline expected: {1}",
+			m_Spec.UniformBufferCount, shaderResources.UniformBuffers.size());
+#endif
+
 		glGenVertexArrays(1, &m_RendererID);
 		glBindVertexArray(m_RendererID);
 	}

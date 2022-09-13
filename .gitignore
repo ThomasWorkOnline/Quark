@@ -16,14 +16,14 @@ logs
 Makefile
 makefile
 
-# Utilities
-Build
-
 # Premake
 !Vendor/bin
 
 # Python
 __pycache__
+
+# Utilities
+Build
 
 # Visual Studio
 **.sln
@@ -34,3 +34,7 @@ __pycache__
 
 # Visual Studio Code
 .vscode
+
+#VulkanSDK
+VulkanSDK
+

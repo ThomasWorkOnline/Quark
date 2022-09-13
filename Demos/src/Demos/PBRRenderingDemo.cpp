@@ -45,14 +45,19 @@ PBRRenderingDemo::PBRRenderingDemo(const ApplicationOptions& options)
 		spec.Size = sizeof(m_CameraBufferData);
 		spec.Binding = 0;
 		m_CameraUniformBuffer = UniformBuffer::Create(spec);
+
+		m_UniformBuffer = m_CameraUniformBuffer.get();
 	}
 
 	{
 		PipelineSpecification spec;
 		spec.Layout = Mesh::GetBufferLayout();
 		spec.Topology = PrimitiveTopology::TriangleList;
+		spec.Samples = Renderer::GetMultisampling();
 		spec.Shader = m_PBRShader.get();
 		spec.RenderPass = Renderer::GetGeometryPass();
+		spec.UniformBufferCount = 1;
+		spec.UniformBuffers = &m_UniformBuffer;
 
 		m_Pipeline = Pipeline::Create(spec);
 	}
@@ -107,11 +112,11 @@ void PBRRenderingDemo::OnRender()
 
 	if (m_Body)
 	{
-		//if (m_Material.Albedo) m_Material.Albedo->Attach(0);
-		//if (m_Material.Normal) m_Material.Normal->Attach(1);
-		//if (m_Material.Metallic) m_Material.Metallic->Attach(2);
-		//if (m_Material.Roughness) m_Material.Roughness->Attach(3);
-		//if (m_Material.AO) m_Material.AO->Attach(4);
+		if (m_Material.Albedo) m_Pipeline->SetTexture(m_Material.Albedo.get(), 0);
+		if (m_Material.Normal) m_Pipeline->SetTexture(m_Material.Normal.get(), 1);
+		if (m_Material.Metallic) m_Pipeline->SetTexture(m_Material.Metallic.get(), 2);
+		if (m_Material.Roughness) m_Pipeline->SetTexture(m_Material.Roughness.get(), 3);
+		if (m_Material.AO) m_Pipeline->SetTexture(m_Material.AO.get(), 4);
 
 		Renderer::BindPipeline(m_Pipeline.get());
 		Renderer::Submit(m_Body.GetVertexBuffer(), m_Body.GetIndexBuffer());

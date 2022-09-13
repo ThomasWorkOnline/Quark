@@ -50,6 +50,8 @@ private:
 	CameraUniformBufferData m_CameraBufferData;
 	Scope<Pipeline> m_Pipeline;
 
+	const UniformBuffer* m_UniformBuffer;
+
 	std::future<OBJMeshData> m_MeshDataFuture;
 	std::future<Scope<Image>> m_AlbedoFuture;
 	std::future<Scope<Image>> m_MetallicFuture;

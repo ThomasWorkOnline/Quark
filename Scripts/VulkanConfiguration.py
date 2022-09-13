@@ -2,8 +2,9 @@
 
 import os
 import platform
+import subprocess
 
-import Utils
+from . import Utils
 
 from pathlib import Path
 from io import BytesIO
@@ -12,7 +13,7 @@ from urllib.request import urlopen
 class VulkanConfiguration:
 	requiredVulkanVersion = "1.3."
 	installVulkanVersion = "1.3.216.0"
-	vulkanDirectory = "./Quark/vendor/VulkanSDK"
+	vulkanDirectory = "./Vendor/VulkanSDK"
 
 	@classmethod
 	def Validate(cls):
@@ -38,11 +39,17 @@ class VulkanConfiguration:
 		else:
 			print(f"Located Vulkan SDK at {vulkanSDK}")
 
-		if (cls.requiredVulkanVersion not in vulkanSDK):
-			print(f"You don't have the correct Vulkan SDK version! (Engine requires {cls.requiredVulkanVersion})")
-			cls.__InstallVulkanSDK()
+		proc = subprocess.Popen(os.path.abspath("./Tools/InstalledVulkanVersion/bin/InstalledVulkanVersion.exe"), stdout = subprocess.PIPE)
+		installedVulkanVersion = proc.stdout.read().decode('UTF-8')
+
+		requiredVersionTokens = cls.requiredVulkanVersion.split('.', 2)
+		installedVersionTokens = installedVulkanVersion.split('.', 2)
+
+		if (installedVersionTokens[0] < requiredVersionTokens[0] or
+			installedVersionTokens[1] < requiredVersionTokens[1]):
+			print(f"Vulkan version {installedVulkanVersion} is not supported!")
 			return False
-    
+
 		return True
 
 	@classmethod

@@ -5,13 +5,13 @@ import os
 import platform
 import subprocess
 
-from VulkanConfiguraton import VulkanConfiguration as VulkanRequirements
+from Scripts.VulkanConfiguration import VulkanConfiguration as VulkanRequirements
 
 VulkanRequirements.Validate()
 
 if platform.system() == "Windows":
 	dirname = os.path.dirname(__file__)
-	os.chdir(dirname) # Run subprocess as if we are in the scripts folder
+	os.chdir(dirname) # Run subprocess as if we are in the root folder
 
 	print("Generating Visual Studio solution using Premake...")
-	subprocess.call([os.path.abspath("./Windows/GenVisualStudio2022.bat")])
+	subprocess.call([os.path.abspath("./Scripts/Windows/GenVisualStudio2022.bat")])
