@@ -46,7 +46,11 @@ class VulkanConfiguration:
 		requiredVersionTokens = cls.requiredVulkanVersion.split('.', 2)
 		installedVersionTokens = installedVulkanVersion.split('.', 2)
 
-		if (not (installedVersionTokens[0] >= requiredVersionTokens[0] and installedVersionTokens[1] >= requiredVersionTokens[1])):
+		if (installedVersionTokens[0] < requiredVersionTokens[0]):
+			print(f"Vulkan version {installedVulkanVersion} is not supported!")
+			return False
+			
+		if (installedVersionTokens[1] < requiredVersionTokens[1]):
 			print(f"Vulkan version {installedVulkanVersion} is not supported!")
 			return False
 
