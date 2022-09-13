@@ -11,15 +11,17 @@ Official support for macOS and Linux is on it's way!
 
 ## On Windows
 1. Run `git clone --resursive https://github.com/ThomasWorkOnline/Quark.git` in your desired environment folder.
-2. After cloning this repository, run the script `GenVisualStudioSolution20xx_Win.bat` located under `Scripts/Windows`.
-3. Open the Visual Studio solution and hit build! Build for your desired configuration(s).
+2. Run `pip install requests`
+3. After cloning this repository, run the `Setup.py` script located under the solution directory.
+4. Open the generated Visual Studio solution and hit build! Build for your desired configuration(s).
 
 Note: *On Visual Studio, your configuration will automatically be set and can be chosen via the Configuration Manager.*
 
 ## On MacOS
 1. Run `git clone --resursive https://github.com/ThomasWorkOnline/Quark.git` in your desired environment folder.
-2. After cloning this repository, run the script `GenMakefile_MacOS.sh` located under `Scripts/Macos`.
-3. Navigate to the project root directory and type `make config=<config>`.
+2. Run `pip install requests`
+3. After cloning this repository, run the script `GenMakefile_MacOS.sh` located under `Scripts/Macos`.
+4. Navigate to the project root directory and type `make config=<config>`.
 ### Different configs:
 	make config=debug
 	make config=release
