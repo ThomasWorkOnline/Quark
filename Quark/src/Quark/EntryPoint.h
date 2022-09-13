@@ -8,5 +8,5 @@ namespace Quark {
 	///
 	/// Entry point: must be defined by client
 	///
-	extern Application* CreateApplication();
+	extern Application* CreateApplication(CommandLineArguments args);
 }

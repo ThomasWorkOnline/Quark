@@ -11,8 +11,10 @@ namespace Quark {
 
 		try
 		{
+			CommandLineArguments args = { argc, argv };
+
 			QK_BEGIN_PROFILE_SESSION("startup.json");
-			app.reset(Quark::CreateApplication());
+			app.reset(Quark::CreateApplication(args));
 			QK_END_PROFILE_SESSION();
 
 			QK_BEGIN_PROFILE_SESSION("runtime.json");

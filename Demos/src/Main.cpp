@@ -11,13 +11,14 @@
 
 namespace Quark {
 
-	Application* CreateApplication()
+	Application* CreateApplication(CommandLineArguments args)
 	{
 		using App = FontTest;
 
 		ApplicationOptions options;
 		options.AppName = "Demo Application";
 		options.CoreDir = "../";
+		options.CommandLineArgs = args;
 		options.GraphicsAPI = RHI::OpenGL;
 		//options.Flags = ApplicationFlagBits::EnableAudioOutputDevice;
 

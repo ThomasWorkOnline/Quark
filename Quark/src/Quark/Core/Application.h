@@ -21,16 +21,30 @@ namespace Quark {
 		EnableAudioOutputDevice = BIT(0)
 	};
 
+	struct CommandLineArguments
+	{
+		int    Argc = 0;
+		char** Argv = nullptr;
+
+		CommandLineArguments() = default;
+		CommandLineArguments(int argc, char** argv)
+			: Argc(argc), Argv(argv)
+		{
+		}
+	};
+
 	struct ApplicationOptions
 	{
-		uint32_t Width = 1280, Height = 720;
+		uint32_t    Width = 1280, Height = 720;
 		std::string AppName;
 
 		std::filesystem::path CoreDir;
 		std::filesystem::path AssetDir;
 
-		ApplicationFlagBits Flags{};
+		CommandLineArguments  CommandLineArgs;
+		ApplicationFlagBits   Flags{};
 		KeyCode FullscreenKey = KeyCode::F11;
+
 		RHI GraphicsAPI = Renderer::GetPreferredRHI();
 
 		bool HasFlag(ApplicationFlagBits flag) const { return Flags & flag; }

@@ -45,8 +45,9 @@ void MainLayer::OnRender()
 	ss << std::put_time(std::localtime(&t), "%H:%M:%S");
 
 	Renderer2D::BeginScene(m_Camera.GetProjection(), Mat4f(1.0f));
+	Renderer2D::DrawText(GetApplication()->GetOptions().CommandLineArgs.Argv[0], m_Font1.get());
 	//Renderer2D::DrawText(ss.str(), m_Font1.get());
-	Renderer2D::DrawText(m_Input);
+	//Renderer2D::DrawText(m_Input);
 	Renderer2D::EndScene();
 }
 
