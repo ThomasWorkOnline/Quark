@@ -31,6 +31,10 @@ namespace Quark {
 		m_BoundPipeline->Bind();
 	}
 
+	void OpenGLCommandBuffer::PushConstant(const Pipeline* pipeline, ShaderStage stage, const void* data, size_t size)
+	{
+	}
+
 	void OpenGLCommandBuffer::SetViewport(uint32_t viewportWidth, uint32_t viewportHeight)
 	{
 		glViewport(0, 0, viewportWidth, viewportHeight);

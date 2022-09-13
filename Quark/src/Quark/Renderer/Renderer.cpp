@@ -12,7 +12,8 @@ namespace Quark {
 	{
 		ShaderLibrary ShaderLib;
 		Scope<RenderPass> GeometryPass;
-		Scope<RenderPass> PostProcessingPass;
+		uint32_t Samples = 0;
+		Renderer::ViewportExtent ViewportExtent{};
 
 		CommandBuffer* ActiveCommandBuffer = nullptr;
 		std::vector<Scope<Framebuffer>> Framebuffers;
@@ -39,11 +40,6 @@ namespace Quark {
 	void Renderer::BeginGeometryPass()
 	{
 		BeginRenderPass(s_Data->GeometryPass.get(), GetTargetFramebuffer());
-	}
-
-	void Renderer::BeginPostProcessingPass()
-	{
-		BeginRenderPass(s_Data->PostProcessingPass.get(), GetTargetFramebuffer());
 	}
 
 	void Renderer::EndRenderPass()
@@ -95,8 +91,8 @@ namespace Quark {
 
 		if (viewportWidth != 0 && viewportHeight != 0)
 		{
-			s_ViewportExtent.Width = viewportWidth;
-			s_ViewportExtent.Height = viewportHeight;
+			s_Data->ViewportExtent.Width = viewportWidth;
+			s_Data->ViewportExtent.Height = viewportHeight;
 		}
 	}
 
@@ -130,12 +126,6 @@ namespace Quark {
 		return s_Data->GeometryPass.get();
 	}
 
-	RenderPass* Renderer::GetPostProcessingPass()
-	{
-		QK_ASSERT_RENDER_THREAD();
-		return s_Data->PostProcessingPass.get();
-	}
-
 	Framebuffer* Renderer::GetTargetFramebuffer()
 	{
 		QK_ASSERT_RENDER_THREAD();
@@ -146,7 +136,12 @@ namespace Quark {
 
 	Renderer::ViewportExtent Renderer::GetViewportExtent()
 	{
-		return s_ViewportExtent;
+		return s_Data->ViewportExtent;
+	}
+
+	uint32_t Renderer::GetMultisampling()
+	{
+		return s_Data->Samples;
 	}
 
 	CommandBuffer* Renderer::GetCommandBuffer()
@@ -184,7 +179,7 @@ namespace Quark {
 		s_Data->ActiveCommandBuffer = GraphicsContext::Get()->GetCommandBuffer();
 		s_Data->ActiveCommandBuffer->Reset();
 		s_Data->ActiveCommandBuffer->Begin();
-		s_Data->ActiveCommandBuffer->SetViewport(s_ViewportExtent.Width, s_ViewportExtent.Height);
+		s_Data->ActiveCommandBuffer->SetViewport(s_Data->ViewportExtent.Width, s_Data->ViewportExtent.Height);
 
 		BeginGeometryPass();
 	}
@@ -204,27 +199,30 @@ namespace Quark {
 		s_GraphicsAPI = GraphicsAPI::Instantiate(api);
 	}
 
-	void Renderer::Initialize(uint32_t viewportWidth, uint32_t viewportHeight)
+	void Renderer::Initialize(uint32_t viewportWidth, uint32_t viewportHeight, uint32_t samples)
 	{
 		QK_PROFILE_FUNCTION();
 
 		if (s_Data) return;
 
-		s_ViewportExtent.Width = viewportWidth;
-		s_ViewportExtent.Height = viewportHeight;
 		s_ThreadId = std::this_thread::get_id();
 
 		s_GraphicsAPI->Init();
 		s_Data = new RendererData();
 
+		s_Data->Samples = samples;
+		s_Data->ViewportExtent.Width = viewportWidth;
+		s_Data->ViewportExtent.Height = viewportHeight;
+
 		s_Data->ActiveCommandBuffer = GraphicsContext::Get()->GetCommandBuffer();
 
 		{
 			RenderPassSpecification spec;
-			spec.BindPoint = PipelineBindPoint::Graphics;
-			spec.ColorFormat = ColorDataFormat::BGRA8_SRGB;
-			spec.ClearColor = { 0.01f, 0.01f, 0.01f, 1.0f };
-			spec.ClearBuffers = true;
+			spec.BindPoint       = PipelineBindPoint::Graphics;
+			spec.ColorFormat     = ColorDataFormat::BGRA8_SRGB;
+			spec.ClearColor      = { 0.01f, 0.01f, 0.01f, 1.0f };
+			spec.ClearBuffers    = true;
+			spec.Samples         = s_Data->Samples;
 			s_Data->GeometryPass = RenderPass::Create(spec);
 		}
 
@@ -235,9 +233,10 @@ namespace Quark {
 		if (GraphicsAPI::GetAPI() == RHI::Vulkan)
 		{
 			FramebufferSpecification fbSpec;
-			fbSpec.Width = s_ViewportExtent.Width;
-			fbSpec.Height = s_ViewportExtent.Height;
-			fbSpec.RenderPass = s_Data->GeometryPass.get();
+			fbSpec.Width           = s_Data->ViewportExtent.Width;
+			fbSpec.Height          = s_Data->ViewportExtent.Height;
+			fbSpec.Samples         = s_Data->Samples;
+			fbSpec.RenderPass      = s_Data->GeometryPass.get();
 			fbSpec.SwapChainTarget = true;
 
 			for (uint32_t i = 0; i < swapChainImages; i++)

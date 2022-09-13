@@ -49,6 +49,16 @@ namespace Quark {
 		/*Depth24Stencil8*/ VK_FORMAT_D24_UNORM_S8_UINT
 	};
 
+	inline constexpr VkCompareOp s_DepthFunctionLUT[] = {
+		/*Never*/                VK_COMPARE_OP_NEVER,
+		/*Always*/               VK_COMPARE_OP_ALWAYS,
+		/*NotEqual*/             VK_COMPARE_OP_NOT_EQUAL,
+		/*Less*/                 VK_COMPARE_OP_LESS,
+		/*LessEqual*/            VK_COMPARE_OP_LESS_OR_EQUAL,
+		/*Greater*/              VK_COMPARE_OP_GREATER,
+		/*GreaterEqual*/         VK_COMPARE_OP_GREATER_OR_EQUAL
+	};
+
 	inline constexpr VkPipelineBindPoint s_VulkanPipelineBindPointLUT[] = {
 		/*None*/            VK_PIPELINE_BIND_POINT_MAX_ENUM,
 		/*Graphics*/        VK_PIPELINE_BIND_POINT_GRAPHICS,
@@ -73,13 +83,13 @@ namespace Quark {
 	};
 
 	inline constexpr VkSampleCountFlagBits s_VulkanSampleCountLUT[] = {
-		/*SampleCount1*/    VK_SAMPLE_COUNT_1_BIT,
-		/*SampleCount2*/    VK_SAMPLE_COUNT_2_BIT,
-		/*SampleCount4*/    VK_SAMPLE_COUNT_4_BIT,
-		/*SampleCount8*/    VK_SAMPLE_COUNT_8_BIT,
-		/*SampleCount16*/   VK_SAMPLE_COUNT_16_BIT,
-		/*SampleCount32*/   VK_SAMPLE_COUNT_32_BIT,
-		/*SampleCount64*/   VK_SAMPLE_COUNT_64_BIT
+		/*SampleCount1*/         VK_SAMPLE_COUNT_1_BIT,
+		/*SampleCount2*/         VK_SAMPLE_COUNT_2_BIT,
+		/*SampleCount4*/         VK_SAMPLE_COUNT_4_BIT,
+		/*SampleCount8*/         VK_SAMPLE_COUNT_8_BIT,
+		/*SampleCount16*/        VK_SAMPLE_COUNT_16_BIT,
+		/*SampleCount32*/        VK_SAMPLE_COUNT_32_BIT,
+		/*SampleCount64*/        VK_SAMPLE_COUNT_64_BIT
 	};
 
 	inline constexpr VkFilter s_VulkanFilteringModeLUT[] = {
@@ -146,6 +156,11 @@ namespace Quark {
 		return s_VulkanPipelineBindPointLUT[static_cast<size_t>(bindpoint)];
 	}
 
+	constexpr VkCompareOp DepthFunctionToVulkan(RenderDepthFunction func)
+	{
+		return s_DepthFunctionLUT[static_cast<size_t>(func)];
+	}
+
 	constexpr VkSamplerAddressMode TextureTilingModeToVulkan(TextureTilingMode mode)
 	{
 		return s_VulkanSamplerAddressModeLUT[static_cast<size_t>(mode)];
@@ -156,9 +171,19 @@ namespace Quark {
 		return s_VulkanSamplerMipmapModeLUT[static_cast<size_t>(mode)];
 	}
 
-	constexpr VkSampleCountFlagBits SampleCountToVulkan(SampleCount samples)
+	inline uint32_t uint64_log2(uint64_t n)
 	{
-		return s_VulkanSampleCountLUT[static_cast<size_t>(samples)];
+#define S(k) if (n >= (UINT64_C(1) << k)) { i += k; n >>= k; }
+
+		uint32_t i = -(n == 0); S(32); S(16); S(8); S(4); S(2); S(1); return i;
+
+#undef S
+	}
+
+	inline VkSampleCountFlagBits SampleCountToVulkan(uint32_t samples)
+	{
+		uint32_t index = uint64_log2(samples);
+		return s_VulkanSampleCountLUT[index];
 	}
 
 	constexpr VkFilter TextureFilteringModeToVulkan(TextureFilteringMode mode)

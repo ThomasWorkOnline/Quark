@@ -60,6 +60,17 @@ namespace Quark {
 		Default = ClampToEdge
 	};
 
+	enum class SampleCount
+	{
+		SampleCount1 = 0,
+		SampleCount2,
+		SampleCount4,
+		SampleCount8,
+		SampleCount16,
+		SampleCount32,
+		SampleCount64
+	};
+
 	struct TextureRenderModes
 	{
 		TextureFilteringMode MagFilteringMode = TextureFilteringMode::Linear;

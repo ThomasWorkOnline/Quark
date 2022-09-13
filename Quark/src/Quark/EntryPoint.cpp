@@ -6,6 +6,7 @@ namespace Quark {
 	static int Main(int argc, char** argv)
 	{
 		RuntimeCore::Init();
+
 		Scope<Application> app;
 
 		try
@@ -34,7 +35,8 @@ namespace Quark {
 		}
 
 		RuntimeCore::Shutdown();
-		return 0;
+
+		return EXIT_SUCCESS;
 	}
 }
 

@@ -259,7 +259,7 @@ namespace Quark {
 		s_Stats.LinesDrawn++;
 	}
 
-	void Renderer2D::DrawText(std::string_view text, Font* font, const Vec4f& color, const Mat4f& transform)
+	void Renderer2D::DrawText(std::string_view text, const Font* font, const Vec4f& color, const Mat4f& transform)
 	{
 		QK_ASSERT_RENDER_THREAD();
 
@@ -505,12 +505,13 @@ namespace Quark {
 
 		{
 			PipelineSpecification spec;
-			spec.Layout = s_QuadVertexLayout;
-			spec.Topology = PrimitiveTopology::TriangleList;
-			spec.RenderPass = Renderer::GetGeometryPass();
-			spec.Shader = s_Data->QuadShader.get();
+			spec.Layout             = s_QuadVertexLayout;
+			spec.Topology           = PrimitiveTopology::TriangleList;
+			spec.Samples            = Renderer::GetMultisampling();
+			spec.RenderPass         = Renderer::GetGeometryPass();
+			spec.Shader             = s_Data->QuadShader.get();
 			spec.UniformBufferCount = 1;
-			spec.UniformBuffers = &s_Data->UniformBuffers;
+			spec.UniformBuffers     = &s_Data->UniformBuffers;
 
 			s_Data->QuadRendererPipeline = Pipeline::Create(spec);
 		}
@@ -533,12 +534,13 @@ namespace Quark {
 
 		{
 			PipelineSpecification spec;
-			spec.Layout = s_LineVertexLayout;
-			spec.Topology = PrimitiveTopology::LineList;
-			spec.RenderPass = Renderer::GetGeometryPass();
-			spec.Shader = s_Data->LineShader.get();
+			spec.Layout             = s_LineVertexLayout;
+			spec.Topology           = PrimitiveTopology::LineList;
+			spec.Samples            = Renderer::GetMultisampling();
+			spec.RenderPass         = Renderer::GetGeometryPass();
+			spec.Shader             = s_Data->LineShader.get();
 			spec.UniformBufferCount = 1;
-			spec.UniformBuffers = &s_Data->UniformBuffers;
+			spec.UniformBuffers     = &s_Data->UniformBuffers;
 
 			s_Data->LineRendererPipeline = Pipeline::Create(spec);
 		}

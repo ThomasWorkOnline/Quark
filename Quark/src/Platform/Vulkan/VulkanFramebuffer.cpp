@@ -16,15 +16,15 @@ namespace Quark {
 		: m_Device(device), m_Format(format)
 	{
 		VkImageViewCreateInfo imageViewInfo{};
-		imageViewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		imageViewInfo.image = image;
-		imageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-		imageViewInfo.format = m_Format;
-		imageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		imageViewInfo.subresourceRange.baseMipLevel = 0;
-		imageViewInfo.subresourceRange.levelCount = 1;
+		imageViewInfo.sType                           = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		imageViewInfo.image                           = image;
+		imageViewInfo.viewType                        = VK_IMAGE_VIEW_TYPE_2D;
+		imageViewInfo.format                          = m_Format;
+		imageViewInfo.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+		imageViewInfo.subresourceRange.baseMipLevel   = 0;
+		imageViewInfo.subresourceRange.levelCount     = 1;
 		imageViewInfo.subresourceRange.baseArrayLayer = 0;
-		imageViewInfo.subresourceRange.layerCount = 1;
+		imageViewInfo.subresourceRange.layerCount     = 1;
 
 		vkCreateImageView(m_Device->GetVkHandle(), &imageViewInfo, nullptr, &m_ImageView);
 	}
@@ -37,15 +37,15 @@ namespace Quark {
 	void VulkanFramebufferAttachment::SetData(const void* data)
 	{
 		VkImageViewCreateInfo imageViewInfo{};
-		imageViewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		imageViewInfo.image = (VkImage)data;
-		imageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-		imageViewInfo.format = m_Format;
-		imageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		imageViewInfo.subresourceRange.baseMipLevel = 0;
-		imageViewInfo.subresourceRange.levelCount = 1;
+		imageViewInfo.sType                           = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		imageViewInfo.image                           = (VkImage)data;
+		imageViewInfo.viewType                        = VK_IMAGE_VIEW_TYPE_2D;
+		imageViewInfo.format                          = m_Format;
+		imageViewInfo.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+		imageViewInfo.subresourceRange.baseMipLevel   = 0;
+		imageViewInfo.subresourceRange.levelCount     = 1;
 		imageViewInfo.subresourceRange.baseArrayLayer = 0;
-		imageViewInfo.subresourceRange.layerCount = 1;
+		imageViewInfo.subresourceRange.layerCount     = 1;
 
 		vkDestroyImageView(m_Device->GetVkHandle(), m_ImageView, nullptr);
 		vkCreateImageView(m_Device->GetVkHandle(), &imageViewInfo, nullptr, &m_ImageView);
@@ -58,6 +58,10 @@ namespace Quark {
 
 		return false;
 	}
+
+	///////////////////////////////////////////////////////////////////////////////////
+	// VulkanFramebuffer
+	//
 
 	VulkanFramebuffer::VulkanFramebuffer(VulkanDevice* device, const FramebufferSpecification& spec)
 		: Framebuffer(spec)
@@ -104,13 +108,13 @@ namespace Quark {
 		}
 
 		VkFramebufferCreateInfo framebufferInfo{};
-		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-		framebufferInfo.renderPass = static_cast<VulkanRenderPass*>(m_Spec.RenderPass)->GetVkHandle();
+		framebufferInfo.sType           = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+		framebufferInfo.renderPass      = static_cast<VulkanRenderPass*>(m_Spec.RenderPass)->GetVkHandle();
 		framebufferInfo.attachmentCount = (uint32_t)m_Spec.Attachments.size();
-		framebufferInfo.pAttachments = attachments;
-		framebufferInfo.width = m_Spec.Width;
-		framebufferInfo.height = m_Spec.Height;
-		framebufferInfo.layers = 1;
+		framebufferInfo.pAttachments    = attachments;
+		framebufferInfo.width           = m_Spec.Width;
+		framebufferInfo.height          = m_Spec.Height;
+		framebufferInfo.layers          = 1;
 
 		vkDestroyFramebuffer(m_Device->GetVkHandle(), m_Framebuffer, nullptr);
 		vkCreateFramebuffer(m_Device->GetVkHandle(), &framebufferInfo, nullptr, &m_Framebuffer);

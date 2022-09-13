@@ -183,7 +183,7 @@ namespace Quark {
 				FramebufferAttachmentSpecification attachmentSpec = {
 					2048,
 					2048,
-					1,
+					Renderer::GetMultisampling(),
 					ColorDataFormat::RGBA16f
 				};
 

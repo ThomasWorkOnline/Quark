@@ -18,14 +18,15 @@ namespace Quark {
 
 		Renderer::Configure(m_Options.GraphicsAPI);
 
+		uint32_t multisampling = 1;
 		WindowSpecification spec = {
-			m_Options.AppName.empty() ? "Quark Engine" : m_Options.AppName, m_Options.Width, m_Options.Height, 4
+			m_Options.AppName.empty() ? "Quark Engine" : m_Options.AppName, m_Options.Width, m_Options.Height, multisampling
 		};
 
 		m_Window = Window::Create(spec);
 		m_Window->SetEventCallback(ATTACH_EVENT_FN(Application::OnEventInternal));
 
-		Renderer::Initialize(m_Window->GetWidth(), m_Window->GetHeight());
+		Renderer::Initialize(m_Window->GetWidth(), m_Window->GetHeight(), multisampling);
 		Renderer2D::Initialize();
 
 		QK_CORE_INFO(Renderer::GetSpecification());
@@ -48,8 +49,8 @@ namespace Quark {
 		for (size_t i = 0; i < m_Layers.size(); i++)
 			delete m_Layers[i];
 
-		Renderer::Dispose();
 		Renderer2D::Dispose();
+		Renderer::Dispose();
 	}
 
 	void Application::Stop()
@@ -77,14 +78,16 @@ namespace Quark {
 					m_Layers[i]->OnUpdate(elapsedTime);
 			}
 
-			Renderer::BeginFrame();
+			{
+				Renderer::BeginFrame();
 
-			OnRender();
+				OnRender();
 
-			for (auto layer : m_Layers)
-				layer->OnRender();
+				for (auto layer : m_Layers)
+					layer->OnRender();
 
-			Renderer::EndFrame();
+				Renderer::EndFrame();
+			}
 
 			m_Window->OnUpdate();
 		}

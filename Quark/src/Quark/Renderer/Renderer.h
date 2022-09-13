@@ -6,6 +6,7 @@
 
 #include "Buffer.h"
 #include "CommandBuffer.h"
+#include "Formats.h"
 #include "Framebuffer.h"
 #include "Pipeline.h"
 #include "RenderPass.h"
@@ -29,7 +30,6 @@ namespace Quark {
 
 		static void BeginRenderPass(const RenderPass* renderPass, const Framebuffer* framebuffer);
 		static void BeginGeometryPass();
-		static void BeginPostProcessingPass();
 		static void EndRenderPass();
 
 		static void Submit(const VertexBuffer* vertexBuffer, uint32_t vertexCount);
@@ -40,35 +40,34 @@ namespace Quark {
 		static void SetClearColor(const Vec4f& clearColor);
 		static void WaitUntilDeviceIdle();
 
-		static const Vec4f& GetClearColor();
+		static const Vec4f&    GetClearColor();
 		static const GraphicsAPICapabilities& GetCapabilities();
 
-		static RenderPass* GetGeometryPass();
-		static RenderPass* GetPostProcessingPass();
+		static RenderPass*     GetGeometryPass();
 
-		static Framebuffer* GetTargetFramebuffer();
-		static ViewportExtent GetViewportExtent();
-		static CommandBuffer* GetCommandBuffer();
+		static Framebuffer*    GetTargetFramebuffer();
+		static ViewportExtent  GetViewportExtent();
+		static uint32_t        GetMultisampling();
 
-		static ShaderLibrary& GetShaderLibrary();
+		static CommandBuffer*  GetCommandBuffer();
+
+		static ShaderLibrary&  GetShaderLibrary();
 		static std::thread::id GetThreadId() { return s_ThreadId; }
 
-		static RHI GetPreferredRHI();
-		static std::string GetSpecification();
-		static const char* GetAPIName();
+		static RHI             GetPreferredRHI();
+		static std::string     GetSpecification();
+		static const char*     GetAPIName();
 
 	private:
 		static void BeginFrame();
 		static void EndFrame();
 
 		static void Configure(RHI api);
-		static void Initialize(uint32_t viewportWidth, uint32_t viewportHeight);
+		static void Initialize(uint32_t viewportWidth, uint32_t viewportHeight, uint32_t samples);
 		static void Dispose();
 
 	private:
 		static inline std::thread::id s_ThreadId;
-		static inline ViewportExtent s_ViewportExtent{};
-
 		friend class Application;
 	};
 }

@@ -2,6 +2,7 @@
 #include "VulkanCommandBuffer.h"
 
 #include "VulkanBuffer.h"
+#include "VulkanEnums.h"
 #include "VulkanFramebuffer.h"
 #include "VulkanPipeline.h"
 #include "VulkanRenderPass.h"
@@ -38,12 +39,12 @@ namespace Quark {
 
 	void VulkanCommandBuffer::SetCullFace(RenderCullMode mode)
 	{
-		QK_CORE_ASSERT(false, "Not implemented");
+		vkCmdSetCullMode(m_CommandBuffer, CullModeToVulkan(mode));
 	}
 
 	void VulkanCommandBuffer::SetDepthFunction(RenderDepthFunction func)
 	{
-		QK_CORE_ASSERT(false, "Not implemented");
+		vkCmdSetDepthCompareOp(m_CommandBuffer, DepthFunctionToVulkan(func));
 	}
 
 	void VulkanCommandBuffer::BindPipeline(const Pipeline* pipeline)
@@ -54,6 +55,12 @@ namespace Quark {
 		vkCmdBindPipeline(m_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vulkanPipeline->GetVkHandle());
 		vkCmdBindDescriptorSets(m_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vulkanPipeline->GetPipelineLayout(),
 			0, 1, &descriptorSet, 0, nullptr);
+	}
+
+	void VulkanCommandBuffer::PushConstant(const Pipeline* pipeline, ShaderStage stage, const void* data, size_t size)
+	{
+		auto* vulkanPipeline = static_cast<const VulkanPipeline*>(pipeline);
+		vkCmdPushConstants(m_CommandBuffer, vulkanPipeline->GetPipelineLayout(), ShaderStageToVulkan(stage), 0, (uint32_t)size, data);
 	}
 
 	void VulkanCommandBuffer::SetViewport(uint32_t viewportWidth, uint32_t viewportHeight)

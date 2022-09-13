@@ -253,7 +253,7 @@ namespace Quark {
 		VkPipelineMultisampleStateCreateInfo multisampling{};
 		multisampling.sType                       = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
 		multisampling.sampleShadingEnable         = VK_FALSE;
-		multisampling.rasterizationSamples        = VK_SAMPLE_COUNT_1_BIT;
+		multisampling.rasterizationSamples        = SampleCountToVulkan(m_Spec.Samples);
 		multisampling.minSampleShading            = 1.0f;
 		multisampling.alphaToCoverageEnable       = VK_FALSE;
 		multisampling.alphaToOneEnable            = VK_FALSE;

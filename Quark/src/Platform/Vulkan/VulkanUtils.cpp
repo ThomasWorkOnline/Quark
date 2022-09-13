@@ -1,6 +1,8 @@
 #include "qkpch.h"
 #include "VulkanUtils.h"
 
+#include "VulkanEnums.h"
+
 namespace Quark {
 
 	namespace Utils {
@@ -66,7 +68,7 @@ namespace Quark {
 			return buffer;
 		}
 
-		VkImage AllocateImage(VulkanDevice* device, VkExtent3D extent, uint32_t layers, uint32_t levels, VkFormat format, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkDeviceMemory& bufferMemory, size_t* outRequirementSize)
+		VkImage AllocateImage(VulkanDevice* device, VkExtent3D extent, uint32_t layers, uint32_t levels, uint32_t samples, VkFormat format, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkDeviceMemory& bufferMemory, size_t* outRequirementSize)
 		{
 			VkImageCreateInfo createInfo{};
 			createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -75,7 +77,7 @@ namespace Quark {
 			createInfo.extent = extent;
 			createInfo.mipLevels = levels;
 			createInfo.arrayLayers = layers;
-			createInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+			createInfo.samples = SampleCountToVulkan(samples);
 			createInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
 			createInfo.usage = usage;
 			createInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
