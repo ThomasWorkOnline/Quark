@@ -35,6 +35,9 @@ namespace Quark {
 
 	static void GLFWErrorCallback(int32_t error, const char* description)
 	{
+		if (error & GLFW_FORMAT_UNAVAILABLE)
+			return;
+
 		QK_CORE_ASSERT(false, description);
 	}
 
@@ -370,5 +373,15 @@ namespace Quark {
 	bool GLFWWindow::IsFullscreen() const
 	{
 		return glfwGetWindowMonitor(m_Window) != nullptr;
+	}
+
+	const char* GLFWWindow::GetClipboardText() const
+	{
+		return glfwGetClipboardString(m_Window);
+	}
+
+	void GLFWWindow::SetClipboardText(const char* string)
+	{
+		glfwSetClipboardString(m_Window, string);
 	}
 }

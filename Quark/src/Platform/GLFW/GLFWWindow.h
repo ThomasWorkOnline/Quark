@@ -43,6 +43,9 @@ namespace Quark {
 		virtual bool IsVSync() const final override { return m_Data.VSync; }
 		virtual bool IsFullscreen() const final override;
 
+		virtual const char* GetClipboardText() const final override;
+		virtual void SetClipboardText(const char* string) final override;
+
 		virtual void* GetNativeWindow() const final override { return m_Window; }
 
 		// Non-Copyable

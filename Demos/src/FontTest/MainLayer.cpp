@@ -44,10 +44,10 @@ void MainLayer::OnRender()
 	std::stringstream ss;
 	ss << std::put_time(std::localtime(&t), "%H:%M:%S");
 
+	const char* text = GetWindow()->GetClipboardText();
+
 	Renderer2D::BeginScene(m_Camera.GetProjection(), Mat4f(1.0f));
-	Renderer2D::DrawText(GetApplication()->GetOptions().CommandLineArgs.Argv[0], m_Font1.get());
-	//Renderer2D::DrawText(ss.str(), m_Font1.get());
-	//Renderer2D::DrawText(m_Input);
+	if (text) Renderer2D::DrawText(text, m_Font1.get());
 	Renderer2D::EndScene();
 }
 
@@ -108,7 +108,6 @@ void MainLayer::OnKeyPressed(KeyPressedEvent& e)
 				m_Input.SetFont(m_Font2);
 			else
 				m_Input.SetFont(m_Font1);
-
 			break;
 		} 
 	}

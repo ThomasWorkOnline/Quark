@@ -40,7 +40,7 @@ namespace Quark {
 		uint32_t w = 0;
 		uint32_t h = 0;
 
-		for (uint8_t i = s_ASCII_Start; i < s_ASCII_End; i++)
+		for (uint8_t i = 0; i < s_GlyphCount; i++)
 		{
 			if (FT_Load_Char(m_Face, i, FT_LOAD_RENDER) != FT_Err_Ok)
 			{
@@ -74,7 +74,7 @@ namespace Quark {
 
 		for (uint8_t i = 0; i < s_GlyphCount; i++)
 		{
-			if (FT_Load_Char(m_Face, i + s_ASCII_Start, FT_LOAD_RENDER) != FT_Err_Ok)
+			if (FT_Load_Char(m_Face, i, FT_LOAD_RENDER) != FT_Err_Ok)
 				continue;
 
 			Glyph& glyph = m_Glyphs[i];
@@ -107,8 +107,7 @@ namespace Quark {
 
 	const Glyph& OpenGLFont::GetGlyph(uint8_t charcode) const
 	{
-		QK_CORE_ASSERT(charcode >= s_ASCII_Start, "Invalid charcode");
-		return m_Glyphs[charcode - s_ASCII_Start];
+		return m_Glyphs[charcode];
 	}
 
 	uint32_t OpenGLFont::GetGlyphCount() const

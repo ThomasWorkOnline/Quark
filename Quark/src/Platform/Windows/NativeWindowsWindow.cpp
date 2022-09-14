@@ -154,6 +154,15 @@ namespace Quark {
 		return IsZoomed(m_WindowHandle);
 	}
 
+	const char* NativeWindowsWindow::GetClipboardText() const
+	{
+		return nullptr;
+	}
+
+	void NativeWindowsWindow::SetClipboardText(const char* string)
+	{
+	}
+
 #pragma pop_macro("DisableIsMinimizedMaximized")
 
 	void NativeWindowsWindow::Init()

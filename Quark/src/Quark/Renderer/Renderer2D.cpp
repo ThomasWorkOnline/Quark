@@ -159,13 +159,6 @@ namespace Quark {
 	{
 		QK_ASSERT_RENDER_THREAD();
 
-		// Check if buffer is full
-		if (s_Data->QuadIndexCount >= Renderer2DData::MaxIndices)
-		{
-			PushBatch();
-			StartBatch();
-		}
-
 		// Check if texture exists in samplers
 		uint32_t textureIndex = 0;
 		for (uint32_t i = 1; i < s_Data->TextureSamplerIndex; i++)
@@ -192,6 +185,13 @@ namespace Quark {
 			s_Data->TextureSamplerIndex++;
 		}
 
+		// Check if buffer is full
+		if (s_Data->QuadIndexCount + 6 > Renderer2DData::MaxIndices)
+		{
+			PushBatch();
+			StartBatch();
+		}
+
 		for (uint8_t i = 0; i < 4; i++)
 		{
 			s_Data->QuadVertexPtr->Position = transform * s_QuadVertexPositions[i];
@@ -216,7 +216,7 @@ namespace Quark {
 		QK_ASSERT_RENDER_THREAD();
 
 		// Check if buffer is full
-		if (s_Data->QuadIndexCount >= Renderer2DData::MaxIndices)
+		if (s_Data->QuadIndexCount + 6 > Renderer2DData::MaxIndices)
 		{
 			PushBatch();
 			StartBatch();
@@ -263,15 +263,6 @@ namespace Quark {
 	{
 		QK_ASSERT_RENDER_THREAD();
 
-		if (text.empty()) return;
-
-		// Check if buffer is full
-		if (s_Data->QuadIndexCount >= Renderer2DData::MaxIndices)
-		{
-			PushBatch();
-			StartBatch();
-		}
-
 		// Check if texture exists in samplers
 		uint32_t textureIndex = 0;
 		for (uint32_t i = 1; i < s_Data->TextureSamplerIndex; i++)
@@ -307,59 +298,80 @@ namespace Quark {
 
 		for (auto charcode : text)
 		{
-			if (charcode >= 32)
+			if (charcode < 32)
 			{
-				auto& g = font->GetGlyph(charcode);
+				switch (charcode)
+				{
+					// Newline
+					case '\n':
+						y -= atlasHeight;
+						break;
 
-				int xpos = (x + g.Bearing.x);
-				int ypos = (y + g.Bearing.y);
+					// Carriage return
+					case '\r':
+						x = startX;
+						break;
 
-				x += (g.Advance.x >> 6);
+					// Tabs
+					case '\t':
+						x += 4 * 32;
+						break;
+				}
 
-				if (g.Size.x == 0 || g.Size.y == 0)
-					continue;
-
-				float tx = (float)g.OffsetX / (float)atlasWidth;
-				float w = (float)g.Size.x;
-				float h = (float)g.Size.y;
-
-				// Vertex [-, -]
-				s_Data->QuadVertexPtr->Position = transform * Vec4f(xpos, (ypos - h), 0.0f, 1.0f);
-				s_Data->QuadVertexPtr->TexCoord = { tx, h / (float)atlasHeight };
-				s_Data->QuadVertexPtr->Color = color;
-				s_Data->QuadVertexPtr->TexIndex = textureIndex;
-				s_Data->QuadVertexPtr++;
-
-				// Vertex [+, -]
-				s_Data->QuadVertexPtr->Position = transform * Vec4f(xpos + w, (ypos - h), 0.0f, 1.0f);
-				s_Data->QuadVertexPtr->TexCoord = { tx + w / (float)atlasWidth, h / (float)atlasHeight };
-				s_Data->QuadVertexPtr->Color = color;
-				s_Data->QuadVertexPtr->TexIndex = textureIndex;
-				s_Data->QuadVertexPtr++;
-
-				// Vertex [+, +]
-				s_Data->QuadVertexPtr->Position = transform * Vec4f(xpos + w, ypos, 0.0f, 1.0f);
-				s_Data->QuadVertexPtr->TexCoord = { tx + w / (float)atlasWidth, 0.0f };
-				s_Data->QuadVertexPtr->Color = color;
-				s_Data->QuadVertexPtr->TexIndex = textureIndex;
-				s_Data->QuadVertexPtr++;
-
-				// Vertex [-, +]
-				s_Data->QuadVertexPtr->Position = transform * Vec4f(xpos, ypos, 0.0f, 1.0f);
-				s_Data->QuadVertexPtr->TexCoord = { tx, 0.0f };
-				s_Data->QuadVertexPtr->Color = color;
-				s_Data->QuadVertexPtr->TexIndex = textureIndex;
-				s_Data->QuadVertexPtr++;
-
-				s_Data->QuadIndexCount += 6;
-				s_Stats.QuadsDrawn++;
+				continue;
 			}
-			// Newline
-			else if (charcode == '\n')
+
+			auto& g = font->GetGlyph(charcode);
+
+			int xpos = (x + g.Bearing.x);
+			int ypos = (y + g.Bearing.y);
+
+			x += (g.Advance.x >> 6);
+
+			if (g.Size.x == 0 || g.Size.y == 0)
+				continue;
+
+			float tx = (float)g.OffsetX / (float)atlasWidth;
+			float w = (float)g.Size.x;
+			float h = (float)g.Size.y;
+
+			// Check if buffer is full
+			if (s_Data->QuadIndexCount + 6 > Renderer2DData::MaxIndices)
 			{
-				x  = startX;
-				y -= atlasHeight;
+				PushBatch();
+				StartBatch();
 			}
+
+			// Vertex [-, -]
+			s_Data->QuadVertexPtr->Position = transform * Vec4f(xpos, (ypos - h), 0.0f, 1.0f);
+			s_Data->QuadVertexPtr->TexCoord = { tx, h / (float)atlasHeight };
+			s_Data->QuadVertexPtr->Color    = color;
+			s_Data->QuadVertexPtr->TexIndex = textureIndex;
+			s_Data->QuadVertexPtr++;
+
+			// Vertex [+, -]
+			s_Data->QuadVertexPtr->Position = transform * Vec4f(xpos + w, (ypos - h), 0.0f, 1.0f);
+			s_Data->QuadVertexPtr->TexCoord = { tx + w / (float)atlasWidth, h / (float)atlasHeight };
+			s_Data->QuadVertexPtr->Color    = color;
+			s_Data->QuadVertexPtr->TexIndex = textureIndex;
+			s_Data->QuadVertexPtr++;
+
+			// Vertex [+, +]
+			s_Data->QuadVertexPtr->Position = transform * Vec4f(xpos + w, ypos, 0.0f, 1.0f);
+			s_Data->QuadVertexPtr->TexCoord = { tx + w / (float)atlasWidth, 0.0f };
+			s_Data->QuadVertexPtr->Color    = color;
+			s_Data->QuadVertexPtr->TexIndex = textureIndex;
+			s_Data->QuadVertexPtr++;
+
+			// Vertex [-, +]
+			s_Data->QuadVertexPtr->Position = transform * Vec4f(xpos, ypos, 0.0f, 1.0f);
+			s_Data->QuadVertexPtr->TexCoord = { tx, 0.0f };
+			s_Data->QuadVertexPtr->Color    = color;
+			s_Data->QuadVertexPtr->TexIndex = textureIndex;
+			s_Data->QuadVertexPtr++;
+
+			s_Data->QuadIndexCount += 6;
+			s_Stats.QuadsDrawn++;
 		}
 	}
 

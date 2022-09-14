@@ -10,9 +10,7 @@ typedef struct FT_FaceRec_* Face;
 
 typedef unsigned int GLuint;
 
-static constexpr uint8_t s_ASCII_Start = 32;
-static constexpr uint8_t s_ASCII_End   = 255;
-static constexpr uint8_t s_GlyphCount  = s_ASCII_End - s_ASCII_Start;
+static constexpr uint8_t s_GlyphCount = 255;
 
 namespace Quark {
 
