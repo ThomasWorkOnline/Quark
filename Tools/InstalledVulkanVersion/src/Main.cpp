@@ -5,14 +5,18 @@
 
 int main()
 {
-	uint32_t ver;
-	vkEnumerateInstanceVersion(&ver);
+	auto FN_vkEnumerateInstanceVersion = (PFN_vkEnumerateInstanceVersion)vkGetInstanceProcAddr(nullptr, "vkEnumerateInstanceVersion");
+	if (FN_vkEnumerateInstanceVersion)
+	{
+		uint32_t ver = 0;
+		FN_vkEnumerateInstanceVersion(&ver);
 
-	uint32_t major = VK_API_VERSION_MAJOR(ver);
-	uint32_t minor = VK_API_VERSION_MINOR(ver);
-	uint32_t patch = VK_API_VERSION_PATCH(ver);
+		uint32_t major = VK_API_VERSION_MAJOR(ver);
+		uint32_t minor = VK_API_VERSION_MINOR(ver);
+		uint32_t patch = VK_API_VERSION_PATCH(ver);
 
-	std::printf("%d.%d.%d", major, minor, patch);
+		std::printf("%d.%d.%d", major, minor, patch);
+	}
 
 	return EXIT_SUCCESS;
 }

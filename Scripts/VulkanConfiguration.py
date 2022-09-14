@@ -40,18 +40,8 @@ class VulkanConfiguration:
 		else:
 			print(f"Located Vulkan SDK at {vulkanSDK}")
 
-		proc = subprocess.Popen(os.path.abspath(cls.vulkanVersionBinary), stdout = subprocess.PIPE)
-		installedVulkanVersion = proc.stdout.read().decode('UTF-8')
-
-		requiredVersionTokens = cls.requiredVulkanVersion.split('.', 2)
-		installedVersionTokens = installedVulkanVersion.split('.', 2)
-
-		if (installedVersionTokens[0] < requiredVersionTokens[0]):
-			print(f"Vulkan version {installedVulkanVersion} is not supported!")
-			return False
-			
-		if (installedVersionTokens[1] < requiredVersionTokens[1]):
-			print(f"Vulkan version {installedVulkanVersion} is not supported!")
+		if (not cls.__CheckVulkanSDKVersion()):
+			print("Could not find the Vulkan version, are you sure it is installed properly?")
 			return False
 
 		return True
@@ -83,6 +73,27 @@ class VulkanConfiguration:
 		shadercdLib = Path(f"{vulkanSDK}/Lib/shaderc_sharedd.lib")
 		
 		return shadercdLib.exists()
+
+	@classmethod
+	def __CheckVulkanSDKVersion(cls):
+		proc = subprocess.Popen(os.path.abspath(cls.vulkanVersionBinary), stdout = subprocess.PIPE)
+		installedVulkanVersion = proc.stdout.read().decode('UTF-8')
+
+		requiredVersionTokens = cls.requiredVulkanVersion.split('.')
+		installedVersionTokens = installedVulkanVersion.split('.')
+
+		if (len(installedVersionTokens) < 3):
+			return False
+
+		if (installedVersionTokens[0] < requiredVersionTokens[0]):
+			print(f"Vulkan version {installedVulkanVersion} is not supported!")
+			return False
+			
+		if (installedVersionTokens[1] < requiredVersionTokens[1]):
+			print(f"Vulkan version {installedVulkanVersion} is not supported!")
+			return False
+
+		return True
 
 if __name__ == "__main__":
     VulkanConfiguration.Validate()
