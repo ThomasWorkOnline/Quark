@@ -46,9 +46,9 @@ namespace Quark {
 			glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Spec.Width, m_Spec.Height, 0, m_DataFormat,
 				DataFormatToOpenGLDataType(m_Spec.DataFormat), nullptr);
 
-			GLenum tilingMode = TilingModeToOpenGL(m_Spec.RenderModes.TilingMode);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, FilteringModeToOpenGL(m_Spec.RenderModes.MinFilteringMode));
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, FilteringModeToOpenGL(m_Spec.RenderModes.MagFilteringMode));
+			GLenum tilingMode = SamplerAddressModeToOpenGL(m_Spec.RenderModes.AddressMode);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, SamplerFilterModeToOpenGL(m_Spec.RenderModes.MinFilteringMode));
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, SamplerFilterModeToOpenGL(m_Spec.RenderModes.MagFilteringMode));
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, tilingMode);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, tilingMode);
 		}
@@ -56,7 +56,7 @@ namespace Quark {
 		QK_DEBUG_CALL(glBindTexture(m_Target, 0));
 	}
 
-	OpenGLTexture2D::OpenGLTexture2D(std::string_view filepath, const TextureRenderModes& renderModes)
+	OpenGLTexture2D::OpenGLTexture2D(std::string_view filepath, const SamplerRenderModes& renderModes)
 	{
 		QK_PROFILE_FUNCTION();
 
@@ -90,9 +90,9 @@ namespace Quark {
 		glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Spec.Width, m_Spec.Height, 0, m_DataFormat,
 			DataFormatToOpenGLDataType(m_Spec.DataFormat), *image);
 
-		GLenum tilingMode = TilingModeToOpenGL(m_Spec.RenderModes.TilingMode);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, FilteringModeToOpenGL(m_Spec.RenderModes.MinFilteringMode));
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, FilteringModeToOpenGL(m_Spec.RenderModes.MagFilteringMode));
+		GLenum tilingMode = SamplerAddressModeToOpenGL(m_Spec.RenderModes.AddressMode);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, SamplerFilterModeToOpenGL(m_Spec.RenderModes.MinFilteringMode));
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, SamplerFilterModeToOpenGL(m_Spec.RenderModes.MagFilteringMode));
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, tilingMode);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, tilingMode);
 
@@ -191,9 +191,9 @@ namespace Quark {
 			glTexImage3D(GL_TEXTURE_2D_ARRAY, m_Spec.Levels, m_InternalFormat, m_Spec.Width, m_Spec.Height, m_Spec.Layers, 0,
 				m_DataFormat, DataFormatToOpenGLDataType(m_Spec.DataFormat), nullptr);
 
-			GLenum tilingMode = TilingModeToOpenGL(m_Spec.RenderModes.TilingMode);
-			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, FilteringModeToOpenGL(m_Spec.RenderModes.MinFilteringMode));
-			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, FilteringModeToOpenGL(m_Spec.RenderModes.MagFilteringMode));
+			GLenum tilingMode = SamplerAddressModeToOpenGL(m_Spec.RenderModes.AddressMode);
+			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, SamplerFilterModeToOpenGL(m_Spec.RenderModes.MinFilteringMode));
+			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, SamplerFilterModeToOpenGL(m_Spec.RenderModes.MagFilteringMode));
 			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, tilingMode);
 			glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, tilingMode);
 

@@ -10,9 +10,9 @@ namespace Quark {
 
 	struct FramebufferAttachmentSpecification
 	{
-		uint32_t Width = 0, Height = 0;
-		uint32_t        Samples = 1;
-		ColorDataFormat DataFormat{};
+		uint32_t    Width = 0, Height = 0;
+		uint32_t    Samples = 1;
+		ColorFormat DataFormat{};
 	};
 
 	class FramebufferAttachment

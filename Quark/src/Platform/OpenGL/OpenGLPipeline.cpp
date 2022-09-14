@@ -1,6 +1,7 @@
 #include "qkpch.h"
 #include "OpenGLPipeline.h"
 
+#include "OpenGLEnums.h"
 #include "OpenGLFont.h"
 #include "OpenGLShader.h"
 #include "OpenGLTexture.h"
@@ -17,56 +18,11 @@ namespace Quark {
 				|| dynamic_cast<const OpenGLTexture2D*>(texture)
 				|| dynamic_cast<const OpenGLTexture2DArray*>(texture);
 		}
-
-		static constexpr GLenum ShaderDataTypeToOpenGLBaseType(ShaderDataType type)
-		{
-			switch (type)
-			{
-				case ShaderDataType::Float:     return GL_FLOAT;
-				case ShaderDataType::Float2:    return GL_FLOAT;
-				case ShaderDataType::Float3:    return GL_FLOAT;
-				case ShaderDataType::Float4:    return GL_FLOAT;
-				case ShaderDataType::Double:    return GL_DOUBLE;
-				case ShaderDataType::Double2:   return GL_DOUBLE;
-				case ShaderDataType::Double3:   return GL_DOUBLE;
-				case ShaderDataType::Double4:   return GL_DOUBLE;
-				case ShaderDataType::Mat3f:     return GL_FLOAT;
-				case ShaderDataType::Mat4f:     return GL_FLOAT;
-				case ShaderDataType::Mat3d:     return GL_DOUBLE;
-				case ShaderDataType::Mat4d:     return GL_DOUBLE;
-				case ShaderDataType::Int:       return GL_INT;
-				case ShaderDataType::Int2:      return GL_INT;
-				case ShaderDataType::Int3:      return GL_INT;
-				case ShaderDataType::Int4:      return GL_INT;
-				case ShaderDataType::Bool:      return GL_BOOL;
-
-				QK_ASSERT_NO_DEFAULT("Unknown ShaderDataType");
-			}
-
-			return GL_NONE;
-		}
-
-		GLenum PrimitiveTopologyToOpenGL(PrimitiveTopology topology)
-		{
-			switch (topology)
-			{
-				case PointList:     return GL_POINTS;
-				case LineList:      return GL_LINES;
-				case LineStrip:     return GL_LINE_STRIP;
-				case TriangleList:  return GL_TRIANGLES;
-				case TriangleStrip: return GL_TRIANGLE_STRIP;
-				case TriangleFan:   return GL_TRIANGLE_FAN;
-
-				QK_ASSERT_NO_DEFAULT("Unknown primitive topology");
-			}
-
-			return GL_NONE;
-		}
 	}
 
 	OpenGLPipeline::OpenGLPipeline(const PipelineSpecification& spec)
 		: Pipeline(spec)
-		, m_PrimitiveTopology(Utils::PrimitiveTopologyToOpenGL(spec.Topology))
+		, m_PrimitiveTopology(PrimitiveTopologyToOpenGL(spec.Topology))
 	{
 		auto& shaderResources = m_Spec.Shader->GetShaderResources();
 
@@ -135,7 +91,7 @@ namespace Quark {
 					glEnableVertexAttribArray(vertexBufferIndex);
 					glVertexAttribPointer(vertexBufferIndex,
 						element.GetComponentCount(),
-						Utils::ShaderDataTypeToOpenGLBaseType(element.Type),
+						ShaderDataTypeToOpenGLBaseType(element.Type),
 						element.Normalized,
 						(GLsizei)m_Spec.Layout.GetStride(),
 						(const void*)element.Offset);
@@ -150,7 +106,7 @@ namespace Quark {
 					glEnableVertexAttribArray(vertexBufferIndex);
 					glVertexAttribLPointer(vertexBufferIndex,
 						element.GetComponentCount(),
-						Utils::ShaderDataTypeToOpenGLBaseType(element.Type),
+						ShaderDataTypeToOpenGLBaseType(element.Type),
 						(GLsizei)m_Spec.Layout.GetStride(),
 						(const void*)element.Offset);
 					vertexBufferIndex++;
@@ -165,7 +121,7 @@ namespace Quark {
 					glEnableVertexAttribArray(vertexBufferIndex);
 					glVertexAttribIPointer(vertexBufferIndex,
 						element.GetComponentCount(),
-						Utils::ShaderDataTypeToOpenGLBaseType(element.Type),
+						ShaderDataTypeToOpenGLBaseType(element.Type),
 						(GLsizei)m_Spec.Layout.GetStride(),
 						(const void*)element.Offset);
 					vertexBufferIndex++;
@@ -180,7 +136,7 @@ namespace Quark {
 						glEnableVertexAttribArray(vertexBufferIndex);
 						glVertexAttribPointer(vertexBufferIndex,
 							count,
-							Utils::ShaderDataTypeToOpenGLBaseType(element.Type),
+							ShaderDataTypeToOpenGLBaseType(element.Type),
 							element.Normalized,
 							(GLsizei)m_Spec.Layout.GetStride(),
 							(const void*)(sizeof(float) * count * i));
@@ -197,7 +153,7 @@ namespace Quark {
 						glEnableVertexAttribArray(vertexBufferIndex);
 						glVertexAttribPointer(vertexBufferIndex,
 							count,
-							Utils::ShaderDataTypeToOpenGLBaseType(element.Type),
+							ShaderDataTypeToOpenGLBaseType(element.Type),
 							element.Normalized,
 							(GLsizei)m_Spec.Layout.GetStride(),
 							(const void*)(sizeof(double) * count * i));

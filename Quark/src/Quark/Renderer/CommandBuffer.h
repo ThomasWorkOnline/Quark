@@ -18,8 +18,8 @@ namespace Quark {
 		virtual void End() = 0;
 		virtual void Reset() = 0;
 
-		virtual void SetCullFace(RenderCullMode mode) = 0;
-		virtual void SetDepthFunction(RenderDepthFunction func) = 0;
+		virtual void SetCullMode(RenderCullMode mode) = 0;
+		virtual void SetDepthFunction(DepthCompareFunction func) = 0;
 
 		virtual void BindPipeline(const Pipeline* pipeline) = 0;
 		virtual void PushConstant(const Pipeline* pipeline, ShaderStage stage, const void* data, size_t size) = 0;

@@ -12,7 +12,7 @@
 
 namespace Quark {
 
-	enum PrimitiveTopology
+	enum class PrimitiveTopology
 	{
 		PointList,
 		LineList,
@@ -26,7 +26,7 @@ namespace Quark {
 	{
 		BufferLayout          Layout;
 		PrimitiveTopology     Topology{};
-		uint32_t              Samples = 0;
+		uint32_t              Samples = 1;
 
 		const Shader*         Shader = nullptr;
 		const RenderPass*     RenderPass = nullptr;

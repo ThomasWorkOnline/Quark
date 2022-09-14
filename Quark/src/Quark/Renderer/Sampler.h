@@ -7,8 +7,8 @@ namespace Quark {
 
 	struct SamplerSpecification
 	{
-		uint32_t Binding = 0;
-		TextureRenderModes RenderModes{};
+		uint32_t           Binding = 0;
+		SamplerRenderModes RenderModes{};
 	};
 
 	class Sampler

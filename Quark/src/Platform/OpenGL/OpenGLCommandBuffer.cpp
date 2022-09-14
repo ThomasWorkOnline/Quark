@@ -11,7 +11,7 @@
 
 namespace Quark {
 
-	void OpenGLCommandBuffer::SetCullFace(RenderCullMode mode)
+	void OpenGLCommandBuffer::SetCullMode(RenderCullMode mode)
 	{
 		mode == RenderCullMode::None
 			? glDisable(GL_CULL_FACE)
@@ -20,7 +20,7 @@ namespace Quark {
 		glCullFace(CullModeToOpenGL(mode));
 	}
 
-	void OpenGLCommandBuffer::SetDepthFunction(RenderDepthFunction func)
+	void OpenGLCommandBuffer::SetDepthFunction(DepthCompareFunction func)
 	{
 		glDepthFunc(DepthFunctionToOpenGL(func));
 	}

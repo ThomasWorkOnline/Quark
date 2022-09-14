@@ -4,7 +4,7 @@
 
 namespace Quark {
 
-	enum class ColorDataFormat
+	enum class ColorFormat
 	{
 		None = 0,
 
@@ -16,11 +16,11 @@ namespace Quark {
 		RGBA16,
 
 		// sRGB formats
-		RGB8_SRGB,
-		RGBA8_SRGB,
+		RGB8SRGB,
+		RGBA8SRGB,
 
-		BGR8_SRGB,
-		BGRA8_SRGB,
+		BGR8SRGB,
+		BGRA8SRGB,
 
 		// HDR formats
 		RGB16f,
@@ -35,7 +35,7 @@ namespace Quark {
 		Depth24Stencil8
 	};
 
-	enum class TextureFilteringMode
+	enum class SamplerFilterMode
 	{
 		None = 0,
 
@@ -48,7 +48,7 @@ namespace Quark {
 		LinearMipmapLinear
 	};
 
-	enum class TextureTilingMode
+	enum class SamplerAddressMode
 	{
 		None = 0,
 
@@ -71,17 +71,17 @@ namespace Quark {
 		SampleCount64
 	};
 
-	struct TextureRenderModes
+	struct SamplerRenderModes
 	{
-		TextureFilteringMode MagFilteringMode = TextureFilteringMode::Linear;
-		TextureFilteringMode MinFilteringMode = TextureFilteringMode::LinearMipmapLinear;
-		TextureTilingMode    TilingMode       = TextureTilingMode::Default;
+		SamplerFilterMode MagFilteringMode = SamplerFilterMode::Linear;
+		SamplerFilterMode MinFilteringMode = SamplerFilterMode::LinearMipmapLinear;
+		SamplerAddressMode AddressMode     = SamplerAddressMode::Default;
 	};
 
-	size_t   GetPixelFormatSize(ColorDataFormat format);
+	size_t   GetPixelFormatSize(ColorFormat format);
 	uint32_t GetMipLevelsForResolution(uint32_t width, uint32_t height);
 
-	bool IsFormatUsingMips(TextureFilteringMode mode);
-	bool IsColorFormatAlpha(ColorDataFormat format);
-	bool IsPixel4BytesAligned(ColorDataFormat format);
+	bool IsFormatUsingMips(SamplerFilterMode mode);
+	bool IsColorFormatAlpha(ColorFormat format);
+	bool IsPixel4BytesAligned(ColorFormat format);
 }

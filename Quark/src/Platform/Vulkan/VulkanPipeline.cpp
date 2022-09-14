@@ -210,7 +210,7 @@ namespace Quark {
 			attributeDescriptions[i] = {};
 			attributeDescriptions[i].location     = i;
 			attributeDescriptions[i].binding      = 0;
-			attributeDescriptions[i].format       = ShaderDataTypeToVulkan(m_Spec.Layout[i].Type);
+			attributeDescriptions[i].format       = ShaderDataTypeToVulkanBaseType(m_Spec.Layout[i].Type);
 			attributeDescriptions[i].offset       = (uint32_t)m_Spec.Layout[i].Offset;
 		}
 

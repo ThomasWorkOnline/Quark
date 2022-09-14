@@ -19,38 +19,38 @@ namespace Quark {
 		}
 
 		//                                             Number of bits per pixel ---v
-		static constexpr ColorDataFormat GetDataFormat(uint32_t channels, uint32_t bpp, bool srgb, bool fp)
+		static constexpr ColorFormat GetDataFormat(uint32_t channels, uint32_t bpp, bool srgb, bool fp)
 		{
 			switch (channels)
 			{
 				case 1:
 				switch (bpp)
 				{
-					case 8: return ColorDataFormat::Red8;
+					case 8: return ColorFormat::Red8;
 
 				} break;
 
 				case 3:
 				switch (bpp)
 				{
-					case 24: return srgb ? ColorDataFormat::RGB8_SRGB : ColorDataFormat::RGB8;
-					case 48: return fp ? ColorDataFormat::RGB16f : ColorDataFormat::RGB16;
-					case 96: return fp ? ColorDataFormat::RGB32f : ColorDataFormat::RGB32;
+					case 24: return srgb ? ColorFormat::RGB8SRGB : ColorFormat::RGB8;
+					case 48: return fp ? ColorFormat::RGB16f : ColorFormat::RGB16;
+					case 96: return fp ? ColorFormat::RGB32f : ColorFormat::RGB32;
 
 				} break;
 
 				case 4:
 				switch (bpp)
 				{
-					case 32: return srgb ? ColorDataFormat::RGBA8_SRGB : ColorDataFormat::RGBA8;
-					case 64: return fp ? ColorDataFormat::RGBA16f : ColorDataFormat::RGBA16;
+					case 32: return srgb ? ColorFormat::RGBA8SRGB : ColorFormat::RGBA8;
+					case 64: return fp ? ColorFormat::RGBA16f : ColorFormat::RGBA16;
 
 				} break;
 
 				QK_ASSERT_NO_DEFAULT("Unknown texture internal format");
 			}
 
-			return ColorDataFormat::None;
+			return ColorFormat::None;
 		}
 	}
 

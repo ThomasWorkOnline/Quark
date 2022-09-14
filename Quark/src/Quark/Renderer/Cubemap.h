@@ -7,8 +7,8 @@ namespace Quark {
 
 	struct CubemapSpecification
 	{
-		uint32_t              Width = 0, Height = 0;
-		ColorDataFormat       DataFormat = ColorDataFormat::RGB16f;
+		uint32_t    Width = 0, Height = 0;
+		ColorFormat DataFormat = ColorFormat::RGB16f;
 	};
 
 	class Cubemap

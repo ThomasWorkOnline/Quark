@@ -27,7 +27,7 @@ PBRRenderingDemo::PBRRenderingDemo(const ApplicationOptions& options)
 		CubemapSpecification spec;
 		spec.Width = 1;
 		spec.Height = 1;
-		spec.DataFormat = ColorDataFormat::RGB32f;
+		spec.DataFormat = ColorFormat::RGB32f;
 
 		m_Irradiance = Cubemap::Create(spec);
 
@@ -295,9 +295,9 @@ void PBRRenderingDemo::LoadMaterialsAsync()
 			Texture2DSpecification spec;
 			spec.Width = 1;
 			spec.Height = 1;
-			spec.DataFormat = ColorDataFormat::Red8;
-			spec.RenderModes.MagFilteringMode = TextureFilteringMode::Nearest;
-			spec.RenderModes.MinFilteringMode = TextureFilteringMode::Nearest;
+			spec.DataFormat = ColorFormat::Red8;
+			spec.RenderModes.MagFilteringMode = SamplerFilterMode::Nearest;
+			spec.RenderModes.MinFilteringMode = SamplerFilterMode::Nearest;
 
 			m_Material.AO = Texture2D::Create(spec);
 
@@ -322,9 +322,9 @@ void PBRRenderingDemo::UploadAssets()
 		Texture2DSpecification spec;
 		spec.Width = image->Width();
 		spec.Height = image->Height();
-		spec.DataFormat = image->Channels() == 4 ? ColorDataFormat::RGBA8_SRGB : ColorDataFormat::RGB8_SRGB;
-		spec.RenderModes.MagFilteringMode = TextureFilteringMode::Linear;
-		spec.RenderModes.MinFilteringMode = TextureFilteringMode::LinearMipmapLinear;
+		spec.DataFormat = image->Channels() == 4 ? ColorFormat::RGBA8SRGB : ColorFormat::RGB8SRGB;
+		spec.RenderModes.MagFilteringMode = SamplerFilterMode::Linear;
+		spec.RenderModes.MinFilteringMode = SamplerFilterMode::LinearMipmapLinear;
 
 		m_Material.Albedo = CreateTextureFromImage(image.get(), spec);
 	}
@@ -336,9 +336,9 @@ void PBRRenderingDemo::UploadAssets()
 		Texture2DSpecification spec;
 		spec.Width = image->Width();
 		spec.Height = image->Height();
-		spec.DataFormat = image->Channels() == 4 ? ColorDataFormat::RGBA8 : ColorDataFormat::RGB8;
-		spec.RenderModes.MagFilteringMode = TextureFilteringMode::Linear;
-		spec.RenderModes.MinFilteringMode = TextureFilteringMode::LinearMipmapLinear;
+		spec.DataFormat = image->Channels() == 4 ? ColorFormat::RGBA8 : ColorFormat::RGB8;
+		spec.RenderModes.MagFilteringMode = SamplerFilterMode::Linear;
+		spec.RenderModes.MinFilteringMode = SamplerFilterMode::LinearMipmapLinear;
 
 		m_Material.Metallic = CreateTextureFromImage(image.get(), spec);
 	}
@@ -350,9 +350,9 @@ void PBRRenderingDemo::UploadAssets()
 		Texture2DSpecification spec;
 		spec.Width = image->Width();
 		spec.Height = image->Height();
-		spec.DataFormat = image->Channels() == 4 ? ColorDataFormat::RGBA8 : ColorDataFormat::RGB8;
-		spec.RenderModes.MagFilteringMode = TextureFilteringMode::Linear;
-		spec.RenderModes.MinFilteringMode = TextureFilteringMode::LinearMipmapLinear;
+		spec.DataFormat = image->Channels() == 4 ? ColorFormat::RGBA8 : ColorFormat::RGB8;
+		spec.RenderModes.MagFilteringMode = SamplerFilterMode::Linear;
+		spec.RenderModes.MinFilteringMode = SamplerFilterMode::LinearMipmapLinear;
 
 		m_Material.Normal = CreateTextureFromImage(image.get(), spec);
 	}
@@ -364,9 +364,9 @@ void PBRRenderingDemo::UploadAssets()
 		Texture2DSpecification spec;
 		spec.Width = image->Width();
 		spec.Height = image->Height();
-		spec.DataFormat = image->Channels() == 4 ? ColorDataFormat::RGBA8 : ColorDataFormat::RGB8;
-		spec.RenderModes.MagFilteringMode = TextureFilteringMode::Linear;
-		spec.RenderModes.MinFilteringMode = TextureFilteringMode::LinearMipmapLinear;
+		spec.DataFormat = image->Channels() == 4 ? ColorFormat::RGBA8 : ColorFormat::RGB8;
+		spec.RenderModes.MagFilteringMode = SamplerFilterMode::Linear;
+		spec.RenderModes.MinFilteringMode = SamplerFilterMode::LinearMipmapLinear;
 
 		m_Material.Roughness = CreateTextureFromImage(image.get(), spec);
 	}
@@ -378,9 +378,9 @@ void PBRRenderingDemo::UploadAssets()
 		Texture2DSpecification spec;
 		spec.Width = image->Width();
 		spec.Height = image->Height();
-		spec.DataFormat = image->Channels() == 4 ? ColorDataFormat::RGBA8 : ColorDataFormat::RGB8;
-		spec.RenderModes.MagFilteringMode = TextureFilteringMode::Linear;
-		spec.RenderModes.MinFilteringMode = TextureFilteringMode::LinearMipmapLinear;
+		spec.DataFormat = image->Channels() == 4 ? ColorFormat::RGBA8 : ColorFormat::RGB8;
+		spec.RenderModes.MagFilteringMode = SamplerFilterMode::Linear;
+		spec.RenderModes.MinFilteringMode = SamplerFilterMode::LinearMipmapLinear;
 
 		m_Material.AO = CreateTextureFromImage(image.get(), spec);
 	}

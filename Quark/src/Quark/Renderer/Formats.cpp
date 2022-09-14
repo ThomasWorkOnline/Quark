@@ -67,7 +67,7 @@ namespace Quark {
 		/*LinearMipmapLinear*/   true
 	};
 
-	size_t GetPixelFormatSize(ColorDataFormat format)
+	size_t GetPixelFormatSize(ColorFormat format)
 	{
 		return s_PixelFormatSizeLUT[static_cast<size_t>(format)];
 	}
@@ -83,17 +83,17 @@ namespace Quark {
 		return mips + 1;
 	}
 
-	bool IsFormatUsingMips(TextureFilteringMode mode)
+	bool IsFormatUsingMips(SamplerFilterMode mode)
 	{
 		return s_FilteringModeHasMipsLUT[static_cast<size_t>(mode)];
 	}
 
-	bool IsColorFormatAlpha(ColorDataFormat format)
+	bool IsColorFormatAlpha(ColorFormat format)
 	{
 		return s_PixelFormatAplhaLUT[static_cast<size_t>(format)];
 	}
 
-	bool IsPixel4BytesAligned(ColorDataFormat format)
+	bool IsPixel4BytesAligned(ColorFormat format)
 	{
 		return GetPixelFormatSize(format) % 4 == 0;
 	}

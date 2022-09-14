@@ -15,8 +15,8 @@ namespace Quark {
 		virtual void End() final override {}
 		virtual void Reset() final override {}
 
-		virtual void SetCullFace(RenderCullMode mode) final override;
-		virtual void SetDepthFunction(RenderDepthFunction func) final override;
+		virtual void SetCullMode(RenderCullMode mode) final override;
+		virtual void SetDepthFunction(DepthCompareFunction func) final override;
 
 		virtual void BindPipeline(const Pipeline* pipeline) final override;
 		virtual void PushConstant(const Pipeline* pipeline, ShaderStage stage, const void* data, size_t size) final override;

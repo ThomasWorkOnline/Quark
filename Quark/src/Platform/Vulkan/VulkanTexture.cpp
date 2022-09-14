@@ -57,7 +57,7 @@ namespace Quark {
 		}
 	}
 
-	VulkanTexture2D::VulkanTexture2D(VulkanDevice* device, std::string_view filepath, const TextureRenderModes& renderModes)
+	VulkanTexture2D::VulkanTexture2D(VulkanDevice* device, std::string_view filepath, const SamplerRenderModes& renderModes)
 		: m_Device(device)
 	{
 		QK_PROFILE_FUNCTION();

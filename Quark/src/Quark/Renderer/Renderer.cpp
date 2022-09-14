@@ -219,7 +219,7 @@ namespace Quark {
 		{
 			RenderPassSpecification spec;
 			spec.BindPoint       = PipelineBindPoint::Graphics;
-			spec.ColorFormat     = ColorDataFormat::BGRA8_SRGB;
+			spec.ColorFormat     = ColorFormat::BGRA8SRGB;
 			spec.ClearColor      = { 0.01f, 0.01f, 0.01f, 1.0f };
 			spec.ClearBuffers    = true;
 			spec.Samples         = s_Data->Samples;

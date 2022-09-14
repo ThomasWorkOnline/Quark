@@ -8,12 +8,12 @@ namespace Quark {
 	VulkanSampler::VulkanSampler(VulkanDevice* device, const SamplerSpecification& spec)
 		: Sampler(spec), m_Device(device)
 	{
-		VkSamplerAddressMode addressMode = TextureTilingModeToVulkan(m_Spec.RenderModes.TilingMode);
+		VkSamplerAddressMode addressMode = SamplerAddressModeToVulkan(m_Spec.RenderModes.AddressMode);
 
 		VkSamplerCreateInfo samplerInfo{};
 		samplerInfo.sType            = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-		samplerInfo.magFilter        = TextureFilteringModeToVulkan(m_Spec.RenderModes.MagFilteringMode);
-		samplerInfo.minFilter        = TextureFilteringModeToVulkan(m_Spec.RenderModes.MinFilteringMode);
+		samplerInfo.magFilter        = SamplerFilterModeToVulkan(m_Spec.RenderModes.MagFilteringMode);
+		samplerInfo.minFilter        = SamplerFilterModeToVulkan(m_Spec.RenderModes.MinFilteringMode);
 		samplerInfo.mipmapMode       = TextureMipmapModeToVulkan(m_Spec.RenderModes.MinFilteringMode);
 		samplerInfo.addressModeU     = addressMode;
 		samplerInfo.addressModeV     = addressMode;

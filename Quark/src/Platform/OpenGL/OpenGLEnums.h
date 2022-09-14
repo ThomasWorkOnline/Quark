@@ -2,12 +2,38 @@
 
 #include "Quark/Renderer/Buffer.h"
 #include "Quark/Renderer/Formats.h"
+#include "Quark/Renderer/Pipeline.h"
 #include "Quark/Renderer/RenderModes.h"
 #include "Quark/Renderer/Shader.h"
 
 #include <glad/glad.h>
 
 namespace Quark {
+
+	inline constexpr GLenum s_OpenGLBaseShaderDataTypeLUT[] = {
+		/*None*/            GL_NONE,
+
+		/*Float*/           GL_FLOAT,
+		/*Float2*/          GL_FLOAT,
+		/*Float3*/          GL_FLOAT,
+		/*Float4*/          GL_FLOAT,
+
+		/*Double*/          GL_DOUBLE,
+		/*Double2*/         GL_DOUBLE,
+		/*Double3*/         GL_DOUBLE,
+		/*Double4*/         GL_DOUBLE,
+
+		/*Mat3f*/           GL_FLOAT,
+		/*Mat4f*/           GL_FLOAT,
+		/*Mat3d*/           GL_DOUBLE,
+		/*Mat4d*/           GL_DOUBLE,
+
+		/*Int*/             GL_INT,
+		/*Int2*/            GL_INT,
+		/*Int3*/            GL_INT,
+		/*Int4*/            GL_INT,
+		/*Bool*/            GL_BOOL
+	};
 
 	inline constexpr GLenum s_OpenGLCullModeLUT[] = {
 		/*None*/            GL_NONE,
@@ -26,11 +52,11 @@ namespace Quark {
 		/*RGBA8*/           GL_UNSIGNED_BYTE,
 		/*RGBA16*/          GL_UNSIGNED_BYTE,
 
-		/*RGB8_SRGB*/       GL_UNSIGNED_BYTE,
-		/*RGBA8_SRGB*/      GL_UNSIGNED_BYTE,
+		/*RGB8SRGB*/        GL_UNSIGNED_BYTE,
+		/*RGBA8SRGB*/       GL_UNSIGNED_BYTE,
 
-		/*BGR8_SRGB*/       GL_UNSIGNED_BYTE,
-		/*BGRA8_SRGB*/      GL_UNSIGNED_BYTE,
+		/*BGR8SRGB*/        GL_UNSIGNED_BYTE,
+		/*BGRA8SRGB*/       GL_UNSIGNED_BYTE,
 
 		/*RGB16f*/          GL_FLOAT,
 		/*RGB32f*/          GL_FLOAT,
@@ -53,11 +79,11 @@ namespace Quark {
 		/*RGBA8*/           GL_RGBA,
 		/*RGBA16*/          GL_RGBA,
 
-		/*RGB8_SRGB*/       GL_RGB,
-		/*RGBA8_SRGB*/      GL_RGBA,
+		/*RGB8SRGB*/        GL_RGB,
+		/*RGBA8SRGB*/       GL_RGBA,
 
-		/*BGR8_SRGB*/       GL_BGR,
-		/*BGRA8_SRGB*/      GL_BGRA,
+		/*BGR8SRGB*/        GL_BGR,
+		/*BGRA8SRGB*/       GL_BGRA,
 
 		/*RGB16f*/          GL_RGB,
 		/*RGB32f*/          GL_RGB,
@@ -80,11 +106,11 @@ namespace Quark {
 		/*RGBA8*/           GL_RGBA8,
 		/*RGBA16*/          GL_RGBA16,
 
-		/*RGB8_SRGB*/       GL_SRGB8,
-		/*RGBA8_SRGB*/      GL_SRGB8_ALPHA8,
+		/*RGB8SRGB*/        GL_SRGB8,
+		/*RGBA8SRGB*/       GL_SRGB8_ALPHA8,
 
-		/*BGR8_SRGB*/       GL_SRGB8,
-		/*BGRA8_SRGB*/      GL_SRGB8_ALPHA8,
+		/*BGR8SRGB*/        GL_SRGB8,
+		/*BGRA8SRGB*/       GL_SRGB8_ALPHA8,
 
 		/*RGB16f*/          GL_RGB16F,
 		/*RGB32f*/          GL_RGB32F,
@@ -102,9 +128,18 @@ namespace Quark {
 		/*Always*/               GL_ALWAYS,
 		/*NotEqual*/             GL_NOTEQUAL,
 		/*Less*/                 GL_LESS,
-		/*LessEqual*/            GL_LEQUAL,
+		/*LessOrEqual*/          GL_LEQUAL,
 		/*Greater*/              GL_GREATER,
-		/*GreaterEqual*/         GL_GEQUAL
+		/*GreaterOrEqual*/       GL_GEQUAL
+	};
+
+	inline constexpr GLenum s_OpenGLPrimitiveTopologyLUT[] = {
+		/*PointList*/            GL_POINTS,
+		/*LineList*/             GL_LINES,
+		/*LineStrip*/            GL_LINE_STRIP,
+		/*TriangleList*/         GL_TRIANGLES,
+		/*TriangleStrip*/        GL_TRIANGLE_STRIP,
+		/*TriangleFan*/          GL_TRIANGLE_FAN
 	};
 
 	inline constexpr GLenum s_OpenGLShaderStageLUT[] = {
@@ -115,7 +150,7 @@ namespace Quark {
 		/*Compute*/              GL_COMPUTE_SHADER
 	};
 
-	inline constexpr GLenum s_OpenGLFilteringModeLUT[] = {
+	inline constexpr GLenum s_OpenGLSamplerFilterModeLUT[] = {
 		/*None*/                 GL_NONE,
 		/*Nearest*/              GL_NEAREST,
 		/*Linear*/               GL_LINEAR,
@@ -125,7 +160,7 @@ namespace Quark {
 		/*LinearMipmapLinear*/   GL_LINEAR_MIPMAP_LINEAR
 	};
 
-	inline constexpr GLenum s_OpenGLTilingModeLUT[] = {
+	inline constexpr GLenum s_OpenGLSamplerAddressModeLUT[] = {
 		/*None*/                 GL_NONE,
 		/*ClampToBorder*/        GL_CLAMP_TO_BORDER,
 		/*ClampToEdge*/          GL_CLAMP_TO_EDGE,
@@ -137,24 +172,29 @@ namespace Quark {
 		return s_OpenGLCullModeLUT[static_cast<size_t>(mode)];
 	}
 
-	constexpr GLenum DataFormatToOpenGLDataType(ColorDataFormat format)
+	constexpr GLenum DataFormatToOpenGLDataType(ColorFormat format)
 	{
 		return s_OpenGLDataFormatLUT[static_cast<size_t>(format)];
 	}
 
-	constexpr GLenum DataFormatToOpenGLStorageFormat(ColorDataFormat format)
+	constexpr GLenum DataFormatToOpenGLStorageFormat(ColorFormat format)
 	{
 		return s_OpenGLStorageFormatLUT[static_cast<size_t>(format)];
 	}
 
-	constexpr GLenum DataFormatToOpenGLInternalFormat(ColorDataFormat format)
+	constexpr GLenum DataFormatToOpenGLInternalFormat(ColorFormat format)
 	{
 		return s_OpenGLInternalFormatLUT[static_cast<size_t>(format)];
 	}
 
-	constexpr GLenum DepthFunctionToOpenGL(RenderDepthFunction func)
+	constexpr GLenum DepthFunctionToOpenGL(DepthCompareFunction func)
 	{
 		return s_DepthFunctionLUT[static_cast<size_t>(func)];
+	}
+
+	constexpr GLenum PrimitiveTopologyToOpenGL(PrimitiveTopology topology)
+	{
+		return s_OpenGLPrimitiveTopologyLUT[static_cast<size_t>(topology)];
 	}
 
 	constexpr GLenum ShaderStageToOpenGL(ShaderStage stage)
@@ -162,13 +202,18 @@ namespace Quark {
 		return s_OpenGLShaderStageLUT[static_cast<size_t>(stage)];
 	}
 
-	constexpr GLenum FilteringModeToOpenGL(TextureFilteringMode mode)
+	constexpr GLenum SamplerFilterModeToOpenGL(SamplerFilterMode mode)
 	{
-		return s_OpenGLFilteringModeLUT[static_cast<size_t>(mode)];
+		return s_OpenGLSamplerFilterModeLUT[static_cast<size_t>(mode)];
 	}
 
-	constexpr GLenum TilingModeToOpenGL(TextureTilingMode mode)
+	constexpr GLenum SamplerAddressModeToOpenGL(SamplerAddressMode mode)
 	{
-		return s_OpenGLTilingModeLUT[static_cast<size_t>(mode)];
+		return s_OpenGLSamplerAddressModeLUT[static_cast<size_t>(mode)];
+	}
+
+	constexpr GLenum ShaderDataTypeToOpenGLBaseType(ShaderDataType type)
+	{
+		return s_OpenGLBaseShaderDataTypeLUT[static_cast<size_t>(type)];
 	}
 }

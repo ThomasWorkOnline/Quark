@@ -13,12 +13,12 @@ TextureArrayTest::TextureArrayTest(const ApplicationOptions& options)
 	Image texture1 = Image("assets/Textures/Example1_BasicRendering.png");
 
 	Texture2DArraySpecification spec;
-	spec.DataFormat = ColorDataFormat::RGBA8_SRGB;
+	spec.DataFormat = ColorFormat::RGBA8SRGB;
 	spec.Width = texture1.Width();
 	spec.Height = texture1.Height();
 	spec.Layers = 2;
-	spec.RenderModes.MinFilteringMode = TextureFilteringMode::NearestMipmapLinear;
-	spec.RenderModes.MagFilteringMode = TextureFilteringMode::Nearest;
+	spec.RenderModes.MinFilteringMode = SamplerFilterMode::NearestMipmapLinear;
+	spec.RenderModes.MagFilteringMode = SamplerFilterMode::Nearest;
 
 	m_TextureArray = Texture2DArray::Create(spec);
 	m_TextureArray->SetData(texture1.GetData(), texture1.GetMetadata().Size, 0);

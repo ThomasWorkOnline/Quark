@@ -10,12 +10,12 @@ namespace Quark {
 
 	namespace Utils {
 
-		static constexpr GLenum GetDepthAttachmentTarget(ColorDataFormat attachmentDepthFormat)
+		static constexpr GLenum GetDepthAttachmentTarget(ColorFormat attachmentDepthFormat)
 		{
 			switch (attachmentDepthFormat)
 			{
-				case ColorDataFormat::Depth24:         return GL_DEPTH_ATTACHMENT;
-				case ColorDataFormat::Depth24Stencil8: return GL_DEPTH_STENCIL_ATTACHMENT;
+				case ColorFormat::Depth24:         return GL_DEPTH_ATTACHMENT;
+				case ColorFormat::Depth24Stencil8: return GL_DEPTH_STENCIL_ATTACHMENT;
 
 				QK_ASSERT_NO_DEFAULT("Invalid framebuffer depth attachment");
 			}
@@ -23,12 +23,12 @@ namespace Quark {
 			return GL_NONE;
 		}
 
-		static constexpr bool IsDepthOrStencilAttachment(ColorDataFormat attachmentFormat)
+		static constexpr bool IsDepthOrStencilAttachment(ColorFormat attachmentFormat)
 		{
 			switch (attachmentFormat)
 			{
-				case ColorDataFormat::Depth24:
-				case ColorDataFormat::Depth24Stencil8: return true;
+				case ColorFormat::Depth24:
+				case ColorFormat::Depth24Stencil8: return true;
 				default:                               return false;
 			}
 		}

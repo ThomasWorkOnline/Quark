@@ -37,14 +37,14 @@ namespace Quark {
 		vkResetCommandBuffer(m_CommandBuffer, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
 	}
 
-	void VulkanCommandBuffer::SetCullFace(RenderCullMode mode)
+	void VulkanCommandBuffer::SetCullMode(RenderCullMode mode)
 	{
 		vkCmdSetCullMode(m_CommandBuffer, CullModeToVulkan(mode));
 	}
 
-	void VulkanCommandBuffer::SetDepthFunction(RenderDepthFunction func)
+	void VulkanCommandBuffer::SetDepthFunction(DepthCompareFunction func)
 	{
-		vkCmdSetDepthCompareOp(m_CommandBuffer, DepthFunctionToVulkan(func));
+		vkCmdSetDepthCompareOp(m_CommandBuffer, DepthCompareFunctionToVulkan(func));
 	}
 
 	void VulkanCommandBuffer::BindPipeline(const Pipeline* pipeline)

@@ -12,15 +12,15 @@ namespace Quark {
 		Default = Back
 	};
 
-	enum class RenderDepthFunction
+	enum class DepthCompareFunction
 	{
 		Never,
 		Always,
 		NotEqual,
 		Less,
-		LessEqual,
+		LessOrEqual,
 		Greater,
-		GreaterEqual,
+		GreaterOrEqual,
 
 		Default = Less
 	};
