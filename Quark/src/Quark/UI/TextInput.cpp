@@ -3,7 +3,8 @@
 
 namespace Quark {
 
-	TextInput::TextInput(const TextStyle& style) : Text(style)
+	TextInput::TextInput(const TextStyle& style)
+		: Text(style)
 	{
 	}
 
@@ -20,13 +21,50 @@ namespace Quark {
 		{
 			case KeyCode::Backspace:
 			{
-				if (m_Value.size() > 0)
-					m_Value.pop_back();
+				if (m_Cursor > 0 && m_Cursor <= m_Value.size())
+				{
+					m_Cursor--;
+					m_Value.erase(m_Cursor, 1);
+				}
+				break;
+			}
+			case KeyCode::Delete:
+			{
+				if (m_Cursor >= 0 && m_Cursor < m_Value.size())
+				{
+					m_Value.erase(m_Cursor, 1);
+				}
 				break;
 			}
 			case KeyCode::Enter:
 			{
-				m_Value.push_back('\n');
+				m_Value.insert(m_Value.begin() + m_Cursor++, '\r');
+				m_Value.insert(m_Value.begin() + m_Cursor++, '\n');
+				break;
+			}
+			case KeyCode::Tab:
+			{
+				m_Value.insert(m_Value.begin() + m_Cursor++, '\t');
+				break;
+			}
+			case KeyCode::Left:
+			{
+				if (m_Cursor > 0) m_Cursor--;
+				break;
+			}
+			case KeyCode::Right:
+			{
+				if (m_Cursor < m_Value.size()) m_Cursor++;
+				break;
+			}
+			case KeyCode::Home:
+			{
+				m_Cursor = 0;
+				break;
+			}
+			case KeyCode::End:
+			{
+				m_Cursor = m_Value.size();
 				break;
 			}
 		}
@@ -34,6 +72,10 @@ namespace Quark {
 
 	void TextInput::OnKeyTyped(KeyTypedEvent& e)
 	{
-		m_Value.push_back(static_cast<char>(e.GetKeyCode()));
+		auto charcode = static_cast<uint16_t>(e.GetKeyCode());
+		if (charcode < 256)
+		{
+			m_Value.insert(m_Value.begin() + m_Cursor++, (char)charcode);
+		}
 	}
 }

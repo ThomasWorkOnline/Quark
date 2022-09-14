@@ -44,10 +44,8 @@ void MainLayer::OnRender()
 	std::stringstream ss;
 	ss << std::put_time(std::localtime(&t), "%H:%M:%S");
 
-	const char* text = GetWindow()->GetClipboardText();
-
 	Renderer2D::BeginScene(m_Camera.GetProjection(), Mat4f(1.0f));
-	if (text) Renderer2D::DrawText(text, m_Font1.get());
+	Renderer2D::DrawText(m_Input, m_Font1.get());
 	Renderer2D::EndScene();
 }
 
