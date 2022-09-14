@@ -38,7 +38,6 @@ namespace Quark {
 			}
 			case KeyCode::Enter:
 			{
-				m_Value.insert(m_Value.begin() + m_Cursor++, '\r');
 				m_Value.insert(m_Value.begin() + m_Cursor++, '\n');
 				break;
 			}

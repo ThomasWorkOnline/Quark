@@ -302,14 +302,10 @@ namespace Quark {
 			{
 				switch (charcode)
 				{
-					// Newline
+					// Newline and carriage return
 					case '\n':
-						y -= atlasHeight;
-						break;
-
-					// Carriage return
-					case '\r':
 						x = startX;
+						y -= atlasHeight;
 						break;
 
 					// Tabs
