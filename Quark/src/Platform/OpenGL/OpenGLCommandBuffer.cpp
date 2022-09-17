@@ -54,7 +54,7 @@ namespace Quark {
 		m_BoundPipeline->BindVertexAttrib();
 	}
 
-	void OpenGLCommandBuffer::PushConstant(const Pipeline* pipeline, ShaderStage stage, const void* data, size_t size)
+	void OpenGLCommandBuffer::PushConstant(ShaderStage stage, const void* data, size_t size)
 	{
 		QK_CORE_ASSERT(false, "Push constants are not supported with OpenGL!");
 	}

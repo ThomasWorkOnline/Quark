@@ -26,7 +26,7 @@ namespace Quark {
 
 		virtual void BindPipeline(const Pipeline* pipeline) = 0;
 		virtual void BindDescriptorSets() = 0;
-		virtual void PushConstant(const Pipeline* pipeline, ShaderStage stage, const void* data, size_t size) = 0;
+		virtual void PushConstant(ShaderStage stage, const void* data, size_t size) = 0;
 
 		virtual void SetViewport(uint32_t viewportWidth, uint32_t viewportHeight) = 0;
 		virtual void SetLineWidth(float width) = 0;

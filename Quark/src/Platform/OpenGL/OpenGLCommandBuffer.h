@@ -21,7 +21,7 @@ namespace Quark {
 
 		virtual void BindPipeline(const Pipeline* pipeline) final override;
 		virtual void BindDescriptorSets() final override;
-		virtual void PushConstant(const Pipeline* pipeline, ShaderStage stage, const void* data, size_t size) final override;
+		virtual void PushConstant(ShaderStage stage, const void* data, size_t size) final override;
 
 		virtual void SetViewport(uint32_t viewportWidth, uint32_t viewportHeight) final override;
 		virtual void SetLineWidth(float width) final override;

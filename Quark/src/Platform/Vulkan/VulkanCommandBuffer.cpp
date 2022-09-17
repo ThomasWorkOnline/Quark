@@ -65,10 +65,10 @@ namespace Quark {
 			0, 1, &descriptorSet, 0, nullptr);
 	}
 
-	void VulkanCommandBuffer::PushConstant(const Pipeline* pipeline, ShaderStage stage, const void* data, size_t size)
+	void VulkanCommandBuffer::PushConstant(ShaderStage stage, const void* data, size_t size)
 	{
-		auto* vulkanPipeline = static_cast<const VulkanPipeline*>(pipeline);
-		vkCmdPushConstants(m_CommandBuffer, vulkanPipeline->GetPipelineLayout(), ShaderStageToVulkan(stage), 0, (uint32_t)size, data);
+		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
+		vkCmdPushConstants(m_CommandBuffer, m_BoundPipeline->GetPipelineLayout(), ShaderStageToVulkan(stage), 0, (uint32_t)size, data);
 	}
 
 	void VulkanCommandBuffer::SetViewport(uint32_t viewportWidth, uint32_t viewportHeight)
