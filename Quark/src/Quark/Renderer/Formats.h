@@ -73,9 +73,9 @@ namespace Quark {
 
 	struct SamplerRenderModes
 	{
-		SamplerFilterMode  MagFilteringMode = SamplerFilterMode::Linear;
-		SamplerFilterMode  MinFilteringMode = SamplerFilterMode::LinearMipmapLinear;
-		SamplerAddressMode AddressMode      = SamplerAddressMode::Default;
+		SamplerFilterMode MagFilteringMode = SamplerFilterMode::Linear;
+		SamplerFilterMode MinFilteringMode = SamplerFilterMode::LinearMipmapLinear;
+		SamplerAddressMode AddressMode     = SamplerAddressMode::Default;
 	};
 
 	size_t   GetPixelFormatSize(ColorFormat format);

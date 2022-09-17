@@ -4,7 +4,6 @@
 #include "VulkanEnums.h"
 #include "VulkanRenderPass.h"
 #include "VulkanShader.h"
-#include "VulkanUniformBuffer.h"
 
 #include <shaderc/shaderc.hpp>
 #include <spirv_cross/spirv_cross.hpp>
@@ -20,6 +19,7 @@ namespace Quark {
 		CreateDescriptorSetLayout();
 		CreateDescriptorPoolAndSets();
 		CreatePipeline();
+		CreatePipelineResources();
 	}
 
 	VulkanPipeline::~VulkanPipeline()
@@ -30,6 +30,61 @@ namespace Quark {
 		vkDestroyPipelineLayout(m_Device->GetVkHandle(), m_PipelineLayout, nullptr);
 		vkDestroyDescriptorSetLayout(m_Device->GetVkHandle(), m_DescriptorSetLayout, nullptr);
 		vkDestroyDescriptorPool(m_Device->GetVkHandle(), m_DescriptorPool, nullptr);
+	}
+
+	void VulkanPipeline::SetTexture(const Texture* texture, uint32_t textureIndex)
+	{
+		auto* vulkanTexture = dynamic_cast<const VulkanTexture2D*>(texture);
+		m_CombinedSamplers[textureIndex].Texture = vulkanTexture;
+	}
+
+	void VulkanPipeline::PushDescriptorSets()
+	{
+		// Uniform Buffers
+		for (uint32_t i = 0; i < m_Spec.UniformBufferCount; i++)
+		{
+			auto* uniformBuffer = static_cast<const VulkanUniformBuffer*>(m_Spec.UniformBuffers[i]);
+
+			VkDescriptorBufferInfo bufferInfo{};
+			bufferInfo.buffer = uniformBuffer->GetVkHandle();
+			bufferInfo.offset = 0;
+			bufferInfo.range  = uniformBuffer->GetSize();
+
+			VkWriteDescriptorSet writeDescriptorSet{};
+			writeDescriptorSet.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			writeDescriptorSet.dstBinding      = uniformBuffer->GetBinding(); // TODO: group by binding and call vkUpdateDescriptorSets once per set
+			writeDescriptorSet.dstArrayElement = 0;
+			writeDescriptorSet.descriptorCount = 1;
+			writeDescriptorSet.descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			writeDescriptorSet.pBufferInfo     = &bufferInfo;
+			writeDescriptorSet.dstSet          = GetDescriptorSet();
+
+			vkUpdateDescriptorSets(m_Device->GetVkHandle(), 1, &writeDescriptorSet, 0, nullptr);
+		}
+
+		// Samplers
+		for (uint32_t i = 0; i < m_CombinedSamplers.size(); i++)
+		{
+			if (!m_CombinedSamplers[i].Texture)
+				break;
+
+			VkDescriptorImageInfo imageInfo{};
+			imageInfo.sampler     = m_CombinedSamplers[i].Sampler->GetVkHandle();
+			imageInfo.imageView   = m_CombinedSamplers[i].Texture->GetVkHandle();
+			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+			VkWriteDescriptorSet writeDescriptorSet{};
+			writeDescriptorSet.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			writeDescriptorSet.dstBinding      = m_CombinedSamplers[i].Sampler->GetBinding();
+			writeDescriptorSet.dstArrayElement = i;
+			writeDescriptorSet.descriptorCount = 1;
+			writeDescriptorSet.descriptorType  = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			writeDescriptorSet.pImageInfo      = &imageInfo;
+			writeDescriptorSet.dstSet          = GetDescriptorSet();
+
+			vkUpdateDescriptorSets(m_Device->GetVkHandle(), 1, &writeDescriptorSet, 0, nullptr);
+			m_CombinedSamplers[i].Texture = nullptr;
+		}
 	}
 
 	bool VulkanPipeline::operator==(const Pipeline& other) const
@@ -50,6 +105,10 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		const auto& shaderResources = m_Spec.Shader->GetShaderResources();
+
+		QK_CORE_ASSERT(m_Spec.UniformBufferCount == shaderResources.UniformBuffers.size(),
+			"Mismatch between shader resources and uniform buffers provided: {0} given but pipeline expected: {1}",
+			m_Spec.UniformBufferCount, shaderResources.UniformBuffers.size());
 
 		uint32_t bindingCount = m_Spec.Shader->GetBindingCount();
 		AutoRelease<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings = StackAlloc(bindingCount * sizeof(VkDescriptorSetLayoutBinding));
@@ -170,7 +229,7 @@ namespace Quark {
 
 		VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
 		inputAssembly.sType                       = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-		inputAssembly.topology                    = PrimitiveTopologyToVulkan(m_Spec.Topology);
+		inputAssembly.topology                    = (VkPrimitiveTopology)m_Spec.Topology;
 		inputAssembly.primitiveRestartEnable      = VK_FALSE;
 
 		// Viewport
@@ -275,5 +334,30 @@ namespace Quark {
 		pipelineInfo.subpass             = 0;
 
 		vkCreateGraphicsPipelines(m_Device->GetVkHandle(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_Pipeline);
+	}
+
+	void VulkanPipeline::CreatePipelineResources()
+	{
+		const auto& shaderResources = m_Spec.Shader->GetShaderResources();
+
+		uint32_t samplerCount = 0;
+		for (auto& samplerArray : shaderResources.SamplerArrays)
+		{
+			samplerCount += samplerArray.SamplerCount;
+		}
+
+		m_CombinedSamplers.reserve(samplerCount);
+		for (auto& samplerArray : shaderResources.SamplerArrays)
+		{
+			for (uint32_t i = 0; i < samplerArray.SamplerCount; i++)
+			{
+				SamplerSpecification spec;
+				spec.Binding = samplerArray.Decorators.Binding;
+
+				CombinedSampler cSampler;
+				cSampler.Sampler = CreateScope<VulkanSampler>(m_Device, spec);
+				m_CombinedSamplers.emplace_back(std::move(cSampler));
+			}
+		}
 	}
 }

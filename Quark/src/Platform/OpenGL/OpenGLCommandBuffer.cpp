@@ -3,28 +3,13 @@
 
 #include "OpenGLBuffer.h"
 #include "OpenGLEnums.h"
-#include "OpenGLFont.h"
 #include "OpenGLFramebuffer.h"
-#include "OpenGLPipeline.h"
-#include "OpenGLShader.h"
-#include "OpenGLTexture.h"
-#include "OpenGLUniformBuffer.h"
 
 #include <glad/glad.h>
 
 #define QK_ASSERT_PIPELINE_VALID_STATE(pipeline) QK_CORE_ASSERT(pipeline, "No pipeline was actively bound to the current command buffer!")
 
 namespace Quark {
-
-	namespace Utils {
-
-		static bool AssureOpenGLTexture(const Texture* texture)
-		{
-			return dynamic_cast<const OpenGLFont*>(texture)
-				|| dynamic_cast<const OpenGLTexture2D*>(texture)
-				|| dynamic_cast<const OpenGLTexture2DArray*>(texture);
-		}
-	}
 
 	void OpenGLCommandBuffer::SetCullMode(RenderCullMode mode)
 	{
@@ -37,26 +22,17 @@ namespace Quark {
 
 	void OpenGLCommandBuffer::SetDepthFunction(DepthCompareFunction func)
 	{
-		glDepthFunc(DepthCompareFunctionToOpenGL(func));
+		glDepthFunc(DepthFunctionToOpenGL(func));
 	}
 
 	void OpenGLCommandBuffer::BindPipeline(const Pipeline* pipeline)
 	{
 		m_BoundPipeline = static_cast<const OpenGLPipeline*>(pipeline);
-
-		auto* glShader = static_cast<const OpenGLShader*>(m_BoundPipeline->GetSpecification().Shader);
-		glUseProgram(glShader->GetRendererID());
-	}
-
-	void OpenGLCommandBuffer::BindDescriptorSets()
-	{
-		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
-		m_BoundPipeline->BindVertexAttrib();
+		m_BoundPipeline->Bind();
 	}
 
 	void OpenGLCommandBuffer::PushConstant(const Pipeline* pipeline, ShaderStage stage, const void* data, size_t size)
 	{
-		QK_CORE_ASSERT(false, "Push constants are not supported with OpenGL!");
 	}
 
 	void OpenGLCommandBuffer::SetViewport(uint32_t viewportWidth, uint32_t viewportHeight)
@@ -117,7 +93,9 @@ namespace Quark {
 		QK_CORE_ASSERT(vertexBuffer->GetLayout() == m_BoundPipeline->GetLayout(), "Buffer layout does not match the currently bound pipeline layout");
 
 		auto* glVertexBuffer = static_cast<const OpenGLVertexBuffer*>(vertexBuffer);
+
 		glBindBuffer(GL_ARRAY_BUFFER, glVertexBuffer->GetRendererID());
+		m_BoundPipeline->BindVertexAttrib();
 	}
 
 	void OpenGLCommandBuffer::BindIndexBuffer(const IndexBuffer* indexBuffer)
@@ -125,23 +103,8 @@ namespace Quark {
 		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
 
 		auto* glIndexBuffer = static_cast<const OpenGLIndexBuffer*>(indexBuffer);
+
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glIndexBuffer->GetRendererID());
-	}
-
-	void OpenGLCommandBuffer::BindUniformBuffer(const UniformBuffer* uniformBuffer)
-	{
-		auto* glUniformBuffer = static_cast<const OpenGLUniformBuffer*>(uniformBuffer);
-		glBindBufferBase(GL_UNIFORM_BUFFER, glUniformBuffer->GetBinding(), glUniformBuffer->GetRendererID());
-	}
-
-	void OpenGLCommandBuffer::BindTexture(const Texture* texture, const Sampler* sampler, uint32_t samplerIndex)
-	{
-		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
-		QK_CORE_ASSERT(Utils::AssureOpenGLTexture(texture), "Tried to bind a texture that wasn't created using OpenGL");
-
-		auto* glTexture = static_cast<const OpenGLTexture*>(texture->GetHandle());
-		glActiveTexture(GL_TEXTURE0 + samplerIndex);
-		glBindTexture(glTexture->GetTarget(), glTexture->GetRendererID());
 	}
 
 	bool OpenGLCommandBuffer::IsInsideRenderPass() const

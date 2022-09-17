@@ -47,9 +47,10 @@ private:
 	Scope<Shader> m_PBRShader;
 	Scope<Cubemap> m_Irradiance;
 	Scope<UniformBuffer> m_CameraUniformBuffer;
-	Scope<Sampler> m_Samplers[5];
 	CameraUniformBufferData m_CameraBufferData;
 	Scope<Pipeline> m_Pipeline;
+
+	const UniformBuffer* m_UniformBuffer;
 
 	std::future<OBJMeshData> m_MeshDataFuture;
 	std::future<Scope<Image>> m_AlbedoFuture;

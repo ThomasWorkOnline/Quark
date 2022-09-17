@@ -111,25 +111,24 @@ namespace Quark {
 		}
 
 		// Staging buffer
-		size_t alignedSize;
 		VkDeviceSize size = metadata.Size;
 		VkDeviceMemory stagingBufferMemory;
 		VkBuffer stagingBuffer = Utils::AllocateBuffer(m_Device, size,
 			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-			stagingBufferMemory, &alignedSize
+			stagingBufferMemory
 		);
 
 		// Upload
 		{
 			void* mappedMemory;
-			vkMapMemory(m_Device->GetVkHandle(), stagingBufferMemory, 0, alignedSize, 0, &mappedMemory);
+			vkMapMemory(m_Device->GetVkHandle(), stagingBufferMemory, 0, size, 0, &mappedMemory);
 			std::memcpy(mappedMemory, image.GetData(), size);
 
 			VkMappedMemoryRange range{};
 			range.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
 			range.memory = stagingBufferMemory;
-			range.size = alignedSize;
+			range.size = size;
 
 			vkFlushMappedMemoryRanges(m_Device->GetVkHandle(), 1, &range);
 			vkUnmapMemory(m_Device->GetVkHandle(), stagingBufferMemory);
@@ -156,24 +155,23 @@ namespace Quark {
 		QK_CORE_ASSERT(size == m_Spec.Width * m_Spec.Height * pSize, "Data must be entire texture");
 
 		// Staging buffer
-		size_t alignedSize;
 		VkDeviceMemory stagingBufferMemory;
 		VkBuffer stagingBuffer = Utils::AllocateBuffer(m_Device, size,
 			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-			stagingBufferMemory, &alignedSize
+			stagingBufferMemory
 		);
 
 		// Upload
 		{
 			void* mappedMemory;
-			vkMapMemory(m_Device->GetVkHandle(), stagingBufferMemory, 0, alignedSize, 0, &mappedMemory);
+			vkMapMemory(m_Device->GetVkHandle(), stagingBufferMemory, 0, size, 0, &mappedMemory);
 			std::memcpy(mappedMemory, data, size);
 
 			VkMappedMemoryRange range{};
 			range.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
 			range.memory = stagingBufferMemory;
-			range.size = alignedSize;
+			range.size = size;
 
 			vkFlushMappedMemoryRanges(m_Device->GetVkHandle(), 1, &range);
 			vkUnmapMemory(m_Device->GetVkHandle(), stagingBufferMemory);

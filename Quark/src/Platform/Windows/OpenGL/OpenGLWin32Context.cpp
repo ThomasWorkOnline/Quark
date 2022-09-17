@@ -8,7 +8,7 @@ namespace Quark {
 		, m_DeviceContext(nullptr)
 		, m_Context(nullptr)
 	{
-		QK_CORE_ASSERT(m_WindowHandle, "Window handle is nullptr");
+		QK_CORE_ASSERT(windowHandle, "Window handle is nullptr");
 	}
 
 	OpenGLWin32Context::~OpenGLWin32Context()

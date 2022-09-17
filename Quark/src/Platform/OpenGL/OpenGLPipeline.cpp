@@ -2,10 +2,23 @@
 #include "OpenGLPipeline.h"
 
 #include "OpenGLEnums.h"
+#include "OpenGLFont.h"
+#include "OpenGLShader.h"
+#include "OpenGLTexture.h"
 
 #include <glad/glad.h>
 
 namespace Quark {
+
+	namespace Utils {
+
+		static bool AssureOpenGLTexture(const Texture* texture)
+		{
+			return dynamic_cast<const OpenGLFont*>(texture)
+				|| dynamic_cast<const OpenGLTexture2D*>(texture)
+				|| dynamic_cast<const OpenGLTexture2DArray*>(texture);
+		}
+	}
 
 	OpenGLPipeline::OpenGLPipeline(const PipelineSpecification& spec)
 		: Pipeline(spec)
@@ -29,12 +42,38 @@ namespace Quark {
 		glDeleteVertexArrays(1, &m_RendererID);
 	}
 
+	void OpenGLPipeline::SetTexture(const Texture* texture, uint32_t textureIndex)
+	{
+		QK_CORE_ASSERT(Utils::AssureOpenGLTexture(texture), "OpenGLPipeline tried to bind a texture that wasn't created using OpenGL");
+
+		auto glTexture = static_cast<const OpenGLTexture*>(texture->GetHandle());
+
+		glActiveTexture(GL_TEXTURE0 + textureIndex);
+		glBindTexture(glTexture->GetTarget(), glTexture->GetRendererID());
+	}
+
 	bool OpenGLPipeline::operator==(const Pipeline& other) const
 	{
 		if (auto* o = dynamic_cast<decltype(this)>(&other))
 			return m_RendererID == o->m_RendererID;
 
 		return false;
+	}
+
+	void OpenGLPipeline::Bind() const
+	{
+		// Shader
+		{
+			auto* glShader = static_cast<const OpenGLShader*>(m_Spec.Shader);
+			glUseProgram(glShader->GetRendererID());
+		}
+
+		// Uniform buffers
+		for (uint32_t i = 0; i < m_Spec.UniformBufferCount; i++)
+		{
+			auto* uniformBuffer = static_cast<const OpenGLUniformBuffer*>(m_Spec.UniformBuffers[i]);
+			glBindBufferBase(GL_UNIFORM_BUFFER, uniformBuffer->GetBinding(), uniformBuffer->GetRendererID());
+		}
 	}
 
 	void OpenGLPipeline::BindVertexAttrib() const

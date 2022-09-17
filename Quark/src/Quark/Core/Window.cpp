@@ -3,16 +3,18 @@
 
 #if defined(QK_PLATFORM_WINDOWS) && QK_USE_NATIVE_APIS
 #	include "Platform/Windows/NativeWindowsWindow.h"
-#	define NativeWindow NativeWindowsWindow
 #else
-#	include "NativeWindow.h"
-#	define NativeWindow NativeWindow
+#	include "Platform/GLFW/GLFWWindow.h"
 #endif
 
 namespace Quark {
 
 	Scope<Window> Window::Create(const WindowSpecification& spec)
 	{
-		return CreateScope<NativeWindow>(spec);
+#if defined(QK_PLATFORM_WINDOWS) && QK_USE_NATIVE_APIS
+		return CreateScope<NativeWindowsWindow>(spec);
+#else
+		return CreateScope<GLFWWindow>(spec);
+#endif
 	}
 }

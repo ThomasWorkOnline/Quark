@@ -2,7 +2,6 @@
 
 #include "Quark/Renderer/Buffer.h"
 #include "Quark/Renderer/Formats.h"
-#include "Quark/Renderer/Pipeline.h"
 #include "Quark/Renderer/RenderModes.h"
 #include "Quark/Renderer/RenderPass.h"
 #include "Quark/Renderer/Shader.h"
@@ -12,66 +11,68 @@
 namespace Quark {
 
 	inline constexpr VkFormat s_VulkanBaseShaderDataTypeLUT[] = {
-		/*None*/                 VK_FORMAT_UNDEFINED,
-		/*Float*/                VK_FORMAT_R32_SFLOAT,
-		/*Float2*/               VK_FORMAT_R32G32_SFLOAT,
-		/*Float3*/               VK_FORMAT_R32G32B32_SFLOAT,
-		/*Float4*/               VK_FORMAT_R32G32B32A32_SFLOAT,
-							     
-		/*Double*/               VK_FORMAT_R64_SFLOAT,
-		/*Double2*/              VK_FORMAT_R64G64_SFLOAT,
-		/*Double3*/              VK_FORMAT_R64G64B64_SFLOAT,
-		/*Double4*/              VK_FORMAT_R64G64B64A64_SFLOAT,
+		/*None*/            VK_FORMAT_UNDEFINED,
+		/*Float*/           VK_FORMAT_R32_SFLOAT,
+		/*Float2*/          VK_FORMAT_R32G32_SFLOAT,
+		/*Float3*/          VK_FORMAT_R32G32B32_SFLOAT,
+		/*Float4*/          VK_FORMAT_R32G32B32A32_SFLOAT,
 
-		/*Mat3f*/                VK_FORMAT_R32G32B32_SFLOAT,
-		/*Mat4f*/                VK_FORMAT_R32G32B32A32_SFLOAT,
-		/*Mat3d*/                VK_FORMAT_R64G64B64_SFLOAT,
-		/*Mat4d*/                VK_FORMAT_R64G64B64A64_SFLOAT,
-							     
-		/*Int*/                  VK_FORMAT_R32_SINT,
-		/*Int2*/                 VK_FORMAT_R32G32_SINT,
-		/*Int3*/                 VK_FORMAT_R32G32B32_SINT,
-		/*Int4*/                 VK_FORMAT_R32G32B32A32_SINT,
-		/*Bool*/                 VK_FORMAT_R8_UINT
+		/*Double*/          VK_FORMAT_R64_SFLOAT,
+		/*Double2*/         VK_FORMAT_R64G64_SFLOAT,
+		/*Double3*/         VK_FORMAT_R64G64B64_SFLOAT,
+		/*Double4*/         VK_FORMAT_R64G64B64A64_SFLOAT,
+
+		// TODO: Implement matrix data types
+
+		/*Mat3f*/           VK_FORMAT_UNDEFINED,
+		/*Mat4f*/           VK_FORMAT_UNDEFINED,
+		/*Mat3d*/           VK_FORMAT_UNDEFINED,
+		/*Mat4d*/           VK_FORMAT_UNDEFINED,
+
+		/*Int*/             VK_FORMAT_R32_SINT,
+		/*Int2*/            VK_FORMAT_R32G32_SINT,
+		/*Int3*/            VK_FORMAT_R32G32B32_SINT,
+		/*Int4*/            VK_FORMAT_R32G32B32A32_SINT,
+		/*Bool*/            VK_FORMAT_R8_UINT
 	};
 
 	inline constexpr VkAttachmentLoadOp s_VulkanClearAttachmentLoadOpsLUT[] = {
-		/*false*/                VK_ATTACHMENT_LOAD_OP_LOAD,
-		/*true*/                 VK_ATTACHMENT_LOAD_OP_CLEAR
+		/*false*/           VK_ATTACHMENT_LOAD_OP_LOAD,
+		/*true*/            VK_ATTACHMENT_LOAD_OP_CLEAR
 	};
 
 	inline constexpr VkCullModeFlagBits s_VulkanCullModeLUT[] = {
-		/*None*/                 VK_CULL_MODE_NONE,
-		/*Front*/                VK_CULL_MODE_FRONT_BIT,
-		/*Back*/                 VK_CULL_MODE_BACK_BIT,
-		/*FrontAndBack*/         VK_CULL_MODE_FRONT_AND_BACK
+		/*None*/            VK_CULL_MODE_NONE,
+		/*Front*/           VK_CULL_MODE_FRONT_BIT,
+		/*Back*/            VK_CULL_MODE_BACK_BIT,
+		/*FrontAndBack*/    VK_CULL_MODE_FRONT_AND_BACK
 	};
 
 	inline constexpr VkFormat s_VulkanDataFormatLUT[] = {
-		/*None*/                 VK_FORMAT_UNDEFINED,
-							     
-		/*RGB8*/                 VK_FORMAT_R8G8B8_UNORM,
-		/*RGB16*/                VK_FORMAT_R16G16B16_UNORM,
-		/*RGB32*/                VK_FORMAT_R32G32B32_UINT,
-							     
-		/*RGBA8*/                VK_FORMAT_R8G8B8A8_UNORM,
-		/*RGBA16*/               VK_FORMAT_R16G16B16A16_UNORM,
-							     
-		/*RGB8SRGB*/             VK_FORMAT_R8G8B8_SRGB,
-		/*RGBA8SRGB*/            VK_FORMAT_R8G8B8A8_SRGB,
-							     
-		/*BGR8SRGB*/             VK_FORMAT_B8G8R8_SRGB,
-		/*BGRA8SRGB*/            VK_FORMAT_B8G8R8A8_SRGB,
-							     
-		/*RGB16f*/               VK_FORMAT_R16G16B16_SFLOAT,
-		/*RGB32f*/               VK_FORMAT_R32G32B32_SFLOAT,
-		/*RGBA16f*/              VK_FORMAT_R16G16B16A16_SFLOAT,
-		/*RGBA32f*/              VK_FORMAT_R32G32B32A32_SFLOAT,
-							     
-		/*Red8*/                 VK_FORMAT_R8_UNORM,
-							     
-		/*Depth24*/              VK_FORMAT_D24_UNORM_S8_UINT,
-		/*Depth24Stencil8*/      VK_FORMAT_D24_UNORM_S8_UINT
+		/*None*/            VK_FORMAT_UNDEFINED,
+
+		/*RGB8*/            VK_FORMAT_R8G8B8_UNORM,
+		/*RGB16*/           VK_FORMAT_R16G16B16_UNORM,
+		/*RGB32*/           VK_FORMAT_R32G32B32_UINT,
+
+		/*RGBA8*/           VK_FORMAT_R8G8B8A8_UNORM,
+		/*RGBA16*/          VK_FORMAT_R16G16B16A16_UNORM,
+
+		/*RGB8SRGB*/        VK_FORMAT_R8G8B8_SRGB,
+		/*RGBA8SRGB*/       VK_FORMAT_R8G8B8A8_SRGB,
+
+		/*BGR8SRGB*/        VK_FORMAT_B8G8R8_SRGB,
+		/*BGRA8SRGB*/       VK_FORMAT_B8G8R8A8_SRGB,
+
+		/*RGB16f*/          VK_FORMAT_R16G16B16_SFLOAT,
+		/*RGB32f*/          VK_FORMAT_R32G32B32_SFLOAT,
+		/*RGBA16f*/         VK_FORMAT_R16G16B16A16_SFLOAT,
+		/*RGBA32f*/         VK_FORMAT_R32G32B32A32_SFLOAT,
+
+		/*Red8*/            VK_FORMAT_R8_UNORM,
+
+		/*Depth24*/         VK_FORMAT_D24_UNORM_S8_UINT,
+		/*Depth24Stencil8*/ VK_FORMAT_D24_UNORM_S8_UINT
 	};
 
 	inline constexpr VkCompareOp s_DepthCompareFunctionLUT[] = {
@@ -82,16 +83,6 @@ namespace Quark {
 		/*LessOrEqual*/          VK_COMPARE_OP_LESS_OR_EQUAL,
 		/*Greater*/              VK_COMPARE_OP_GREATER,
 		/*GreaterOrEqual*/       VK_COMPARE_OP_GREATER_OR_EQUAL
-	};
-
-	inline constexpr VkPrimitiveTopology s_VulkanPrimitiveTopologyLUT[] = {
-		/*None*/                 VK_PRIMITIVE_TOPOLOGY_MAX_ENUM,
-		/*PointList*/            VK_PRIMITIVE_TOPOLOGY_POINT_LIST,
-		/*LineList*/             VK_PRIMITIVE_TOPOLOGY_LINE_LIST,
-		/*LineStrip*/            VK_PRIMITIVE_TOPOLOGY_LINE_STRIP,
-		/*TriangleList*/         VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-		/*TriangleStrip*/        VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
-		/*TriangleFan*/          VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN
 	};
 
 	inline constexpr VkPipelineBindPoint s_VulkanPipelineBindPointLUT[] = {
@@ -138,11 +129,11 @@ namespace Quark {
 	};
 
 	inline constexpr VkShaderStageFlagBits s_VulkanShaderStageLUT[] = {
-		/*None*/                 VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM,
-		/*Vertex*/               VK_SHADER_STAGE_VERTEX_BIT,
-		/*Geometry*/             VK_SHADER_STAGE_GEOMETRY_BIT,
-		/*Fragment*/             VK_SHADER_STAGE_FRAGMENT_BIT,
-		/*Compute*/              VK_SHADER_STAGE_COMPUTE_BIT
+		/*None*/            VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM,
+		/*Vertex*/          VK_SHADER_STAGE_VERTEX_BIT,
+		/*Geometry*/        VK_SHADER_STAGE_GEOMETRY_BIT,
+		/*Fragment*/        VK_SHADER_STAGE_FRAGMENT_BIT,
+		/*Compute*/         VK_SHADER_STAGE_COMPUTE_BIT
 	};
 
 	constexpr VkAttachmentLoadOp GetVulkanLoadOrClearOp(bool clear)
@@ -168,11 +159,6 @@ namespace Quark {
 	constexpr VkCompareOp DepthCompareFunctionToVulkan(DepthCompareFunction func)
 	{
 		return s_DepthCompareFunctionLUT[static_cast<size_t>(func)];
-	}
-
-	constexpr VkPrimitiveTopology PrimitiveTopologyToVulkan(PrimitiveTopology topology)
-	{
-		return s_VulkanPrimitiveTopologyLUT[static_cast<size_t>(topology)];
 	}
 
 	constexpr VkSamplerAddressMode SamplerAddressModeToVulkan(SamplerAddressMode mode)

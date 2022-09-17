@@ -134,7 +134,6 @@ namespace Quark {
 	};
 
 	inline constexpr GLenum s_OpenGLPrimitiveTopologyLUT[] = {
-		/*None*/                 GL_NONE,
 		/*PointList*/            GL_POINTS,
 		/*LineList*/             GL_LINES,
 		/*LineStrip*/            GL_LINE_STRIP,
@@ -188,7 +187,7 @@ namespace Quark {
 		return s_OpenGLInternalFormatLUT[static_cast<size_t>(format)];
 	}
 
-	constexpr GLenum DepthCompareFunctionToOpenGL(DepthCompareFunction func)
+	constexpr GLenum DepthFunctionToOpenGL(DepthCompareFunction func)
 	{
 		return s_DepthFunctionLUT[static_cast<size_t>(func)];
 	}

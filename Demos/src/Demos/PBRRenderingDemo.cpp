@@ -45,12 +45,8 @@ PBRRenderingDemo::PBRRenderingDemo(const ApplicationOptions& options)
 		spec.Size = sizeof(m_CameraBufferData);
 		spec.Binding = 0;
 		m_CameraUniformBuffer = UniformBuffer::Create(spec);
-	}
 
-	for (auto i = 0; i < sizeof_array(m_Samplers); i++)
-	{
-		SamplerSpecification spec;
-		m_Samplers[i] = Sampler::Create(spec);
+		m_UniformBuffer = m_CameraUniformBuffer.get();
 	}
 
 	{
@@ -60,6 +56,8 @@ PBRRenderingDemo::PBRRenderingDemo(const ApplicationOptions& options)
 		spec.Samples = Renderer::GetMultisampling();
 		spec.Shader = m_PBRShader.get();
 		spec.RenderPass = Renderer::GetGeometryPass();
+		spec.UniformBufferCount = 1;
+		spec.UniformBuffers = &m_UniformBuffer;
 
 		m_Pipeline = Pipeline::Create(spec);
 	}
@@ -114,15 +112,13 @@ void PBRRenderingDemo::OnRender()
 
 	if (m_Body)
 	{
+		if (m_Material.Albedo) m_Pipeline->SetTexture(m_Material.Albedo.get(), 0);
+		if (m_Material.Normal) m_Pipeline->SetTexture(m_Material.Normal.get(), 1);
+		if (m_Material.Metallic) m_Pipeline->SetTexture(m_Material.Metallic.get(), 2);
+		if (m_Material.Roughness) m_Pipeline->SetTexture(m_Material.Roughness.get(), 3);
+		if (m_Material.AO) m_Pipeline->SetTexture(m_Material.AO.get(), 4);
+
 		Renderer::BindPipeline(m_Pipeline.get());
-		Renderer::GetCommandBuffer()->BindUniformBuffer(m_CameraUniformBuffer.get());
-
-		if (m_Material.Albedo)    Renderer::GetCommandBuffer()->BindTexture(m_Material.Albedo.get(),    m_Samplers[0].get(), 0);
-		if (m_Material.Normal)    Renderer::GetCommandBuffer()->BindTexture(m_Material.Normal.get(),    m_Samplers[1].get(), 1);
-		if (m_Material.Metallic)  Renderer::GetCommandBuffer()->BindTexture(m_Material.Metallic.get(),  m_Samplers[2].get(), 2);
-		if (m_Material.Roughness) Renderer::GetCommandBuffer()->BindTexture(m_Material.Roughness.get(), m_Samplers[3].get(), 3);
-		if (m_Material.AO)        Renderer::GetCommandBuffer()->BindTexture(m_Material.AO.get(),        m_Samplers[4].get(), 4);
-
 		Renderer::Submit(m_Body.GetVertexBuffer(), m_Body.GetIndexBuffer());
 	}
 

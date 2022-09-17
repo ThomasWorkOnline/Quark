@@ -46,7 +46,6 @@ namespace Quark {
 		virtual const char* GetClipboardText() const final override;
 		virtual void SetClipboardText(const char* string) final override;
 
-		virtual bool IsNative() const final override { return true; }
 		virtual void* GetNativeWindow() const final override { return m_WindowHandle; }
 
 		// Non-Copyable
