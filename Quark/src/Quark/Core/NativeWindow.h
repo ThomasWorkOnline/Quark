@@ -7,11 +7,11 @@ typedef struct GLFWwindow GLFWwindow;
 
 namespace Quark {
 
-	class GLFWWindow final : public Window
+	class NativeWindow final : public Window
 	{
 	public:
-		GLFWWindow(const WindowSpecification& spec);
-		virtual ~GLFWWindow() final override;
+		NativeWindow(const WindowSpecification& spec);
+		virtual ~NativeWindow() final override;
 
 		virtual void SetEventCallback(const EventCallbackFn& callback) final override { m_Data.EventCallback = callback; }
 		virtual void OnUpdate() final override;
@@ -46,15 +46,16 @@ namespace Quark {
 		virtual const char* GetClipboardText() const final override;
 		virtual void SetClipboardText(const char* string) final override;
 
+		virtual bool IsNative() const final override { return false; }
 		virtual void* GetNativeWindow() const final override { return m_Window; }
 
 		// Non-Copyable
-		GLFWWindow(const GLFWWindow&) = delete;
-		GLFWWindow& operator=(const GLFWWindow&) = delete;
+		NativeWindow(const NativeWindow&) = delete;
+		NativeWindow& operator=(const NativeWindow&) = delete;
 
 		// Non-Movable
-		GLFWWindow(GLFWWindow&&) = delete;
-		GLFWWindow& operator=(GLFWWindow&&) = delete;
+		NativeWindow(NativeWindow&&) = delete;
+		NativeWindow& operator=(NativeWindow&&) = delete;
 
 	private:
 		void Init(const WindowSpecification& spec);
@@ -68,6 +69,9 @@ namespace Quark {
 			uint32_t    Width, Height;
 			int32_t     Xpos, Ypos;
 
+			int32_t     WindowedPosX = 0, WindowedPosY = 0;
+			int32_t     WindowedWidth = 0, WindowedHeight = 0;
+
 			bool        VSync;
 			double      CursorXpos, CursorYpos;
 
@@ -77,8 +81,5 @@ namespace Quark {
 
 		GLFWwindow* m_Window;
 		WindowData m_Data{};
-
-		int32_t m_WindowedPosX = 0, m_WindowedPosY = 0;
-		int32_t m_WindowedWidth = 0, m_WindowedHeight = 0;
 	};
 }

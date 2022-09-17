@@ -1,7 +1,8 @@
 #include "qkpch.h"
-#include "GLFWWindow.h"
+#include "NativeWindow.h"
 
 #include "Quark/Renderer/GraphicsAPI.h"
+
 #include <GLFW/glfw3.h>
 
 namespace Quark {
@@ -41,23 +42,23 @@ namespace Quark {
 		QK_CORE_ASSERT(false, description);
 	}
 
-	GLFWWindow::GLFWWindow(const WindowSpecification& spec)
+	NativeWindow::NativeWindow(const WindowSpecification& spec)
 	{
 		Init(spec);
 	}
 
-	GLFWWindow::~GLFWWindow()
+	NativeWindow::~NativeWindow()
 	{
 		Shutdown();
 	}
 
-	void GLFWWindow::OnUpdate()
+	void NativeWindow::OnUpdate()
 	{
 		m_Data.Context->SwapBuffers();
 		glfwPollEvents();
 	}
 
-	void GLFWWindow::Init(const WindowSpecification& spec)
+	void NativeWindow::Init(const WindowSpecification& spec)
 	{
 		QK_PROFILE_FUNCTION();
 
@@ -252,7 +253,7 @@ namespace Quark {
 			});
 	}
 
-	void GLFWWindow::Shutdown()
+	void NativeWindow::Shutdown()
 	{
 		QK_PROFILE_FUNCTION();
 
@@ -264,67 +265,67 @@ namespace Quark {
 			glfwTerminate();
 	}
 
-	Window& GLFWWindow::SetTitle(std::string title)
+	Window& NativeWindow::SetTitle(std::string title)
 	{
 		m_Data.Title = std::move(title);
 		glfwSetWindowTitle(m_Window, m_Data.Title.c_str());
 		return *this;
 	}
 
-	Window& GLFWWindow::AppendTitle(std::string title)
+	Window& NativeWindow::AppendTitle(std::string title)
 	{
 		m_Data.Title.append(std::move(title));
 		glfwSetWindowTitle(m_Window, m_Data.Title.c_str());
 		return *this;
 	}
 
-	void GLFWWindow::Resize(uint32_t width, uint32_t height)
+	void NativeWindow::Resize(uint32_t width, uint32_t height)
 	{
 		glfwSetWindowSize(m_Window, width, height);
 	}
 
-	void GLFWWindow::Focus()
+	void NativeWindow::Focus()
 	{
 		glfwFocusWindow(m_Window);
 	}
 
-	void GLFWWindow::Minimize()
+	void NativeWindow::Minimize()
 	{
 		glfwIconifyWindow(m_Window);
 	}
 
-	void GLFWWindow::Maximize()
+	void NativeWindow::Maximize()
 	{
 		glfwMaximizeWindow(m_Window);
 	}
 
-	void GLFWWindow::Restore()
+	void NativeWindow::Restore()
 	{
 		glfwRestoreWindow(m_Window);
 	}
 
-	void GLFWWindow::RequestAttention()
+	void NativeWindow::RequestAttention()
 	{
 		glfwRequestWindowAttention(m_Window);
 	}
 
-	void GLFWWindow::DisableCursor()
+	void NativeWindow::DisableCursor()
 	{
 		glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	}
 
-	void GLFWWindow::EnableCursor()
+	void NativeWindow::EnableCursor()
 	{
 		glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	}
 
-	void GLFWWindow::SetVSync(bool enabled)
+	void NativeWindow::SetVSync(bool enabled)
 	{
 		m_Data.Context->SetSwapInterval(enabled);
 		m_Data.VSync = enabled;
 	}
 
-	void GLFWWindow::SetFullscreen(bool enabled)
+	void NativeWindow::SetFullscreen(bool enabled)
 	{
 		if (IsFullscreen() == enabled) return;
 
@@ -333,8 +334,8 @@ namespace Quark {
 			GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 			const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
-			glfwGetWindowPos(m_Window, &m_WindowedPosX, &m_WindowedPosY);
-			glfwGetWindowSize(m_Window, &m_WindowedWidth, &m_WindowedHeight);
+			glfwGetWindowPos(m_Window, &m_Data.WindowedPosX, &m_Data.WindowedPosY);
+			glfwGetWindowSize(m_Window, &m_Data.WindowedWidth, &m_Data.WindowedHeight);
 
 			// Switch to full screen
 			glfwSetWindowMonitor(m_Window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
@@ -342,45 +343,45 @@ namespace Quark {
 		}
 		else
 		{
-			m_Data.Width = m_WindowedWidth;
-			m_Data.Height = m_WindowedHeight;
+			m_Data.Width = m_Data.WindowedWidth;
+			m_Data.Height = m_Data.WindowedHeight;
 
 			// Restore last window size and position
-			glfwSetWindowMonitor(m_Window, nullptr, m_WindowedPosX, m_WindowedPosY, m_Data.Width, m_Data.Height, 0);
+			glfwSetWindowMonitor(m_Window, nullptr, m_Data.WindowedPosX, m_Data.WindowedPosY, m_Data.Width, m_Data.Height, 0);
 		}
 	}
 
-	bool GLFWWindow::IsFocused() const
+	bool NativeWindow::IsFocused() const
 	{
 		return glfwGetWindowAttrib(m_Window, GLFW_FOCUSED);
 	}
 
-	bool GLFWWindow::IsMinimized() const
+	bool NativeWindow::IsMinimized() const
 	{
 		return glfwGetWindowAttrib(m_Window, GLFW_ICONIFIED);
 	}
 
-	bool GLFWWindow::IsMaximized() const
+	bool NativeWindow::IsMaximized() const
 	{
 		return glfwGetWindowAttrib(m_Window, GLFW_MAXIMIZED);
 	}
 
-	bool GLFWWindow::IsCursorEnabled() const
+	bool NativeWindow::IsCursorEnabled() const
 	{
 		return glfwGetInputMode(m_Window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL;
 	}
 
-	bool GLFWWindow::IsFullscreen() const
+	bool NativeWindow::IsFullscreen() const
 	{
 		return glfwGetWindowMonitor(m_Window) != nullptr;
 	}
 
-	const char* GLFWWindow::GetClipboardText() const
+	const char* NativeWindow::GetClipboardText() const
 	{
 		return glfwGetClipboardString(m_Window);
 	}
 
-	void GLFWWindow::SetClipboardText(const char* string)
+	void NativeWindow::SetClipboardText(const char* string)
 	{
 		glfwSetClipboardString(m_Window, string);
 	}

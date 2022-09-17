@@ -25,13 +25,8 @@ namespace Quark {
 	{
 		VkPresentInfoKHR presentInfo{};
 		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-
-		if (renderFinishedSemaphore)
-		{
-			presentInfo.waitSemaphoreCount = 1;
-			presentInfo.pWaitSemaphores = &renderFinishedSemaphore;
-		}
-		
+		presentInfo.waitSemaphoreCount = 1;
+		presentInfo.pWaitSemaphores = &renderFinishedSemaphore;
 		presentInfo.swapchainCount = 1;
 		presentInfo.pSwapchains = &m_SwapChain;
 		presentInfo.pImageIndices = &m_ImageIndex;

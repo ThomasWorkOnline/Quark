@@ -58,6 +58,7 @@ namespace Quark {
 		virtual const char* GetClipboardText() const = 0;
 		virtual void SetClipboardText(const char* string) = 0;
 
+		virtual bool IsNative() const = 0;
 		virtual void* GetNativeWindow() const = 0;
 
 		static Scope<Window> Create(const WindowSpecification& spec);

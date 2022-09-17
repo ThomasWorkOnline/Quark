@@ -21,7 +21,7 @@ namespace Quark {
 
 	static RendererData* s_Data = nullptr;
 
-	void Renderer::BindPipeline(Pipeline* pipeline)
+	void Renderer::BindPipeline(const Pipeline* pipeline)
 	{
 		QK_ASSERT_RENDER_THREAD();
 		QK_CORE_ASSERT(s_Data->ActiveCommandBuffer->IsInsideRenderPass(), "Cannot bind a graphics pipeline outside of a render pass!");
@@ -54,6 +54,7 @@ namespace Quark {
 		QK_ASSERT_RENDER_THREAD();
 
 		s_Data->ActiveCommandBuffer->BindVertexBuffer(vertexBuffer);
+		s_Data->ActiveCommandBuffer->BindDescriptorSets();
 		s_Data->ActiveCommandBuffer->Draw(vertexCount, 0);
 	}
 
@@ -63,6 +64,7 @@ namespace Quark {
 
 		s_Data->ActiveCommandBuffer->BindVertexBuffer(vertexBuffer);
 		s_Data->ActiveCommandBuffer->BindIndexBuffer(indexBuffer);
+		s_Data->ActiveCommandBuffer->BindDescriptorSets();
 		s_Data->ActiveCommandBuffer->DrawIndexed(indexBuffer->GetCount());
 	}
 
@@ -72,6 +74,7 @@ namespace Quark {
 
 		s_Data->ActiveCommandBuffer->BindVertexBuffer(vertexBuffer);
 		s_Data->ActiveCommandBuffer->BindIndexBuffer(indexBuffer);
+		s_Data->ActiveCommandBuffer->BindDescriptorSets();
 		s_Data->ActiveCommandBuffer->DrawIndexed(indexCount);
 	}
 

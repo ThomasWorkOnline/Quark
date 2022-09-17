@@ -5,15 +5,13 @@
 
 #include "Buffer.h"
 #include "RenderPass.h"
-#include "Sampler.h"
 #include "Shader.h"
-#include "Texture.h"
-#include "UniformBuffer.h"
 
 namespace Quark {
 
 	enum class PrimitiveTopology
 	{
+		None = 0,
 		PointList,
 		LineList,
 		LineStrip,
@@ -30,9 +28,6 @@ namespace Quark {
 
 		const Shader*         Shader = nullptr;
 		const RenderPass*     RenderPass = nullptr;
-
-		uint32_t              UniformBufferCount = 0;
-		const UniformBuffer** UniformBuffers = nullptr;
 	};
 
 	class Pipeline
@@ -42,9 +37,6 @@ namespace Quark {
 			: m_Spec(spec) {}
 
 		virtual ~Pipeline() = default;
-
-		virtual void SetTexture(const Texture* texture, uint32_t textureIndex) = 0;
-		virtual void PushDescriptorSets() = 0;
 
 		virtual bool operator==(const Pipeline& other) const = 0;
 		

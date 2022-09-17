@@ -15,7 +15,7 @@ namespace Quark {
 		virtual void Init() override;
 		virtual void SwapBuffers() override;
 
-		virtual void SetViewport(uint32_t x, uint32_t y, uint32_t viewportWidth, uint32_t viewportHeight) override {}
+		virtual void Resize(uint32_t viewportWidth, uint32_t viewportHeight) override {}
 
 	private:
 		GLFWwindow* m_WindowHandle;

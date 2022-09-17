@@ -7,6 +7,8 @@
 
 namespace Quark {
 
+	class VulkanPipeline;
+
 	class VulkanCommandBuffer final : public CommandBuffer
 	{
 	public:
@@ -21,6 +23,7 @@ namespace Quark {
 		virtual void SetDepthFunction(DepthCompareFunction func) final override;
 
 		virtual void BindPipeline(const Pipeline* pipeline) final override;
+		virtual void BindDescriptorSets() final override;
 		virtual void PushConstant(const Pipeline* pipeline, ShaderStage stage, const void* data, size_t size) final override;
 
 		virtual void SetViewport(uint32_t viewportWidth, uint32_t viewportHeight) final override;
@@ -36,6 +39,8 @@ namespace Quark {
 
 		virtual void BindVertexBuffer(const VertexBuffer* vertexBuffer) final override;
 		virtual void BindIndexBuffer(const IndexBuffer* indexBuffer) final override;
+		virtual void BindUniformBuffer(const UniformBuffer* uniformBuffer) final override;
+		virtual void BindTexture(const Texture* texture, const Sampler* sampler, uint32_t samplerIndex = 0) final override;
 
 		virtual bool IsInsideRenderPass() const final override;
 
@@ -44,7 +49,9 @@ namespace Quark {
 		VkCommandBuffer GetVkHandle() const { return m_CommandBuffer; }
 
 	private:
+		VulkanDevice* m_Device = nullptr;
 		VkCommandBuffer m_CommandBuffer = nullptr;
+		const VulkanPipeline* m_BoundPipeline = nullptr;
 		const RenderPass* m_CurrentRenderPass = nullptr;
 	};
 }

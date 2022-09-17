@@ -6,6 +6,9 @@
 #include "Framebuffer.h"
 #include "Pipeline.h"
 #include "RenderPass.h"
+#include "Sampler.h"
+#include "Texture.h"
+#include "UniformBuffer.h"
 
 namespace Quark {
 
@@ -22,6 +25,7 @@ namespace Quark {
 		virtual void SetDepthFunction(DepthCompareFunction func) = 0;
 
 		virtual void BindPipeline(const Pipeline* pipeline) = 0;
+		virtual void BindDescriptorSets() = 0;
 		virtual void PushConstant(const Pipeline* pipeline, ShaderStage stage, const void* data, size_t size) = 0;
 
 		virtual void SetViewport(uint32_t viewportWidth, uint32_t viewportHeight) = 0;
@@ -37,6 +41,8 @@ namespace Quark {
 
 		virtual void BindVertexBuffer(const VertexBuffer* vertexBuffer) = 0;
 		virtual void BindIndexBuffer(const IndexBuffer* indexBuffer) = 0;
+		virtual void BindUniformBuffer(const UniformBuffer* uniformBuffer) = 0;
+		virtual void BindTexture(const Texture* texture, const Sampler* sampler, uint32_t samplerIndex = 0) = 0;
 
 		virtual bool IsInsideRenderPass() const = 0;
 

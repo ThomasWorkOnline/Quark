@@ -8,7 +8,7 @@ namespace Quark {
 	OpenGLContext::OpenGLContext(void* windowHandle)
 		: m_WindowHandle(static_cast<GLFWwindow*>(windowHandle))
 	{
-		QK_CORE_ASSERT(windowHandle, "Window handle is nullptr");
+		QK_CORE_ASSERT(m_WindowHandle, "Window handle is nullptr");
 	}
 
 	OpenGLContext::~OpenGLContext()
