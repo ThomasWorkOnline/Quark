@@ -26,7 +26,7 @@ namespace Quark {
 			uint32_t Width, Height;
 		};
 
-		static void BindPipeline(Pipeline* pipeline);
+		static void BindPipeline(const Pipeline* pipeline);
 
 		static void BeginRenderPass(const RenderPass* renderPass, const Framebuffer* framebuffer);
 		static void BeginGeometryPass();

@@ -24,7 +24,7 @@ namespace Quark {
 	VulkanContext::VulkanContext(void* windowHandle)
 		: m_WindowHandle(static_cast<GLFWwindow*>(windowHandle))
 	{
-		QK_CORE_ASSERT(windowHandle, "Window handle is nullptr");
+		QK_CORE_ASSERT(m_WindowHandle, "Window handle is nullptr");
 	}
 
 	void VulkanContext::Init()

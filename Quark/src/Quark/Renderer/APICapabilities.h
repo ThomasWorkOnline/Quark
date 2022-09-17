@@ -8,9 +8,10 @@ namespace Quark {
 	enum class RHI
 	{
 		None = 0,
+		Direct3D12,
+		Metal,
 		OpenGL,
-		Vulkan,
-		Metal
+		Vulkan
 	};
 
 	struct FramebufferCapabilities

@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Quark/Core/Core.h"
+#include "Quark/Core/Window.h"
+
 #include "CommandBuffer.h"
 
 namespace Quark {

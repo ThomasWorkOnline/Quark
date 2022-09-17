@@ -33,7 +33,7 @@ namespace Quark {
 
 		// Sampler capabilities
 		{
-			m_Capabilities.SamplerCapabilities.MaxPerStageSamplers = props.limits.maxPerStageDescriptorSamplers;
+			m_Capabilities.SamplerCapabilities.MaxPerStageSamplers = 32; // TODO: fix
 		}
 
 		// Uniform buffer capabilities

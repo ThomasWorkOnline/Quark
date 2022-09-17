@@ -2,6 +2,7 @@
 #include "Renderer2D.h"
 
 #include "Quark/Core/Application.h"
+#include "Quark/Renderer/Sampler.h"
 #include "Quark/Filesystem/Filesystem.h"
 
 namespace Quark {
@@ -99,6 +100,7 @@ namespace Quark {
 
 		uint32_t MaxSamplerDestinations = 0;
 		uint32_t TextureSamplerIndex = 1; // Next texture slot to be attached, 0 is reserved for default texture
+		std::vector<Scope<Sampler>> Samplers;
 
 		Scope<Texture2D> DefaultTexture;
 		const Texture** Textures = nullptr;
@@ -111,7 +113,6 @@ namespace Quark {
 
 		CameraData CameraBufferData{};
 		Scope<UniformBuffer> CameraUniformBuffer;
-		const UniformBuffer* UniformBuffers = nullptr;
 	};
 
 	Renderer2DStats Renderer2D::s_Stats;
@@ -390,26 +391,28 @@ namespace Quark {
 	{
 		if (s_Data->QuadIndexCount > 0)
 		{
+			Renderer::BindPipeline(s_Data->QuadRendererPipeline.get());
+			Renderer::GetCommandBuffer()->BindUniformBuffer(s_Data->CameraUniformBuffer.get());
+
 			size_t size = ((uint8_t*)s_Data->QuadVertexPtr - (uint8_t*)s_Data->QuadVertices);
 			s_Data->QuadVertexBuffer->SetData(s_Data->QuadVertices, size);
 
 			for (uint32_t i = 0; i < s_Data->TextureSamplerIndex; i++)
-				s_Data->QuadRendererPipeline->SetTexture(s_Data->Textures[i], i);
+				Renderer::GetCommandBuffer()->BindTexture(s_Data->Textures[i], s_Data->Samplers[i].get(), i);
 
-			s_Data->QuadRendererPipeline->PushDescriptorSets();
-
-			Renderer::BindPipeline(s_Data->QuadRendererPipeline.get());
 			Renderer::Submit(s_Data->QuadVertexBuffer.get(), s_Data->QuadIndexBuffer.get(), s_Data->QuadIndexCount);
 			s_Stats.DrawCalls++;
 		}
 
 		if (uint32_t vertexCount = (uint32_t)(s_Data->LineVertexPtr - s_Data->LineVertices))
 		{
+			Renderer::BindPipeline(s_Data->LineRendererPipeline.get());
+			Renderer::GetCommandBuffer()->SetLineWidth(1.0f);
+			Renderer::GetCommandBuffer()->BindUniformBuffer(s_Data->CameraUniformBuffer.get());
+
 			size_t size = ((uint8_t*)s_Data->LineVertexPtr - (uint8_t*)s_Data->LineVertices);
 			s_Data->LineVertexBuffer->SetData(s_Data->LineVertices, size);
 
-			Renderer::BindPipeline(s_Data->LineRendererPipeline.get());
-			Renderer::GetCommandBuffer()->SetLineWidth(1.0f);
 			Renderer::Submit(s_Data->LineVertexBuffer.get(), vertexCount);
 			s_Stats.DrawCalls++;
 		}
@@ -439,7 +442,6 @@ namespace Quark {
 			spec.Size = sizeof(s_Data->CameraBufferData);
 			spec.Binding = 0;
 			s_Data->CameraUniformBuffer = UniformBuffer::Create(spec);
-			s_Data->UniformBuffers = s_Data->CameraUniformBuffer.get();
 		}
 
 		SetupQuadRenderer();
@@ -504,9 +506,18 @@ namespace Quark {
 		auto spriteVertexSource = ReadSpirvFile((coreDirectory / "bin-spirv/Sprite.vert.spv").string());
 		auto spriteFragmentSource = ReadSpirvFile((coreDirectory / "bin-spirv/Sprite.frag.spv").string());
 
+		s_Data->Samplers.resize(s_Data->MaxSamplerDestinations);
 		AutoRelease<int32_t> samplersDests = StackAlloc(s_Data->MaxSamplerDestinations * sizeof(int32_t));
 		for (uint32_t i = 0; i < s_Data->MaxSamplerDestinations; i++)
+		{
 			samplersDests[i] = i;
+
+			SamplerSpecification spec;
+			spec.Binding = 1;
+			spec.RenderModes.AddressMode = SamplerAddressMode::ClampToEdge;
+
+			s_Data->Samplers[i] = Sampler::Create(spec);
+		}
 
 		s_Data->QuadShader = Shader::Create("defaultSprite", spriteVertexSource, spriteFragmentSource);
 		s_Data->QuadShader->SetIntArray("u_Samplers", samplersDests, s_Data->MaxSamplerDestinations);
@@ -518,8 +529,6 @@ namespace Quark {
 			spec.Samples            = Renderer::GetMultisampling();
 			spec.RenderPass         = Renderer::GetGeometryPass();
 			spec.Shader             = s_Data->QuadShader.get();
-			spec.UniformBufferCount = 1;
-			spec.UniformBuffers     = &s_Data->UniformBuffers;
 
 			s_Data->QuadRendererPipeline = Pipeline::Create(spec);
 		}
@@ -547,8 +556,6 @@ namespace Quark {
 			spec.Samples            = Renderer::GetMultisampling();
 			spec.RenderPass         = Renderer::GetGeometryPass();
 			spec.Shader             = s_Data->LineShader.get();
-			spec.UniformBufferCount = 1;
-			spec.UniformBuffers     = &s_Data->UniformBuffers;
 
 			s_Data->LineRendererPipeline = Pipeline::Create(spec);
 		}

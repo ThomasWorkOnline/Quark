@@ -75,7 +75,10 @@ project "Quark"
 		files
 		{
 			"src/Platform/Windows/**.h",
-			"src/Platform/Windows/**.cpp"
+			"src/Platform/Windows/**.cpp",
+
+			"src/Platform/Direct3D/**.h",
+			"src/Platform/Direct3D/**.cpp"
 		}
 
 		defines
@@ -90,6 +93,8 @@ project "Quark"
 
 		links
 		{
+			"%{Library.DXGI}",
+			"%{Library.Direct3D12}",
 			"%{Library.OpenAL}",
 			"%{Library.OpenGL}"
 		}
