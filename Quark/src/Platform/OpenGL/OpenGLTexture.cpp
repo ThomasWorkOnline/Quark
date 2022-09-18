@@ -188,7 +188,7 @@ namespace Quark {
 		}
 		else
 		{
-			glTexImage3D(GL_TEXTURE_2D_ARRAY, m_Spec.Levels, m_InternalFormat, m_Spec.Width, m_Spec.Height, m_Spec.Layers, 0,
+			glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, m_InternalFormat, m_Spec.Width, m_Spec.Height, m_Spec.Layers, 0,
 				m_DataFormat, DataFormatToOpenGLDataType(m_Spec.DataFormat), nullptr);
 
 			GLenum tilingMode = SamplerAddressModeToOpenGL(m_Spec.RenderModes.AddressMode);
@@ -217,7 +217,7 @@ namespace Quark {
 
 		glBindTexture(m_Target, m_RendererID);
 		glPixelStorei(GL_UNPACK_ALIGNMENT, IsPixel4BytesAligned(m_Spec.DataFormat) ? 4 : 1);
-		glTexSubImage3D(m_Target, m_Spec.Levels, 0, 0, layer, m_Spec.Width, m_Spec.Height, 1,
+		glTexSubImage3D(m_Target, 0, 0, 0, layer, m_Spec.Width, m_Spec.Height, 1,
 			m_DataFormat, DataFormatToOpenGLDataType(m_Spec.DataFormat), data);
 
 		QK_DEBUG_CALL(glBindTexture(m_Target, 0));
