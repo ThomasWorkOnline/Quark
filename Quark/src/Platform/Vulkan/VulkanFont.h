@@ -31,6 +31,8 @@ namespace Quark {
 		VulkanFont(const VulkanFont&) = delete;
 		VulkanFont& operator=(const VulkanFont&) = delete;
 
+		VkImageView GetVkHandle() const { return nullptr; }
+
 	private:
 		VulkanDevice* m_Device;
 		Glyph m_NullGlyph{};

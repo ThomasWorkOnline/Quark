@@ -3,8 +3,6 @@
 #include "Quark/Renderer/Font.h"
 #include "OpenGLTexture.h"
 
-#include <vector>
-
 struct FT_FaceRec_;
 typedef struct FT_FaceRec_* Face;
 
@@ -14,7 +12,7 @@ static constexpr uint8_t s_GlyphCount = 255;
 
 namespace Quark {
 
-	class OpenGLFont : public Font, public OpenGLTexture
+	class OpenGLFont : public OpenGLTexture, public Font
 	{
 	public:
 		OpenGLFont(std::string_view filepath, uint32_t fontSize);

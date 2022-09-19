@@ -3,6 +3,7 @@
 
 #include "VulkanBuffer.h"
 #include "VulkanEnums.h"
+#include "VulkanFont.h"
 #include "VulkanFramebuffer.h"
 #include "VulkanPipeline.h"
 #include "VulkanRenderPass.h"
@@ -187,12 +188,11 @@ namespace Quark {
 	{
 		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
 
-		auto* vulkanTexture = static_cast<const VulkanTexture2D*>(texture);
 		auto* vulkanSampler = static_cast<const VulkanSampler*>(sampler);
 
 		VkDescriptorImageInfo imageInfo{};
 		imageInfo.sampler = vulkanSampler->GetVkHandle();
-		imageInfo.imageView = vulkanTexture->GetVkHandle();
+		imageInfo.imageView = (VkImageView)texture->GetHandle();
 		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
 		VkWriteDescriptorSet writeDescriptorSet{};

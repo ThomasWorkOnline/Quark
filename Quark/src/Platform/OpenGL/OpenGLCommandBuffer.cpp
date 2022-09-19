@@ -17,16 +17,6 @@
 
 namespace Quark {
 
-	namespace Utils {
-
-		static bool AssureOpenGLTexture(const Texture* texture)
-		{
-			return dynamic_cast<const OpenGLFont*>(texture)
-				|| dynamic_cast<const OpenGLTexture2D*>(texture)
-				|| dynamic_cast<const OpenGLTexture2DArray*>(texture);
-		}
-	}
-
 	void OpenGLCommandBuffer::SetCullMode(RenderCullMode mode)
 	{
 		mode == RenderCullMode::None
@@ -51,8 +41,6 @@ namespace Quark {
 
 	void OpenGLCommandBuffer::BindDescriptorSets()
 	{
-		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
-		m_BoundPipeline->BindVertexAttrib();
 	}
 
 	void OpenGLCommandBuffer::PushConstant(ShaderStage stage, const void* data, size_t size)
@@ -119,6 +107,7 @@ namespace Quark {
 
 		auto* glVertexBuffer = static_cast<const OpenGLVertexBuffer*>(vertexBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, glVertexBuffer->GetRendererID());
+		m_BoundPipeline->BindVertexAttrib();
 	}
 
 	void OpenGLCommandBuffer::BindIndexBuffer(const IndexBuffer* indexBuffer)
@@ -138,7 +127,6 @@ namespace Quark {
 	void OpenGLCommandBuffer::BindTexture(const Texture* texture, const Sampler* sampler, uint32_t samplerIndex)
 	{
 		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
-		QK_CORE_ASSERT(Utils::AssureOpenGLTexture(texture), "Tried to bind a texture that wasn't created using OpenGL");
 
 		auto* glTexture = static_cast<const OpenGLTexture*>(texture->GetHandle());
 		glActiveTexture(GL_TEXTURE0 + samplerIndex);

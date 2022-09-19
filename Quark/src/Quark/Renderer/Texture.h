@@ -12,6 +12,9 @@ namespace Quark {
 		virtual const void* GetHandle() const = 0;
 
 		virtual bool operator==(const Texture& other) const = 0;
+
+		template<typename T>
+		const T* CastAs() const { return dynamic_cast<const T*>(this); }
 	};
 
 	struct Texture2DSpecification

@@ -3,6 +3,7 @@
 #include "Quark/Core/Core.h"
 
 #include "Buffer.h"
+#include "Font.h"
 #include "Framebuffer.h"
 #include "Pipeline.h"
 #include "RenderPass.h"
@@ -42,6 +43,7 @@ namespace Quark {
 		virtual void BindVertexBuffer(const VertexBuffer* vertexBuffer) = 0;
 		virtual void BindIndexBuffer(const IndexBuffer* indexBuffer) = 0;
 		virtual void BindUniformBuffer(const UniformBuffer* uniformBuffer) = 0;
+
 		virtual void BindTexture(const Texture* texture, const Sampler* sampler, uint32_t samplerIndex = 0) = 0;
 
 		virtual bool IsInsideRenderPass() const = 0;

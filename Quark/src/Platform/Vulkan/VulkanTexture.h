@@ -38,12 +38,12 @@ namespace Quark {
 	{
 	public:
 		VulkanTexture2DArray(VulkanDevice* device, const Texture2DArraySpecification& spec);
-		virtual ~VulkanTexture2DArray() final override = default;
+		virtual ~VulkanTexture2DArray() final override;
 
-		virtual void SetData(const void* data, size_t size, uint32_t layer) final override {}
+		virtual void SetData(const void* data, size_t size, uint32_t layer) final override;
 		virtual void GenerateMipmaps() final override {}
 
-		virtual const void* GetHandle() const final override { return nullptr; }
+		virtual const void* GetHandle() const final override { return m_ImageView; }
 
 		virtual bool operator==(const Texture& other) const final override;
 
@@ -51,7 +51,12 @@ namespace Quark {
 		VulkanTexture2DArray(const VulkanTexture2DArray&) = delete;
 		VulkanTexture2DArray& operator=(const VulkanTexture2DArray&) = delete;
 
+		VkImageView GetVkHandle() const { return m_ImageView; }
+
 	private:
 		VulkanDevice* m_Device;
+		VkImage m_Image = nullptr;
+		VkImageView m_ImageView = nullptr;
+		VkDeviceMemory m_BufferMemory = nullptr;
 	};
 }

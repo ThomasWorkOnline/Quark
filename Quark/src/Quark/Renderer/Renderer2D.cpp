@@ -398,7 +398,9 @@ namespace Quark {
 			s_Data->QuadVertexBuffer->SetData(s_Data->QuadVertices, size);
 
 			for (uint32_t i = 0; i < s_Data->TextureSamplerIndex; i++)
+			{
 				Renderer::GetCommandBuffer()->BindTexture(s_Data->Textures[i], s_Data->Samplers[i].get(), i);
+			}
 
 			Renderer::Submit(s_Data->QuadVertexBuffer.get(), s_Data->QuadIndexBuffer.get(), s_Data->QuadIndexCount);
 			s_Stats.DrawCalls++;
