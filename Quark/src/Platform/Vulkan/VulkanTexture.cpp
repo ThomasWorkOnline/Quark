@@ -218,7 +218,7 @@ namespace Quark {
 		imageExtent.depth = 1;
 
 		VkFormat format = DataFormatToVulkan(m_Spec.DataFormat);
-		m_Image = Utils::AllocateImage(m_Device, imageExtent, 1, m_Spec.Levels, m_Spec.Samples, format,
+		m_Image = Utils::AllocateImage(m_Device, imageExtent, m_Spec.Layers, m_Spec.Levels, m_Spec.Samples, format,
 			VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_BufferMemory);
 
@@ -297,7 +297,7 @@ namespace Quark {
 
 	bool VulkanTexture2DArray::operator==(const Texture& other) const
 	{
-		if (auto o = dynamic_cast<const VulkanTexture2DArray*>(&other))
+		if (auto o = dynamic_cast<decltype(this)>(&other))
 			return m_Image == o->m_Image;
 
 		return false;
