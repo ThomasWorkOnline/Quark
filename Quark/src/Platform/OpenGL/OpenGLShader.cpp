@@ -32,10 +32,10 @@ namespace Quark {
 		{
 			switch (stage)
 			{
-				case GL_VERTEX_SHADER:   return ShaderStage::Vertex;
-				case GL_GEOMETRY_SHADER: return ShaderStage::Geometry;
-				case GL_FRAGMENT_SHADER: return ShaderStage::Fragment;
-				case GL_COMPUTE_SHADER:  return ShaderStage::Compute;
+			case GL_VERTEX_SHADER:   return ShaderStage::Vertex;
+			case GL_GEOMETRY_SHADER: return ShaderStage::Geometry;
+			case GL_FRAGMENT_SHADER: return ShaderStage::Fragment;
+			case GL_COMPUTE_SHADER:  return ShaderStage::Compute;
 
 				QK_ASSERT_NO_DEFAULT("Unknown OpenGL shader stage");
 			}
@@ -70,7 +70,7 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		m_SpirvSources[GL_VERTEX_SHADER]   = vertexSource;
+		m_SpirvSources[GL_VERTEX_SHADER] = vertexSource;
 		m_SpirvSources[GL_FRAGMENT_SHADER] = fragmentSource;
 		m_RendererID = CompileSPIRV(m_SpirvSources);
 
@@ -90,7 +90,7 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		m_SpirvSources[GL_VERTEX_SHADER]   = vertexSource;
+		m_SpirvSources[GL_VERTEX_SHADER] = vertexSource;
 		m_SpirvSources[GL_FRAGMENT_SHADER] = fragmentSource;
 		m_SpirvSources[GL_GEOMETRY_SHADER] = geometrySource;
 		m_RendererID = CompileSPIRV(m_SpirvSources);
@@ -159,6 +159,9 @@ namespace Quark {
 
 		GLuint program = glCreateProgram();
 
+		GLint isCompiled = GL_FALSE;
+		GLint isLinked = GL_FALSE;
+
 		GLenum glShaderIDs[s_MaxShaders]{};
 		uint32_t glShaderIDIndex = 0;
 		for (auto& [stage, source] : shaderSources)
@@ -171,7 +174,6 @@ namespace Quark {
 			glShaderSource(shader, 1, &sourceData, &length);
 			glCompileShader(shader);
 
-			GLint isCompiled = 0;
 			glGetShaderiv(shader, GL_COMPILE_STATUS, &isCompiled);
 			if (isCompiled == GL_FALSE)
 			{
@@ -181,21 +183,17 @@ namespace Quark {
 				AutoRelease<GLchar> infoLog = StackAlloc(maxLength * sizeof(GLchar));
 				glGetShaderInfoLog(shader, maxLength, &maxLength, infoLog);
 
-				for (uint32_t i = 0; i < glShaderIDIndex; i++)
-				{
-					glDeleteShader(glShaderIDs[i]);
-				}
-
-				glDeleteProgram(program);
-
 				QK_CORE_ERROR("Shader compilation failure (compiling: {0}):\n{1}", m_Name, (const GLchar*)infoLog);
-				return 0;
+				break;
 			}
 
 			glAttachShader(program, shader);
 		}
 
-		bool isLinked = LinkProgram(program);
+		if (isCompiled)
+		{
+			isLinked = LinkProgram(program);
+		}
 
 		for (uint32_t i = 0; i < glShaderIDIndex; i++)
 		{
@@ -203,7 +201,7 @@ namespace Quark {
 			glDeleteShader(glShaderIDs[i]);
 		}
 
-		if (!isLinked)
+		if (!isCompiled || !isLinked)
 		{
 			glDeleteProgram(program);
 			return 0;
@@ -233,7 +231,7 @@ namespace Quark {
 			Reflect(Utils::GetShaderStageFromOpenGLType(stage), binary);
 		}
 
-		bool isLinked = LinkProgram(program);
+		GLint isLinked = LinkProgram(program);
 
 		for (uint32_t i = 0; i < glShaderIDIndex; i++)
 		{
@@ -250,11 +248,11 @@ namespace Quark {
 		return program;
 	}
 
-	bool OpenGLShader::LinkProgram(GLuint program)
+	GLint OpenGLShader::LinkProgram(GLuint program)
 	{
 		glLinkProgram(program);
 
-		GLint isLinked = 0;
+		GLint isLinked = GL_FALSE;
 		glGetProgramiv(program, GL_LINK_STATUS, &isLinked);
 		if (isLinked == GL_FALSE)
 		{
