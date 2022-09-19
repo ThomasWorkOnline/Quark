@@ -155,9 +155,9 @@ namespace Quark {
 		return CreateScope<OpenGLTexture2D>(spec);
 	}
 
-	Scope<Texture2D> OpenGLGraphicsAPI::CreateTexture2D(std::string_view filepath, const SamplerRenderModes& renderModes)
+	Scope<Texture2D> OpenGLGraphicsAPI::CreateTexture2D(std::string_view filepath)
 	{
-		return CreateScope<OpenGLTexture2D>(filepath, renderModes);
+		return CreateScope<OpenGLTexture2D>(filepath);
 	}
 
 	Scope<Texture2DArray> OpenGLGraphicsAPI::CreateTexture2DArray(const Texture2DArraySpecification& spec)

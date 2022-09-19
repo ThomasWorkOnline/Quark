@@ -17,6 +17,6 @@ namespace Quark {
 		GLuint GetRendererID() const { return m_RendererID; }
 
 	private:
-		GLuint m_RendererID;
+		GLuint m_RendererID = 0;
 	};
 }

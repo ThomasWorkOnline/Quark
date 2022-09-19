@@ -490,10 +490,7 @@ namespace Quark {
 		s_Data->QuadVertices = new QuadVertex[Renderer2DData::MaxVertices];
 
 		uint32_t textureColor = 0xffffffff;
-		Texture2DSpecification spec = { 1, 1, 1, 1,
-			ColorFormat::RGBA8,
-			SamplerFilterMode::Nearest, SamplerFilterMode::Nearest, SamplerAddressMode::Repeat
-		};
+		Texture2DSpecification spec = { 1, 1, 1, 1, ColorFormat::RGBA8 };
 
 		s_Data->DefaultTexture = Texture2D::Create(spec);
 		s_Data->DefaultTexture->SetData(&textureColor, sizeof(textureColor));
@@ -507,20 +504,18 @@ namespace Quark {
 		auto spriteFragmentSource = ReadSpirvFile((coreDirectory / "bin-spirv/Sprite.frag.spv").string());
 
 		s_Data->Samplers.resize(s_Data->MaxSamplerDestinations);
-		AutoRelease<int32_t> samplersDests = StackAlloc(s_Data->MaxSamplerDestinations * sizeof(int32_t));
 		for (uint32_t i = 0; i < s_Data->MaxSamplerDestinations; i++)
 		{
-			samplersDests[i] = i;
-
 			SamplerSpecification spec;
 			spec.Binding = 1;
+			spec.RenderModes.MinFilteringMode = SamplerFilterMode::LinearMipmapLinear;
+			spec.RenderModes.MagFilteringMode = SamplerFilterMode::Nearest;
 			spec.RenderModes.AddressMode = SamplerAddressMode::ClampToEdge;
 
 			s_Data->Samplers[i] = Sampler::Create(spec);
 		}
 
 		s_Data->QuadShader = Shader::Create("defaultSprite", spriteVertexSource, spriteFragmentSource);
-		s_Data->QuadShader->SetIntArray("u_Samplers", samplersDests, s_Data->MaxSamplerDestinations);
 
 		{
 			PipelineSpecification spec;

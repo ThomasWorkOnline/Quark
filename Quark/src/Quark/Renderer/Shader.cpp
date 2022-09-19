@@ -87,10 +87,17 @@ namespace Quark {
 			size_t dimension = type.array.size();
 			
 			uint32_t samplerCount = 0;
-			for (size_t i = 0; i < dimension; i++)
+			if (dimension > 0)
 			{
-				uint32_t length = type.array[i];
-				samplerCount += length;
+				for (size_t i = 0; i < dimension; i++)
+				{
+					uint32_t length = type.array[i];
+					samplerCount += length;
+				}
+			}
+			else
+			{
+				samplerCount = 1;
 			}
 
 			SamplerArrayResource sResource{};

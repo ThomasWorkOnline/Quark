@@ -24,7 +24,7 @@ namespace Quark {
 				for (auto entity : view)
 				{
 					auto [csrc, transform] = view.get<SpriteRendererComponent, Transform3DComponent>(entity);
-					Renderer2D::DrawSprite(csrc.Color, transform);
+					Renderer2D::DrawSprite(csrc.Color, transform.GetMatrix());
 				}
 			}
 
@@ -34,7 +34,7 @@ namespace Quark {
 				for (auto entity : view)
 				{
 					auto [tsrc, transform] = view.get<TexturedSpriteRendererComponent, Transform3DComponent>(entity);
-					Renderer2D::DrawSprite(tsrc.Texture.get(), tsrc.Tint, transform);
+					Renderer2D::DrawSprite(tsrc.Texture.get(), tsrc.Tint, transform.GetMatrix());
 				}
 			}
 
@@ -44,7 +44,7 @@ namespace Quark {
 				for (auto entity : view)
 				{
 					auto [trc, transform] = view.get<TextRendererComponent, Transform3DComponent>(entity);
-					Renderer2D::DrawText(trc.Label, transform);
+					Renderer2D::DrawText(trc.Label, transform.GetMatrix());
 				}
 			}
 

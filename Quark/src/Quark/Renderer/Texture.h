@@ -21,7 +21,6 @@ namespace Quark {
 		uint32_t              Samples = 1;
 
 		ColorFormat           DataFormat{};
-		SamplerRenderModes    RenderModes{};
 	};
 
 	class Texture2D : public Texture
@@ -42,7 +41,7 @@ namespace Quark {
 		const Texture2DSpecification& GetSpecification() const { return m_Spec; }
 
 		static Scope<Texture2D> Create(const Texture2DSpecification& spec);
-		static Scope<Texture2D> Create(std::string_view filepath, const SamplerRenderModes& renderModes = {});
+		static Scope<Texture2D> Create(std::string_view filepath);
 
 	protected:
 		Texture2DSpecification m_Spec{};
@@ -55,7 +54,6 @@ namespace Quark {
 		uint32_t              Samples = 1;
 
 		ColorFormat           DataFormat{};
-		SamplerRenderModes    RenderModes{};
 	};
 
 	class Texture2DArray : public Texture

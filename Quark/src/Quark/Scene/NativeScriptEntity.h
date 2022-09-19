@@ -21,6 +21,8 @@ namespace Quark {
 		template<typename T>
 		T& GetComponent() { return m_Entity.GetComponent<T>(); }
 
+		operator Entity() const { return m_Entity; }
+
 		operator entt::entity() const { return m_Entity; }
 		operator uint32_t() const { return (uint32_t)m_Entity; }
 

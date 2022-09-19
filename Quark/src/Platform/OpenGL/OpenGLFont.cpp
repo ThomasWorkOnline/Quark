@@ -88,6 +88,7 @@ namespace Quark {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
+		QK_CORE_ASSERT(glIsTexture(m_RendererID), "Font atlas is incomplete!");
 		QK_DEBUG_CALL(glBindTexture(GL_TEXTURE_2D, 0));
 	}
 

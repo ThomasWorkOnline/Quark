@@ -11,7 +11,7 @@ namespace Quark {
 	{
 	public:
 		VulkanTexture2D(VulkanDevice* device, const Texture2DSpecification& spec);
-		VulkanTexture2D(VulkanDevice* device, std::string_view filepath, const SamplerRenderModes& renderModes = {});
+		VulkanTexture2D(VulkanDevice* device, std::string_view filepath);
 		virtual ~VulkanTexture2D() final override;
 
 		virtual void SetData(const void* data, size_t size) final override;

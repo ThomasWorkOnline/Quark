@@ -21,9 +21,9 @@ namespace Quark {
 		void OnMouseMoved(MouseMovedEvent& e);
 
 	private:
-		float m_ZoomSpeed = 0.0f;
-		float m_MovementSpeed = 0.0f;
-		float m_RollSensitivity = 0.0f;
-		float m_AugularMomentum = 0.0f;
+		Float m_ZoomSpeed = 0.0f;
+		Float m_MovementSpeed = 0.0f;
+		Float m_RollSensitivity = 0.0f;
+		Float m_AugularMomentum = 0.0f;
 	};
 }

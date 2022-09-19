@@ -34,6 +34,10 @@ namespace Quark {
 		entt::registry& GetRegistry() { return m_Registry; }
 
 	protected:
+		void UpdateNativeScripts(Timestep elapsedTime);
+		void UpdatePhysicsBodies(Timestep elapsedTime);
+		void UpdateTransforms(Timestep elapsedTime);
+
 		template<typename Component>
 		inline void OnComponentAdded(Entity entity, Component& c);
 

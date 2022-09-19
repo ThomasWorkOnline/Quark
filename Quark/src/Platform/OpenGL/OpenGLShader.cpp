@@ -73,6 +73,16 @@ namespace Quark {
 		m_SpirvSources[GL_VERTEX_SHADER]   = vertexSource;
 		m_SpirvSources[GL_FRAGMENT_SHADER] = fragmentSource;
 		m_RendererID = CompileSPIRV(m_SpirvSources);
+
+		// Set uniform locations for samplers automatically (parity with other APIs)
+		for (auto& samplerArray : m_ShaderResources.SamplerArrays)
+		{
+			AutoRelease<int32_t> samplerIndexes = StackAlloc(samplerArray.SamplerCount * sizeof(int32_t));
+			for (uint32_t i = 0; i < samplerArray.SamplerCount; i++)
+				samplerIndexes[i] = (int32_t)i;
+
+			UploadUniformIntArray(samplerArray.Decorators.Name, samplerIndexes, samplerArray.SamplerCount);
+		}
 	}
 
 	OpenGLShader::OpenGLShader(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& geometrySource, const SpirvSource& fragmentSource)
@@ -84,6 +94,16 @@ namespace Quark {
 		m_SpirvSources[GL_FRAGMENT_SHADER] = fragmentSource;
 		m_SpirvSources[GL_GEOMETRY_SHADER] = geometrySource;
 		m_RendererID = CompileSPIRV(m_SpirvSources);
+
+		// Set uniform locations for samplers automatically (parity with other APIs)
+		for (auto& samplerArray : m_ShaderResources.SamplerArrays)
+		{
+			AutoRelease<int32_t> samplerIndexes = StackAlloc(samplerArray.SamplerCount * sizeof(int32_t));
+			for (uint32_t i = 0; i < samplerArray.SamplerCount; i++)
+				samplerIndexes[i] = (int32_t)i;
+
+			UploadUniformIntArray(samplerArray.Decorators.Name, samplerIndexes, samplerArray.SamplerCount);
+		}
 	}
 
 	OpenGLShader::~OpenGLShader()
@@ -463,8 +483,13 @@ namespace Quark {
 
 		// Insert uniform location into cache
 		GLint location = glGetUniformLocation(m_RendererID, (const GLchar*)name.data());
-		m_UniformLocationCache[hash] = location;
+		if (location == -1)
+		{
+			QK_CORE_WARN("glGetUniformLocation returned an invalid location");
+			return -1;
+		}
 
+		m_UniformLocationCache[hash] = location;
 		return location;
 	}
 }

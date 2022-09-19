@@ -19,11 +19,7 @@ namespace Quark {
 			&& m_Spec.Height <= Renderer::GetCapabilities().TextureCapabilities.MaxHeight,
 			"Texture dimensions too large: see Renderer::GetCapabilities() for more info");
 
-		QK_CORE_ASSERT(!IsFormatUsingMips(m_Spec.RenderModes.MagFilteringMode),
-			"The magnification mode may not be set to use mipmaps");
-
-		m_Spec.Levels = IsFormatUsingMips(m_Spec.RenderModes.MinFilteringMode) && m_Spec.Levels == 0
-			? GetMipLevelsForResolution(m_Spec.Width, m_Spec.Height) : 1;
+		m_Spec.Levels = m_Spec.Levels == 0 ? GetMipLevelsForResolution(m_Spec.Width, m_Spec.Height) : 1;
 
 		VkExtent3D imageExtent{};
 		imageExtent.width = m_Spec.Width;
@@ -57,13 +53,10 @@ namespace Quark {
 		}
 	}
 
-	VulkanTexture2D::VulkanTexture2D(VulkanDevice* device, std::string_view filepath, const SamplerRenderModes& renderModes)
+	VulkanTexture2D::VulkanTexture2D(VulkanDevice* device, std::string_view filepath)
 		: m_Device(device)
 	{
 		QK_PROFILE_FUNCTION();
-
-		QK_CORE_ASSERT(!IsFormatUsingMips(renderModes.MagFilteringMode),
-			"The magnification mode may not be set to use mipmaps");
 
 		Image image = filepath;
 		auto& metadata = image.GetMetadata();
@@ -75,9 +68,7 @@ namespace Quark {
 		m_Spec.Width = metadata.Width;
 		m_Spec.Height = metadata.Height;
 		m_Spec.DataFormat = metadata.DataFormat;
-		m_Spec.RenderModes = renderModes;
-		m_Spec.Levels = IsFormatUsingMips(m_Spec.RenderModes.MinFilteringMode) && m_Spec.Levels == 0
-			? GetMipLevelsForResolution(m_Spec.Width, m_Spec.Height) : 1;
+		m_Spec.Levels = m_Spec.Levels == 0 ? GetMipLevelsForResolution(m_Spec.Width, m_Spec.Height) : 1;
 
 		VkExtent3D imageExtent{};
 		imageExtent.width = m_Spec.Width;

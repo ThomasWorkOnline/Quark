@@ -6,6 +6,7 @@
 #include "OpenGLFont.h"
 #include "OpenGLFramebuffer.h"
 #include "OpenGLPipeline.h"
+#include "OpenGLSampler.h"
 #include "OpenGLShader.h"
 #include "OpenGLTexture.h"
 #include "OpenGLUniformBuffer.h"
@@ -142,6 +143,9 @@ namespace Quark {
 		auto* glTexture = static_cast<const OpenGLTexture*>(texture->GetHandle());
 		glActiveTexture(GL_TEXTURE0 + samplerIndex);
 		glBindTexture(glTexture->GetTarget(), glTexture->GetRendererID());
+
+		auto* glSampler = static_cast<const OpenGLSampler*>(sampler);
+		glBindSampler(samplerIndex, glSampler->GetRendererID());
 	}
 
 	bool OpenGLCommandBuffer::IsInsideRenderPass() const

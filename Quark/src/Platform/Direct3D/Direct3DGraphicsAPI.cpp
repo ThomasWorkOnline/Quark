@@ -92,7 +92,7 @@ namespace Quark {
 		return Scope<Texture2D>();
 	}
 
-	Scope<Texture2D> Direct3DGraphicsAPI::CreateTexture2D(std::string_view filepath, const SamplerRenderModes& renderModes)
+	Scope<Texture2D> Direct3DGraphicsAPI::CreateTexture2D(std::string_view filepath)
 	{
 		return Scope<Texture2D>();
 	}

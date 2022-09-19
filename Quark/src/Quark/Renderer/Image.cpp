@@ -100,7 +100,7 @@ namespace Quark {
 			if (error)
 			{
 				lodepng_state_cleanup(&state);
-				Verify("Failed to decode image: {0}", lodepng_error_text(error));
+				ThrowRuntimeError("Failed to decode image: {0}", lodepng_error_text(error));
 			}
 		}
 

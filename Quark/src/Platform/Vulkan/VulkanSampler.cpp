@@ -8,6 +8,9 @@ namespace Quark {
 	VulkanSampler::VulkanSampler(VulkanDevice* device, const SamplerSpecification& spec)
 		: Sampler(spec), m_Device(device)
 	{
+		QK_CORE_ASSERT(!IsFormatUsingMips(m_Spec.RenderModes.MagFilteringMode),
+			"The magnification mode may not be set to use mipmaps");
+
 		VkSamplerAddressMode addressMode = SamplerAddressModeToVulkan(m_Spec.RenderModes.AddressMode);
 
 		VkSamplerCreateInfo samplerInfo{};
