@@ -14,7 +14,6 @@ namespace Quark {
 			"The magnification mode may not be set to use mipmaps");
 
 		glGenSamplers(1, &m_RendererID);
-		glBindSampler(spec.Binding, m_RendererID);
 
 		GLenum tilingMode = SamplerAddressModeToOpenGL(m_Spec.RenderModes.AddressMode);
 		glSamplerParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, SamplerFilterModeToOpenGL(m_Spec.RenderModes.MinFilteringMode));
