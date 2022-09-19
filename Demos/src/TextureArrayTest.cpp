@@ -17,8 +17,6 @@ TextureArrayTest::TextureArrayTest(const ApplicationOptions& options)
 	spec.Width = texture1.Width();
 	spec.Height = texture1.Height();
 	spec.Layers = 2;
-	spec.RenderModes.MinFilteringMode = SamplerFilterMode::NearestMipmapLinear;
-	spec.RenderModes.MagFilteringMode = SamplerFilterMode::Nearest;
 
 	m_TextureArray = Texture2DArray::Create(spec);
 	m_TextureArray->SetData(texture1.GetData(), texture1.GetMetadata().Size, 0);

@@ -195,7 +195,20 @@ namespace Quark {
 			glAttachShader(program, shader);
 		}
 
-		LinkProgram(program, glShaderIDs, glShaderIDIndex);
+		bool isLinked = LinkProgram(program);
+
+		for (uint32_t i = 0; i < glShaderIDIndex; i++)
+		{
+			glDetachShader(program, glShaderIDs[i]);
+			glDeleteShader(glShaderIDs[i]);
+		}
+
+		if (!isLinked)
+		{
+			glDeleteProgram(program);
+			return 0;
+		}
+
 		return program;
 	}
 
@@ -220,11 +233,24 @@ namespace Quark {
 			Reflect(Utils::GetShaderStageFromOpenGLType(stage), binary);
 		}
 
-		LinkProgram(program, glShaderIDs, glShaderIDIndex);
+		bool isLinked = LinkProgram(program);
+
+		for (uint32_t i = 0; i < glShaderIDIndex; i++)
+		{
+			glDetachShader(program, glShaderIDs[i]);
+			glDeleteShader(glShaderIDs[i]);
+		}
+
+		if (!isLinked)
+		{
+			glDeleteProgram(program);
+			return 0;
+		}
+
 		return program;
 	}
 
-	void OpenGLShader::LinkProgram(GLuint program, const GLenum* glShaderIDs, uint32_t shaderCount)
+	bool OpenGLShader::LinkProgram(GLuint program)
 	{
 		glLinkProgram(program);
 
@@ -238,23 +264,10 @@ namespace Quark {
 			AutoRelease<GLchar> infoLog = StackAlloc(maxLength * sizeof(GLchar));
 			glGetProgramInfoLog(program, maxLength, &maxLength, infoLog);
 
-			for (uint32_t i = 0; i < shaderCount; i++)
-			{
-				glDetachShader(program, glShaderIDs[i]);
-				glDeleteShader(glShaderIDs[i]);
-			}
-
-			glDeleteProgram(program);
-
 			QK_CORE_ERROR("Shader link failure (linking {0}):\n{1}", m_Name, (const GLchar*)infoLog);
-			return;
 		}
 
-		for (uint32_t i = 0; i < shaderCount; i++)
-		{
-			glDetachShader(program, glShaderIDs[i]);
-			glDeleteShader(glShaderIDs[i]);
-		}
+		return isLinked;
 	}
 
 	void OpenGLShader::SetInt(std::string_view name, int32_t value)

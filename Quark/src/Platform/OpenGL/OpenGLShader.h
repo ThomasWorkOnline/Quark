@@ -79,7 +79,8 @@ namespace Quark {
 
 		GLuint CompileSources(const std::unordered_map<GLenum, std::string>& shaderSources);
 		GLuint CompileSPIRV(const std::unordered_map<GLenum, SpirvSource>& spirvBinaries);
-		void LinkProgram(GLuint program, const GLenum* glShaderIDs, uint32_t shaderCount);
+
+		bool LinkProgram(GLuint program);
 
 	private:
 		GLuint m_RendererID = 0;
