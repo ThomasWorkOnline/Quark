@@ -47,7 +47,7 @@ namespace Quark {
 
 		/*RGB8*/            GL_UNSIGNED_BYTE,
 		/*RGB16*/           GL_UNSIGNED_BYTE,
-		/*RGB32*/           GL_UNSIGNED_INT,
+		/*RGB32UInt*/       GL_UNSIGNED_INT,
 
 		/*RGBA8*/           GL_UNSIGNED_BYTE,
 		/*RGBA16*/          GL_UNSIGNED_BYTE,
@@ -74,7 +74,7 @@ namespace Quark {
 
 		/*RGB8*/            GL_RGB,
 		/*RGB16*/           GL_RGB,
-		/*RGB32*/           GL_RGB_INTEGER,
+		/*RGB32UInt*/       GL_RGB_INTEGER,
 
 		/*RGBA8*/           GL_RGBA,
 		/*RGBA16*/          GL_RGBA,
@@ -101,7 +101,7 @@ namespace Quark {
 
 		/*RGB8*/            GL_RGB8,
 		/*RGB16*/           GL_RGB16,
-		/*RGB32*/           GL_RGB32UI,
+		/*RGB32UInt*/       GL_RGB32UI,
 
 		/*RGBA8*/           GL_RGBA8,
 		/*RGBA16*/          GL_RGBA16,

@@ -35,7 +35,7 @@ namespace Quark {
 				{
 					case 24: return srgb ? ColorFormat::RGB8SRGB : ColorFormat::RGB8;
 					case 48: return fp ? ColorFormat::RGB16f : ColorFormat::RGB16;
-					case 96: return fp ? ColorFormat::RGB32f : ColorFormat::RGB32;
+					case 96: return fp ? ColorFormat::RGB32f : ColorFormat::RGB32UInt;
 
 				} break;
 

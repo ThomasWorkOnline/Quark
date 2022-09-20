@@ -10,7 +10,7 @@ namespace Quark {
 
 		RGB8,
 		RGB16,
-		RGB32,
+		RGB32UInt,
 
 		RGBA8,
 		RGBA16,

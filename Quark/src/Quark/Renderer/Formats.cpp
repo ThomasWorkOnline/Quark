@@ -8,7 +8,7 @@ namespace Quark {
 
 		/*RGB8*/            3 * 1,
 		/*RGB16*/           3 * 2,
-		/*RGB32*/           3 * 4,
+		/*RGB32UInt*/       3 * 4,
 
 		/*RGBA8*/           4 * 1,
 		/*RGBA16*/          4 * 2,
@@ -35,7 +35,7 @@ namespace Quark {
 
 		/*RGB8*/            false,
 		/*RGB16*/           false,
-		/*RGB32*/           false,
+		/*RGB32UInt*/       false,
 
 		/*RGBA8*/           true,
 		/*RGBA16*/          true,
