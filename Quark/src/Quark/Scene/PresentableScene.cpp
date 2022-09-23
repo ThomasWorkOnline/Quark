@@ -210,8 +210,8 @@ namespace Quark {
 		};
 
 		auto hdrTexture = Texture2D::Create(filepath);
-		Renderer::GetCommandBuffer()->BindTexture(hdrTexture.get(), 0);
 
+		Renderer::GetCommandBuffer()->BindTexture(hdrTexture.get(), nullptr, 0);
 		Renderer::GetCommandBuffer()->SetCullMode(RenderCullMode::Front);
 		Renderer::GetCommandBuffer()->SetDepthFunction(DepthCompareFunction::LessOrEqual);
 

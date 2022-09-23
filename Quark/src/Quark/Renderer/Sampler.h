@@ -7,7 +7,6 @@ namespace Quark {
 
 	struct SamplerSpecification
 	{
-		uint32_t           Binding = 0;
 		SamplerRenderModes RenderModes{};
 	};
 
@@ -18,8 +17,6 @@ namespace Quark {
 		virtual ~Sampler() = default;
 
 		virtual bool operator==(const Sampler& other) const = 0;
-
-		uint32_t GetBinding() const { return m_Spec.Binding; }
 
 		const SamplerSpecification& GetSpecification() const { return m_Spec; }
 

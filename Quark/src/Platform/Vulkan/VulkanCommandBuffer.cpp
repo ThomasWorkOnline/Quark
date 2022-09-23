@@ -161,7 +161,7 @@ namespace Quark {
 		vkCmdBindIndexBuffer(m_CommandBuffer, buffer, 0, VK_INDEX_TYPE_UINT32);
 	}
 
-	void VulkanCommandBuffer::BindUniformBuffer(const UniformBuffer* uniformBuffer)
+	void VulkanCommandBuffer::BindUniformBuffer(const UniformBuffer* uniformBuffer, uint32_t binding)
 	{
 		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
 
@@ -174,7 +174,7 @@ namespace Quark {
 
 		VkWriteDescriptorSet writeDescriptorSet{};
 		writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		writeDescriptorSet.dstBinding = vulkanUniformBuffer->GetBinding(); // TODO: group by binding and call vkUpdateDescriptorSets once per set
+		writeDescriptorSet.dstBinding = binding;
 		writeDescriptorSet.dstArrayElement = 0;
 		writeDescriptorSet.descriptorCount = 1;
 		writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -184,7 +184,7 @@ namespace Quark {
 		vkUpdateDescriptorSets(m_Device->GetVkHandle(), 1, &writeDescriptorSet, 0, nullptr);
 	}
 
-	void VulkanCommandBuffer::BindTexture(const Texture* texture, const Sampler* sampler, uint32_t samplerIndex)
+	void VulkanCommandBuffer::BindTexture(const Texture* texture, const Sampler* sampler, uint32_t binding, uint32_t samplerIndex)
 	{
 		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
 
@@ -197,7 +197,7 @@ namespace Quark {
 
 		VkWriteDescriptorSet writeDescriptorSet{};
 		writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		writeDescriptorSet.dstBinding = vulkanSampler->GetBinding();
+		writeDescriptorSet.dstBinding = binding;
 		writeDescriptorSet.dstArrayElement = samplerIndex;
 		writeDescriptorSet.descriptorCount = 1;
 		writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;

@@ -39,9 +39,9 @@ namespace Quark {
 
 		virtual void BindVertexBuffer(const VertexBuffer* vertexBuffer) final override;
 		virtual void BindIndexBuffer(const IndexBuffer* indexBuffer) final override;
-		virtual void BindUniformBuffer(const UniformBuffer* uniformBuffer) final override;
 
-		virtual void BindTexture(const Texture* texture, const Sampler* sampler, uint32_t samplerIndex = 0) final override;
+		virtual void BindUniformBuffer(const UniformBuffer* uniformBuffer, uint32_t binding) final override;
+		virtual void BindTexture(const Texture* texture, const Sampler* sampler, uint32_t binding, uint32_t samplerIndex = 0) final override;
 
 		virtual bool IsInsideRenderPass() const final override;
 

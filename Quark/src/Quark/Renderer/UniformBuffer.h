@@ -6,8 +6,7 @@ namespace Quark {
 
 	struct UniformBufferSpecification
 	{
-		size_t   Size = 0;
-		uint32_t Binding = 0;
+		size_t Size = 0;
 	};
 
 	class UniformBuffer
@@ -22,7 +21,6 @@ namespace Quark {
 		virtual bool operator==(const UniformBuffer& other) const = 0;
 
 		size_t GetSize() const { return m_Spec.Size; }
-		uint32_t GetBinding() const { return m_Spec.Binding; }
 
 		const UniformBufferSpecification& GetSpecification() const { return m_Spec; }
 

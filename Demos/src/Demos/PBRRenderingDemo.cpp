@@ -43,7 +43,6 @@ PBRRenderingDemo::PBRRenderingDemo(const ApplicationOptions& options)
 	{
 		UniformBufferSpecification spec;
 		spec.Size = sizeof(m_CameraBufferData);
-		spec.Binding = 0;
 		m_CameraUniformBuffer = UniformBuffer::Create(spec);
 	}
 
@@ -115,7 +114,7 @@ void PBRRenderingDemo::OnRender()
 	if (m_Body)
 	{
 		Renderer::BindPipeline(m_Pipeline.get());
-		Renderer::GetCommandBuffer()->BindUniformBuffer(m_CameraUniformBuffer.get());
+		Renderer::GetCommandBuffer()->BindUniformBuffer(m_CameraUniformBuffer.get(), 0);
 
 		if (m_Material.Albedo)    Renderer::GetCommandBuffer()->BindTexture(m_Material.Albedo.get(),    m_Samplers[0].get(), 0);
 		if (m_Material.Normal)    Renderer::GetCommandBuffer()->BindTexture(m_Material.Normal.get(),    m_Samplers[1].get(), 1);
