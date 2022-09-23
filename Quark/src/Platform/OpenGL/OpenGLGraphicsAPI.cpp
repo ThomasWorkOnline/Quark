@@ -135,12 +135,12 @@ namespace Quark {
 		return CreateScope<OpenGLShader>(filepath);
 	}
 
-	Scope<Shader> OpenGLGraphicsAPI::CreateShader(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& fragmentSource)
+	Scope<Shader> OpenGLGraphicsAPI::CreateShader(std::string_view name, SpirvView vertexSource, SpirvView fragmentSource)
 	{
 		return CreateScope<OpenGLShader>(name, vertexSource, fragmentSource);
 	}
 
-	Scope<Shader> OpenGLGraphicsAPI::CreateShader(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& geometrySource, const SpirvSource& fragmentSource)
+	Scope<Shader> OpenGLGraphicsAPI::CreateShader(std::string_view name, SpirvView vertexSource, SpirvView geometrySource, SpirvView fragmentSource)
 	{
 		return CreateScope<OpenGLShader>(name, vertexSource, geometrySource, fragmentSource);
 	}

@@ -6,6 +6,8 @@
 #include <glad/glad.h>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <shaderc/shaderc.h>
+
 #include <vector>
 #include <unordered_map>
 #include <sstream>
@@ -28,14 +30,29 @@ namespace Quark {
 			return GL_NONE;
 		}
 
+		static shaderc_shader_kind GLShaderStageToShaderC(GLenum stage)
+		{
+			switch (stage)
+			{
+				case GL_VERTEX_SHADER:   return shaderc_glsl_vertex_shader;
+				case GL_GEOMETRY_SHADER: return shaderc_glsl_geometry_shader;
+				case GL_FRAGMENT_SHADER: return shaderc_glsl_fragment_shader;
+				case GL_COMPUTE_SHADER:  return shaderc_glsl_compute_shader;
+
+				QK_ASSERT_NO_DEFAULT("Unknown OpenGL shader stage");
+			}
+
+			return static_cast<shaderc_shader_kind>(GL_NONE);
+		}
+
 		static constexpr ShaderStage GetShaderStageFromOpenGLType(GLenum stage)
 		{
 			switch (stage)
 			{
-			case GL_VERTEX_SHADER:   return ShaderStage::Vertex;
-			case GL_GEOMETRY_SHADER: return ShaderStage::Geometry;
-			case GL_FRAGMENT_SHADER: return ShaderStage::Fragment;
-			case GL_COMPUTE_SHADER:  return ShaderStage::Compute;
+				case GL_VERTEX_SHADER:   return ShaderStage::Vertex;
+				case GL_GEOMETRY_SHADER: return ShaderStage::Geometry;
+				case GL_FRAGMENT_SHADER: return ShaderStage::Fragment;
+				case GL_COMPUTE_SHADER:  return ShaderStage::Compute;
 
 				QK_ASSERT_NO_DEFAULT("Unknown OpenGL shader stage");
 			}
@@ -61,18 +78,19 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		std::string source = Filesystem::ReadTextFile(filepath);
-		auto shaderSources = PreProcess(source);
-		m_RendererID = CompileSources(shaderSources);
+		auto shaderSources = SubstrStages(source);
+		m_RendererID = CompileGLSLSources(shaderSources);
 	}
 
-	OpenGLShader::OpenGLShader(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& fragmentSource)
-		: Shader(name), m_SpirvSources(2)
+	OpenGLShader::OpenGLShader(std::string_view name, SpirvView vertexSource, SpirvView fragmentSource)
+		: Shader(name)
 	{
 		QK_PROFILE_FUNCTION();
 
-		m_SpirvSources[GL_VERTEX_SHADER] = vertexSource;
-		m_SpirvSources[GL_FRAGMENT_SHADER] = fragmentSource;
-		m_RendererID = CompileSPIRV(m_SpirvSources);
+		std::unordered_map<GLenum, SpirvView> spirvSources(2);
+		spirvSources[GL_VERTEX_SHADER]   = vertexSource;
+		spirvSources[GL_FRAGMENT_SHADER] = fragmentSource;
+		m_RendererID = CompileSPIRV(spirvSources);
 
 		// Set uniform locations for samplers automatically (parity with other APIs)
 		for (auto& samplerArray : m_ShaderResources.SamplerArrays)
@@ -85,15 +103,16 @@ namespace Quark {
 		}
 	}
 
-	OpenGLShader::OpenGLShader(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& geometrySource, const SpirvSource& fragmentSource)
-		: Shader(name), m_SpirvSources(3)
+	OpenGLShader::OpenGLShader(std::string_view name, SpirvView vertexSource, SpirvView geometrySource, SpirvView fragmentSource)
+		: Shader(name)
 	{
 		QK_PROFILE_FUNCTION();
 
-		m_SpirvSources[GL_VERTEX_SHADER] = vertexSource;
-		m_SpirvSources[GL_FRAGMENT_SHADER] = fragmentSource;
-		m_SpirvSources[GL_GEOMETRY_SHADER] = geometrySource;
-		m_RendererID = CompileSPIRV(m_SpirvSources);
+		std::unordered_map<GLenum, SpirvView> spirvSources(3);
+		spirvSources[GL_VERTEX_SHADER]   = vertexSource;
+		spirvSources[GL_GEOMETRY_SHADER] = geometrySource;
+		spirvSources[GL_FRAGMENT_SHADER] = fragmentSource;
+		m_RendererID = CompileSPIRV(spirvSources);
 
 		// Set uniform locations for samplers automatically (parity with other APIs)
 		for (auto& samplerArray : m_ShaderResources.SamplerArrays)
@@ -111,9 +130,9 @@ namespace Quark {
 		glDeleteProgram(m_RendererID);
 	}
 
-	std::unordered_map<GLenum, std::string> OpenGLShader::PreProcess(std::string_view source)
+	std::unordered_map<GLenum, std::string_view> OpenGLShader::SubstrStages(std::string_view source)
 	{
-		std::unordered_map<GLenum, std::string> shaderSources;
+		std::unordered_map<GLenum, std::string_view> shaderSources;
 
 		static constexpr std::string_view typeToken = "#type";
 		size_t pos = source.find(typeToken); // Start of shader type declaration line
@@ -153,10 +172,76 @@ namespace Quark {
 		return shaderSources;
 	}
 
-	GLuint OpenGLShader::CompileSources(const std::unordered_map<GLenum, std::string>& shaderSources)
+	GLuint OpenGLShader::CompileGLSLSources(const std::unordered_map<GLenum, std::string_view>& shaderSources)
 	{
-		QK_CORE_ASSERT(shaderSources.size() <= s_MaxShaders, "Maximum number of shaders per program is 3");
+		auto compiler = shaderc_compiler_initialize();
+		auto options = shaderc_compile_options_initialize();
 
+		shaderc_compile_options_set_source_language(options, shaderc_source_language_glsl);
+		shaderc_compile_options_set_target_env(options, shaderc_target_env_opengl, shaderc_env_version_opengl_4_5);
+		shaderc_compile_options_set_optimization_level(options, shaderc_optimization_level_performance);
+
+		GLuint program = glCreateProgram();
+
+		GLenum glShaderIDs[s_MaxShaders]{};
+		uint32_t glShaderIDIndex = 0;
+		for (auto&& [stage, source] : shaderSources)
+		{
+			auto result = shaderc_compile_into_spv(compiler, source.data(), source.size(),
+				Utils::GLShaderStageToShaderC(stage), m_Name.c_str(), "main", options);
+
+			if (shaderc_result_get_compilation_status(result) != shaderc_compilation_status_success)
+			{
+				QK_CORE_ERROR(shaderc_result_get_error_message(result));
+				shaderc_result_release(result);
+				break;
+			}
+
+			GLuint shader = glCreateShader(stage);
+			glShaderIDs[glShaderIDIndex++] = shader;
+
+			size_t size = shaderc_result_get_length(result);
+			const uint32_t* shaderData = (const uint32_t*)shaderc_result_get_bytes(result);
+
+			glShaderBinary(1, &shader, GL_SHADER_BINARY_FORMAT_SPIR_V,
+				(const void*)shaderData,
+				(GLsizei)size);
+
+			glSpecializeShader(shader, "main", 0, nullptr, nullptr);
+			glAttachShader(program, shader);
+
+			Reflect(Utils::GetShaderStageFromOpenGLType(stage), shaderData, size / sizeof(uint32_t));
+			shaderc_result_release(result);
+		}
+
+		shaderc_compiler_release(compiler);
+		shaderc_compile_options_release(options);
+
+		GLint isLinked = GL_FALSE;
+		GLint isCompiled = glShaderIDIndex == shaderSources.size();
+
+		if (isCompiled)
+		{
+			isLinked = LinkProgram(program);
+		}
+		
+		for (uint32_t i = 0; i < glShaderIDIndex; i++)
+		{
+			glDetachShader(program, glShaderIDs[i]);
+			glDeleteShader(glShaderIDs[i]);
+		}
+
+		if (!isLinked || !isCompiled)
+		{
+			glDeleteProgram(program);
+			return 0;
+		}
+
+		return program;
+	}
+
+	GLuint OpenGLShader::CompileGLSLSourcesLegacy(const std::unordered_map<GLenum, std::string_view>& shaderSources)
+	{
 		GLuint program = glCreateProgram();
 
 		GLint isCompiled = GL_FALSE;
@@ -210,7 +295,7 @@ namespace Quark {
 		return program;
 	}
 
-	GLuint OpenGLShader::CompileSPIRV(const std::unordered_map<GLenum, SpirvSource>& spirvBinaries)
+	GLuint OpenGLShader::CompileSPIRV(const std::unordered_map<GLenum, SpirvView>& spirvBinaries)
 	{
 		GLuint program = glCreateProgram();
 
@@ -222,17 +307,16 @@ namespace Quark {
 			glShaderIDs[glShaderIDIndex++] = shader;
 
 			glShaderBinary(1, &shader, GL_SHADER_BINARY_FORMAT_SPIR_V,
-				(const void*)binary.data(),
-				(GLsizei)(binary.size() * sizeof(uint32_t)));
+				(const void*)binary.Data,
+				(GLsizei)(binary.WordCount * sizeof(uint32_t)));
 
 			glSpecializeShader(shader, "main", 0, nullptr, nullptr);
 			glAttachShader(program, shader);
 
-			Reflect(Utils::GetShaderStageFromOpenGLType(stage), binary);
+			Reflect(Utils::GetShaderStageFromOpenGLType(stage), binary.Data, binary.WordCount);
 		}
 
 		GLint isLinked = LinkProgram(program);
-
 		for (uint32_t i = 0; i < glShaderIDIndex; i++)
 		{
 			glDetachShader(program, glShaderIDs[i]);

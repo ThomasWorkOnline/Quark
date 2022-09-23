@@ -51,8 +51,7 @@ namespace Quark {
 
 		const auto& shaderResources = m_Spec.Shader->GetShaderResources();
 
-		uint32_t bindingCount = m_Spec.Shader->GetBindingCount();
-		AutoRelease<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings = StackAlloc(bindingCount * sizeof(VkDescriptorSetLayoutBinding));
+		AutoRelease<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings = StackAlloc(shaderResources.BindingCount * sizeof(VkDescriptorSetLayoutBinding));
 		VkDescriptorSetLayoutBinding* descriptorSetLayoutbindingPtr = descriptorSetLayoutBindings;
 
 		for (auto& uniformBuffer : shaderResources.UniformBuffers)
@@ -76,11 +75,11 @@ namespace Quark {
 			descriptorSetLayoutbindingPtr++;
 		}
 
-		QK_CORE_ASSERT(descriptorSetLayoutbindingPtr - descriptorSetLayoutBindings == bindingCount, "Shader binding count and resources do not match!");
+		QK_CORE_ASSERT(descriptorSetLayoutbindingPtr - descriptorSetLayoutBindings == shaderResources.BindingCount, "Shader binding count and resources do not match!");
 
 		VkDescriptorSetLayoutCreateInfo layoutInfo{};
 		layoutInfo.sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-		layoutInfo.bindingCount = bindingCount;
+		layoutInfo.bindingCount = shaderResources.BindingCount;
 		layoutInfo.pBindings    = descriptorSetLayoutBindings;
 
 		vkCreateDescriptorSetLayout(m_Device->GetVkHandle(), &layoutInfo, nullptr, &m_DescriptorSetLayout);
@@ -92,10 +91,9 @@ namespace Quark {
 
 		// Descriptor pool shared for all frames in flight
 		{
-			uint32_t poolSizeCount = m_Spec.Shader->GetBindingCount();
 			const auto& shaderResources = m_Spec.Shader->GetShaderResources();
 
-			AutoRelease<VkDescriptorPoolSize> poolSizes = StackAlloc(poolSizeCount * sizeof(VkDescriptorPoolSize));
+			AutoRelease<VkDescriptorPoolSize> poolSizes = StackAlloc(shaderResources.BindingCount * sizeof(VkDescriptorPoolSize));
 			VkDescriptorPoolSize* poolSizesPtr = poolSizes;
 
 			// Uniform Buffers
@@ -114,12 +112,12 @@ namespace Quark {
 				poolSizesPtr++;
 			}
 
-			QK_CORE_ASSERT(poolSizesPtr - poolSizes == poolSizeCount, "Shader binding count and resources do not match!");
+			QK_CORE_ASSERT(poolSizesPtr - poolSizes == shaderResources.BindingCount, "Shader binding count and resources do not match!");
 
 			VkDescriptorPoolCreateInfo poolInfo{};
 			poolInfo.sType         = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 			poolInfo.maxSets       = VulkanContext::FramesInFlight;
-			poolInfo.poolSizeCount = poolSizeCount;
+			poolInfo.poolSizeCount = shaderResources.BindingCount;
 			poolInfo.pPoolSizes    = poolSizes;
 
 			vkCreateDescriptorPool(m_Device->GetVkHandle(), &poolInfo, nullptr, &m_DescriptorPool);

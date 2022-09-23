@@ -33,11 +33,11 @@ namespace Quark {
 	{
 	}
 
-	void Shader::Reflect(ShaderStage stage, const SpirvSource& spirvSource)
+	void Shader::Reflect(ShaderStage stage, const uint32_t* spirvSource, size_t words)
 	{
 		QK_PROFILE_FUNCTION();
 
-		spirv_cross::Compiler compiler(spirvSource.data(), spirvSource.size());
+		spirv_cross::Compiler compiler(spirvSource, words);
 		spirv_cross::ShaderResources resources = compiler.get_shader_resources();
 
 		QK_CORE_TRACE("Shader::Reflect - \"{0}\" at {1}", m_Name, Utils::ShaderStageToString(stage));
@@ -47,8 +47,8 @@ namespace Quark {
 		auto entryPoints = compiler.get_entry_points_and_stages();
 		QK_CORE_ASSERT(entryPoints.size() == 1, "Shaders currently don't support multiple entry points");
 
-		m_BindingCount += (uint32_t)resources.uniform_buffers.size();
-		m_BindingCount += (uint32_t)resources.sampled_images.size();
+		m_ShaderResources.BindingCount += (uint32_t)resources.uniform_buffers.size();
+		m_ShaderResources.BindingCount += (uint32_t)resources.sampled_images.size();
 
 		QK_CORE_TRACE("Uniform buffers:");
 		for (const auto& resource : resources.uniform_buffers)
@@ -68,7 +68,7 @@ namespace Quark {
 			ubResource.Decorators.Name = compiler.get_name(resource.id);
 
 			m_ShaderResources.UniformBuffers.push_back(ubResource);
-			m_DescriptorCount += 1;
+			m_ShaderResources.DescriptorCount++;
 
 			QK_CORE_TRACE(" \"{0}\"", resource.name);
 			QK_CORE_TRACE("    Set = {0}", set);
@@ -108,7 +108,7 @@ namespace Quark {
 			sResource.Decorators.Name = compiler.get_name(resource.id);
 
 			m_ShaderResources.SamplerArrays.push_back(sResource);
-			m_DescriptorCount += samplerCount;
+			m_ShaderResources.DescriptorCount += samplerCount;
 
 			QK_CORE_TRACE(" \"{0}\"", resource.name);
 			QK_CORE_TRACE("    Set = {0}", set);
@@ -122,12 +122,12 @@ namespace Quark {
 		return s_GraphicsAPI->CreateShader(filepath);
 	}
 
-	Scope<Shader> Shader::Create(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& fragmentSource)
+	Scope<Shader> Shader::Create(std::string_view name, SpirvView vertexSource, SpirvView fragmentSource)
 	{
 		return s_GraphicsAPI->CreateShader(name, vertexSource, fragmentSource);
 	}
 
-	Scope<Shader> Shader::Create(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& geometrySource, const SpirvSource& fragmentSource)
+	Scope<Shader> Shader::Create(std::string_view name, SpirvView vertexSource, SpirvView geometrySource, SpirvView fragmentSource)
 	{
 		return s_GraphicsAPI->CreateShader(name, vertexSource, geometrySource, fragmentSource);
 	}

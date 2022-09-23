@@ -72,12 +72,12 @@ namespace Quark {
 		return Scope<Shader>();
 	}
 
-	Scope<Shader> Direct3DGraphicsAPI::CreateShader(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& fragmentSource)
+	Scope<Shader> Direct3DGraphicsAPI::CreateShader(std::string_view name, SpirvView vertexSource, SpirvView fragmentSource)
 	{
 		return Scope<Shader>();
 	}
 
-	Scope<Shader> Direct3DGraphicsAPI::CreateShader(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& geometrySource, const SpirvSource& fragmentSource)
+	Scope<Shader> Direct3DGraphicsAPI::CreateShader(std::string_view name, SpirvView vertexSource, SpirvView geometrySource, SpirvView fragmentSource)
 	{
 		return Scope<Shader>();
 	}

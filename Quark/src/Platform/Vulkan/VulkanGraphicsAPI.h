@@ -31,8 +31,8 @@ namespace Quark {
 		virtual Scope<FramebufferAttachment> CreateFramebufferAttachment(const FramebufferAttachmentSpecification& spec) final override;
 									       
 		virtual Scope<Shader>                CreateShader(std::string_view filepath) final override;
-		virtual Scope<Shader>                CreateShader(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& fragmentSource) final override;
-		virtual Scope<Shader>                CreateShader(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& geometrySource, const SpirvSource& fragmentSource) final override;
+		virtual Scope<Shader>                CreateShader(std::string_view name, SpirvView vertexSource, SpirvView fragmentSource) final override;
+		virtual Scope<Shader>                CreateShader(std::string_view name, SpirvView vertexSource, SpirvView geometrySource, SpirvView fragmentSource) final override;
 					
 		virtual Scope<Sampler>               CreateSampler(const SamplerSpecification& spec) final override;
 

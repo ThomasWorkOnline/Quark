@@ -6,9 +6,9 @@ layout(location = 1) in vec2 a_TexCoord;
 layout(location = 2) in vec3 a_Normal;
 
 layout(std140, binding = 0) uniform Camera {
-	mat4 u_ViewProjection;
-	vec4 u_CameraPosition;
-};
+	mat4 ViewProjection;
+	vec4 CameraPosition;
+} u_Camera;
 
 layout(location = 0) out VertexOutput {
 	vec3 Position;
@@ -18,7 +18,7 @@ layout(location = 0) out VertexOutput {
 
 void main()
 {
-	gl_Position = u_ViewProjection * vec4(a_Position, 1.0);
+	gl_Position = u_Camera.ViewProjection * vec4(a_Position, 1.0);
 	
 	Output.Position = a_Position;
 	Output.TexCoord = a_TexCoord;
@@ -29,6 +29,7 @@ void main()
 #version 450 core
 
 const float PI = 3.14159265359;
+const uint s_LightCount = 4;
 
 vec3  GetNormalFromMap();
 float DistributionGGX(vec3 n, vec3 h, float roughness);
@@ -37,9 +38,9 @@ float GeometrySmith(vec3 n, vec3 v, vec3 l, float k);
 vec3  FresnelSchlick(float cosTheta, vec3 f0);
 
 layout(std140, binding = 0) uniform Camera {
-	mat4 u_ViewProjection;
-	vec4 u_CameraPosition;
-};
+	mat4 ViewProjection;
+	vec4 CameraPosition;
+} u_Camera;
 
 layout(location = 0) in VertexOutput {
 	vec3 Position;
@@ -56,12 +57,11 @@ struct Material
 	sampler2D AmbiantOcclusionMap;
 };
 
-const uint s_LightCount = 4;
-uniform vec3 u_LightPositions[s_LightCount];
-uniform vec3 u_LightColors[s_LightCount];
+layout(location = 0) uniform vec3 u_LightPositions[s_LightCount];
+layout(location = 4) uniform vec3 u_LightColors[s_LightCount];
 
-uniform samplerCube u_IrradianceMap;
-uniform Material u_Material;
+layout(location = 8) uniform samplerCube u_IrradianceMap;
+layout(location = 9) uniform Material u_Material;
 
 layout(location = 0) out vec4 o_Color;
 
@@ -75,7 +75,7 @@ void main()
 	float ao        = texture(u_Material.AmbiantOcclusionMap, Input.TexCoord).r;
 	
 	vec3 N = GetNormalFromMap();
-	vec3 V = normalize(u_CameraPosition.xyz - Input.Position);
+	vec3 V = normalize(u_Camera.CameraPosition.xyz - Input.Position);
 	vec3 R = reflect(-V, N);
 	
 	// Calculate reflectance at normal incidence; if dia-electric (like plastic) use F0

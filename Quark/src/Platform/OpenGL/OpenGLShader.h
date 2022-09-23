@@ -13,8 +13,8 @@ namespace Quark {
 	{
 	public:
 		OpenGLShader(std::string_view filepath);
-		OpenGLShader(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& fragmentSource);
-		OpenGLShader(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& geometrySource, const SpirvSource& fragmentSource);
+		OpenGLShader(std::string_view name, SpirvView vertexSource, SpirvView fragmentSource);
+		OpenGLShader(std::string_view name, SpirvView vertexSource, SpirvView geometrySource, SpirvView fragmentSource);
 		virtual ~OpenGLShader() final override;
 
 		virtual void SetInt(std::string_view name, int32_t value) final override;
@@ -75,17 +75,16 @@ namespace Quark {
 
 		GLint GetUniformLocation(std::string_view name) const;
 
-		static std::unordered_map<GLenum, std::string> PreProcess(std::string_view source);
+		static std::unordered_map<GLenum, std::string_view> SubstrStages(std::string_view source);
 
-		GLuint CompileSources(const std::unordered_map<GLenum, std::string>& shaderSources);
-		GLuint CompileSPIRV(const std::unordered_map<GLenum, SpirvSource>& spirvBinaries);
+		GLuint CompileGLSLSources(const std::unordered_map<GLenum, std::string_view>& shaderSources);
+		GLuint CompileGLSLSourcesLegacy(const std::unordered_map<GLenum, std::string_view>& shaderSources);
+		GLuint CompileSPIRV(const std::unordered_map<GLenum, SpirvView>& spirvBinaries);
 
 		GLint LinkProgram(GLuint program);
 
 	private:
 		GLuint m_RendererID = 0;
-		std::unordered_map<GLenum, std::vector<uint32_t>> m_SpirvSources;
-
 		mutable std::unordered_map<size_t, GLint> m_UniformLocationCache;
 	};
 }
