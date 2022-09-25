@@ -26,6 +26,7 @@ namespace Quark {
 		{
 			uint32_t Major;
 			uint32_t Minor;
+			uint32_t Patch;
 		};
 
 		virtual                             ~GraphicsAPI() = default;

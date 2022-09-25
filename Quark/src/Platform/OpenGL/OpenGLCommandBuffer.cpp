@@ -11,6 +11,8 @@
 #include "OpenGLTexture.h"
 #include "OpenGLUniformBuffer.h"
 
+#include "Quark/Renderer/Renderer.h"
+
 #include <glad/glad.h>
 
 #define QK_ASSERT_PIPELINE_VALID_STATE(pipeline) QK_CORE_ASSERT(pipeline, "No pipeline was actively bound to the current command buffer!")
@@ -85,7 +87,7 @@ namespace Quark {
 	void OpenGLCommandBuffer::DrawIndexed(uint32_t indexCount)
 	{
 		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
-		glDrawElements(m_BoundPipeline->GetPrimitiveTopology(), indexCount, GL_UNSIGNED_INT, nullptr);
+		glDrawElements(m_BoundPipeline->GetPrimitiveTopology(), indexCount, GL_UNSIGNED_INT, NULL);
 	}
 
 	void OpenGLCommandBuffer::DrawInstanced(uint32_t vertexCount, uint32_t vertexOffset, uint32_t instanceCount)
@@ -97,7 +99,7 @@ namespace Quark {
 	void OpenGLCommandBuffer::DrawIndexedInstanced(uint32_t indexCount, uint32_t instanceCount)
 	{
 		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
-		glDrawElementsInstanced(m_BoundPipeline->GetPrimitiveTopology(), indexCount, GL_UNSIGNED_INT, nullptr, instanceCount);
+		glDrawElementsInstanced(m_BoundPipeline->GetPrimitiveTopology(), indexCount, GL_UNSIGNED_INT, NULL, instanceCount);
 	}
 
 	void OpenGLCommandBuffer::BindVertexBuffer(const VertexBuffer* vertexBuffer)
@@ -127,6 +129,10 @@ namespace Quark {
 	void OpenGLCommandBuffer::BindTexture(const Texture* texture, const Sampler* sampler, uint32_t binding, uint32_t samplerIndex)
 	{
 		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
+
+		QK_CORE_ASSERT(samplerIndex <= Renderer::GetCapabilities().Sampler.MaxPerStageSamplers,
+			"Sampler index out of range: max writable index is: {0}",
+			Renderer::GetCapabilities().Sampler.MaxPerStageSamplers - 1);
 
 		auto* glTexture = static_cast<const OpenGLTexture*>(texture->GetHandle());
 		glActiveTexture(GL_TEXTURE0 + samplerIndex);

@@ -3,12 +3,17 @@
 
 #include "VulkanUtils.h"
 
+#include "Quark/Renderer/Renderer.h"
+
 namespace Quark {
 
 	VulkanUniformBuffer::VulkanUniformBuffer(VulkanDevice* device, const UniformBufferSpecification& spec)
 		: UniformBuffer(spec)
 		, m_Device(device)
 	{
+		QK_CORE_ASSERT(spec.Size <= Renderer::GetCapabilities().UniformBuffer.MaxBufferSize,
+			"Uniform buffer Size too large: see Renderer::GetCapabilities() for more info");
+
 		m_Buffer = Utils::AllocateBuffer(m_Device, m_Spec.Size,
 			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
@@ -23,12 +28,11 @@ namespace Quark {
 
 	void VulkanUniformBuffer::SetData(const void* data, size_t size, size_t offset)
 	{
-		QK_CORE_ASSERT(offset == 0, "offsets are currently not supported");
-		QK_CORE_ASSERT(size <= m_Spec.Size,
-			"Written size is too large: parameter must be less than or equal to the total buffer size: expected {0} bytes but got {1}", m_Spec.Size, size);
+		QK_CORE_ASSERT(size + offset <= m_Spec.Size,
+			"Written size is too large: Size and Offset parameters must be within the total buffer size");
 
 		void* mappedMemory;
-		vkMapMemory(m_Device->GetVkHandle(), m_BufferMemory, 0, size, 0, &mappedMemory);
+		vkMapMemory(m_Device->GetVkHandle(), m_BufferMemory, offset, size, 0, &mappedMemory);
 		std::memcpy(mappedMemory, data, size);
 		vkUnmapMemory(m_Device->GetVkHandle(), m_BufferMemory);
 	}

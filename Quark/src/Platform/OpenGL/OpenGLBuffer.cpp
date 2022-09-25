@@ -6,18 +6,19 @@
 namespace Quark {
 
 	OpenGLVertexBuffer::OpenGLVertexBuffer(size_t size)
+		: m_Size(size)
 	{
 		QK_PROFILE_FUNCTION();
 
 		glGenBuffers(1, &m_RendererID);
 		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
-		glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, size, NULL, GL_DYNAMIC_DRAW);
 
-		QK_CORE_TRACE("  Vertex buffer is optimized for GL_DYNAMIC_DRAW");
 		QK_DEBUG_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
 	}
 
 	OpenGLVertexBuffer::OpenGLVertexBuffer(const void* vertices, size_t size)
+		: m_Size(size)
 	{
 		QK_PROFILE_FUNCTION();
 
@@ -25,7 +26,6 @@ namespace Quark {
 		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
 		glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
 
-		QK_CORE_TRACE("  Vertex buffer is optimized for GL_STATIC_DRAW");
 		QK_DEBUG_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
 	}
 
@@ -38,6 +38,9 @@ namespace Quark {
 
 	void OpenGLVertexBuffer::SetData(const void* data, size_t size, size_t offset)
 	{
+		QK_CORE_ASSERT(size + offset <= m_Size,
+			"Written size is too large: Size and Offset parameters must be within the total buffer size");
+
 		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
 		glBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
 
@@ -59,9 +62,8 @@ namespace Quark {
 
 		glGenBuffers(1, &m_RendererID);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), nullptr, GL_DYNAMIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), NULL, GL_DYNAMIC_DRAW);
 
-		QK_CORE_TRACE("  Index buffer is optimized for GL_DYNAMIC_DRAW");
 		QK_DEBUG_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 	}
 
@@ -74,7 +76,6 @@ namespace Quark {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), indices, GL_STATIC_DRAW);
 
-		QK_CORE_TRACE("  Index buffer is optimized for GL_STATIC_DRAW");
 		QK_DEBUG_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 	}
 
@@ -87,6 +88,9 @@ namespace Quark {
 
 	void OpenGLIndexBuffer::SetData(const uint32_t* data, uint32_t count, uint32_t firstIndex)
 	{
+		QK_CORE_ASSERT(count + firstIndex <= m_Count,
+			"Written size is too large: Count and FirstIndex parameters must be within the total buffer size");
+
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
 		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, firstIndex * sizeof(uint32_t), count * sizeof(uint32_t), data);
 

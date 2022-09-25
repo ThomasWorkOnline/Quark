@@ -2,6 +2,8 @@
 #include "OpenGLCubemap.h"
 #include "OpenGLEnums.h"
 
+#include "Quark/Renderer/Renderer.h"
+
 #include <glad/glad.h>
 
 namespace Quark {
@@ -10,6 +12,10 @@ namespace Quark {
 		: Cubemap(spec)
 	{
 		QK_PROFILE_FUNCTION();
+
+		QK_CORE_ASSERT(spec.Width <= Renderer::GetCapabilities().Texture.MaxCubemapSize
+			&& spec.Height <= Renderer::GetCapabilities().Texture.MaxCubemapSize,
+			"Cubemap dimensions too large: see Renderer::GetCapabilities() for more info");
 
 		glGenTextures(1, &m_RendererID);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, m_RendererID);
@@ -20,7 +26,7 @@ namespace Quark {
 			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0,
 				DataFormatToOpenGLInternalFormat(m_Spec.DataFormat), m_Spec.Width, m_Spec.Height, 0,
 				DataFormatToOpenGLStorageFormat(m_Spec.DataFormat),
-				DataFormatToOpenGLDataType(m_Spec.DataFormat), nullptr);
+				DataFormatToOpenGLDataType(m_Spec.DataFormat), NULL);
 		}
 
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

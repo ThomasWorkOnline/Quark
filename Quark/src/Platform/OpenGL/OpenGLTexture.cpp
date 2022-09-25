@@ -14,8 +14,8 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		QK_CORE_ASSERT(m_Spec.Width <= Renderer::GetCapabilities().TextureCapabilities.MaxWidth
-			&& m_Spec.Height <= Renderer::GetCapabilities().TextureCapabilities.MaxHeight,
+		QK_CORE_ASSERT(m_Spec.Width <= Renderer::GetCapabilities().Texture.Max2DSize
+			&& m_Spec.Height <= Renderer::GetCapabilities().Texture.Max2DSize,
 			"Texture dimensions too large: see Renderer::GetCapabilities() for more info");
 
 		m_Spec.Levels = m_Spec.Levels == 0 ? GetMipLevelsForResolution(m_Spec.Width, m_Spec.Height) : 1;
@@ -39,7 +39,7 @@ namespace Quark {
 		else
 		{
 			glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Spec.Width, m_Spec.Height, 0, m_DataFormat,
-				DataFormatToOpenGLDataType(m_Spec.DataFormat), nullptr);
+				DataFormatToOpenGLDataType(m_Spec.DataFormat), NULL);
 		}
 
 		QK_CORE_ASSERT(glIsTexture(m_RendererID), "Texture is incomplete!");
@@ -53,8 +53,8 @@ namespace Quark {
 		Image image = filepath;
 		auto& metadata = image.GetMetadata();
 
-		QK_CORE_ASSERT(metadata.Width <= Renderer::GetCapabilities().TextureCapabilities.MaxWidth
-			&& metadata.Height <= Renderer::GetCapabilities().TextureCapabilities.MaxHeight,
+		QK_CORE_ASSERT(metadata.Width <= Renderer::GetCapabilities().Texture.Max2DSize
+			&& metadata.Height <= Renderer::GetCapabilities().Texture.Max2DSize,
 			"Texture dimensions too large: see Renderer::GetCapabilities() for more info");
 
 		m_Spec.Width      = metadata.Width;
@@ -118,7 +118,7 @@ namespace Quark {
 
 	bool OpenGLTexture2D::operator==(const Texture& other) const
 	{
-		if (auto o = dynamic_cast<decltype(this)>(&other))
+		if (auto* o = dynamic_cast<decltype(this)>(&other))
 			return m_RendererID == o->m_RendererID;
 
 		return false;
@@ -133,9 +133,9 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		QK_CORE_ASSERT(m_Spec.Width <= Renderer::GetCapabilities().TextureCapabilities.MaxWidth
-			&& m_Spec.Height <= Renderer::GetCapabilities().TextureCapabilities.MaxHeight
-			&& m_Spec.Layers <= Renderer::GetCapabilities().TextureCapabilities.MaxArrayLayers,
+		QK_CORE_ASSERT(m_Spec.Width <= Renderer::GetCapabilities().Texture.Max2DSize
+			&& m_Spec.Height <= Renderer::GetCapabilities().Texture.Max2DSize
+			&& m_Spec.Layers <= Renderer::GetCapabilities().Texture.MaxArrayLayers,
 			"Texture dimensions too large: see Renderer::GetCapabilities() for more info");
 
 		m_Spec.Levels = m_Spec.Levels == 0 ? GetMipLevelsForResolution(m_Spec.Width, m_Spec.Height) : 1;
@@ -161,7 +161,7 @@ namespace Quark {
 		else
 		{
 			glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, m_InternalFormat, m_Spec.Width, m_Spec.Height, m_Spec.Layers, 0,
-				m_DataFormat, DataFormatToOpenGLDataType(m_Spec.DataFormat), nullptr);
+				m_DataFormat, DataFormatToOpenGLDataType(m_Spec.DataFormat), NULL);
 		}
 
 		QK_CORE_ASSERT(glIsTexture(m_RendererID), "Texture is incomplete!");
@@ -204,7 +204,7 @@ namespace Quark {
 
 	bool OpenGLTexture2DArray::operator==(const Texture& other) const
 	{
-		if (auto o = dynamic_cast<decltype(this)>(&other))
+		if (auto* o = dynamic_cast<decltype(this)>(&other))
 			return m_RendererID == o->m_RendererID;
 
 		return false;

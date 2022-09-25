@@ -11,19 +11,9 @@ namespace Quark {
 	{
 	public:
 		VulkanFont(VulkanDevice* device, std::string_view filepath, uint32_t fontSize);
-		virtual ~VulkanFont() final override = default;
+		virtual ~VulkanFont() final override;
 
-		virtual const Glyph& GetGlyph(uint8_t charcode) const final override { return m_NullGlyph; }
-		virtual uint32_t GetGlyphCount() const final override { return 0; }
-
-		virtual uint32_t GetFontSize() const final override { return 0; }
-		virtual uint32_t GetAtlasWidth() const final override { return 0; }
-		virtual uint32_t GetAtlasHeight() const final override { return 0; }
-
-		virtual std::string_view GetStyleName() const final override { return std::string_view(); }
-		virtual std::string_view GetFamilyName() const final override { return std::string_view(); }
-
-		virtual const void* GetHandle() const final override { return nullptr; }
+		virtual const void* GetHandle() const final override { return m_ImageView; }
 
 		virtual bool operator==(const Texture& other) const final override;
 
@@ -31,10 +21,12 @@ namespace Quark {
 		VulkanFont(const VulkanFont&) = delete;
 		VulkanFont& operator=(const VulkanFont&) = delete;
 
-		VkImageView GetVkHandle() const { return nullptr; }
+		VkImageView GetVkHandle() const { return m_ImageView; }
 
 	private:
 		VulkanDevice* m_Device;
-		Glyph m_NullGlyph{};
+		VkImage m_Image = nullptr;
+		VkImageView m_ImageView = nullptr;
+		VkDeviceMemory m_BufferMemory = nullptr;
 	};
 }

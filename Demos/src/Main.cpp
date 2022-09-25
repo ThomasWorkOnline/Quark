@@ -13,7 +13,7 @@ namespace Quark {
 
 	Application* CreateApplication(CommandLineArguments args)
 	{
-		using App = VulkanApp;
+		using App = FontTest;
 
 		ApplicationOptions options;
 		options.AppName = "Demo Application";

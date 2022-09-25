@@ -80,6 +80,16 @@ namespace Quark {
 		std::string source = Filesystem::ReadTextFile(filepath);
 		auto shaderSources = SubstrStages(source);
 		m_RendererID = CompileGLSLSources(shaderSources);
+
+		// Set uniform locations for samplers automatically (parity with other APIs)
+		for (auto& samplerArray : m_ShaderResources.SamplerArrays)
+		{
+			AutoRelease<int32_t> samplerIndexes = StackAlloc(samplerArray.SamplerCount * sizeof(int32_t));
+			for (uint32_t i = 0; i < samplerArray.SamplerCount; i++)
+				samplerIndexes[i] = (int32_t)i;
+
+			UploadUniformIntArray(samplerArray.Decorators.Name, samplerIndexes, samplerArray.SamplerCount);
+		}
 	}
 
 	OpenGLShader::OpenGLShader(std::string_view name, SpirvView vertexSource, SpirvView fragmentSource)
@@ -207,7 +217,7 @@ namespace Quark {
 				(const void*)shaderData,
 				(GLsizei)size);
 
-			glSpecializeShader(shader, "main", 0, nullptr, nullptr);
+			glSpecializeShader(shader, "main", 0, NULL, NULL);
 			glAttachShader(program, shader);
 
 			Reflect(Utils::GetShaderStageFromOpenGLType(stage), shaderData, size / sizeof(uint32_t));
@@ -310,7 +320,7 @@ namespace Quark {
 				(const void*)binary.Data,
 				(GLsizei)(binary.WordCount * sizeof(uint32_t)));
 
-			glSpecializeShader(shader, "main", 0, nullptr, nullptr);
+			glSpecializeShader(shader, "main", 0, NULL, NULL);
 			glAttachShader(program, shader);
 
 			Reflect(Utils::GetShaderStageFromOpenGLType(stage), binary.Data, binary.WordCount);

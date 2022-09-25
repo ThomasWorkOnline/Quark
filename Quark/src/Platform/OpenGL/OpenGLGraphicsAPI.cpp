@@ -24,49 +24,55 @@ namespace Quark {
 
 		// Framebuffer capabilities
 		{
-			GLint maxWidth, maxHeight;
+			GLint maxWidth, maxHeight, maxLayers, maxAttachments;
 			glGetIntegerv(GL_MAX_FRAMEBUFFER_WIDTH, &maxWidth);
-			glGetIntegerv(GL_MAX_FRAMEBUFFER_HEIGHT, &maxHeight);
-			m_Capabilities.FramebufferCapabilities.MaxWidth = maxWidth;
-			m_Capabilities.FramebufferCapabilities.MaxHeight = maxHeight;
+			m_Capabilities.Framebuffer.MaxWidth = maxWidth;
 
-			GLint maxAttachments;
+			glGetIntegerv(GL_MAX_FRAMEBUFFER_HEIGHT, &maxHeight);
+			m_Capabilities.Framebuffer.MaxHeight = maxHeight;
+
+			glGetIntegerv(GL_MAX_FRAMEBUFFER_LAYERS, &maxLayers);
+			m_Capabilities.Framebuffer.MaxLayers = maxLayers;
+
 			glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &maxAttachments);
-			m_Capabilities.FramebufferCapabilities.MaxAttachments = maxAttachments;
+			m_Capabilities.Framebuffer.MaxAttachments = maxAttachments;
 		}
 
 		// Sampler capabilities
 		{
 			GLint maxSamplers;
 			glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxSamplers);
-			m_Capabilities.SamplerCapabilities.MaxPerStageSamplers = maxSamplers;
+			m_Capabilities.Sampler.MaxPerStageSamplers = maxSamplers;
+
+			GLfloat maxAnisotropy;
+			glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &maxAnisotropy);
+			m_Capabilities.Sampler.MaxAnisotropy = maxAnisotropy;
 		}
 
 		// Uniform buffer capabilities
 		{
-			GLint maxBlockSize;
+			GLint maxBlockSize, maxBindings;
 			glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &maxBlockSize);
-			m_Capabilities.UniformBufferCapabilities.MaxBufferSize = maxBlockSize;
+			m_Capabilities.UniformBuffer.MaxBufferSize = maxBlockSize;
 
-			GLint maxBindings;
 			glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, &maxBindings);
-			m_Capabilities.UniformBufferCapabilities.MaxPerStageBuffers = maxBindings;
+			m_Capabilities.UniformBuffer.MaxPerStageBuffers = maxBindings;
 		}
 
 		// Texture capabilities
 		{
-			GLint maxTexture2dSize;
+			GLint maxTexture2dSize, maxTexture3dSize, maxTextureArrayLayers, maxCubemapSize;
 			glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTexture2dSize);
-			m_Capabilities.TextureCapabilities.MaxWidth = maxTexture2dSize;
-			m_Capabilities.TextureCapabilities.MaxHeight = maxTexture2dSize;
+			m_Capabilities.Texture.Max2DSize = maxTexture2dSize;
 
-			GLint maxTexture3dSize;
 			glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &maxTexture3dSize);
-			m_Capabilities.TextureCapabilities.MaxDepth = maxTexture3dSize;
+			m_Capabilities.Texture.Max3DSize = maxTexture3dSize;
 
-			GLint maxTextureArrayLayers;
 			glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &maxTextureArrayLayers);
-			m_Capabilities.TextureCapabilities.MaxArrayLayers = maxTextureArrayLayers;
+			m_Capabilities.Texture.MaxArrayLayers = maxTextureArrayLayers;
+
+			glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, &maxCubemapSize);
+			m_Capabilities.Texture.MaxCubemapSize = maxCubemapSize;
 		}
 	}
 
@@ -178,8 +184,8 @@ namespace Quark {
 		ss << "|  " << glGetString(GL_RENDERER) << '\n';
 		ss << "|  " << glGetString(GL_VERSION) << '\n';
 		ss << "|  Per-stage Capabilities:\n";
-		ss << "|    Max uniform buffers = " << m_Capabilities.UniformBufferCapabilities.MaxPerStageBuffers << '\n';
-		ss << "|    Max samplers        = " << m_Capabilities.SamplerCapabilities.MaxPerStageSamplers;
+		ss << "|    Max uniform buffers = " << m_Capabilities.UniformBuffer.MaxPerStageBuffers << '\n';
+		ss << "|    Max samplers        = " << m_Capabilities.Sampler.MaxPerStageSamplers;
 		return ss.str();
 	}
 }

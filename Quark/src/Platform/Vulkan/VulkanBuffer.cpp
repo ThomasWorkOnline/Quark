@@ -6,7 +6,7 @@
 namespace Quark {
 
 	VulkanVertexBuffer::VulkanVertexBuffer(VulkanDevice* device, size_t size)
-		: m_Device(device)
+		: m_Device(device), m_Size(size)
 	{
 		QK_PROFILE_FUNCTION();
 
@@ -16,7 +16,7 @@ namespace Quark {
 	}
 
 	VulkanVertexBuffer::VulkanVertexBuffer(VulkanDevice* device, const void* vertices, size_t size)
-		: m_Device(device)
+		: m_Device(device), m_Size(size)
 	{
 		QK_PROFILE_FUNCTION();
 
@@ -54,6 +54,9 @@ namespace Quark {
 
 	void VulkanVertexBuffer::SetData(const void* data, size_t size, size_t offset)
 	{
+		QK_CORE_ASSERT(size + offset <= m_Size,
+			"Written size is too large : Size and Offset parameters must be within the total buffer size");
+
 		VkDeviceMemory stagingBufferMemory;
 		VkBuffer stagingBuffer = Utils::AllocateBuffer(m_Device, size,
 			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
@@ -133,6 +136,9 @@ namespace Quark {
 
 	void VulkanIndexBuffer::SetData(const uint32_t* data, uint32_t count, uint32_t firstIndex)
 	{
+		QK_CORE_ASSERT(count + firstIndex <= m_Count,
+			"Written size is too large : Count and FirstIndex parameters must be within the total buffer size");
+
 		size_t size = count * sizeof(uint32_t);
 		size_t offset = firstIndex * sizeof(uint32_t);
 		VkDeviceMemory stagingBufferMemory;

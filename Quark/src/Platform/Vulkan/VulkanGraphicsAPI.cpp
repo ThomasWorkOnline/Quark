@@ -26,28 +26,30 @@ namespace Quark {
 
 		// Framebuffer capabilities
 		{
-			m_Capabilities.FramebufferCapabilities.MaxWidth = props.limits.maxFramebufferWidth;
-			m_Capabilities.FramebufferCapabilities.MaxHeight = props.limits.maxFramebufferHeight;
-			m_Capabilities.FramebufferCapabilities.MaxAttachments = props.limits.maxColorAttachments;
+			m_Capabilities.Framebuffer.MaxWidth = props.limits.maxFramebufferWidth;
+			m_Capabilities.Framebuffer.MaxHeight = props.limits.maxFramebufferHeight;
+			m_Capabilities.Framebuffer.MaxLayers = props.limits.maxFramebufferLayers;
+			m_Capabilities.Framebuffer.MaxAttachments = props.limits.maxColorAttachments;
 		}
 
 		// Sampler capabilities
 		{
-			m_Capabilities.SamplerCapabilities.MaxPerStageSamplers = 32; // TODO: fix
+			m_Capabilities.Sampler.MaxPerStageSamplers = 32; // TODO: fix
+			m_Capabilities.Sampler.MaxAnisotropy = props.limits.maxSamplerAnisotropy;
 		}
 
 		// Uniform buffer capabilities
 		{
-			m_Capabilities.UniformBufferCapabilities.MaxBufferSize = props.limits.maxUniformBufferRange;
-			m_Capabilities.UniformBufferCapabilities.MaxPerStageBuffers = props.limits.maxPerStageDescriptorUniformBuffers;
+			m_Capabilities.UniformBuffer.MaxBufferSize = props.limits.maxUniformBufferRange;
+			m_Capabilities.UniformBuffer.MaxPerStageBuffers = props.limits.maxPerStageDescriptorUniformBuffers;
 		}
 
 		// Texture capabilities
 		{
-			m_Capabilities.TextureCapabilities.MaxWidth = props.limits.maxImageDimension1D;
-			m_Capabilities.TextureCapabilities.MaxHeight = props.limits.maxImageDimension2D;
-			m_Capabilities.TextureCapabilities.MaxDepth = props.limits.maxImageDimension3D;
-			m_Capabilities.TextureCapabilities.MaxArrayLayers = props.limits.maxImageArrayLayers;
+			m_Capabilities.Texture.Max2DSize = props.limits.maxImageDimension2D;
+			m_Capabilities.Texture.Max3DSize = props.limits.maxImageDimension3D;
+			m_Capabilities.Texture.MaxArrayLayers = props.limits.maxImageArrayLayers;
+			m_Capabilities.Texture.MaxCubemapSize = props.limits.maxImageDimensionCube;
 		}
 	}
 
@@ -55,9 +57,13 @@ namespace Quark {
 	{
 		auto& props = VulkanContext::GetCurrentDevice()->GetPhysicalDeviceProperties();
 
+		// TODO: get driver version instead of api version
+		// VkPhysicalDeviceDriverProperties props;
+
 		Version ver{};
 		ver.Major = VK_API_VERSION_MAJOR(props.apiVersion);
 		ver.Minor = VK_API_VERSION_MINOR(props.apiVersion);
+		ver.Patch = VK_API_VERSION_PATCH(props.apiVersion);
 		return ver;
 	}
 
@@ -167,8 +173,8 @@ namespace Quark {
 		ss << "|  " << VulkanContext::GetCurrentDevice()->GetName() << '\n';
 		ss << "|  " << ver.Major << '.' << ver.Minor << '\n';
 		ss << "|  Per-stage Capabilities:\n";
-		ss << "|    Max uniform buffers = " << m_Capabilities.UniformBufferCapabilities.MaxPerStageBuffers << '\n';
-		ss << "|    Max samplers        = " << m_Capabilities.SamplerCapabilities.MaxPerStageSamplers;
+		ss << "|    Max uniform buffers = " << m_Capabilities.UniformBuffer.MaxPerStageBuffers << '\n';
+		ss << "|    Max samplers        = " << m_Capabilities.Sampler.MaxPerStageSamplers;
 		return ss.str();
 	}
 }

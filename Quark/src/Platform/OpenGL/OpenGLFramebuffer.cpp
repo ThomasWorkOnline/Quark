@@ -51,7 +51,7 @@ namespace Quark {
 		else
 		{
 			glTexImage2D(GL_TEXTURE_2D, 0, DataFormatToOpenGLInternalFormat(m_Spec.DataFormat), m_Spec.Width, m_Spec.Height, 0,
-				DataFormatToOpenGLStorageFormat(m_Spec.DataFormat), GL_UNSIGNED_BYTE, nullptr);
+				DataFormatToOpenGLStorageFormat(m_Spec.DataFormat), GL_UNSIGNED_BYTE, NULL);
 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -85,7 +85,7 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		QK_CORE_ASSERT(m_Spec.Attachments.size() <= Renderer::GetCapabilities().FramebufferCapabilities.MaxAttachments,
+		QK_CORE_ASSERT(m_Spec.Attachments.size() <= Renderer::GetCapabilities().Framebuffer.MaxAttachments,
 			"Framebuffer contains too many attachments");
 
 		Invalidate();
@@ -101,7 +101,7 @@ namespace Quark {
 	void OpenGLFramebuffer::Resize(uint32_t width, uint32_t height)
 	{
 		auto& capabilities = Renderer::GetCapabilities();
-		if (width > capabilities.FramebufferCapabilities.MaxWidth || height > capabilities.FramebufferCapabilities.MaxHeight)
+		if (width > capabilities.Framebuffer.MaxWidth || height > capabilities.Framebuffer.MaxHeight)
 		{
 			QK_CORE_WARN("Attempted to resize a framebuffer with dimensions too large: {0}, {1}", width, height);
 			return;

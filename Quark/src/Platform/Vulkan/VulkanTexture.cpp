@@ -15,8 +15,8 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		QK_CORE_ASSERT(m_Spec.Width <= Renderer::GetCapabilities().TextureCapabilities.MaxWidth
-			&& m_Spec.Height <= Renderer::GetCapabilities().TextureCapabilities.MaxHeight,
+		QK_CORE_ASSERT(m_Spec.Width <= Renderer::GetCapabilities().Texture.Max2DSize
+			&& m_Spec.Height <= Renderer::GetCapabilities().Texture.Max2DSize,
 			"Texture dimensions too large: see Renderer::GetCapabilities() for more info");
 
 		m_Spec.Levels = m_Spec.Levels == 0 ? GetMipLevelsForResolution(m_Spec.Width, m_Spec.Height) : 1;
@@ -61,8 +61,8 @@ namespace Quark {
 		Image image = filepath;
 		auto& metadata = image.GetMetadata();
 
-		QK_CORE_ASSERT(metadata.Width <= Renderer::GetCapabilities().TextureCapabilities.MaxWidth
-			&& metadata.Height <= Renderer::GetCapabilities().TextureCapabilities.MaxHeight,
+		QK_CORE_ASSERT(metadata.Width <= Renderer::GetCapabilities().Texture.Max2DSize
+			&& metadata.Height <= Renderer::GetCapabilities().Texture.Max2DSize,
 			"Texture dimensions too large: see Renderer::GetCapabilities() for more info");
 
 		m_Spec.Width      = metadata.Width;
@@ -126,7 +126,9 @@ namespace Quark {
 			vkUnmapMemory(m_Device->GetVkHandle(), stagingBufferMemory);
 		}
 
-		Utils::CopyBufferToImage(m_Device, m_Image, stagingBuffer, imageExtent, 1, 0, m_Spec.Levels);
+		VkOffset3D imageOffset{};
+		Utils::CopyBufferToImage(m_Device, stagingBuffer, 0,
+			m_Image, imageExtent, imageOffset, 1, 0, m_Spec.Levels);
 
 		vkDestroyBuffer(m_Device->GetVkHandle(), stagingBuffer, nullptr);
 		vkFreeMemory(m_Device->GetVkHandle(), stagingBufferMemory, nullptr);
@@ -177,7 +179,9 @@ namespace Quark {
 		imageExtent.height = m_Spec.Height;
 		imageExtent.depth = 1;
 
-		Utils::CopyBufferToImage(m_Device, m_Image, stagingBuffer, imageExtent, 1, 0, m_Spec.Levels);
+		VkOffset3D imageOffset{};
+		Utils::CopyBufferToImage(m_Device, stagingBuffer, 0,
+			m_Image, imageExtent, imageOffset, 1, 0, m_Spec.Levels);
 
 		vkDestroyBuffer(m_Device->GetVkHandle(), stagingBuffer, nullptr);
 		vkFreeMemory(m_Device->GetVkHandle(), stagingBufferMemory, nullptr);
@@ -205,9 +209,9 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		QK_CORE_ASSERT(m_Spec.Width <= Renderer::GetCapabilities().TextureCapabilities.MaxWidth
-			&& m_Spec.Height <= Renderer::GetCapabilities().TextureCapabilities.MaxHeight
-			&& m_Spec.Layers <= Renderer::GetCapabilities().TextureCapabilities.MaxArrayLayers,
+		QK_CORE_ASSERT(m_Spec.Width <= Renderer::GetCapabilities().Texture.Max2DSize
+			&& m_Spec.Height <= Renderer::GetCapabilities().Texture.Max2DSize
+			&& m_Spec.Layers <= Renderer::GetCapabilities().Texture.MaxArrayLayers,
 			"Texture dimensions too large: see Renderer::GetCapabilities() for more info");
 
 		m_Spec.Levels = m_Spec.Levels == 0 ? GetMipLevelsForResolution(m_Spec.Width, m_Spec.Height) : 1;
@@ -280,7 +284,9 @@ namespace Quark {
 		imageExtent.height = m_Spec.Height;
 		imageExtent.depth = 1;
 
-		Utils::CopyBufferToImage(m_Device, m_Image, stagingBuffer, imageExtent, 1, layer, m_Spec.Levels);
+		VkOffset3D imageOffset{};
+		Utils::CopyBufferToImage(m_Device, stagingBuffer, 0,
+			m_Image, imageExtent, imageOffset, 1, layer, m_Spec.Levels);
 
 		vkDestroyBuffer(m_Device->GetVkHandle(), stagingBuffer, nullptr);
 		vkFreeMemory(m_Device->GetVkHandle(), stagingBufferMemory, nullptr);

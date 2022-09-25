@@ -27,6 +27,7 @@ namespace Quark {
 	private:
 		VulkanDevice* m_Device;
 
+		size_t m_Size;
 		VkBuffer m_Buffer;
 		VkDeviceMemory m_BufferMemory;
 	};
@@ -52,8 +53,8 @@ namespace Quark {
 	private:
 		VulkanDevice* m_Device;
 
+		uint32_t m_Count;
 		VkBuffer m_Buffer;
 		VkDeviceMemory m_BufferMemory;
-		uint32_t m_Count;
 	};
 }

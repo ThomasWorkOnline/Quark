@@ -397,10 +397,14 @@ namespace Quark {
 			size_t size = ((uint8_t*)s_Data->QuadVertexPtr - (uint8_t*)s_Data->QuadVertices);
 			s_Data->QuadVertexBuffer->SetData(s_Data->QuadVertices, size);
 
-			for (uint32_t i = 0; i < s_Data->TextureSamplerIndex; i++)
+			while (s_Data->TextureSamplerIndex != s_Data->MaxSamplerDestinations)
 			{
-				Renderer::GetCommandBuffer()->BindTexture(s_Data->Textures[i], s_Data->Samplers[i].get(), 1, i);
+				s_Data->Textures[s_Data->TextureSamplerIndex] = s_Data->DefaultTexture.get();
+				s_Data->TextureSamplerIndex++;
 			}
+
+			for (uint32_t i = 0; i < s_Data->MaxSamplerDestinations; i++)
+				Renderer::GetCommandBuffer()->BindTexture(s_Data->Textures[i], s_Data->Samplers[i].get(), 1, i);
 
 			Renderer::Submit(s_Data->QuadVertexBuffer.get(), s_Data->QuadIndexBuffer.get(), s_Data->QuadIndexCount);
 			s_Stats.DrawCalls++;
@@ -436,7 +440,7 @@ namespace Quark {
 		s_Data = new Renderer2DData();
 
 		// Samplers
-		s_Data->MaxSamplerDestinations = Renderer::GetCapabilities().SamplerCapabilities.MaxPerStageSamplers;
+		s_Data->MaxSamplerDestinations = Renderer::GetCapabilities().Sampler.MaxPerStageSamplers;
 
 		// Camera buffer
 		{
@@ -508,8 +512,8 @@ namespace Quark {
 		for (uint32_t i = 0; i < s_Data->MaxSamplerDestinations; i++)
 		{
 			SamplerSpecification spec;
-			spec.RenderModes.MinFilteringMode = SamplerFilterMode::LinearMipmapLinear;
-			spec.RenderModes.MagFilteringMode = SamplerFilterMode::Nearest;
+			spec.RenderModes.MinFilteringMode = SamplerFilterMode::Linear;
+			spec.RenderModes.MagFilteringMode = SamplerFilterMode::Linear;
 			spec.RenderModes.AddressMode = SamplerAddressMode::ClampToEdge;
 
 			s_Data->Samplers[i] = Sampler::Create(spec);

@@ -10,6 +10,8 @@
 #include "VulkanTexture.h"
 #include "VulkanUniformBuffer.h"
 
+#include "Quark/Renderer/Renderer.h"
+
 #define QK_ASSERT_PIPELINE_VALID_STATE(pipeline) QK_CORE_ASSERT(pipeline, "No pipeline was actively bound to the current command buffer!")
 
 namespace Quark {
@@ -187,6 +189,10 @@ namespace Quark {
 	void VulkanCommandBuffer::BindTexture(const Texture* texture, const Sampler* sampler, uint32_t binding, uint32_t samplerIndex)
 	{
 		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
+
+		QK_CORE_ASSERT(samplerIndex <= Renderer::GetCapabilities().Sampler.MaxPerStageSamplers,
+			"Sampler index out of range: max writable index is: {0}",
+			Renderer::GetCapabilities().Sampler.MaxPerStageSamplers - 1);
 
 		auto* vulkanSampler = static_cast<const VulkanSampler*>(sampler);
 

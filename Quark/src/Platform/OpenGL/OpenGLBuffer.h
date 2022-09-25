@@ -25,6 +25,7 @@ namespace Quark {
 
 	private:
 		GLuint m_RendererID;
+		size_t m_Size;
 	};
 
 	class OpenGLIndexBuffer final : public IndexBuffer

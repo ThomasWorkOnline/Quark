@@ -110,14 +110,14 @@ namespace Quark {
 			VkCommandBufferBeginInfo beginInfo{};
 			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 			beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+			vkBeginCommandBuffer(commandBuffer, &beginInfo);
 
 			VkBufferCopy copyRegion{};
 			copyRegion.srcOffset = srcOffset;
 			copyRegion.dstOffset = dstOffset;
 			copyRegion.size = size;
-
-			vkBeginCommandBuffer(commandBuffer, &beginInfo);
 			vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+
 			vkEndCommandBuffer(commandBuffer);
 
 			VkSubmitInfo submitInfo{};
@@ -130,7 +130,7 @@ namespace Quark {
 			vkQueueWaitIdle(transferQueue);
 		}
 
-		void CopyBufferToImage(VulkanDevice* device, VkImage dstImage, VkBuffer srcBuffer, VkExtent3D extent, uint32_t layerCount, uint32_t layer, uint32_t levels)
+		void ClearImage(VulkanDevice* device, VkImage dstImage, VkImageLayout layout, VkClearColorValue clearColor, uint32_t layerCount, uint32_t baseLayer, uint32_t levelCount)
 		{
 			VkCommandBuffer commandBuffer = device->GetCopyCommandBuffer();
 			vkResetCommandBuffer(commandBuffer, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
@@ -138,7 +138,51 @@ namespace Quark {
 			VkCommandBufferBeginInfo beginInfo{};
 			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 			beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+			vkBeginCommandBuffer(commandBuffer, &beginInfo);
 
+			VkImageSubresourceRange range{};
+			range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			range.baseMipLevel = 1;
+			range.levelCount = levelCount;
+			range.baseArrayLayer = baseLayer;
+			range.layerCount = 1;
+			vkCmdClearColorImage(commandBuffer, dstImage, layout, &clearColor, 1, &range);
+
+			VkImageMemoryBarrier useBarrier{};
+			useBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+			useBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+			useBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+			useBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+			useBarrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			useBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+			useBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+			useBarrier.image = dstImage;
+			useBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			useBarrier.subresourceRange.levelCount = levelCount;
+			useBarrier.subresourceRange.layerCount = layerCount;
+			vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, NULL, 0, NULL, 1, &useBarrier);
+
+			vkEndCommandBuffer(commandBuffer);
+
+			VkSubmitInfo submitInfo{};
+			submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+			submitInfo.commandBufferCount = 1;
+			submitInfo.pCommandBuffers = &commandBuffer;
+
+			VkQueue transferQueue = device->GetTransferQueue();
+			vkQueueSubmit(transferQueue, 1, &submitInfo, nullptr);
+			vkQueueWaitIdle(transferQueue);
+		}
+
+		void CopyBufferToImage(VulkanDevice* device, VkBuffer srcBuffer, VkDeviceSize bufferOffset,
+			                   VkImage dstImage, VkExtent3D imageExtent, VkOffset3D imageOffset, uint32_t layerCount, uint32_t baseLayer, uint32_t levelCount)
+		{
+			VkCommandBuffer commandBuffer = device->GetCopyCommandBuffer();
+			vkResetCommandBuffer(commandBuffer, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
+
+			VkCommandBufferBeginInfo beginInfo{};
+			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+			beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 			vkBeginCommandBuffer(commandBuffer, &beginInfo);
 
 			VkImageMemoryBarrier copyBarrier{};
@@ -150,18 +194,18 @@ namespace Quark {
 			copyBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 			copyBarrier.image = dstImage;
 			copyBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-			copyBarrier.subresourceRange.baseArrayLayer = layer;
-			copyBarrier.subresourceRange.levelCount = levels;
+			copyBarrier.subresourceRange.baseArrayLayer = baseLayer;
+			copyBarrier.subresourceRange.levelCount = levelCount;
 			copyBarrier.subresourceRange.layerCount = layerCount;
-
 			vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, NULL, 0, NULL, 1, &copyBarrier);
 
 			VkBufferImageCopy region{};
+			region.bufferOffset = bufferOffset;
 			region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-			region.imageSubresource.baseArrayLayer = layer;
+			region.imageSubresource.baseArrayLayer = baseLayer;
 			region.imageSubresource.layerCount = layerCount;
-			region.imageExtent = extent;
-
+			region.imageOffset = imageOffset;
+			region.imageExtent = imageExtent;
 			vkCmdCopyBufferToImage(commandBuffer, srcBuffer, dstImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
 			VkImageMemoryBarrier useBarrier{};
@@ -174,11 +218,44 @@ namespace Quark {
 			useBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 			useBarrier.image = dstImage;
 			useBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-			region.imageSubresource.baseArrayLayer = layer;
-			useBarrier.subresourceRange.levelCount = levels;
+			useBarrier.subresourceRange.baseArrayLayer = baseLayer;
+			useBarrier.subresourceRange.levelCount = levelCount;
 			useBarrier.subresourceRange.layerCount = layerCount;
-
 			vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, NULL, 0, NULL, 1, &useBarrier);
+
+			vkEndCommandBuffer(commandBuffer);
+
+			VkSubmitInfo submitInfo{};
+			submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+			submitInfo.commandBufferCount = 1;
+			submitInfo.pCommandBuffers = &commandBuffer;
+
+			VkQueue transferQueue = device->GetTransferQueue();
+			vkQueueSubmit(transferQueue, 1, &submitInfo, nullptr);
+			vkQueueWaitIdle(transferQueue);
+		}
+
+		void CopyImageToBuffer(VulkanDevice* device, VkImage srcImage, VkExtent3D imageExtent, VkOffset3D imageOffset, uint32_t layerCount, uint32_t baseLayer, uint32_t level,
+			                   VkBuffer dstBuffer, VkDeviceSize bufferOffset)
+		{
+			VkCommandBuffer commandBuffer = device->GetCopyCommandBuffer();
+			vkResetCommandBuffer(commandBuffer, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
+
+			VkCommandBufferBeginInfo beginInfo{};
+			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+			beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+			vkBeginCommandBuffer(commandBuffer, &beginInfo);
+
+			VkBufferImageCopy copyRegion{};
+			copyRegion.bufferOffset = bufferOffset;
+			copyRegion.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			copyRegion.imageSubresource.mipLevel = level;
+			copyRegion.imageSubresource.baseArrayLayer = baseLayer;
+			copyRegion.imageSubresource.layerCount = layerCount;
+			copyRegion.imageOffset = imageOffset;
+			copyRegion.imageExtent = imageExtent;
+			vkCmdCopyImageToBuffer(commandBuffer, srcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dstBuffer, 1, &copyRegion);
+
 			vkEndCommandBuffer(commandBuffer);
 
 			VkSubmitInfo submitInfo{};
