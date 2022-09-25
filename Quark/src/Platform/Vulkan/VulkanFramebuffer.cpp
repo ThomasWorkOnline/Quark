@@ -65,9 +65,9 @@ namespace Quark {
 			imageExtent.height = m_Spec.Height;
 			imageExtent.depth = 1;
 
-			m_Image = Utils::AllocateImage(m_Device, imageExtent, 1, 1, m_Spec.Samples, format,
+			Utils::AllocateImage(m_Device, imageExtent, 1, 1, m_Spec.Samples, format,
 				GetVulkanImageUsageFlags(m_Spec.DataFormat),
-				VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_BufferMemory);
+				VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &m_Image, &m_BufferMemory);
 		}
 
 		// Image view allocation

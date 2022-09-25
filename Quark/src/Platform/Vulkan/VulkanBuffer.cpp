@@ -10,9 +10,9 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		m_Buffer = Utils::AllocateBuffer(m_Device, size,
+		Utils::AllocateBuffer(m_Device, size,
 			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_BufferMemory);
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &m_Buffer, &m_BufferMemory);
 	}
 
 	VulkanVertexBuffer::VulkanVertexBuffer(VulkanDevice* device, const void* vertices, size_t size)
@@ -20,11 +20,12 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
+		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;
-		VkBuffer stagingBuffer = Utils::AllocateBuffer(m_Device, size,
+		Utils::AllocateBuffer(m_Device, size,
 			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-			stagingBufferMemory
+			&stagingBuffer, &stagingBufferMemory
 		);
 
 		{
@@ -34,9 +35,9 @@ namespace Quark {
 			vkUnmapMemory(m_Device->GetVkHandle(), stagingBufferMemory);
 		}
 
-		m_Buffer = Utils::AllocateBuffer(m_Device, size,
+		Utils::AllocateBuffer(m_Device, size,
 			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_BufferMemory);
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &m_Buffer, &m_BufferMemory);
 
 		Utils::CopyBuffer(m_Device, m_Buffer, stagingBuffer, size, 0, 0);
 
@@ -57,11 +58,12 @@ namespace Quark {
 		QK_CORE_ASSERT(size + offset <= m_Size,
 			"Written size is too large : Size and Offset parameters must be within the total buffer size");
 
+		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;
-		VkBuffer stagingBuffer = Utils::AllocateBuffer(m_Device, size,
+		Utils::AllocateBuffer(m_Device, size,
 			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-			stagingBufferMemory
+			&stagingBuffer, &stagingBufferMemory
 		);
 
 		{
@@ -91,9 +93,9 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		size_t size = count * sizeof(uint32_t);
-		m_Buffer = Utils::AllocateBuffer(m_Device, size,
+		Utils::AllocateBuffer(m_Device, size,
 			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_BufferMemory);
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &m_Buffer, &m_BufferMemory);
 	}
 
 	VulkanIndexBuffer::VulkanIndexBuffer(VulkanDevice* device, const uint32_t* indices, uint32_t count)
@@ -102,11 +104,12 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		size_t size = count * sizeof(uint32_t);
+		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;
-		VkBuffer stagingBuffer = Utils::AllocateBuffer(m_Device, size,
+		Utils::AllocateBuffer(m_Device, size,
 			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-			stagingBufferMemory
+			&stagingBuffer, &stagingBufferMemory
 		);
 
 		{
@@ -116,9 +119,9 @@ namespace Quark {
 			vkUnmapMemory(m_Device->GetVkHandle(), stagingBufferMemory);
 		}
 
-		m_Buffer = Utils::AllocateBuffer(m_Device, size,
+		Utils::AllocateBuffer(m_Device, size,
 			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_BufferMemory);
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &m_Buffer, &m_BufferMemory);
 
 		Utils::CopyBuffer(m_Device, m_Buffer, stagingBuffer, size, 0, 0);
 
@@ -141,11 +144,12 @@ namespace Quark {
 
 		size_t size = count * sizeof(uint32_t);
 		size_t offset = firstIndex * sizeof(uint32_t);
+		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;
-		VkBuffer stagingBuffer = Utils::AllocateBuffer(m_Device, size,
+		Utils::AllocateBuffer(m_Device, size,
 			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-			stagingBufferMemory
+			&stagingBuffer, &stagingBufferMemory
 		);
 
 		{

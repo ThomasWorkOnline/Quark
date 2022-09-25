@@ -14,10 +14,10 @@ namespace Quark {
 		QK_CORE_ASSERT(spec.Size <= Renderer::GetCapabilities().UniformBuffer.MaxBufferSize,
 			"Uniform buffer Size too large: see Renderer::GetCapabilities() for more info");
 
-		m_Buffer = Utils::AllocateBuffer(m_Device, m_Spec.Size,
+		Utils::AllocateBuffer(m_Device, m_Spec.Size,
 			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-			m_BufferMemory);
+			&m_Buffer, &m_BufferMemory);
 	}
 
 	VulkanUniformBuffer::~VulkanUniformBuffer()

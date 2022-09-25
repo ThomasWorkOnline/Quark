@@ -26,9 +26,9 @@ namespace Quark {
 		atlasExtent.height = m_AtlasHeight;
 		atlasExtent.depth = 1;
 
-		m_Image = Utils::AllocateImage(m_Device, atlasExtent, 1, 1, 1, VK_FORMAT_R8_UNORM,
+		Utils::AllocateImage(m_Device, atlasExtent, 1, 1, 1, VK_FORMAT_R8_UNORM,
 			VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
-			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_BufferMemory);
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &m_Image, &m_BufferMemory);
 
 		// Image view allocation
 		{
@@ -59,26 +59,26 @@ namespace Quark {
 				continue;
 
 			// Staging buffer
-			size_t alignedSize;
 			VkDeviceSize size = g->bitmap.width * g->bitmap.rows * 1;
+			VkBuffer stagingBuffer;
 			VkDeviceMemory stagingBufferMemory;
-			VkBuffer stagingBuffer = Utils::AllocateBuffer(m_Device, size,
+			VkMemoryRequirements req = Utils::AllocateBuffer(m_Device, size,
 				VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-				stagingBufferMemory, &alignedSize
+				&stagingBuffer, &stagingBufferMemory
 			);
 
 			// Upload
 			{
 				void* mappedMemory;
-				vkMapMemory(m_Device->GetVkHandle(), stagingBufferMemory, 0, alignedSize, 0, &mappedMemory);
+				vkMapMemory(m_Device->GetVkHandle(), stagingBufferMemory, 0, req.size, 0, &mappedMemory);
 
 				std::memcpy(mappedMemory, g->bitmap.buffer, size);
 
 				VkMappedMemoryRange range{};
 				range.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
 				range.memory = stagingBufferMemory;
-				range.size = alignedSize;
+				range.size = req.size;
 
 				vkFlushMappedMemoryRanges(m_Device->GetVkHandle(), 1, &range);
 				vkUnmapMemory(m_Device->GetVkHandle(), stagingBufferMemory);

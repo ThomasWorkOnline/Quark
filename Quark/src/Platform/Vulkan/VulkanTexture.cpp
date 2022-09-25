@@ -27,30 +27,11 @@ namespace Quark {
 		imageExtent.depth = 1;
 
 		VkFormat format = DataFormatToVulkan(m_Spec.DataFormat);
-		m_Image = Utils::AllocateImage(m_Device, imageExtent, 1, m_Spec.Levels, m_Spec.Samples, format,
-			VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
-			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_BufferMemory);
+		Utils::AllocateImage(m_Device, imageExtent, 1, m_Spec.Levels, m_Spec.Samples, format,
+			VK_IMAGE_USAGE_TRANSFER_DST_BIT | (m_Spec.Levels > 1 ? VK_IMAGE_USAGE_TRANSFER_SRC_BIT : 0) | VK_IMAGE_USAGE_SAMPLED_BIT,
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &m_Image, &m_BufferMemory);
 
-		// Image view allocation
-		{
-			VkComponentMapping componentsSwizzle{};
-			componentsSwizzle.r = VK_COMPONENT_SWIZZLE_R;
-			componentsSwizzle.g = VK_COMPONENT_SWIZZLE_G;
-			componentsSwizzle.b = VK_COMPONENT_SWIZZLE_B;
-			componentsSwizzle.a = VK_COMPONENT_SWIZZLE_A;
-
-			VkImageViewCreateInfo info{};
-			info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-			info.image = m_Image;
-			info.viewType = VK_IMAGE_VIEW_TYPE_2D;
-			info.format = format;
-			info.components = componentsSwizzle;
-			info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-			info.subresourceRange.levelCount = m_Spec.Levels;
-			info.subresourceRange.layerCount = 1;
-
-			vkCreateImageView(m_Device->GetVkHandle(), &info, nullptr, &m_ImageView);
-		}
+		Utils::AllocateImageView(m_Device, m_Image, format, 1, m_Spec.Levels, &m_ImageView);
 	}
 
 	VulkanTexture2D::VulkanTexture2D(VulkanDevice* device, std::string_view filepath)
@@ -76,51 +57,32 @@ namespace Quark {
 		imageExtent.depth = 1;
 
 		VkFormat format = DataFormatToVulkan(m_Spec.DataFormat);
-		m_Image = Utils::AllocateImage(m_Device, imageExtent, 1, m_Spec.Levels, m_Spec.Samples, format,
-			VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
-			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_BufferMemory);
+		Utils::AllocateImage(m_Device, imageExtent, 1, m_Spec.Levels, m_Spec.Samples, format,
+			VK_IMAGE_USAGE_TRANSFER_DST_BIT | (m_Spec.Levels > 1 ? VK_IMAGE_USAGE_TRANSFER_SRC_BIT : 0) | VK_IMAGE_USAGE_SAMPLED_BIT,
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &m_Image, &m_BufferMemory);
 
-		// Image view allocation
-		{
-			VkComponentMapping componentsSwizzle{};
-			componentsSwizzle.r = VK_COMPONENT_SWIZZLE_R;
-			componentsSwizzle.g = VK_COMPONENT_SWIZZLE_G;
-			componentsSwizzle.b = VK_COMPONENT_SWIZZLE_B;
-			componentsSwizzle.a = VK_COMPONENT_SWIZZLE_A;
-
-			VkImageViewCreateInfo info{};
-			info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-			info.image = m_Image;
-			info.viewType = VK_IMAGE_VIEW_TYPE_2D;
-			info.format = format;
-			info.components = componentsSwizzle;
-			info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-			info.subresourceRange.levelCount = m_Spec.Levels;
-			info.subresourceRange.layerCount = 1;
-
-			vkCreateImageView(m_Device->GetVkHandle(), &info, nullptr, &m_ImageView);
-		}
+		Utils::AllocateImageView(m_Device, m_Image, format, 1, m_Spec.Levels, &m_ImageView);
 
 		// Staging buffer
-		size_t alignedSize;
 		VkDeviceSize size = metadata.Size;
+		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;
-		VkBuffer stagingBuffer = Utils::AllocateBuffer(m_Device, size,
+		VkMemoryRequirements req = Utils::AllocateBuffer(m_Device, size,
 			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-			stagingBufferMemory, &alignedSize
+			&stagingBuffer, &stagingBufferMemory
 		);
 
 		// Upload
 		{
 			void* mappedMemory;
-			vkMapMemory(m_Device->GetVkHandle(), stagingBufferMemory, 0, alignedSize, 0, &mappedMemory);
+			vkMapMemory(m_Device->GetVkHandle(), stagingBufferMemory, 0, req.size, 0, &mappedMemory);
 			std::memcpy(mappedMemory, image.GetData(), size);
 
 			VkMappedMemoryRange range{};
 			range.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
 			range.memory = stagingBufferMemory;
-			range.size = alignedSize;
+			range.size = req.size;
 
 			vkFlushMappedMemoryRanges(m_Device->GetVkHandle(), 1, &range);
 			vkUnmapMemory(m_Device->GetVkHandle(), stagingBufferMemory);
@@ -132,6 +94,12 @@ namespace Quark {
 
 		vkDestroyBuffer(m_Device->GetVkHandle(), stagingBuffer, nullptr);
 		vkFreeMemory(m_Device->GetVkHandle(), stagingBufferMemory, nullptr);
+
+		if (m_Spec.Levels > 1)
+		{
+			Utils::TransitionImageLayout(m_Device, m_Image, format, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, m_Spec.Levels);
+			Utils::GenerateMipmaps(m_Device, m_Image, m_Spec.Width, m_Spec.Height, m_Spec.Levels);
+		}
 	}
 
 	VulkanTexture2D::~VulkanTexture2D()
@@ -151,24 +119,24 @@ namespace Quark {
 		QK_CORE_ASSERT(size == m_Spec.Width * m_Spec.Height * pSize, "Data must be entire texture");
 
 		// Staging buffer
-		size_t alignedSize;
+		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;
-		VkBuffer stagingBuffer = Utils::AllocateBuffer(m_Device, size,
+		VkMemoryRequirements req = Utils::AllocateBuffer(m_Device, size,
 			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-			stagingBufferMemory, &alignedSize
+			&stagingBuffer, &stagingBufferMemory
 		);
 
 		// Upload
 		{
 			void* mappedMemory;
-			vkMapMemory(m_Device->GetVkHandle(), stagingBufferMemory, 0, alignedSize, 0, &mappedMemory);
+			vkMapMemory(m_Device->GetVkHandle(), stagingBufferMemory, 0, req.size, 0, &mappedMemory);
 			std::memcpy(mappedMemory, data, size);
 
 			VkMappedMemoryRange range{};
 			range.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
 			range.memory = stagingBufferMemory;
-			range.size = alignedSize;
+			range.size = req.size;
 
 			vkFlushMappedMemoryRanges(m_Device->GetVkHandle(), 1, &range);
 			vkUnmapMemory(m_Device->GetVkHandle(), stagingBufferMemory);
@@ -189,6 +157,14 @@ namespace Quark {
 
 	void VulkanTexture2D::GenerateMipmaps()
 	{
+		QK_PROFILE_FUNCTION();
+
+		QK_CORE_ASSERT(m_Spec.Levels > 1, "Invalid texture specification for mipmaps");
+
+		VkFormat format = DataFormatToVulkan(m_Spec.DataFormat);
+
+		Utils::TransitionImageLayout(m_Device, m_Image, format, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, m_Spec.Levels);
+		Utils::GenerateMipmaps(m_Device, m_Image, m_Spec.Width, m_Spec.Height, m_Spec.Levels);
 	}
 
 	bool VulkanTexture2D::operator==(const Texture& other) const
@@ -222,9 +198,9 @@ namespace Quark {
 		imageExtent.depth = 1;
 
 		VkFormat format = DataFormatToVulkan(m_Spec.DataFormat);
-		m_Image = Utils::AllocateImage(m_Device, imageExtent, m_Spec.Layers, m_Spec.Levels, m_Spec.Samples, format,
+		Utils::AllocateImage(m_Device, imageExtent, m_Spec.Layers, m_Spec.Levels, m_Spec.Samples, format,
 			VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
-			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_BufferMemory);
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &m_Image, &m_BufferMemory);
 
 		// Image view allocation
 		{
@@ -256,24 +232,24 @@ namespace Quark {
 		QK_CORE_ASSERT(size == m_Spec.Width * m_Spec.Height * pSize, "Data must be entire texture");
 
 		// Staging buffer
-		size_t alignedSize;
+		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;
-		VkBuffer stagingBuffer = Utils::AllocateBuffer(m_Device, size,
+		VkMemoryRequirements req = Utils::AllocateBuffer(m_Device, size,
 			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-			stagingBufferMemory, &alignedSize
+			&stagingBuffer, &stagingBufferMemory
 		);
 
 		// Upload
 		{
 			void* mappedMemory;
-			vkMapMemory(m_Device->GetVkHandle(), stagingBufferMemory, 0, alignedSize, 0, &mappedMemory);
+			vkMapMemory(m_Device->GetVkHandle(), stagingBufferMemory, 0, req.size, 0, &mappedMemory);
 			std::memcpy(mappedMemory, data, size);
 
 			VkMappedMemoryRange range{};
 			range.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
 			range.memory = stagingBufferMemory;
-			range.size = alignedSize;
+			range.size = req.size;
 
 			vkFlushMappedMemoryRanges(m_Device->GetVkHandle(), 1, &range);
 			vkUnmapMemory(m_Device->GetVkHandle(), stagingBufferMemory);
