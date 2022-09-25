@@ -44,26 +44,9 @@ namespace Quark {
 
 	void VulkanFramebufferAttachment::SetImage(VkImage image)
 	{
-		if (!m_IsFromSwapChain)
-		{
-			vkDestroyImage(m_Device->GetVkHandle(), m_Image, nullptr);
-			vkFreeMemory(m_Device->GetVkHandle(), m_BufferMemory, nullptr);
-		}
-
-		vkDestroyImageView(m_Device->GetVkHandle(), m_ImageView, nullptr);
-
 		m_Image = image;
 
-		VkImageViewCreateInfo imageViewInfo{};
-		imageViewInfo.sType                       = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		imageViewInfo.image                       = m_Image;
-		imageViewInfo.viewType                    = VK_IMAGE_VIEW_TYPE_2D;
-		imageViewInfo.format                      = DataFormatToVulkan(m_Spec.DataFormat);
-		imageViewInfo.subresourceRange.aspectMask = GetVulkanAspectFlags(m_Spec.DataFormat);
-		imageViewInfo.subresourceRange.levelCount = 1;
-		imageViewInfo.subresourceRange.layerCount = 1;
-
-		vkCreateImageView(m_Device->GetVkHandle(), &imageViewInfo, nullptr, &m_ImageView);
+		Invalidate();
 	}
 
 	void VulkanFramebufferAttachment::Invalidate()

@@ -18,7 +18,9 @@ namespace Quark {
 		ColorFormat       ColorAttachmentFormat{};
 		ColorFormat       DepthAttachmentFormat{};
 		uint32_t          Samples;
+
 		Vec4f             ClearColor{};
+		float             ClearDepth = 1.0f;
 		bool              ClearBuffers = false;
 	};
 

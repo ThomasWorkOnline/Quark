@@ -113,7 +113,7 @@ namespace Quark {
 		{
 			auto& clearColor = renderPass->GetSpecification().ClearColor;
 			clearValues[0].color = { clearColor.r, clearColor.g, clearColor.b, clearColor.a };
-			clearValues[1].depthStencil = { 0.0f, 0 };
+			clearValues[1].depthStencil = { renderPass->GetSpecification().ClearDepth, 0};
 
 			renderPassInfo.clearValueCount = sizeof_array(clearValues);
 			renderPassInfo.pClearValues = clearValues;
