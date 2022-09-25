@@ -27,7 +27,7 @@ namespace Quark {
 		void Present(VkQueue presentQueue, VkSemaphore renderFinishedSemaphore);
 		void Resize(uint32_t viewportWidth, uint32_t viewportHeight);
 
-		VulkanFramebufferAttachment* GetAttachment(uint32_t imageIndex) { return &m_Attachments[imageIndex]; }
+		VulkanFramebufferAttachment* GetColorAttachment(uint32_t imageIndex) { return &m_ColorAttachments[imageIndex]; }
 
 		uint32_t GetWidth() const { return m_Spec.Extent.width; }
 		uint32_t GetHeight() const { return m_Spec.Extent.width; }
@@ -52,6 +52,6 @@ namespace Quark {
 		uint32_t m_ImageIndex = 0;
 
 		std::vector<VkImage> m_SwapChainImages;
-		std::vector<VulkanFramebufferAttachment> m_Attachments;
+		std::vector<VulkanFramebufferAttachment> m_ColorAttachments;
 	};
 }

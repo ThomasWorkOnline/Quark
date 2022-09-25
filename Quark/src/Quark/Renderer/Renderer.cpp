@@ -17,6 +17,7 @@ namespace Quark {
 
 		CommandBuffer* ActiveCommandBuffer = nullptr;
 		std::vector<Scope<Framebuffer>> Framebuffers;
+		std::vector<Scope<FramebufferAttachment>> DepthAttachments;
 	};
 
 	static RendererData* s_Data = nullptr;
@@ -221,12 +222,13 @@ namespace Quark {
 
 		{
 			RenderPassSpecification spec;
-			spec.BindPoint       = PipelineBindPoint::Graphics;
-			spec.ColorFormat     = ColorFormat::BGRA8SRGB;
-			spec.ClearColor      = { 0.01f, 0.01f, 0.01f, 1.0f };
-			spec.ClearBuffers    = true;
-			spec.Samples         = s_Data->Samples;
-			s_Data->GeometryPass = RenderPass::Create(spec);
+			spec.BindPoint             = PipelineBindPoint::Graphics;
+			spec.ColorAttachmentFormat = ColorFormat::BGRA8SRGB;
+			spec.DepthAttachmentFormat = ColorFormat::Depth32f;
+			spec.ClearColor            = { 0.01f, 0.01f, 0.01f, 1.0f };
+			spec.ClearBuffers          = true;
+			spec.Samples               = s_Data->Samples;
+			s_Data->GeometryPass       = RenderPass::Create(spec);
 		}
 
 		const uint32_t swapChainImages = GraphicsContext::Get()->GetSwapChainImageCount();
@@ -235,6 +237,21 @@ namespace Quark {
 		// Target the default framebuffer when using OpenGL
 		if (GraphicsAPI::GetAPI() == RHI::Vulkan)
 		{
+			{
+				s_Data->DepthAttachments.resize(swapChainImages);
+
+				FramebufferAttachmentSpecification spec;
+				spec.DataFormat = ColorFormat::Depth32f;
+				spec.Width = s_Data->ViewportExtent.Width;
+				spec.Height = s_Data->ViewportExtent.Height;
+				spec.Samples = 1;
+
+				for (uint32_t i = 0; i < swapChainImages; i++)
+				{
+					s_Data->DepthAttachments[i] = FramebufferAttachment::Create(spec);
+				}
+			}
+
 			FramebufferSpecification fbSpec;
 			fbSpec.Width           = s_Data->ViewportExtent.Width;
 			fbSpec.Height          = s_Data->ViewportExtent.Height;
@@ -244,7 +261,11 @@ namespace Quark {
 
 			for (uint32_t i = 0; i < swapChainImages; i++)
 			{
-				fbSpec.Attachments = { GraphicsContext::Get()->GetColorAttachment(i) };
+				fbSpec.Attachments = {
+					GraphicsContext::Get()->GetColorAttachment(i),
+					s_Data->DepthAttachments[i].get()
+				};
+
 				s_Data->Framebuffers[i] = Framebuffer::Create(fbSpec);
 			}
 		}

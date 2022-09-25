@@ -143,7 +143,8 @@ namespace Quark {
 			{
 				RenderPassSpecification spec;
 				spec.BindPoint = PipelineBindPoint::Graphics;
-				spec.ColorFormat = ColorFormat::RGBA8;
+				spec.ColorAttachmentFormat = ColorFormat::RGBA8;
+				spec.DepthAttachmentFormat = ColorFormat::Depth32f;
 				spec.ClearBuffers = true;
 
 				m_Data.Env->RenderPass = RenderPass::Create(spec);

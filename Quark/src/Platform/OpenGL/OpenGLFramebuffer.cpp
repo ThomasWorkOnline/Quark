@@ -29,7 +29,7 @@ namespace Quark {
 			{
 				case ColorFormat::Depth24:
 				case ColorFormat::Depth24Stencil8: return true;
-				default:                               return false;
+				default:                           return false;
 			}
 		}
 	}
@@ -37,6 +37,39 @@ namespace Quark {
 	OpenGLFramebufferAttachment::OpenGLFramebufferAttachment(const FramebufferAttachmentSpecification& spec)
 		: FramebufferAttachment(spec)
 	{
+		Invalidate();
+	}
+
+	OpenGLFramebufferAttachment::~OpenGLFramebufferAttachment()
+	{
+		glDeleteTextures(1, &m_RendererID);
+	}
+
+	void OpenGLFramebufferAttachment::Resize(uint32_t width, uint32_t height)
+	{
+		m_Spec.Width = width;
+		m_Spec.Height = height;
+
+		Invalidate();
+	}
+
+	bool OpenGLFramebufferAttachment::operator==(const FramebufferAttachment& other) const
+	{
+		if (auto* o = dynamic_cast<decltype(this)>(&other))
+			return m_RendererID == o->m_RendererID;
+
+		return false;
+	}
+
+	void OpenGLFramebufferAttachment::Invalidate()
+	{
+		QK_PROFILE_FUNCTION();
+
+		if (m_RendererID)
+		{
+			glDeleteTextures(1, &m_RendererID);
+		}
+
 		glGenTextures(1, &m_RendererID);
 
 		bool multisampled = m_Spec.Samples > 1;
@@ -60,23 +93,9 @@ namespace Quark {
 		}
 	}
 
-	OpenGLFramebufferAttachment::~OpenGLFramebufferAttachment()
-	{
-		glDeleteTextures(1, &m_RendererID);
-	}
-
-	void OpenGLFramebufferAttachment::SetData(const void* data)
-	{
-		QK_CORE_ASSERT(false, "TODO: invalidate framebuffer attachment");
-	}
-
-	bool OpenGLFramebufferAttachment::operator==(const FramebufferAttachment& other) const
-	{
-		if (auto* o = dynamic_cast<decltype(this)>(&other))
-			return m_RendererID == o->m_RendererID;
-
-		return false;
-	}
+	///////////////////////////////////////////////////////////////////////////////////
+	// OpenGlFramebuffer
+	//
 
 	GLuint s_ActiveFramebuffer = 0;
 
@@ -109,6 +128,11 @@ namespace Quark {
 
 		m_Spec.Width = width;
 		m_Spec.Height = height;
+
+		for (auto& attachment : m_Spec.Attachments)
+		{
+			attachment->Resize(width, height);
+		}
 
 		Invalidate();
 	}
@@ -162,7 +186,6 @@ namespace Quark {
 			{
 				// Depth stencil format
 				GLenum attachmentTarget = Utils::GetDepthAttachmentTarget(attachment->GetSpecification().DataFormat);
-
 				glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentTarget, openglAttachment->GetTarget(), openglAttachment->GetRendererID(), 0);
 			}
 			else

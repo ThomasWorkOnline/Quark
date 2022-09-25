@@ -119,7 +119,7 @@ namespace Quark {
 
 	Scope<FramebufferAttachment> VulkanGraphicsAPI::CreateFramebufferAttachment(const FramebufferAttachmentSpecification& spec)
 	{
-		return CreateScope<VulkanFramebufferAttachment>(VulkanContext::GetCurrentDevice(), spec);
+		return CreateScope<VulkanFramebufferAttachment>(VulkanContext::GetCurrentDevice(), nullptr, spec);
 	}
 
 	Scope<Shader> VulkanGraphicsAPI::CreateShader(std::string_view filepath)

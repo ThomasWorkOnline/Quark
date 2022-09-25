@@ -31,8 +31,11 @@ namespace Quark {
 		Red8,
 
 		// Depth stencil formats
+		Depth16,
 		Depth24,
-		Depth24Stencil8
+		Depth24Stencil8,
+
+		Depth32f
 	};
 
 	enum class SamplerFilterMode

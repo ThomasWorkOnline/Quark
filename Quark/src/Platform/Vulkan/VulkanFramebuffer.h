@@ -11,20 +11,27 @@ namespace Quark {
 	{
 	public:
 		VulkanFramebufferAttachment() = default;
-		VulkanFramebufferAttachment(VulkanDevice* device, const FramebufferAttachmentSpecification& spec);
-		VulkanFramebufferAttachment(VulkanDevice* device, VkImage image, VkFormat format);
+		VulkanFramebufferAttachment(VulkanDevice* device, VkImage image, const FramebufferAttachmentSpecification& spec);
 		virtual ~VulkanFramebufferAttachment() final override;
 
-		virtual void SetData(const void* data) final override;
+		virtual void Resize(uint32_t width, uint32_t height) final override;
 
 		virtual bool operator==(const FramebufferAttachment& other) const final override;
+
+		void SetImage(VkImage image);
 
 		VkImageView GetVkHandle() const { return m_ImageView; }
 
 	private:
+		void Invalidate();
+
+	private:
 		VulkanDevice* m_Device = nullptr;
+		VkImage m_Image = nullptr;
 		VkImageView m_ImageView = nullptr;
-		VkFormat m_Format{};
+		VkDeviceMemory m_BufferMemory = nullptr;
+
+		bool m_IsFromSwapChain = false;
 	};
 
 	class VulkanFramebuffer final : public Framebuffer

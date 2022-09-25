@@ -1,7 +1,47 @@
 #include "qkpch.h"
 #include "VulkanSwapChain.h"
 
+#include "VulkanEnums.h"
+
 namespace Quark {
+
+	namespace Utils {
+
+		static ColorFormat VulkanFormatToColorFormat(VkFormat format)
+		{
+			switch (format)
+			{
+				case VK_FORMAT_R8G8B8_UNORM:        return ColorFormat::RGB8;
+				case VK_FORMAT_R16G16B16_UNORM:     return ColorFormat::RGB16;
+				case VK_FORMAT_R32G32B32_UINT:      return ColorFormat::RGB32UInt;
+
+				case VK_FORMAT_R8G8B8A8_UNORM:      return ColorFormat::RGBA8;
+				case VK_FORMAT_R16G16B16A16_UNORM:  return ColorFormat::RGBA16;
+
+				case VK_FORMAT_R8G8B8_SRGB:         return ColorFormat::RGB8SRGB;
+				case VK_FORMAT_R8G8B8A8_SRGB:       return ColorFormat::RGBA8SRGB;
+
+				case VK_FORMAT_B8G8R8_SRGB:         return ColorFormat::BGR8SRGB;
+				case VK_FORMAT_B8G8R8A8_SRGB:       return ColorFormat::BGRA8SRGB;
+
+				case VK_FORMAT_R16G16B16_SFLOAT:    return ColorFormat::RGB16f;
+				case VK_FORMAT_R32G32B32_SFLOAT:    return ColorFormat::RGB32f;
+				case VK_FORMAT_R16G16B16A16_SFLOAT: return ColorFormat::RGBA16f;
+				case VK_FORMAT_R32G32B32A32_SFLOAT: return ColorFormat::RGBA32f;
+
+				case VK_FORMAT_R8_UNORM:            return ColorFormat::Red8;
+
+				case VK_FORMAT_D16_UNORM:           return ColorFormat::Depth16;
+				case VK_FORMAT_D24_UNORM_S8_UINT:   return ColorFormat::Depth24Stencil8;
+
+				case VK_FORMAT_D32_SFLOAT:          return ColorFormat::Depth32f;
+
+				QK_ASSERT_NO_DEFAULT("Unknown VkFormat");
+			}
+
+			return ColorFormat::None;
+		}
+	}
 
 	VulkanSwapChain::VulkanSwapChain(VulkanDevice* device, VkSurfaceKHR surface, const VulkanSwapChainSpecification& spec)
 		: m_Device(device), m_Surface(surface), m_Spec(spec)
@@ -92,22 +132,25 @@ namespace Quark {
 		m_SwapChainImages.resize(imageCount);
 		vkGetSwapchainImagesKHR(m_Device->GetVkHandle(), m_SwapChain, &imageCount, m_SwapChainImages.data());
 
-		bool invalidated = isNew || imageCount != m_Attachments.size();
+		bool invalidated = isNew || imageCount != m_ColorAttachments.size();
 		if (invalidated)
 		{
-			m_Attachments.clear();
-			m_Attachments.reserve(imageCount);
+			m_ColorAttachments.clear();
+			m_ColorAttachments.reserve(imageCount);
+
+			FramebufferAttachmentSpecification spec;
+			spec.DataFormat = Utils::VulkanFormatToColorFormat(m_Spec.SurfaceFormat.format);
+			spec.Width = m_Spec.Extent.width;
+			spec.Height = m_Spec.Extent.height;
+			spec.Samples = 1;
+
 			for (size_t i = 0; i < imageCount; i++)
-			{
-				m_Attachments.emplace_back(m_Device, m_SwapChainImages[i], m_Spec.SurfaceFormat.format);
-			}
+				m_ColorAttachments.emplace_back(m_Device, m_SwapChainImages[i], spec);
 		}
 		else
 		{
 			for (size_t i = 0; i < imageCount; i++)
-			{
-				m_Attachments[i].SetData(m_SwapChainImages[i]);
-			}
+				m_ColorAttachments[i].SetImage(m_SwapChainImages[i]);
 		}
 	}
 }

@@ -105,18 +105,18 @@ namespace Quark {
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 		renderPassInfo.renderPass = vkRenderPass;
 		renderPassInfo.framebuffer = vkFramebuffer;
-		
-		// Must be size of framebuffer
 		renderPassInfo.renderArea.offset = VkOffset2D{ 0, 0 };
 		renderPassInfo.renderArea.extent = VkExtent2D{ framebuffer->GetWidth(), framebuffer->GetHeight() };
 
-		VkClearValue clearValue{};
+		VkClearValue clearValues[2]{};
 		if (renderPass->GetSpecification().ClearBuffers)
 		{
-			auto& color = renderPass->GetSpecification().ClearColor;
-			clearValue.color = { color.r, color.g, color.b, color.a };
-			renderPassInfo.clearValueCount = 1;
-			renderPassInfo.pClearValues = &clearValue;
+			auto& clearColor = renderPass->GetSpecification().ClearColor;
+			clearValues[0].color = { clearColor.r, clearColor.g, clearColor.b, clearColor.a };
+			clearValues[1].depthStencil = { 0.0f, 0 };
+
+			renderPassInfo.clearValueCount = sizeof_array(clearValues);
+			renderPassInfo.pClearValues = clearValues;
 		}
 
 		vkCmdBeginRenderPass(m_CommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);

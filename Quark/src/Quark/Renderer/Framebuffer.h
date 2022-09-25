@@ -22,7 +22,7 @@ namespace Quark {
 		FramebufferAttachment(const FramebufferAttachmentSpecification& spec);
 		virtual ~FramebufferAttachment() = default;
 
-		virtual void SetData(const void* data) = 0;
+		virtual void Resize(uint32_t width, uint32_t height) = 0;
 
 		virtual bool operator==(const FramebufferAttachment& other) const = 0;
 

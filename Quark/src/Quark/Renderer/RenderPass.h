@@ -15,7 +15,8 @@ namespace Quark {
 	struct RenderPassSpecification
 	{
 		PipelineBindPoint BindPoint{};
-		ColorFormat       ColorFormat{};
+		ColorFormat       ColorAttachmentFormat{};
+		ColorFormat       DepthAttachmentFormat{};
 		uint32_t          Samples;
 		Vec4f             ClearColor{};
 		bool              ClearBuffers = false;

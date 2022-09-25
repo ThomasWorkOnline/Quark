@@ -14,7 +14,7 @@ namespace Quark {
 		OpenGLFramebufferAttachment(const FramebufferAttachmentSpecification& spec);
 		virtual ~OpenGLFramebufferAttachment() final override;
 
-		virtual void SetData(const void* data) final override;
+		virtual void Resize(uint32_t width, uint32_t height) final override;
 
 		virtual bool operator==(const FramebufferAttachment& other) const final override;
 
@@ -24,6 +24,9 @@ namespace Quark {
 
 		GLuint GetRendererID() const { return m_RendererID; }
 		GLenum GetTarget() const { return m_Target; }
+
+	private:
+		void Invalidate();
 
 	private:
 		GLuint m_RendererID = 0;

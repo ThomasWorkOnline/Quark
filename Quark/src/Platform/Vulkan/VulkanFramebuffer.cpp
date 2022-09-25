@@ -5,50 +5,33 @@
 #include "VulkanRenderPass.h"
 #include "VulkanUtils.h"
 
+#include "Quark/Renderer/Renderer.h"
+
 namespace Quark {
 
-	VulkanFramebufferAttachment::VulkanFramebufferAttachment(VulkanDevice* device, const FramebufferAttachmentSpecification& spec)
-		: FramebufferAttachment(spec), m_Device(device)
+	VulkanFramebufferAttachment::VulkanFramebufferAttachment(VulkanDevice* device, VkImage image, const FramebufferAttachmentSpecification& spec)
+		: FramebufferAttachment(spec), m_Device(device), m_Image(image), m_IsFromSwapChain(image)
 	{
-	}
-
-	VulkanFramebufferAttachment::VulkanFramebufferAttachment(VulkanDevice* device, VkImage image, VkFormat format)
-		: m_Device(device), m_Format(format)
-	{
-		VkImageViewCreateInfo imageViewInfo{};
-		imageViewInfo.sType                           = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		imageViewInfo.image                           = image;
-		imageViewInfo.viewType                        = VK_IMAGE_VIEW_TYPE_2D;
-		imageViewInfo.format                          = m_Format;
-		imageViewInfo.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
-		imageViewInfo.subresourceRange.baseMipLevel   = 0;
-		imageViewInfo.subresourceRange.levelCount     = 1;
-		imageViewInfo.subresourceRange.baseArrayLayer = 0;
-		imageViewInfo.subresourceRange.layerCount     = 1;
-
-		vkCreateImageView(m_Device->GetVkHandle(), &imageViewInfo, nullptr, &m_ImageView);
+		Invalidate();
 	}
 
 	VulkanFramebufferAttachment::~VulkanFramebufferAttachment()
 	{
+		if (!m_IsFromSwapChain)
+		{
+			vkDestroyImage(m_Device->GetVkHandle(), m_Image, nullptr);
+			vkFreeMemory(m_Device->GetVkHandle(), m_BufferMemory, nullptr);
+		}
+
 		vkDestroyImageView(m_Device->GetVkHandle(), m_ImageView, nullptr);
 	}
 
-	void VulkanFramebufferAttachment::SetData(const void* data)
+	void VulkanFramebufferAttachment::Resize(uint32_t width, uint32_t height)
 	{
-		VkImageViewCreateInfo imageViewInfo{};
-		imageViewInfo.sType                           = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		imageViewInfo.image                           = (VkImage)data;
-		imageViewInfo.viewType                        = VK_IMAGE_VIEW_TYPE_2D;
-		imageViewInfo.format                          = m_Format;
-		imageViewInfo.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
-		imageViewInfo.subresourceRange.baseMipLevel   = 0;
-		imageViewInfo.subresourceRange.levelCount     = 1;
-		imageViewInfo.subresourceRange.baseArrayLayer = 0;
-		imageViewInfo.subresourceRange.layerCount     = 1;
+		m_Spec.Width = width;
+		m_Spec.Height = height;
 
-		vkDestroyImageView(m_Device->GetVkHandle(), m_ImageView, nullptr);
-		vkCreateImageView(m_Device->GetVkHandle(), &imageViewInfo, nullptr, &m_ImageView);
+		Invalidate();
 	}
 
 	bool VulkanFramebufferAttachment::operator==(const FramebufferAttachment& other) const
@@ -59,6 +42,68 @@ namespace Quark {
 		return false;
 	}
 
+	void VulkanFramebufferAttachment::SetImage(VkImage image)
+	{
+		if (!m_IsFromSwapChain)
+		{
+			vkDestroyImage(m_Device->GetVkHandle(), m_Image, nullptr);
+			vkFreeMemory(m_Device->GetVkHandle(), m_BufferMemory, nullptr);
+		}
+
+		vkDestroyImageView(m_Device->GetVkHandle(), m_ImageView, nullptr);
+
+		m_Image = image;
+
+		VkImageViewCreateInfo imageViewInfo{};
+		imageViewInfo.sType                       = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		imageViewInfo.image                       = m_Image;
+		imageViewInfo.viewType                    = VK_IMAGE_VIEW_TYPE_2D;
+		imageViewInfo.format                      = DataFormatToVulkan(m_Spec.DataFormat);
+		imageViewInfo.subresourceRange.aspectMask = GetVulkanAspectFlags(m_Spec.DataFormat);
+		imageViewInfo.subresourceRange.levelCount = 1;
+		imageViewInfo.subresourceRange.layerCount = 1;
+
+		vkCreateImageView(m_Device->GetVkHandle(), &imageViewInfo, nullptr, &m_ImageView);
+	}
+
+	void VulkanFramebufferAttachment::Invalidate()
+	{
+		QK_PROFILE_FUNCTION();
+
+		VkFormat format = DataFormatToVulkan(m_Spec.DataFormat);
+
+		if (!m_IsFromSwapChain)
+		{
+			vkDestroyImage(m_Device->GetVkHandle(), m_Image, nullptr);
+			vkFreeMemory(m_Device->GetVkHandle(), m_BufferMemory, nullptr);
+
+			VkExtent3D imageExtent{};
+			imageExtent.width = m_Spec.Width;
+			imageExtent.height = m_Spec.Height;
+			imageExtent.depth = 1;
+
+			m_Image = Utils::AllocateImage(m_Device, imageExtent, 1, 1, m_Spec.Samples, format,
+				GetVulkanImageUsageFlags(m_Spec.DataFormat),
+				VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_BufferMemory);
+		}
+
+		// Image view allocation
+		{
+			vkDestroyImageView(m_Device->GetVkHandle(), m_ImageView, nullptr);
+
+			VkImageViewCreateInfo info{};
+			info.sType                       = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+			info.image                       = m_Image;
+			info.viewType                    = VK_IMAGE_VIEW_TYPE_2D;
+			info.format                      = format;
+			info.subresourceRange.aspectMask = GetVulkanAspectFlags(m_Spec.DataFormat);
+			info.subresourceRange.levelCount = 1;
+			info.subresourceRange.layerCount = 1;
+
+			vkCreateImageView(m_Device->GetVkHandle(), &info, nullptr, &m_ImageView);
+		}
+	}
+
 	///////////////////////////////////////////////////////////////////////////////////
 	// VulkanFramebuffer
 	//
@@ -67,6 +112,9 @@ namespace Quark {
 		: Framebuffer(spec)
 		, m_Device(device)
 	{
+		QK_CORE_ASSERT(m_Spec.Attachments.size(), "Attachment Count must be non zero");
+		QK_CORE_ASSERT(m_Spec.RenderPass, "RenderPass must be a valid pointer to a render pass");
+
 		Invalidate();
 	}
 
@@ -77,10 +125,20 @@ namespace Quark {
 
 	void VulkanFramebuffer::Resize(uint32_t width, uint32_t height)
 	{
-		if (width == 0 || height == 0) return;
+		auto& capabilities = Renderer::GetCapabilities();
+		if (width == 0 || height == 0 || width > capabilities.Framebuffer.MaxWidth || height > capabilities.Framebuffer.MaxHeight)
+		{
+			QK_CORE_WARN("Attempted to resize a framebuffer with invalid dimensions: {0}, {1}", width, height);
+			return;
+		}
 
 		m_Spec.Width = width;
 		m_Spec.Height = height;
+
+		for (auto& attachment : m_Spec.Attachments)
+		{
+			attachment->Resize(width, height);
+		}
 
 		Invalidate();
 	}
@@ -95,17 +153,18 @@ namespace Quark {
 
 	void VulkanFramebuffer::Invalidate()
 	{
-		QK_CORE_ASSERT(m_Spec.Attachments.size(), "Attachment Count must be non zero");
-		QK_CORE_ASSERT(m_Spec.RenderPass, "RenderPass must be a valid pointer to a render pass");
+		QK_PROFILE_FUNCTION();
 
 		AutoRelease<VkImageView> attachments = StackAlloc(m_Spec.Attachments.size() * sizeof(VkImageView));
-		VkImageView* attachmentPtr = attachments;
 
+		uint32_t attachmentIndex = 0;
 		for (auto* attachment : m_Spec.Attachments)
 		{
-			*attachmentPtr = static_cast<VulkanFramebufferAttachment*>(attachment)->GetVkHandle();
-			attachmentPtr++;
+			attachments[attachmentIndex] = static_cast<VulkanFramebufferAttachment*>(attachment)->GetVkHandle();
+			attachmentIndex++;
 		}
+
+		vkDestroyFramebuffer(m_Device->GetVkHandle(), m_Framebuffer, nullptr);
 
 		VkFramebufferCreateInfo framebufferInfo{};
 		framebufferInfo.sType           = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -116,7 +175,6 @@ namespace Quark {
 		framebufferInfo.height          = m_Spec.Height;
 		framebufferInfo.layers          = 1;
 
-		vkDestroyFramebuffer(m_Device->GetVkHandle(), m_Framebuffer, nullptr);
 		vkCreateFramebuffer(m_Device->GetVkHandle(), &framebufferInfo, nullptr, &m_Framebuffer);
 	}
 }

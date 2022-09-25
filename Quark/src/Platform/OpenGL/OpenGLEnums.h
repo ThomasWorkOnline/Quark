@@ -11,116 +11,125 @@
 namespace Quark {
 
 	inline constexpr GLenum s_OpenGLBaseShaderDataTypeLUT[] = {
-		/*None*/            GL_NONE,
-
-		/*Float*/           GL_FLOAT,
-		/*Float2*/          GL_FLOAT,
-		/*Float3*/          GL_FLOAT,
-		/*Float4*/          GL_FLOAT,
-
-		/*Double*/          GL_DOUBLE,
-		/*Double2*/         GL_DOUBLE,
-		/*Double3*/         GL_DOUBLE,
-		/*Double4*/         GL_DOUBLE,
-
-		/*Mat3f*/           GL_FLOAT,
-		/*Mat4f*/           GL_FLOAT,
-		/*Mat3d*/           GL_DOUBLE,
-		/*Mat4d*/           GL_DOUBLE,
-
-		/*Int*/             GL_INT,
-		/*Int2*/            GL_INT,
-		/*Int3*/            GL_INT,
-		/*Int4*/            GL_INT,
-		/*Bool*/            GL_BOOL
+		/*None*/                 GL_NONE,
+							     
+		/*Float*/                GL_FLOAT,
+		/*Float2*/               GL_FLOAT,
+		/*Float3*/               GL_FLOAT,
+		/*Float4*/               GL_FLOAT,
+							     
+		/*Double*/               GL_DOUBLE,
+		/*Double2*/              GL_DOUBLE,
+		/*Double3*/              GL_DOUBLE,
+		/*Double4*/              GL_DOUBLE,
+							     
+		/*Mat3f*/                GL_FLOAT,
+		/*Mat4f*/                GL_FLOAT,
+		/*Mat3d*/                GL_DOUBLE,
+		/*Mat4d*/                GL_DOUBLE,
+							     
+		/*Int*/                  GL_INT,
+		/*Int2*/                 GL_INT,
+		/*Int3*/                 GL_INT,
+		/*Int4*/                 GL_INT,
+		/*Bool*/                 GL_BOOL
 	};
 
 	inline constexpr GLenum s_OpenGLCullModeLUT[] = {
-		/*None*/            GL_NONE,
-		/*Front*/           GL_FRONT,
-		/*Back*/            GL_BACK,
-		/*FrontAndBack*/    GL_FRONT_AND_BACK
+		/*None*/                 GL_NONE,
+		/*Front*/                GL_FRONT,
+		/*Back*/                 GL_BACK,
+		/*FrontAndBack*/         GL_FRONT_AND_BACK
 	};
 
 	inline constexpr GLenum s_OpenGLDataFormatLUT[] = {
-		/*None*/            GL_NONE,
-
-		/*RGB8*/            GL_UNSIGNED_BYTE,
-		/*RGB16*/           GL_UNSIGNED_BYTE,
-		/*RGB32UInt*/       GL_UNSIGNED_INT,
-
-		/*RGBA8*/           GL_UNSIGNED_BYTE,
-		/*RGBA16*/          GL_UNSIGNED_BYTE,
-
-		/*RGB8SRGB*/        GL_UNSIGNED_BYTE,
-		/*RGBA8SRGB*/       GL_UNSIGNED_BYTE,
-
-		/*BGR8SRGB*/        GL_UNSIGNED_BYTE,
-		/*BGRA8SRGB*/       GL_UNSIGNED_BYTE,
-
-		/*RGB16f*/          GL_FLOAT,
-		/*RGB32f*/          GL_FLOAT,
-		/*RGBA16f*/         GL_FLOAT,
-		/*RGBA32f*/         GL_FLOAT,
-
-		/*Red8*/            GL_UNSIGNED_BYTE,
-
-		/*Depth24*/         GL_UNSIGNED_BYTE,
-		/*Depth24Stencil8*/ GL_UNSIGNED_BYTE
+		/*None*/                 GL_NONE,
+							     
+		/*RGB8*/                 GL_UNSIGNED_BYTE,
+		/*RGB16*/                GL_UNSIGNED_BYTE,
+		/*RGB32UInt*/            GL_UNSIGNED_INT,
+							     
+		/*RGBA8*/                GL_UNSIGNED_BYTE,
+		/*RGBA16*/               GL_UNSIGNED_BYTE,
+							     
+		/*RGB8SRGB*/             GL_UNSIGNED_BYTE,
+		/*RGBA8SRGB*/            GL_UNSIGNED_BYTE,
+							     
+		/*BGR8SRGB*/             GL_UNSIGNED_BYTE,
+		/*BGRA8SRGB*/            GL_UNSIGNED_BYTE,
+							     
+		/*RGB16f*/               GL_FLOAT,
+		/*RGB32f*/               GL_FLOAT,
+		/*RGBA16f*/              GL_FLOAT,
+		/*RGBA32f*/              GL_FLOAT,
+							     
+		/*Red8*/                 GL_UNSIGNED_BYTE,
+							     
+		/*Depth16*/              GL_UNSIGNED_BYTE,
+		/*Depth24*/              GL_UNSIGNED_BYTE,
+		/*Depth24Stencil8*/      GL_UNSIGNED_BYTE,
+							     
+		/*Depth32f*/             GL_FLOAT
 	};
 
 	inline constexpr GLenum s_OpenGLStorageFormatLUT[] = {
-		/*None*/            GL_NONE,
-
-		/*RGB8*/            GL_RGB,
-		/*RGB16*/           GL_RGB,
-		/*RGB32UInt*/       GL_RGB_INTEGER,
-
-		/*RGBA8*/           GL_RGBA,
-		/*RGBA16*/          GL_RGBA,
-
-		/*RGB8SRGB*/        GL_RGB,
-		/*RGBA8SRGB*/       GL_RGBA,
-
-		/*BGR8SRGB*/        GL_BGR,
-		/*BGRA8SRGB*/       GL_BGRA,
-
-		/*RGB16f*/          GL_RGB,
-		/*RGB32f*/          GL_RGB,
-		/*RGBA16f*/         GL_RGBA,
-		/*RGBA32f*/         GL_RGBA,
-
-		/*Red8*/            GL_RED,
-
-		/*Depth24*/         GL_DEPTH_COMPONENT,
-		/*Depth24Stencil8*/ GL_DEPTH_STENCIL
+		/*None*/                 GL_NONE,
+							     
+		/*RGB8*/                 GL_RGB,
+		/*RGB16*/                GL_RGB,
+		/*RGB32UInt*/            GL_RGB_INTEGER,
+							     
+		/*RGBA8*/                GL_RGBA,
+		/*RGBA16*/               GL_RGBA,
+							     
+		/*RGB8SRGB*/             GL_RGB,
+		/*RGBA8SRGB*/            GL_RGBA,
+							     
+		/*BGR8SRGB*/             GL_BGR,
+		/*BGRA8SRGB*/            GL_BGRA,
+							     
+		/*RGB16f*/               GL_RGB,
+		/*RGB32f*/               GL_RGB,
+		/*RGBA16f*/              GL_RGBA,
+		/*RGBA32f*/              GL_RGBA,
+							     
+		/*Red8*/                 GL_RED,
+							     
+		/*Depth16*/              GL_DEPTH,
+		/*Depth24*/              GL_DEPTH,
+		/*Depth24Stencil8*/      GL_DEPTH_STENCIL,
+							     
+		/*Depth32f*/             GL_DEPTH
 	};
 
 	inline constexpr GLenum s_OpenGLInternalFormatLUT[] = {
-		/*None*/            GL_NONE,
-
-		/*RGB8*/            GL_RGB8,
-		/*RGB16*/           GL_RGB16,
-		/*RGB32UInt*/       GL_RGB32UI,
-
-		/*RGBA8*/           GL_RGBA8,
-		/*RGBA16*/          GL_RGBA16,
-
-		/*RGB8SRGB*/        GL_SRGB8,
-		/*RGBA8SRGB*/       GL_SRGB8_ALPHA8,
-
-		/*BGR8SRGB*/        GL_SRGB8,
-		/*BGRA8SRGB*/       GL_SRGB8_ALPHA8,
-
-		/*RGB16f*/          GL_RGB16F,
-		/*RGB32f*/          GL_RGB32F,
-		/*RGBA16f*/         GL_RGBA16F,
-		/*RGBA32f*/         GL_RGBA32F,
-
-		/*Red8*/            GL_R8,
-
-		/*Depth24*/         GL_DEPTH_COMPONENT24,
-		/*Depth24Stencil8*/ GL_DEPTH24_STENCIL8
+		/*None*/                 GL_NONE,
+							     
+		/*RGB8*/                 GL_RGB8,
+		/*RGB16*/                GL_RGB16,
+		/*RGB32UInt*/            GL_RGB32UI,
+							     
+		/*RGBA8*/                GL_RGBA8,
+		/*RGBA16*/               GL_RGBA16,
+							     
+		/*RGB8SRGB*/             GL_SRGB8,
+		/*RGBA8SRGB*/            GL_SRGB8_ALPHA8,
+							     
+		/*BGR8SRGB*/             GL_SRGB8,
+		/*BGRA8SRGB*/            GL_SRGB8_ALPHA8,
+							     
+		/*RGB16f*/               GL_RGB16F,
+		/*RGB32f*/               GL_RGB32F,
+		/*RGBA16f*/              GL_RGBA16F,
+		/*RGBA32f*/              GL_RGBA32F,
+							     
+		/*Red8*/                 GL_R8,
+							     
+		/*Depth16*/              GL_DEPTH_COMPONENT16,
+		/*Depth24*/              GL_DEPTH_COMPONENT24,
+		/*Depth24Stencil8*/      GL_DEPTH24_STENCIL8,
+							     
+		/*Depth32f*/             GL_DEPTH_COMPONENT32F
 	};
 
 	inline constexpr GLenum s_DepthFunctionLUT[] = {

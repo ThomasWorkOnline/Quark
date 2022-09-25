@@ -11,6 +11,66 @@
 
 namespace Quark {
 
+	inline constexpr VkImageUsageFlags s_VulkanImageUsageFlagsLUT[] = {
+		/*None*/                 VK_IMAGE_USAGE_FLAG_BITS_MAX_ENUM,
+
+		/*RGB8*/                 VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+		/*RGB16*/                VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+		/*RGB32UInt*/            VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+
+		/*RGBA8*/                VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+		/*RGBA16*/               VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+
+		/*RGB8SRGB*/             VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+		/*RGBA8SRGB*/            VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+
+		/*BGR8SRGB*/             VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+		/*BGRA8SRGB*/            VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+
+		/*RGB16f*/               VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+		/*RGB32f*/               VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+		/*RGBA16f*/              VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+		/*RGBA32f*/              VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+
+		/*Red8*/                 VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+
+		/*Depth16*/              VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+		/*Depth24*/              VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+		/*Depth24Stencil8*/      VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+
+		/*Depth32f*/             VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT
+	};
+
+	inline constexpr VkImageAspectFlags s_VulkanAspectFlagsLUT[] = {
+		/*None*/                 VK_IMAGE_ASPECT_NONE,
+
+		/*RGB8*/                 VK_IMAGE_ASPECT_COLOR_BIT,
+		/*RGB16*/                VK_IMAGE_ASPECT_COLOR_BIT,
+		/*RGB32UInt*/            VK_IMAGE_ASPECT_COLOR_BIT,
+
+		/*RGBA8*/                VK_IMAGE_ASPECT_COLOR_BIT,
+		/*RGBA16*/               VK_IMAGE_ASPECT_COLOR_BIT,
+
+		/*RGB8SRGB*/             VK_IMAGE_ASPECT_COLOR_BIT,
+		/*RGBA8SRGB*/            VK_IMAGE_ASPECT_COLOR_BIT,
+
+		/*BGR8SRGB*/             VK_IMAGE_ASPECT_COLOR_BIT,
+		/*BGRA8SRGB*/            VK_IMAGE_ASPECT_COLOR_BIT,
+
+		/*RGB16f*/               VK_IMAGE_ASPECT_COLOR_BIT,
+		/*RGB32f*/               VK_IMAGE_ASPECT_COLOR_BIT,
+		/*RGBA16f*/              VK_IMAGE_ASPECT_COLOR_BIT,
+		/*RGBA32f*/              VK_IMAGE_ASPECT_COLOR_BIT,
+
+		/*Red8*/                 VK_IMAGE_ASPECT_COLOR_BIT,
+
+		/*Depth16*/              VK_IMAGE_ASPECT_DEPTH_BIT,
+		/*Depth24*/              VK_IMAGE_ASPECT_DEPTH_BIT,
+		/*Depth24Stencil8*/      VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT,
+
+		/*Depth32f*/             VK_IMAGE_ASPECT_DEPTH_BIT
+	};
+
 	inline constexpr VkFormat s_VulkanBaseShaderDataTypeLUT[] = {
 		/*None*/                 VK_FORMAT_UNDEFINED,
 		/*Float*/                VK_FORMAT_R32_SFLOAT,
@@ -69,9 +129,12 @@ namespace Quark {
 		/*RGBA32f*/              VK_FORMAT_R32G32B32A32_SFLOAT,
 							     
 		/*Red8*/                 VK_FORMAT_R8_UNORM,
-							     
+					
+		/*Depth16*/              VK_FORMAT_D16_UNORM,
 		/*Depth24*/              VK_FORMAT_D24_UNORM_S8_UINT,
-		/*Depth24Stencil8*/      VK_FORMAT_D24_UNORM_S8_UINT
+		/*Depth24Stencil8*/      VK_FORMAT_D24_UNORM_S8_UINT,
+
+		/*Depth32f*/             VK_FORMAT_D32_SFLOAT
 	};
 
 	inline constexpr VkCompareOp s_DepthCompareFunctionLUT[] = {
@@ -144,6 +207,16 @@ namespace Quark {
 		/*Fragment*/             VK_SHADER_STAGE_FRAGMENT_BIT,
 		/*Compute*/              VK_SHADER_STAGE_COMPUTE_BIT
 	};
+
+	constexpr VkImageUsageFlags GetVulkanImageUsageFlags(ColorFormat format)
+	{
+		return s_VulkanImageUsageFlagsLUT[static_cast<size_t>(format)];
+	}
+
+	constexpr VkImageAspectFlags GetVulkanAspectFlags(ColorFormat format)
+	{
+		return s_VulkanAspectFlagsLUT[static_cast<size_t>(format)];
+	}
 
 	constexpr VkAttachmentLoadOp GetVulkanLoadOrClearOp(bool clear)
 	{

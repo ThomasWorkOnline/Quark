@@ -214,7 +214,7 @@ namespace Quark {
 
 	FramebufferAttachment* VulkanContextBase::GetColorAttachment(uint32_t index) const
 	{
-		return m_SwapChain->GetAttachment(index);
+		return m_SwapChain->GetColorAttachment(index);
 	}
 
 	uint32_t VulkanContextBase::GetCurrentImageIndex() const
