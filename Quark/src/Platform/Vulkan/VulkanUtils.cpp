@@ -161,7 +161,6 @@ namespace Quark {
 
 			VkImageSubresourceRange range{};
 			range.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
-			range.baseMipLevel   = 1;
 			range.levelCount     = levelCount;
 			range.baseArrayLayer = baseLayer;
 			range.layerCount     = layerCount;

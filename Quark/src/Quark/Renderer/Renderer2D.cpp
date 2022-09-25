@@ -392,7 +392,6 @@ namespace Quark {
 		if (s_Data->QuadIndexCount > 0)
 		{
 			Renderer::BindPipeline(s_Data->QuadRendererPipeline.get());
-			Renderer::GetCommandBuffer()->BindUniformBuffer(s_Data->CameraUniformBuffer.get(), 0);
 
 			size_t size = ((uint8_t*)s_Data->QuadVertexPtr - (uint8_t*)s_Data->QuadVertices);
 			s_Data->QuadVertexBuffer->SetData(s_Data->QuadVertices, size);
@@ -406,6 +405,9 @@ namespace Quark {
 			for (uint32_t i = 0; i < s_Data->MaxSamplerDestinations; i++)
 				Renderer::GetCommandBuffer()->BindTexture(s_Data->Textures[i], s_Data->Samplers[i].get(), 1, i);
 
+			Renderer::GetCommandBuffer()->BindUniformBuffer(s_Data->CameraUniformBuffer.get(), 0);
+			Renderer::GetCommandBuffer()->BindDescriptorSets();
+
 			Renderer::Submit(s_Data->QuadVertexBuffer.get(), s_Data->QuadIndexBuffer.get(), s_Data->QuadIndexCount);
 			s_Stats.DrawCalls++;
 		}
@@ -413,11 +415,13 @@ namespace Quark {
 		if (uint32_t vertexCount = (uint32_t)(s_Data->LineVertexPtr - s_Data->LineVertices))
 		{
 			Renderer::BindPipeline(s_Data->LineRendererPipeline.get());
-			Renderer::GetCommandBuffer()->SetLineWidth(1.0f);
-			Renderer::GetCommandBuffer()->BindUniformBuffer(s_Data->CameraUniformBuffer.get(), 0);
 
 			size_t size = ((uint8_t*)s_Data->LineVertexPtr - (uint8_t*)s_Data->LineVertices);
 			s_Data->LineVertexBuffer->SetData(s_Data->LineVertices, size);
+
+			Renderer::GetCommandBuffer()->SetLineWidth(1.0f);
+			Renderer::GetCommandBuffer()->BindUniformBuffer(s_Data->CameraUniformBuffer.get(), 0);
+			Renderer::GetCommandBuffer()->BindDescriptorSets();
 
 			Renderer::Submit(s_Data->LineVertexBuffer.get(), vertexCount);
 			s_Stats.DrawCalls++;

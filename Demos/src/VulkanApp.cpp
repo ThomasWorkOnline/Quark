@@ -5,7 +5,7 @@ VulkanApp::VulkanApp(const ApplicationOptions& options)
 	: Application(options)
 {
 	m_Scene = CreateRef<PresentableScene>();
-	m_Scene->GetSettings().GlobalFrictionCoeff = 0.0f;
+	m_Scene->GetSettings().GlobalFrictionCoeff = 4.0f;
 	m_CameraEntity = m_Scene->CreatePrimaryCamera();
 	m_CameraEntity.AddNativeScript<CameraController>();
 
@@ -67,7 +67,6 @@ void VulkanApp::OnRender()
 
 	if (m_PositionOverlay)
 	{
-		glm::identity<glm::mat4>();
 		Renderer2D::BeginScene(m_TextCamera.GetProjection(), Mat4f(1.f));
 
 		auto& pos = m_CameraEntity.GetComponent<Transform3DComponent>().Position;
