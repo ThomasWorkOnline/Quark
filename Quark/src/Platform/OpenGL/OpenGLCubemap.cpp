@@ -35,6 +35,7 @@ namespace Quark {
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+		QK_CORE_ASSERT(glIsTexture(m_RendererID), "Cubemap is incomplete!");
 		QK_DEBUG_CALL(glBindTexture(GL_TEXTURE_CUBE_MAP, 0));
 	}
 
@@ -43,17 +44,6 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		glDeleteTextures(1, &m_RendererID);
-	}
-
-	void OpenGLCubemap::Attach(uint32_t textureSlot) const
-	{
-		glActiveTexture(GL_TEXTURE0 + textureSlot);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, m_RendererID);
-	}
-
-	void OpenGLCubemap::Detach() const
-	{
-		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 	}
 
 	void OpenGLCubemap::SetData(uint32_t index, const void* data, size_t size)
@@ -68,9 +58,11 @@ namespace Quark {
 		glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + index, 0, 0, 0, m_Spec.Width, m_Spec.Height,
 			DataFormatToOpenGLStorageFormat(m_Spec.DataFormat),
 			DataFormatToOpenGLDataType(m_Spec.DataFormat), data);
+
+		QK_DEBUG_CALL(glBindTexture(GL_TEXTURE_CUBE_MAP, 0));
 	}
 
-	bool OpenGLCubemap::operator==(const Cubemap& other) const
+	bool OpenGLCubemap::operator==(const Texture& other) const
 	{
 		if (auto* o = dynamic_cast<decltype(this)>(&other))
 			return m_RendererID == o->m_RendererID;

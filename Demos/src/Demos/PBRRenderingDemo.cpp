@@ -89,7 +89,7 @@ PBRRenderingDemo::PBRRenderingDemo(const ApplicationOptions& options)
 	m_PBRShader->SetVec3f("u_LightPositions[2]", lightPositions[2]);
 	m_PBRShader->SetVec3f("u_LightPositions[3]", lightPositions[3]);
 
-	m_Irradiance->Attach(5);
+	Renderer::GetCommandBuffer()->BindTexture(m_Irradiance.get(), m_Samplers[5].get(), 2);
 }
 
 void PBRRenderingDemo::OnUpdate(Timestep elapsedTime)

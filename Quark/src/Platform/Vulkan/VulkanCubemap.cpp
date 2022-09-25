@@ -9,7 +9,7 @@ namespace Quark {
 	{
 	}
 
-	bool VulkanCubemap::operator==(const Cubemap& other) const
+	bool VulkanCubemap::operator==(const Texture& other) const
 	{
 		return false;
 	}

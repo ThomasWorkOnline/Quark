@@ -47,7 +47,7 @@ private:
 	Scope<Shader> m_PBRShader;
 	Scope<Cubemap> m_Irradiance;
 	Scope<UniformBuffer> m_CameraUniformBuffer;
-	Scope<Sampler> m_Samplers[5];
+	Scope<Sampler> m_Samplers[6];
 	CameraUniformBufferData m_CameraBufferData;
 	Scope<Pipeline> m_Pipeline;
 

@@ -18,7 +18,7 @@ namespace Quark {
 			&& m_Spec.Height <= Renderer::GetCapabilities().Texture.Max2DSize,
 			"Texture dimensions too large: see Renderer::GetCapabilities() for more info");
 
-		m_Spec.Levels = m_Spec.Levels == 0 ? GetMipLevelsForResolution(m_Spec.Width, m_Spec.Height) : 1;
+		m_Spec.Levels = m_Spec.Levels == 0 ? GetMipLevelsForResolution(m_Spec.Width, m_Spec.Height) : m_Spec.Levels;
 
 		m_InternalFormat = DataFormatToOpenGLInternalFormat(m_Spec.DataFormat);
 		m_DataFormat = DataFormatToOpenGLStorageFormat(m_Spec.DataFormat);
@@ -60,7 +60,7 @@ namespace Quark {
 		m_Spec.Width      = metadata.Width;
 		m_Spec.Height     = metadata.Height;
 		m_Spec.DataFormat = metadata.DataFormat;
-		m_Spec.Levels     = m_Spec.Levels == 0 ? GetMipLevelsForResolution(m_Spec.Width, m_Spec.Height) : 1;
+		m_Spec.Levels     = m_Spec.Levels == 0 ? GetMipLevelsForResolution(m_Spec.Width, m_Spec.Height) : m_Spec.Levels;
 
 		m_DataFormat = DataFormatToOpenGLStorageFormat(m_Spec.DataFormat);
 		m_InternalFormat = DataFormatToOpenGLInternalFormat(m_Spec.DataFormat);
@@ -138,7 +138,7 @@ namespace Quark {
 			&& m_Spec.Layers <= Renderer::GetCapabilities().Texture.MaxArrayLayers,
 			"Texture dimensions too large: see Renderer::GetCapabilities() for more info");
 
-		m_Spec.Levels = m_Spec.Levels == 0 ? GetMipLevelsForResolution(m_Spec.Width, m_Spec.Height) : 1;
+		m_Spec.Levels = m_Spec.Levels == 0 ? GetMipLevelsForResolution(m_Spec.Width, m_Spec.Height) : m_Spec.Levels;
 
 		m_InternalFormat = DataFormatToOpenGLInternalFormat(m_Spec.DataFormat);
 		m_DataFormat = DataFormatToOpenGLStorageFormat(m_Spec.DataFormat);

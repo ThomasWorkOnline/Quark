@@ -57,11 +57,11 @@ struct Material
 	sampler2D AmbiantOcclusionMap;
 };
 
-layout(location = 0) uniform vec3 u_LightPositions[s_LightCount];
-layout(location = 4) uniform vec3 u_LightColors[s_LightCount];
+layout(set = 0, binding = 0) uniform vec3 u_LightPositions[s_LightCount];
+layout(set = 0, binding = 1) uniform vec3 u_LightColors[s_LightCount];
 
-layout(location = 8) uniform samplerCube u_IrradianceMap;
-layout(location = 9) uniform Material u_Material;
+layout(set = 0, binding = 2) uniform samplerCube u_IrradianceMap;
+layout(set = 0, binding = 3) uniform Material u_Material;
 
 layout(location = 0) out vec4 o_Color;
 

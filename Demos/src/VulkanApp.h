@@ -25,6 +25,5 @@ private:
 	Text m_Text;
 	SceneCamera m_TextCamera;
 
-	bool m_PositionOverlay = false;
 	bool m_ViewportSelected = false;
 };
