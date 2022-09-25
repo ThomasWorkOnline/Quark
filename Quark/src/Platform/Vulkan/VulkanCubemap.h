@@ -11,9 +11,9 @@ namespace Quark {
 	{
 	public:
 		VulkanCubemap(VulkanDevice* device, const CubemapSpecification& spec);
-		virtual ~VulkanCubemap() final override = default;
+		virtual ~VulkanCubemap() final override;
 
-		virtual void SetData(uint32_t index, const void* data, size_t size) final override {}
+		virtual void SetData(const void* data, size_t size, uint32_t index) final override;
 
 		virtual const void* GetHandle() const final override { return nullptr; }
 

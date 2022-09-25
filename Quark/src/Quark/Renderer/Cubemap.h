@@ -21,7 +21,7 @@ namespace Quark {
 
 		virtual ~Cubemap() = default;
 
-		virtual void SetData(uint32_t index, const void* data, size_t size) = 0;
+		virtual void SetData(const void* data, size_t size, uint32_t index) = 0;
 
 		uint32_t GetWidth() const { return m_Spec.Width; }
 		uint32_t GetHeight() const { return m_Spec.Height; }

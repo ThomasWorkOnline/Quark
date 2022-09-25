@@ -9,6 +9,14 @@ namespace Quark {
 	{
 	}
 
+	VulkanCubemap::~VulkanCubemap()
+	{
+	}
+
+	void VulkanCubemap::SetData(const void* data, size_t size, uint32_t index)
+	{
+	}
+
 	bool VulkanCubemap::operator==(const Texture& other) const
 	{
 		return false;

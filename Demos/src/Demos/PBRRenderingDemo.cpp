@@ -34,7 +34,7 @@ PBRRenderingDemo::PBRRenderingDemo(const ApplicationOptions& options)
 		float data[3] = { 1.0f, 1.0f, 1.0f };
 		for (auto i = 0; i < 6; i++)
 		{
-			m_Irradiance->SetData(i, data, sizeof(data));
+			m_Irradiance->SetData(data, sizeof(data), i);
 		}
 	}
 

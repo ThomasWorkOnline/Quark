@@ -46,7 +46,7 @@ namespace Quark {
 		glDeleteTextures(1, &m_RendererID);
 	}
 
-	void OpenGLCubemap::SetData(uint32_t index, const void* data, size_t size)
+	void OpenGLCubemap::SetData(const void* data, size_t size, uint32_t index)
 	{
 		QK_PROFILE_FUNCTION();
 

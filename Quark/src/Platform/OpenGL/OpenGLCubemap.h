@@ -11,7 +11,7 @@ namespace Quark {
 		OpenGLCubemap(const CubemapSpecification& spec);
 		virtual ~OpenGLCubemap() final override;
 
-		virtual void SetData(uint32_t index, const void* data, size_t size) final override;
+		virtual void SetData(const void* data, size_t size, uint32_t index) final override;
 
 		virtual const void* GetHandle() const final override { return static_cast<const OpenGLTexture*>(this); }
 
