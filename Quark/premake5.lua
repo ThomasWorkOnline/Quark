@@ -48,6 +48,7 @@ project "Quark"
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.glfw}",
 		"%{IncludeDir.glm}",
+		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.OpenAL}",
 		"%{IncludeDir.spdlog}",
 		"%{IncludeDir.VulkanSDK}"
@@ -58,6 +59,7 @@ project "Quark"
 		"FreeType",
 		"Glad",
 		"GLFW",
+		"ImGui",
 		"lodepng",
 		"spdlog",
 		"%{Library.Vulkan}"

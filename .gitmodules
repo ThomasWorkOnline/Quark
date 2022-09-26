@@ -10,3 +10,6 @@
 [submodule "Quark/vendor/lodepng"]
 	path = Quark/vendor/lodepng
 	url = https://github.com/ThomasWorkOnline/lodepng.git
+[submodule "Quark/vendor/imgui"]
+	path = Quark/vendor/imgui
+	url = https://github.com/ThomasWorkOnline/imgui.git

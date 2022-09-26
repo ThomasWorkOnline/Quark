@@ -1,6 +1,8 @@
 #include "qkpch.h"
 #include "Application.h"
 
+#include "Quark/ImGui/ImGuiLayer.h"
+
 #include <ctime>
 #include <filesystem>
 
@@ -38,6 +40,8 @@ namespace Quark {
 			m_AudioOutputDevice = AudioOutputDevice::Create();
 			QK_CORE_INFO("Opened audio device: {0}", m_AudioOutputDevice->GetDeviceName());
 		}
+
+		m_ImGuiLayer = new ImGuiLayer(this);
 	}
 
 	Application::~Application()
@@ -48,6 +52,8 @@ namespace Quark {
 
 		for (size_t i = 0; i < m_Layers.size(); i++)
 			delete m_Layers[i];
+
+		delete m_ImGuiLayer;
 
 		Renderer2D::Dispose();
 		Renderer::Dispose();
@@ -80,12 +86,14 @@ namespace Quark {
 
 			{
 				Renderer::BeginFrame();
+				m_ImGuiLayer->BeginFrame();
 
 				OnRender();
 
 				for (auto layer : m_Layers)
 					layer->OnRender();
 
+				m_ImGuiLayer->EndFrame();
 				Renderer::EndFrame();
 			}
 

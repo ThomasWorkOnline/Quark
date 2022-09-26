@@ -15,6 +15,8 @@
 
 namespace Quark {
 
+	class ImGuiLayer;
+
 	enum ApplicationFlagBits : uint8_t
 	{
 		ApplicationFlagBitsNone = 0,
@@ -89,6 +91,8 @@ namespace Quark {
 		ApplicationOptions m_Options;
 		Scope<Window> m_Window;
 		Scope<AudioOutputDevice> m_AudioOutputDevice;
+
+		ImGuiLayer* m_ImGuiLayer;
 
 		std::thread::id m_AppMainThreadId;
 		std::vector<Layer*> m_Layers;

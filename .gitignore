@@ -5,6 +5,8 @@ bin
 bin-int
 bin-spirv
 
+imgui.ini
+
 !Tools/Bin
 
 # Instrumentation

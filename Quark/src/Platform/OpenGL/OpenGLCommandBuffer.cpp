@@ -52,7 +52,7 @@ namespace Quark {
 
 	void OpenGLCommandBuffer::SetViewport(uint32_t viewportWidth, uint32_t viewportHeight)
 	{
-		glViewport(0, 0, viewportWidth, viewportHeight);
+		glViewport(0, 0, (GLsizei)viewportWidth, (GLsizei)viewportHeight);
 	}
 
 	void OpenGLCommandBuffer::SetLineWidth(float width)
