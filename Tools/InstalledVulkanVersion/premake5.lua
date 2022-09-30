@@ -1,5 +1,5 @@
 project "InstalledVulkanVersion"
-	kind "ConsoleApp"
+	kind "WindowedApp"
 	language "C++"
 	cppdialect "C++14"
 	staticruntime "Off"
@@ -28,17 +28,11 @@ project "InstalledVulkanVersion"
 		"ShadowedVariables"
 	}
 
-	filter { "configurations:Dist", "system:windows" }
-		kind "WindowedApp"
-
 	filter "system:windows"
 		defines
 		{
 			"_CRT_SECURE_NO_WARNINGS"
 		}
-
-	filter "system:macosx"
-		kind "WindowedApp"
 
 	filter "configurations:Debug"
 		runtime "Debug"

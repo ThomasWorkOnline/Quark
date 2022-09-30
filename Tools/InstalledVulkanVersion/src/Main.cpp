@@ -3,7 +3,7 @@
 
 #include <vulkan/vulkan.h>
 
-int main()
+static int Main(int argc, char** argv)
 {
 	auto FN_vkEnumerateInstanceVersion = (PFN_vkEnumerateInstanceVersion)vkGetInstanceProcAddr(nullptr, "vkEnumerateInstanceVersion");
 	if (FN_vkEnumerateInstanceVersion)
@@ -20,3 +20,20 @@ int main()
 
 	return EXIT_SUCCESS;
 }
+
+#if defined(_WIN32)
+#include <Windows.h>
+
+INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ INT nShowCmd)
+{
+	return Main(__argc, __argv);
+}
+
+#else
+
+int main(int argc, char** argv)
+{
+	return Main(argc, argv);
+}
+
+#endif /* _WIN32 */

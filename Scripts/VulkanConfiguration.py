@@ -79,6 +79,8 @@ class VulkanConfiguration:
 		proc = subprocess.Popen(os.path.abspath(cls.vulkanVersionBinary), stdout = subprocess.PIPE)
 		installedVulkanVersion = proc.stdout.read().decode('UTF-8')
 
+		print(f"Installed version: {installedVulkanVersion}")
+
 		requiredVersionTokens = cls.requiredVulkanVersion.split('.')
 		installedVersionTokens = installedVulkanVersion.split('.')
 
