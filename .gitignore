@@ -4,8 +4,6 @@ instrumentor
 logs
 
 # Build
-include
-lib
 bin
 bin-int
 
