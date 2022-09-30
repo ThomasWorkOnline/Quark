@@ -20,7 +20,6 @@ PBRRenderingDemo::PBRRenderingDemo(const ApplicationOptions& options)
 	m_CameraEntity.AddNativeScript<CameraController>();
 
 	m_MeshDataFuture = std::async(std::launch::async, Mesh::ReadOBJData, "assets/Models/poly_sphere.obj");
-
 	LoadMaterialsAsync();
 
 	{
@@ -54,10 +53,10 @@ PBRRenderingDemo::PBRRenderingDemo(const ApplicationOptions& options)
 
 	{
 		PipelineSpecification spec;
-		spec.Layout = Mesh::GetBufferLayout();
-		spec.Topology = PrimitiveTopology::TriangleList;
-		spec.Samples = Renderer::GetMultisampling();
-		spec.Shader = m_PBRShader.get();
+		spec.Layout     = Mesh::GetBufferLayout();
+		spec.Topology   = PrimitiveTopology::TriangleList;
+		spec.Samples    = Renderer::GetMultisampling();
+		spec.Shader     = m_PBRShader.get();
 		spec.RenderPass = Renderer::GetGeometryPass();
 
 		m_Pipeline = Pipeline::Create(spec);
@@ -88,8 +87,6 @@ PBRRenderingDemo::PBRRenderingDemo(const ApplicationOptions& options)
 	m_PBRShader->SetVec3f("u_LightPositions[1]", lightPositions[1]);
 	m_PBRShader->SetVec3f("u_LightPositions[2]", lightPositions[2]);
 	m_PBRShader->SetVec3f("u_LightPositions[3]", lightPositions[3]);
-
-	Renderer::GetCommandBuffer()->BindTexture(m_Irradiance.get(), m_Samplers[5].get(), 2);
 }
 
 void PBRRenderingDemo::OnUpdate(Timestep elapsedTime)
@@ -114,7 +111,9 @@ void PBRRenderingDemo::OnRender()
 	if (m_Body)
 	{
 		Renderer::BindPipeline(m_Pipeline.get());
+
 		Renderer::GetCommandBuffer()->BindUniformBuffer(m_CameraUniformBuffer.get(), 0);
+		Renderer::GetCommandBuffer()->BindTexture(m_Irradiance.get(), m_Samplers[5].get(), 2);
 
 		if (m_Material.Albedo)    Renderer::GetCommandBuffer()->BindTexture(m_Material.Albedo.get(),    m_Samplers[0].get(), 0);
 		if (m_Material.Normal)    Renderer::GetCommandBuffer()->BindTexture(m_Material.Normal.get(),    m_Samplers[1].get(), 1);
@@ -122,6 +121,7 @@ void PBRRenderingDemo::OnRender()
 		if (m_Material.Roughness) Renderer::GetCommandBuffer()->BindTexture(m_Material.Roughness.get(), m_Samplers[3].get(), 3);
 		if (m_Material.AO)        Renderer::GetCommandBuffer()->BindTexture(m_Material.AO.get(),        m_Samplers[4].get(), 4);
 
+		Renderer::GetCommandBuffer()->BindDescriptorSets();
 		Renderer::Submit(m_Body.GetVertexBuffer(), m_Body.GetIndexBuffer());
 	}
 

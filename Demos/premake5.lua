@@ -19,7 +19,8 @@ project "Demos"
 		"%{wks.location}/Quark/src",
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.glm}",
-		"%{IncludeDir.spdlog}"
+		"%{IncludeDir.spdlog}",
+		"%{IncludeDir.ImGui}"
 	}
 
 	links
@@ -50,6 +51,7 @@ project "Demos"
 			"freetype",
 			"Glad",
 			"GLFW",
+			"ImGui",
 			"lodepng",
 			"spdlog",
 			"%{Library.Vulkan}",
@@ -70,6 +72,7 @@ project "Demos"
 			"freetype",
 			"Glad",
 			"GLFW",
+			"ImGui",
 			"lodepng",
 			"spdlog",
 			"%{Library.Vulkan}",

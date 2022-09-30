@@ -1,16 +1,38 @@
 #include "qkpch.h"
 #include "ImGuiLayer.h"
+#include "ImGuiBackend.h"
 
 #include "Quark/Core/Application.h"
 #include "Quark/Renderer/GraphicsAPI.h"
 
-#include "ImGuiBackend.cpp"
-
 #include <imgui.h>
+#include <backends/imgui_impl_glfw.cpp>
 
 namespace Quark {
 
-	extern void BindImGuiOpenGLBackend();
+	extern ImGuiBackend CreateImGuiOpenGLBackend();
+	extern ImGuiBackend CreateImGuiVulkanBackend();
+
+	static ImGuiBackend s_Backend;
+
+	static void BindImGuiBackend()
+	{
+		switch (GraphicsAPI::GetAPI())
+		{
+			case RHI::OpenGL:
+			{
+				s_Backend = CreateImGuiOpenGLBackend();
+				break;
+			}
+			case RHI::Vulkan:
+			{
+				s_Backend = CreateImGuiVulkanBackend();
+				break;
+			}
+
+			QK_ASSERT_NO_DEFAULT("Missing API implementation for ImGui!");
+		}
+	}
 
 	ImGuiLayer::ImGuiLayer(Application* app)
 		: Layer(app)
@@ -18,17 +40,7 @@ namespace Quark {
 #ifdef QK_DEBUG
 		IMGUI_CHECKVERSION();
 #endif
-		switch (GraphicsAPI::GetAPI())
-		{
-			case RHI::OpenGL:
-			{
-				BindImGuiOpenGLBackend();
-				break;
-			}
-
-			QK_ASSERT_NO_DEFAULT("Missing API implementation for ImGui!");
-		}
-
+		BindImGuiBackend();
 		ImGui::CreateContext();
 
 		ImGuiIO& io = ImGui::GetIO();
@@ -43,10 +55,10 @@ namespace Quark {
 			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 		}
 
-		//ImGui::StyleColorsLight();
+		ImGui::StyleColorsLight();
 		//ImGui::StyleColorsDark();
 
-		SetStyleDarkTheme();
+		//SetStyleDarkTheme();
 
 		auto& coreDir = app->GetOptions().CoreDir;
 
@@ -55,25 +67,26 @@ namespace Quark {
 		io.FontDefault = io.Fonts->AddFontFromFileTTF((coreDir / "Quark/assets/Fonts/Segoe UI/segoeui.ttf").string().c_str(), fontSize);
 
 		auto* window = Application::Get()->GetWindow();
-		ImGuiBackend::Init(window->GetNativeWindow());
+		s_Backend.Init(window->GetNativeWindow());
 	}
 
 	ImGuiLayer::~ImGuiLayer()
 	{
-		ImGuiBackend::Shutdown();
+		s_Backend.Shutdown();
+		s_Backend = {};
 		ImGui::DestroyContext();
 	}
 
 	void ImGuiLayer::BeginFrame()
 	{
-		ImGuiBackend::NewFrame();
+		s_Backend.NewFrame();
 		ImGui::NewFrame();
 	}
 
 	void ImGuiLayer::EndFrame()
 	{
 		ImGui::Render();
-		ImGuiBackend::RenderDrawData(ImGui::GetDrawData());
+		s_Backend.RenderDrawData(ImGui::GetDrawData());
 	}
 
 	void ImGuiLayer::SetStyleDarkTheme()

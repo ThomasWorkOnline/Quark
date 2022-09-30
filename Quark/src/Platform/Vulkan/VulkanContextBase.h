@@ -79,7 +79,7 @@ namespace Quark {
 		bool m_SwapchainValid = false;
 
 #if QK_ENABLE_VULKAN_VALIDATION_LAYERS
-		VkDebugUtilsMessengerEXT m_VkDebugMessenger = nullptr;
+		VkDebugUtilsMessengerEXT m_DebugMessenger = nullptr;
 #endif
 	};
 }

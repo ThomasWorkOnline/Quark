@@ -1,22 +1,22 @@
 #include "qkpch.h"
 
 #include "Quark/Core/Core.h"
-#include "Quark/ImGui/ImGuiBackend.cpp"
+#include "Quark/ImGui/ImGuiBackend.h"
 
+#include <GLFW/glfw3.h>
 #include <glad/glad.h>
 
+#define IMGUI_IMPL_OPENGL_LOADER_CUSTOM
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
-
-#define IMGUI_IMPL_OPENGL_LOADER_CUSTOM
 #include <backends/imgui_impl_opengl3.cpp>
-#include <backends/imgui_impl_glfw.cpp>
 
 namespace Quark {
 
-	void BindImGuiOpenGLBackend()
+	ImGuiBackend CreateImGuiOpenGLBackend()
 	{
-		ImGuiBackend::Init = [](void* windowHandle)
+		ImGuiBackend backend;
+		backend.Init = [](void* windowHandle)
 		{
 			bool initialized = ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(windowHandle), true);
 			QK_CORE_ASSERT(initialized, "Failed to initialize the ImGui Layer");
@@ -25,21 +25,27 @@ namespace Quark {
 			QK_CORE_ASSERT(initialized, "Failed to initialize OpenGL");
 		};
 
-		ImGuiBackend::Shutdown = []()
+		backend.Shutdown = []()
 		{
 			ImGui_ImplOpenGL3_Shutdown();
 			ImGui_ImplGlfw_Shutdown();
 		};
 
-		ImGuiBackend::NewFrame = []()
+		backend.NewFrame = []()
 		{
 			ImGui_ImplOpenGL3_NewFrame();
 			ImGui_ImplGlfw_NewFrame();
 		};
 
-		ImGuiBackend::RenderDrawData = [](ImDrawData* drawData)
+		backend.RenderDrawData = [](ImDrawData* drawData)
 		{
+			GLboolean gammaEnabled = glIsEnabled(GL_FRAMEBUFFER_SRGB);
+			glDisable(GL_FRAMEBUFFER_SRGB);
+
 			ImGui_ImplOpenGL3_RenderDrawData(drawData);
+
+			if (gammaEnabled)
+				glEnable(GL_FRAMEBUFFER_SRGB);
 
 			ImGuiIO& io = ImGui::GetIO();
 			if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
@@ -50,5 +56,7 @@ namespace Quark {
 				glfwMakeContextCurrent(backupCurrentContext);
 			}
 		};
+
+		return backend;
 	}
 }

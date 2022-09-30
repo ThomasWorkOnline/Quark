@@ -1,26 +1,26 @@
 #include "qkpch.h"
 #include "VulkanContextBase.h"
 
+///////////////////////////////////////
+/// Vulkan API customizations
+///
 #define QK_VULKAN_DEBUG_UTILS_VERBOSE 0
 
-#if defined(QK_DEBUG)
-#	define CreateDebugUtilsMessengerEXT ::Quark::CreateVkDebugUtilsMessengerEXT
-#	define DestroyDebugUtilsMessengerEXT ::Quark::DestroyVkDebugUtilsMessengerEXT
-#else
-#	define CreateDebugUtilsMessengerEXT(...) VK_SUCCESS
-#	define DestroyDebugUtilsMessengerEXT(...)
-#endif
-
-#if QK_ENABLE_VULKAN_VALIDATION_LAYERS
-#	define AssureDebugValidationLayerSupport ::Quark::AssureValidationLayerSupport
-#else
-#	define AssureDebugValidationLayerSupport(...)
-#endif
 
 #if QK_ASSERT_API_VALIDATION_ERRORS
 #	define QK_VULKAN_ERROR_CALLBACK(message) QK_CORE_ASSERT(false, message)
 #else
 #	define QK_VULKAN_ERROR_CALLBACK(message) QK_CORE_ERROR(message)
+#endif
+
+#if QK_ENABLE_VULKAN_VALIDATION_LAYERS
+#	define AssureDebugValidationLayerSupport ::Quark::AssureValidationLayerSupport
+#	define CreateDebugUtilsMessengerEXT ::Quark::CreateVkDebugUtilsMessengerEXT
+#	define DestroyDebugUtilsMessengerEXT ::Quark::DestroyVkDebugUtilsMessengerEXT
+#else
+#	define AssureDebugValidationLayerSupport(...)
+#	define CreateDebugUtilsMessengerEXT(...) VK_SUCCESS
+#	define DestroyDebugUtilsMessengerEXT(...)
 #endif
 
 #if QK_VULKAN_DEBUG_UTILS_VERBOSE
@@ -32,6 +32,55 @@
 #endif
 
 namespace Quark {
+
+	static void AssureValidationLayerSupport()
+	{
+		QK_PROFILE_FUNCTION();
+
+		uint32_t layerCount;
+		VkResult vkRes = vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+		QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Error enumerating Vulkan validation layer properties");
+
+		AutoRelease<VkLayerProperties> availableLayers = StackAlloc(layerCount * sizeof(VkLayerProperties));
+		vkRes = vkEnumerateInstanceLayerProperties(&layerCount, availableLayers);
+		QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Error enumerating Vulkan validation layer properties");
+
+		for (const char* layerName : g_ValidationLayers)
+		{
+			bool layerFound = false;
+			for (size_t i = 0; i < layerCount; i++)
+			{
+				if (std::strcmp(layerName, availableLayers[i].layerName) == 0)
+				{
+					layerFound = true;
+					break;
+				}
+			}
+
+			QK_CORE_ASSERT(layerFound, "Validation layer not found: {0}", layerName);
+		}
+	}
+
+	static VkResult CreateVkDebugUtilsMessengerEXT(
+		VkInstance instance,
+		const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+		const VkAllocationCallbacks* pAllocator,
+		VkDebugUtilsMessengerEXT* pDebugMessenger)
+	{
+		auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+		return func ? func(instance, pCreateInfo, pAllocator, pDebugMessenger) : VK_ERROR_EXTENSION_NOT_PRESENT;
+	}
+
+	static void DestroyVkDebugUtilsMessengerEXT(
+		VkInstance instance,
+		VkDebugUtilsMessengerEXT debugMessenger,
+		const VkAllocationCallbacks* pAllocator)
+	{
+		auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
+
+		QK_CORE_ASSERT(func != nullptr, "Could not load function vkDestroyDebugUtilsMessengerEXT");
+		func(instance, debugMessenger, pAllocator);
+	}
 
 	static VKAPI_ATTR VkBool32 VKAPI_CALL VkDebugCallback(
 		VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
@@ -55,41 +104,18 @@ namespace Quark {
 		return VK_FALSE;
 	}
 
-	static void AssureValidationLayerSupport();
-
-	static VkResult CreateVkDebugUtilsMessengerEXT(
-		VkInstance instance,
-		const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
-		const VkAllocationCallbacks* pAllocator,
-		VkDebugUtilsMessengerEXT* pDebugMessenger)
-	{
-		auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
-		return func ? func(instance, pCreateInfo, pAllocator, pDebugMessenger) : VK_ERROR_EXTENSION_NOT_PRESENT;
-	}
-
-	static void DestroyVkDebugUtilsMessengerEXT(
-		VkInstance instance,
-		VkDebugUtilsMessengerEXT debugMessenger,
-		const VkAllocationCallbacks* pAllocator)
-	{
-		auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
-
-		QK_CORE_ASSERT(func != nullptr, "Could not load function vkDestroyDebugUtilsMessengerEXT");
-		func(instance, debugMessenger, pAllocator);
-	}
-
 	static VkDebugUtilsMessengerCreateInfoEXT CreateVkDebugUtilsMessengerCreateInfoEXT()
 	{
 		VkDebugUtilsMessengerCreateInfoEXT messengerCreateInfo{};
 		messengerCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
 		messengerCreateInfo.messageSeverity =
-			  VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT
+			VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT
 			| VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT
 			| _VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT
 			| _VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT;
 
 		messengerCreateInfo.messageType =
-			  VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT
+			VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT
 			| VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT
 			| VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
 
@@ -137,9 +163,9 @@ namespace Quark {
 		m_SwapChain.reset();
 		m_Device.reset();
 
-		DestroyDebugUtilsMessengerEXT(m_Instance, m_VkDebugMessenger, nullptr);
-
 		vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
+
+		DestroyDebugUtilsMessengerEXT(m_Instance, m_DebugMessenger, nullptr);
 		vkDestroyInstance(m_Instance, nullptr);
 	}
 
@@ -235,7 +261,7 @@ namespace Quark {
 
 		VkApplicationInfo appInfo{};
 		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-		appInfo.pApplicationName = appName;
+		appInfo.pApplicationName = "Quark Application";
 		appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
 		appInfo.pEngineName = "Quark Engine";
 		appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
@@ -258,7 +284,7 @@ namespace Quark {
 		VkResult vkRes = vkCreateInstance(&createInfo, nullptr, &m_Instance);
 		QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Failed to create the Vulkan instance");
 
-		vkRes = CreateDebugUtilsMessengerEXT(m_Instance, &messengerCreateInfo, nullptr, &m_VkDebugMessenger);
+		vkRes = CreateDebugUtilsMessengerEXT(m_Instance, &messengerCreateInfo, nullptr, &m_DebugMessenger);
 		QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Failed to create a Vulkan debug messenger");
 	}
 
@@ -313,33 +339,5 @@ namespace Quark {
 			imageCount = supportDetails.Capabilities.maxImageCount;
 
 		return imageCount;
-	}
-
-	void AssureValidationLayerSupport()
-	{
-		QK_PROFILE_FUNCTION();
-
-		uint32_t layerCount;
-		VkResult vkRes = vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
-		QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Error enumerating Vulkan validation layer properties");
-
-		AutoRelease<VkLayerProperties> availableLayers = StackAlloc(layerCount * sizeof(VkLayerProperties));
-		vkRes = vkEnumerateInstanceLayerProperties(&layerCount, availableLayers);
-		QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Error enumerating Vulkan validation layer properties");
-
-		for (const char* layerName : g_ValidationLayers)
-		{
-			bool layerFound = false;
-			for (size_t i = 0; i < layerCount; i++)
-			{
-				if (std::strcmp(layerName, availableLayers[i].layerName) == 0)
-				{
-					layerFound = true;
-					break;
-				}
-			}
-
-			QK_CORE_ASSERT(layerFound, "Validation layer not found: {0}", layerName);
-		}
 	}
 }

@@ -32,10 +32,10 @@ const float PI = 3.14159265359;
 const uint s_LightCount = 4;
 
 vec3  GetNormalFromMap();
+vec3  FresnelSchlick(float cosTheta, vec3 f0);
 float DistributionGGX(vec3 n, vec3 h, float roughness);
 float GeometrySchlickGGX(float nDotV, float k);
 float GeometrySmith(vec3 n, vec3 v, vec3 l, float k);
-vec3  FresnelSchlick(float cosTheta, vec3 f0);
 
 layout(std140, binding = 0) uniform Camera {
 	mat4 ViewProjection;
@@ -57,11 +57,11 @@ struct Material
 	sampler2D AmbiantOcclusionMap;
 };
 
-layout(set = 0, binding = 0) uniform vec3 u_LightPositions[s_LightCount];
-layout(set = 0, binding = 1) uniform vec3 u_LightColors[s_LightCount];
+uniform vec3 u_LightPositions[s_LightCount];
+uniform vec3 u_LightColors[s_LightCount];
 
-layout(set = 0, binding = 2) uniform samplerCube u_IrradianceMap;
-layout(set = 0, binding = 3) uniform Material u_Material;
+uniform samplerCube u_IrradianceMap;
+uniform Material u_Material;
 
 layout(location = 0) out vec4 o_Color;
 
@@ -73,7 +73,10 @@ void main()
 	float metallic  = texture(u_Material.MetallicMap,         Input.TexCoord).r;
 	float roughness = texture(u_Material.RoughnessMap,        Input.TexCoord).r;
 	float ao        = texture(u_Material.AmbiantOcclusionMap, Input.TexCoord).r;
-	
+
+	o_Color = vec4(albedo, 1.0);
+
+#if 0
 	vec3 N = GetNormalFromMap();
 	vec3 V = normalize(u_Camera.CameraPosition.xyz - Input.Position);
 	vec3 R = reflect(-V, N);
@@ -136,6 +139,7 @@ void main()
 	// HDR tonemapping
 	color = color / (color + vec3(1.0));
 	o_Color = vec4(color, 1.0);
+#endif
 }
 
 vec3 GetNormalFromMap()
@@ -153,6 +157,11 @@ vec3 GetNormalFromMap()
 	mat3 tbn = mat3(t, b, n);
 	
 	return normalize(tbn * tangentNormal);
+}
+
+vec3 FresnelSchlick(float cosTheta, vec3 f0)
+{
+	return f0 + (1.0 - f0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 
 float DistributionGGX(vec3 n, vec3 h, float roughness)
@@ -188,9 +197,4 @@ float GeometrySmith(vec3 n, vec3 v, vec3 l, float roughness)
 	float ggx2  = GeometrySchlickGGX(nDotL, roughness);
 	
 	return ggx1 * ggx2;
-}
-
-vec3 FresnelSchlick(float cosTheta, vec3 f0)
-{
-	return f0 + (1.0 - f0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }

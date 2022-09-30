@@ -17,6 +17,8 @@ namespace Quark {
 			&& spec.Height <= Renderer::GetCapabilities().Texture.MaxCubemapSize,
 			"Cubemap dimensions too large: see Renderer::GetCapabilities() for more info");
 
+		m_Target = GL_TEXTURE_CUBE_MAP;
+
 		glGenTextures(1, &m_RendererID);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, m_RendererID);
 		glPixelStorei(GL_UNPACK_ALIGNMENT, IsPixel4BytesAligned(m_Spec.DataFormat) ? 4 : 1);

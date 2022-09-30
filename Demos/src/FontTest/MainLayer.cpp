@@ -1,5 +1,7 @@
 #include "MainLayer.h"
 
+#include <imgui_demo.cpp>
+
 MainLayer::MainLayer(Application* app) : Layer(app)
 {
 	auto window = GetApplication()->GetWindow();
@@ -39,14 +41,18 @@ void MainLayer::OnUpdate(Timestep elapsedTime)
 
 void MainLayer::OnRender()
 {
-	auto t = std::time(nullptr);
-
-	std::stringstream ss;
-	ss << std::put_time(std::localtime(&t), "%H:%M:%S");
-
 	Renderer2D::BeginScene(m_Camera.GetProjection(), Mat4f(1.0f));
-	Renderer2D::DrawText(m_Input, m_Font1.get());
+	{
+		auto t = std::time(nullptr);
+
+		std::stringstream ss;
+		ss << std::put_time(std::localtime(&t), "%H:%M:%S");
+
+		Renderer2D::DrawText(m_Input, m_Font1.get());
+	}
 	Renderer2D::EndScene();
+
+	ImGui::ShowDemoWindow();
 }
 
 void MainLayer::OnEvent(Event& e)
