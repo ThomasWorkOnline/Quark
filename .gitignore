@@ -1,15 +1,15 @@
-# Auto Generated
+# Build
 include
 lib
 bin
 bin-int
-bin-spirv
 
 imgui.ini
 
 !Tools/Bin
 
 # Instrumentation
+cache
 instrumentor
 logs
 
@@ -21,7 +21,7 @@ Makefile
 makefile
 
 # Premake
-!Vendor/bin
+!Vendor/Bin
 
 # Python
 __pycache__
