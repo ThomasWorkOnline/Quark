@@ -29,7 +29,7 @@ namespace Quark {
 		static void BindPipeline(const Pipeline* pipeline);
 
 		static void BeginRenderPass(const RenderPass* renderPass, const Framebuffer* framebuffer);
-		static void BeginGeometryPass();
+		static void BeginRenderPass();
 		static void EndRenderPass();
 
 		static void Submit(const VertexBuffer* vertexBuffer, uint32_t vertexCount);
@@ -43,7 +43,7 @@ namespace Quark {
 		static const Vec4f&    GetClearColor();
 		static const GraphicsAPICapabilities& GetCapabilities();
 
-		static RenderPass*     GetGeometryPass();
+		static RenderPass*     GetRenderPass();
 
 		static Framebuffer*    GetTargetFramebuffer();
 		static ViewportExtent  GetViewportExtent();

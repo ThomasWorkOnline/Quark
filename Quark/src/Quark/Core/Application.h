@@ -92,7 +92,7 @@ namespace Quark {
 		Scope<Window> m_Window;
 		Scope<AudioOutputDevice> m_AudioOutputDevice;
 
-		ImGuiLayer* m_ImGuiLayer;
+		ImGuiLayer* m_ImGuiLayer = nullptr;
 
 		std::thread::id m_AppMainThreadId;
 		std::vector<Layer*> m_Layers;

@@ -57,7 +57,7 @@ PBRRenderingDemo::PBRRenderingDemo(const ApplicationOptions& options)
 		spec.Topology   = PrimitiveTopology::TriangleList;
 		spec.Samples    = Renderer::GetMultisampling();
 		spec.Shader     = m_PBRShader.get();
-		spec.RenderPass = Renderer::GetGeometryPass();
+		spec.RenderPass = Renderer::GetRenderPass();
 
 		m_Pipeline = Pipeline::Create(spec);
 	}

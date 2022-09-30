@@ -45,12 +45,13 @@ namespace Quark {
 		surfaceFormat.colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
 		
 		VulkanSwapChainSpecification spec;
+		spec.Surface       = m_Surface;
 		spec.MinImageCount = GetSwapChainImageCount();
 		spec.Extent        = ChooseSwapExtent(width, height);
 		spec.SurfaceFormat = ChooseSwapSurfaceFormat(surfaceFormat);
 		spec.PresentMode   = ChooseSwapPresentMode(VK_PRESENT_MODE_MAILBOX_KHR);
 
-		m_SwapChain = CreateScope<VulkanSwapChain>(m_Device.get(), m_Surface, spec);
+		m_SwapChain = CreateScope<VulkanSwapChain>(m_Device.get(), spec);
 
 		VulkanContextBase::Init();
 	}

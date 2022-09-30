@@ -2,6 +2,7 @@
 #include "VulkanSwapChain.h"
 
 #include "VulkanEnums.h"
+#include "VulkanContext.h"
 
 namespace Quark {
 
@@ -43,8 +44,8 @@ namespace Quark {
 		}
 	}
 
-	VulkanSwapChain::VulkanSwapChain(VulkanDevice* device, VkSurfaceKHR surface, const VulkanSwapChainSpecification& spec)
-		: m_Device(device), m_Surface(surface), m_Spec(spec)
+	VulkanSwapChain::VulkanSwapChain(VulkanDevice* device, const VulkanSwapChainSpecification& spec)
+		: m_Device(device), m_Spec(spec)
 	{
 		Invalidate();
 	}
@@ -93,7 +94,7 @@ namespace Quark {
 
 		VkSwapchainCreateInfoKHR createInfo{};
 		createInfo.sType                     = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-		createInfo.surface                   = m_Surface;
+		createInfo.surface                   = m_Spec.Surface;
 		createInfo.minImageCount             = m_Spec.MinImageCount;
 		createInfo.imageFormat               = m_Spec.SurfaceFormat.format;
 		createInfo.imageColorSpace           = m_Spec.SurfaceFormat.colorSpace;

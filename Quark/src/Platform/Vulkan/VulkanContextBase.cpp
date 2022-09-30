@@ -161,9 +161,9 @@ namespace Quark {
 		}
 
 		m_SwapChain.reset();
-		m_Device.reset();
-
 		vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
+
+		m_Device.reset();
 
 		DestroyDebugUtilsMessengerEXT(m_Instance, m_DebugMessenger, nullptr);
 		vkDestroyInstance(m_Instance, nullptr);

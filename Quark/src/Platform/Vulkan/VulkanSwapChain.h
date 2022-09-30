@@ -13,6 +13,7 @@ namespace Quark {
 	{
 		uint32_t           MinImageCount = 0;
 		VkExtent2D         Extent{};
+		VkSurfaceKHR       Surface;
 		VkSurfaceFormatKHR SurfaceFormat{};
 		VkPresentModeKHR   PresentMode{};
 	};
@@ -20,7 +21,7 @@ namespace Quark {
 	class VulkanSwapChain
 	{
 	public:
-		VulkanSwapChain(VulkanDevice* device, VkSurfaceKHR surface, const VulkanSwapChainSpecification& spec);
+		VulkanSwapChain(VulkanDevice* device, const VulkanSwapChainSpecification& spec);
 		~VulkanSwapChain();
 
 		VkResult AcquireNextImage(VkSemaphore imageAvailableSemaphore);
@@ -45,7 +46,6 @@ namespace Quark {
 
 	private:
 		VulkanDevice* m_Device;
-		VkSurfaceKHR m_Surface;
 		VkSwapchainKHR m_SwapChain = nullptr;
 
 		VulkanSwapChainSpecification m_Spec;

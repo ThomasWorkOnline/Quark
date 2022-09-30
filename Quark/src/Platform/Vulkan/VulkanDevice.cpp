@@ -116,33 +116,33 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		vkGetPhysicalDeviceProperties(m_PhysicalDevice, &m_Properties);
-
 		VkPhysicalDeviceFeatures deviceFeatures{};
 		deviceFeatures.samplerAnisotropy = VK_TRUE;
 
-		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 		std::set<uint32_t> uniqueQueueFamilies = {
 			*m_QueueFamilyIndices.GraphicsFamily,
 			*m_QueueFamilyIndices.PresentFamily,
 			*m_QueueFamilyIndices.TransferFamily
 		};
 
+		AutoRelease<VkDeviceQueueCreateInfo> queueCreateInfos = StackAlloc(uniqueQueueFamilies.size() * sizeof(VkDeviceQueueCreateInfo));
+		VkDeviceQueueCreateInfo* queueCreateInfoPtr = queueCreateInfos;
+
 		float queuePriorities = 1.0f;
 		for (uint32_t queueFamily : uniqueQueueFamilies)
 		{
-			VkDeviceQueueCreateInfo queueCreateInfo{};
-			queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-			queueCreateInfo.queueFamilyIndex = queueFamily;
-			queueCreateInfo.queueCount = 1;
-			queueCreateInfo.pQueuePriorities = &queuePriorities;
-			queueCreateInfos.push_back(queueCreateInfo);
+			*queueCreateInfoPtr = {};
+			queueCreateInfoPtr->sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+			queueCreateInfoPtr->queueFamilyIndex = queueFamily;
+			queueCreateInfoPtr->queueCount = 1;
+			queueCreateInfoPtr->pQueuePriorities = &queuePriorities;
+			queueCreateInfoPtr++;
 		}
 
 		VkDeviceCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-		createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
-		createInfo.pQueueCreateInfos = queueCreateInfos.data();
+		createInfo.queueCreateInfoCount = static_cast<uint32_t>(uniqueQueueFamilies.size());
+		createInfo.pQueueCreateInfos = queueCreateInfos;
 		createInfo.pEnabledFeatures = &deviceFeatures;
 
 		createInfo.enabledExtensionCount = sizeof_array(s_DeviceExtensions);
@@ -153,6 +153,7 @@ namespace Quark {
 		createInfo.ppEnabledLayerNames = g_ValidationLayers;
 #endif
 		vkCreateDevice(vkPhysicalDevice, &createInfo, nullptr, &m_Device);
+		vkGetPhysicalDeviceProperties(m_PhysicalDevice, &m_Properties);
 
 		VmaAllocatorCreateInfo allocatorInfo{};
 		allocatorInfo.physicalDevice = m_PhysicalDevice;

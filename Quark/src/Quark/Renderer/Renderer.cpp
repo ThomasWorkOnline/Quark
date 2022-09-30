@@ -11,7 +11,7 @@ namespace Quark {
 	struct RendererData
 	{
 		ShaderLibrary ShaderLib;
-		Scope<RenderPass> GeometryPass;
+		Scope<RenderPass> RenderPass;
 		uint32_t Samples = 0;
 		Renderer::ViewportExtent ViewportExtent{};
 
@@ -38,9 +38,9 @@ namespace Quark {
 		s_Data->ActiveCommandBuffer->BeginRenderPass(renderPass, framebuffer);
 	}
 
-	void Renderer::BeginGeometryPass()
+	void Renderer::BeginRenderPass()
 	{
-		BeginRenderPass(s_Data->GeometryPass.get(), GetTargetFramebuffer());
+		BeginRenderPass(s_Data->RenderPass.get(), GetTargetFramebuffer());
 	}
 
 	void Renderer::EndRenderPass()
@@ -100,7 +100,7 @@ namespace Quark {
 	void Renderer::SetClearColor(const Vec4f& clearColor)
 	{
 		QK_ASSERT_RENDER_THREAD();
-		s_Data->GeometryPass->SetClearColor(clearColor);
+		s_Data->RenderPass->SetClearColor(clearColor);
 	}
 
 	void Renderer::WaitUntilDeviceIdle()
@@ -113,7 +113,7 @@ namespace Quark {
 
 	const Vec4f& Renderer::GetClearColor()
 	{
-		return s_Data->GeometryPass->GetSpecification().ClearColor;
+		return s_Data->RenderPass->GetSpecification().ClearColor;
 	}
 
 	const GraphicsAPICapabilities& Renderer::GetCapabilities()
@@ -121,10 +121,10 @@ namespace Quark {
 		return s_GraphicsAPI->GetCapabilities();
 	}
 
-	RenderPass* Renderer::GetGeometryPass()
+	RenderPass* Renderer::GetRenderPass()
 	{
 		QK_ASSERT_RENDER_THREAD();
-		return s_Data->GeometryPass.get();
+		return s_Data->RenderPass.get();
 	}
 
 	Framebuffer* Renderer::GetTargetFramebuffer()
@@ -182,7 +182,7 @@ namespace Quark {
 		s_Data->ActiveCommandBuffer->Begin();
 		s_Data->ActiveCommandBuffer->SetViewport(s_Data->ViewportExtent.Width, s_Data->ViewportExtent.Height);
 
-		BeginGeometryPass();
+		BeginRenderPass();
 	}
 
 	void Renderer::EndFrame()
@@ -225,7 +225,7 @@ namespace Quark {
 			spec.ClearColor            = { 0.01f, 0.01f, 0.01f, 1.0f };
 			spec.ClearBuffers          = true;
 			spec.Samples               = s_Data->Samples;
-			s_Data->GeometryPass       = RenderPass::Create(spec);
+			s_Data->RenderPass       = RenderPass::Create(spec);
 		}
 
 		const uint32_t swapChainImages = GraphicsContext::Get()->GetSwapChainImageCount();
@@ -253,7 +253,7 @@ namespace Quark {
 			fbSpec.Width           = s_Data->ViewportExtent.Width;
 			fbSpec.Height          = s_Data->ViewportExtent.Height;
 			fbSpec.Samples         = s_Data->Samples;
-			fbSpec.RenderPass      = s_Data->GeometryPass.get();
+			fbSpec.RenderPass      = s_Data->RenderPass.get();
 			fbSpec.SwapChainTarget = true;
 
 			for (uint32_t i = 0; i < swapChainImages; i++)

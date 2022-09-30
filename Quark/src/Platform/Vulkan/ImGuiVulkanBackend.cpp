@@ -37,7 +37,7 @@ namespace Quark {
 			info.ImageCount     = info.MinImageCount;
 			info.MSAASamples    = VK_SAMPLE_COUNT_1_BIT;
 
-			auto* renderPass = Renderer::GetGeometryPass();
+			auto* renderPass = Renderer::GetRenderPass();
 			auto* vulkanRenderPass = static_cast<const VulkanRenderPass*>(renderPass);
 
 			initialized = ImGui_ImplVulkan_Init(&info, vulkanRenderPass->GetVkHandle());
