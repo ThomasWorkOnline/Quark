@@ -1,5 +1,5 @@
 @echo off
-pushd %~dp0\..\..\
+pushd %~dp0\..\..\Quark\
 
 if not exist %VULKAN_SDK% (
 	echo VulkanSDK was not found, try reinstalling the VulkanSDK using the Setup.py script
@@ -10,7 +10,7 @@ if not exist %VULKAN_SDK% (
 
 set glslc=%VULKAN_SDK%\Bin\glslc.exe
 set flags=-o
-set outputDir=.\bin-spirv
+set outputDir=.\cache\spirv
 
 if exist %outputDir% (
 	echo Do you want to delete the shader bin cache?
@@ -19,7 +19,7 @@ if exist %outputDir% (
 	mkdir %outputDir%
 )
 
-set searchPath=Quark\assets\shaders
+set searchPath=assets\shaders
 set /a shadersCompiled=0
 
 echo glslc.exe located at %glslc%

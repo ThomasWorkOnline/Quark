@@ -63,8 +63,8 @@ namespace Quark {
 		auto& coreDir = app->GetOptions().CoreDir;
 
 		float fontSize = 16.0f;
-		io.Fonts->AddFontFromFileTTF((coreDir / "Quark/assets/Fonts/Segoe UI/segoeuib.ttf").string().c_str(), fontSize);
-		io.FontDefault = io.Fonts->AddFontFromFileTTF((coreDir / "Quark/assets/Fonts/Segoe UI/segoeui.ttf").string().c_str(), fontSize);
+		io.Fonts->AddFontFromFileTTF((coreDir / "assets/fonts/Segoe UI/segoeuib.ttf").string().c_str(), fontSize);
+		io.FontDefault = io.Fonts->AddFontFromFileTTF((coreDir / "assets/fonts/Segoe UI/segoeui.ttf").string().c_str(), fontSize);
 
 		auto* window = Application::Get()->GetWindow();
 		s_Backend.Init(window->GetNativeWindow());
