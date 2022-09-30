@@ -1,27 +1,22 @@
+# Auto Generated
+cache
+instrumentor
+logs
+
 # Build
 include
 lib
 bin
 bin-int
 
+# ImGui
 imgui.ini
-
-!Tools/Bin
-
-# Instrumentation
-cache
-instrumentor
-logs
 
 # MacOS files
 .DS_Store
 
-# Makefile
-Makefile
-makefile
-
-# Premake
-!Vendor/Bin
+# Makefiles
+[Mm]akefile
 
 # Python
 __pycache__
@@ -39,5 +34,13 @@ Build
 # Visual Studio Code
 .vscode
 
-#VulkanSDK
+# VulkanSDK
 VulkanSDK
+
+############################
+# Except
+#
+
+# Binaries
+!Vendor/Bin
+!Tools/Bin
