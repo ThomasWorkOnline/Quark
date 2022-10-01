@@ -50,7 +50,7 @@ namespace Quark {
 
 	struct PhysicsComponent
 	{
-		Vec3 Velocity;
+		Vec3 Velocity = Vec3(0.0f);
 
 		PhysicsComponent();
 		PhysicsComponent(const Vec3& velocity);
