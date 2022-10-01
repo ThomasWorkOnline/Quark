@@ -138,7 +138,6 @@ project "Quark"
 	filter "configurations:Debug"
 		defines "QK_DEBUG"
 		runtime "Debug"
-		optimize "Off"
 		symbols "On"
 
 		links

@@ -112,7 +112,6 @@ project "Demos"
 	filter "configurations:Debug"
 		defines "QK_DEBUG"
 		runtime "Debug"
-		optimize "Off"
 		symbols "On"
 
 	filter "configurations:Release"
