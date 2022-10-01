@@ -13,6 +13,13 @@ namespace Quark {
 	static constexpr Float s_MaxFov = 90.0f;
 	static constexpr Float s_ZoomFrictionCoeff = 8.0f;
 
+	void CameraController::OnEvent(Event& e)
+	{
+		EventDispatcher dispatcher(e);
+		dispatcher.Dispatch<MouseScrolledEvent>(ATTACH_EVENT_FN(OnMouseScrolled));
+		dispatcher.Dispatch<MouseMovedEvent>(ATTACH_EVENT_FN(OnMouseMoved));
+	}
+
 	void CameraController::OnUpdate(Timestep elapsedTime)
 	{
 		auto& transform = GetComponent<Transform3DComponent>();
@@ -104,13 +111,6 @@ namespace Quark {
 			camera.SetFov(s_MaxFov);
 			m_ZoomSpeed = 0.0;
 		}
-	}
-
-	void CameraController::OnEvent(Event& e)
-	{
-		EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<MouseScrolledEvent>(ATTACH_EVENT_FN(OnMouseScrolled));
-		dispatcher.Dispatch<MouseMovedEvent>(ATTACH_EVENT_FN(OnMouseMoved));
 	}
 
 	void CameraController::OnMouseScrolled(MouseScrolledEvent& e)

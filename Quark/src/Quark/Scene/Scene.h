@@ -2,9 +2,9 @@
 
 #include "Quark/Core/Core.h"
 #include "Quark/Core/Timestep.h"
-
 #include "Quark/Event/Event.h"
-#include "Quark/Scene/Entity.h"
+
+#include "Entity.h"
 
 #include <entt/entt.hpp>
 
@@ -21,11 +21,11 @@ namespace Quark {
 		Scene() = default;
 		virtual ~Scene();
 
-		void OnUpdate(Timestep elapsedTime);
-		void OnEvent(Event& e);
+		void   OnEvent(Event& e);
+		void   OnUpdate(Timestep elapsedTime);
 
 		Entity CreateEntity();
-		void DeleteEntity(Entity entity);
+		void   DeleteEntity(Entity entity);
 
 		const SceneSettings& GetSettings() const { return m_Settings; }
 		SceneSettings& GetSettings() { return m_Settings; }
@@ -39,10 +39,18 @@ namespace Quark {
 		void UpdateTransforms(Timestep elapsedTime);
 
 		template<typename Component>
-		inline void OnComponentAdded(Entity entity, Component& c);
+		inline void OnComponentAdded(Entity entity, Component& c)
+		{
+		}
 
 		template<typename Component>
-		inline void OnComponentRemove(Entity entity, Component& c);
+		inline void OnComponentRemove(Entity entity, Component& c)
+		{
+		}
+
+	private:
+		void InstanciateScript(Entity entity, NativeScriptComponent& nsc);
+		void DestroyScript(NativeScriptComponent& nsc);
 
 	protected:
 		entt::registry m_Registry;
@@ -50,4 +58,25 @@ namespace Quark {
 
 		friend class Entity;
 	};
+}
+
+#include "Components.h"
+
+namespace Quark {
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Component template specialization
+	//
+
+	template<>
+	inline void Scene::OnComponentAdded(Entity entity, NativeScriptComponent& nsc)
+	{
+		InstanciateScript(entity, nsc);
+	}
+
+	template<>
+	inline void Scene::OnComponentRemove(Entity entity, NativeScriptComponent& nsc)
+	{
+		DestroyScript(nsc);
+	}
 }

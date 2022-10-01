@@ -13,8 +13,8 @@ namespace Quark {
 	class CameraController : public NativeScriptEntity
 	{
 	public:
-		virtual void OnUpdate(Timestep elapsedTime) override;
 		virtual void OnEvent(Event& e) override;
+		virtual void OnUpdate(Timestep elapsedTime) override;
 
 	private:
 		void OnMouseScrolled(MouseScrolledEvent& e);

@@ -1,11 +1,14 @@
 #pragma once
 
 #include "Quark/Core/Core.h"
-#include "Quark/Renderer/Texture.h"
+
 #include "Quark/UI/Text.h"
+#include "Quark/Renderer/Texture.h"
 
 #include "Mesh.h"
 #include "SceneCamera.h"
+
+#include <type_traits>
 
 namespace Quark {
 
@@ -18,7 +21,7 @@ namespace Quark {
 	{
 		std::string Name;
 
-		TagComponent(const std::string& name)
+		TagComponent(std::string_view name)
 			: Name(name) {}
 	};
 
@@ -79,26 +82,22 @@ namespace Quark {
 		Text Label;
 	};
 
-	class Scene;
-	class Entity;
 	class NativeScriptEntity;
 
 	struct NativeScriptComponent
 	{
 		Scope<NativeScriptEntity> ScriptInstance;
-		NativeScriptEntity* (*InstanciateScript)(Entity) = nullptr;
+		NativeScriptEntity* (*InstanciateScript)() = nullptr;
 
 		template<typename T>
 		NativeScriptComponent& Bind()
 		{
 			static_assert(std::is_base_of_v<NativeScriptEntity, T>,
-				"Template argument must be a sub-type of NativeScriptEntity");
+				"Template argument must be a sub-type of NativeScriptEntity.");
 
-			InstanciateScript = [](Entity entity)
+			InstanciateScript = []()
 			{
-				auto* script = static_cast<NativeScriptEntity*>(new T());
-				script->m_Entity = entity;
-				return script;
+				return static_cast<NativeScriptEntity*>(new T());
 			};
 
 			return *this;

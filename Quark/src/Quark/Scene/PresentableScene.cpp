@@ -9,6 +9,14 @@
 
 namespace Quark {
 
+	void PresentableScene::OnEvent(Event& e)
+	{
+		EventDispatcher dispatcher(e);
+		dispatcher.Dispatch<WindowResizedEvent>(ATTACH_EVENT_FN(OnWindowResized));
+
+		Scene::OnEvent(e);
+	}
+
 	void PresentableScene::OnRender()
 	{
 		if (m_PrimaryCameraEntity)
@@ -72,16 +80,6 @@ namespace Quark {
 				Renderer::GetCommandBuffer()->SetDepthFunction(DepthCompareFunction::Default);
 			}
 		}
-	}
-
-	void PresentableScene::OnEvent(Event& e)
-	{
-		if (!this) return; // In the case we call an event on an empty scene
-
-		EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<WindowResizedEvent>(ATTACH_EVENT_FN(OnWindowResized));
-
-		Scene::OnEvent(e);
 	}
 
 	Entity PresentableScene::CreatePrimaryCamera()

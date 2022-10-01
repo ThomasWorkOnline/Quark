@@ -137,7 +137,7 @@ void PBRRenderingDemo::OnEvent(Event& e)
 
 	e.Handled = e.IsInCategory(EventCategory::Input) && GetWindow()->IsCursorEnabled();
 
-	if (!e.Handled)
+	if (m_Scene && !e.Handled)
 		m_Scene->OnEvent(e);
 
 	DefaultEventHandler(e);

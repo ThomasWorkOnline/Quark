@@ -15,20 +15,20 @@ namespace Quark {
 		virtual void OnCreate() {}
 		virtual void OnDestroy() {}
 
-		virtual void OnUpdate(Timestep elapsedTime) {}
 		virtual void OnEvent(Event& e) {}
+		virtual void OnUpdate(Timestep elapsedTime) {}
 
-		template<typename T>
-		T& GetComponent() { return m_Entity.GetComponent<T>(); }
+		template<typename Component>
+		Component&   GetComponent() { return m_Entity.GetComponent<Component>(); }
 
-		operator Entity() const { return m_Entity; }
+		operator Entity()       const { return m_Entity; }
 
 		operator entt::entity() const { return m_Entity; }
-		operator uint32_t() const { return (uint32_t)m_Entity; }
+		operator uint32_t()     const { return (uint32_t)m_Entity; }
 
 	private:
 		Entity m_Entity;
 
-		friend struct NativeScriptComponent;
+		friend class Scene;
 	};
 }
