@@ -8,8 +8,8 @@
 #	define StackAlloc _malloca
 #else
 	// Automatic stack cleanup
-#	define Freea
-#	define StackAlloc alloca
+#	define Freea(mem) ((void)mem)
+#	define StackAlloc __alloca
 #endif
 
 #define sizeof_array(x) (sizeof(x) / sizeof(x[0]))

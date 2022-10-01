@@ -90,7 +90,7 @@ namespace Quark {
 
 	void Scene::InstanciateScript(Entity entity, NativeScriptComponent& nsc)
 	{
-		nsc.ScriptInstance = Scope<NativeScriptEntity>{ nsc.InstanciateScript() };
+		nsc.ScriptInstance = nsc.InstanciateScript();
 		nsc.ScriptInstance->m_Entity = entity;
 		nsc.ScriptInstance->OnCreate();
 	}
@@ -98,5 +98,6 @@ namespace Quark {
 	void Scene::DestroyScript(NativeScriptComponent& nsc)
 	{
 		nsc.ScriptInstance->OnDestroy();
+		delete nsc.ScriptInstance;
 	}
 }

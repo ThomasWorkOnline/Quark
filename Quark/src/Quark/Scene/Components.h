@@ -86,15 +86,12 @@ namespace Quark {
 
 	struct NativeScriptComponent
 	{
-		Scope<NativeScriptEntity> ScriptInstance;
+		NativeScriptEntity* ScriptInstance = nullptr;
 		NativeScriptEntity* (*InstanciateScript)() = nullptr;
 
 		template<typename T>
 		NativeScriptComponent& Bind()
 		{
-			static_assert(std::is_base_of_v<NativeScriptEntity, T>,
-				"Template argument must be a sub-type of NativeScriptEntity.");
-
 			InstanciateScript = []()
 			{
 				return static_cast<NativeScriptEntity*>(new T());

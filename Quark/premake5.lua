@@ -50,8 +50,7 @@ project "Quark"
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.OpenAL}",
-		"%{IncludeDir.spdlog}",
-		"%{IncludeDir.VulkanSDK}"
+		"%{IncludeDir.spdlog}"
 	}
 
 	links
@@ -88,6 +87,11 @@ project "Quark"
 			"_CRT_SECURE_NO_WARNINGS"
 		}
 
+		includedirs
+		{
+			"%{VULKAN_SDK}/Include"
+		}
+
 		libdirs
 		{
 			"%{LibraryDir.OpenAL}"
@@ -115,7 +119,8 @@ project "Quark"
 
 		includedirs
 		{
-			"%{IncludeDir.Metal}"
+			"%{IncludeDir.Metal}",
+			"/Users/thomaslessard/VulkanSDK/1.3.224.1/macOS/include"
 		}
 
 		links

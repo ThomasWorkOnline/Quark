@@ -16,6 +16,7 @@ namespace Quark {
 	class CommandBuffer
 	{
 	public:
+		CommandBuffer() = default;
 		virtual ~CommandBuffer() = default;
 
 		virtual void Begin() = 0;

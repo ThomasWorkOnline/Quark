@@ -32,7 +32,7 @@ namespace Quark {
 		virtual                             ~GraphicsAPI() = default;
 		virtual void                         Init() = 0;
 										     
-		virtual                              Version GetDriverVersion() const = 0;
+		virtual Version                      GetDriverVersion() const = 0;
 									         
 		virtual Scope<CommandBuffer>         CreateCommandBuffer() = 0;
 									           

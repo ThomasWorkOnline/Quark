@@ -27,7 +27,9 @@ namespace Quark {
 	{
 		switch (GraphicsAPI::GetAPI())
 		{
+#ifdef QK_PLATFORM_WINDOWS
 			case RHI::Direct3D12: return CreateScope<Direct3D12Context>(windowHandle);
+#endif
 
 #ifdef QK_PLATFORM_APPLE
 			case RHI::Metal: return CreateScope<MetalContext>(windowHandle);

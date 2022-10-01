@@ -67,7 +67,7 @@ namespace Quark {
 	//
 
 	template<>
-	inline void PresentableScene::OnComponentAdded(Entity entity, CameraComponent& cc)
+	inline void Scene::OnComponentAdded(Entity entity, CameraComponent& cc)
 	{
 		auto extent = Renderer::GetViewportExtent();
 		cc.Camera.Resize(extent.Width, extent.Height);

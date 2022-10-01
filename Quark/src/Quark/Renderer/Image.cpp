@@ -1,8 +1,6 @@
 #include "qkpch.h"
 #include "Image.h"
 
-#include <fpng/fpng.h>
-#include <fpng/fpng.cpp>
 #include <lodepng/lodepng.h>
 
 #define STB_IMAGE_STATIC
