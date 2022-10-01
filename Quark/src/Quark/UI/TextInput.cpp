@@ -66,6 +66,8 @@ namespace Quark {
 				m_Cursor = m_Value.size();
 				break;
 			}
+			default:
+				break;
 		}
 	}
 

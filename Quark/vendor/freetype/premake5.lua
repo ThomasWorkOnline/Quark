@@ -10,8 +10,7 @@ project "FreeType"
 	{
 		"_LIB",
 		"FT2_BUILD_LIBRARY",
-		"FT_CONFIG_OPTION_ERROR_STRINGS",
-		"_CRT_SECURE_NO_WARNINGS"
+		"FT_CONFIG_OPTION_ERROR_STRINGS"
 	}
 
 	includedirs
@@ -74,6 +73,11 @@ project "FreeType"
 			"builds/windows/ftdebug.c"
 		}
 
+		defines
+		{
+			"_CRT_SECURE_NO_WARNINGS"
+		}
+
 	filter "system:macosx"
 		files
 		{
@@ -95,16 +99,12 @@ project "FreeType"
         optimize "On"
 		symbols	"On"
 
-		flags
-		{
-			"LinkTimeOptimization"
-		}
-
 	filter "configurations:Dist"
         runtime "Release"
         optimize "Full"
 		symbols	"Off"
 
+	filter { ("configurations:Release" or "configurations:Dist") and "system:windows" }
 		flags
 		{
 			"LinkTimeOptimization"

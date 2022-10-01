@@ -65,14 +65,14 @@ project "Quark"
 		"spdlog"
 	}
 
-	flags
-	{
-		"FatalCompileWarnings",
-		"ShadowedVariables"
-	}
-
 	filter "system:windows"
 		systemversion "latest"
+
+		flags
+		{
+			"FatalCompileWarnings",
+			"ShadowedVariables"
+		}
 
 		files
 		{
@@ -138,6 +138,7 @@ project "Quark"
 	filter "configurations:Debug"
 		defines "QK_DEBUG"
 		runtime "Debug"
+		optimize "Off"
 		symbols "On"
 
 		links
@@ -153,11 +154,6 @@ project "Quark"
 		optimize "On"
 		symbols	"On"
 
-		flags
-		{
-			"LinkTimeOptimization"
-		}
-
 		links
 		{
 			"%{Library.ShaderC_Release}",
@@ -171,14 +167,15 @@ project "Quark"
 		optimize "Full"
 		symbols "Off"
 
-		flags
-		{
-			"LinkTimeOptimization"
-		}
-
 		links
 		{
 			"%{Library.ShaderC_Release}",
 			"%{Library.SPIRVCross_Release}",
 			"%{Library.SPIRVCross_GLSL_Release}"
+		}
+
+	filter { ("configurations:Release" or "configurations:Dist") and "system:windows" }
+		flags
+		{
+			"LinkTimeOptimization"
 		}

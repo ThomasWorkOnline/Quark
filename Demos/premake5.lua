@@ -28,16 +28,16 @@ project "Demos"
 		"Quark"
 	}
 
-	flags
-	{
-		"FatalCompileWarnings",
-		"ShadowedVariables"
-	}
-
 	filter { "configurations:Dist", "system:windows" }
 		kind "WindowedApp"
 
 	filter "system:windows"
+		flags
+		{
+			"FatalCompileWarnings",
+			"ShadowedVariables"
+		}
+
 		defines
 		{
 			"_CRT_SECURE_NO_WARNINGS"
@@ -112,6 +112,7 @@ project "Demos"
 	filter "configurations:Debug"
 		defines "QK_DEBUG"
 		runtime "Debug"
+		optimize "Off"
 		symbols "On"
 
 	filter "configurations:Release"
@@ -120,17 +121,13 @@ project "Demos"
 		optimize "On"
 		symbols	"On"
 
-		flags
-		{
-			"LinkTimeOptimization"
-		}
-
 	filter "configurations:Dist"
 		defines "QK_DIST"
 		runtime "Release"
 		optimize "Full"
 		symbols "Off"
 
+	filter { ("configurations:Release" or "configurations:Dist") and "system:windows" }
 		flags
 		{
 			"LinkTimeOptimization"
