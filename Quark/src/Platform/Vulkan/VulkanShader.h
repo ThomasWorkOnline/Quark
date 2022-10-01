@@ -21,6 +21,11 @@ namespace Quark {
 		VulkanShader(VulkanDevice* device, std::string_view filepath);
 		VulkanShader(VulkanDevice* device, std::string_view name, SpirvView vertexSource, SpirvView fragmentSource);
 		VulkanShader(VulkanDevice* device, std::string_view name, SpirvView vertexSource, SpirvView geometrySource, SpirvView fragmentSource);
+
+		// Legacy (compilation from GLSL sources)
+		VulkanShader(VulkanDevice* device, std::string_view name, std::string_view vertexSource, std::string_view fragmentSource);
+		VulkanShader(VulkanDevice* device, std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource);
+
 		virtual ~VulkanShader() final override;
 
 		virtual void SetInt(std::string_view name, int32_t value) final override {}

@@ -135,6 +135,33 @@ namespace Quark {
 		}
 	}
 
+	OpenGLShader::OpenGLShader(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource)
+		: Shader(name)
+	{
+		QK_PROFILE_FUNCTION();
+
+		std::unordered_map<GLenum, std::string_view> spirvSources(2);
+		spirvSources[GL_VERTEX_SHADER]   = vertexSource;
+		spirvSources[GL_FRAGMENT_SHADER] = fragmentSource;
+		m_RendererID = CompileGLSLSourcesLegacy(spirvSources);
+
+		// TODO: manual upload of uniforms
+	}
+
+	OpenGLShader::OpenGLShader(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource)
+		: Shader(name)
+	{
+		QK_PROFILE_FUNCTION();
+
+		std::unordered_map<GLenum, std::string_view> spirvSources(3);
+		spirvSources[GL_VERTEX_SHADER]   = vertexSource;
+		spirvSources[GL_GEOMETRY_SHADER] = geometrySource;
+		spirvSources[GL_FRAGMENT_SHADER] = fragmentSource;
+		m_RendererID = CompileGLSLSourcesLegacy(spirvSources);
+
+		// TODO: manual upload of uniforms
+	}
+
 	OpenGLShader::~OpenGLShader()
 	{
 		glDeleteProgram(m_RendererID);

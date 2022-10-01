@@ -32,6 +32,9 @@ namespace Quark {
 		virtual Scope<Shader>                CreateShader(std::string_view filepath) final override;
 		virtual Scope<Shader>                CreateShader(std::string_view name, SpirvView vertexSource, SpirvView fragmentSource) final override;
 		virtual Scope<Shader>                CreateShader(std::string_view name, SpirvView vertexSource, SpirvView geometrySource, SpirvView fragmentSource) final override;
+
+		virtual Scope<Shader>                CreateShaderLegacy(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource) final override;
+		virtual Scope<Shader>                CreateShaderLegacy(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource) final override;
 		
 		virtual Scope<Sampler>               CreateSampler(const SamplerSpecification& spec) final override;
 

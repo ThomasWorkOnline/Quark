@@ -2,8 +2,10 @@
 #include "Renderer2D.h"
 
 #include "Quark/Core/Application.h"
-#include "Quark/Renderer/Sampler.h"
 #include "Quark/Filesystem/Filesystem.h"
+
+#include "Sampler.h"
+#include "GraphicsAPI.cpp"
 
 namespace Quark {
 
@@ -521,11 +523,24 @@ namespace Quark {
 			s_Data->Samplers[i] = Sampler::Create(spec);
 		}
 
-		auto& coreDirectory = Application::Get()->GetOptions().CoreDir;
-		auto spriteVertexSource = ReadSpirvFile((coreDirectory / "cache/spirv/Sprite.vert.spv").string());
-		auto spriteFragmentSource = ReadSpirvFile((coreDirectory / "cache/spirv/Sprite.frag.spv").string());
+		auto& version = s_GraphicsAPI->GetDriverVersion();
+		if (GraphicsAPI::GetAPI() == RHI::OpenGL &&
+			version.Major <= 4 && version.Major <= 1)
+		{
+			auto& coreDirectory = Application::Get()->GetOptions().CoreDir;
+			auto spriteVertexSource = Filesystem::ReadTextFile((coreDirectory / "assets/shaders/version/4.50/Sprite.vert").string());
+			auto spriteFragmentSource = Filesystem::ReadTextFile((coreDirectory / "assets/shaders/version/4.50/Sprite.frag").string());
 
-		s_Data->QuadShader = Shader::Create("defaultSprite", spriteVertexSource, spriteFragmentSource);
+			s_Data->QuadShader = Shader::CreateLegacy("defaultSprite", spriteVertexSource, spriteFragmentSource);
+		}
+		else
+		{
+			auto& coreDirectory = Application::Get()->GetOptions().CoreDir;
+			auto spriteVertexBinary = ReadSpirvFile((coreDirectory / "cache/spirv/Sprite.vert.spv").string());
+			auto spriteFragmentBinary = ReadSpirvFile((coreDirectory / "cache/spirv/Sprite.frag.spv").string());
+
+			s_Data->QuadShader = Shader::Create("defaultSprite", spriteVertexBinary, spriteFragmentBinary);
+		}
 
 		{
 			PipelineSpecification spec;
@@ -548,11 +563,24 @@ namespace Quark {
 
 		s_Data->LineVertices = new LineVertex[Renderer2DData::MaxVertices];
 
-		auto& coreDirectory = Application::Get()->GetOptions().CoreDir;
-		auto lineVertexSource = ReadSpirvFile((coreDirectory / "cache/spirv/Line.vert.spv").string());
-		auto lineFragmentSource = ReadSpirvFile((coreDirectory / "cache/spirv/Line.frag.spv").string());
+		auto& version = s_GraphicsAPI->GetDriverVersion();
+		if (GraphicsAPI::GetAPI() == RHI::OpenGL &&
+			version.Major <= 4 && version.Major <= 1)
+		{
+			auto& coreDirectory = Application::Get()->GetOptions().CoreDir;
+			auto lineVertexSource = Filesystem::ReadTextFile((coreDirectory / "assets/shaders/version/4.20/Line.vert").string());
+			auto lineFragmentSource = Filesystem::ReadTextFile((coreDirectory / "assets/shaders/version/4.20/Line.frag").string());
 
-		s_Data->LineShader = Shader::Create("defaultLine", lineVertexSource, lineFragmentSource);
+			s_Data->LineShader = Shader::CreateLegacy("defaultSprite", lineVertexSource, lineFragmentSource);
+		}
+		else
+		{
+			auto& coreDirectory = Application::Get()->GetOptions().CoreDir;
+			auto lineVertexBinary = ReadSpirvFile((coreDirectory / "cache/spirv/Line.vert.spv").string());
+			auto lineFragmentBinary = ReadSpirvFile((coreDirectory / "cache/spirv/Line.frag.spv").string());
+
+			s_Data->LineShader = Shader::Create("defaultLine", lineVertexBinary, lineFragmentBinary);
+		}
 
 		{
 			PipelineSpecification spec;

@@ -101,6 +101,9 @@ namespace Quark {
 		static Scope<Shader> Create(std::string_view name, SpirvView vertexSource, SpirvView fragmentSource);
 		static Scope<Shader> Create(std::string_view name, SpirvView vertexSource, SpirvView geometrySource, SpirvView fragmentSource);
 
+		static Scope<Shader> CreateLegacy(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource);
+		static Scope<Shader> CreateLegacy(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource);
+
 	protected:
 		void Reflect(ShaderStage stage, const uint32_t* spirvSource, size_t words);
 

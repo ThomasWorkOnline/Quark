@@ -132,6 +132,16 @@ namespace Quark {
 		return s_GraphicsAPI->CreateShader(name, vertexSource, geometrySource, fragmentSource);
 	}
 
+	Scope<Shader> Shader::CreateLegacy(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource)
+	{
+		return s_GraphicsAPI->CreateShaderLegacy(name, vertexSource, fragmentSource);
+	}
+
+	Scope<Shader> Shader::CreateLegacy(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource)
+	{
+		return s_GraphicsAPI->CreateShaderLegacy(name, vertexSource, geometrySource, fragmentSource);
+	}
+
 	SpirvSource ReadSpirvFile(std::string_view filepath)
 	{
 		SpirvSource result;

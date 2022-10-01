@@ -47,6 +47,18 @@ namespace Quark {
 		m_ShaderStages[VK_SHADER_STAGE_FRAGMENT_BIT] = CreateShader(ShaderStage::Fragment, fragmentSource);
 	}
 
+	VulkanShader::VulkanShader(VulkanDevice* device, std::string_view name, std::string_view vertexSource, std::string_view fragmentSource)
+		: Shader(name), m_Device(device)
+	{
+		QK_CORE_ASSERT(false, "Legacy shaders in Vulkan are not supported!");
+	}
+
+	VulkanShader::VulkanShader(VulkanDevice* device, std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource)
+		: Shader(name), m_Device(device)
+	{
+		QK_CORE_ASSERT(false, "Legacy shaders in Vulkan are not supported!");
+	}
+
 	VulkanShader::~VulkanShader()
 	{
 		QK_PROFILE_FUNCTION();

@@ -15,6 +15,11 @@ namespace Quark {
 		OpenGLShader(std::string_view filepath);
 		OpenGLShader(std::string_view name, SpirvView vertexSource, SpirvView fragmentSource);
 		OpenGLShader(std::string_view name, SpirvView vertexSource, SpirvView geometrySource, SpirvView fragmentSource);
+
+		// Legacy OpenGL shaders (not compatible with SPIR-V reflection)
+		OpenGLShader(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource);
+		OpenGLShader(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource);
+
 		virtual ~OpenGLShader() final override;
 
 		virtual void SetInt(std::string_view name, int32_t value) final override;

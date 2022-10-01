@@ -82,6 +82,16 @@ namespace Quark {
 		return Scope<Shader>();
 	}
 
+	Scope<Shader> Direct3DGraphicsAPI::CreateShaderLegacy(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource)
+	{
+		return Scope<Shader>();
+	}
+
+	Scope<Shader> Direct3DGraphicsAPI::CreateShaderLegacy(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource)
+	{
+		return Scope<Shader>();
+	}
+
 	Scope<Sampler> Direct3DGraphicsAPI::CreateSampler(const SamplerSpecification& spec)
 	{
 		return Scope<Sampler>();
