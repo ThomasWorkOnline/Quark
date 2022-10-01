@@ -87,6 +87,7 @@ project "GLFW"
 
 	filter "configurations:Debug"
 		runtime "Debug"
+		optimize "Off"
 		symbols "On"
 
 	filter "configurations:Release"
