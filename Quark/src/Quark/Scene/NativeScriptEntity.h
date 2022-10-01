@@ -26,7 +26,7 @@ namespace Quark {
 		void                    RemoveComponent() { m_Entity.RemoveComponent<Component>(); }
 
 		template<typename Component>
-		bool                    HasComponent() const { return m_Entity.HasComponent(); }
+		bool                    HasComponent() const { return m_Entity.HasComponent<Component>(); }
 
 		template<typename Component>
 		Component&              GetComponent() { return m_Entity.GetComponent<Component>(); }
