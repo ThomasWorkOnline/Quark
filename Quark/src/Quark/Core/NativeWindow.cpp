@@ -70,11 +70,6 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		m_Data.Title   = spec.Title;
-		m_Data.Width   = spec.Width;
-		m_Data.Height  = spec.Height;
-		m_Data.Samples = spec.Samples;
-
 		if (s_WindowCount == 0)
 		{
 			int initCode = glfwInit();
@@ -86,12 +81,20 @@ namespace Quark {
 		}
 
 		// MSAA anti-aliasing
-		glfwWindowHint(GLFW_SAMPLES, m_Data.Samples);
+		glfwWindowHint(GLFW_SAMPLES, spec.Samples);
 
-		m_Window = glfwCreateWindow(m_Data.Width, m_Data.Height, m_Data.Title.c_str(), nullptr, nullptr);
+		m_Window = glfwCreateWindow(spec.Width, spec.Height, spec.Title.c_str(), nullptr, nullptr);
 		QK_CORE_ASSERT(m_Window, "Failed to create window!");
 
 		++s_WindowCount;
+
+		int frameBufferWidth, frameBufferHeight;
+		glfwGetFramebufferSize(m_Window, &frameBufferWidth, &frameBufferHeight);
+
+		m_Data.Title   = spec.Title;
+		m_Data.Samples = spec.Samples;
+		m_Data.Width   = frameBufferWidth;
+		m_Data.Height  = frameBufferHeight;
 
 		// Creating the graphics context
 		m_Data.Context = GraphicsContext::Create(m_Window);
@@ -119,13 +122,16 @@ namespace Quark {
 				data.EventCallback(event);
 			});
 
-		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
+		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int, int)
 			{
-				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-				data.Width = width;
-				data.Height = height;
+				int frameBufferWidth, frameBufferHeight;
+				glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
 
-				WindowResizedEvent event(width, height);
+				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+				data.Width = frameBufferWidth;
+				data.Height = frameBufferHeight;
+
+				WindowResizedEvent event((uint32_t)frameBufferWidth, (uint32_t)frameBufferHeight);
 				data.EventCallback(event);
 			});
 
