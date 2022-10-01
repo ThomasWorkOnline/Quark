@@ -59,10 +59,34 @@ project "Demos"
 			"CoreVideo.framework",
 			"Foundation.framework",
 			"IOKit.framework",
+			"IOSurface.framework",
 			"Metal.framework",
 			"OpenAL.framework",
 			"OpenGL.framework",
-			"QuartzCore.framework"
+			"QuartzCore.framework",
+
+			"vulkan",
+			"MoltenVK",
+
+			"spirv-cross-c",
+			"spirv-cross-cpp",
+			"spirv-cross-core",
+			"spirv-cross-glsl",
+			"spirv-cross-hlsl",
+			"spirv-cross-msl",
+			"spirv-cross-reflect",
+			"spirv-cross-util",
+
+			"shaderc_combined",
+			"shaderc_util",
+
+			"glslang"
+		}
+
+		libdirs
+		{
+			"/Users/thomaslessard/VulkanSDK/1.3.224.1/macOS/lib",
+			"/Users/thomaslessard/VulkanSDK/1.3.224.1/MoltenVK/MoltenVK.xcframework/macos-arm64_x86_64"
 		}
 
 		includedirs
