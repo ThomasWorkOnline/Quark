@@ -17,11 +17,6 @@ project "InstalledVulkanVersion"
 		"%{IncludeDir.VulkanSDK}"
 	}
 
-	links
-	{
-		"%{Library.Vulkan}"
-	}
-
 	flags
 	{
 		"FatalCompileWarnings",
@@ -32,6 +27,17 @@ project "InstalledVulkanVersion"
 		defines
 		{
 			"_CRT_SECURE_NO_WARNINGS"
+		}
+
+		links
+		{
+			"%{Library.Vulkan}"
+		}
+
+	filter "system:macosx"
+		links
+		{
+			"Vulkan.framework"
 		}
 
 	filter "configurations:Debug"

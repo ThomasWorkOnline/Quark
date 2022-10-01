@@ -53,5 +53,3 @@ namespace Quark {
 		Scene* m_Scene = nullptr;
 	};
 }
-
-#include "Entity.inl"

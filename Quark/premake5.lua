@@ -50,7 +50,8 @@ project "Quark"
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.OpenAL}",
-		"%{IncludeDir.spdlog}"
+		"%{IncludeDir.spdlog}",
+		"%{IncludeDir.VulkanSDK}"
 	}
 
 	links
@@ -60,8 +61,7 @@ project "Quark"
 		"GLFW",
 		"ImGui",
 		"lodepng",
-		"spdlog",
-		"%{Library.Vulkan}"
+		"spdlog"
 	}
 
 	flags
@@ -87,11 +87,6 @@ project "Quark"
 			"_CRT_SECURE_NO_WARNINGS"
 		}
 
-		includedirs
-		{
-			"%{VULKAN_SDK}/Include"
-		}
-
 		libdirs
 		{
 			"%{LibraryDir.OpenAL}"
@@ -102,7 +97,8 @@ project "Quark"
 			"%{Library.DXGI}",
 			"%{Library.Direct3D12}",
 			"%{Library.OpenAL}",
-			"%{Library.OpenGL}"
+			"%{Library.OpenGL}",
+			"%{Library.Vulkan}"
 		}
 
 		postbuildcommands
@@ -119,8 +115,7 @@ project "Quark"
 
 		includedirs
 		{
-			"%{IncludeDir.Metal}",
-			"/Users/thomaslessard/VulkanSDK/1.3.224.1/macOS/include"
+			"%{IncludeDir.Metal}"
 		}
 
 		links
@@ -132,7 +127,8 @@ project "Quark"
 			"Metal.framework",
 			"OpenAL.framework",
 			"OpenGL.framework",
-			"QuartzCore.framework"
+			"QuartzCore.framework",
+			"Vulkan.framework"
 		}
 
 	filter "system:linux"

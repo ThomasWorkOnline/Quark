@@ -61,6 +61,7 @@ namespace Quark {
 }
 
 #include "Components.h"
+#include "Components.inl"
 
 namespace Quark {
 

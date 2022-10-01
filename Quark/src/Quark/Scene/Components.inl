@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Scene.h"
+#include "Entity.h"
 
 #include <typeinfo>
 #include <type_traits>

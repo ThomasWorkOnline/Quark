@@ -498,15 +498,17 @@ namespace Quark {
 
 		s_Data->QuadVertices = new QuadVertex[Renderer2DData::MaxVertices];
 
-		uint32_t textureColor = 0xffffffff;
-		Texture2DSpecification spec = { 1, 1, 1, 1, ColorFormat::RGBA8 };
-
-		s_Data->DefaultTexture = Texture2D::Create(spec);
-		s_Data->DefaultTexture->SetData(&textureColor, sizeof(textureColor));
 		s_Data->Textures = new const Texture*[s_Data->MaxSamplerDestinations];
-
 		std::memset(s_Data->Textures, 0, s_Data->MaxSamplerDestinations * sizeof(Texture*));
-		s_Data->Textures[0] = s_Data->DefaultTexture.get();
+
+		{
+			uint32_t textureColor = 0xffffffff;
+			Texture2DSpecification spec = { 1, 1, 1, 1, ColorFormat::RGBA8 };
+
+			s_Data->DefaultTexture = Texture2D::Create(spec);
+			s_Data->DefaultTexture->SetData(&textureColor, sizeof(textureColor));
+			s_Data->Textures[0] = s_Data->DefaultTexture.get();
+		}
 
 		auto& coreDirectory = Application::Get()->GetOptions().CoreDir;
 		auto spriteVertexSource = ReadSpirvFile((coreDirectory / "cache/spirv/Sprite.vert.spv").string());
