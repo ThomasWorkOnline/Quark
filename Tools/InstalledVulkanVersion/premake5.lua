@@ -68,16 +68,18 @@ project "InstalledVulkanVersion"
 		optimize "On"
 		symbols	"On"
 
-		flags
-		{
-			"LinkTimeOptimization"
-		}
-
 	filter "configurations:Dist"
 		runtime "Release"
 		optimize "Full"
 		symbols "Off"
 
+	filter { "configurations:Release", "system:windows" }
+		flags
+		{
+			"LinkTimeOptimization"
+		}
+
+	filter { "configurations:Dist", "system:windows" }
 		flags
 		{
 			"LinkTimeOptimization"
