@@ -1,5 +1,7 @@
 #include <Windows.h>
 
+#undef LoadLibrary
+
 namespace Platform {
 
 	void* LoadLibrary(const char* name)
