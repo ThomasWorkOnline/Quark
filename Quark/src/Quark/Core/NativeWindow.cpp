@@ -12,10 +12,17 @@ namespace Quark {
 		if (GraphicsAPI::GetAPI() == RHI::OpenGL)
 		{
 			glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
-			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+
+#if defined(QK_PLATFORM_MACOS)
+			// Max supported OpenGL version on modern macOS
+			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+#else
+			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+#endif
 
 #ifdef QK_DEBUG
 			glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
@@ -29,6 +36,7 @@ namespace Quark {
 #if defined(QK_PLATFORM_MACOS)
 		glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
 		glfwWindowHint(GLFW_COCOA_GRAPHICS_SWITCHING, GLFW_TRUE);
+		QK_CORE_TRACE("Set macOS specific window hints!");
 #endif
 	}
 
@@ -71,6 +79,7 @@ namespace Quark {
 		{
 			int initCode = glfwInit();
 			QK_CORE_ASSERT(initCode == GLFW_TRUE, "Could not initialize GLFW!");
+			QK_CORE_TRACE("Initialized GLFW!");
 
 			glfwSetErrorCallback(GLFWErrorCallback);
 			SetContextRelatedHints();
@@ -80,6 +89,8 @@ namespace Quark {
 		glfwWindowHint(GLFW_SAMPLES, m_Data.Samples);
 
 		m_Window = glfwCreateWindow(m_Data.Width, m_Data.Height, m_Data.Title.c_str(), nullptr, nullptr);
+		QK_CORE_ASSERT(m_Window, "Failed to create window!");
+
 		++s_WindowCount;
 
 		// Creating the graphics context
