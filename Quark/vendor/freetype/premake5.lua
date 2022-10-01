@@ -16,6 +16,7 @@ project "FreeType"
 
 	includedirs
 	{
+		"src/base",
 		"include"
 	}
 
@@ -69,7 +70,20 @@ project "FreeType"
 	filter "system:windows"
 		files
 		{
-			"builds/windows/ftsystem.c"
+			"builds/windows/ftsystem.c",
+			"builds/windows/ftdebug.c"
+		}
+
+	filter "system:macosx"
+		files
+		{
+			"builds/mac/ftmac.c"
+		}
+
+	filter "system:linux"
+		files
+		{
+			"builds/unix/ftsystem.c"
 		}
 
     filter "configurations:Debug"
