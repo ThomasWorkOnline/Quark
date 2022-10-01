@@ -510,10 +510,6 @@ namespace Quark {
 			s_Data->Textures[0] = s_Data->DefaultTexture.get();
 		}
 
-		auto& coreDirectory = Application::Get()->GetOptions().CoreDir;
-		auto spriteVertexSource = ReadSpirvFile((coreDirectory / "cache/spirv/Sprite.vert.spv").string());
-		auto spriteFragmentSource = ReadSpirvFile((coreDirectory / "cache/spirv/Sprite.frag.spv").string());
-
 		s_Data->Samplers.resize(s_Data->MaxSamplerDestinations);
 		for (uint32_t i = 0; i < s_Data->MaxSamplerDestinations; i++)
 		{
@@ -524,6 +520,10 @@ namespace Quark {
 
 			s_Data->Samplers[i] = Sampler::Create(spec);
 		}
+
+		auto& coreDirectory = Application::Get()->GetOptions().CoreDir;
+		auto spriteVertexSource = ReadSpirvFile((coreDirectory / "cache/spirv/Sprite.vert.spv").string());
+		auto spriteFragmentSource = ReadSpirvFile((coreDirectory / "cache/spirv/Sprite.frag.spv").string());
 
 		s_Data->QuadShader = Shader::Create("defaultSprite", spriteVertexSource, spriteFragmentSource);
 

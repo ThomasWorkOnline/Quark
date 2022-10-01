@@ -37,6 +37,7 @@ namespace Quark {
 
 		if (m_Options.HasFlag(ApplicationFlagBits::EnableAudioOutputDevice))
 		{
+			QK_CORE_TRACE("Opening audio device...");
 			m_AudioOutputDevice = AudioOutputDevice::Create();
 			QK_CORE_INFO("Opened audio device: {0}", m_AudioOutputDevice->GetDeviceName());
 		}
