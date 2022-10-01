@@ -92,16 +92,17 @@ project "FreeType"
 
     filter "configurations:Debug"
         runtime "Debug"
-        symbols "On"
+		optimize "Off"
+		symbols "On"
 
     filter "configurations:Release"
         runtime "Release"
-        optimize "On"
+		optimize "On"
 		symbols	"On"
 
 	filter "configurations:Dist"
         runtime "Release"
-        optimize "Full"
+		optimize "Full"
 		symbols	"Off"
 
 	filter { ("configurations:Release" or "configurations:Dist") and "system:windows" }
