@@ -523,15 +523,22 @@ namespace Quark {
 			s_Data->Samplers[i] = Sampler::Create(spec);
 		}
 
-		auto& version = s_GraphicsAPI->GetDriverVersion();
+		auto version = s_GraphicsAPI->GetDriverVersion();
 		if (GraphicsAPI::GetAPI() == RHI::OpenGL &&
-			version.Major <= 4 && version.Major <= 1)
+			version.Major <= 4 && version.Minor <= 1)
 		{
 			auto& coreDirectory = Application::Get()->GetOptions().CoreDir;
-			auto spriteVertexSource = Filesystem::ReadTextFile((coreDirectory / "assets/shaders/version/4.50/Sprite.vert").string());
-			auto spriteFragmentSource = Filesystem::ReadTextFile((coreDirectory / "assets/shaders/version/4.50/Sprite.frag").string());
+			auto spriteVertexSource = Filesystem::ReadTextFile((coreDirectory / "assets/shaders/version/3.30/Sprite.vs.glsl").string());
+			auto spriteFragmentSource = Filesystem::ReadTextFile((coreDirectory / "assets/shaders/version/3.30/Sprite.fs.glsl").string());
 
+			QK_CORE_TRACE("Compiling legacy glsl shader defaultSprite...");
 			s_Data->QuadShader = Shader::CreateLegacy("defaultSprite", spriteVertexSource, spriteFragmentSource);
+
+			AutoRelease<int32_t> samplers = StackAlloc(s_Data->MaxSamplerDestinations * sizeof(int32_t));
+			for (uint32_t i = 0; i < s_Data->MaxSamplerDestinations; i++)
+				samplers[i] = (int32_t)i;
+
+			s_Data->QuadShader->SetIntArray("u_Samplers", samplers, s_Data->MaxSamplerDestinations);
 		}
 		else
 		{
@@ -563,15 +570,16 @@ namespace Quark {
 
 		s_Data->LineVertices = new LineVertex[Renderer2DData::MaxVertices];
 
-		auto& version = s_GraphicsAPI->GetDriverVersion();
+		auto version = s_GraphicsAPI->GetDriverVersion();
 		if (GraphicsAPI::GetAPI() == RHI::OpenGL &&
-			version.Major <= 4 && version.Major <= 1)
+			version.Major <= 4 && version.Minor <= 1)
 		{
 			auto& coreDirectory = Application::Get()->GetOptions().CoreDir;
-			auto lineVertexSource = Filesystem::ReadTextFile((coreDirectory / "assets/shaders/version/4.20/Line.vert").string());
-			auto lineFragmentSource = Filesystem::ReadTextFile((coreDirectory / "assets/shaders/version/4.20/Line.frag").string());
+			auto lineVertexSource = Filesystem::ReadTextFile((coreDirectory / "assets/shaders/version/3.30/Line.vs.glsl").string());
+			auto lineFragmentSource = Filesystem::ReadTextFile((coreDirectory / "assets/shaders/version/3.30/Line.fs.glsl").string());
 
-			s_Data->LineShader = Shader::CreateLegacy("defaultSprite", lineVertexSource, lineFragmentSource);
+			QK_CORE_TRACE("Compiling legacy glsl shader defaultLine...");
+			s_Data->LineShader = Shader::CreateLegacy("defaultLine", lineVertexSource, lineFragmentSource);
 		}
 		else
 		{
