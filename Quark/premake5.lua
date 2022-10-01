@@ -116,7 +116,13 @@ project "Quark"
 
 		includedirs
 		{
-			"%{IncludeDir.Metal}"
+			"%{IncludeDir.Metal}",
+			"/usr/local/include"
+		}
+
+		libdirs
+		{
+			"/usr/local/lib"
 		}
 
 		links
@@ -128,8 +134,7 @@ project "Quark"
 			"Metal.framework",
 			"OpenAL.framework",
 			"OpenGL.framework",
-			"QuartzCore.framework",
-			"Vulkan.framework"
+			"QuartzCore.framework"
 		}
 
 	filter "system:linux"

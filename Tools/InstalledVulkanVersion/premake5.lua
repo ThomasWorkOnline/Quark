@@ -9,11 +9,18 @@ project "InstalledVulkanVersion"
 
 	files
 	{
-		"src/Main.cpp"
+		"src/**.h",
+		"src/**.cpp"
+	}
+
+	removefiles
+	{
+		"src/Platform/**.*"
 	}
 
 	includedirs
 	{
+		"src",
 		"%{IncludeDir.VulkanSDK}"
 	}
 
@@ -24,6 +31,12 @@ project "InstalledVulkanVersion"
 	}
 
 	filter "system:windows"
+		files
+		{
+			"src/Platform/Windows/**.h",
+			"src/Platform/Windows/**.cpp"
+		}
+
 		defines
 		{
 			"_CRT_SECURE_NO_WARNINGS"
@@ -35,9 +48,15 @@ project "InstalledVulkanVersion"
 		}
 
 	filter "system:macosx"
-		links
+		files
 		{
-			"Vulkan.framework"
+			"src/Platform/Unix/**.h",
+			"src/Platform/Unix/**.cpp"
+		}
+		
+		includedirs
+		{
+			"/Users/thomaslessard/VulkanSDK/1.3.224.1/MoltenVK/include"
 		}
 
 	filter "configurations:Debug"

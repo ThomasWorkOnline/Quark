@@ -1,11 +1,32 @@
 #include <cstdio>
 #include <cstdlib>
 
+#include "Platform.h"
 #include <vulkan/vulkan.h>
 
-static int Main(int argc, char** argv)
+#if defined(QK_PLATFORM_WINDOWS)
+#	define VULKAN_LIBRARY "vulkan-1.dll"
+#elif defined (QK_PLATFORM_APPLE)
+#	define VULKAN_LIBRARY "libMoltenVK.dylib"
+#else
+#	define VULKAN_LIBRARY ""
+#	error "Unsupported Platform"
+#endif
+
+int Main(int argc, char** argv)
 {
-	auto FN_vkEnumerateInstanceVersion = (PFN_vkEnumerateInstanceVersion)vkGetInstanceProcAddr(nullptr, "vkEnumerateInstanceVersion");
+	PFN_vkGetInstanceProcAddr FN_vkGetInstanceProcAddr = nullptr;
+	if (void* libVulkan = Platform::LoadLibrary(VULKAN_LIBRARY))
+	{
+		FN_vkGetInstanceProcAddr = Platform::GetProcAddress<PFN_vkGetInstanceProcAddr>(libVulkan, "vkGetInstanceProcAddr");
+		Platform::FreeLibrary(libVulkan);
+	}
+
+	if (!FN_vkGetInstanceProcAddr)
+		return EXIT_FAILURE;
+
+	auto* FN_vkEnumerateInstanceVersion = (PFN_vkEnumerateInstanceVersion)FN_vkGetInstanceProcAddr(nullptr, "vkEnumerateInstanceVersion");
+	
 	if (FN_vkEnumerateInstanceVersion)
 	{
 		uint32_t ver = 0;
@@ -20,20 +41,3 @@ static int Main(int argc, char** argv)
 
 	return EXIT_SUCCESS;
 }
-
-#if defined(_WIN32)
-#include <Windows.h>
-
-INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ INT nShowCmd)
-{
-	return Main(__argc, __argv);
-}
-
-#else
-
-int main(int argc, char** argv)
-{
-	return Main(argc, argv);
-}
-
-#endif /* _WIN32 */
