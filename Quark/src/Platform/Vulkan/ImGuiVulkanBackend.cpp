@@ -4,12 +4,12 @@
 #include "Quark/Renderer/Renderer.h"
 #include "Quark/ImGui/ImGuiBackend.h"
 
+#include "Vulkan.h"
 #include "VulkanContext.h"
 #include "VulkanRenderPass.h"
 #include "VulkanCommandBuffer.h"
 
 #include <GLFW/glfw3.h>
-#include <vulkan/vulkan.h>
 
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_vulkan.h>

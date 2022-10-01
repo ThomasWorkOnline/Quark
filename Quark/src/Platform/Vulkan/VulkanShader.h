@@ -1,9 +1,10 @@
 #pragma once
 
 #include "Quark/Renderer/Shader.h"
+
+#include "Vulkan.h"
 #include "VulkanDevice.h"
 
-#include <vulkan/vulkan.h>
 #include <unordered_map>
 
 namespace Quark {

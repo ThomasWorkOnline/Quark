@@ -2,18 +2,10 @@
 
 #include "Quark/Renderer/GraphicsContext.h"
 
+#include "Vulkan.h"
 #include "VulkanDevice.h"
 #include "VulkanSwapChain.h"
 #include "VulkanCommandBuffer.h"
-
-#include <vulkan/vulkan.h>
-
-#if defined(QK_DEBUG)
-#	ifdef QK_ENABLE_VULKAN_VALIDATION_LAYERS
-#		undef QK_ENABLE_VULKAN_VALIDATION_LAYERS
-#	endif
-#	define QK_ENABLE_VULKAN_VALIDATION_LAYERS 1
-#endif
 
 namespace Quark {
 

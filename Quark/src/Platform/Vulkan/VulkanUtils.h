@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Quark/Core/Core.h"
-#include "VulkanDevice.h"
 
-#include <vulkan/vulkan.h>
+#include "Vulkan.h"
+#include "VulkanDevice.h"
 
 namespace Quark {
 

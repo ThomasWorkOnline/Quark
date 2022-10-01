@@ -2,10 +2,9 @@
 
 #include "Quark/Core/Core.h"
 
+#include "Vulkan.h"
 #include "VulkanDevice.h"
 #include "VulkanFramebuffer.h"
-
-#include <vulkan/vulkan.h>
 
 namespace Quark {
 

@@ -117,6 +117,7 @@ project "Quark"
 		includedirs
 		{
 			"%{IncludeDir.Metal}",
+			"/Users/thomaslessard/VulkanSDK/1.3.224.1/macOS/include",
 			"/Users/thomaslessard/VulkanSDK/1.3.224.1/MoltenVK/include"
 		}
 

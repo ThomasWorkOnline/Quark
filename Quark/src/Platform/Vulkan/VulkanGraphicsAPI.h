@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Quark/Renderer/GraphicsAPI.h"
-#include <vulkan/vulkan.h>
+
+#include "Vulkan.h"
 
 namespace Quark {
 

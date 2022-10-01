@@ -1,7 +1,7 @@
 #pragma once
 
+#include "Vulkan.h"
 #include "VulkanContextBase.h"
-#include <vulkan/vulkan.h>
 
 typedef struct GLFWwindow GLFWwindow;
 

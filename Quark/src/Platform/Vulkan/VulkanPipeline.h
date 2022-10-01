@@ -2,11 +2,10 @@
 
 #include "Quark/Renderer/Pipeline.h"
 
+#include "Vulkan.h"
 #include "VulkanContext.h"
 #include "VulkanDevice.h"
 #include "VulkanSampler.h"
-
-#include <vulkan/vulkan.h>
 
 namespace Quark {
 

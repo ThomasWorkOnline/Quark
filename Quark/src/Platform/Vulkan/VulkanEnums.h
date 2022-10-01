@@ -7,7 +7,7 @@
 #include "Quark/Renderer/RenderPass.h"
 #include "Quark/Renderer/Shader.h"
 
-#include <vulkan/vulkan.h>
+#include "Vulkan.h"
 
 namespace Quark {
 

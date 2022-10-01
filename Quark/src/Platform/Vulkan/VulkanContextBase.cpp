@@ -1,6 +1,8 @@
 #include "qkpch.h"
 #include "VulkanContextBase.h"
 
+#include "VulkanUtils.h"
+
 ///////////////////////////////////////
 /// Vulkan API customizations
 ///
@@ -257,6 +259,7 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
+		Utils::EnumerateVkExtensions();
 		AssureDebugValidationLayerSupport();
 
 		VkApplicationInfo appInfo{};
@@ -282,10 +285,10 @@ namespace Quark {
 		createInfo.pNext = &messengerCreateInfo;
 #endif
 		VkResult vkRes = vkCreateInstance(&createInfo, nullptr, &m_Instance);
-		QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Failed to create the Vulkan instance");
+		QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Failed to create the Vulkan instance (code: {0})", vkRes);
 
 		vkRes = CreateDebugUtilsMessengerEXT(m_Instance, &messengerCreateInfo, nullptr, &m_DebugMessenger);
-		QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Failed to create a Vulkan debug messenger");
+		QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Failed to create a Vulkan debug messenger (code: {0})", vkRes);
 	}
 
 	VkSurfaceFormatKHR VulkanContextBase::ChooseSwapSurfaceFormat(VkSurfaceFormatKHR preferred)
