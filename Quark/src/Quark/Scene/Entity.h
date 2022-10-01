@@ -13,7 +13,10 @@ namespace Quark {
 	{
 	public:
 		Entity() = default;
-		Entity(entt::entity entity, Scene* scene);
+		Entity(entt::entity entity, Scene* scene)
+			: m_Entity(entity), m_Scene(scene)
+		{
+		}
 
 		template<typename Component, typename... Args>
 		Component&                    AddComponent(Args&&... args);
@@ -43,10 +46,6 @@ namespace Quark {
 
 		operator entt::entity()       const { return m_Entity; }
 		operator uint32_t()           const { return (uint32_t)m_Entity; }
-
-	private:
-		void InstanciateScript(NativeScriptComponent& nsc);
-		void ShutdownScript(NativeScriptComponent& nsc);
 
 	private:
 		entt::entity m_Entity = { entt::null };

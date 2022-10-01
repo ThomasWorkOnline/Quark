@@ -1,5 +1,9 @@
 #pragma once
 
+/////////////////////////////////////////////////////////////////////////////////
+// Entity.inl is used to provide function definitions for the Entity class.
+// NOTE: This file must only be included internally by Scene.h.
+
 #include "Entity.h"
 
 #include <typeinfo>

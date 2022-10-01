@@ -13,6 +13,7 @@ project "Quark"
 	files
 	{
 		"src/Quark/**.h",
+		"src/Quark/**.inl",
 		"src/Quark/**.cpp",
 		"src/Quark.h",
 		"src/qkpch.h",

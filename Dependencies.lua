@@ -13,6 +13,7 @@ IncludeDir["ImGui"]      = "%{VendorDir}/imgui"
 IncludeDir["Metal"]      = "%{VendorDir}/metal"
 IncludeDir["OpenAL"]     = "%{VendorDir}/openal/include"
 IncludeDir["spdlog"]     = "%{VendorDir}/spdlog/include"
+IncludeDir["VulkanSDK"] = "%{VULKAN_SDK}/Include"
 
 LibraryDir = {}
 LibraryDir["OpenAL"]     = "%{VendorDir}/openal/libs/Win64"
@@ -34,7 +35,3 @@ Library["SPIRVCross_Release"]      = "%{LibraryDir.VulkanSDK}/spirv-cross-core.l
 Library["SPIRVCross_GLSL_Release"] = "%{LibraryDir.VulkanSDK}/spirv-cross-glsl.lib"
 
 filter "system:windows"
-	IncludeDir["VulkanSDK"] = "%{VULKAN_SDK}/Include"
-
-filter "system:macosx"
-	IncludeDir["VulkanSDK"] = "/Users/thomaslessard/VulkanSDK/1.3.224.1/macOS/include"

@@ -21,17 +21,17 @@ namespace Quark {
 		Scene() = default;
 		virtual ~Scene();
 
-		void   OnEvent(Event& e);
-		void   OnUpdate(Timestep elapsedTime);
+		void                  OnEvent(Event& e);
+		void                  OnUpdate(Timestep elapsedTime);
 
-		Entity CreateEntity();
-		void   DeleteEntity(Entity entity);
+		Entity                CreateEntity();
+		void                  DeleteEntity(Entity entity);
 
-		const SceneSettings& GetSettings() const { return m_Settings; }
-		SceneSettings& GetSettings() { return m_Settings; }
+		const SceneSettings&  GetSettings() const { return m_Settings; }
+		SceneSettings&        GetSettings() { return m_Settings; }
 
 		const entt::registry& GetRegistry() const { return m_Registry; }
-		entt::registry& GetRegistry() { return m_Registry; }
+		entt::registry&       GetRegistry() { return m_Registry; }
 
 	protected:
 		void UpdateNativeScripts(Timestep elapsedTime);
@@ -60,8 +60,8 @@ namespace Quark {
 	};
 }
 
+#include "Entity.inl"
 #include "Components.h"
-#include "Components.inl"
 
 namespace Quark {
 

@@ -3,6 +3,7 @@
 #include "Quark/Core/Core.h"
 #include "Quark/Event/Event.h"
 
+#include "Scene.h"
 #include "Entity.h"
 
 namespace Quark {
@@ -12,14 +13,26 @@ namespace Quark {
 	public:
 		virtual ~NativeScriptEntity() = default;
 
-		virtual void OnCreate() {}
-		virtual void OnDestroy() {}
+		virtual void            OnCreate() {}
+		virtual void            OnDestroy() {}
 
-		virtual void OnEvent(Event& e) {}
-		virtual void OnUpdate(Timestep elapsedTime) {}
+		virtual void            OnEvent(Event& e) {}
+		virtual void            OnUpdate(Timestep elapsedTime) {}
+
+		template<typename Component, typename... Args>
+		Component&              AddComponent(Args&&... args) { return m_Entity.AddComponent<Component>(std::forward<Args>(args)...); }
 
 		template<typename Component>
-		Component&   GetComponent() { return m_Entity.GetComponent<Component>(); }
+		void                    RemoveComponent() { m_Entity.RemoveComponent<Component>(); }
+
+		template<typename Component>
+		bool                    HasComponent() const { return m_Entity.HasComponent(); }
+
+		template<typename Component>
+		Component&              GetComponent() { return m_Entity.GetComponent<Component>(); }
+
+		const Scene&            GetScene() const { return m_Entity.GetScene(); }
+		Scene&                  GetScene() { return m_Entity.GetScene(); }
 
 		operator Entity()       const { return m_Entity; }
 
