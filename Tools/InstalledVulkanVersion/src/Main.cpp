@@ -15,16 +15,12 @@
 
 int Main(int argc, char** argv)
 {
-	PFN_vkGetInstanceProcAddr FN_vkGetInstanceProcAddr = nullptr;
-	if (void* libVulkan = Platform::LoadLibrary(VULKAN_LIBRARY))
-	{
-		FN_vkGetInstanceProcAddr = Platform::GetProcAddress<PFN_vkGetInstanceProcAddr>(libVulkan, "vkGetInstanceProcAddr");
-		Platform::FreeLibrary(libVulkan);
-	}
+	void* libVulkan = Platform::LoadLibrary(VULKAN_LIBRARY);
 
-	if (!FN_vkGetInstanceProcAddr)
+	if (!libVulkan)
 		return EXIT_FAILURE;
 
+	auto* FN_vkGetInstanceProcAddr = Platform::GetProcAddress<PFN_vkGetInstanceProcAddr>(libVulkan, "vkGetInstanceProcAddr");
 	auto* FN_vkEnumerateInstanceVersion = (PFN_vkEnumerateInstanceVersion)FN_vkGetInstanceProcAddr(nullptr, "vkEnumerateInstanceVersion");
 	
 	if (FN_vkEnumerateInstanceVersion)
@@ -38,6 +34,8 @@ int Main(int argc, char** argv)
 
 		std::printf("%d.%d.%d", major, minor, patch);
 	}
+
+	Platform::FreeLibrary(libVulkan);
 
 	return EXIT_SUCCESS;
 }
