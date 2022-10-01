@@ -113,6 +113,8 @@ void MainLayer::OnKeyPressed(KeyPressedEvent& e)
 			else
 				m_Input.SetFont(m_Font1);
 			break;
-		} 
+		}
+		default:
+			break;
 	}
 }

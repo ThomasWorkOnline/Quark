@@ -81,6 +81,8 @@ void VulkanApp::OnMouseButtonPressed(MouseButtonPressedEvent& e)
 			GetWindow()->DisableCursor();
 			break;
 		}
+		default:
+			break;
 	}
 }
 
@@ -95,5 +97,7 @@ void VulkanApp::OnKeyPressed(KeyPressedEvent& e)
 			window->EnableCursor();
 			break;
 		}
+		default:
+			break;
 	}
 }

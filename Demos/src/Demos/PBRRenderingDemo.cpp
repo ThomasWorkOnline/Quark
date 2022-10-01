@@ -163,6 +163,8 @@ void PBRRenderingDemo::OnKeyPressed(KeyPressedEvent& e)
 			window->EnableCursor();
 			break;
 		}
+		default:
+			break;
 	}
 }
 

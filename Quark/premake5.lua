@@ -117,12 +117,7 @@ project "Quark"
 		includedirs
 		{
 			"%{IncludeDir.Metal}",
-			"/usr/local/include"
-		}
-
-		libdirs
-		{
-			"/usr/local/lib"
+			"/Users/thomaslessard/VulkanSDK/1.3.224.1/MoltenVK/include"
 		}
 
 		links

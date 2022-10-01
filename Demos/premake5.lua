@@ -54,7 +54,6 @@ project "Demos"
 			"ImGui",
 			"lodepng",
 			"spdlog",
-			"%{Library.Vulkan}",
 
 			"Cocoa.framework",
 			"CoreVideo.framework",
@@ -64,6 +63,11 @@ project "Demos"
 			"OpenAL.framework",
 			"OpenGL.framework",
 			"QuartzCore.framework"
+		}
+
+		includedirs
+		{
+			"/Users/thomaslessard/VulkanSDK/1.3.224.1/MoltenVK/include"
 		}
 	
 	filter "system:linux"
@@ -75,7 +79,6 @@ project "Demos"
 			"ImGui",
 			"lodepng",
 			"spdlog",
-			"%{Library.Vulkan}",
 
 			"GL",
 			"X11",
