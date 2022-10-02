@@ -10,29 +10,10 @@
 
 namespace Quark {
 
-	extern ImGuiBackend CreateImGuiOpenGLBackend();
-	extern ImGuiBackend CreateImGuiVulkanBackend();
+	extern Scope<ImGuiBackend> CreateImGuiOpenGLBackend();
+	extern Scope<ImGuiBackend> CreateImGuiVulkanBackend();
 
-	static ImGuiBackend s_Backend;
-
-	static void BindImGuiBackend()
-	{
-		switch (GraphicsAPI::GetAPI())
-		{
-			case RHI::OpenGL:
-			{
-				s_Backend = CreateImGuiOpenGLBackend();
-				break;
-			}
-			case RHI::Vulkan:
-			{
-				s_Backend = CreateImGuiVulkanBackend();
-				break;
-			}
-
-			QK_ASSERT_NO_DEFAULT("Missing API implementation for ImGui!");
-		}
-	}
+	static Scope<ImGuiBackend> s_ImGuiBackend = nullptr;
 
 	ImGuiLayer::ImGuiLayer(Application* app)
 		: Layer(app)
@@ -40,7 +21,22 @@ namespace Quark {
 #ifdef QK_DEBUG
 		IMGUI_CHECKVERSION();
 #endif
-		BindImGuiBackend();
+		switch (GraphicsAPI::GetAPI())
+		{
+			case RHI::OpenGL:
+			{
+				s_ImGuiBackend = CreateImGuiOpenGLBackend();
+				break;
+			}
+			case RHI::Vulkan:
+			{
+				s_ImGuiBackend = CreateImGuiVulkanBackend();
+				break;
+			}
+
+			QK_ASSERT_NO_DEFAULT("Missing API implementation for ImGui!");
+		}
+
 		ImGui::CreateContext();
 
 		ImGuiIO& io = ImGui::GetIO();
@@ -67,26 +63,25 @@ namespace Quark {
 		io.FontDefault = io.Fonts->AddFontFromFileTTF((coreDir / "assets/fonts/Segoe UI/segoeui.ttf").string().c_str(), fontSize);
 
 		auto* window = Application::Get()->GetWindow();
-		s_Backend.Init(window->GetNativeWindow());
+		s_ImGuiBackend->Init(window->GetNativeWindow());
 	}
 
 	ImGuiLayer::~ImGuiLayer()
 	{
-		s_Backend.Shutdown();
-		s_Backend = {};
+		s_ImGuiBackend.reset();
 		ImGui::DestroyContext();
 	}
 
 	void ImGuiLayer::BeginFrame()
 	{
-		s_Backend.NewFrame();
+		s_ImGuiBackend->NewFrame();
 		ImGui::NewFrame();
 	}
 
 	void ImGuiLayer::EndFrame()
 	{
 		ImGui::Render();
-		s_Backend.RenderDrawData(ImGui::GetDrawData());
+		s_ImGuiBackend->RenderDrawData(ImGui::GetDrawData());
 	}
 
 	void ImGuiLayer::SetStyleDarkTheme()

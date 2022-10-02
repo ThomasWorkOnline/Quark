@@ -89,7 +89,7 @@ namespace Quark {
 			{
 				Renderer::BeginFrame();
 				m_ImGuiLayer->BeginFrame();
-
+				
 				OnRender();
 
 				for (auto layer : m_Layers)

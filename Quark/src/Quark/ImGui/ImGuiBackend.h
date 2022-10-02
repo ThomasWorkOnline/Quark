@@ -1,14 +1,16 @@
 #pragma once
 
-struct ImDrawData;
+#include <imgui.h>
 
 namespace Quark {
 
-	struct ImGuiBackend
+	class ImGuiBackend
 	{
-		void(*Init)(void* windowHandle)    = nullptr;
-		void(*Shutdown)()                  = nullptr;
-		void(*NewFrame)()                  = nullptr;
-		void(*RenderDrawData)(ImDrawData*) = nullptr;
+	public:
+		virtual ~ImGuiBackend() = default;
+
+		virtual void Init(void* windowHandle) = 0;
+		virtual void NewFrame() = 0;
+		virtual void RenderDrawData(ImDrawData* drawData) = 0;
 	};
 }
