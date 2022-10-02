@@ -8,9 +8,8 @@
 
 #include <shaderc/shaderc.h>
 
-#include <vector>
-#include <unordered_map>
 #include <sstream>
+#include <unordered_map>
 
 namespace Quark {
 
@@ -79,7 +78,12 @@ namespace Quark {
 
 		std::string source = Filesystem::ReadTextFile(filepath);
 		auto shaderSources = SubstrStages(source);
-		m_RendererID = CompileGLSLSources(shaderSources);
+
+		std::unordered_map<GLenum, std::string> parsedGlslSources(shaderSources.size());
+		for (auto& [stage, shaderSource] : shaderSources)
+			parsedGlslSources[stage] = ParseGLSL(shaderSource);
+
+		m_RendererID = CompileGLSLSources(parsedGlslSources);
 
 		// Set uniform locations for samplers automatically (parity with other APIs)
 		for (auto& samplerArray : m_ShaderResources.SamplerArrays)
@@ -140,10 +144,11 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		std::unordered_map<GLenum, std::string_view> spirvSources(2);
-		spirvSources[GL_VERTEX_SHADER]   = vertexSource;
-		spirvSources[GL_FRAGMENT_SHADER] = fragmentSource;
-		m_RendererID = CompileGLSLSourcesLegacy(spirvSources);
+		std::unordered_map<GLenum, std::string> parsedGlslSources(2);
+		parsedGlslSources[GL_VERTEX_SHADER] = ParseGLSL(vertexSource);
+		parsedGlslSources[GL_FRAGMENT_SHADER] = ParseGLSL(fragmentSource);
+
+		m_RendererID = CompileGLSLSourcesLegacy(parsedGlslSources);
 
 		// TODO: manual upload of uniforms
 	}
@@ -153,11 +158,12 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		std::unordered_map<GLenum, std::string_view> spirvSources(3);
-		spirvSources[GL_VERTEX_SHADER]   = vertexSource;
-		spirvSources[GL_GEOMETRY_SHADER] = geometrySource;
-		spirvSources[GL_FRAGMENT_SHADER] = fragmentSource;
-		m_RendererID = CompileGLSLSourcesLegacy(spirvSources);
+		std::unordered_map<GLenum, std::string> parsedGlslSources(3);
+		parsedGlslSources[GL_VERTEX_SHADER] = ParseGLSL(vertexSource);
+		parsedGlslSources[GL_GEOMETRY_SHADER] = ParseGLSL(geometrySource);
+		parsedGlslSources[GL_FRAGMENT_SHADER] = ParseGLSL(fragmentSource);
+
+		m_RendererID = CompileGLSLSourcesLegacy(parsedGlslSources);
 
 		// TODO: manual upload of uniforms
 	}
@@ -209,7 +215,33 @@ namespace Quark {
 		return shaderSources;
 	}
 
-	GLuint OpenGLShader::CompileGLSLSources(const std::unordered_map<GLenum, std::string_view>& shaderSources)
+	std::string OpenGLShader::ParseGLSL(std::string_view source)
+	{
+		std::string parsedGlslSource = std::string(source);
+
+		static constexpr std::string_view MaxTextureUnitsToken = "Quark.MaxTextureUnits";
+
+		// Replace all occurences of "Quark.MaxTextureUnits"
+		size_t pos = 0;
+		for (;;)
+		{
+			pos = source.find(MaxTextureUnitsToken, MaxTextureUnitsToken.size() + pos);
+			if (pos == std::string::npos)
+				break;
+
+			GLint maxImageUnits;
+			glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxImageUnits);
+
+			std::stringstream ss;
+			ss << maxImageUnits;
+
+			parsedGlslSource.replace(parsedGlslSource.begin() + pos, parsedGlslSource.begin() + MaxTextureUnitsToken.size() + pos, ss.str());
+		}
+
+		return parsedGlslSource;
+	}
+
+	GLuint OpenGLShader::CompileGLSLSources(const std::unordered_map<GLenum, std::string>& shaderSources)
 	{
 		auto compiler = shaderc_compiler_initialize();
 		auto options = shaderc_compile_options_initialize();
@@ -224,7 +256,7 @@ namespace Quark {
 		uint32_t glShaderIDIndex = 0;
 		for (auto&& [stage, source] : shaderSources)
 		{
-			auto result = shaderc_compile_into_spv(compiler, source.data(), source.size(),
+			auto result = shaderc_compile_into_spv(compiler, source.c_str(), source.size(),
 				Utils::GLShaderStageToShaderC(stage), m_Name.c_str(), "main", options);
 
 			if (shaderc_result_get_compilation_status(result) != shaderc_compilation_status_success)
@@ -277,7 +309,7 @@ namespace Quark {
 		return program;
 	}
 
-	GLuint OpenGLShader::CompileGLSLSourcesLegacy(const std::unordered_map<GLenum, std::string_view>& shaderSources)
+	GLuint OpenGLShader::CompileGLSLSourcesLegacy(const std::unordered_map<GLenum, std::string>& shaderSources)
 	{
 		GLuint program = glCreateProgram();
 
@@ -291,7 +323,7 @@ namespace Quark {
 			GLuint shader = glCreateShader(stage);
 			glShaderIDs[glShaderIDIndex++] = shader;
 
-			const GLchar* sourceData = source.data();
+			const GLchar* sourceData = source.c_str();
 			const GLint length = static_cast<GLint>(source.size());
 			glShaderSource(shader, 1, &sourceData, &length);
 			glCompileShader(shader);

@@ -81,9 +81,10 @@ namespace Quark {
 		GLint GetUniformLocation(std::string_view name) const;
 
 		static std::unordered_map<GLenum, std::string_view> SubstrStages(std::string_view source);
+		static std::string ParseGLSL(std::string_view source);
 
-		GLuint CompileGLSLSources(const std::unordered_map<GLenum, std::string_view>& shaderSources);
-		GLuint CompileGLSLSourcesLegacy(const std::unordered_map<GLenum, std::string_view>& shaderSources);
+		GLuint CompileGLSLSources(const std::unordered_map<GLenum, std::string>& shaderSources);
+		GLuint CompileGLSLSourcesLegacy(const std::unordered_map<GLenum, std::string>& shaderSources);
 		GLuint CompileSPIRV(const std::unordered_map<GLenum, SpirvView>& spirvBinaries);
 
 		GLint LinkProgram(GLuint program);
