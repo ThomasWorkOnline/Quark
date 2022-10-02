@@ -7,9 +7,9 @@ namespace Quark {
 	{
 	}
 
-	GraphicsAPI::Version Direct3DGraphicsAPI::GetDriverVersion() const
+	RHIVersion Direct3DGraphicsAPI::GetRHIVersion() const
 	{
-		return Version();
+		return RHIVersion();
 	}
 
 	Scope<CommandBuffer> Direct3DGraphicsAPI::CreateCommandBuffer()

@@ -156,9 +156,19 @@ namespace Quark {
 		return s_Data->ShaderLib;
 	}
 
+	RHI Renderer::GetCurrentRHI()
+	{
+		return GraphicsAPI::GetAPI();
+	}
+
 	RHI Renderer::GetPreferredRHI()
 	{
 		return GraphicsAPI::GetDefaultRHIForPlatform();
+	}
+
+	RHIVersion Renderer::GetRHIVersion()
+	{
+		return s_GraphicsAPI->GetRHIVersion();
 	}
 
 	std::string Renderer::GetSpecification()

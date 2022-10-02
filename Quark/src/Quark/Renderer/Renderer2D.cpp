@@ -5,7 +5,7 @@
 #include "Quark/Filesystem/Filesystem.h"
 
 #include "Sampler.h"
-#include "GraphicsAPI.cpp"
+#include "GraphicsAPI.h"
 
 namespace Quark {
 
@@ -523,7 +523,7 @@ namespace Quark {
 			s_Data->Samplers[i] = Sampler::Create(spec);
 		}
 
-		auto version = s_GraphicsAPI->GetDriverVersion();
+		auto version = Renderer::GetRHIVersion();
 		if (GraphicsAPI::GetAPI() == RHI::OpenGL &&
 			version.Major <= 4 && version.Minor <= 1)
 		{
@@ -570,7 +570,7 @@ namespace Quark {
 
 		s_Data->LineVertices = new LineVertex[Renderer2DData::MaxVertices];
 
-		auto version = s_GraphicsAPI->GetDriverVersion();
+		auto version = Renderer::GetRHIVersion();
 		if (GraphicsAPI::GetAPI() == RHI::OpenGL &&
 			version.Major <= 4 && version.Minor <= 1)
 		{

@@ -22,17 +22,10 @@ namespace Quark {
 	class GraphicsAPI
 	{
 	public:
-		struct Version
-		{
-			uint32_t Major;
-			uint32_t Minor;
-			uint32_t Patch;
-		};
-
 		virtual                             ~GraphicsAPI() = default;
 		virtual void                         Init() = 0;
 										     
-		virtual Version                      GetDriverVersion() const = 0;
+		virtual RHIVersion                   GetRHIVersion() const = 0;
 									         
 		virtual Scope<CommandBuffer>         CreateCommandBuffer() = 0;
 									           

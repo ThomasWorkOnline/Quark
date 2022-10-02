@@ -54,7 +54,9 @@ namespace Quark {
 		static ShaderLibrary&  GetShaderLibrary();
 		static std::thread::id GetThreadId() { return s_ThreadId; }
 
+		static RHI             GetCurrentRHI();
 		static RHI             GetPreferredRHI();
+		static RHIVersion      GetRHIVersion();
 		static std::string     GetSpecification();
 		static const char*     GetAPIName();
 

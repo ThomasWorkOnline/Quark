@@ -76,9 +76,9 @@ namespace Quark {
 		}
 	}
 
-	GraphicsAPI::Version OpenGLGraphicsAPI::GetDriverVersion() const
+	RHIVersion OpenGLGraphicsAPI::GetRHIVersion() const
 	{
-		return { (uint32_t)GLVersion.major, (uint32_t)GLVersion.minor };
+		return { (uint32_t)GLVersion.major, (uint32_t)GLVersion.minor, 0 };
 	}
 
 	Scope<CommandBuffer> OpenGLGraphicsAPI::CreateCommandBuffer()

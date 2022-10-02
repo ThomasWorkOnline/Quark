@@ -53,14 +53,14 @@ namespace Quark {
 		}
 	}
 
-	VulkanGraphicsAPI::Version VulkanGraphicsAPI::GetDriverVersion() const
+	RHIVersion VulkanGraphicsAPI::GetRHIVersion() const
 	{
 		auto& props = VulkanContext::GetCurrentDevice()->GetPhysicalDeviceProperties();
 
 		// TODO: get driver version instead of api version
 		// VkPhysicalDeviceDriverProperties props;
 
-		Version ver{};
+		RHIVersion ver{};
 		ver.Major = VK_API_VERSION_MAJOR(props.apiVersion);
 		ver.Minor = VK_API_VERSION_MINOR(props.apiVersion);
 		ver.Patch = VK_API_VERSION_PATCH(props.apiVersion);
@@ -174,7 +174,7 @@ namespace Quark {
 
 	std::string VulkanGraphicsAPI::GetSpecification() const
 	{
-		auto ver = GetDriverVersion();
+		auto ver = GetRHIVersion();
 		auto& props = VulkanContext::GetCurrentDevice()->GetPhysicalDeviceProperties();
 
 		std::stringstream ss;

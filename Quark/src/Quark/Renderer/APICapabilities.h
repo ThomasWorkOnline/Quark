@@ -14,6 +14,13 @@ namespace Quark {
 		Vulkan
 	};
 
+	struct RHIVersion
+	{
+		uint32_t Major;
+		uint32_t Minor;
+		uint32_t Patch;
+	};
+
 	struct FramebufferCapabilities
 	{
 		uint32_t MaxWidth;
