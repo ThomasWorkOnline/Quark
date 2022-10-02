@@ -13,7 +13,7 @@ namespace Quark {
 		ShaderLibrary ShaderLib;
 		Scope<RenderPass> RenderPass;
 		uint32_t Samples = 0;
-		Renderer::ViewportExtent ViewportExtent{};
+		ViewportExtent ViewportExtent{};
 
 		CommandBuffer* ActiveCommandBuffer = nullptr;
 		std::vector<Scope<Framebuffer>> Framebuffers;
@@ -135,7 +135,7 @@ namespace Quark {
 		return s_Data->Framebuffers[imageIndex].get();
 	}
 
-	Renderer::ViewportExtent Renderer::GetViewportExtent()
+	ViewportExtent Renderer::GetViewportExtent()
 	{
 		return s_Data->ViewportExtent;
 	}

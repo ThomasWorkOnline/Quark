@@ -77,6 +77,12 @@ namespace Quark {
 		}
 	}
 
+	ViewportExtent NativeWindowsWindow::GetViewportExtent() const
+	{
+		QK_CORE_ASSERT(false, "Not implemented"); // TODO: implement
+		return {};
+	}
+
 	Window& NativeWindowsWindow::SetTitle(std::string title)
 	{
 		m_Data.Title = std::move(title);

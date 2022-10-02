@@ -18,14 +18,14 @@
 
 namespace Quark {
 
+	struct ViewportExtent
+	{
+		uint32_t Width, Height;
+	};
+
 	class Renderer
 	{
 	public:
-		struct ViewportExtent
-		{
-			uint32_t Width, Height;
-		};
-
 		static void BindPipeline(const Pipeline* pipeline);
 
 		static void BeginRenderPass(const RenderPass* renderPass, const Framebuffer* framebuffer);

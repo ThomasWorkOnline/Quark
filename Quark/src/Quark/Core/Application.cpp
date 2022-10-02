@@ -28,7 +28,8 @@ namespace Quark {
 		m_Window = Window::Create(spec);
 		m_Window->SetEventCallback(ATTACH_EVENT_FN(Application::OnEventInternal));
 
-		Renderer::Initialize(m_Window->GetWidth(), m_Window->GetHeight(), multisampling);
+		auto viewport = m_Window->GetViewportExtent();
+		Renderer::Initialize(viewport.Width, viewport.Height, multisampling);
 		Renderer2D::Initialize();
 
 		QK_CORE_INFO(Renderer::GetSpecification());
@@ -110,7 +111,7 @@ namespace Quark {
 		dispatcher.Dispatch<WindowClosedEvent>([&](auto& e) { Stop(); });
 		dispatcher.Dispatch<WindowMinimizedEvent>([&](auto& e) { m_Minimized = true; });
 		dispatcher.Dispatch<WindowRestoredEvent>([&](auto& e) { m_Minimized = false; });
-		dispatcher.Dispatch<WindowResizedEvent>([](WindowResizedEvent& e)
+		dispatcher.Dispatch<ViewportResizedEvent>([](ViewportResizedEvent& e)
 		{
 			Renderer::SetViewport(e.GetWidth(), e.GetHeight());
 		});

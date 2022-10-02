@@ -80,6 +80,11 @@ namespace Quark {
 			SetContextRelatedHints();
 		}
 
+		m_Data.Title   = spec.Title;
+		m_Data.Samples = spec.Samples;
+		m_Data.Width   = spec.Width;
+		m_Data.Height  = spec.Height;
+
 		// MSAA anti-aliasing
 		glfwWindowHint(GLFW_SAMPLES, spec.Samples);
 
@@ -87,14 +92,6 @@ namespace Quark {
 		QK_CORE_ASSERT(m_Window, "Failed to create window!");
 
 		++s_WindowCount;
-
-		int frameBufferWidth, frameBufferHeight;
-		glfwGetFramebufferSize(m_Window, &frameBufferWidth, &frameBufferHeight);
-
-		m_Data.Title   = spec.Title;
-		m_Data.Samples = spec.Samples;
-		m_Data.Width   = frameBufferWidth;
-		m_Data.Height  = frameBufferHeight;
 
 		// Creating the graphics context
 		m_Data.Context = GraphicsContext::Create(m_Window);
@@ -122,16 +119,21 @@ namespace Quark {
 				data.EventCallback(event);
 			});
 
-		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int, int)
+		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
 			{
-				int frameBufferWidth, frameBufferHeight;
-				glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
-
 				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-				data.Width = frameBufferWidth;
-				data.Height = frameBufferHeight;
+				data.Width = (uint32_t)width;
+				data.Height = (uint32_t)height;
 
-				WindowResizedEvent event((uint32_t)frameBufferWidth, (uint32_t)frameBufferHeight);
+				WindowResizedEvent event((uint32_t)width, (uint32_t)height);
+				data.EventCallback(event);
+			});
+
+		glfwSetFramebufferSizeCallback(m_Window, [](GLFWwindow* window, int viewportWidth, int viewportHeight)
+			{
+				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+
+				ViewportResizedEvent event((uint32_t)viewportWidth, (uint32_t)viewportHeight);
 				data.EventCallback(event);
 			});
 
@@ -280,6 +282,13 @@ namespace Quark {
 
 		if (s_WindowCount == 0)
 			glfwTerminate();
+	}
+
+	ViewportExtent NativeWindow::GetViewportExtent() const
+	{
+		int viewportWidth, viewportHeight;
+		glfwGetFramebufferSize(m_Window, &viewportWidth, &viewportHeight);
+		return { (uint32_t)viewportWidth, (uint32_t)viewportHeight };
 	}
 
 	Window& NativeWindow::SetTitle(std::string title)
