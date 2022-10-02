@@ -18,7 +18,7 @@ namespace Quark {
 		GLenum m_Target = 0;
 	};
 
-	class OpenGLTexture2D final : public OpenGLTexture, public Texture2D
+	class OpenGLTexture2D final : private OpenGLTexture, public Texture2D
 	{
 	public:
 		OpenGLTexture2D(const Texture2DSpecification& spec);
@@ -40,7 +40,7 @@ namespace Quark {
 		GLenum m_InternalFormat = 0, m_DataFormat = 0;
 	};
 
-	class OpenGLTexture2DArray final : OpenGLTexture, public Texture2DArray
+	class OpenGLTexture2DArray final : private OpenGLTexture, public Texture2DArray
 	{
 	public:
 		OpenGLTexture2DArray(const Texture2DArraySpecification& spec);

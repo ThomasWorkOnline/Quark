@@ -5,7 +5,7 @@
 
 namespace Quark {
 
-	class OpenGLFont : public OpenGLTexture, public Font
+	class OpenGLFont : private OpenGLTexture, public Font
 	{
 	public:
 		OpenGLFont(std::string_view filepath, uint32_t fontSize);
