@@ -9,7 +9,7 @@ namespace Quark {
 	public:
 		virtual void                         Init() override {}
 
-		virtual Version                      GetDriverVersion() const final override { return Version{}; }
+		virtual RHIVersion                   GetRHIVersion() const final override { return RHIVersion{}; }
 
 		virtual Scope<CommandBuffer>         CreateCommandBuffer() final override { return nullptr; }
 									           
