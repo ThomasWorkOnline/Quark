@@ -8,7 +8,7 @@
 
 #include "Quark/Scene/NativeScriptEntity.h"
 
-namespace Quark {                                                                                    \
+namespace Quark {
 
 	class CameraController : public NativeScriptEntity
 	{
