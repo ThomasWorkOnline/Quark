@@ -13,8 +13,8 @@ namespace Quark {
 			auto view = m_Registry.view<NativeScriptComponent>();
 			for (auto entity : view)
 			{
-				auto& nsComponent = view.get<NativeScriptComponent>(entity);
-				nsComponent.ScriptInstance->OnDestroy();
+				auto& nsc = view.get<NativeScriptComponent>(entity);
+				nsc.OnDestroy(nsc);
 			}
 		}
 	}
@@ -26,8 +26,8 @@ namespace Quark {
 			auto view = m_Registry.view<NativeScriptComponent>();
 			for (auto entity : view)
 			{
-				auto& nsComponent = view.get<NativeScriptComponent>(entity);
-				nsComponent.ScriptInstance->OnEvent(e);
+				auto& nsc = view.get<NativeScriptComponent>(entity);
+				nsc.OnEvent(nsc.ScriptInstance, e);
 			}
 		}
 	}
@@ -57,7 +57,7 @@ namespace Quark {
 			for (auto entity : view)
 			{
 				auto& nsComponent = view.get<NativeScriptComponent>(entity);
-				nsComponent.ScriptInstance->OnUpdate(elapsedTime);
+				nsComponent.OnUpdate(nsComponent.ScriptInstance, elapsedTime);
 			}
 		}
 	}
@@ -92,12 +92,11 @@ namespace Quark {
 	{
 		nsc.ScriptInstance = nsc.InstanciateScript();
 		nsc.ScriptInstance->m_Entity = entity;
-		nsc.ScriptInstance->OnCreate();
+		nsc.OnCreate(nsc);
 	}
 
 	void Scene::DestroyScript(NativeScriptComponent& nsc)
 	{
-		nsc.ScriptInstance->OnDestroy();
-		delete nsc.ScriptInstance;
+		nsc.OnDestroy(nsc);
 	}
 }

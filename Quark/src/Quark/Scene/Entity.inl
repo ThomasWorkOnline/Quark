@@ -18,8 +18,11 @@ namespace Quark {
 			"Invalid usage. Please, use the AddNativeScript() method when adding a native script component.");
 
 		QK_CORE_ASSERT(!HasComponent<Component>(), "Entity already has a {0}!", typeid(Component).name());
+
 		auto& component = m_Scene->m_Registry.emplace<Component>(m_Entity, std::forward<Args>(args)...);
 		m_Scene->OnComponentAdded<Component>(*this, component);
+
+		QK_CORE_TRACE("Added {0} to entity {1}", typeid(Component).name(), (uint32_t)m_Entity);
 		return component;
 	}
 
@@ -27,8 +30,11 @@ namespace Quark {
 	inline void Entity::RemoveComponent()
 	{
 		QK_CORE_ASSERT(HasComponent<Component>(), "Entity does not have a {0}!", typeid(Component).name());
+
 		m_Scene->OnComponentRemove<Component>(*this, GetComponent<Component>());
 		m_Scene->m_Registry.remove<Component>(m_Entity);
+
+		QK_CORE_TRACE("Removed {0} from entity {1}", typeid(Component).name(), (uint32_t)m_Entity);
 	}
 
 	template<typename Script>
@@ -38,8 +44,11 @@ namespace Quark {
 			"Invalid usage. Type is not a sub-type of NativeScriptEntity. Please, use the AddComponent() method when adding a non-scriptable component.");
 
 		QK_CORE_ASSERT(!HasComponent<NativeScriptComponent>(), "Entity already has a NativeScriptComponent installed!");
+
 		auto& script = m_Scene->m_Registry.emplace<NativeScriptComponent>(m_Entity).Bind<Script>();
 		m_Scene->OnComponentAdded<NativeScriptComponent>(*this, script);
+
+		QK_CORE_TRACE("Added {0} script to entity {1}", typeid(Script).name(), (uint32_t)m_Entity);
 		return script;
 	}
 

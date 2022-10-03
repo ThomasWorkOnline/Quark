@@ -8,13 +8,13 @@
 
 #include "Quark/Scene/NativeScriptEntity.h"
 
-namespace Quark {
+namespace Quark {                                                                                    \
 
 	class CameraController : public NativeScriptEntity
 	{
 	public:
-		virtual void OnEvent(Event& e) override;
-		virtual void OnUpdate(Timestep elapsedTime) override;
+		void OnEvent(Event& e);
+		void OnUpdate(Timestep elapsedTime);
 
 	private:
 		void OnMouseScrolled(MouseScrolledEvent& e);

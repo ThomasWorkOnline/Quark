@@ -13,11 +13,11 @@ namespace Quark {
 	public:
 		virtual ~NativeScriptEntity() = default;
 
-		virtual void            OnCreate() {}
-		virtual void            OnDestroy() {}
+		void                    OnCreate() {}
+		void                    OnDestroy() {}
 
-		virtual void            OnEvent(Event& e) {}
-		virtual void            OnUpdate(Timestep elapsedTime) {}
+		void                    OnEvent(Event& e) {}
+		void                    OnUpdate(Timestep elapsedTime) {}
 
 		template<typename Component, typename... Args>
 		Component&              AddComponent(Args&&... args) { return m_Entity.AddComponent<Component>(std::forward<Args>(args)...); }
