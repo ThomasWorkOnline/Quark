@@ -18,6 +18,3 @@
 
 #define QK_ASSERT_API_VALIDATION_ERRORS             0
 #define QK_IGNORE_DEPRECATED_SYMBOLS                0
-
-// On Windows, it will use the Win32 API
-#define QK_USE_NATIVE_APIS                          0

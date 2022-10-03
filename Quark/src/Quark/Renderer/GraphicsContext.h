@@ -30,6 +30,6 @@ namespace Quark {
 
 		virtual CommandBuffer* GetCommandBuffer() = 0;
 
-		static Scope<GraphicsContext> Create(void* windowHandle);
+		static Scope<GraphicsContext> Create(void* windowHandle, bool native = false);
 	};
 }

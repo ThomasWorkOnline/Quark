@@ -1,5 +1,5 @@
 #include "qkpch.h"
-#include "NativeWindow.h"
+#include "DefaultWindow.h"
 
 #include "Quark/Renderer/GraphicsAPI.h"
 
@@ -50,23 +50,23 @@ namespace Quark {
 		QK_CORE_ASSERT(false, description);
 	}
 
-	NativeWindow::NativeWindow(const WindowSpecification& spec)
+	DefaultWindow::DefaultWindow(const WindowSpecification& spec)
 	{
 		Init(spec);
 	}
 
-	NativeWindow::~NativeWindow()
+	DefaultWindow::~DefaultWindow()
 	{
 		Shutdown();
 	}
 
-	void NativeWindow::OnUpdate()
+	void DefaultWindow::OnUpdate()
 	{
 		m_Data.Context->SwapBuffers();
 		glfwPollEvents();
 	}
 
-	void NativeWindow::Init(const WindowSpecification& spec)
+	void DefaultWindow::Init(const WindowSpecification& spec)
 	{
 		QK_PROFILE_FUNCTION();
 
@@ -272,7 +272,7 @@ namespace Quark {
 			});
 	}
 
-	void NativeWindow::Shutdown()
+	void DefaultWindow::Shutdown()
 	{
 		QK_PROFILE_FUNCTION();
 
@@ -284,76 +284,77 @@ namespace Quark {
 			glfwTerminate();
 	}
 
-	ViewportExtent NativeWindow::GetViewportExtent() const
+	ViewportExtent DefaultWindow::GetViewportExtent() const
 	{
 		int viewportWidth, viewportHeight;
 		glfwGetFramebufferSize(m_Window, &viewportWidth, &viewportHeight);
 		return { (uint32_t)viewportWidth, (uint32_t)viewportHeight };
 	}
 
-	Window& NativeWindow::SetTitle(std::string title)
+	Window& DefaultWindow::SetTitle(std::string title)
 	{
 		m_Data.Title = std::move(title);
 		glfwSetWindowTitle(m_Window, m_Data.Title.c_str());
 		return *this;
 	}
 
-	Window& NativeWindow::AppendTitle(std::string title)
+	Window& DefaultWindow::AppendTitle(std::string title)
 	{
 		m_Data.Title.append(std::move(title));
 		glfwSetWindowTitle(m_Window, m_Data.Title.c_str());
 		return *this;
 	}
 
-	void NativeWindow::Resize(uint32_t width, uint32_t height)
+	void DefaultWindow::Resize(uint32_t width, uint32_t height)
 	{
 		glfwSetWindowSize(m_Window, width, height);
 	}
 
-	void NativeWindow::Focus()
+	void DefaultWindow::Focus()
 	{
 		glfwFocusWindow(m_Window);
 	}
 
-	void NativeWindow::Minimize()
+	void DefaultWindow::Minimize()
 	{
 		glfwIconifyWindow(m_Window);
 	}
 
-	void NativeWindow::Maximize()
+	void DefaultWindow::Maximize()
 	{
 		glfwMaximizeWindow(m_Window);
 	}
 
-	void NativeWindow::Restore()
+	void DefaultWindow::Restore()
 	{
 		glfwRestoreWindow(m_Window);
 	}
 
-	void NativeWindow::RequestAttention()
+	void DefaultWindow::RequestAttention()
 	{
 		glfwRequestWindowAttention(m_Window);
 	}
 
-	void NativeWindow::DisableCursor()
+	void DefaultWindow::DisableCursor()
 	{
 		glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	}
 
-	void NativeWindow::EnableCursor()
+	void DefaultWindow::EnableCursor()
 	{
 		glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	}
 
-	void NativeWindow::SetVSync(bool enabled)
+	void DefaultWindow::SetVSync(bool enabled)
 	{
 		m_Data.Context->SetSwapInterval(enabled);
 		m_Data.VSync = enabled;
 	}
 
-	void NativeWindow::SetFullscreen(bool enabled)
+	void DefaultWindow::SetFullscreen(bool enabled)
 	{
-		if (IsFullscreen() == enabled) return;
+		bool isFullScreen = glfwGetWindowMonitor(m_Window) != nullptr;
+		if (isFullScreen == enabled) return;
 
 		if (enabled)
 		{
@@ -377,37 +378,37 @@ namespace Quark {
 		}
 	}
 
-	bool NativeWindow::IsFocused() const
+	bool DefaultWindow::IsFocused() const
 	{
 		return glfwGetWindowAttrib(m_Window, GLFW_FOCUSED);
 	}
 
-	bool NativeWindow::IsMinimized() const
+	bool DefaultWindow::IsMinimized() const
 	{
 		return glfwGetWindowAttrib(m_Window, GLFW_ICONIFIED);
 	}
 
-	bool NativeWindow::IsMaximized() const
+	bool DefaultWindow::IsMaximized() const
 	{
 		return glfwGetWindowAttrib(m_Window, GLFW_MAXIMIZED);
 	}
 
-	bool NativeWindow::IsCursorEnabled() const
+	bool DefaultWindow::IsCursorEnabled() const
 	{
 		return glfwGetInputMode(m_Window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL;
 	}
 
-	bool NativeWindow::IsFullscreen() const
+	bool DefaultWindow::IsFullscreen() const
 	{
 		return glfwGetWindowMonitor(m_Window) != nullptr;
 	}
 
-	const char* NativeWindow::GetClipboardText() const
+	const char* DefaultWindow::GetClipboardText() const
 	{
 		return glfwGetClipboardString(m_Window);
 	}
 
-	void NativeWindow::SetClipboardText(const char* string)
+	void DefaultWindow::SetClipboardText(const char* string)
 	{
 		glfwSetClipboardString(m_Window, string);
 	}

@@ -63,6 +63,6 @@ namespace Quark {
 		virtual bool IsNative() const = 0;
 		virtual void* GetNativeWindow() const = 0;
 
-		static Scope<Window> Create(const WindowSpecification& spec);
+		static Scope<Window> Create(const WindowSpecification& spec, bool native = false);
 	};
 }

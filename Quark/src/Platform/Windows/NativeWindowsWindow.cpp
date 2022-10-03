@@ -10,15 +10,13 @@ namespace Quark {
 	
 	namespace Utils {
 
-		static std::wstring ConvertToWideString(std::string_view narrow)
+		static std::wstring ConvertToWideString(std::string_view src)
 		{
-			std::wstring wide;
-			wide.reserve(narrow.size());
+			std::wstring dst;
+			dst.reserve(src.size());
 
-			for (char c : narrow)
-				wide.push_back(c);
-
-			return wide;
+			::MultiByteToWideChar(CP_UTF8, 0, src.data(), (int)src.size(), dst.data(), (int)dst.size());
+			return dst;
 		}
 	}
 
@@ -48,7 +46,7 @@ namespace Quark {
 		QK_CORE_ASSERT(m_WindowHandle, "Window handle is nullptr");
 		++s_WindowCount;
 
-		m_Data.Context = GraphicsContext::Create(m_WindowHandle);
+		m_Data.Context = GraphicsContext::Create(m_WindowHandle, true);
 		m_Data.Context->Init();
 	}
 
@@ -79,8 +77,10 @@ namespace Quark {
 
 	ViewportExtent NativeWindowsWindow::GetViewportExtent() const
 	{
-		QK_CORE_ASSERT(false, "Not implemented"); // TODO: implement
-		return {};
+		RECT rect;
+		GetClientRect(m_WindowHandle, &rect);
+
+		return { (uint32_t)rect.right, (uint32_t)rect.bottom };
 	}
 
 	Window& NativeWindowsWindow::SetTitle(std::string title)
@@ -167,6 +167,7 @@ namespace Quark {
 
 	void NativeWindowsWindow::SetClipboardText(const char* string)
 	{
+		(void)string;
 	}
 
 #pragma pop_macro("DisableIsMinimizedMaximized")

@@ -1,17 +1,14 @@
 #include "qkpch.h"
 #include "ImGuiLayer.h"
+
 #include "ImGuiBackend.h"
 
 #include "Quark/Core/Application.h"
-#include "Quark/Renderer/GraphicsAPI.h"
+#include "Quark/Renderer/Renderer.h"
 
 #include <imgui.h>
-#include <backends/imgui_impl_glfw.cpp>
 
 namespace Quark {
-
-	extern Scope<ImGuiBackend> CreateImGuiOpenGLBackend();
-	extern Scope<ImGuiBackend> CreateImGuiVulkanBackend();
 
 	static Scope<ImGuiBackend> s_ImGuiBackend = nullptr;
 
@@ -21,21 +18,8 @@ namespace Quark {
 #ifdef QK_DEBUG
 		IMGUI_CHECKVERSION();
 #endif
-		switch (GraphicsAPI::GetAPI())
-		{
-			case RHI::OpenGL:
-			{
-				s_ImGuiBackend = CreateImGuiOpenGLBackend();
-				break;
-			}
-			case RHI::Vulkan:
-			{
-				s_ImGuiBackend = CreateImGuiVulkanBackend();
-				break;
-			}
-
-			QK_ASSERT_NO_DEFAULT("Missing API implementation for ImGui!");
-		}
+		auto* window = app->GetWindow();
+		s_ImGuiBackend = ImGuiBackend::Create(window->GetNativeWindow(), window->IsNative());
 
 		ImGui::CreateContext();
 
@@ -51,7 +35,7 @@ namespace Quark {
 			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 		}
 
-		ImGui::StyleColorsLight();
+		//ImGui::StyleColorsLight();
 		//ImGui::StyleColorsDark();
 
 		//SetStyleDarkTheme();
@@ -62,8 +46,9 @@ namespace Quark {
 		io.Fonts->AddFontFromFileTTF((coreDir / "assets/fonts/Segoe UI/segoeuib.ttf").string().c_str(), fontSize);
 		io.FontDefault = io.Fonts->AddFontFromFileTTF((coreDir / "assets/fonts/Segoe UI/segoeui.ttf").string().c_str(), fontSize);
 
-		auto* window = Application::Get()->GetWindow();
-		s_ImGuiBackend->Init(window->GetNativeWindow());
+		auto* renderPass = Renderer::GetRenderPass();
+		auto* commandBuffer = Renderer::GetCommandBuffer();
+		s_ImGuiBackend->Init(renderPass, commandBuffer);
 	}
 
 	ImGuiLayer::~ImGuiLayer()
@@ -81,7 +66,8 @@ namespace Quark {
 	void ImGuiLayer::EndFrame()
 	{
 		ImGui::Render();
-		s_ImGuiBackend->RenderDrawData(ImGui::GetDrawData());
+		auto* commandBuffer = Renderer::GetCommandBuffer();
+		s_ImGuiBackend->RenderDrawData(commandBuffer, ImGui::GetDrawData());
 	}
 
 	void ImGuiLayer::SetStyleDarkTheme()

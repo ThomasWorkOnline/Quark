@@ -33,6 +33,8 @@ namespace Quark {
 
 	void OpenGLContextBase::Init()
 	{
+		QK_PROFILE_FUNCTION();
+
 		int success = gladLoadGL();
 		QK_CORE_ASSERT(success, "Failed to initialize OpenGL context");
 
