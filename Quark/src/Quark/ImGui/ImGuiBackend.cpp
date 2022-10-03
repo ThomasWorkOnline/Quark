@@ -1,7 +1,6 @@
 #include "qkpch.h"
 #include "ImGuiBackend.h"
 
-#include "Quark/Renderer/Renderer.h"
 #include "Quark/Renderer/GraphicsAPI.h"
 
 #include "Platform/OpenGL/OpenGLImGuiBackend.h"
@@ -11,7 +10,6 @@
 #	include "Platform/Windows/OpenGL/OpenGLWin32ImGuiBackend.h"
 #endif
 
-#include <imgui.h>
 #include <backends/imgui_impl_glfw.cpp>
 
 namespace Quark {

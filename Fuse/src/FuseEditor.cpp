@@ -60,7 +60,7 @@ namespace Quark {
 			{
 				if (ImGui::BeginMenu("File"))
 				{
-					if (ImGui::MenuItem("Close", "Alt+F4"))
+					if (ImGui::MenuItem("Exit", "Alt+F4"))
 						Stop();
 
 					ImGui::EndMenu();
