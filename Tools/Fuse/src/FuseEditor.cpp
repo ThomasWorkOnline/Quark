@@ -37,7 +37,7 @@ namespace Quark {
 
 		// When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background
 		// and handle the pass-thru hole, so we ask Begin() to not render a background.
-		if constexpr (dockspaceFlags & ImGuiDockNodeFlags_PassthruCentralNode)
+		if constexpr ((bool)(dockspaceFlags & ImGuiDockNodeFlags_PassthruCentralNode))
 			windowFlags |= ImGuiWindowFlags_NoBackground;
 
 		// Important: note that we proceed even if Begin() returns false (aka window is collapsed).
