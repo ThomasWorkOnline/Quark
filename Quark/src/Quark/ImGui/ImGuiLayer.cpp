@@ -40,12 +40,6 @@ namespace Quark {
 
 		//SetStyleDarkTheme();
 
-		auto& coreDir = app->GetOptions().CoreDir;
-
-		float fontSize = 16.0f;
-		io.Fonts->AddFontFromFileTTF((coreDir / "assets/fonts/Segoe UI/segoeuib.ttf").string().c_str(), fontSize);
-		io.FontDefault = io.Fonts->AddFontFromFileTTF((coreDir / "assets/fonts/Segoe UI/segoeui.ttf").string().c_str(), fontSize);
-
 		auto* renderPass = Renderer::GetRenderPass();
 		auto* commandBuffer = Renderer::GetCommandBuffer();
 		s_ImGuiBackend->Init(renderPass, commandBuffer);

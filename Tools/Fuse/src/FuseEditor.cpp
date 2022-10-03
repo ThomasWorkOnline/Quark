@@ -8,6 +8,11 @@ namespace Quark {
 		: Application(options)
 	{
 		ImGui::StyleColorsDark();
+
+		ImGuiIO& io = ImGui::GetIO();
+		float fontSize = 16.0f;
+		io.Fonts->AddFontFromFileTTF("assets/fonts/Segoe UI/segoeuib.ttf", fontSize);
+		io.FontDefault = io.Fonts->AddFontFromFileTTF("assets/fonts/Segoe UI/segoeui.ttf", fontSize);
 	}
 
 	void FuseEditor::OnUpdate(Timestep ts)
