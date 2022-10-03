@@ -31,7 +31,7 @@ group "Core"
 	include "Quark"
 
 group "Tools"
-	include "Fuse"
+	include "Tools/Fuse"
 	include "Tools/InstalledVulkanVersion"
 
 group ""

@@ -10,7 +10,7 @@ namespace Quark {
 		options.Width = 1280;
 		options.Height = 720;
 		options.AppName = "Fuse Editor";
-		options.CoreDir = "../Quark";
+		options.CoreDir = "../../Quark";
 		options.CommandLineArgs = args;
 		options.GraphicsAPI = RHI::OpenGL;
 
