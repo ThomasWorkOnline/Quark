@@ -14,9 +14,26 @@
 
 namespace Quark {
 
+	enum class ComponentType : uint32_t
+	{
+		CameraComponent = 0U,
+		TagComponent,
+		Transform3DComponent,
+		PhysicsComponent,
+		MeshComponent,
+		SpriteRendererComponent,
+		TexturedSpriteRendererComponent,
+		TextRendererComponent,
+		NativeScriptComponent
+	};
+
+#define COMPONENT_TYPE(type) static ComponentType GetStaticType() { return ComponentType::type; }
+
 	struct CameraComponent
 	{
 		SceneCamera Camera;
+
+		COMPONENT_TYPE(CameraComponent);
 	};
 
 	struct TagComponent
@@ -26,6 +43,8 @@ namespace Quark {
 		TagComponent() = default;
 		TagComponent(std::string_view name)
 			: Name(name) {}
+
+		COMPONENT_TYPE(TagComponent);
 	};
 
 	struct Transform3DComponent
@@ -33,10 +52,6 @@ namespace Quark {
 		Vec3 Position;
 		Vec3 Scale;
 		Quat Orientation;
-
-		Transform3DComponent();
-		Transform3DComponent(const Transform3DComponent& other);
-		Transform3DComponent(const Vec3& position, const Vec3& scale, const Quat& orientation);
 
 		Vec3 GetFrontVector() const;
 		Vec3 GetRightVector() const;
@@ -49,14 +64,22 @@ namespace Quark {
 		// Conversion operators
 		operator Mat4() const { return GetMatrix(); }
 		Mat4 GetMatrix() const;
+
+		Transform3DComponent();
+		Transform3DComponent(const Transform3DComponent& other);
+		Transform3DComponent(const Vec3& position, const Vec3& scale, const Quat& orientation);
+
+		COMPONENT_TYPE(Transform3DComponent);
 	};
 
 	struct PhysicsComponent
 	{
-		Vec3 Velocity = Vec3(0.0f);
+		Vec3 Velocity;
 
 		PhysicsComponent();
 		PhysicsComponent(const Vec3& velocity);
+
+		COMPONENT_TYPE(PhysicsComponent);
 	};
 
 	struct MeshComponent
@@ -68,22 +91,30 @@ namespace Quark {
 			: MeshInstance(meshInstance)
 		{
 		}
+
+		COMPONENT_TYPE(MeshComponent);
 	};
 
 	struct SpriteRendererComponent
 	{
 		Vec4f Color = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+		COMPONENT_TYPE(SpriteRendererComponent);
 	};
 
 	struct TexturedSpriteRendererComponent
 	{
 		Ref<Texture2D> Texture;
 		Vec4f Tint = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+		COMPONENT_TYPE(TexturedSpriteRendererComponent);
 	};
 
 	struct TextRendererComponent
 	{
 		Text Label;
+
+		COMPONENT_TYPE(TextRendererComponent);
 	};
 
 	class NativeScriptEntity;
@@ -135,6 +166,8 @@ namespace Quark {
 
 			return *this;
 		}
+
+		COMPONENT_TYPE(NativeScriptComponent);
 	};
 
 	template<typename... Component>

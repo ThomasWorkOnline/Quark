@@ -21,8 +21,6 @@ namespace Quark {
 
 		auto& component = m_Scene->m_Registry.emplace<Component>(m_Entity, std::forward<Args>(args)...);
 		m_Scene->OnComponentAdded<Component>(*this, component);
-
-		QK_CORE_TRACE("Added {0} to entity {1}", typeid(Component).name(), (uint32_t)m_Entity);
 		return component;
 	}
 
@@ -33,8 +31,6 @@ namespace Quark {
 
 		m_Scene->OnComponentRemove<Component>(*this, GetComponent<Component>());
 		m_Scene->m_Registry.remove<Component>(m_Entity);
-
-		QK_CORE_TRACE("Removed {0} from entity {1}", typeid(Component).name(), (uint32_t)m_Entity);
 	}
 
 	template<typename Script>
@@ -47,8 +43,6 @@ namespace Quark {
 
 		auto& script = m_Scene->m_Registry.emplace<NativeScriptComponent>(m_Entity).Bind<Script>();
 		m_Scene->OnComponentAdded<NativeScriptComponent>(*this, script);
-
-		QK_CORE_TRACE("Added {0} script to entity {1}", typeid(Script).name(), (uint32_t)m_Entity);
 		return script;
 	}
 

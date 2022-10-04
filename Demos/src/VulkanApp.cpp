@@ -41,6 +41,30 @@ VulkanApp::VulkanApp(const ApplicationOptions& options)
 	auto* window = GetWindow();
 	m_TextCamera.SetOrthographic((float)window->GetWidth());
 	m_TextCamera.Resize(window->GetWidth(), window->GetHeight());
+
+#if 0
+	Scene scene;
+	Entity e = scene.CreateEntity();
+	e.AddComponent<Transform3DComponent>();
+	e.AddComponent<PhysicsComponent>();
+	e.AddComponent<MeshComponent>();
+
+	SceneSerializer serializer;
+	serializer.SerializeRuntime(&scene, "defaultScene");
+
+	Scene newScene;
+	serializer.DeserializeRuntime(&newScene, "defaultScene");
+
+	newScene.GetRegistry().each([&](entt::entity e)
+		{
+			Entity entity = { e, &newScene };
+			AllComponents{}.Each([&]<typename Component>(Component)
+			{
+				if (entity.HasComponent<Component>())
+					QK_CORE_WARN("Entity has: {0}", typeid(Component).name());
+			});
+		});
+#endif
 }
 
 void VulkanApp::OnEvent(Event& e)
