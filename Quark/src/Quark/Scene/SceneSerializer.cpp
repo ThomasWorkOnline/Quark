@@ -1,7 +1,6 @@
 #include "qkpch.h"
 #include "SceneSerializer.h"
 
-#include <cstdio>
 #include <type_traits>
 
 namespace Quark {
@@ -28,41 +27,17 @@ namespace Quark {
 	//     ]
 	//
 
-	struct SerializerFormat
-	{
-		static inline const uint64_t SceneVersion = typeid(AllComponents).hash_code();
-	};
-
-	///////////////////////////////////////////////////////////////////////
-	// Default impl for component serialization/deserialization
-	//
-
-	template<typename Component>
-	static void SerializeComponent(const Component& component, FILE* out)
-	{
-		std::fwrite(&component, sizeof(Component), 1, out);
-	}
-
-	template<typename Component>
-	static void DeserializeComponent(FILE* in, Entity entity)
-	{
-		auto& c = entity.AddComponent<Component>();
-		std::fread(&c, sizeof(Component), 1, in);
-	}
-
-	/////////////////////////////////////////////////////////////////
-	// Component template specialization
-	//
+	static const uint64_t s_SceneVersion = typeid(AllComponents).hash_code();
 
 	template<>
-	static void SerializeComponent(const TagComponent& tag, FILE* out)
+	static void Serialize(const std::string& data, FILE* out)
 	{
-		const char* tagData = tag.Name.c_str();
-		std::fwrite(tagData, 1, tag.Name.size() + 1, out);
+		const char* tagData = data.c_str();
+		std::fwrite(tagData, 1, data.size() + 1, out);
 	}
 
 	template<>
-	static void DeserializeComponent<TagComponent>(FILE* in, Entity entity)
+	static auto Deserialize(FILE* in) -> std::string
 	{
 		size_t begin = std::ftell(in);
 		char c;
@@ -75,12 +50,33 @@ namespace Quark {
 		size_t end = std::ftell(in);
 		std::fseek(in, (long)begin, SEEK_SET);
 
-		std::string str;
-		str.reserve(end - begin);
-		std::fread(str.data(), sizeof(char), end - begin, in);
+		size_t strSize = end - begin - 1;
 
+		std::string str;
+		str.resize(strSize);
+		std::fread(str.data(), sizeof(char), strSize, in);
+
+		// Reset stream at end of string plus null-terminator
+		std::fseek(in, (long)end, SEEK_SET);
+
+		return str;
+	}
+
+	/////////////////////////////////////////////////////////////////
+	// Component template specialization
+	//
+
+	template<>
+	static void SerializeComponent(const TagComponent& tag, FILE* out)
+	{
+		Serialize(tag.Name, out);
+	}
+
+	template<>
+	static void DeserializeComponent<TagComponent>(FILE* in, Entity entity)
+	{
 		auto& tag = entity.AddComponent<TagComponent>();
-		tag.Name = std::move(str);
+		tag.Name = Deserialize<std::string>(in);
 	}
 
 	template<>
@@ -208,7 +204,7 @@ namespace Quark {
 			return;
 
 		// [uint64_t] SceneVersion
-		std::fwrite(&SerializerFormat::SceneVersion, sizeof(SerializerFormat::SceneVersion), 1, out);
+		std::fwrite(&s_SceneVersion, sizeof(s_SceneVersion), 1, out);
 
 		// [uint32_t] EntityCount
 		uint32_t entityCount = (uint32_t)scene->GetRegistry().size();
@@ -239,18 +235,11 @@ namespace Quark {
 		size_t size = std::ftell(in);
 		std::fseek(in, 0, SEEK_SET);
 
-		if (size - sizeof(SerializerFormat::SceneVersion) < 0)
-		{
-			QK_CORE_ERROR("Invalid file size for scene {0}", sceneName);
-			std::fclose(in);
-			return;
-		}
-
 		// [uint64_t] SceneVersion
 		uint64_t sceneVersion;
-		std::fread(&sceneVersion, sizeof(SerializerFormat::SceneVersion), 1, in);
+		std::fread(&sceneVersion, sizeof(s_SceneVersion), 1, in);
 
-		if (sceneVersion != SerializerFormat::SceneVersion)
+		if (sceneVersion != s_SceneVersion)
 		{
 			QK_CORE_ERROR("'{0}' could not be deserialized correctly!", sceneName);
 			std::fclose(in);
