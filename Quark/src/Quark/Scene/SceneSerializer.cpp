@@ -40,14 +40,12 @@ namespace Quark {
 	template<typename Component>
 	static void SerializeComponent(const Component& component, FILE* out)
 	{
-		// [void*] ComponentData
 		std::fwrite(&component, sizeof(Component), 1, out);
 	}
 
 	template<typename Component>
 	static void DeserializeComponent(FILE* in, Entity entity)
 	{
-		// Add unitialized component
 		auto& c = entity.AddComponent<Component>();
 		std::fread(&c, sizeof(Component), 1, in);
 	}
@@ -57,15 +55,32 @@ namespace Quark {
 	//
 
 	template<>
-	static void SerializeComponent(const TagComponent& nsc, FILE* out)
+	static void SerializeComponent(const TagComponent& tag, FILE* out)
 	{
-		// TODO: serialize string data
+		const char* tagData = tag.Name.c_str();
+		std::fwrite(tagData, 1, tag.Name.size() + 1, out);
 	}
 
 	template<>
 	static void DeserializeComponent<TagComponent>(FILE* in, Entity entity)
 	{
-		// TODO: serialize string data
+		size_t begin = std::ftell(in);
+		char c;
+
+		do {
+			// Assume string is null terminated
+			std::fread(&c, sizeof(char), 1, in);
+		} while (c != 0);
+
+		size_t end = std::ftell(in);
+		std::fseek(in, (long)begin, SEEK_SET);
+
+		std::string str;
+		str.reserve(end - begin);
+		std::fread(str.data(), sizeof(char), end - begin, in);
+
+		auto& tag = entity.AddComponent<TagComponent>();
+		tag.Name = std::move(str);
 	}
 
 	template<>

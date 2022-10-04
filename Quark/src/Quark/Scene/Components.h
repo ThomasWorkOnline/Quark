@@ -41,8 +41,7 @@ namespace Quark {
 		std::string Name;
 
 		TagComponent() = default;
-		TagComponent(std::string_view name)
-			: Name(name) {}
+		TagComponent(std::string_view name);
 
 		COMPONENT_TYPE(TagComponent);
 	};

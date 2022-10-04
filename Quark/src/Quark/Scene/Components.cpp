@@ -3,6 +3,9 @@
 
 namespace Quark {
 
+	TagComponent::TagComponent(std::string_view name)
+		: Name(name) {}
+
 	Vec3 Transform3DComponent::GetFrontVector() const
 	{
 		return Vec3(0.0, 0.0, 1.0) * Orientation;

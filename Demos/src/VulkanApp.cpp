@@ -42,12 +42,13 @@ VulkanApp::VulkanApp(const ApplicationOptions& options)
 	m_TextCamera.SetOrthographic((float)window->GetWidth());
 	m_TextCamera.Resize(window->GetWidth(), window->GetHeight());
 
-#if 0
+#if 1
 	Scene scene;
 	Entity e = scene.CreateEntity();
 	e.AddComponent<Transform3DComponent>();
 	e.AddComponent<PhysicsComponent>();
 	e.AddComponent<MeshComponent>();
+	e.AddComponent<TagComponent>("Hello, World!");
 
 	SceneSerializer serializer;
 	serializer.SerializeRuntime(&scene, "defaultScene");
