@@ -10,6 +10,7 @@ class PBRRenderingDemo : public Application
 {
 public:
 	PBRRenderingDemo(const ApplicationOptions& options);
+	~PBRRenderingDemo();
 
 	void OnUpdate(Timestep elapsedTime) override;
 	void OnRender() override;

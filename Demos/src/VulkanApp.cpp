@@ -35,6 +35,8 @@ VulkanApp::VulkanApp(const ApplicationOptions& options)
 		src.Tint = { randomFloat.Next(), randomFloat.Next(), randomFloat.Next(), 1.0f };
 	}
 
+	m_Scene->OnPlay();
+
 	m_Font = Font::Create("assets/Fonts/arial.ttf", 48);
 	m_Text.SetFont(m_Font);
 	
@@ -42,30 +44,37 @@ VulkanApp::VulkanApp(const ApplicationOptions& options)
 	m_TextCamera.SetOrthographic((float)window->GetWidth());
 	m_TextCamera.Resize(window->GetWidth(), window->GetHeight());
 
-#if 0
-	Scene scene;
+#if 1
+	/*Scene scene;
 	Entity e = scene.CreateEntity();
 	e.AddComponent<Transform3DComponent>();
 	e.AddComponent<PhysicsComponent>();
 	e.AddComponent<MeshComponent>();
 	e.AddComponent<TagComponent>();
+	e.AddNativeScript<NativeScriptEntity>();
 
 	SceneSerializer serializer;
-	serializer.SerializeRuntime(&scene, "defaultScene");
+	serializer.SerializeRuntime(&scene, "defaultScene");*/
 
 	Scene newScene;
+	SceneSerializer serializer;
 	serializer.DeserializeRuntime(&newScene, "defaultScene");
 
 	newScene.GetRegistry().each([&](entt::entity e)
+	{
+		Entity entity = { e, &newScene };
+		AllComponents{}.Each([&]<typename Component>(Component)
 		{
-			Entity entity = { e, &newScene };
-			AllComponents{}.Each([&]<typename Component>(Component)
-			{
-				if (entity.HasComponent<Component>())
-					QK_CORE_WARN("Entity has: {0}", typeid(Component).name());
-			});
+			if (entity.HasComponent<Component>())
+				QK_CORE_WARN("Entity has: {0}", typeid(Component).name());
 		});
+	});
 #endif
+}
+
+VulkanApp::~VulkanApp()
+{
+	m_Scene->OnStop();
 }
 
 void VulkanApp::OnEvent(Event& e)

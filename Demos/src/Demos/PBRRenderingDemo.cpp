@@ -19,6 +19,8 @@ PBRRenderingDemo::PBRRenderingDemo(const ApplicationOptions& options)
 	m_CameraEntity.GetComponent<Transform3DComponent>().Position = { 0.0f, 0.0f, -2.0f };
 	m_CameraEntity.AddNativeScript<CameraController>();
 
+	m_Scene->OnPlay();
+
 	m_MeshDataFuture = std::async(std::launch::async, Mesh::ReadOBJData, "assets/Models/poly_sphere.obj");
 	LoadMaterialsAsync();
 
@@ -87,6 +89,11 @@ PBRRenderingDemo::PBRRenderingDemo(const ApplicationOptions& options)
 	m_PBRShader->SetVec3f("u_LightPositions[1]", lightPositions[1]);
 	m_PBRShader->SetVec3f("u_LightPositions[2]", lightPositions[2]);
 	m_PBRShader->SetVec3f("u_LightPositions[3]", lightPositions[3]);
+}
+
+PBRRenderingDemo::~PBRRenderingDemo()
+{
+	m_Scene->OnStop();
 }
 
 void PBRRenderingDemo::OnUpdate(Timestep elapsedTime)

@@ -8,6 +8,7 @@ class VulkanApp : public Application
 {
 public:
 	VulkanApp(const ApplicationOptions& options = {});
+	~VulkanApp();
 
 	virtual void OnEvent(Event& e) override;
 	virtual void OnRender() override;

@@ -46,6 +46,13 @@ namespace Quark {
 		return script;
 	}
 
+	template<>
+	inline NativeScriptComponent& Entity::AddNativeScript<std::nullptr_t>()
+	{
+		QK_CORE_ASSERT(!HasComponent<NativeScriptComponent>(), "Entity already has a NativeScriptComponent installed!");
+		return m_Scene->m_Registry.emplace<NativeScriptComponent>(m_Entity);
+	}
+
 	template<typename Component>
 	inline bool Entity::HasComponent() const
 	{

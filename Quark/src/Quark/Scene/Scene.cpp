@@ -6,21 +6,10 @@
 
 namespace Quark {
 
-	Scene::~Scene()
-	{
-		// Destroy native scripts
-		{
-			auto view = m_Registry.view<NativeScriptComponent>();
-			for (auto entity : view)
-			{
-				auto& nsc = view.get<NativeScriptComponent>(entity);
-				nsc.OnDestroy(nsc);
-			}
-		}
-	}
-
 	void Scene::OnEvent(Event& e)
 	{
+		QK_CORE_ASSERT(InstanciateScript, "OnEvent() was called on a stopped scene! Make sure to call OnPlay() before sending events");
+
 		// Events on native scripts
 		{
 			auto view = m_Registry.view<NativeScriptComponent>();
@@ -32,8 +21,53 @@ namespace Quark {
 		}
 	}
 
+	void Scene::OnPlay()
+	{
+		InstanciateScript = [](Entity entity, NativeScriptComponent& nsc)
+		{
+			nsc.ScriptInstance = nsc.InstanciateScript();
+			nsc.ScriptInstance->m_Entity = entity;
+			nsc.OnCreate(nsc);
+		};
+
+		DestroyScript = [](NativeScriptComponent& nsc)
+		{
+			nsc.OnDestroy(nsc);
+		};
+
+		// Instanciate native scripts
+		{
+			auto view = m_Registry.view<NativeScriptComponent>();
+			for (auto entity : view)
+			{
+				auto& nsc = view.get<NativeScriptComponent>(entity);
+
+				nsc.ScriptInstance = nsc.InstanciateScript();
+				nsc.ScriptInstance->m_Entity = { entity, this };
+				nsc.OnCreate(nsc);
+			}
+		}
+	}
+
+	void Scene::OnStop()
+	{
+		// Destroy native scripts
+		{
+			auto view = m_Registry.view<NativeScriptComponent>();
+			for (auto entity : view)
+			{
+				auto& nsc = view.get<NativeScriptComponent>(entity);
+				DestroyScript(nsc);
+			}
+		}
+
+		m_Registry.clear();
+	}
+
 	void Scene::OnUpdate(Timestep elapsedTime)
 	{
+		QK_CORE_ASSERT(InstanciateScript, "OnUpdate() was called on a stopped scene! Make sure to call OnPlay() before updating the scene");
+
 		UpdateNativeScripts(elapsedTime);
 		UpdatePhysicsBodies(elapsedTime);
 		UpdateTransforms(elapsedTime);
@@ -86,17 +120,5 @@ namespace Quark {
 				transformComponent.Position += physicsComponent.Velocity * elapsedTime.Seconds();
 			}
 		}
-	}
-
-	void Scene::InstanciateScript(Entity entity, NativeScriptComponent& nsc)
-	{
-		nsc.ScriptInstance = nsc.InstanciateScript();
-		nsc.ScriptInstance->m_Entity = entity;
-		nsc.OnCreate(nsc);
-	}
-
-	void Scene::DestroyScript(NativeScriptComponent& nsc)
-	{
-		nsc.OnDestroy(nsc);
 	}
 }

@@ -1,6 +1,8 @@
 #include "qkpch.h"
 #include "SceneSerializer.h"
 
+#include "NativeScriptEntity.h"
+
 #include <type_traits>
 
 namespace Quark {
@@ -27,101 +29,14 @@ namespace Quark {
 	//     ]
 	//
 
+#define DESERIALIZE_COMPONENT(type, in, entity)                  \
+	case ComponentType::type:                                    \
+		SceneSerializer::DeserializeComponent<type>(             \
+			in,                                                  \
+			entity);                                             \
+		break
+
 	static const uint64_t s_SceneVersion = typeid(AllComponents).hash_code();
-
-	template<>
-	static void Serialize(const std::string& data, FILE* out)
-	{
-		const char* tagData = data.c_str();
-		std::fwrite(tagData, 1, data.size() + 1, out);
-	}
-
-	template<>
-	static auto Deserialize(FILE* in) -> std::string
-	{
-		size_t begin = std::ftell(in);
-		char c;
-
-		do {
-			// Assume string is null terminated
-			std::fread(&c, sizeof(char), 1, in);
-		} while (c != 0);
-
-		size_t end = std::ftell(in);
-		std::fseek(in, (long)begin, SEEK_SET);
-
-		size_t strSize = end - begin - 1;
-
-		std::string str;
-		str.resize(strSize);
-		std::fread(str.data(), sizeof(char), strSize, in);
-
-		// Reset stream at end of string plus null-terminator
-		std::fseek(in, (long)end, SEEK_SET);
-
-		return str;
-	}
-
-	/////////////////////////////////////////////////////////////////
-	// Component template specialization
-	//
-
-	template<>
-	static void SerializeComponent(const TagComponent& tag, FILE* out)
-	{
-		Serialize(tag.Name, out);
-	}
-
-	template<>
-	static void DeserializeComponent<TagComponent>(FILE* in, Entity entity)
-	{
-		auto& tag = entity.AddComponent<TagComponent>();
-		tag.Name = Deserialize<std::string>(in);
-	}
-
-	template<>
-	static void SerializeComponent(const MeshComponent& msc, FILE* out)
-	{
-	}
-
-	template<>
-	static void DeserializeComponent<MeshComponent>(FILE* in, Entity entity)
-	{
-	}
-
-	template<>
-	static void SerializeComponent(const TexturedSpriteRendererComponent& tsr, FILE* out)
-	{
-		// TODO: serialize texture asset (UUID)
-	}
-
-	template<>
-	static void DeserializeComponent<TexturedSpriteRendererComponent>(FILE* in, Entity entity)
-	{
-		// TODO: deserialize texture asset (UUID)
-	}
-
-	template<>
-	static void SerializeComponent(const TextRendererComponent& tsr, FILE* out)
-	{
-		// TODO: implement
-	}
-
-	template<>
-	static void DeserializeComponent<TextRendererComponent>(FILE* in, Entity entity)
-	{
-		// TODO: implement
-	}
-
-	template<>
-	static void SerializeComponent(const NativeScriptComponent& nsc, FILE* out)
-	{
-	}
-
-	template<>
-	static void DeserializeComponent<NativeScriptComponent>(FILE* in, Entity entity)
-	{
-	}
 	
 
 	template<typename... Component>
@@ -152,17 +67,10 @@ namespace Quark {
 				ComponentType type = Component::GetStaticType();
 				std::fwrite(&type, sizeof(uint64_t), 1, out);
 
-				SerializeComponent(entity.GetComponent<Component>(), out);
+				SceneSerializer::SerializeComponent<Component>(entity.GetComponent<Component>(), out);
 			}
 		}());
 	}
-
-#define DESERIALIZE_COMPONENT(type, in, entity) \
-	case ComponentType::type:                   \
-		DeserializeComponent<type>(             \
-			in,                                 \
-			entity);                            \
-		break
 
 	static void DeserializeComponents(Entity entity, FILE* in)
 	{
@@ -190,6 +98,8 @@ namespace Quark {
 				DESERIALIZE_COMPONENT(TexturedSpriteRendererComponent, in, entity);
 				DESERIALIZE_COMPONENT(TextRendererComponent,           in, entity);
 				DESERIALIZE_COMPONENT(NativeScriptComponent,           in, entity);
+
+				// TODO: make this work for custom components
 			}
 		}
 	}

@@ -130,7 +130,7 @@ namespace Quark {
 		void (*OnEvent)(NativeScriptEntity*, Event&) = nullptr;
 
 		template<typename T>
-		NativeScriptComponent& Bind()
+		inline NativeScriptComponent& Bind()
 		{
 			InstanciateScript = []()
 			{
@@ -149,6 +149,7 @@ namespace Quark {
 					static_cast<T*>(nsc.ScriptInstance)->OnDestroy();
 
 				delete nsc.ScriptInstance;
+				nsc.ScriptInstance = nullptr;
 			};
 
 			OnUpdate = [](NativeScriptEntity* script, Timestep ts)

@@ -13,8 +13,27 @@ namespace Quark {
 	public:
 		void SerializeRuntime(Scene* scene, std::string_view sceneName);
 		void DeserializeRuntime(Scene* scene, std::string_view sceneName);
+
+		///////////////////////////////////////////////////////////////////////
+		// Default impl for component serialization/deserialization
+		//
+		template<typename Component>
+		static inline void SerializeComponent(const Component& component, FILE* out)
+		{
+			std::fwrite(&component, sizeof(Component), 1, out);
+		}
+
+		template<typename Component>
+		static inline void DeserializeComponent(FILE* in, Entity entity)
+		{
+			auto& c = entity.GetScene().GetRegistry().emplace<Component>(entity);
+			std::fread(&c, sizeof(Component), 1, in);
+		}
 	};
 
+	///////////////////////////////////////////////////////////////////////
+	// Type serialization
+	//
 	template<typename T>
 	inline void Serialize(const T&, FILE*)
 	{
@@ -26,21 +45,7 @@ namespace Quark {
 	{
 		static_assert(sizeof(T) == 0, "No deserialize specialization was defined for type T.");
 	}
-
-	///////////////////////////////////////////////////////////////////////
-	// Default impl for component serialization/deserialization
-	//
-
-	template<typename Component>
-	inline void SerializeComponent(const Component& component, FILE* out)
-	{
-		std::fwrite(&component, sizeof(Component), 1, out);
-	}
-
-	template<typename Component>
-	inline void DeserializeComponent(FILE* in, Entity entity)
-	{
-		auto& c = entity.AddComponent<Component>();
-		std::fread(&c, sizeof(Component), 1, in);
-	}
 }
+
+#include "Serialize.inl"
+#include "SerializeComponent.inl"

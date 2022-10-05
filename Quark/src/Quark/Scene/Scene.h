@@ -18,11 +18,11 @@ namespace Quark {
 	class Scene
 	{
 	public:
-		Scene() = default;
-		virtual ~Scene();
-
 		void                  OnEvent(Event& e);
 		void                  OnUpdate(Timestep elapsedTime);
+
+		void                  OnPlay();
+		void                  OnStop();
 
 		Entity                CreateEntity();
 		void                  DeleteEntity(Entity entity);
@@ -49,14 +49,16 @@ namespace Quark {
 		}
 
 	private:
-		void InstanciateScript(Entity entity, NativeScriptComponent& nsc);
-		void DestroyScript(NativeScriptComponent& nsc);
+		// Scripts are instanciated OnPlay() or when a script is added after OnPlay() was called
+		void (*InstanciateScript)(Entity entity, NativeScriptComponent& nsc) = [](Entity, NativeScriptComponent&) {};
+		void (*DestroyScript)(NativeScriptComponent& nsc) = [](NativeScriptComponent&) {};
 
 	protected:
 		entt::registry m_Registry;
 		SceneSettings m_Settings;
 
 		friend class Entity;
+		friend class SceneSerializer;
 	};
 }
 
