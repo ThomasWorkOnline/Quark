@@ -15,7 +15,7 @@ namespace Quark {
 
 	Application* CreateApplication(CommandLineArguments args)
 	{
-		using App = VulkanApp;
+		using App = PBRRenderingDemo;
 
 		ApplicationOptions options;
 		options.AppName = "Demo Application";

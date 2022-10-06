@@ -12,7 +12,7 @@ namespace Quark {
 
 	struct SceneSettings
 	{
-		Float GlobalFrictionCoeff = 0.0f;
+		Float AirDensity = 1.225f;
 	};
 
 	class Scene

@@ -36,7 +36,6 @@
 #include "Quark/Renderer/Formats.h"
 #include "Quark/Renderer/Framebuffer.h"
 #include "Quark/Renderer/Image.h"
-#include "Quark/Renderer/Material.h"
 #include "Quark/Renderer/Pipeline.h"
 #include "Quark/Renderer/Renderer.h"
 #include "Quark/Renderer/Renderer2D.h"

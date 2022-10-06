@@ -137,6 +137,11 @@ namespace Quark {
 		return CreateScope<VulkanShader>(VulkanContext::GetCurrentDevice(), name, vertexSource, geometrySource, fragmentSource);
 	}
 
+	Scope<Shader> VulkanGraphicsAPI::CreateShaderLegacy(std::string_view filepath)
+	{
+		return CreateScope<VulkanShader>(VulkanContext::GetCurrentDevice(), filepath);
+	}
+
 	Scope<Shader> VulkanGraphicsAPI::CreateShaderLegacy(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource)
 	{
 		return CreateScope<VulkanShader>(VulkanContext::GetCurrentDevice(), name, vertexSource, fragmentSource);

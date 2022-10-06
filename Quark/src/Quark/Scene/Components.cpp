@@ -69,4 +69,9 @@ namespace Quark {
 		: Velocity(velocity)
 	{
 	}
+
+	void PhysicsComponent::AddForce(const Vec3& force)
+	{
+		Velocity += force;
+	}
 }

@@ -60,8 +60,8 @@ struct Material
 uniform vec3 u_LightPositions[s_LightCount];
 uniform vec3 u_LightColors[s_LightCount];
 
-uniform samplerCube u_IrradianceMap;
 uniform Material u_Material;
+uniform samplerCube u_IrradianceMap;
 
 layout(location = 0) out vec4 o_Color;
 
@@ -74,9 +74,6 @@ void main()
 	float roughness = texture(u_Material.RoughnessMap,        Input.TexCoord).r;
 	float ao        = texture(u_Material.AmbiantOcclusionMap, Input.TexCoord).r;
 
-	o_Color = vec4(albedo, 1.0);
-
-#if 0
 	vec3 N = GetNormalFromMap();
 	vec3 V = normalize(u_Camera.CameraPosition.xyz - Input.Position);
 	vec3 R = reflect(-V, N);
@@ -139,7 +136,6 @@ void main()
 	// HDR tonemapping
 	color = color / (color + vec3(1.0));
 	o_Color = vec4(color, 1.0);
-#endif
 }
 
 vec3 GetNormalFromMap()

@@ -68,11 +68,25 @@ namespace Quark {
 		}
 	}
 
+	Image::Image(Image&& other) noexcept
+		: m_ImageData(other.m_ImageData)
+		, m_Metadata(other.m_Metadata)
+	{
+		other.m_ImageData = nullptr;
+		other.m_Metadata = {};
+	}
+
 	Image::~Image()
 	{
 		QK_PROFILE_FUNCTION();
 
 		free(m_ImageData);
+	}
+
+	Image& Image::operator=(Image&& other) noexcept
+	{
+		std::swap(other, *this);
+		return *this;
 	}
 
 	void Image::DecodePNG(FileStream& in)

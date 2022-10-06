@@ -73,7 +73,11 @@ namespace Quark {
 
 	struct PhysicsComponent
 	{
-		Vec3 Velocity;
+		Vec3  Velocity;
+		Float Mass      = 1.0f; // In kilograms
+		Float DragCoeff = 0.7f;
+
+		void AddForce(const Vec3& force);
 
 		PhysicsComponent();
 		PhysicsComponent(const Vec3& velocity);
@@ -104,7 +108,7 @@ namespace Quark {
 	struct TexturedSpriteRendererComponent
 	{
 		Ref<Texture2D> Texture;
-		Vec4f Tint = { 1.0f, 1.0f, 1.0f, 1.0f };
+		Vec4f          Tint = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 		COMPONENT_TYPE(TexturedSpriteRendererComponent);
 	};
@@ -121,13 +125,13 @@ namespace Quark {
 	struct NativeScriptComponent
 	{
 		NativeScriptEntity* ScriptInstance = nullptr;
-		NativeScriptEntity* (*InstanciateScript)() = nullptr;
+		NativeScriptEntity* (*InstanciateScript)();
 
 		// Script methods impl
-		void (*OnCreate)(NativeScriptComponent&) = nullptr;
-		void (*OnDestroy)(NativeScriptComponent&) = nullptr;
-		void (*OnUpdate)(NativeScriptEntity*, Timestep) = nullptr;
-		void (*OnEvent)(NativeScriptEntity*, Event&) = nullptr;
+		void (*OnCreate)(NativeScriptComponent&);
+		void (*OnDestroy)(NativeScriptComponent&);
+		void (*OnUpdate)(NativeScriptEntity*, Timestep);
+		void (*OnEvent)(NativeScriptEntity*, Event&);
 
 		template<typename T>
 		inline NativeScriptComponent& Bind()

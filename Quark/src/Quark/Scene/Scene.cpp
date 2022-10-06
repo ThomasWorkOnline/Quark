@@ -8,8 +8,6 @@ namespace Quark {
 
 	void Scene::OnEvent(Event& e)
 	{
-		QK_CORE_ASSERT(InstanciateScript, "OnEvent() was called on a stopped scene! Make sure to call OnPlay() before sending events");
-
 		// Events on native scripts
 		{
 			auto view = m_Registry.view<NativeScriptComponent>();
@@ -57,7 +55,7 @@ namespace Quark {
 			for (auto entity : view)
 			{
 				auto& nsc = view.get<NativeScriptComponent>(entity);
-				DestroyScript(nsc);
+				nsc.OnDestroy(nsc);
 			}
 		}
 
@@ -66,8 +64,6 @@ namespace Quark {
 
 	void Scene::OnUpdate(Timestep elapsedTime)
 	{
-		QK_CORE_ASSERT(InstanciateScript, "OnUpdate() was called on a stopped scene! Make sure to call OnPlay() before updating the scene");
-
 		UpdateNativeScripts(elapsedTime);
 		UpdatePhysicsBodies(elapsedTime);
 		UpdateTransforms(elapsedTime);
@@ -104,7 +100,7 @@ namespace Quark {
 			for (auto entity : group)
 			{
 				auto& physicsComponent = group.get<PhysicsComponent>(entity);
-				physicsComponent.Velocity -= physicsComponent.Velocity * m_Settings.GlobalFrictionCoeff * elapsedTime.Seconds();
+				physicsComponent.Velocity -= physicsComponent.Velocity * physicsComponent.DragCoeff * m_Settings.AirDensity * elapsedTime.Seconds();
 			}
 		}
 	}

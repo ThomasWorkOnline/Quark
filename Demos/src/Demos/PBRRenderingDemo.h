@@ -53,9 +53,9 @@ private:
 	Scope<Pipeline> m_Pipeline;
 
 	std::future<OBJMeshData> m_MeshDataFuture;
-	std::future<Scope<Image>> m_AlbedoFuture;
-	std::future<Scope<Image>> m_MetallicFuture;
-	std::future<Scope<Image>> m_NormalFuture;
-	std::future<Scope<Image>> m_RoughnessFuture;
-	std::future<Scope<Image>> m_AOFuture;
+	std::future<Image> m_AlbedoFuture;
+	std::future<Image> m_MetallicFuture;
+	std::future<Image> m_NormalFuture;
+	std::future<Image> m_RoughnessFuture;
+	std::future<Image> m_AOFuture;
 };

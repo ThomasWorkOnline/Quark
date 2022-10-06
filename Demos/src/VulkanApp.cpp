@@ -5,7 +5,6 @@ VulkanApp::VulkanApp(const ApplicationOptions& options)
 	: Application(options)
 {
 	m_Scene = CreateRef<PresentableScene>();
-	m_Scene->GetSettings().GlobalFrictionCoeff = 4.0f;
 	m_CameraEntity = m_Scene->CreatePrimaryCamera();
 	m_CameraEntity.AddNativeScript<CameraController>();
 

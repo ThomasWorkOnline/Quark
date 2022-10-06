@@ -21,7 +21,10 @@ namespace Quark {
 	{
 	public:
 		Image(std::string_view filepath);
+		Image(Image&& other) noexcept;
 		~Image();
+
+		Image& operator=(Image&& other) noexcept;
 
 		uint32_t Width() const { return m_Metadata.Width; }
 		uint32_t Height() const { return m_Metadata.Height; }

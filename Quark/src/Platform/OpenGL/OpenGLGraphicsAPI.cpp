@@ -151,6 +151,11 @@ namespace Quark {
 		return CreateScope<OpenGLShader>(name, vertexSource, geometrySource, fragmentSource);
 	}
 
+	Scope<Shader> OpenGLGraphicsAPI::CreateShaderLegacy(std::string_view filepath)
+	{
+		return CreateScope<OpenGLShader>(nullptr, filepath); // Legacy variant
+	}
+
 	Scope<Shader> OpenGLGraphicsAPI::CreateShaderLegacy(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource)
 	{
 		return CreateScope<OpenGLShader>(name, vertexSource, fragmentSource);

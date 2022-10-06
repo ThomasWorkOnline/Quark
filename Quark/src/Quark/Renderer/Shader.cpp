@@ -132,6 +132,11 @@ namespace Quark {
 		return s_GraphicsAPI->CreateShader(name, vertexSource, geometrySource, fragmentSource);
 	}
 
+	Scope<Shader> Shader::CreateLegacy(std::string_view filepath)
+	{
+		return s_GraphicsAPI->CreateShaderLegacy(filepath);
+	}
+
 	Scope<Shader> Shader::CreateLegacy(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource)
 	{
 		return s_GraphicsAPI->CreateShaderLegacy(name, vertexSource, fragmentSource);

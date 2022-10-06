@@ -139,6 +139,23 @@ namespace Quark {
 		}
 	}
 
+	OpenGLShader::OpenGLShader(std::nullptr_t, std::string_view filepath)
+		: Shader(Utils::ExtractNameFromPath(filepath))
+	{
+		QK_PROFILE_FUNCTION();
+
+		std::string source = Filesystem::ReadTextFile(filepath);
+		auto shaderSources = SubstrStages(source);
+
+		std::unordered_map<GLenum, std::string> parsedGlslSources(shaderSources.size());
+		for (auto& [stage, shaderSource] : shaderSources)
+			parsedGlslSources[stage] = ParseGLSL(shaderSource);
+
+		m_RendererID = CompileGLSLSourcesLegacy(parsedGlslSources);
+
+		// TODO: manual upload of uniforms
+	}
+
 	OpenGLShader::OpenGLShader(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource)
 		: Shader(name)
 	{
@@ -646,7 +663,8 @@ namespace Quark {
 			return it->second;
 
 		// Insert uniform location into cache
-		GLint location = glGetUniformLocation(m_RendererID, (const GLchar*)name.data());
+		const GLchar* nameCstr = name.data();
+		GLint location = glGetUniformLocation(m_RendererID, nameCstr);
 		if (location == -1)
 		{
 			QK_CORE_WARN("glGetUniformLocation returned an invalid location");

@@ -12,8 +12,8 @@ PBRRenderingDemo::PBRRenderingDemo(const ApplicationOptions& options)
 	GetWindow()->SetVSync(true);
 
 	m_Scene = CreateScope<PresentableScene>();
-	m_Scene->GetSettings().GlobalFrictionCoeff = 4.0f;
-	m_Scene->SetEnvironment("assets/Environments/MonValley_G_DirtRoad_3k.hdr");
+	m_Scene->GetSettings().AirDensity = 4.0f;
+	//m_Scene->SetEnvironment("assets/Environments/MonValley_G_DirtRoad_3k.hdr");
 
 	m_CameraEntity = m_Scene->CreatePrimaryCamera();
 	m_CameraEntity.GetComponent<Transform3DComponent>().Position = { 0.0f, 0.0f, -2.0f };
@@ -39,7 +39,7 @@ PBRRenderingDemo::PBRRenderingDemo(const ApplicationOptions& options)
 		}
 	}
 
-	m_PBRShader = Shader::Create("assets/Shaders/PBR.glsl");
+	m_PBRShader = Shader::CreateLegacy("assets/Shaders/PBR.glsl");
 
 	{
 		UniformBufferSpecification spec;
@@ -50,6 +50,8 @@ PBRRenderingDemo::PBRRenderingDemo(const ApplicationOptions& options)
 	for (auto i = 0; i < sizeof_array(m_Samplers); i++)
 	{
 		SamplerSpecification spec;
+		spec.RenderModes.MinFilteringMode = SamplerFilterMode::Linear;
+		spec.RenderModes.MagFilteringMode = SamplerFilterMode::Linear;
 		m_Samplers[i] = Sampler::Create(spec);
 	}
 
@@ -120,13 +122,13 @@ void PBRRenderingDemo::OnRender()
 		Renderer::BindPipeline(m_Pipeline.get());
 
 		Renderer::GetCommandBuffer()->BindUniformBuffer(m_CameraUniformBuffer.get(), 0);
-		Renderer::GetCommandBuffer()->BindTexture(m_Irradiance.get(), m_Samplers[5].get(), 2);
+		Renderer::GetCommandBuffer()->BindTexture(m_Irradiance.get(), m_Samplers[5].get(), 0, 5);
 
-		if (m_Material.Albedo)    Renderer::GetCommandBuffer()->BindTexture(m_Material.Albedo.get(),    m_Samplers[0].get(), 0);
-		if (m_Material.Normal)    Renderer::GetCommandBuffer()->BindTexture(m_Material.Normal.get(),    m_Samplers[1].get(), 1);
-		if (m_Material.Metallic)  Renderer::GetCommandBuffer()->BindTexture(m_Material.Metallic.get(),  m_Samplers[2].get(), 2);
-		if (m_Material.Roughness) Renderer::GetCommandBuffer()->BindTexture(m_Material.Roughness.get(), m_Samplers[3].get(), 3);
-		if (m_Material.AO)        Renderer::GetCommandBuffer()->BindTexture(m_Material.AO.get(),        m_Samplers[4].get(), 4);
+		if (m_Material.Albedo)    Renderer::GetCommandBuffer()->BindTexture(m_Material.Albedo.get(),    m_Samplers[0].get(), 0, 0);
+		if (m_Material.Normal)    Renderer::GetCommandBuffer()->BindTexture(m_Material.Normal.get(),    m_Samplers[1].get(), 0, 1);
+		if (m_Material.Metallic)  Renderer::GetCommandBuffer()->BindTexture(m_Material.Metallic.get(),  m_Samplers[2].get(), 0, 2);
+		if (m_Material.Roughness) Renderer::GetCommandBuffer()->BindTexture(m_Material.Roughness.get(), m_Samplers[3].get(), 0, 3);
+		if (m_Material.AO)        Renderer::GetCommandBuffer()->BindTexture(m_Material.AO.get(),        m_Samplers[4].get(), 0, 4);
 
 		Renderer::GetCommandBuffer()->BindDescriptorSets();
 		Renderer::Submit(m_Body.GetVertexBuffer(), m_Body.GetIndexBuffer());
@@ -175,10 +177,10 @@ void PBRRenderingDemo::OnKeyPressed(KeyPressedEvent& e)
 	}
 }
 
-static Scope<Texture2D> CreateTextureFromImage(const Image* image, const Texture2DSpecification& spec)
+static Scope<Texture2D> CreateTextureFromImage(const Image& image, const Texture2DSpecification& spec)
 {
 	auto texture = Texture2D::Create(spec);
-	texture->SetData(image->GetData(), image->GetMetadata().Size);
+	texture->SetData(image.GetData(), image.GetMetadata().Size);
 	texture->GenerateMipmaps();
 	return texture;
 }
@@ -236,7 +238,7 @@ void PBRRenderingDemo::LoadMaterialsAsync()
 #if 1
 		auto newImageLambda = [](const char* filepath)
 		{
-			return CreateScope<Image>(filepath);
+			return Image(filepath);
 		};
 
 		m_AlbedoFuture    = std::async(std::launch::async, newImageLambda, albedoFilepath);
@@ -320,7 +322,7 @@ void PBRRenderingDemo::UploadAssets()
 {
 	if (m_MeshDataFuture.valid() && m_MeshDataFuture.wait_for(std::chrono::microseconds(0)) == std::future_status::ready)
 	{
-		OBJMeshData meshData = std::move(m_MeshDataFuture.get());
+		OBJMeshData meshData = m_MeshDataFuture.get();
 		m_Body = meshData;
 	}
 
@@ -329,10 +331,10 @@ void PBRRenderingDemo::UploadAssets()
 		auto image = m_AlbedoFuture.get();
 
 		Texture2DSpecification spec;
-		spec.Width = image->Width();
-		spec.Height = image->Height();
-		spec.DataFormat = image->Channels() == 4 ? ColorFormat::RGBA8SRGB : ColorFormat::RGB8SRGB;
-		m_Material.Albedo = CreateTextureFromImage(image.get(), spec);
+		spec.Width = image.Width();
+		spec.Height = image.Height();
+		spec.DataFormat = image.Channels() == 4 ? ColorFormat::RGBA8SRGB : ColorFormat::RGB8SRGB;
+		m_Material.Albedo = CreateTextureFromImage(image, spec);
 	}
 
 	if (m_MetallicFuture.valid() && m_MetallicFuture.wait_for(std::chrono::microseconds(0)) == std::future_status::ready)
@@ -340,10 +342,10 @@ void PBRRenderingDemo::UploadAssets()
 		auto image = m_MetallicFuture.get();
 
 		Texture2DSpecification spec;
-		spec.Width = image->Width();
-		spec.Height = image->Height();
-		spec.DataFormat = image->Channels() == 4 ? ColorFormat::RGBA8 : ColorFormat::RGB8;
-		m_Material.Metallic = CreateTextureFromImage(image.get(), spec);
+		spec.Width = image.Width();
+		spec.Height = image.Height();
+		spec.DataFormat = image.GetMetadata().DataFormat;
+		m_Material.Metallic = CreateTextureFromImage(image, spec);
 	}
 
 	if (m_NormalFuture.valid() && m_NormalFuture.wait_for(std::chrono::microseconds(0)) == std::future_status::ready)
@@ -351,10 +353,10 @@ void PBRRenderingDemo::UploadAssets()
 		auto image = m_NormalFuture.get();
 
 		Texture2DSpecification spec;
-		spec.Width = image->Width();
-		spec.Height = image->Height();
-		spec.DataFormat = image->Channels() == 4 ? ColorFormat::RGBA8 : ColorFormat::RGB8;
-		m_Material.Normal = CreateTextureFromImage(image.get(), spec);
+		spec.Width = image.Width();
+		spec.Height = image.Height();
+		spec.DataFormat = image.GetMetadata().DataFormat;
+		m_Material.Normal = CreateTextureFromImage(image, spec);
 	}
 
 	if (m_RoughnessFuture.valid() && m_RoughnessFuture.wait_for(std::chrono::microseconds(0)) == std::future_status::ready)
@@ -362,10 +364,10 @@ void PBRRenderingDemo::UploadAssets()
 		auto image = m_RoughnessFuture.get();
 
 		Texture2DSpecification spec;
-		spec.Width = image->Width();
-		spec.Height = image->Height();
-		spec.DataFormat = image->Channels() == 4 ? ColorFormat::RGBA8 : ColorFormat::RGB8;
-		m_Material.Roughness = CreateTextureFromImage(image.get(), spec);
+		spec.Width = image.Width();
+		spec.Height = image.Height();
+		spec.DataFormat = image.GetMetadata().DataFormat;
+		m_Material.Roughness = CreateTextureFromImage(image, spec);
 	}
 
 	if (m_AOFuture.valid() && m_AOFuture.wait_for(std::chrono::microseconds(0)) == std::future_status::ready)
@@ -373,9 +375,9 @@ void PBRRenderingDemo::UploadAssets()
 		auto image = m_AOFuture.get();
 
 		Texture2DSpecification spec;
-		spec.Width = image->Width();
-		spec.Height = image->Height();
-		spec.DataFormat = image->Channels() == 4 ? ColorFormat::RGBA8 : ColorFormat::RGB8;
-		m_Material.AO = CreateTextureFromImage(image.get(), spec);
+		spec.Width = image.Width();
+		spec.Height = image.Height();
+		spec.DataFormat = image.GetMetadata().DataFormat;
+		m_Material.AO = CreateTextureFromImage(image, spec);
 	}
 }
