@@ -2,7 +2,8 @@
 
 Quark is a 3D game engine in early development.
 Designed for learning purposes.
-Official support for macOS and Linux is on it's way!
+Official support for macOS is here!
+Support for Linux is on its way!
 
 ***
 ![Splash](Quark/docs/Splash.PNG)
@@ -11,7 +12,7 @@ Official support for macOS and Linux is on it's way!
 
 ## On Windows
 1. Run `git clone --resursive https://github.com/ThomasWorkOnline/Quark.git` in your desired environment folder.
-2. Run `pip install requests`
+2. Run `pip install requests` (Python required)
 3. After cloning this repository, run the `Setup.py` script located under the solution directory.
 4. Open the generated Visual Studio solution and hit build! Build for your desired configuration(s).
 
@@ -19,13 +20,17 @@ Note: *On Visual Studio, your configuration will automatically be set and can be
 
 ## On MacOS
 1. Run `git clone --resursive https://github.com/ThomasWorkOnline/Quark.git` in your desired environment folder.
-2. Run `pip install requests`
-3. After cloning this repository, run the script `GenMakefile_MacOS.sh` located under `Scripts/Macos`.
+2. Run `pip install requests` (Python required)
+3. After cloning this repository, run the script `GenMakefile.sh` located under `Scripts/Macos`.
 4. Navigate to the project root directory and type `make config=<config>`.
 ### Different configs:
 	make config=debug
 	make config=release
 	make config=dist
+
+5. An executable will be build located inside the `bin/<Platform>-<Config>/` directory.
+6. For references to work properly. Make sur to set the working environment either via the `ApplicationOptions`
+or simply move the executable to the desired working directory.
 
 ## On Linux
 Coming soon!
