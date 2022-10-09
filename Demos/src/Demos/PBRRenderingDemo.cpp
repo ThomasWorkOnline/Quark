@@ -50,7 +50,7 @@ PBRRenderingDemo::PBRRenderingDemo(const ApplicationOptions& options)
 	for (auto i = 0; i < sizeof_array(m_Samplers); i++)
 	{
 		SamplerSpecification spec;
-		spec.RenderModes.MinFilteringMode = SamplerFilterMode::Linear;
+		spec.RenderModes.MinFilteringMode = SamplerFilterMode::LinearMipmapLinear;
 		spec.RenderModes.MagFilteringMode = SamplerFilterMode::Linear;
 		m_Samplers[i] = Sampler::Create(spec);
 	}
