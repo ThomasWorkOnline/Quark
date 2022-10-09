@@ -9,8 +9,6 @@
 #include "TextureArrayTest.h"
 #include "VulkanApp.h"
 
-#include <type_traits>
-
 namespace Quark {
 
 	Application* CreateApplication(CommandLineArguments args)
