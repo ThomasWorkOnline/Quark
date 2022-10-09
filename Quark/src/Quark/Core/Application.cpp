@@ -20,16 +20,15 @@ namespace Quark {
 
 		Renderer::Configure(m_Options.GraphicsAPI);
 
-		uint32_t multisampling = 1;
 		WindowSpecification spec = {
-			m_Options.AppName.empty() ? "Quark Engine" : m_Options.AppName, m_Options.Width, m_Options.Height, multisampling
+			m_Options.AppName.empty() ? "Quark Engine" : m_Options.AppName, m_Options.Width, m_Options.Height, m_Options.Samples
 		};
 
 		m_Window = Window::Create(spec);
 		m_Window->SetEventCallback(ATTACH_EVENT_FN(Application::OnEventInternal));
 
 		auto viewport = m_Window->GetViewportExtent();
-		Renderer::Initialize(viewport.Width, viewport.Height, multisampling);
+		Renderer::Initialize(viewport.Width, viewport.Height, m_Options.Samples);
 		Renderer2D::Initialize();
 
 		QK_CORE_INFO(Renderer::GetSpecification());

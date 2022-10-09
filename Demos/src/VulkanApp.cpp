@@ -27,7 +27,7 @@ VulkanApp::VulkanApp(const ApplicationOptions& options)
 		transform.Rotate(randomFloat.Next() * glm::radians(360.0f), axis);
 
 		auto& physics = sprite.AddComponent<PhysicsComponent>();
-		physics.Velocity = axis;
+		physics.Velocity = axis * 100.0f;
 
 		auto& src = sprite.AddComponent<TexturedSpriteRendererComponent>();
 		src.Texture = randomBool.Next() ? texture1 : texture2;
@@ -42,33 +42,6 @@ VulkanApp::VulkanApp(const ApplicationOptions& options)
 	auto* window = GetWindow();
 	m_TextCamera.SetOrthographic((float)window->GetWidth());
 	m_TextCamera.Resize(window->GetWidth(), window->GetHeight());
-
-#if 1
-	/*Scene scene;
-	Entity e = scene.CreateEntity();
-	e.AddComponent<Transform3DComponent>();
-	e.AddComponent<PhysicsComponent>();
-	e.AddComponent<MeshComponent>();
-	e.AddComponent<TagComponent>();
-	e.AddNativeScript<NativeScriptEntity>();
-
-	SceneSerializer serializer;
-	serializer.SerializeRuntime(&scene, "defaultScene");*/
-
-	Scene newScene;
-	SceneSerializer serializer;
-	serializer.DeserializeRuntime(&newScene, "defaultScene");
-
-	newScene.GetRegistry().each([&](entt::entity e)
-	{
-		Entity entity = { e, &newScene };
-		AllComponents{}.Each([&]<typename Component>(Component)
-		{
-			if (entity.HasComponent<Component>())
-				QK_CORE_WARN("Entity has: {0}", typeid(Component).name());
-		});
-	});
-#endif
 }
 
 VulkanApp::~VulkanApp()

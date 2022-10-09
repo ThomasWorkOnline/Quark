@@ -18,6 +18,7 @@ namespace Quark {
 		using App = PBRRenderingDemo;
 
 		ApplicationOptions options;
+		options.Samples = 4;
 		options.AppName = "Demo Application";
 		options.CoreDir = "../Quark";
 		options.CommandLineArgs = args;
