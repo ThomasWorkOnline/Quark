@@ -28,7 +28,7 @@ Note: *On Visual Studio, your configuration will automatically be set and can be
 	make config=release
 	make config=dist
 
-5. An executable will be build located inside the `bin/<Platform>-<Config>/` directory.
+5. An executable will be built in `bin/<Platform>-<Config>/<Project>`.
 6. For references to work properly. Make sur to set the working environment either via the `ApplicationOptions`
 or simply move the executable to the desired working directory.
 
