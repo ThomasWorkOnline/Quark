@@ -1,6 +1,6 @@
 #include "qkpch.h"
 #include "OpenGLFramebuffer.h"
-#include "OpenGLFormats.h"
+#include "OpenGLEnums.h"
 
 #include "Quark/Renderer/Renderer.h"
 
@@ -10,12 +10,12 @@ namespace Quark {
 
 	namespace Utils {
 
-		static constexpr GLenum GetDepthAttachmentTarget(ColorDataFormat attachmentDepthFormat)
+		static constexpr GLenum GetDepthAttachmentTarget(ColorFormat attachmentDepthFormat)
 		{
 			switch (attachmentDepthFormat)
 			{
-				case ColorDataFormat::Depth24:         return GL_DEPTH_ATTACHMENT;
-				case ColorDataFormat::Depth24Stencil8: return GL_DEPTH_STENCIL_ATTACHMENT;
+				case ColorFormat::Depth24:         return GL_DEPTH_ATTACHMENT;
+				case ColorFormat::Depth24Stencil8: return GL_DEPTH_STENCIL_ATTACHMENT;
 
 				QK_ASSERT_NO_DEFAULT("Invalid framebuffer depth attachment");
 			}
@@ -23,13 +23,13 @@ namespace Quark {
 			return GL_NONE;
 		}
 
-		static constexpr bool IsDepthOrStencilAttachment(ColorDataFormat attachmentFormat)
+		static constexpr bool IsDepthOrStencilAttachment(ColorFormat attachmentFormat)
 		{
 			switch (attachmentFormat)
 			{
-				case ColorDataFormat::Depth24:
-				case ColorDataFormat::Depth24Stencil8: return true;
-				default:                               return false;
+				case ColorFormat::Depth24:
+				case ColorFormat::Depth24Stencil8: return true;
+				default:                           return false;
 			}
 		}
 	}
@@ -37,6 +37,39 @@ namespace Quark {
 	OpenGLFramebufferAttachment::OpenGLFramebufferAttachment(const FramebufferAttachmentSpecification& spec)
 		: FramebufferAttachment(spec)
 	{
+		Invalidate();
+	}
+
+	OpenGLFramebufferAttachment::~OpenGLFramebufferAttachment()
+	{
+		glDeleteTextures(1, &m_RendererID);
+	}
+
+	void OpenGLFramebufferAttachment::Resize(uint32_t width, uint32_t height)
+	{
+		m_Spec.Width = width;
+		m_Spec.Height = height;
+
+		Invalidate();
+	}
+
+	bool OpenGLFramebufferAttachment::operator==(const FramebufferAttachment& other) const
+	{
+		if (auto* o = dynamic_cast<decltype(this)>(&other))
+			return m_RendererID == o->m_RendererID;
+
+		return false;
+	}
+
+	void OpenGLFramebufferAttachment::Invalidate()
+	{
+		QK_PROFILE_FUNCTION();
+
+		if (m_RendererID)
+		{
+			glDeleteTextures(1, &m_RendererID);
+		}
+
 		glGenTextures(1, &m_RendererID);
 
 		bool multisampled = m_Spec.Samples > 1;
@@ -51,7 +84,7 @@ namespace Quark {
 		else
 		{
 			glTexImage2D(GL_TEXTURE_2D, 0, DataFormatToOpenGLInternalFormat(m_Spec.DataFormat), m_Spec.Width, m_Spec.Height, 0,
-				DataFormatToOpenGLStorageFormat(m_Spec.DataFormat), GL_UNSIGNED_BYTE, nullptr);
+				DataFormatToOpenGLStorageFormat(m_Spec.DataFormat), GL_UNSIGNED_BYTE, NULL);
 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -60,14 +93,9 @@ namespace Quark {
 		}
 	}
 
-	OpenGLFramebufferAttachment::~OpenGLFramebufferAttachment()
-	{
-		glDeleteTextures(1, &m_RendererID);
-	}
-
-	void OpenGLFramebufferAttachment::SetData(const void* data)
-	{
-	}
+	///////////////////////////////////////////////////////////////////////////////////
+	// OpenGlFramebuffer
+	//
 
 	GLuint s_ActiveFramebuffer = 0;
 
@@ -76,10 +104,9 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		QK_CORE_ASSERT(m_Spec.Specifications.size() <= Renderer::GetCapabilities().FramebufferCapabilities.MaxAttachments,
+		QK_CORE_ASSERT(m_Spec.Attachments.size() <= Renderer::GetCapabilities().Framebuffer.MaxAttachments,
 			"Framebuffer contains too many attachments");
 
-		m_ColorAttachments = Array<OpenGLFramebufferAttachment>(spec.Specifications.size());
 		Invalidate();
 	}
 
@@ -93,7 +120,7 @@ namespace Quark {
 	void OpenGLFramebuffer::Resize(uint32_t width, uint32_t height)
 	{
 		auto& capabilities = Renderer::GetCapabilities();
-		if (width > capabilities.FramebufferCapabilities.MaxWidth || height > capabilities.FramebufferCapabilities.MaxHeight)
+		if (width > capabilities.Framebuffer.MaxWidth || height > capabilities.Framebuffer.MaxHeight)
 		{
 			QK_CORE_WARN("Attempted to resize a framebuffer with dimensions too large: {0}, {1}", width, height);
 			return;
@@ -102,16 +129,29 @@ namespace Quark {
 		m_Spec.Width = width;
 		m_Spec.Height = height;
 
+		for (auto& attachment : m_Spec.Attachments)
+		{
+			attachment->Resize(width, height);
+		}
+
 		Invalidate();
 	}
 
-	void OpenGLFramebuffer::Bind()
+	bool OpenGLFramebuffer::operator==(const Framebuffer& other) const
+	{
+		if (auto* o = dynamic_cast<decltype(this)>(&other))
+			return m_RendererID == o->m_RendererID;
+
+		return false;
+	}
+
+	void OpenGLFramebuffer::Bind() const
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
 		s_ActiveFramebuffer = m_RendererID;
 	}
 
-	void OpenGLFramebuffer::Unbind()
+	void OpenGLFramebuffer::Unbind() const
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		s_ActiveFramebuffer = 0;
@@ -131,38 +171,27 @@ namespace Quark {
 		{
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			glDeleteFramebuffers(1, &m_RendererID);
-
-			// Delete objects but keep memory
-			for (auto& attachment : m_ColorAttachments)
-			{
-				attachment.~OpenGLFramebufferAttachment();
-			}
 		}
 
 		glGenFramebuffers(1, &m_RendererID);
 		glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
 		glViewport(0, 0, m_Spec.Width, m_Spec.Height);
-
-		for (size_t i = 0; i < m_ColorAttachments.GetSize(); i++)
-		{
-			// Placement new objects since copy constructor is not available
-			new (&m_ColorAttachments[i]) OpenGLFramebufferAttachment(m_Spec.Specifications[i]);
-		}
 		
 		GLsizei colorAttachmentIndex = 0;
-		for (auto& attachment : m_ColorAttachments)
+		for (auto* attachment : m_Spec.Attachments)
 		{
-			if (Utils::IsDepthOrStencilAttachment(attachment.GetSpecification().DataFormat))
+			auto* openglAttachment = static_cast<OpenGLFramebufferAttachment*>(attachment);
+
+			if (Utils::IsDepthOrStencilAttachment(attachment->GetSpecification().DataFormat))
 			{
 				// Depth stencil format
-				GLenum attachmentTarget = Utils::GetDepthAttachmentTarget(attachment.GetSpecification().DataFormat);
-
-				glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentTarget, attachment.m_Target, attachment.m_RendererID, 0);
+				GLenum attachmentTarget = Utils::GetDepthAttachmentTarget(attachment->GetSpecification().DataFormat);
+				glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentTarget, openglAttachment->GetTarget(), openglAttachment->GetRendererID(), 0);
 			}
 			else
 			{
 				// Color format
-				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + colorAttachmentIndex, attachment.m_Target, attachment.m_RendererID, 0);
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + colorAttachmentIndex, openglAttachment->GetTarget(), openglAttachment->GetRendererID(), 0);
 				colorAttachmentIndex++;
 			}
 		}

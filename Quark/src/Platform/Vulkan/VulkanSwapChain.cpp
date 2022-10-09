@@ -1,73 +1,52 @@
 #include "qkpch.h"
 #include "VulkanSwapChain.h"
 
-#include <GLFW/glfw3.h>
+#include "VulkanEnums.h"
+#include "VulkanContext.h"
 
 namespace Quark {
 
 	namespace Utils {
 
-		static VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
+		static ColorFormat VulkanFormatToColorFormat(VkFormat format)
 		{
-			for (const auto& availableFormat : availableFormats)
+			switch (format)
 			{
-				if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
-					return availableFormat;
+				case VK_FORMAT_R8G8B8_UNORM:        return ColorFormat::RGB8;
+				case VK_FORMAT_R16G16B16_UNORM:     return ColorFormat::RGB16;
+				case VK_FORMAT_R32G32B32_UINT:      return ColorFormat::RGB32UInt;
+
+				case VK_FORMAT_R8G8B8A8_UNORM:      return ColorFormat::RGBA8;
+				case VK_FORMAT_R16G16B16A16_UNORM:  return ColorFormat::RGBA16;
+
+				case VK_FORMAT_R8G8B8_SRGB:         return ColorFormat::RGB8SRGB;
+				case VK_FORMAT_R8G8B8A8_SRGB:       return ColorFormat::RGBA8SRGB;
+
+				case VK_FORMAT_B8G8R8_SRGB:         return ColorFormat::BGR8SRGB;
+				case VK_FORMAT_B8G8R8A8_SRGB:       return ColorFormat::BGRA8SRGB;
+
+				case VK_FORMAT_R16G16B16_SFLOAT:    return ColorFormat::RGB16f;
+				case VK_FORMAT_R32G32B32_SFLOAT:    return ColorFormat::RGB32f;
+				case VK_FORMAT_R16G16B16A16_SFLOAT: return ColorFormat::RGBA16f;
+				case VK_FORMAT_R32G32B32A32_SFLOAT: return ColorFormat::RGBA32f;
+
+				case VK_FORMAT_R8_UNORM:            return ColorFormat::Red8;
+
+				case VK_FORMAT_D16_UNORM:           return ColorFormat::Depth16;
+				case VK_FORMAT_D24_UNORM_S8_UINT:   return ColorFormat::Depth24Stencil8;
+
+				case VK_FORMAT_D32_SFLOAT:          return ColorFormat::Depth32f;
+
+				QK_ASSERT_NO_DEFAULT("Unknown VkFormat");
 			}
 
-			QK_CORE_WARN("Swap surface format not found: using default format 0");
-			return availableFormats[0];
-		}
-
-		static VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes)
-		{
-			for (const auto& availablePresentMode : availablePresentModes)
-			{
-				if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
-					return availablePresentMode;
-			}
-
-			QK_CORE_WARN("Swap present mode not found: using default FIFO present mode");
-			return VK_PRESENT_MODE_FIFO_KHR;
-		}
-
-		static VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, GLFWwindow* window)
-		{
-			if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
-			{
-				return capabilities.currentExtent;
-			}
-			else
-			{
-				int width, height;
-				glfwGetFramebufferSize(window, &width, &height);
-
-				VkExtent2D actualExtent = {
-					static_cast<uint32_t>(width),
-					static_cast<uint32_t>(height)
-				};
-
-				actualExtent.width = std::clamp(actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
-				actualExtent.height = std::clamp(actualExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
-
-				return actualExtent;
-			}
+			return ColorFormat::None;
 		}
 	}
 
-	VulkanSwapChain::VulkanSwapChain(VulkanDevice* device, GLFWwindow* window, VkSurfaceKHR surface)
-		: m_Device(device), m_WindowHandle(window), m_Surface(surface)
+	VulkanSwapChain::VulkanSwapChain(VulkanDevice* device, const VulkanSwapChainSpecification& spec)
+		: m_Device(device), m_Spec(spec)
 	{
-		auto& supportDetails = m_Device->GetSupportDetails();
-
-		m_Format.MinImageCount = supportDetails.Capabilities.minImageCount + 1;
-		if (m_Format.MinImageCount > supportDetails.Capabilities.maxImageCount)
-			m_Format.MinImageCount = supportDetails.Capabilities.maxImageCount;
-
-		m_Format.SurfaceFormat = Utils::ChooseSwapSurfaceFormat(supportDetails.Formats);
-		m_Format.PresentMode = Utils::ChooseSwapPresentMode(supportDetails.PresentModes);
-		m_Format.Extent = Utils::ChooseSwapExtent(supportDetails.Capabilities, m_WindowHandle);
-
 		Invalidate();
 	}
 
@@ -78,10 +57,9 @@ namespace Quark {
 		vkDestroySwapchainKHR(m_Device->GetVkHandle(), m_SwapChain, nullptr);
 	}
 
-	bool VulkanSwapChain::AcquireNextImage(VkSemaphore imageAvailableSemaphore)
+	VkResult VulkanSwapChain::AcquireNextImage(VkSemaphore imageAvailableSemaphore)
 	{
-		VkResult vkRes = vkAcquireNextImageKHR(m_Device->GetVkHandle(), m_SwapChain, UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &m_ImageIndex);
-		return (vkRes == VK_SUCCESS);
+		return vkAcquireNextImageKHR(m_Device->GetVkHandle(), m_SwapChain, UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &m_ImageIndex);
 	}
 
 	void VulkanSwapChain::Present(VkQueue presentQueue, VkSemaphore renderFinishedSemaphore)
@@ -101,10 +79,10 @@ namespace Quark {
 	{
 		if (viewportWidth == 0 || viewportHeight == 0) return;
 
-		if (m_Format.Extent.width != viewportWidth || m_Format.Extent.height != viewportHeight)
+		if (m_Spec.Extent.width != viewportWidth || m_Spec.Extent.height != viewportHeight)
 		{
-			m_Format.Extent.width = viewportWidth;
-			m_Format.Extent.height = viewportHeight;
+			m_Spec.Extent.width = viewportWidth;
+			m_Spec.Extent.height = viewportHeight;
 
 			Invalidate();
 		}
@@ -114,22 +92,20 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		bool isNew = !m_SwapChain;
-
 		VkSwapchainCreateInfoKHR createInfo{};
-		createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-		createInfo.surface = m_Surface;
-		createInfo.minImageCount = m_Format.MinImageCount;
-		createInfo.imageFormat = m_Format.SurfaceFormat.format;
-		createInfo.imageColorSpace = m_Format.SurfaceFormat.colorSpace;
-		createInfo.imageExtent = m_Format.Extent;
-		createInfo.imageArrayLayers = 1;
-		createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-		createInfo.preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
-		createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-		createInfo.presentMode = m_Format.PresentMode;
-		createInfo.clipped = VK_TRUE;
-		createInfo.oldSwapchain = m_SwapChain;
+		createInfo.sType                     = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+		createInfo.surface                   = m_Spec.Surface;
+		createInfo.minImageCount             = m_Spec.MinImageCount;
+		createInfo.imageFormat               = m_Spec.SurfaceFormat.format;
+		createInfo.imageColorSpace           = m_Spec.SurfaceFormat.colorSpace;
+		createInfo.imageExtent               = m_Spec.Extent;
+		createInfo.imageArrayLayers          = 1;
+		createInfo.imageUsage                = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+		createInfo.preTransform              = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+		createInfo.compositeAlpha            = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+		createInfo.presentMode               = m_Spec.PresentMode;
+		createInfo.clipped                   = VK_TRUE;
+		createInfo.oldSwapchain              = m_SwapChain;
 
 		uint32_t queueFamilyIndices[] = {
 			m_Device->GetQueueFamilyIndices().GraphicsFamily.value(),
@@ -138,39 +114,44 @@ namespace Quark {
 
 		if (m_Device->GetQueueFamilyIndices().GraphicsFamily != m_Device->GetQueueFamilyIndices().PresentFamily)
 		{
-			createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+			createInfo.imageSharingMode      = VK_SHARING_MODE_CONCURRENT;
 			createInfo.queueFamilyIndexCount = sizeof_array(queueFamilyIndices);
-			createInfo.pQueueFamilyIndices = queueFamilyIndices;
+			createInfo.pQueueFamilyIndices   = queueFamilyIndices;
 		}
 		else
 		{
-			createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+			createInfo.imageSharingMode      = VK_SHARING_MODE_EXCLUSIVE;
 			createInfo.queueFamilyIndexCount = 0;
 		}
 
+		bool isNew = !m_SwapChain;
 		vkCreateSwapchainKHR(m_Device->GetVkHandle(), &createInfo, nullptr, &m_SwapChain);
 
-		vkGetSwapchainImagesKHR(m_Device->GetVkHandle(), m_SwapChain, &m_ImageCount, nullptr);
-		m_SwapChainImages.resize(m_ImageCount);
+		uint32_t imageCount;
+		vkGetSwapchainImagesKHR(m_Device->GetVkHandle(), m_SwapChain, &imageCount, nullptr);
 
-		vkGetSwapchainImagesKHR(m_Device->GetVkHandle(), m_SwapChain, &m_ImageCount, m_SwapChainImages.data());
+		m_SwapChainImages.resize(imageCount);
+		vkGetSwapchainImagesKHR(m_Device->GetVkHandle(), m_SwapChain, &imageCount, m_SwapChainImages.data());
 
-		bool invalidated = isNew || m_ImageCount != m_Attachments.size();
+		bool invalidated = isNew || imageCount != m_ColorAttachments.size();
 		if (invalidated)
 		{
-			m_Attachments.clear();
-			m_Attachments.reserve(m_ImageCount);
-			for (size_t i = 0; i < m_ImageCount; i++)
-			{
-				m_Attachments.emplace_back(m_Device, m_SwapChainImages[i], m_Format.SurfaceFormat.format);
-			}
+			m_ColorAttachments.clear();
+			m_ColorAttachments.reserve(imageCount);
+
+			FramebufferAttachmentSpecification spec;
+			spec.DataFormat = Utils::VulkanFormatToColorFormat(m_Spec.SurfaceFormat.format);
+			spec.Width = m_Spec.Extent.width;
+			spec.Height = m_Spec.Extent.height;
+			spec.Samples = 1;
+
+			for (size_t i = 0; i < imageCount; i++)
+				m_ColorAttachments.emplace_back(m_Device, m_SwapChainImages[i], spec);
 		}
 		else
 		{
-			for (size_t i = 0; i < m_ImageCount; i++)
-			{
-				m_Attachments[i].SetData(m_SwapChainImages[i]);
-			}
+			for (size_t i = 0; i < imageCount; i++)
+				m_ColorAttachments[i].SetImage(m_SwapChainImages[i]);
 		}
 	}
 }

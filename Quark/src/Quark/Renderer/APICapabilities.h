@@ -8,35 +8,52 @@ namespace Quark {
 	enum class RHI
 	{
 		None = 0,
+		Direct3D12,
+		Metal,
 		OpenGL,
-		Vulkan,
-		Metal
+		Vulkan
+	};
+
+	struct RHIVersion
+	{
+		uint32_t Major;
+		uint32_t Minor;
+		uint32_t Patch;
 	};
 
 	struct FramebufferCapabilities
 	{
 		uint32_t MaxWidth;
 		uint32_t MaxHeight;
+		uint32_t MaxLayers;
 		uint32_t MaxAttachments;
+	};
+
+	struct SamplerCapabilities
+	{
+		uint32_t MaxPerStageSamplers;
+		float    MaxAnisotropy;
 	};
 
 	struct UniformBufferCapabilities
 	{
-		size_t MaxBufferSize;
-		uint32_t MaxBindings;
+		size_t   MaxBufferSize;
+		uint32_t MaxPerStageBuffers;
 	};
 
 	struct TextureCapabilities
 	{
-		uint32_t MaxTextureSlots;
-		uint32_t MaxPixelSize;
-		uint32_t MaxTextureArrayLayers;
+		uint32_t Max2DSize;
+		uint32_t Max3DSize;
+		uint32_t MaxArrayLayers;
+		uint32_t MaxCubemapSize;
 	};
 
 	struct GraphicsAPICapabilities
 	{
-		FramebufferCapabilities   FramebufferCapabilities;
-		TextureCapabilities       TextureCapabilities;
-		UniformBufferCapabilities UniformBufferCapabilities;
+		FramebufferCapabilities    Framebuffer;
+		SamplerCapabilities        Sampler;
+		TextureCapabilities        Texture;
+		UniformBufferCapabilities  UniformBuffer;
 	};
 }

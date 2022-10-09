@@ -4,7 +4,7 @@ namespace Quark {
 
 	enum class RenderCullMode
 	{
-		None,
+		None = 0,
 		Front,
 		Back,
 		FrontAndBack,
@@ -12,15 +12,15 @@ namespace Quark {
 		Default = Back
 	};
 
-	enum class RenderDepthFunction
+	enum class DepthCompareFunction
 	{
-		Never,
+		Never = 0,
 		Always,
 		NotEqual,
 		Less,
-		LessEqual,
+		LessOrEqual,
 		Greater,
-		GreaterEqual,
+		GreaterOrEqual,
 
 		Default = Less
 	};

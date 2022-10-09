@@ -2,21 +2,30 @@
 #include "VulkanCommandBuffer.h"
 
 #include "VulkanBuffer.h"
+#include "VulkanEnums.h"
+#include "VulkanFont.h"
 #include "VulkanFramebuffer.h"
 #include "VulkanPipeline.h"
 #include "VulkanRenderPass.h"
+#include "VulkanTexture.h"
+#include "VulkanUniformBuffer.h"
+
+#include "Quark/Renderer/Renderer.h"
+
+#define QK_ASSERT_PIPELINE_VALID_STATE(pipeline) QK_CORE_ASSERT(pipeline, "No pipeline was actively bound to the current command buffer!")
 
 namespace Quark {
 
 	VulkanCommandBuffer::VulkanCommandBuffer(VulkanDevice* device)
+		: m_Device(device)
 	{
 		VkCommandBufferAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		allocInfo.commandPool = device->GetCommandPool();
+		allocInfo.commandPool = m_Device->GetCommandPool();
 		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 		allocInfo.commandBufferCount = 1;
 
-		vkAllocateCommandBuffers(device->GetVkHandle(), &allocInfo, &m_CommandBuffer);
+		vkAllocateCommandBuffers(m_Device->GetVkHandle(), &allocInfo, &m_CommandBuffer);
 	}
 
 	void VulkanCommandBuffer::Begin()
@@ -36,26 +45,33 @@ namespace Quark {
 		vkResetCommandBuffer(m_CommandBuffer, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
 	}
 
-	void VulkanCommandBuffer::SetCullFace(RenderCullMode mode)
+	void VulkanCommandBuffer::SetCullMode(RenderCullMode mode)
 	{
-		QK_CORE_ASSERT(false, "Not implemented");
+		vkCmdSetCullMode(m_CommandBuffer, CullModeToVulkan(mode));
 	}
 
-	void VulkanCommandBuffer::SetDepthFunction(RenderDepthFunction func)
+	void VulkanCommandBuffer::SetDepthFunction(DepthCompareFunction func)
 	{
-		QK_CORE_ASSERT(false, "Not implemented");
+		vkCmdSetDepthCompareOp(m_CommandBuffer, DepthCompareFunctionToVulkan(func));
 	}
 
-	void VulkanCommandBuffer::BindPipeline(Pipeline* pipeline)
+	void VulkanCommandBuffer::BindPipeline(const Pipeline* pipeline)
 	{
-		auto vulkanPipeline = static_cast<VulkanPipeline*>(pipeline);
-		auto descriptorSet = vulkanPipeline->GetDescriptorSet();
+		m_BoundPipeline = static_cast<const VulkanPipeline*>(pipeline);
+		vkCmdBindPipeline(m_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_BoundPipeline->GetVkHandle());
+	}
 
-		vkCmdBindPipeline(m_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vulkanPipeline->GetVkHandle());
-		vkCmdBindDescriptorSets(m_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vulkanPipeline->GetPipelineLayout(),
+	void VulkanCommandBuffer::BindDescriptorSets()
+	{
+		auto descriptorSet = m_BoundPipeline->GetDescriptorSet();
+		vkCmdBindDescriptorSets(m_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_BoundPipeline->GetPipelineLayout(),
 			0, 1, &descriptorSet, 0, nullptr);
+	}
 
-		//vulkanPipeline->UpdateDescriptors();
+	void VulkanCommandBuffer::PushConstant(ShaderStage stage, const void* data, size_t size)
+	{
+		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
+		vkCmdPushConstants(m_CommandBuffer, m_BoundPipeline->GetPipelineLayout(), ShaderStageToVulkan(stage), 0, (uint32_t)size, data);
 	}
 
 	void VulkanCommandBuffer::SetViewport(uint32_t viewportWidth, uint32_t viewportHeight)
@@ -78,29 +94,29 @@ namespace Quark {
 		vkCmdSetLineWidth(m_CommandBuffer, width);
 	}
 
-	void VulkanCommandBuffer::BeginRenderPass(RenderPass* renderPass, Framebuffer* framebuffer)
+	void VulkanCommandBuffer::BeginRenderPass(const RenderPass* renderPass, const Framebuffer* framebuffer)
 	{
 		m_CurrentRenderPass = renderPass;
 
-		auto vkFramebuffer = static_cast<VulkanFramebuffer*>(framebuffer)->GetVkHandle();
-		auto vkRenderPass = static_cast<VulkanRenderPass*>(renderPass)->GetVkHandle();
+		auto vkFramebuffer = static_cast<const VulkanFramebuffer*>(framebuffer)->GetVkHandle();
+		auto vkRenderPass = static_cast<const VulkanRenderPass*>(renderPass)->GetVkHandle();
 
 		VkRenderPassBeginInfo renderPassInfo{};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 		renderPassInfo.renderPass = vkRenderPass;
 		renderPassInfo.framebuffer = vkFramebuffer;
-		
-		// Must be size of framebuffer
 		renderPassInfo.renderArea.offset = VkOffset2D{ 0, 0 };
 		renderPassInfo.renderArea.extent = VkExtent2D{ framebuffer->GetWidth(), framebuffer->GetHeight() };
 
-		VkClearValue clearValue{};
+		VkClearValue clearValues[2]{};
 		if (renderPass->GetSpecification().ClearBuffers)
 		{
-			auto& color = renderPass->GetSpecification().ClearColor;
-			clearValue.color = { color.r, color.g, color.b, color.a };
-			renderPassInfo.clearValueCount = 1;
-			renderPassInfo.pClearValues = &clearValue;
+			auto& clearColor = renderPass->GetSpecification().ClearColor;
+			clearValues[0].color = { clearColor.r, clearColor.g, clearColor.b, clearColor.a };
+			clearValues[1].depthStencil = { renderPass->GetSpecification().ClearDepth, 0 };
+
+			renderPassInfo.clearValueCount = sizeof_array(clearValues);
+			renderPassInfo.pClearValues = clearValues;
 		}
 
 		vkCmdBeginRenderPass(m_CommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
@@ -132,21 +148,81 @@ namespace Quark {
 		vkCmdDrawIndexed(m_CommandBuffer, indexCount, instanceCount, 0, 0, 0);
 	}
 
-	void VulkanCommandBuffer::BindVertexBuffer(VertexBuffer* vertexBuffer)
+	void VulkanCommandBuffer::BindVertexBuffer(const VertexBuffer* vertexBuffer)
 	{
+		QK_CORE_ASSERT(vertexBuffer->GetLayout() == m_BoundPipeline->GetLayout(), "Buffer layout does not match the currently bound pipeline layout");
+
 		VkDeviceSize offsets[] = { 0 };
-		VkBuffer buffer = static_cast<VulkanVertexBuffer*>(vertexBuffer)->GetVkHandle();
+		VkBuffer buffer = static_cast<const VulkanVertexBuffer*>(vertexBuffer)->GetVkHandle();
 		vkCmdBindVertexBuffers(m_CommandBuffer, 0, 1, &buffer, offsets);
 	}
 
-	void VulkanCommandBuffer::BindIndexBuffer(IndexBuffer* indexBuffer)
+	void VulkanCommandBuffer::BindIndexBuffer(const IndexBuffer* indexBuffer)
 	{
-		VkBuffer buffer = static_cast<VulkanIndexBuffer*>(indexBuffer)->GetVkHandle();
+		VkBuffer buffer = static_cast<const VulkanIndexBuffer*>(indexBuffer)->GetVkHandle();
 		vkCmdBindIndexBuffer(m_CommandBuffer, buffer, 0, VK_INDEX_TYPE_UINT32);
+	}
+
+	void VulkanCommandBuffer::BindUniformBuffer(const UniformBuffer* uniformBuffer, uint32_t binding)
+	{
+		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
+
+		auto* vulkanUniformBuffer = static_cast<const VulkanUniformBuffer*>(uniformBuffer);
+
+		VkDescriptorBufferInfo bufferInfo{};
+		bufferInfo.buffer = vulkanUniformBuffer->GetVkHandle();
+		bufferInfo.offset = 0;
+		bufferInfo.range = vulkanUniformBuffer->GetSize();
+
+		VkWriteDescriptorSet writeDescriptorSet{};
+		writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		writeDescriptorSet.dstBinding = binding;
+		writeDescriptorSet.dstArrayElement = 0;
+		writeDescriptorSet.descriptorCount = 1;
+		writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		writeDescriptorSet.pBufferInfo = &bufferInfo;
+		writeDescriptorSet.dstSet = m_BoundPipeline->GetDescriptorSet();
+
+		vkUpdateDescriptorSets(m_Device->GetVkHandle(), 1, &writeDescriptorSet, 0, nullptr);
+	}
+
+	void VulkanCommandBuffer::BindTexture(const Texture* texture, const Sampler* sampler, uint32_t binding, uint32_t samplerIndex)
+	{
+		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
+
+		QK_CORE_ASSERT(samplerIndex <= Renderer::GetCapabilities().Sampler.MaxPerStageSamplers,
+			"Sampler index out of range: max writable index is: {0}",
+			Renderer::GetCapabilities().Sampler.MaxPerStageSamplers - 1);
+
+		auto* vulkanSampler = static_cast<const VulkanSampler*>(sampler);
+
+		VkDescriptorImageInfo imageInfo{};
+		imageInfo.sampler = vulkanSampler->GetVkHandle();
+		imageInfo.imageView = (VkImageView)texture->GetHandle();
+		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+		VkWriteDescriptorSet writeDescriptorSet{};
+		writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		writeDescriptorSet.dstBinding = binding;
+		writeDescriptorSet.dstArrayElement = samplerIndex;
+		writeDescriptorSet.descriptorCount = 1;
+		writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		writeDescriptorSet.pImageInfo = &imageInfo;
+		writeDescriptorSet.dstSet = m_BoundPipeline->GetDescriptorSet();
+
+		vkUpdateDescriptorSets(m_Device->GetVkHandle(), 1, &writeDescriptorSet, 0, nullptr);
 	}
 
 	bool VulkanCommandBuffer::IsInsideRenderPass() const
 	{
 		return m_CurrentRenderPass;
+	}
+	
+	bool VulkanCommandBuffer::operator==(const CommandBuffer& other) const
+	{
+		if (auto* o = dynamic_cast<decltype(this)>(&other))
+			return m_CommandBuffer == o->m_CommandBuffer;
+
+		return false;
 	}
 }

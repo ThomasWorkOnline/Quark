@@ -2,31 +2,39 @@
 
 #include "Quark/Core/Core.h"
 
+#include "Vulkan.h"
 #include "VulkanDevice.h"
 #include "VulkanFramebuffer.h"
 
-#include <vulkan/vulkan.h>
-
-typedef struct GLFWwindow GLFWwindow;
-
 namespace Quark {
+
+	struct VulkanSwapChainSpecification
+	{
+		uint32_t           MinImageCount = 0;
+		VkExtent2D         Extent{};
+		VkSurfaceKHR       Surface;
+		VkSurfaceFormatKHR SurfaceFormat{};
+		VkPresentModeKHR   PresentMode{};
+	};
 
 	class VulkanSwapChain
 	{
 	public:
-		VulkanSwapChain(VulkanDevice* device, GLFWwindow* window, VkSurfaceKHR surface);
+		VulkanSwapChain(VulkanDevice* device, const VulkanSwapChainSpecification& spec);
 		~VulkanSwapChain();
 
-		uint32_t GetWidth() const { return m_Format.Extent.width; }
-		uint32_t GetHeight() const { return m_Format.Extent.height; }
-		uint32_t GetImageCount() const { return m_ImageCount; }
-		uint32_t GetCurrentImageIndex() const { return m_ImageIndex; }
-
-		bool AcquireNextImage(VkSemaphore imageAvailableSemaphore);
+		VkResult AcquireNextImage(VkSemaphore imageAvailableSemaphore);
 		void Present(VkQueue presentQueue, VkSemaphore renderFinishedSemaphore);
 		void Resize(uint32_t viewportWidth, uint32_t viewportHeight);
 
-		VulkanFramebufferAttachment* GetAttachment(uint32_t imageIndex) { return &m_Attachments[imageIndex]; }
+		VulkanFramebufferAttachment* GetColorAttachment(uint32_t imageIndex) { return &m_ColorAttachments[imageIndex]; }
+
+		uint32_t GetWidth() const { return m_Spec.Extent.width; }
+		uint32_t GetHeight() const { return m_Spec.Extent.width; }
+		uint32_t GetImageCount() const { return (uint32_t)m_SwapChainImages.size(); }
+		uint32_t GetCurrentImageIndex() const { return m_ImageIndex; }
+
+		const VulkanSwapChainSpecification& GetSpecification() const { return m_Spec; }
 
 		// Non-Copyable
 		VulkanSwapChain(const VulkanSwapChain&) = delete;
@@ -36,24 +44,13 @@ namespace Quark {
 		void Invalidate();
 
 	private:
-		struct Format
-		{
-			uint32_t             MinImageCount = 0;
-			VkExtent2D           Extent{};
-			VkSurfaceFormatKHR   SurfaceFormat{};
-			VkPresentModeKHR     PresentMode{};
-		};
-
 		VulkanDevice* m_Device;
-		GLFWwindow* m_WindowHandle;
-		VkSurfaceKHR m_Surface = VK_NULL_HANDLE;
-		VkSwapchainKHR m_SwapChain = VK_NULL_HANDLE;
+		VkSwapchainKHR m_SwapChain = nullptr;
+
+		VulkanSwapChainSpecification m_Spec;
+		uint32_t m_ImageIndex = 0;
 
 		std::vector<VkImage> m_SwapChainImages;
-		std::vector<VulkanFramebufferAttachment> m_Attachments;
-
-		Format m_Format;
-		uint32_t m_ImageCount;
-		uint32_t m_ImageIndex = 0;
+		std::vector<VulkanFramebufferAttachment> m_ColorAttachments;
 	};
 }

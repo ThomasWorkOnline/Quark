@@ -11,7 +11,6 @@
 #include "OpenGLSampler.h"
 #include "OpenGLShader.h"
 #include "OpenGLTexture.h"
-#include "OpenGLTextureArray.h"
 #include "OpenGLUniformBuffer.h"
 
 #include <glad/glad.h>
@@ -23,46 +22,63 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
+		// Framebuffer capabilities
 		{
-			GLint maxWidth, maxHeight;
+			GLint maxWidth, maxHeight, maxLayers, maxAttachments;
 			glGetIntegerv(GL_MAX_FRAMEBUFFER_WIDTH, &maxWidth);
+			m_Capabilities.Framebuffer.MaxWidth = maxWidth;
+
 			glGetIntegerv(GL_MAX_FRAMEBUFFER_HEIGHT, &maxHeight);
-			m_Capabilities.FramebufferCapabilities.MaxWidth = maxWidth;
-			m_Capabilities.FramebufferCapabilities.MaxHeight = maxHeight;
+			m_Capabilities.Framebuffer.MaxHeight = maxHeight;
 
-			GLint maxAttachments;
+			glGetIntegerv(GL_MAX_FRAMEBUFFER_LAYERS, &maxLayers);
+			m_Capabilities.Framebuffer.MaxLayers = maxLayers;
+
 			glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &maxAttachments);
-			m_Capabilities.FramebufferCapabilities.MaxAttachments = maxAttachments;
+			m_Capabilities.Framebuffer.MaxAttachments = maxAttachments;
 		}
 
+		// Sampler capabilities
 		{
-			GLint maxBlockSize;
+			GLint maxSamplers;
+			glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxSamplers);
+			m_Capabilities.Sampler.MaxPerStageSamplers = maxSamplers;
+
+			GLfloat maxAnisotropy;
+			glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &maxAnisotropy);
+			m_Capabilities.Sampler.MaxAnisotropy = maxAnisotropy;
+		}
+
+		// Uniform buffer capabilities
+		{
+			GLint maxBlockSize, maxBindings;
 			glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &maxBlockSize);
-			m_Capabilities.UniformBufferCapabilities.MaxBufferSize = maxBlockSize;
+			m_Capabilities.UniformBuffer.MaxBufferSize = maxBlockSize;
 
-			GLint maxBindings;
 			glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, &maxBindings);
-			m_Capabilities.UniformBufferCapabilities.MaxBindings = maxBindings;
+			m_Capabilities.UniformBuffer.MaxPerStageBuffers = maxBindings;
 		}
 
+		// Texture capabilities
 		{
-			GLint maxTextureSlots;
-			glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureSlots);
-			m_Capabilities.TextureCapabilities.MaxTextureSlots = maxTextureSlots;
+			GLint maxTexture2dSize, maxTexture3dSize, maxTextureArrayLayers, maxCubemapSize;
+			glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTexture2dSize);
+			m_Capabilities.Texture.Max2DSize = maxTexture2dSize;
 
-			GLint maxTextureSize;
-			glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTextureSize);
-			m_Capabilities.TextureCapabilities.MaxPixelSize = maxTextureSize;
+			glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &maxTexture3dSize);
+			m_Capabilities.Texture.Max3DSize = maxTexture3dSize;
 
-			GLint maxArrayTextureLayers;
-			glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &maxArrayTextureLayers);
-			m_Capabilities.TextureCapabilities.MaxTextureArrayLayers = maxArrayTextureLayers;
+			glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &maxTextureArrayLayers);
+			m_Capabilities.Texture.MaxArrayLayers = maxTextureArrayLayers;
+
+			glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, &maxCubemapSize);
+			m_Capabilities.Texture.MaxCubemapSize = maxCubemapSize;
 		}
 	}
 
-	GraphicsAPI::Version OpenGLGraphicsAPI::GetVersion() const
+	RHIVersion OpenGLGraphicsAPI::GetRHIVersion() const
 	{
-		return { GLVersion.major, GLVersion.minor };
+		return { (uint32_t)GLVersion.major, (uint32_t)GLVersion.minor, 0 };
 	}
 
 	Scope<CommandBuffer> OpenGLGraphicsAPI::CreateCommandBuffer()
@@ -125,19 +141,34 @@ namespace Quark {
 		return CreateScope<OpenGLShader>(filepath);
 	}
 
-	Scope<Shader> OpenGLGraphicsAPI::CreateShader(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& fragmentSource)
+	Scope<Shader> OpenGLGraphicsAPI::CreateShader(std::string_view name, SpirvView vertexSource, SpirvView fragmentSource)
 	{
 		return CreateScope<OpenGLShader>(name, vertexSource, fragmentSource);
 	}
 
-	Scope<Shader> OpenGLGraphicsAPI::CreateShader(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& geometrySource, const SpirvSource& fragmentSource)
+	Scope<Shader> OpenGLGraphicsAPI::CreateShader(std::string_view name, SpirvView vertexSource, SpirvView geometrySource, SpirvView fragmentSource)
 	{
 		return CreateScope<OpenGLShader>(name, vertexSource, geometrySource, fragmentSource);
 	}
 
-	Scope<Sampler2D> OpenGLGraphicsAPI::CreateSampler2D(const Sampler2DSpecification& spec)
+	Scope<Shader> OpenGLGraphicsAPI::CreateShaderLegacy(std::string_view filepath)
 	{
-		return CreateScope<OpenGLSampler2D>(spec);
+		return CreateScope<OpenGLShader>(nullptr, filepath); // Legacy variant
+	}
+
+	Scope<Shader> OpenGLGraphicsAPI::CreateShaderLegacy(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource)
+	{
+		return CreateScope<OpenGLShader>(name, vertexSource, fragmentSource);
+	}
+
+	Scope<Shader> OpenGLGraphicsAPI::CreateShaderLegacy(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource)
+	{
+		return CreateScope<OpenGLShader>(name, vertexSource, geometrySource, fragmentSource);
+	}
+
+	Scope<Sampler> OpenGLGraphicsAPI::CreateSampler(const SamplerSpecification& spec)
+	{
+		return CreateScope<OpenGLSampler>(spec);
 	}
 
 	Scope<Texture2D> OpenGLGraphicsAPI::CreateTexture2D(const Texture2DSpecification& spec)
@@ -145,9 +176,9 @@ namespace Quark {
 		return CreateScope<OpenGLTexture2D>(spec);
 	}
 
-	Scope<Texture2D> OpenGLGraphicsAPI::CreateTexture2D(std::string_view filepath, const TextureRenderModes& renderModes)
+	Scope<Texture2D> OpenGLGraphicsAPI::CreateTexture2D(std::string_view filepath)
 	{
-		return CreateScope<OpenGLTexture2D>(filepath, renderModes);
+		return CreateScope<OpenGLTexture2D>(filepath);
 	}
 
 	Scope<Texture2DArray> OpenGLGraphicsAPI::CreateTexture2DArray(const Texture2DArraySpecification& spec)
@@ -164,11 +195,12 @@ namespace Quark {
 	{
 		std::stringstream ss;
 		ss << "OpenGL Info:\n";
-		ss << "|\t" << glGetString(GL_VENDOR) << '\n';
-		ss << "|\t" << glGetString(GL_RENDERER) << '\n';
-		ss << "|\t" << glGetString(GL_VERSION) << '\n';
-		ss << "|\tUniform buffer bindings: " << m_Capabilities.UniformBufferCapabilities.MaxBindings << '\n';
-		ss << "|\tHardware texture slots available: " << m_Capabilities.TextureCapabilities.MaxTextureSlots;
+		ss << "|  " << glGetString(GL_VENDOR) << '\n';
+		ss << "|  " << glGetString(GL_RENDERER) << '\n';
+		ss << "|  " << glGetString(GL_VERSION) << '\n';
+		ss << "|  Per-stage Capabilities:\n";
+		ss << "|    Max uniform buffers = " << m_Capabilities.UniformBuffer.MaxPerStageBuffers << '\n';
+		ss << "|    Max samplers        = " << m_Capabilities.Sampler.MaxPerStageSamplers;
 		return ss.str();
 	}
 }

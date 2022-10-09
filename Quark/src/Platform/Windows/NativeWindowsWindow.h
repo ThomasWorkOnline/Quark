@@ -18,9 +18,10 @@ namespace Quark {
 
 		virtual uint32_t GetWidth() const final override { return m_Data.Width; }
 		virtual uint32_t GetHeight() const final override { return m_Data.Height; }
+		virtual ViewportExtent GetViewportExtent() const final override;
 		virtual float GetAspectRatio() const final override { return (float)m_Data.Width / (float)m_Data.Height; }
+		
 		virtual std::string_view GetTitle() const final override { return m_Data.Title; }
-
 		virtual Window& SetTitle(std::string title) final override;
 		virtual Window& AppendTitle(std::string title) final override;
 
@@ -43,6 +44,10 @@ namespace Quark {
 		virtual bool IsVSync() const final override { return false; }
 		virtual bool IsFullscreen() const final override { return false; }
 
+		virtual const char* GetClipboardText() const final override;
+		virtual void SetClipboardText(const char* string) final override;
+
+		virtual bool IsNative() const final override { return true; }
 		virtual void* GetNativeWindow() const final override { return m_WindowHandle; }
 
 		// Non-Copyable

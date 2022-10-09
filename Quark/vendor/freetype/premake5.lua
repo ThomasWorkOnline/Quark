@@ -10,12 +10,12 @@ project "FreeType"
 	{
 		"_LIB",
 		"FT2_BUILD_LIBRARY",
-		"FT_CONFIG_OPTION_ERROR_STRINGS",
-		"_CRT_SECURE_NO_WARNINGS"
+		"FT_CONFIG_OPTION_ERROR_STRINGS"
 	}
 
 	includedirs
 	{
+		"src/base",
 		"include"
 	}
 
@@ -69,28 +69,48 @@ project "FreeType"
 	filter "system:windows"
 		files
 		{
-			"builds/windows/ftsystem.c"
+			"builds/windows/ftsystem.c",
+			"builds/windows/ftdebug.c"
+		}
+
+		defines
+		{
+			"_CRT_SECURE_NO_WARNINGS"
+		}
+
+	filter "system:macosx"
+		files
+		{
+			"builds/mac/ftmac.c"
+		}
+
+	filter "system:linux"
+		files
+		{
+			"builds/unix/ftsystem.c"
 		}
 
     filter "configurations:Debug"
         runtime "Debug"
-        symbols "On"
+		symbols "On"
 
     filter "configurations:Release"
         runtime "Release"
-        optimize "On"
+		optimize "On"
 		symbols	"On"
 
+	filter "configurations:Dist"
+        runtime "Release"
+		optimize "Full"
+		symbols	"Off"
+
+	filter { "configurations:Release", "system:windows" }
 		flags
 		{
 			"LinkTimeOptimization"
 		}
 
-	filter "configurations:Dist"
-        runtime "Release"
-        optimize "Full"
-		symbols	"Off"
-
+	filter { "configurations:Dist", "system:windows" }
 		flags
 		{
 			"LinkTimeOptimization"

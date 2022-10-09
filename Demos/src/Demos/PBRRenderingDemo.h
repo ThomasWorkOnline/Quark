@@ -10,6 +10,7 @@ class PBRRenderingDemo : public Application
 {
 public:
 	PBRRenderingDemo(const ApplicationOptions& options);
+	~PBRRenderingDemo();
 
 	void OnUpdate(Timestep elapsedTime) override;
 	void OnRender() override;
@@ -47,13 +48,14 @@ private:
 	Scope<Shader> m_PBRShader;
 	Scope<Cubemap> m_Irradiance;
 	Scope<UniformBuffer> m_CameraUniformBuffer;
+	Scope<Sampler> m_Samplers[6];
 	CameraUniformBufferData m_CameraBufferData;
 	Scope<Pipeline> m_Pipeline;
 
 	std::future<OBJMeshData> m_MeshDataFuture;
-	std::future<Scope<Image>> m_AlbedoFuture;
-	std::future<Scope<Image>> m_MetallicFuture;
-	std::future<Scope<Image>> m_NormalFuture;
-	std::future<Scope<Image>> m_RoughnessFuture;
-	std::future<Scope<Image>> m_AOFuture;
+	std::future<Image> m_AlbedoFuture;
+	std::future<Image> m_MetallicFuture;
+	std::future<Image> m_NormalFuture;
+	std::future<Image> m_RoughnessFuture;
+	std::future<Image> m_AOFuture;
 };

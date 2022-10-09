@@ -1,29 +1,26 @@
 # Auto Generated
-include
-lib
-bin
-bin-int
-bin-spirv
-
-# Instrumentation
+cache
 instrumentor
 logs
+
+# Build
+bin
+bin-int
+
+# ImGui
+imgui.ini
 
 # MacOS files
 .DS_Store
 
-# Makefile
-Makefile
-makefile
-
-# Utilities
-Build
-
-# Premake
-!Vendor/bin
+# Makefiles
+[Mm]akefile
 
 # Python
 __pycache__
+
+# Utilities
+Build
 
 # Visual Studio
 **.sln
@@ -34,3 +31,14 @@ __pycache__
 
 # Visual Studio Code
 .vscode
+
+# VulkanSDK
+VulkanSDK
+
+############################
+# Except
+#
+
+# Binaries
+!Vendor/Bin
+!Tools/Bin

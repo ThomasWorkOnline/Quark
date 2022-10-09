@@ -14,13 +14,14 @@ namespace Quark {
 	class PresentableScene : public Scene
 	{
 	public:
-		void OnRender();
-		void OnEvent(Event& e);
+		void   OnEvent(Event& e);
+		void   OnRender();
 
 		Entity CreatePrimaryCamera();
-		void SetPrimaryCamera(Entity cameraEntity);
-		void SetEnvironment(std::string_view filepath);
-		bool HasPrimaryCamera() const { return (bool)m_PrimaryCameraEntity; }
+
+		void   SetPrimaryCamera(Entity cameraEntity);
+		void   SetEnvironment(std::string_view filepath);
+		bool   HasPrimaryCamera() const { return (bool)m_PrimaryCameraEntity; }
 
 	private:
 		void OnWindowResized(WindowResizedEvent& e);
@@ -32,7 +33,9 @@ namespace Quark {
 			Scope<Shader> SkyboxShader;
 			Scope<Shader> IrradianceShader;
 			Scope<Shader> EquirectangleToCubemapShader;
+
 			Scope<RenderPass>  RenderPass;
+			Scope<FramebufferAttachment> ColorAttachment;
 			Scope<Framebuffer> Framebuffer;
 
 			Scope<Pipeline> EnvironmentMapPipeline;
@@ -53,4 +56,20 @@ namespace Quark {
 		SceneData m_Data;
 		Entity m_PrimaryCameraEntity;
 	};
+}
+
+#include "Components.h"
+
+namespace Quark {
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Component template specialization
+	//
+
+	template<>
+	inline void Scene::OnComponentAdded(Entity entity, CameraComponent& cc)
+	{
+		auto extent = Renderer::GetViewportExtent();
+		cc.Camera.Resize(extent.Width, extent.Height);
+	}
 }

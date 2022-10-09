@@ -8,6 +8,7 @@ class VulkanApp : public Application
 {
 public:
 	VulkanApp(const ApplicationOptions& options = {});
+	~VulkanApp();
 
 	virtual void OnEvent(Event& e) override;
 	virtual void OnRender() override;
@@ -25,6 +26,5 @@ private:
 	Text m_Text;
 	SceneCamera m_TextCamera;
 
-	bool m_PositionOverlay = false;
 	bool m_ViewportSelected = false;
 };

@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Quark/Renderer/Framebuffer.h"
-#include "VulkanDevice.h"
 
-#include <vulkan/vulkan.h>
+#include "Vulkan.h"
+#include "VulkanDevice.h"
 
 namespace Quark {
 
@@ -11,23 +11,27 @@ namespace Quark {
 	{
 	public:
 		VulkanFramebufferAttachment() = default;
-		VulkanFramebufferAttachment(VulkanDevice* device, const FramebufferAttachmentSpecification& spec);
-		VulkanFramebufferAttachment(VulkanDevice* device, VkImage image, VkFormat format);
+		VulkanFramebufferAttachment(VulkanDevice* device, VkImage image, const FramebufferAttachmentSpecification& spec);
 		virtual ~VulkanFramebufferAttachment() final override;
 
-		virtual void SetData(const void* data) final override;
+		virtual void Resize(uint32_t width, uint32_t height) final override;
 
-		virtual bool operator==(const FramebufferAttachment& other) const final override
-		{
-			return m_ImageView == reinterpret_cast<const VulkanFramebufferAttachment&>(other).m_ImageView;
-		}
+		virtual bool operator==(const FramebufferAttachment& other) const final override;
+
+		void SetImage(VkImage image);
 
 		VkImageView GetVkHandle() const { return m_ImageView; }
 
 	private:
+		void Invalidate();
+
+	private:
 		VulkanDevice* m_Device = nullptr;
-		VkImageView m_ImageView = VK_NULL_HANDLE;
-		VkFormat m_Format{};
+		VkImage m_Image = nullptr;
+		VkImageView m_ImageView = nullptr;
+		VkDeviceMemory m_BufferMemory = nullptr;
+
+		bool m_IsFromSwapChain = false;
 	};
 
 	class VulkanFramebuffer final : public Framebuffer
@@ -38,10 +42,7 @@ namespace Quark {
 
 		virtual void Resize(uint32_t width, uint32_t height) final override;
 
-		virtual bool operator==(const Framebuffer& other) const final override
-		{
-			return m_Framebuffer == reinterpret_cast<const VulkanFramebuffer&>(other).m_Framebuffer;
-		}
+		virtual bool operator==(const Framebuffer& other) const final override;
 
 		VkFramebuffer GetVkHandle() const { return m_Framebuffer; }
 
@@ -54,6 +55,6 @@ namespace Quark {
 
 	private:
 		VulkanDevice* m_Device;
-		VkFramebuffer m_Framebuffer = VK_NULL_HANDLE;
+		VkFramebuffer m_Framebuffer = nullptr;
 	};
 }

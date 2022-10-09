@@ -39,7 +39,7 @@ namespace Quark {
 		spdlog::register_logger(m_CoreLogger);
 		spdlog::register_logger(m_ClientLogger);
 
-#ifdef QK_ENABLE_DUMP_LOG
+#if QK_DUMP_LOGS_ENABLED
 		auto t = std::time(nullptr);
 
 		std::stringstream ss;
@@ -61,7 +61,7 @@ namespace Quark {
 
 	Logger* Logger::GetInstance()
 	{
-#ifdef QK_ENABLE_CONSOLE_LOG
+#if QK_LOGGING_ENABLED
 		static Logger instance;
 		return &instance;
 #else

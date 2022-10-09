@@ -3,24 +3,39 @@
 #include "Quark/Core/Core.h"
 
 #include <unordered_map>
+#include <vector>
 
 namespace Quark {
 
 	using SpirvSource = std::vector<uint32_t>;
 
+	struct SpirvView
+	{
+		const uint32_t* Data = nullptr;
+		size_t          WordCount = 0;
+
+		SpirvView() = default;
+		SpirvView(const SpirvSource& src)
+			: Data(src.data())
+			, WordCount(src.size())
+		{
+		}
+	};
+
 	enum class ShaderStage
 	{
 		None = 0,
-		VertexStage,
-		GeometryStage,
-		FragmentStage,
-		ComputeStage
+		Vertex,
+		Geometry,
+		Fragment,
+		Compute
 	};
 
 	struct ResourceDecorators
 	{
 		uint32_t Set;
 		uint32_t Binding;
+		std::string Name;
 	};
 
 	struct UniformBufferResource
@@ -41,6 +56,9 @@ namespace Quark {
 	{
 		std::vector<UniformBufferResource> UniformBuffers;
 		std::vector<SamplerArrayResource>  SamplerArrays;
+
+		uint32_t DescriptorCount = 0;
+		uint32_t BindingCount = 0;
 	};
 
 	class Shader
@@ -78,21 +96,21 @@ namespace Quark {
 		std::string_view GetName() const { return m_Name; }
 
 		const ShaderResources& GetShaderResources() const { return m_ShaderResources; }
-		uint32_t GetDescriptorCount() const { return m_DescriptorCount; }
-		uint32_t GetBindingCount() const { return m_BindingCount; }
 
 		static Scope<Shader> Create(std::string_view filepath);
-		static Scope<Shader> Create(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& fragmentSource);
-		static Scope<Shader> Create(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& geometrySource, const SpirvSource& fragmentSource);
+		static Scope<Shader> Create(std::string_view name, SpirvView vertexSource, SpirvView fragmentSource);
+		static Scope<Shader> Create(std::string_view name, SpirvView vertexSource, SpirvView geometrySource, SpirvView fragmentSource);
+
+		static Scope<Shader> CreateLegacy(std::string_view filepath);
+		static Scope<Shader> CreateLegacy(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource);
+		static Scope<Shader> CreateLegacy(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource);
 
 	protected:
-		void Reflect(ShaderStage stage, const SpirvSource& spirvSource);
+		void Reflect(ShaderStage stage, const uint32_t* spirvSource, size_t words);
 
 	protected:
 		std::string m_Name;
 		ShaderResources m_ShaderResources;
-		uint32_t m_DescriptorCount = 0;
-		uint32_t m_BindingCount = 0;
 	};
 
 	SpirvSource ReadSpirvFile(std::string_view filepath);

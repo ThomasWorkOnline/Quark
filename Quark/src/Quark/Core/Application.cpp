@@ -1,6 +1,8 @@
 #include "qkpch.h"
 #include "Application.h"
 
+#include "Quark/ImGui/ImGuiLayer.h"
+
 #include <ctime>
 #include <filesystem>
 
@@ -19,24 +21,28 @@ namespace Quark {
 		Renderer::Configure(m_Options.GraphicsAPI);
 
 		WindowSpecification spec = {
-			m_Options.AppName.empty() ? "Quark Engine" : m_Options.AppName, m_Options.Width, m_Options.Height, 4
+			m_Options.AppName.empty() ? "Quark Engine" : m_Options.AppName, m_Options.Width, m_Options.Height, m_Options.Samples
 		};
 
 		m_Window = Window::Create(spec);
 		m_Window->SetEventCallback(ATTACH_EVENT_FN(Application::OnEventInternal));
 
-		Renderer::Initialize(m_Window->GetWidth(), m_Window->GetHeight());
+		auto viewport = m_Window->GetViewportExtent();
+		Renderer::Initialize(viewport.Width, viewport.Height, m_Options.Samples);
 		Renderer2D::Initialize();
-
-		m_Window->AppendTitle(fmt::format(" - {0} ({1})", QK_PLATFORM_NAME, Renderer::GetAPIName()));
 
 		QK_CORE_INFO(Renderer::GetSpecification());
 
+		m_Window->AppendTitle(fmt::format(" - {0} ({1})", QK_PLATFORM_NAME, Renderer::GetAPIName()));
+
 		if (m_Options.HasFlag(ApplicationFlagBits::EnableAudioOutputDevice))
 		{
+			QK_CORE_TRACE("Opening audio device...");
 			m_AudioOutputDevice = AudioOutputDevice::Create();
 			QK_CORE_INFO("Opened audio device: {0}", m_AudioOutputDevice->GetDeviceName());
 		}
+
+		m_ImGuiLayer = new ImGuiLayer(this);
 	}
 
 	Application::~Application()
@@ -48,8 +54,10 @@ namespace Quark {
 		for (size_t i = 0; i < m_Layers.size(); i++)
 			delete m_Layers[i];
 
-		Renderer::Dispose();
+		delete m_ImGuiLayer;
+
 		Renderer2D::Dispose();
+		Renderer::Dispose();
 	}
 
 	void Application::Stop()
@@ -77,14 +85,18 @@ namespace Quark {
 					m_Layers[i]->OnUpdate(elapsedTime);
 			}
 
-			Renderer::BeginFrame();
+			{
+				Renderer::BeginFrame();
+				m_ImGuiLayer->BeginFrame();
+				
+				OnRender();
 
-			OnRender();
+				for (auto layer : m_Layers)
+					layer->OnRender();
 
-			for (auto layer : m_Layers)
-				layer->OnRender();
-
-			Renderer::EndFrame();
+				m_ImGuiLayer->EndFrame();
+				Renderer::EndFrame();
+			}
 
 			m_Window->OnUpdate();
 		}
@@ -98,7 +110,7 @@ namespace Quark {
 		dispatcher.Dispatch<WindowClosedEvent>([&](auto& e) { Stop(); });
 		dispatcher.Dispatch<WindowMinimizedEvent>([&](auto& e) { m_Minimized = true; });
 		dispatcher.Dispatch<WindowRestoredEvent>([&](auto& e) { m_Minimized = false; });
-		dispatcher.Dispatch<WindowResizedEvent>([](WindowResizedEvent& e)
+		dispatcher.Dispatch<ViewportResizedEvent>([](ViewportResizedEvent& e)
 		{
 			Renderer::SetViewport(e.GetWidth(), e.GetHeight());
 		});

@@ -16,6 +16,9 @@ namespace Quark {
 
 		void OnEvent(Event& e);
 
+		size_t GetCursor() const { return m_Cursor; }
+		char   GetCharAtCursor() const { return m_Value[m_Cursor]; }
+
 	private:
 		void OnKeyPressed(KeyPressedEvent& e);
 		void OnKeyTyped(KeyTypedEvent& e);
@@ -23,10 +26,10 @@ namespace Quark {
 	private:
 		struct TextSelection
 		{
-			std::string::iterator Begin;
-			std::string::iterator End;
+			size_t Begin;
+			size_t End;
 		};
 
-		TextSelection m_CurrentSelection;
+		size_t m_Cursor{};
 	};
 }

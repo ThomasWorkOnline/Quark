@@ -42,15 +42,15 @@ namespace Quark {
 			WavHeader header;
 			in.read((char*)&header, sizeof(WavHeader));
 
-			QK_CORE_RUNTIME_VERIFY(
+			Verify(
 				std::memcmp(header.RIFF, "RIFF", sizeof WavHeader::RIFF) == 0 &&
 				std::memcmp(header.WAVE, "WAVE", sizeof WavHeader::WAVE) == 0 &&
 				std::memcmp(header.FMT,  "fmt ", sizeof WavHeader::FMT) == 0 &&
 				std::memcmp(header.DataChunkID, "data", sizeof WavHeader::DataChunkID) == 0,
 				"Invalid or possibly corrupt .wav file");
 
-			QK_CORE_RUNTIME_VERIFY(header.DataChunkSize != 0, "Invalid file contains no data");
-			QK_CORE_RUNTIME_VERIFY(header.AudioFormat == WAV_FORMAT_PCM, "Quark does not support audio formats other than PCM");
+			Verify(header.DataChunkSize != 0, "Invalid file contains no data");
+			Verify(header.AudioFormat == WAV_FORMAT_PCM, "Quark does not support audio formats other than PCM");
 
 			return header;
 		}

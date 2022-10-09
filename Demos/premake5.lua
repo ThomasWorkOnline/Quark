@@ -1,7 +1,7 @@
 project "Demos"
 	kind "ConsoleApp"
 	language "C++"
-	cppdialect "C++17"
+	cppdialect "C++20"
 	staticruntime "Off"
 
 	targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
@@ -19,7 +19,8 @@ project "Demos"
 		"%{wks.location}/Quark/src",
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.glm}",
-		"%{IncludeDir.spdlog}"
+		"%{IncludeDir.spdlog}",
+		"%{IncludeDir.ImGui}"
 	}
 
 	links
@@ -27,16 +28,16 @@ project "Demos"
 		"Quark"
 	}
 
-	flags
-	{
-		"FatalCompileWarnings",
-		"ShadowedVariables"
-	}
-
 	filter { "configurations:Dist", "system:windows" }
 		kind "WindowedApp"
 
 	filter "system:windows"
+		flags
+		{
+			"FatalCompileWarnings",
+			"ShadowedVariables"
+		}
+
 		defines
 		{
 			"_CRT_SECURE_NO_WARNINGS"
@@ -50,18 +51,47 @@ project "Demos"
 			"freetype",
 			"Glad",
 			"GLFW",
+			"ImGui",
 			"lodepng",
 			"spdlog",
-			"%{Library.Vulkan}",
 
 			"Cocoa.framework",
 			"CoreVideo.framework",
 			"Foundation.framework",
 			"IOKit.framework",
+			"IOSurface.framework",
 			"Metal.framework",
 			"OpenAL.framework",
 			"OpenGL.framework",
-			"QuartzCore.framework"
+			"QuartzCore.framework",
+
+			"vulkan",
+			"MoltenVK",
+
+			"spirv-cross-c",
+			"spirv-cross-cpp",
+			"spirv-cross-core",
+			"spirv-cross-glsl",
+			"spirv-cross-hlsl",
+			"spirv-cross-msl",
+			"spirv-cross-reflect",
+			"spirv-cross-util",
+
+			"shaderc_combined",
+			"shaderc_util",
+
+			"glslang"
+		}
+
+		libdirs
+		{
+			"/Users/thomaslessard/VulkanSDK/1.3.224.1/macOS/lib",
+			"/Users/thomaslessard/VulkanSDK/1.3.224.1/MoltenVK/MoltenVK.xcframework/macos-arm64_x86_64"
+		}
+
+		includedirs
+		{
+			"/Users/thomaslessard/VulkanSDK/1.3.224.1/MoltenVK/include"
 		}
 	
 	filter "system:linux"
@@ -70,9 +100,9 @@ project "Demos"
 			"freetype",
 			"Glad",
 			"GLFW",
+			"ImGui",
 			"lodepng",
 			"spdlog",
-			"%{Library.Vulkan}",
 
 			"GL",
 			"X11",
@@ -90,17 +120,19 @@ project "Demos"
 		optimize "On"
 		symbols	"On"
 
-		flags
-		{
-			"LinkTimeOptimization"
-		}
-
 	filter "configurations:Dist"
 		defines "QK_DIST"
 		runtime "Release"
 		optimize "Full"
 		symbols "Off"
 
+	filter { "configurations:Release", "system:windows" }
+		flags
+		{
+			"LinkTimeOptimization"
+		}
+
+	filter { "configurations:Dist", "system:windows" }
 		flags
 		{
 			"LinkTimeOptimization"

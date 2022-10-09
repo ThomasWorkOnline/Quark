@@ -13,8 +13,14 @@ namespace Quark {
 	{
 	public:
 		OpenGLShader(std::string_view filepath);
-		OpenGLShader(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& fragmentSource);
-		OpenGLShader(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& geometrySource, const SpirvSource& fragmentSource);
+		OpenGLShader(std::string_view name, SpirvView vertexSource, SpirvView fragmentSource);
+		OpenGLShader(std::string_view name, SpirvView vertexSource, SpirvView geometrySource, SpirvView fragmentSource);
+
+		// Legacy OpenGL shaders (not compatible with SPIR-V reflection)
+		OpenGLShader(std::nullptr_t, std::string_view filepath);
+		OpenGLShader(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource);
+		OpenGLShader(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource);
+
 		virtual ~OpenGLShader() final override;
 
 		virtual void SetInt(std::string_view name, int32_t value) final override;
@@ -41,10 +47,7 @@ namespace Quark {
 		virtual void SetMat3d(std::string_view name, const Mat3d& matrix) final override;
 		virtual void SetMat4d(std::string_view name, const Mat4d& matrix) final override;
 
-		virtual bool operator==(const Shader& other) const final override
-		{
-			return m_RendererID == reinterpret_cast<decltype(*this)&>(other).m_RendererID;
-		}
+		virtual bool operator==(const Shader& other) const final override;
 
 		// Non-Copyable
 		OpenGLShader(const OpenGLShader&) = delete;
@@ -78,16 +81,17 @@ namespace Quark {
 
 		GLint GetUniformLocation(std::string_view name) const;
 
-		static std::unordered_map<GLenum, std::string> PreProcess(std::string_view source);
+		static std::unordered_map<GLenum, std::string_view> SubstrStages(std::string_view source);
+		static std::string ParseGLSL(std::string_view source);
 
-		GLuint CompileSources(const std::unordered_map<GLenum, std::string>& shaderSources);
-		GLuint CompileSPIRV(const std::unordered_map<GLenum, SpirvSource>& spirvBinaries);
-		void LinkProgram(GLuint program, const GLenum* glShaderIDs, uint32_t shaderCount);
+		GLuint CompileGLSLSources(const std::unordered_map<GLenum, std::string>& shaderSources);
+		GLuint CompileGLSLSourcesLegacy(const std::unordered_map<GLenum, std::string>& shaderSources);
+		GLuint CompileSPIRV(const std::unordered_map<GLenum, SpirvView>& spirvBinaries);
+
+		GLint LinkProgram(GLuint program);
 
 	private:
 		GLuint m_RendererID = 0;
-		std::unordered_map<GLenum, std::vector<uint32_t>> m_SpirvSources;
-
 		mutable std::unordered_map<size_t, GLint> m_UniformLocationCache;
 	};
 }

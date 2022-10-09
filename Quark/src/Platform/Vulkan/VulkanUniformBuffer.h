@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Quark/Renderer/UniformBuffer.h"
-#include "VulkanDevice.h"
 
-#include <vulkan/vulkan.h>
+#include "Vulkan.h"
+#include "VulkanDevice.h"
 
 namespace Quark {
 
@@ -15,18 +15,13 @@ namespace Quark {
 
 		virtual void SetData(const void* data, size_t size, size_t offset = 0) final override;
 
-		virtual bool operator==(const UniformBuffer& other) const final override
-		{
-			return m_Buffer == reinterpret_cast<const VulkanUniformBuffer&>(other).m_Buffer;
-		}
+		virtual bool operator==(const UniformBuffer& other) const final override;
 
 		// Non-Copyable
 		VulkanUniformBuffer(const VulkanUniformBuffer&) = delete;
 		VulkanUniformBuffer& operator=(const VulkanUniformBuffer&) = delete;
 
 		VkBuffer GetVkHandle() const { return m_Buffer; }
-
-		void UpdateDescriptorSet(VkDescriptorSet dstSet);
 
 	private:
 		VulkanDevice* m_Device;

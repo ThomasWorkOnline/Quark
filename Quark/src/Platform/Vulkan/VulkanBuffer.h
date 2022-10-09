@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Quark/Renderer/Buffer.h"
-#include "VulkanDevice.h"
 
-#include <vulkan/vulkan.h>
+#include "Vulkan.h"
+#include "VulkanDevice.h"
 
 namespace Quark {
 
@@ -16,10 +16,7 @@ namespace Quark {
 
 		virtual void SetData(const void* data, size_t size, size_t offset = 0) final override;
 
-		virtual bool operator==(const VertexBuffer& other) const final override
-		{
-			return m_Buffer == reinterpret_cast<const VulkanVertexBuffer&>(other).m_Buffer;
-		}
+		virtual bool operator==(const VertexBuffer& other) const final override;
 
 		// Non-Copyable
 		VulkanVertexBuffer(const VulkanVertexBuffer&) = delete;
@@ -30,6 +27,7 @@ namespace Quark {
 	private:
 		VulkanDevice* m_Device;
 
+		size_t m_Size;
 		VkBuffer m_Buffer;
 		VkDeviceMemory m_BufferMemory;
 	};
@@ -41,13 +39,10 @@ namespace Quark {
 		VulkanIndexBuffer(VulkanDevice* device, const uint32_t* indices, uint32_t count);
 		virtual ~VulkanIndexBuffer() final override;
 
-		virtual void SetData(const uint32_t* data, uint32_t count, size_t offset = 0) final override;
+		virtual void SetData(const uint32_t* data, uint32_t count, uint32_t firstIndex = 0) final override;
 		virtual uint32_t GetCount() const final override { return m_Count; }
 
-		virtual bool operator==(const IndexBuffer& other) const final override
-		{
-			return m_Buffer == reinterpret_cast<const VulkanIndexBuffer&>(other).m_Buffer;
-		}
+		virtual bool operator==(const IndexBuffer& other) const final override;
 
 		// Non-Copyable
 		VulkanIndexBuffer(const VulkanIndexBuffer&) = delete;
@@ -58,8 +53,8 @@ namespace Quark {
 	private:
 		VulkanDevice* m_Device;
 
+		uint32_t m_Count;
 		VkBuffer m_Buffer;
 		VkDeviceMemory m_BufferMemory;
-		uint32_t m_Count;
 	};
 }

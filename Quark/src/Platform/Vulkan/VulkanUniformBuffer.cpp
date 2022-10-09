@@ -3,16 +3,21 @@
 
 #include "VulkanUtils.h"
 
+#include "Quark/Renderer/Renderer.h"
+
 namespace Quark {
 
 	VulkanUniformBuffer::VulkanUniformBuffer(VulkanDevice* device, const UniformBufferSpecification& spec)
 		: UniformBuffer(spec)
 		, m_Device(device)
 	{
-		m_Buffer = Utils::AllocateBuffer(m_Device, m_Spec.Size,
+		QK_CORE_ASSERT(spec.Size <= Renderer::GetCapabilities().UniformBuffer.MaxBufferSize,
+			"Uniform buffer Size too large: see Renderer::GetCapabilities() for more info");
+
+		Utils::AllocateBuffer(m_Device, m_Spec.Size,
 			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-			m_BufferMemory);
+			&m_Buffer, &m_BufferMemory);
 	}
 
 	VulkanUniformBuffer::~VulkanUniformBuffer()
@@ -23,31 +28,20 @@ namespace Quark {
 
 	void VulkanUniformBuffer::SetData(const void* data, size_t size, size_t offset)
 	{
-		QK_CORE_ASSERT(size <= m_Spec.Size, "Size parameter must be less than or equal to the total buffer size");
-		QK_CORE_ASSERT(offset == 0, "offsets are currently not supported");
+		QK_CORE_ASSERT(size + offset <= m_Spec.Size,
+			"Written size is too large: Size and Offset parameters must be within the total buffer size");
 
 		void* mappedMemory;
-		vkMapMemory(m_Device->GetVkHandle(), m_BufferMemory, 0, size, 0, &mappedMemory);
+		vkMapMemory(m_Device->GetVkHandle(), m_BufferMemory, offset, size, 0, &mappedMemory);
 		std::memcpy(mappedMemory, data, size);
 		vkUnmapMemory(m_Device->GetVkHandle(), m_BufferMemory);
 	}
 
-	void VulkanUniformBuffer::UpdateDescriptorSet(VkDescriptorSet dstSet)
+	bool VulkanUniformBuffer::operator==(const UniformBuffer& other) const
 	{
-		VkDescriptorBufferInfo bufferInfo{};
-		bufferInfo.buffer = m_Buffer;
-		bufferInfo.offset = 0;
-		bufferInfo.range = m_Spec.Size;
+		if (auto* o = dynamic_cast<decltype(this)>(&other))
+			return m_Buffer == o->m_Buffer;
 
-		VkWriteDescriptorSet writeDescriptorSet{};
-		writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		writeDescriptorSet.dstBinding = m_Spec.Binding;
-		writeDescriptorSet.dstArrayElement = 0;
-		writeDescriptorSet.descriptorCount = 1;
-		writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		writeDescriptorSet.pBufferInfo = &bufferInfo;
-		writeDescriptorSet.dstSet = dstSet;
-
-		vkUpdateDescriptorSets(m_Device->GetVkHandle(), 1, &writeDescriptorSet, 0, nullptr);
+		return false;
 	}
 }

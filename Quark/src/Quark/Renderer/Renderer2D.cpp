@@ -4,6 +4,9 @@
 #include "Quark/Core/Application.h"
 #include "Quark/Filesystem/Filesystem.h"
 
+#include "Sampler.h"
+#include "GraphicsAPI.h"
+
 namespace Quark {
 
 	/*
@@ -99,10 +102,10 @@ namespace Quark {
 
 		uint32_t MaxSamplerDestinations = 0;
 		uint32_t TextureSamplerIndex = 1; // Next texture slot to be attached, 0 is reserved for default texture
-		std::vector<Scope<Sampler2D>> Samplers;
+		std::vector<Scope<Sampler>> Samplers;
 
 		Scope<Texture2D> DefaultTexture;
-		Texture** Textures = nullptr;
+		const Texture** Textures = nullptr;
 
 		// Ensure std140 layout
 		struct CameraData
@@ -133,7 +136,7 @@ namespace Quark {
 		QK_ASSERT_RENDER_THREAD();
 
 		s_Data->CameraBufferData.ViewProjection = cameraProjection * cameraView;
-		s_Data->CameraUniformBuffer->SetData(&s_Data->CameraBufferData, sizeof(Renderer2DData::CameraBufferData));
+		s_Data->CameraUniformBuffer->SetData(&s_Data->CameraBufferData, sizeof(s_Data->CameraBufferData));
 
 		ResetStats();
 		StartBatch();
@@ -144,27 +147,20 @@ namespace Quark {
 		PushBatch();
 	}
 	
-	void Renderer2D::DrawSprite(Texture* texture, const Vec4f& tint, const Mat4f& transform)
+	void Renderer2D::DrawSprite(const Texture* texture, const Vec4f& tint, const Mat4f& transform)
 	{
 		DrawSprite(texture, s_TextureCoords, tint, transform);
 	}
 
-	void Renderer2D::DrawSprite(Texture* texture, float aspectRatio, const Vec4f& tint)
+	void Renderer2D::DrawSprite(const Texture* texture, float aspectRatio, const Vec4f& tint)
 	{
 		Mat4f transform = glm::scale(Mat4f(1.0f), Vec3f(aspectRatio, 1.0f, 1.0f));
 		DrawSprite(texture, tint, transform);
 	}
 
-	void Renderer2D::DrawSprite(Texture* texture, const Vec2f* texCoords, const Vec4f& tint, const Mat4f& transform)
+	void Renderer2D::DrawSprite(const Texture* texture, const Vec2f* texCoords, const Vec4f& tint, const Mat4f& transform)
 	{
 		QK_ASSERT_RENDER_THREAD();
-
-		// Check if buffer is full
-		if (s_Data->QuadIndexCount >= Renderer2DData::MaxIndices)
-		{
-			PushBatch();
-			StartBatch();
-		}
 
 		// Check if texture exists in samplers
 		uint32_t textureIndex = 0;
@@ -192,6 +188,13 @@ namespace Quark {
 			s_Data->TextureSamplerIndex++;
 		}
 
+		// Check if buffer is full
+		if (s_Data->QuadIndexCount + 6 > Renderer2DData::MaxIndices)
+		{
+			PushBatch();
+			StartBatch();
+		}
+
 		for (uint8_t i = 0; i < 4; i++)
 		{
 			s_Data->QuadVertexPtr->Position = transform * s_QuadVertexPositions[i];
@@ -216,7 +219,7 @@ namespace Quark {
 		QK_ASSERT_RENDER_THREAD();
 
 		// Check if buffer is full
-		if (s_Data->QuadIndexCount >= Renderer2DData::MaxIndices)
+		if (s_Data->QuadIndexCount + 6 > Renderer2DData::MaxIndices)
 		{
 			PushBatch();
 			StartBatch();
@@ -259,16 +262,9 @@ namespace Quark {
 		s_Stats.LinesDrawn++;
 	}
 
-	void Renderer2D::DrawText(std::string_view text, Font* font, const Vec4f& color, const Mat4f& transform)
+	void Renderer2D::DrawText(std::string_view text, const Font* font, const Vec4f& color, const Mat4f& transform)
 	{
 		QK_ASSERT_RENDER_THREAD();
-
-		// Check if buffer is full
-		if (s_Data->QuadIndexCount >= Renderer2DData::MaxIndices)
-		{
-			PushBatch();
-			StartBatch();
-		}
 
 		// Check if texture exists in samplers
 		uint32_t textureIndex = 0;
@@ -305,59 +301,76 @@ namespace Quark {
 
 		for (auto charcode : text)
 		{
-			if (charcode >= 32)
+			if (charcode < 32)
 			{
-				auto& g = font->GetGlyph(charcode);
+				switch (charcode)
+				{
+					// Newline and carriage return
+					case '\n':
+						x = startX;
+						y -= atlasHeight;
+						break;
 
-				int xpos = (x + g.Bearing.x);
-				int ypos = (y + g.Bearing.y);
+					// Tabs
+					case '\t':
+						x += 4 * 32;
+						break;
+				}
 
-				x += (g.Advance.x >> 6);
-
-				if (g.Size.x == 0 || g.Size.y == 0)
-					continue;
-
-				float tx = (float)g.OffsetX / (float)atlasWidth;
-				float w = (float)g.Size.x;
-				float h = (float)g.Size.y;
-
-				// Vertex [-, -]
-				s_Data->QuadVertexPtr->Position = transform * Vec4f(xpos, (ypos - h), 0.0f, 1.0f);
-				s_Data->QuadVertexPtr->TexCoord = { tx, h / (float)atlasHeight };
-				s_Data->QuadVertexPtr->Color = color;
-				s_Data->QuadVertexPtr->TexIndex = textureIndex;
-				s_Data->QuadVertexPtr++;
-
-				// Vertex [+, -]
-				s_Data->QuadVertexPtr->Position = transform * Vec4f(xpos + w, (ypos - h), 0.0f, 1.0f);
-				s_Data->QuadVertexPtr->TexCoord = { tx + w / (float)atlasWidth, h / (float)atlasHeight };
-				s_Data->QuadVertexPtr->Color = color;
-				s_Data->QuadVertexPtr->TexIndex = textureIndex;
-				s_Data->QuadVertexPtr++;
-
-				// Vertex [+, +]
-				s_Data->QuadVertexPtr->Position = transform * Vec4f(xpos + w, ypos, 0.0f, 1.0f);
-				s_Data->QuadVertexPtr->TexCoord = { tx + w / (float)atlasWidth, 0.0f };
-				s_Data->QuadVertexPtr->Color = color;
-				s_Data->QuadVertexPtr->TexIndex = textureIndex;
-				s_Data->QuadVertexPtr++;
-
-				// Vertex [-, +]
-				s_Data->QuadVertexPtr->Position = transform * Vec4f(xpos, ypos, 0.0f, 1.0f);
-				s_Data->QuadVertexPtr->TexCoord = { tx, 0.0f };
-				s_Data->QuadVertexPtr->Color = color;
-				s_Data->QuadVertexPtr->TexIndex = textureIndex;
-				s_Data->QuadVertexPtr++;
-
-				s_Data->QuadIndexCount += 6;
-				s_Stats.QuadsDrawn++;
+				continue;
 			}
-			// Newline
-			else if (charcode == '\n')
+
+			auto& g = font->GetGlyph(charcode);
+
+			int xpos = (x + g.Bearing.x);
+			int ypos = (y + g.Bearing.y);
+
+			x += (g.Advance.x >> 6);
+
+			if (g.Size.x == 0 || g.Size.y == 0)
+				continue;
+
+			float tx = (float)g.OffsetX / (float)atlasWidth;
+			float w = (float)g.Size.x;
+			float h = (float)g.Size.y;
+
+			// Check if buffer is full
+			if (s_Data->QuadIndexCount + 6 > Renderer2DData::MaxIndices)
 			{
-				x  = startX;
-				y -= atlasHeight;
+				PushBatch();
+				StartBatch();
 			}
+
+			// Vertex [-, -]
+			s_Data->QuadVertexPtr->Position = transform * Vec4f(xpos, (ypos - h), 0.0f, 1.0f);
+			s_Data->QuadVertexPtr->TexCoord = { tx, h / (float)atlasHeight };
+			s_Data->QuadVertexPtr->Color    = color;
+			s_Data->QuadVertexPtr->TexIndex = textureIndex;
+			s_Data->QuadVertexPtr++;
+
+			// Vertex [+, -]
+			s_Data->QuadVertexPtr->Position = transform * Vec4f(xpos + w, (ypos - h), 0.0f, 1.0f);
+			s_Data->QuadVertexPtr->TexCoord = { tx + w / (float)atlasWidth, h / (float)atlasHeight };
+			s_Data->QuadVertexPtr->Color    = color;
+			s_Data->QuadVertexPtr->TexIndex = textureIndex;
+			s_Data->QuadVertexPtr++;
+
+			// Vertex [+, +]
+			s_Data->QuadVertexPtr->Position = transform * Vec4f(xpos + w, ypos, 0.0f, 1.0f);
+			s_Data->QuadVertexPtr->TexCoord = { tx + w / (float)atlasWidth, 0.0f };
+			s_Data->QuadVertexPtr->Color    = color;
+			s_Data->QuadVertexPtr->TexIndex = textureIndex;
+			s_Data->QuadVertexPtr++;
+
+			// Vertex [-, +]
+			s_Data->QuadVertexPtr->Position = transform * Vec4f(xpos, ypos, 0.0f, 1.0f);
+			s_Data->QuadVertexPtr->TexCoord = { tx, 0.0f };
+			s_Data->QuadVertexPtr->Color    = color;
+			s_Data->QuadVertexPtr->TexIndex = textureIndex;
+			s_Data->QuadVertexPtr++;
+
+			s_Data->QuadIndexCount += 6;
+			s_Stats.QuadsDrawn++;
 		}
 	}
 
@@ -369,11 +382,11 @@ namespace Quark {
 
 	void Renderer2D::StartBatch()
 	{
-		s_Data->QuadVertexPtr    = s_Data->QuadVertices;
-		s_Data->QuadIndexCount   = 0;
+		s_Data->QuadVertexPtr       = s_Data->QuadVertices;
+		s_Data->QuadIndexCount      = 0;
 		s_Data->TextureSamplerIndex = 1; // 0 is reserved for default texture
 		
-		s_Data->LineVertexPtr    = s_Data->LineVertices;
+		s_Data->LineVertexPtr       = s_Data->LineVertices;
 	}
 
 	void Renderer2D::PushBatch()
@@ -385,8 +398,17 @@ namespace Quark {
 			size_t size = ((uint8_t*)s_Data->QuadVertexPtr - (uint8_t*)s_Data->QuadVertices);
 			s_Data->QuadVertexBuffer->SetData(s_Data->QuadVertices, size);
 
-			for (uint32_t i = 0; i < s_Data->TextureSamplerIndex; i++)
-				s_Data->Textures[i]->Attach(i);
+			while (s_Data->TextureSamplerIndex != s_Data->MaxSamplerDestinations)
+			{
+				s_Data->Textures[s_Data->TextureSamplerIndex] = s_Data->DefaultTexture.get();
+				s_Data->TextureSamplerIndex++;
+			}
+
+			for (uint32_t i = 0; i < s_Data->MaxSamplerDestinations; i++)
+				Renderer::GetCommandBuffer()->BindTexture(s_Data->Textures[i], s_Data->Samplers[i].get(), 1, i);
+
+			Renderer::GetCommandBuffer()->BindUniformBuffer(s_Data->CameraUniformBuffer.get(), 0);
+			Renderer::GetCommandBuffer()->BindDescriptorSets();
 
 			Renderer::Submit(s_Data->QuadVertexBuffer.get(), s_Data->QuadIndexBuffer.get(), s_Data->QuadIndexCount);
 			s_Stats.DrawCalls++;
@@ -395,10 +417,13 @@ namespace Quark {
 		if (uint32_t vertexCount = (uint32_t)(s_Data->LineVertexPtr - s_Data->LineVertices))
 		{
 			Renderer::BindPipeline(s_Data->LineRendererPipeline.get());
-			Renderer::GetCommandBuffer()->SetLineWidth(1.0f);
 
 			size_t size = ((uint8_t*)s_Data->LineVertexPtr - (uint8_t*)s_Data->LineVertices);
 			s_Data->LineVertexBuffer->SetData(s_Data->LineVertices, size);
+
+			Renderer::GetCommandBuffer()->SetLineWidth(1.0f);
+			Renderer::GetCommandBuffer()->BindUniformBuffer(s_Data->CameraUniformBuffer.get(), 0);
+			Renderer::GetCommandBuffer()->BindDescriptorSets();
 
 			Renderer::Submit(s_Data->LineVertexBuffer.get(), vertexCount);
 			s_Stats.DrawCalls++;
@@ -421,14 +446,12 @@ namespace Quark {
 		s_Data = new Renderer2DData();
 
 		// Samplers
-		s_Data->MaxSamplerDestinations = Renderer::GetCapabilities().TextureCapabilities.MaxTextureSlots;
-		QK_CORE_ASSERT(s_Data->MaxSamplerDestinations > 0, "Platform does not support texture samplers");
+		s_Data->MaxSamplerDestinations = Renderer::GetCapabilities().Sampler.MaxPerStageSamplers;
 
 		// Camera buffer
 		{
 			UniformBufferSpecification spec;
-			spec.Size = sizeof(Renderer2DData::CameraData);
-			spec.Binding = 0;
+			spec.Size = sizeof(s_Data->CameraBufferData);
 			s_Data->CameraUniformBuffer = UniformBuffer::Create(spec);
 		}
 
@@ -477,53 +500,62 @@ namespace Quark {
 
 		s_Data->QuadVertices = new QuadVertex[Renderer2DData::MaxVertices];
 
-		uint32_t textureColor = 0xffffffff;
-		Texture2DSpecification spec = { 1, 1, 1, 0,
-			ColorDataFormat::RGBA8,
-			TextureFilteringMode::Nearest, TextureFilteringMode::Nearest, TextureTilingMode::Repeat
-		};
-
-		s_Data->DefaultTexture = Texture2D::Create(spec);
-		s_Data->DefaultTexture->SetData(&textureColor, sizeof(textureColor));
-		s_Data->Textures = new Texture*[s_Data->MaxSamplerDestinations];
-		s_Data->Samplers.resize(s_Data->MaxSamplerDestinations);
-
+		s_Data->Textures = new const Texture*[s_Data->MaxSamplerDestinations];
 		std::memset(s_Data->Textures, 0, s_Data->MaxSamplerDestinations * sizeof(Texture*));
-		s_Data->Textures[0] = s_Data->DefaultTexture.get();
 
-		auto& coreDirectory = Application::Get()->GetOptions().CoreDir;
-		auto spriteVertexSource = ReadSpirvFile((coreDirectory / "bin-spirv/Sprite.vert.spv").string());
-		auto spriteFragmentSource = ReadSpirvFile((coreDirectory / "bin-spirv/Sprite.frag.spv").string());
-
-		Sampler2DSpecification samplerSpec;
-		samplerSpec.Binding = 1;
-		samplerSpec.SamplerCount = s_Data->MaxSamplerDestinations;
-		for (size_t i = 0; i < s_Data->MaxSamplerDestinations; i++)
 		{
-			s_Data->Samplers[i] = Sampler2D::Create(samplerSpec);
+			uint32_t textureColor = 0xffffffff;
+			Texture2DSpecification spec = { 1, 1, 1, 1, ColorFormat::RGBA8 };
+
+			s_Data->DefaultTexture = Texture2D::Create(spec);
+			s_Data->DefaultTexture->SetData(&textureColor, sizeof(textureColor));
+			s_Data->Textures[0] = s_Data->DefaultTexture.get();
 		}
 
-		AutoRelease<int32_t> samplersDests = StackAlloc(s_Data->MaxSamplerDestinations * sizeof(int32_t));
+		s_Data->Samplers.resize(s_Data->MaxSamplerDestinations);
 		for (uint32_t i = 0; i < s_Data->MaxSamplerDestinations; i++)
-			samplersDests[i] = i;
+		{
+			SamplerSpecification spec;
+			spec.RenderModes.MinFilteringMode = SamplerFilterMode::Linear;
+			spec.RenderModes.MagFilteringMode = SamplerFilterMode::Linear;
+			spec.RenderModes.AddressMode = SamplerAddressMode::ClampToEdge;
 
-		s_Data->QuadShader = Shader::Create("defaultSprite", spriteVertexSource, spriteFragmentSource);
-		s_Data->QuadShader->SetIntArray("u_Samplers", samplersDests, s_Data->MaxSamplerDestinations);
+			s_Data->Samplers[i] = Sampler::Create(spec);
+		}
+
+		auto version = Renderer::GetRHIVersion();
+		if (GraphicsAPI::GetAPI() == RHI::OpenGL &&
+			version.Major <= 4 && version.Minor <= 1)
+		{
+			auto& coreDirectory = Application::Get()->GetOptions().CoreDir;
+			auto spriteVertexSource = Filesystem::ReadTextFile((coreDirectory / "assets/shaders/version/3.30/Sprite.vs.glsl").string());
+			auto spriteFragmentSource = Filesystem::ReadTextFile((coreDirectory / "assets/shaders/version/3.30/Sprite.fs.glsl").string());
+
+			QK_CORE_TRACE("Compiling legacy glsl shader defaultSprite...");
+			s_Data->QuadShader = Shader::CreateLegacy("defaultSprite", spriteVertexSource, spriteFragmentSource);
+
+			AutoRelease<int32_t> samplers = StackAlloc(s_Data->MaxSamplerDestinations * sizeof(int32_t));
+			for (uint32_t i = 0; i < s_Data->MaxSamplerDestinations; i++)
+				samplers[i] = (int32_t)i;
+
+			s_Data->QuadShader->SetIntArray("u_Samplers", samplers, s_Data->MaxSamplerDestinations);
+		}
+		else
+		{
+			auto& coreDirectory = Application::Get()->GetOptions().CoreDir;
+			auto spriteVertexBinary = ReadSpirvFile((coreDirectory / "cache/spirv/Sprite.vert.spv").string());
+			auto spriteFragmentBinary = ReadSpirvFile((coreDirectory / "cache/spirv/Sprite.frag.spv").string());
+
+			s_Data->QuadShader = Shader::Create("defaultSprite", spriteVertexBinary, spriteFragmentBinary);
+		}
 
 		{
-			std::vector<Sampler2D*> samplerArray(s_Data->MaxSamplerDestinations);
-			for (size_t i = 0; i < samplerArray.size(); i++)
-			{
-				samplerArray[i] = s_Data->Samplers[i].get();
-			}
-
 			PipelineSpecification spec;
-			spec.Layout = s_QuadVertexLayout;
-			spec.Topology = PrimitiveTopology::TriangleList;
-			spec.RenderPass = Renderer::GetGeometryPass();
-			spec.Shader = s_Data->QuadShader.get();
-			spec.UniformBuffers = { s_Data->CameraUniformBuffer.get() };
-			spec.SamplersArray = { std::move(samplerArray) };
+			spec.Layout             = s_QuadVertexLayout;
+			spec.Topology           = PrimitiveTopology::TriangleList;
+			spec.Samples            = Renderer::GetMultisampling();
+			spec.RenderPass         = Renderer::GetRenderPass();
+			spec.Shader             = s_Data->QuadShader.get();
 
 			s_Data->QuadRendererPipeline = Pipeline::Create(spec);
 		}
@@ -538,19 +570,33 @@ namespace Quark {
 
 		s_Data->LineVertices = new LineVertex[Renderer2DData::MaxVertices];
 
-		auto& coreDirectory = Application::Get()->GetOptions().CoreDir;
-		auto lineVertexSource = ReadSpirvFile((coreDirectory / "bin-spirv/Line.vert.spv").string());
-		auto lineFragmentSource = ReadSpirvFile((coreDirectory / "bin-spirv/Line.frag.spv").string());
+		auto version = Renderer::GetRHIVersion();
+		if (GraphicsAPI::GetAPI() == RHI::OpenGL &&
+			version.Major <= 4 && version.Minor <= 1)
+		{
+			auto& coreDirectory = Application::Get()->GetOptions().CoreDir;
+			auto lineVertexSource = Filesystem::ReadTextFile((coreDirectory / "assets/shaders/version/3.30/Line.vs.glsl").string());
+			auto lineFragmentSource = Filesystem::ReadTextFile((coreDirectory / "assets/shaders/version/3.30/Line.fs.glsl").string());
 
-		s_Data->LineShader = Shader::Create("defaultLine", lineVertexSource, lineFragmentSource);
+			QK_CORE_TRACE("Compiling legacy glsl shader defaultLine...");
+			s_Data->LineShader = Shader::CreateLegacy("defaultLine", lineVertexSource, lineFragmentSource);
+		}
+		else
+		{
+			auto& coreDirectory = Application::Get()->GetOptions().CoreDir;
+			auto lineVertexBinary = ReadSpirvFile((coreDirectory / "cache/spirv/Line.vert.spv").string());
+			auto lineFragmentBinary = ReadSpirvFile((coreDirectory / "cache/spirv/Line.frag.spv").string());
+
+			s_Data->LineShader = Shader::Create("defaultLine", lineVertexBinary, lineFragmentBinary);
+		}
 
 		{
 			PipelineSpecification spec;
-			spec.Layout = s_LineVertexLayout;
-			spec.Topology = PrimitiveTopology::LineList;
-			spec.RenderPass = Renderer::GetGeometryPass();
-			spec.Shader = s_Data->LineShader.get();
-			spec.UniformBuffers = { s_Data->CameraUniformBuffer.get() };
+			spec.Layout             = s_LineVertexLayout;
+			spec.Topology           = PrimitiveTopology::LineList;
+			spec.Samples            = Renderer::GetMultisampling();
+			spec.RenderPass         = Renderer::GetRenderPass();
+			spec.Shader             = s_Data->LineShader.get();
 
 			s_Data->LineRendererPipeline = Pipeline::Create(spec);
 		}

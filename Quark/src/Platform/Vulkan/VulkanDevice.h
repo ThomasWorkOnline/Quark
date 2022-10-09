@@ -2,8 +2,7 @@
 
 #include "Quark/Core/Core.h"
 
-#include <vulkan/vulkan.h>
-#include <vma/vk_mem_alloc.h>
+#include "Vulkan.h"
 
 #include <optional>
 
@@ -11,7 +10,7 @@ namespace Quark {
 
 	struct SwapChainSupportDetails
 	{
-		VkSurfaceCapabilitiesKHR        Capabilities;
+		VkSurfaceCapabilitiesKHR        Capabilities{};
 		std::vector<VkSurfaceFormatKHR> Formats;
 		std::vector<VkPresentModeKHR>   PresentModes;
 	};
@@ -20,16 +19,18 @@ namespace Quark {
 	{
 		std::optional<uint32_t> GraphicsFamily;
 		std::optional<uint32_t> PresentFamily;
+		std::optional<uint32_t> TransferFamily;
 
-		bool IsComplete() const { return GraphicsFamily.has_value() && PresentFamily.has_value(); }
+		bool IsComplete() const { return GraphicsFamily && PresentFamily && TransferFamily; }
 	};
 
 	class VulkanDevice
 	{
 	public:
-		VulkanDevice(VkPhysicalDevice vkPhysicalDevice, const std::vector<VkDeviceQueueCreateInfo>& queueCreateInfos, QueueFamilyIndices queueFamilyIndices, SwapChainSupportDetails supportDetails);
+		VulkanDevice(VkPhysicalDevice vkPhysicalDevice, const QueueFamilyIndices& queueFamilyIndices, SwapChainSupportDetails supportDetails);
 		~VulkanDevice();
 
+		const char* GetName() const;
 		void WaitUntilIdle() const;
 
 		VkDevice GetVkHandle() const { return m_Device; }
@@ -39,9 +40,12 @@ namespace Quark {
 
 		VkQueue GetGraphicsQueue() const { return m_GraphicsQueue; }
 		VkQueue GetPresentQueue() const { return m_PresentQueue; }
+		VkQueue GetTransferQueue() const { return m_TransferQueue; }
 
 		VkCommandPool GetCommandPool() const { return m_CommandPool; }
 		VkCommandBuffer GetCopyCommandBuffer() const { return m_CopyCommandBuffer; }
+
+		const VkPhysicalDeviceProperties& GetPhysicalDeviceProperties() const { return m_Properties; }
 
 		const QueueFamilyIndices& GetQueueFamilyIndices() const { return m_QueueFamilyIndices; }
 		const SwapChainSupportDetails& GetSupportDetails() const { return m_SupportDetails; }
@@ -59,11 +63,14 @@ namespace Quark {
 	private:
 		VkDevice m_Device;
 		VkPhysicalDevice m_PhysicalDevice;
+		VkPhysicalDeviceProperties m_Properties;
 
 		VmaAllocator m_Allocator;
 
 		VkQueue m_GraphicsQueue;
 		VkQueue m_PresentQueue;
+		VkQueue m_TransferQueue;
+
 		VkCommandPool m_CommandPool;
 		VkCommandBuffer m_CopyCommandBuffer;
 

@@ -1,12 +1,11 @@
 #pragma once
 
-#include "Quark/Core/Core.h"
 #include "Quark/Renderer/Pipeline.h"
 
+#include "Vulkan.h"
 #include "VulkanContext.h"
 #include "VulkanDevice.h"
-
-#include <vulkan/vulkan.h>
+#include "VulkanSampler.h"
 
 namespace Quark {
 
@@ -14,12 +13,9 @@ namespace Quark {
 	{
 	public:
 		VulkanPipeline(VulkanDevice* device, const PipelineSpecification& spec);
-		virtual ~VulkanPipeline() override;
+		virtual ~VulkanPipeline() final override;
 
-		virtual bool operator==(const Pipeline& other) const final override
-		{
-			return m_Pipeline == reinterpret_cast<const VulkanPipeline&>(other).m_Pipeline;
-		}
+		virtual bool operator==(const Pipeline& other) const final override;
 
 		// Non-Copyable
 		VulkanPipeline(const VulkanPipeline&) = delete;
@@ -29,7 +25,7 @@ namespace Quark {
 		VkPipelineLayout GetPipelineLayout() const { return m_PipelineLayout; }
 		VkDescriptorSet GetDescriptorSet() const;
 
-		void UpdateDescriptorSets();
+	private:
 		void CreateDescriptorSetLayout();
 		void CreateDescriptorPoolAndSets();
 		void CreatePipeline();
@@ -37,11 +33,11 @@ namespace Quark {
 	private:
 		VulkanDevice* m_Device = nullptr;
 
-		VkDescriptorPool m_DescriptorPool = VK_NULL_HANDLE;
-		VkDescriptorSetLayout m_DescriptorSetLayout = VK_NULL_HANDLE;
-		VkDescriptorSet m_DescriptorSets[VulkanContext::FramesInFlight]{};
+		VkPipeline m_Pipeline = nullptr;
+		VkPipelineLayout m_PipelineLayout = nullptr;
 
-		VkPipelineLayout m_PipelineLayout = VK_NULL_HANDLE;
-		VkPipeline m_Pipeline = VK_NULL_HANDLE;
+		VkDescriptorPool m_DescriptorPool = nullptr;
+		VkDescriptorSetLayout m_DescriptorSetLayout = nullptr;
+		VkDescriptorSet m_DescriptorSets[VulkanContext::FramesInFlight]{};
 	};
 }

@@ -12,7 +12,6 @@
 #include "VulkanSampler.h"
 #include "VulkanShader.h"
 #include "VulkanTexture.h"
-#include "VulkanTextureArray.h"
 #include "VulkanUniformBuffer.h"
 
 #include <vulkan/vulkan.h>
@@ -23,7 +22,49 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		m_Capabilities.TextureCapabilities.MaxTextureSlots = 32; // TODO: implement caps
+		auto& props = VulkanContext::GetCurrentDevice()->GetPhysicalDeviceProperties();
+
+		// Framebuffer capabilities
+		{
+			m_Capabilities.Framebuffer.MaxWidth = props.limits.maxFramebufferWidth;
+			m_Capabilities.Framebuffer.MaxHeight = props.limits.maxFramebufferHeight;
+			m_Capabilities.Framebuffer.MaxLayers = props.limits.maxFramebufferLayers;
+			m_Capabilities.Framebuffer.MaxAttachments = props.limits.maxColorAttachments;
+		}
+
+		// Sampler capabilities
+		{
+			m_Capabilities.Sampler.MaxPerStageSamplers = 32; // TODO: fix
+			m_Capabilities.Sampler.MaxAnisotropy = props.limits.maxSamplerAnisotropy;
+		}
+
+		// Uniform buffer capabilities
+		{
+			m_Capabilities.UniformBuffer.MaxBufferSize = props.limits.maxUniformBufferRange;
+			m_Capabilities.UniformBuffer.MaxPerStageBuffers = props.limits.maxPerStageDescriptorUniformBuffers;
+		}
+
+		// Texture capabilities
+		{
+			m_Capabilities.Texture.Max2DSize = props.limits.maxImageDimension2D;
+			m_Capabilities.Texture.Max3DSize = props.limits.maxImageDimension3D;
+			m_Capabilities.Texture.MaxArrayLayers = props.limits.maxImageArrayLayers;
+			m_Capabilities.Texture.MaxCubemapSize = props.limits.maxImageDimensionCube;
+		}
+	}
+
+	RHIVersion VulkanGraphicsAPI::GetRHIVersion() const
+	{
+		auto& props = VulkanContext::GetCurrentDevice()->GetPhysicalDeviceProperties();
+
+		// TODO: get driver version instead of api version
+		// VkPhysicalDeviceDriverProperties props;
+
+		RHIVersion ver{};
+		ver.Major = VK_API_VERSION_MAJOR(props.apiVersion);
+		ver.Minor = VK_API_VERSION_MINOR(props.apiVersion);
+		ver.Patch = VK_API_VERSION_PATCH(props.apiVersion);
+		return ver;
 	}
 
 	Scope<CommandBuffer> VulkanGraphicsAPI::CreateCommandBuffer()
@@ -78,7 +119,7 @@ namespace Quark {
 
 	Scope<FramebufferAttachment> VulkanGraphicsAPI::CreateFramebufferAttachment(const FramebufferAttachmentSpecification& spec)
 	{
-		return CreateScope<VulkanFramebufferAttachment>(VulkanContext::GetCurrentDevice(), spec);
+		return CreateScope<VulkanFramebufferAttachment>(VulkanContext::GetCurrentDevice(), nullptr, spec);
 	}
 
 	Scope<Shader> VulkanGraphicsAPI::CreateShader(std::string_view filepath)
@@ -86,19 +127,34 @@ namespace Quark {
 		return CreateScope<VulkanShader>(VulkanContext::GetCurrentDevice(), filepath);
 	}
 
-	Scope<Shader> VulkanGraphicsAPI::CreateShader(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& fragmentSource)
+	Scope<Shader> VulkanGraphicsAPI::CreateShader(std::string_view name, SpirvView vertexSource, SpirvView fragmentSource)
 	{
 		return CreateScope<VulkanShader>(VulkanContext::GetCurrentDevice(), name, vertexSource, fragmentSource);
 	}
 
-	Scope<Shader> VulkanGraphicsAPI::CreateShader(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& geometrySource, const SpirvSource& fragmentSource)
+	Scope<Shader> VulkanGraphicsAPI::CreateShader(std::string_view name, SpirvView vertexSource, SpirvView geometrySource, SpirvView fragmentSource)
 	{
 		return CreateScope<VulkanShader>(VulkanContext::GetCurrentDevice(), name, vertexSource, geometrySource, fragmentSource);
 	}
 
-	Scope<Sampler2D> VulkanGraphicsAPI::CreateSampler2D(const Sampler2DSpecification& spec)
+	Scope<Shader> VulkanGraphicsAPI::CreateShaderLegacy(std::string_view filepath)
 	{
-		return CreateScope<VulkanSampler2D>(VulkanContext::GetCurrentDevice(), spec);
+		return CreateScope<VulkanShader>(VulkanContext::GetCurrentDevice(), filepath);
+	}
+
+	Scope<Shader> VulkanGraphicsAPI::CreateShaderLegacy(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource)
+	{
+		return CreateScope<VulkanShader>(VulkanContext::GetCurrentDevice(), name, vertexSource, fragmentSource);
+	}
+
+	Scope<Shader> VulkanGraphicsAPI::CreateShaderLegacy(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource)
+	{
+		return CreateScope<VulkanShader>(VulkanContext::GetCurrentDevice(), name, vertexSource, geometrySource, fragmentSource);
+	}
+
+	Scope<Sampler> VulkanGraphicsAPI::CreateSampler(const SamplerSpecification& spec)
+	{
+		return CreateScope<VulkanSampler>(VulkanContext::GetCurrentDevice(), spec);
 	}
 
 	Scope<Texture2D> VulkanGraphicsAPI::CreateTexture2D(const Texture2DSpecification& spec)
@@ -106,9 +162,9 @@ namespace Quark {
 		return CreateScope<VulkanTexture2D>(VulkanContext::GetCurrentDevice(), spec);
 	}
 
-	Scope<Texture2D> VulkanGraphicsAPI::CreateTexture2D(std::string_view filepath, const TextureRenderModes& renderModes)
+	Scope<Texture2D> VulkanGraphicsAPI::CreateTexture2D(std::string_view filepath)
 	{
-		return CreateScope<VulkanTexture2D>(VulkanContext::GetCurrentDevice(), filepath, renderModes);
+		return CreateScope<VulkanTexture2D>(VulkanContext::GetCurrentDevice(), filepath);
 	}
 
 	Scope<Texture2DArray> VulkanGraphicsAPI::CreateTexture2DArray(const Texture2DArraySpecification& spec)
@@ -119,5 +175,21 @@ namespace Quark {
 	Scope<UniformBuffer> VulkanGraphicsAPI::CreateUniformBuffer(const UniformBufferSpecification& spec)
 	{
 		return CreateScope<VulkanUniformBuffer>(VulkanContext::GetCurrentDevice(), spec);
+	}
+
+	std::string VulkanGraphicsAPI::GetSpecification() const
+	{
+		auto ver = GetRHIVersion();
+		auto& props = VulkanContext::GetCurrentDevice()->GetPhysicalDeviceProperties();
+
+		std::stringstream ss;
+		ss << "OpenGL Info:\n";
+		ss << "|  " << "Vendor ID: " << props.vendorID << '\n';
+		ss << "|  " << VulkanContext::GetCurrentDevice()->GetName() << '\n';
+		ss << "|  " << ver.Major << '.' << ver.Minor << '\n';
+		ss << "|  Per-stage Capabilities:\n";
+		ss << "|    Max uniform buffers = " << m_Capabilities.UniformBuffer.MaxPerStageBuffers << '\n';
+		ss << "|    Max samplers        = " << m_Capabilities.Sampler.MaxPerStageSamplers;
+		return ss.str();
 	}
 }

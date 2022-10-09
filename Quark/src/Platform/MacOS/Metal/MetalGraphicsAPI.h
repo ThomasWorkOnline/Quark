@@ -8,46 +8,45 @@ namespace Quark {
 	{
 	public:
 		virtual void                         Init() override {}
+
+		virtual RHIVersion                   GetRHIVersion() const final override { return RHIVersion{}; }
+
+		virtual Scope<CommandBuffer>         CreateCommandBuffer() final override { return nullptr; }
+									           
+		virtual Scope<Pipeline>              CreatePipeline(const PipelineSpecification& spec) final override { return nullptr; }
+		virtual Scope<RenderPass>            CreateRenderPass(const RenderPassSpecification& spec) final override { return nullptr; }
 									         
-		virtual                              Version GetVersion() const override { return Version{}; }
+		virtual Scope<VertexBuffer>          CreateVertexBuffer(const void* vertices, size_t size) final override { return nullptr; }
+		virtual Scope<VertexBuffer>          CreateVertexBuffer(size_t size) final override { return nullptr; }
 									         
-		virtual void                         SetClearColor(const Vec4f& rgba) override {}
-		virtual void                         SetCullFace(RenderCullMode face) override {}
-		virtual void                         SetDepthFunction(RenderDepthFunction func) override {}
-									         
-		virtual void                         SetLineThickness(float thickness) override {}
-		virtual float                        GetLineThickness() const override { return 0.0f; }
+		virtual Scope<IndexBuffer>           CreateIndexBuffer(const uint32_t* indices, uint32_t count) final override { return nullptr; }
+		virtual Scope<IndexBuffer>           CreateIndexBuffer(uint32_t count) final override { return nullptr; }
 									       
-		virtual Scope<CommandBuffer>         CreateCommandBuffer() override { return nullptr; }
-								           
-		virtual Scope<Pipeline>              CreatePipeline(const PipelineSpecification& spec) override { return nullptr; }
-		virtual Scope<RenderPass>            CreateRenderPass(const RenderPassSpecification& spec) override { return nullptr; }
-								           
-		virtual Scope<VertexBuffer>          CreateVertexBuffer(const void* vertices, size_t size) override { return nullptr; }
-		virtual Scope<VertexBuffer>          CreateVertexBuffer(size_t size) override { return nullptr; }
-								           
-		virtual Scope<IndexBuffer>           CreateIndexBuffer(const uint32_t* indices, uint32_t count) override { return nullptr; }
-		virtual Scope<IndexBuffer>           CreateIndexBuffer(uint32_t count) override { return nullptr; }
-								           
-		virtual Scope<Cubemap>               CreateCubemap(const CubemapSpecification& spec) override { return nullptr; }
-						  	                    
-		virtual Scope<Font>                  CreateFont(std::string_view filepath, uint32_t fontSize) override { return nullptr; }
-								           
-		virtual Scope<Framebuffer>           CreateFramebuffer(const FramebufferSpecification& spec) override { return nullptr; }
-		virtual Scope<FramebufferAttachment> CreateFramebufferAttachment(void* image, const FramebufferAttachmentSpecification& spec) override { return nullptr; }
-								           
-		virtual Scope<Shader>                CreateShader(std::string_view filepath) override { return nullptr; }
-		virtual Scope<Shader>                CreateShader(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource) override { return nullptr; }
-		virtual Scope<Shader>                CreateShader(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource) override { return nullptr; }
-								           
-		virtual Scope<Texture2D>             CreateTexture2D(const Texture2DSpecification& spec) override { return nullptr; }
-		virtual Scope<Texture2D>             CreateTexture2D(std::string_view filepath, const TextureRenderModes& renderModes = {}) override { return nullptr; }
-								           
-		virtual Scope<Texture2DArray>        CreateTexture2DArray(const Texture2DArraySpecification& spec) override { return nullptr; }
-								           
-		virtual Scope<UniformBuffer>         CreateUniformBuffer(size_t size, uint32_t binding) override { return nullptr; }
+		virtual Scope<Cubemap>               CreateCubemap(const CubemapSpecification& spec) final override { return nullptr; }
 									       
-		virtual const char*                  GetName() const override { return "Metal"; }
-		virtual std::string                  GetSpecification() const override { return std::string(); }
+		virtual Scope<Font>                  CreateFont(std::string_view filepath, uint32_t fontSize) final override { return nullptr; }
+									       
+		virtual Scope<Framebuffer>           CreateFramebuffer(const FramebufferSpecification& spec) final override { return nullptr; }
+		virtual Scope<FramebufferAttachment> CreateFramebufferAttachment(const FramebufferAttachmentSpecification& spec) final override { return nullptr; }
+		
+		virtual Scope<Shader>                CreateShader(std::string_view filepath) final override { return nullptr; }
+		virtual Scope<Shader>                CreateShader(std::string_view name, SpirvView vertexSource, SpirvView fragmentSource) final override { return nullptr; }
+		virtual Scope<Shader>                CreateShader(std::string_view name, SpirvView vertexSource, SpirvView geometrySource, SpirvView fragmentSource) final override { return nullptr; }
+
+		virtual Scope<Shader>                CreateShaderLegacy(std::string_view filepath) final override { return nullptr; }
+		virtual Scope<Shader>                CreateShaderLegacy(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource) final override { return nullptr; }
+		virtual Scope<Shader>                CreateShaderLegacy(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource) final override { return nullptr; }
+									       
+		virtual Scope<Sampler>               CreateSampler(const SamplerSpecification& spec) final override { return nullptr; }
+
+		virtual Scope<Texture2D>             CreateTexture2D(const Texture2DSpecification& spec) final override { return nullptr; }
+		virtual Scope<Texture2D>             CreateTexture2D(std::string_view filepath) final override { return nullptr; }
+									       
+		virtual Scope<Texture2DArray>        CreateTexture2DArray(const Texture2DArraySpecification& spec) final override { return nullptr; }
+									       
+		virtual Scope<UniformBuffer>         CreateUniformBuffer(const UniformBufferSpecification& spec) final override { return nullptr; }
+									       
+		virtual const char*                  GetName() const final override { return "Metal"; }
+		virtual std::string                  GetSpecification() const final override { return std::string(); }
 	};
 }

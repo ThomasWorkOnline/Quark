@@ -8,8 +8,8 @@
 #	define StackAlloc _malloca
 #else
 	// Automatic stack cleanup
-#	define Freea
-#	define StackAlloc alloca
+#	define Freea(mem) ((void)mem)
+#	define StackAlloc __alloca
 #endif
 
 #define sizeof_array(x) (sizeof(x) / sizeof(x[0]))
@@ -167,14 +167,14 @@ namespace Quark {
 	class Array
 	{
 	public:
-		using iterator = ArrayIterator<T>;
+		using iterator       = ArrayIterator<T>;
 		using const_iterator = const ArrayIterator<T>;
 
 		Array() = default;
 		Array(size_t elementCount)
 			: m_Size(elementCount)
+			, m_Memory(new T[elementCount])
 		{
-			m_Memory = new T[elementCount];
 		}
 
 		Array(Array&& other) noexcept

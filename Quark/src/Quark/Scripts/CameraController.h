@@ -13,17 +13,17 @@ namespace Quark {
 	class CameraController : public NativeScriptEntity
 	{
 	public:
-		virtual void OnUpdate(Timestep elapsedTime) override;
-		virtual void OnEvent(Event& e) override;
+		void OnEvent(Event& e);
+		void OnUpdate(Timestep elapsedTime);
 
 	private:
 		void OnMouseScrolled(MouseScrolledEvent& e);
 		void OnMouseMoved(MouseMovedEvent& e);
 
 	private:
-		float m_ZoomSpeed = 0.0f;
-		float m_MovementSpeed = 0.0f;
-		float m_RollSensitivity = 0.0f;
-		float m_AugularMomentum = 0.0f;
+		Float m_ZoomSpeed = 0.0f;
+		Float m_MovementSpeed = 0.0f;
+		Float m_RollSensitivity = 0.0f;
+		Float m_AugularMomentum = 0.0f;
 	};
 }

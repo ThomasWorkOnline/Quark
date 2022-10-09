@@ -22,16 +22,10 @@ namespace Quark {
 	class GraphicsAPI
 	{
 	public:
-		struct Version
-		{
-			int Major;
-			int Minor;
-		};
-
 		virtual                             ~GraphicsAPI() = default;
 		virtual void                         Init() = 0;
 										     
-		virtual                              Version GetVersion() const = 0;
+		virtual RHIVersion                   GetRHIVersion() const = 0;
 									         
 		virtual Scope<CommandBuffer>         CreateCommandBuffer() = 0;
 									           
@@ -52,13 +46,17 @@ namespace Quark {
 		virtual Scope<FramebufferAttachment> CreateFramebufferAttachment(const FramebufferAttachmentSpecification& spec) = 0;
 		
 		virtual Scope<Shader>                CreateShader(std::string_view filepath) = 0;
-		virtual Scope<Shader>                CreateShader(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& fragmentSource) = 0;
-		virtual Scope<Shader>                CreateShader(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& geometrySource, const SpirvSource& fragmentSource) = 0;
+		virtual Scope<Shader>                CreateShader(std::string_view name, SpirvView vertexSource, SpirvView fragmentSource) = 0;
+		virtual Scope<Shader>                CreateShader(std::string_view name, SpirvView vertexSource, SpirvView geometrySource, SpirvView fragmentSource) = 0;
+
+		virtual Scope<Shader>                CreateShaderLegacy(std::string_view filepath) = 0;
+		virtual Scope<Shader>                CreateShaderLegacy(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource) = 0;
+		virtual Scope<Shader>                CreateShaderLegacy(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource) = 0;
 									       
-		virtual Scope<Sampler2D>             CreateSampler2D(const Sampler2DSpecification& spec) = 0;
+		virtual Scope<Sampler>               CreateSampler(const SamplerSpecification& spec) = 0;
 
 		virtual Scope<Texture2D>             CreateTexture2D(const Texture2DSpecification& spec) = 0;
-		virtual Scope<Texture2D>             CreateTexture2D(std::string_view filepath, const TextureRenderModes& renderModes = {}) = 0;
+		virtual Scope<Texture2D>             CreateTexture2D(std::string_view filepath) = 0;
 									       
 		virtual Scope<Texture2DArray>        CreateTexture2DArray(const Texture2DArraySpecification& spec) = 0;
 									       

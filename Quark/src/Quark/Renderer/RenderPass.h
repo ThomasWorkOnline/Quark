@@ -1,21 +1,26 @@
 #pragma once
 
 #include "Quark/Core/Core.h"
-#include "ColorFormats.h"
+#include "Formats.h"
 
 namespace Quark {
 
 	enum class PipelineBindPoint
 	{
-		Graphics = 0,
+		None = 0,
+		Graphics,
 		Compute
 	};
 
 	struct RenderPassSpecification
 	{
 		PipelineBindPoint BindPoint{};
-		ColorDataFormat   ColorFormat{};
+		ColorFormat       ColorAttachmentFormat{};
+		ColorFormat       DepthAttachmentFormat{};
+		uint32_t          Samples;
+
 		Vec4f             ClearColor{};
+		float             ClearDepth = 1.0f;
 		bool              ClearBuffers = false;
 	};
 

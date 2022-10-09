@@ -1,7 +1,7 @@
 project "Quark"
 	kind "StaticLib"
 	language "C++"
-	cppdialect "C++17"
+	cppdialect "C++20"
 	staticruntime "Off"
 
 	targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
@@ -13,6 +13,7 @@ project "Quark"
 	files
 	{
 		"src/Quark/**.h",
+		"src/Quark/**.inl",
 		"src/Quark/**.cpp",
 		"src/Quark.h",
 		"src/qkpch.h",
@@ -48,6 +49,7 @@ project "Quark"
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.glfw}",
 		"%{IncludeDir.glm}",
+		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.OpenAL}",
 		"%{IncludeDir.spdlog}",
 		"%{IncludeDir.VulkanSDK}"
@@ -58,24 +60,27 @@ project "Quark"
 		"FreeType",
 		"Glad",
 		"GLFW",
+		"ImGui",
 		"lodepng",
-		"spdlog",
-		"%{Library.Vulkan}"
-	}
-
-	flags
-	{
-		"FatalCompileWarnings",
-		"ShadowedVariables"
+		"spdlog"
 	}
 
 	filter "system:windows"
 		systemversion "latest"
 
+		flags
+		{
+			"FatalCompileWarnings",
+			"ShadowedVariables"
+		}
+
 		files
 		{
 			"src/Platform/Windows/**.h",
-			"src/Platform/Windows/**.cpp"
+			"src/Platform/Windows/**.cpp",
+
+			"src/Platform/Direct3D/**.h",
+			"src/Platform/Direct3D/**.cpp"
 		}
 
 		defines
@@ -90,13 +95,16 @@ project "Quark"
 
 		links
 		{
+			"%{Library.DXGI}",
+			"%{Library.Direct3D12}",
 			"%{Library.OpenAL}",
-			"%{Library.OpenGL}"
+			"%{Library.OpenGL}",
+			"%{Library.Vulkan}"
 		}
 
 		postbuildcommands
 		{
-			"%{wks.location}/Scripts/Windows/CompileShaders.bat"
+			--"%{wks.location}Scripts\\Windows\\CompileShaders.bat"
 		}
 
 	filter "system:macosx"
@@ -108,19 +116,9 @@ project "Quark"
 
 		includedirs
 		{
-			"%{IncludeDir.Metal}"
-		}
-
-		links
-		{
-			"Cocoa.framework",
-			"CoreVideo.framework",
-			"Foundation.framework",
-			"IOKit.framework",
-			"Metal.framework",
-			"OpenAL.framework",
-			"OpenGL.framework",
-			"QuartzCore.framework"
+			"%{IncludeDir.Metal}",
+			"/Users/thomaslessard/VulkanSDK/1.3.224.1/macOS/include",
+			"/Users/thomaslessard/VulkanSDK/1.3.224.1/MoltenVK/include"
 		}
 
 	filter "system:linux"
@@ -155,11 +153,6 @@ project "Quark"
 		optimize "On"
 		symbols	"On"
 
-		flags
-		{
-			"LinkTimeOptimization"
-		}
-
 		links
 		{
 			"%{Library.ShaderC_Release}",
@@ -173,14 +166,21 @@ project "Quark"
 		optimize "Full"
 		symbols "Off"
 
-		flags
-		{
-			"LinkTimeOptimization"
-		}
-
 		links
 		{
 			"%{Library.ShaderC_Release}",
 			"%{Library.SPIRVCross_Release}",
 			"%{Library.SPIRVCross_GLSL_Release}"
+		}
+
+	filter { "configurations:Release", "system:windows" }
+		flags
+		{
+			"LinkTimeOptimization"
+		}
+
+	filter { "configurations:Dist", "system:windows" }
+		flags
+		{
+			"LinkTimeOptimization"
 		}

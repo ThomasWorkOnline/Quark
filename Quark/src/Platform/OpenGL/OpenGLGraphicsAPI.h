@@ -9,7 +9,7 @@ namespace Quark {
 	public:
 		virtual void                         Init() final override;
 									       
-		virtual                              Version GetVersion() const final override;
+		virtual RHIVersion                   GetRHIVersion() const final override;
 									         
 		virtual Scope<CommandBuffer>         CreateCommandBuffer() final override;
 								       
@@ -30,13 +30,17 @@ namespace Quark {
 		virtual Scope<FramebufferAttachment> CreateFramebufferAttachment(const FramebufferAttachmentSpecification& spec) final override;
 
 		virtual Scope<Shader>                CreateShader(std::string_view filepath) final override;
-		virtual Scope<Shader>                CreateShader(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& fragmentSource) final override;
-		virtual Scope<Shader>                CreateShader(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& geometrySource, const SpirvSource& fragmentSource) final override;
+		virtual Scope<Shader>                CreateShader(std::string_view name, SpirvView vertexSource, SpirvView fragmentSource) final override;
+		virtual Scope<Shader>                CreateShader(std::string_view name, SpirvView vertexSource, SpirvView geometrySource, SpirvView fragmentSource) final override;
+
+		virtual Scope<Shader>                CreateShaderLegacy(std::string_view filepath) final override;
+		virtual Scope<Shader>                CreateShaderLegacy(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource) final override;
+		virtual Scope<Shader>                CreateShaderLegacy(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource) final override;
 		
-		virtual Scope<Sampler2D>             CreateSampler2D(const Sampler2DSpecification& spec) final override;
+		virtual Scope<Sampler>               CreateSampler(const SamplerSpecification& spec) final override;
 
 		virtual Scope<Texture2D>             CreateTexture2D(const Texture2DSpecification& spec) final override;
-		virtual Scope<Texture2D>             CreateTexture2D(std::string_view filepath, const TextureRenderModes& renderModes = {}) final override;
+		virtual Scope<Texture2D>             CreateTexture2D(std::string_view filepath) final override;
 								       
 		virtual Scope<Texture2DArray>        CreateTexture2DArray(const Texture2DArraySpecification& spec) final override;
 									       

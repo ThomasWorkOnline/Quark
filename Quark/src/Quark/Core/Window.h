@@ -2,6 +2,7 @@
 
 #include "Quark/Core/Core.h"
 #include "Quark/Core/Input.h"
+#include "Quark/Renderer/Renderer.h" // TODO: remove
 
 #include "Quark/Event/ApplicationEvent.h"
 #include "Quark/Event/KeyEvent.h"
@@ -30,9 +31,10 @@ namespace Quark {
 
 		virtual uint32_t GetWidth() const = 0;
 		virtual uint32_t GetHeight() const = 0;
+		virtual ViewportExtent GetViewportExtent() const = 0;
 		virtual float GetAspectRatio() const = 0;
-		virtual std::string_view GetTitle() const = 0;
 
+		virtual std::string_view GetTitle() const = 0;
 		virtual Window& SetTitle(std::string title) = 0;
 		virtual Window& AppendTitle(std::string title) = 0;
 
@@ -55,8 +57,12 @@ namespace Quark {
 		virtual bool IsVSync() const = 0;
 		virtual bool IsFullscreen() const = 0;
 
+		virtual const char* GetClipboardText() const = 0;
+		virtual void SetClipboardText(const char* string) = 0;
+
+		virtual bool IsNative() const = 0;
 		virtual void* GetNativeWindow() const = 0;
 
-		static Scope<Window> Create(const WindowSpecification& spec);
+		static Scope<Window> Create(const WindowSpecification& spec, bool native = false);
 	};
 }

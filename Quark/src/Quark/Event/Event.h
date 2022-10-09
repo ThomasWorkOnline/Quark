@@ -13,7 +13,7 @@ namespace Quark {
 	{
 		None = 0,
 		WindowClosed, WindowResized, WindowFocused, WindowLostFocus, WindowMoved, WindowMaximized, WindowMinimized, WindowRestored,
-		AppTick, AppUpdate, AppRender,
+		AppTick, AppUpdate, AppRender, ViewportResized,
 		KeyPressed, KeyReleased, KeyTyped,
 		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled
 	};
@@ -112,7 +112,7 @@ namespace Quark {
 				}
 				else
 				{
-					static_assert(false, "Event handler return value must be of type boolean or void");
+					static_assert(sizeof(T) == 0, "Event handler return value must be of type boolean or void");
 				}
 
 				return true;

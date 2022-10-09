@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Quark/Core/Core.h"
+#include "Quark/Core/Window.h"
+
 #include "CommandBuffer.h"
 
 namespace Quark {
@@ -15,7 +17,7 @@ namespace Quark {
 		virtual void WaitUntilDeviceIdle() = 0;
 
 		virtual void BeginFrame() = 0;
-		virtual void EndFrame() = 0;
+		virtual void Flush() = 0;
 
 		virtual void SwapBuffers() = 0;
 		virtual void SetSwapInterval(int interval) = 0;
@@ -28,6 +30,6 @@ namespace Quark {
 
 		virtual CommandBuffer* GetCommandBuffer() = 0;
 
-		static Scope<GraphicsContext> Create(void* windowHandle);
+		static Scope<GraphicsContext> Create(void* windowHandle, bool native = false);
 	};
 }

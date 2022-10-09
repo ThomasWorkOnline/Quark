@@ -2,7 +2,16 @@
 #include "OpenGLCommandBuffer.h"
 
 #include "OpenGLBuffer.h"
+#include "OpenGLEnums.h"
+#include "OpenGLFont.h"
 #include "OpenGLFramebuffer.h"
+#include "OpenGLPipeline.h"
+#include "OpenGLSampler.h"
+#include "OpenGLShader.h"
+#include "OpenGLTexture.h"
+#include "OpenGLUniformBuffer.h"
+
+#include "Quark/Renderer/Renderer.h"
 
 #include <glad/glad.h>
 
@@ -10,65 +19,40 @@
 
 namespace Quark {
 
-	void OpenGLCommandBuffer::SetCullFace(RenderCullMode mode)
+	void OpenGLCommandBuffer::SetCullMode(RenderCullMode mode)
 	{
-		switch (mode)
-		{
-			case RenderCullMode::None:
-				glDisable(GL_CULL_FACE);
-				break;
-			case RenderCullMode::Front:
-				glEnable(GL_CULL_FACE);
-				glCullFace(GL_FRONT);
-				break;
-			case RenderCullMode::Back:
-				glEnable(GL_CULL_FACE);
-				glCullFace(GL_BACK);
-				break;
-			case RenderCullMode::FrontAndBack:
-				glEnable(GL_CULL_FACE);
-				glCullFace(GL_FRONT_AND_BACK);
-				break;
-		}
+		mode == RenderCullMode::None
+			? glDisable(GL_CULL_FACE)
+			: glEnable(GL_CULL_FACE);
+
+		glCullFace(CullModeToOpenGL(mode));
 	}
 
-	void OpenGLCommandBuffer::SetDepthFunction(RenderDepthFunction func)
+	void OpenGLCommandBuffer::SetDepthFunction(DepthCompareFunction func)
 	{
-		switch (func)
-		{
-			case RenderDepthFunction::Never:
-				glDepthFunc(GL_NEVER);
-				break;
-			case RenderDepthFunction::Always:
-				glDepthFunc(GL_ALWAYS);
-				break;
-			case RenderDepthFunction::NotEqual:
-				glDepthFunc(GL_NOTEQUAL);
-				break;
-			case RenderDepthFunction::Less:
-				glDepthFunc(GL_LESS);
-				break;
-			case RenderDepthFunction::LessEqual:
-				glDepthFunc(GL_LEQUAL);
-				break;
-			case RenderDepthFunction::Greater:
-				glDepthFunc(GL_GREATER);
-				break;
-			case RenderDepthFunction::GreaterEqual:
-				glDepthFunc(GL_GEQUAL);
-				break;
-		}
+		glDepthFunc(DepthCompareFunctionToOpenGL(func));
 	}
 
-	void OpenGLCommandBuffer::BindPipeline(Pipeline* pipeline)
+	void OpenGLCommandBuffer::BindPipeline(const Pipeline* pipeline)
 	{
-		m_BoundPipeline = static_cast<OpenGLPipeline*>(pipeline);
-		m_BoundPipeline->Bind();
+		m_BoundPipeline = static_cast<const OpenGLPipeline*>(pipeline);
+
+		auto* glShader = static_cast<const OpenGLShader*>(m_BoundPipeline->GetSpecification().Shader);
+		glUseProgram(glShader->GetRendererID());
+	}
+
+	void OpenGLCommandBuffer::BindDescriptorSets()
+	{
+	}
+
+	void OpenGLCommandBuffer::PushConstant(ShaderStage stage, const void* data, size_t size)
+	{
+		QK_CORE_ASSERT(false, "Push constants are not supported with OpenGL!");
 	}
 
 	void OpenGLCommandBuffer::SetViewport(uint32_t viewportWidth, uint32_t viewportHeight)
 	{
-		glViewport(0, 0, viewportWidth, viewportHeight);
+		glViewport(0, 0, (GLsizei)viewportWidth, (GLsizei)viewportHeight);
 	}
 
 	void OpenGLCommandBuffer::SetLineWidth(float width)
@@ -76,15 +60,17 @@ namespace Quark {
 		glLineWidth(width);
 	}
 
-	void OpenGLCommandBuffer::BeginRenderPass(RenderPass* renderPass, Framebuffer* framebuffer)
+	void OpenGLCommandBuffer::BeginRenderPass(const RenderPass* renderPass, const Framebuffer* framebuffer)
 	{
-		framebuffer ? static_cast<OpenGLFramebuffer*>(framebuffer)->Bind() : OpenGLFramebuffer::Bind(0);
+		framebuffer ? static_cast<const OpenGLFramebuffer*>(framebuffer)->Bind() : OpenGLFramebuffer::Bind(0);
 
 		m_CurrentRenderPass = renderPass;
 		if (m_CurrentRenderPass->GetSpecification().ClearBuffers)
 		{
 			auto& color = m_CurrentRenderPass->GetSpecification().ClearColor;
 			glClearColor(color.r, color.g, color.b, color.a);
+			glClearDepthf(renderPass->GetSpecification().ClearDepth);
+
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		}
 	}
@@ -103,7 +89,7 @@ namespace Quark {
 	void OpenGLCommandBuffer::DrawIndexed(uint32_t indexCount)
 	{
 		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
-		glDrawElements(m_BoundPipeline->GetPrimitiveTopology(), indexCount, GL_UNSIGNED_INT, nullptr);
+		glDrawElements(m_BoundPipeline->GetPrimitiveTopology(), indexCount, GL_UNSIGNED_INT, NULL);
 	}
 
 	void OpenGLCommandBuffer::DrawInstanced(uint32_t vertexCount, uint32_t vertexOffset, uint32_t instanceCount)
@@ -115,29 +101,57 @@ namespace Quark {
 	void OpenGLCommandBuffer::DrawIndexedInstanced(uint32_t indexCount, uint32_t instanceCount)
 	{
 		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
-		glDrawElementsInstanced(m_BoundPipeline->GetPrimitiveTopology(), indexCount, GL_UNSIGNED_INT, nullptr, instanceCount);
+		glDrawElementsInstanced(m_BoundPipeline->GetPrimitiveTopology(), indexCount, GL_UNSIGNED_INT, NULL, instanceCount);
 	}
 
-	void OpenGLCommandBuffer::BindVertexBuffer(VertexBuffer* vertexBuffer)
+	void OpenGLCommandBuffer::BindVertexBuffer(const VertexBuffer* vertexBuffer)
 	{
 		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
 		QK_CORE_ASSERT(vertexBuffer->GetLayout() == m_BoundPipeline->GetLayout(), "Buffer layout does not match the currently bound pipeline layout");
 
-		GLuint rendererID = static_cast<OpenGLVertexBuffer*>(vertexBuffer)->GetRendererID();
-		glBindBuffer(GL_ARRAY_BUFFER, rendererID);
+		auto* glVertexBuffer = static_cast<const OpenGLVertexBuffer*>(vertexBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, glVertexBuffer->GetRendererID());
 		m_BoundPipeline->BindVertexAttrib();
 	}
 
-	void OpenGLCommandBuffer::BindIndexBuffer(IndexBuffer* indexBuffer)
+	void OpenGLCommandBuffer::BindIndexBuffer(const IndexBuffer* indexBuffer)
 	{
 		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
 
-		GLuint rendererID = static_cast<OpenGLIndexBuffer*>(indexBuffer)->GetRendererID();
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, rendererID);
+		auto* glIndexBuffer = static_cast<const OpenGLIndexBuffer*>(indexBuffer);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glIndexBuffer->GetRendererID());
+	}
+
+	void OpenGLCommandBuffer::BindUniformBuffer(const UniformBuffer* uniformBuffer, uint32_t binding)
+	{
+		auto* glUniformBuffer = static_cast<const OpenGLUniformBuffer*>(uniformBuffer);
+		glBindBufferBase(GL_UNIFORM_BUFFER, binding, glUniformBuffer->GetRendererID());
+	}
+
+	void OpenGLCommandBuffer::BindTexture(const Texture* texture, const Sampler* sampler, uint32_t binding, uint32_t samplerIndex)
+	{
+		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
+
+		QK_CORE_ASSERT(samplerIndex <= Renderer::GetCapabilities().Sampler.MaxPerStageSamplers,
+			"Sampler index out of range: max writable index is: {0}",
+			Renderer::GetCapabilities().Sampler.MaxPerStageSamplers - 1);
+
+		auto* glTexture = static_cast<const OpenGLTexture*>(texture->GetHandle());
+		glActiveTexture(GL_TEXTURE0 + samplerIndex);
+		glBindTexture(glTexture->GetTarget(), glTexture->GetRendererID());
+
+		auto* glSampler = static_cast<const OpenGLSampler*>(sampler);
+		glBindSampler(samplerIndex, glSampler->GetRendererID());
 	}
 
 	bool OpenGLCommandBuffer::IsInsideRenderPass() const
 	{
 		return m_CurrentRenderPass;
+	}
+
+	bool OpenGLCommandBuffer::operator==(const CommandBuffer& other) const
+	{
+		// Returns true only if other is an OpenGLCommandBuffer
+		return dynamic_cast<decltype(this)>(&other);
 	}
 }

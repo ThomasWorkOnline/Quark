@@ -1,8 +1,6 @@
 #include "qkpch.h"
 #include "Image.h"
 
-#include <fpng/fpng.h>
-#include <fpng/fpng.cpp>
 #include <lodepng/lodepng.h>
 
 #define STB_IMAGE_STATIC
@@ -18,39 +16,39 @@ namespace Quark {
 			return stbi_is_hdr_from_file(in.GetHandle());
 		}
 
-		//                                           Number of bits per pixel ---v
-		static constexpr ColorDataFormat GetDataFormat(uint8_t channels, uint8_t bpp, bool srgb, bool fp)
+		//                                             Number of bits per pixel ---v
+		static constexpr ColorFormat GetDataFormat(uint32_t channels, uint32_t bpp, bool srgb, bool fp)
 		{
 			switch (channels)
 			{
 				case 1:
 				switch (bpp)
 				{
-					case 8: return ColorDataFormat::Red8;
+					case 8: return ColorFormat::Red8;
 
 				} break;
 
 				case 3:
 				switch (bpp)
 				{
-					case 24: return srgb ? ColorDataFormat::RGB8_SRGB : ColorDataFormat::RGB8;
-					case 48: return fp ? ColorDataFormat::RGB16f : ColorDataFormat::RGB16;
-					case 96: return fp ? ColorDataFormat::RGB32f : ColorDataFormat::RGB32;
+					case 24: return srgb ? ColorFormat::RGB8SRGB : ColorFormat::RGB8;
+					case 48: return fp ? ColorFormat::RGB16f : ColorFormat::RGB16;
+					case 96: return fp ? ColorFormat::RGB32f : ColorFormat::RGB32UInt;
 
 				} break;
 
 				case 4:
 				switch (bpp)
 				{
-					case 32: return srgb ? ColorDataFormat::RGBA8_SRGB : ColorDataFormat::RGBA8;
-					case 64: return fp ? ColorDataFormat::RGBA16f : ColorDataFormat::RGBA16;
+					case 32: return srgb ? ColorFormat::RGBA8SRGB : ColorFormat::RGBA8;
+					case 64: return fp ? ColorFormat::RGBA16f : ColorFormat::RGBA16;
 
 				} break;
 
 				QK_ASSERT_NO_DEFAULT("Unknown texture internal format");
 			}
 
-			return ColorDataFormat::None;
+			return ColorFormat::None;
 		}
 	}
 
@@ -70,11 +68,25 @@ namespace Quark {
 		}
 	}
 
+	Image::Image(Image&& other) noexcept
+		: m_ImageData(other.m_ImageData)
+		, m_Metadata(other.m_Metadata)
+	{
+		other.m_ImageData = nullptr;
+		other.m_Metadata = {};
+	}
+
 	Image::~Image()
 	{
 		QK_PROFILE_FUNCTION();
 
 		free(m_ImageData);
+	}
+
+	Image& Image::operator=(Image&& other) noexcept
+	{
+		std::swap(other, *this);
+		return *this;
 	}
 
 	void Image::DecodePNG(FileStream& in)
@@ -93,14 +105,14 @@ namespace Quark {
 			fileData.reserve(fileSize);
 
 			size_t readSize = std::fread(fileData.data(), 1, fileSize, in.GetHandle());
-			QK_CORE_RUNTIME_VERIFY(readSize == fileSize, "Expected size and read size do not match");
+			Verify(readSize == fileSize, "Expected size and read size do not match");
 			
 			unsigned int error = lodepng_decode(&imageData, &width, &height, &state, fileData.data(), fileSize);
 
 			if (error)
 			{
 				lodepng_state_cleanup(&state);
-				QK_CORE_RUNTIME_ERROR("Failed to decode image: {0}", lodepng_error_text(error));
+				ThrowRuntimeError("Failed to decode image: {0}", lodepng_error_text(error));
 			}
 		}
 
@@ -125,14 +137,14 @@ namespace Quark {
 		int width, height, channels;
 		float* imageData = stbi_loadf_from_file(in.GetHandle(), &width, &height, &channels, 0);
 
-		QK_CORE_RUNTIME_VERIFY(imageData, "Failed to load image data");
+		Verify(imageData, "Failed to load image data");
 
-		uint8_t bitsPerChannel;
+		uint32_t bitsPerChannel;
 		stbi_is_16_bit_from_file(in.GetHandle())
 			? bitsPerChannel = 16
 			: bitsPerChannel = 32;
 
-		uint8_t bpp = bitsPerChannel * channels;
+		uint32_t bpp = bitsPerChannel * channels;
 
 		m_ImageData = imageData;
 		m_Metadata.Width = width;

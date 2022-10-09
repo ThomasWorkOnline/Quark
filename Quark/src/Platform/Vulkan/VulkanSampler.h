@@ -1,26 +1,23 @@
 #pragma once
 
 #include "Quark/Renderer/Sampler.h"
-#include "VulkanDevice.h"
 
-#include <vulkan/vulkan.h>
+#include "Vulkan.h"
+#include "VulkanDevice.h"
 
 namespace Quark {
 
-	class VulkanSampler2D final : public Sampler2D
+	class VulkanSampler final : public Sampler
 	{
 	public:
-		VulkanSampler2D(VulkanDevice* device, const Sampler2DSpecification& spec);
-		~VulkanSampler2D() final override;
+		VulkanSampler(VulkanDevice* device, const SamplerSpecification& spec);
+		~VulkanSampler() final override;
 
-		virtual bool operator==(const Sampler2D& other) const final override
-		{
-			return m_Sampler == static_cast<const VulkanSampler2D&>(other).m_Sampler;
-		}
+		virtual bool operator==(const Sampler& other) const final override;
 
 		// Non-Copyable
-		VulkanSampler2D(const VulkanSampler2D&) = delete;
-		VulkanSampler2D& operator=(const VulkanSampler2D&) = delete;
+		VulkanSampler(const VulkanSampler&) = delete;
+		VulkanSampler& operator=(const VulkanSampler&) = delete;
 
 		VkSampler GetVkHandle() const { return m_Sampler; }
 

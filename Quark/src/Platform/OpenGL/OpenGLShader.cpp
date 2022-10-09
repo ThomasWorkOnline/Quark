@@ -6,9 +6,10 @@
 #include <glad/glad.h>
 #include <glm/gtc/type_ptr.hpp>
 
-#include <vector>
-#include <unordered_map>
+#include <shaderc/shaderc.h>
+
 #include <sstream>
+#include <unordered_map>
 
 namespace Quark {
 
@@ -28,14 +29,29 @@ namespace Quark {
 			return GL_NONE;
 		}
 
+		static shaderc_shader_kind GLShaderStageToShaderC(GLenum stage)
+		{
+			switch (stage)
+			{
+				case GL_VERTEX_SHADER:   return shaderc_glsl_vertex_shader;
+				case GL_GEOMETRY_SHADER: return shaderc_glsl_geometry_shader;
+				case GL_FRAGMENT_SHADER: return shaderc_glsl_fragment_shader;
+				case GL_COMPUTE_SHADER:  return shaderc_glsl_compute_shader;
+
+				QK_ASSERT_NO_DEFAULT("Unknown OpenGL shader stage");
+			}
+
+			return static_cast<shaderc_shader_kind>(GL_NONE);
+		}
+
 		static constexpr ShaderStage GetShaderStageFromOpenGLType(GLenum stage)
 		{
 			switch (stage)
 			{
-				case GL_VERTEX_SHADER:   return ShaderStage::VertexStage;
-				case GL_GEOMETRY_SHADER: return ShaderStage::GeometryStage;
-				case GL_FRAGMENT_SHADER: return ShaderStage::FragmentStage;
-				case GL_COMPUTE_SHADER:  return ShaderStage::ComputeStage;
+				case GL_VERTEX_SHADER:   return ShaderStage::Vertex;
+				case GL_GEOMETRY_SHADER: return ShaderStage::Geometry;
+				case GL_FRAGMENT_SHADER: return ShaderStage::Fragment;
+				case GL_COMPUTE_SHADER:  return ShaderStage::Compute;
 
 				QK_ASSERT_NO_DEFAULT("Unknown OpenGL shader stage");
 			}
@@ -61,29 +77,112 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		std::string source = Filesystem::ReadTextFile(filepath);
-		auto shaderSources = PreProcess(source);
-		m_RendererID = CompileSources(shaderSources);
+		auto shaderSources = SubstrStages(source);
+
+		std::unordered_map<GLenum, std::string> parsedGlslSources(shaderSources.size());
+		for (auto& [stage, shaderSource] : shaderSources)
+			parsedGlslSources[stage] = ParseGLSL(shaderSource);
+
+		m_RendererID = CompileGLSLSources(parsedGlslSources);
+
+		// Set uniform locations for samplers automatically (parity with other APIs)
+		for (auto& samplerArray : m_ShaderResources.SamplerArrays)
+		{
+			AutoRelease<int32_t> samplerIndexes = StackAlloc(samplerArray.SamplerCount * sizeof(int32_t));
+			for (uint32_t i = 0; i < samplerArray.SamplerCount; i++)
+				samplerIndexes[i] = (int32_t)i;
+
+			UploadUniformIntArray(samplerArray.Decorators.Name, samplerIndexes, samplerArray.SamplerCount);
+		}
 	}
 
-	OpenGLShader::OpenGLShader(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& fragmentSource)
-		: Shader(name), m_SpirvSources(2)
+	OpenGLShader::OpenGLShader(std::string_view name, SpirvView vertexSource, SpirvView fragmentSource)
+		: Shader(name)
 	{
 		QK_PROFILE_FUNCTION();
 
-		m_SpirvSources[GL_VERTEX_SHADER]   = vertexSource;
-		m_SpirvSources[GL_FRAGMENT_SHADER] = fragmentSource;
-		m_RendererID = CompileSPIRV(m_SpirvSources);
+		std::unordered_map<GLenum, SpirvView> spirvSources(2);
+		spirvSources[GL_VERTEX_SHADER]   = vertexSource;
+		spirvSources[GL_FRAGMENT_SHADER] = fragmentSource;
+		m_RendererID = CompileSPIRV(spirvSources);
+
+		// Set uniform locations for samplers automatically (parity with other APIs)
+		for (auto& samplerArray : m_ShaderResources.SamplerArrays)
+		{
+			AutoRelease<int32_t> samplerIndexes = StackAlloc(samplerArray.SamplerCount * sizeof(int32_t));
+			for (uint32_t i = 0; i < samplerArray.SamplerCount; i++)
+				samplerIndexes[i] = (int32_t)i;
+
+			UploadUniformIntArray(samplerArray.Decorators.Name, samplerIndexes, samplerArray.SamplerCount);
+		}
 	}
 
-	OpenGLShader::OpenGLShader(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& geometrySource, const SpirvSource& fragmentSource)
-		: Shader(name), m_SpirvSources(3)
+	OpenGLShader::OpenGLShader(std::string_view name, SpirvView vertexSource, SpirvView geometrySource, SpirvView fragmentSource)
+		: Shader(name)
 	{
 		QK_PROFILE_FUNCTION();
 
-		m_SpirvSources[GL_VERTEX_SHADER]   = vertexSource;
-		m_SpirvSources[GL_FRAGMENT_SHADER] = fragmentSource;
-		m_SpirvSources[GL_GEOMETRY_SHADER] = geometrySource;
-		m_RendererID = CompileSPIRV(m_SpirvSources);
+		std::unordered_map<GLenum, SpirvView> spirvSources(3);
+		spirvSources[GL_VERTEX_SHADER]   = vertexSource;
+		spirvSources[GL_GEOMETRY_SHADER] = geometrySource;
+		spirvSources[GL_FRAGMENT_SHADER] = fragmentSource;
+		m_RendererID = CompileSPIRV(spirvSources);
+
+		// Set uniform locations for samplers automatically (parity with other APIs)
+		for (auto& samplerArray : m_ShaderResources.SamplerArrays)
+		{
+			AutoRelease<int32_t> samplerIndexes = StackAlloc(samplerArray.SamplerCount * sizeof(int32_t));
+			for (uint32_t i = 0; i < samplerArray.SamplerCount; i++)
+				samplerIndexes[i] = (int32_t)i;
+
+			UploadUniformIntArray(samplerArray.Decorators.Name, samplerIndexes, samplerArray.SamplerCount);
+		}
+	}
+
+	OpenGLShader::OpenGLShader(std::nullptr_t, std::string_view filepath)
+		: Shader(Utils::ExtractNameFromPath(filepath))
+	{
+		QK_PROFILE_FUNCTION();
+
+		std::string source = Filesystem::ReadTextFile(filepath);
+		auto shaderSources = SubstrStages(source);
+
+		std::unordered_map<GLenum, std::string> parsedGlslSources(shaderSources.size());
+		for (auto& [stage, shaderSource] : shaderSources)
+			parsedGlslSources[stage] = ParseGLSL(shaderSource);
+
+		m_RendererID = CompileGLSLSourcesLegacy(parsedGlslSources);
+
+		// TODO: manual upload of uniforms
+	}
+
+	OpenGLShader::OpenGLShader(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource)
+		: Shader(name)
+	{
+		QK_PROFILE_FUNCTION();
+
+		std::unordered_map<GLenum, std::string> parsedGlslSources(2);
+		parsedGlslSources[GL_VERTEX_SHADER] = ParseGLSL(vertexSource);
+		parsedGlslSources[GL_FRAGMENT_SHADER] = ParseGLSL(fragmentSource);
+
+		m_RendererID = CompileGLSLSourcesLegacy(parsedGlslSources);
+
+		// TODO: manual upload of uniforms
+	}
+
+	OpenGLShader::OpenGLShader(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource)
+		: Shader(name)
+	{
+		QK_PROFILE_FUNCTION();
+
+		std::unordered_map<GLenum, std::string> parsedGlslSources(3);
+		parsedGlslSources[GL_VERTEX_SHADER] = ParseGLSL(vertexSource);
+		parsedGlslSources[GL_GEOMETRY_SHADER] = ParseGLSL(geometrySource);
+		parsedGlslSources[GL_FRAGMENT_SHADER] = ParseGLSL(fragmentSource);
+
+		m_RendererID = CompileGLSLSourcesLegacy(parsedGlslSources);
+
+		// TODO: manual upload of uniforms
 	}
 
 	OpenGLShader::~OpenGLShader()
@@ -91,9 +190,9 @@ namespace Quark {
 		glDeleteProgram(m_RendererID);
 	}
 
-	std::unordered_map<GLenum, std::string> OpenGLShader::PreProcess(std::string_view source)
+	std::unordered_map<GLenum, std::string_view> OpenGLShader::SubstrStages(std::string_view source)
 	{
-		std::unordered_map<GLenum, std::string> shaderSources;
+		std::unordered_map<GLenum, std::string_view> shaderSources;
 
 		static constexpr std::string_view typeToken = "#type";
 		size_t pos = source.find(typeToken); // Start of shader type declaration line
@@ -133,11 +232,106 @@ namespace Quark {
 		return shaderSources;
 	}
 
-	GLuint OpenGLShader::CompileSources(const std::unordered_map<GLenum, std::string>& shaderSources)
+	std::string OpenGLShader::ParseGLSL(std::string_view source)
 	{
-		QK_CORE_ASSERT(shaderSources.size() <= s_MaxShaders, "Maximum number of shaders per program is 3");
+		std::string parsedGlslSource = std::string(source);
+
+		static constexpr std::string_view MaxTextureUnitsToken = "Quark.MaxTextureUnits";
+
+		// Replace all occurences of "Quark.MaxTextureUnits"
+		size_t pos = 0;
+		for (;;)
+		{
+			pos = source.find(MaxTextureUnitsToken, MaxTextureUnitsToken.size() + pos);
+			if (pos == std::string::npos)
+				break;
+
+			GLint maxImageUnits;
+			glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxImageUnits);
+
+			std::stringstream ss;
+			ss << maxImageUnits;
+
+			parsedGlslSource.replace(parsedGlslSource.begin() + pos, parsedGlslSource.begin() + MaxTextureUnitsToken.size() + pos, ss.str());
+		}
+
+		return parsedGlslSource;
+	}
+
+	GLuint OpenGLShader::CompileGLSLSources(const std::unordered_map<GLenum, std::string>& shaderSources)
+	{
+		auto compiler = shaderc_compiler_initialize();
+		auto options = shaderc_compile_options_initialize();
+
+		shaderc_compile_options_set_source_language(options, shaderc_source_language_glsl);
+		shaderc_compile_options_set_target_env(options, shaderc_target_env_opengl, shaderc_env_version_opengl_4_5);
+		shaderc_compile_options_set_optimization_level(options, shaderc_optimization_level_performance);
 
 		GLuint program = glCreateProgram();
+
+		GLenum glShaderIDs[s_MaxShaders]{};
+		uint32_t glShaderIDIndex = 0;
+		for (auto&& [stage, source] : shaderSources)
+		{
+			auto result = shaderc_compile_into_spv(compiler, source.c_str(), source.size(),
+				Utils::GLShaderStageToShaderC(stage), m_Name.c_str(), "main", options);
+
+			if (shaderc_result_get_compilation_status(result) != shaderc_compilation_status_success)
+			{
+				QK_CORE_ERROR(shaderc_result_get_error_message(result));
+				shaderc_result_release(result);
+				break;
+			}
+
+			GLuint shader = glCreateShader(stage);
+			glShaderIDs[glShaderIDIndex++] = shader;
+
+			size_t size = shaderc_result_get_length(result);
+			const uint32_t* shaderData = (const uint32_t*)shaderc_result_get_bytes(result);
+
+			glShaderBinary(1, &shader, GL_SHADER_BINARY_FORMAT_SPIR_V,
+				(const void*)shaderData,
+				(GLsizei)size);
+
+			glSpecializeShader(shader, "main", 0, NULL, NULL);
+			glAttachShader(program, shader);
+
+			Reflect(Utils::GetShaderStageFromOpenGLType(stage), shaderData, size / sizeof(uint32_t));
+			shaderc_result_release(result);
+		}
+
+		shaderc_compiler_release(compiler);
+		shaderc_compile_options_release(options);
+
+		GLint isLinked = GL_FALSE;
+		GLint isCompiled = glShaderIDIndex == shaderSources.size();
+
+		if (isCompiled)
+		{
+			isLinked = LinkProgram(program);
+		}
+		
+		for (uint32_t i = 0; i < glShaderIDIndex; i++)
+		{
+			glDetachShader(program, glShaderIDs[i]);
+			glDeleteShader(glShaderIDs[i]);
+		}
+
+		if (!isLinked || !isCompiled)
+		{
+			glDeleteProgram(program);
+			return 0;
+		}
+
+		return program;
+	}
+
+	GLuint OpenGLShader::CompileGLSLSourcesLegacy(const std::unordered_map<GLenum, std::string>& shaderSources)
+	{
+		GLuint program = glCreateProgram();
+
+		GLint isCompiled = GL_FALSE;
+		GLint isLinked = GL_FALSE;
 
 		GLenum glShaderIDs[s_MaxShaders]{};
 		uint32_t glShaderIDIndex = 0;
@@ -146,12 +340,11 @@ namespace Quark {
 			GLuint shader = glCreateShader(stage);
 			glShaderIDs[glShaderIDIndex++] = shader;
 
-			const GLchar* sourceData = source.data();
+			const GLchar* sourceData = source.c_str();
 			const GLint length = static_cast<GLint>(source.size());
 			glShaderSource(shader, 1, &sourceData, &length);
 			glCompileShader(shader);
 
-			GLint isCompiled = 0;
 			glGetShaderiv(shader, GL_COMPILE_STATUS, &isCompiled);
 			if (isCompiled == GL_FALSE)
 			{
@@ -161,25 +354,34 @@ namespace Quark {
 				AutoRelease<GLchar> infoLog = StackAlloc(maxLength * sizeof(GLchar));
 				glGetShaderInfoLog(shader, maxLength, &maxLength, infoLog);
 
-				for (uint32_t i = 0; i < glShaderIDIndex; i++)
-				{
-					glDeleteShader(glShaderIDs[i]);
-				}
-
-				glDeleteProgram(program);
-
 				QK_CORE_ERROR("Shader compilation failure (compiling: {0}):\n{1}", m_Name, (const GLchar*)infoLog);
-				return 0;
+				break;
 			}
 
 			glAttachShader(program, shader);
 		}
 
-		LinkProgram(program, glShaderIDs, glShaderIDIndex);
+		if (isCompiled)
+		{
+			isLinked = LinkProgram(program);
+		}
+
+		for (uint32_t i = 0; i < glShaderIDIndex; i++)
+		{
+			glDetachShader(program, glShaderIDs[i]);
+			glDeleteShader(glShaderIDs[i]);
+		}
+
+		if (!isCompiled || !isLinked)
+		{
+			glDeleteProgram(program);
+			return 0;
+		}
+
 		return program;
 	}
 
-	GLuint OpenGLShader::CompileSPIRV(const std::unordered_map<GLenum, SpirvSource>& spirvBinaries)
+	GLuint OpenGLShader::CompileSPIRV(const std::unordered_map<GLenum, SpirvView>& spirvBinaries)
 	{
 		GLuint program = glCreateProgram();
 
@@ -191,24 +393,36 @@ namespace Quark {
 			glShaderIDs[glShaderIDIndex++] = shader;
 
 			glShaderBinary(1, &shader, GL_SHADER_BINARY_FORMAT_SPIR_V,
-				(const void*)binary.data(),
-				(GLsizei)(binary.size() * sizeof(uint32_t)));
+				(const void*)binary.Data,
+				(GLsizei)(binary.WordCount * sizeof(uint32_t)));
 
-			glSpecializeShader(shader, "main", 0, nullptr, nullptr);
+			glSpecializeShader(shader, "main", 0, NULL, NULL);
 			glAttachShader(program, shader);
 
-			Reflect(Utils::GetShaderStageFromOpenGLType(stage), binary);
+			Reflect(Utils::GetShaderStageFromOpenGLType(stage), binary.Data, binary.WordCount);
 		}
 
-		LinkProgram(program, glShaderIDs, glShaderIDIndex);
+		GLint isLinked = LinkProgram(program);
+		for (uint32_t i = 0; i < glShaderIDIndex; i++)
+		{
+			glDetachShader(program, glShaderIDs[i]);
+			glDeleteShader(glShaderIDs[i]);
+		}
+
+		if (!isLinked)
+		{
+			glDeleteProgram(program);
+			return 0;
+		}
+
 		return program;
 	}
 
-	void OpenGLShader::LinkProgram(GLuint program, const GLenum* glShaderIDs, uint32_t shaderCount)
+	GLint OpenGLShader::LinkProgram(GLuint program)
 	{
 		glLinkProgram(program);
 
-		GLint isLinked = 0;
+		GLint isLinked = GL_FALSE;
 		glGetProgramiv(program, GL_LINK_STATUS, &isLinked);
 		if (isLinked == GL_FALSE)
 		{
@@ -218,23 +432,10 @@ namespace Quark {
 			AutoRelease<GLchar> infoLog = StackAlloc(maxLength * sizeof(GLchar));
 			glGetProgramInfoLog(program, maxLength, &maxLength, infoLog);
 
-			for (uint32_t i = 0; i < shaderCount; i++)
-			{
-				glDetachShader(program, glShaderIDs[i]);
-				glDeleteShader(glShaderIDs[i]);
-			}
-
-			glDeleteProgram(program);
-
 			QK_CORE_ERROR("Shader link failure (linking {0}):\n{1}", m_Name, (const GLchar*)infoLog);
-			return;
 		}
 
-		for (uint32_t i = 0; i < shaderCount; i++)
-		{
-			glDetachShader(program, glShaderIDs[i]);
-			glDeleteShader(glShaderIDs[i]);
-		}
+		return isLinked;
 	}
 
 	void OpenGLShader::SetInt(std::string_view name, int32_t value)
@@ -330,6 +531,14 @@ namespace Quark {
 	void OpenGLShader::SetMat4d(std::string_view name, const Mat4d& matrix)
 	{
 		UploadUniformMat4d(name, matrix);
+	}
+
+	bool OpenGLShader::operator==(const Shader& other) const
+	{
+		if (auto* o = dynamic_cast<decltype(this)>(&other))
+			return m_RendererID == o->m_RendererID;
+
+		return false;
 	}
 
 	void OpenGLShader::UploadUniformInt(std::string_view name, int32_t value)
@@ -454,9 +663,15 @@ namespace Quark {
 			return it->second;
 
 		// Insert uniform location into cache
-		GLint location = glGetUniformLocation(m_RendererID, (const GLchar*)name.data());
-		m_UniformLocationCache[hash] = location;
+		const GLchar* nameCstr = name.data();
+		GLint location = glGetUniformLocation(m_RendererID, nameCstr);
+		if (location == -1)
+		{
+			QK_CORE_WARN("glGetUniformLocation returned an invalid location");
+			return -1;
+		}
 
+		m_UniformLocationCache[hash] = location;
 		return location;
 	}
 }

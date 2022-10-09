@@ -9,15 +9,19 @@
 #include "TextureArrayTest.h"
 #include "VulkanApp.h"
 
+#include <type_traits>
+
 namespace Quark {
 
-	Application* CreateApplication()
+	Application* CreateApplication(CommandLineArguments args)
 	{
 		using App = PBRRenderingDemo;
 
 		ApplicationOptions options;
+		options.Samples = 4;
 		options.AppName = "Demo Application";
-		options.CoreDir = "../";
+		options.CoreDir = "../Quark";
+		options.CommandLineArgs = args;
 		options.GraphicsAPI = RHI::OpenGL;
 		//options.Flags = ApplicationFlagBits::EnableAudioOutputDevice;
 

@@ -5,13 +5,11 @@ VulkanApp::VulkanApp(const ApplicationOptions& options)
 	: Application(options)
 {
 	m_Scene = CreateRef<PresentableScene>();
-	m_Scene->GetSettings().GlobalFrictionCoeff = 0.0f;
 	m_CameraEntity = m_Scene->CreatePrimaryCamera();
 	m_CameraEntity.AddNativeScript<CameraController>();
 
-	TextureRenderModes renderModes;
-	Ref<Texture2D> texture1 = Texture2D::Create("assets/Textures/pbr/streaked-metal/albedo.png", renderModes);
-	Ref<Texture2D> texture2 = Texture2D::Create("assets/Textures/pbr/copper-rock/copper-rock1-alb.png", renderModes);
+	Ref<Texture2D> texture1 = Texture2D::Create("assets/Textures/pbr/streaked-metal/albedo.png");
+	Ref<Texture2D> texture2 = Texture2D::Create("assets/Textures/pbr/copper-rock/copper-rock1-alb.png");
 
 	Random<bool> randomBool;
 	Random<float> randomFloat;
@@ -25,16 +23,18 @@ VulkanApp::VulkanApp(const ApplicationOptions& options)
 
 		auto& transform = sprite.AddComponent<Transform3DComponent>();
 		transform.Position = Vec3f{ random(), random(), random() };
-		transform.Scale = axis;
+		transform.Scale = axis * 10.f;
 		transform.Rotate(randomFloat.Next() * glm::radians(360.0f), axis);
 
 		auto& physics = sprite.AddComponent<PhysicsComponent>();
-		physics.Velocity = axis;
+		physics.Velocity = axis * 100.0f;
 
 		auto& src = sprite.AddComponent<TexturedSpriteRendererComponent>();
 		src.Texture = randomBool.Next() ? texture1 : texture2;
 		src.Tint = { randomFloat.Next(), randomFloat.Next(), randomFloat.Next(), 1.0f };
 	}
+
+	m_Scene->OnPlay();
 
 	m_Font = Font::Create("assets/Fonts/arial.ttf", 48);
 	m_Text.SetFont(m_Font);
@@ -42,6 +42,11 @@ VulkanApp::VulkanApp(const ApplicationOptions& options)
 	auto* window = GetWindow();
 	m_TextCamera.SetOrthographic((float)window->GetWidth());
 	m_TextCamera.Resize(window->GetWidth(), window->GetHeight());
+}
+
+VulkanApp::~VulkanApp()
+{
+	m_Scene->OnStop();
 }
 
 void VulkanApp::OnEvent(Event& e)
@@ -56,7 +61,7 @@ void VulkanApp::OnEvent(Event& e)
 
 	e.Handled = !m_ViewportSelected && e.IsInCategory(EventCategory::Input);
 
-	if (!e.Handled)
+	if (m_Scene && !e.Handled)
 		m_Scene->OnEvent(e);
 
 	DefaultEventHandler(e);
@@ -65,18 +70,6 @@ void VulkanApp::OnEvent(Event& e)
 void VulkanApp::OnRender()
 {
 	m_Scene->OnRender();
-
-	if (m_PositionOverlay)
-	{
-		glm::identity<glm::mat4>();
-		Renderer2D::BeginScene(m_TextCamera.GetProjection(), Mat4f(1.f));
-
-		auto& pos = m_CameraEntity.GetComponent<Transform3DComponent>().Position;
-		auto posStr = glm::to_string(pos);
-		Renderer2D::DrawText(posStr, m_Font.get(), { 0.0f, 1.0f, 1.0f, 0.8f });
-
-		Renderer2D::EndScene();
-	}
 }
 
 void VulkanApp::OnUpdate(Timestep elapsedTime)
@@ -94,11 +87,8 @@ void VulkanApp::OnMouseButtonPressed(MouseButtonPressedEvent& e)
 			GetWindow()->DisableCursor();
 			break;
 		}
-		case MouseCode::ButtonRight:
-		{
-			m_PositionOverlay = !m_PositionOverlay;
+		default:
 			break;
-		}
 	}
 }
 
@@ -113,5 +103,7 @@ void VulkanApp::OnKeyPressed(KeyPressedEvent& e)
 			window->EnableCursor();
 			break;
 		}
+		default:
+			break;
 	}
 }

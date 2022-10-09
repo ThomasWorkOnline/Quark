@@ -94,6 +94,8 @@ bool Pong::OnMouseButtonPressed(MouseButtonPressedEvent& e)
 		case MouseCode::ButtonLeft:
 			GetWindow()->DisableCursor();
 			break;
+		default:
+			break;
 	}
 	return false;
 }
@@ -103,8 +105,10 @@ bool Pong::OnKeyPressed(KeyPressedEvent& e)
 	switch (e.GetKeyCode())
 	{
 		case KeyCode::Escape:
+		{
 			GetWindow()->EnableCursor();
 			break;
+		}
 		case KeyCode::Enter:
 		{
 			if (m_AudioPlaying)
@@ -115,6 +119,8 @@ bool Pong::OnKeyPressed(KeyPressedEvent& e)
 			m_AudioPlaying = !m_AudioPlaying;
 			break;
 		}
+		default:
+			break;
 	}
 	return false;
 }

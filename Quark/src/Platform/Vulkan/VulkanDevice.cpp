@@ -19,26 +19,20 @@ namespace Quark {
 			SwapChainSupportDetails details;
 			vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.Capabilities);
 
-			uint32_t formatCount;
-			VkResult vkRes = vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
-			QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Could not query surface formats");
-
-			if (formatCount != 0)
 			{
+				uint32_t formatCount;
+				vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
+
 				details.Formats.resize(formatCount);
-				VkResult vkRes = vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, details.Formats.data());
-				QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Could not query surface formats");
+				vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, details.Formats.data());
 			}
 
-			uint32_t presentModeCount;
-			vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, nullptr);
-			QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Could not query surface present modes");
-
-			if (presentModeCount != 0)
 			{
+				uint32_t presentModeCount;
+				vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, nullptr);
+
 				details.PresentModes.resize(presentModeCount);
 				vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, details.PresentModes.data());
-				QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Could not query surface present modes");
 			}
 
 			return details;
@@ -49,16 +43,17 @@ namespace Quark {
 			uint32_t queueFamilyCount = 0;
 			vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
 
-			std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-			vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+			AutoRelease<VkQueueFamilyProperties> queueFamilies = StackAlloc(queueFamilyCount * sizeof(VkQueueFamilyProperties));
+			vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies);
 
 			QueueFamilyIndices indices;
-
-			uint32_t i = 0;
-			for (const auto& queueFamily : queueFamilies)
+			for (uint32_t i = 0; i < queueFamilyCount; i++)
 			{
-				if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+				if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
 					indices.GraphicsFamily = i;
+
+				if (queueFamilies[i].queueFlags & VK_QUEUE_TRANSFER_BIT)
+					indices.TransferFamily = i;
 
 				VkBool32 presentSupport;
 				vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
@@ -78,19 +73,17 @@ namespace Quark {
 		static bool CheckVkDeviceExtensionSupport(VkPhysicalDevice device)
 		{
 			uint32_t extensionCount;
-			VkResult vkRes = vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
-			QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Could not enumerate device extension properties");
+			vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
 
-			std::vector<VkExtensionProperties> availableExtensions(extensionCount);
-			vkRes = vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
-			QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Could not enumerate device extension properties");
+			AutoRelease<VkExtensionProperties> availableExtensions = StackAlloc(extensionCount * sizeof(VkExtensionProperties));
+			vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions);
 
 			for (const char* extensionName : s_DeviceExtensions)
 			{
 				bool extensionFound = false;
-				for (auto& extension : availableExtensions)
+				for (uint32_t i = 0; i < extensionCount; i++)
 				{
-					if (std::strcmp(extensionName, extension.extensionName) == 0)
+					if (std::strcmp(extensionName, availableExtensions[i].extensionName) == 0)
 					{
 						extensionFound = true;
 						break;
@@ -107,41 +100,60 @@ namespace Quark {
 		static bool IsVkDeviceSuitable(VkPhysicalDevice device, const SwapChainSupportDetails& supportDetails, const QueueFamilyIndices& indices)
 		{
 			bool extensionsSupported = CheckVkDeviceExtensionSupport(device);
+			bool swapChainAdequate = !supportDetails.Formats.empty() && !supportDetails.PresentModes.empty();
 
-			bool swapChainAdequate = false;
-			if (extensionsSupported)
-			{
-				swapChainAdequate = !supportDetails.Formats.empty() && !supportDetails.PresentModes.empty();
-			}
+			VkPhysicalDeviceFeatures supportedFeatures;
+			vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
 
-			return indices.IsComplete() && swapChainAdequate;
+			return indices.IsComplete() && extensionsSupported && swapChainAdequate && supportedFeatures.samplerAnisotropy;
 		}
 	}
 
-	VulkanDevice::VulkanDevice(VkPhysicalDevice vkPhysicalDevice, const std::vector<VkDeviceQueueCreateInfo>& queueCreateInfos, QueueFamilyIndices queueFamilyIndices, SwapChainSupportDetails supportDetails)
+	VulkanDevice::VulkanDevice(VkPhysicalDevice vkPhysicalDevice, const QueueFamilyIndices& queueFamilyIndices, SwapChainSupportDetails supportDetails)
 		: m_PhysicalDevice(vkPhysicalDevice)
-		, m_QueueFamilyIndices(std::move(queueFamilyIndices))
+		, m_QueueFamilyIndices(queueFamilyIndices)
 		, m_SupportDetails(std::move(supportDetails))
 	{
 		QK_PROFILE_FUNCTION();
 
 		VkPhysicalDeviceFeatures deviceFeatures{};
+		deviceFeatures.samplerAnisotropy = VK_TRUE;
+
+		std::set<uint32_t> uniqueQueueFamilies = {
+			*m_QueueFamilyIndices.GraphicsFamily,
+			*m_QueueFamilyIndices.PresentFamily,
+			*m_QueueFamilyIndices.TransferFamily
+		};
+
+		AutoRelease<VkDeviceQueueCreateInfo> queueCreateInfos = StackAlloc(uniqueQueueFamilies.size() * sizeof(VkDeviceQueueCreateInfo));
+		VkDeviceQueueCreateInfo* queueCreateInfoPtr = queueCreateInfos;
+
+		float queuePriorities = 1.0f;
+		for (uint32_t queueFamily : uniqueQueueFamilies)
+		{
+			*queueCreateInfoPtr = {};
+			queueCreateInfoPtr->sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+			queueCreateInfoPtr->queueFamilyIndex = queueFamily;
+			queueCreateInfoPtr->queueCount = 1;
+			queueCreateInfoPtr->pQueuePriorities = &queuePriorities;
+			queueCreateInfoPtr++;
+		}
 
 		VkDeviceCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-		createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
-		createInfo.pQueueCreateInfos = queueCreateInfos.data();
+		createInfo.queueCreateInfoCount = static_cast<uint32_t>(uniqueQueueFamilies.size());
+		createInfo.pQueueCreateInfos = queueCreateInfos;
 		createInfo.pEnabledFeatures = &deviceFeatures;
 
 		createInfo.enabledExtensionCount = sizeof_array(s_DeviceExtensions);
 		createInfo.ppEnabledExtensionNames = s_DeviceExtensions;
 
-#ifdef QK_ENABLE_VULKAN_VALIDATION_LAYERS
+#if QK_ENABLE_VULKAN_VALIDATION_LAYERS
 		createInfo.enabledLayerCount = sizeof_array(g_ValidationLayers);
 		createInfo.ppEnabledLayerNames = g_ValidationLayers;
 #endif
-
 		vkCreateDevice(vkPhysicalDevice, &createInfo, nullptr, &m_Device);
+		vkGetPhysicalDeviceProperties(m_PhysicalDevice, &m_Properties);
 
 		VmaAllocatorCreateInfo allocatorInfo{};
 		allocatorInfo.physicalDevice = m_PhysicalDevice;
@@ -157,6 +169,7 @@ namespace Quark {
 
 			vkGetDeviceQueue(m_Device, m_QueueFamilyIndices.GraphicsFamily.value(), 0, &m_GraphicsQueue);
 			vkGetDeviceQueue(m_Device, m_QueueFamilyIndices.PresentFamily.value(), 0, &m_PresentQueue);
+			vkGetDeviceQueue(m_Device, m_QueueFamilyIndices.TransferFamily.value(), 0, &m_TransferQueue);
 
 			vkCreateCommandPool(m_Device, &poolInfo, nullptr, &m_CommandPool);
 
@@ -180,6 +193,11 @@ namespace Quark {
 		vkDestroyDevice(m_Device, nullptr);
 	}
 
+	const char* VulkanDevice::GetName() const
+	{
+		return m_Properties.deviceName;
+	}
+
 	void VulkanDevice::WaitUntilIdle() const
 	{
 		vkDeviceWaitIdle(m_Device);
@@ -189,51 +207,23 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		VkPhysicalDevice vkPhysicalDevice = VK_NULL_HANDLE;
-		QueueFamilyIndices queueFamilyIndices;
-		SwapChainSupportDetails supportDetails;
-
 		uint32_t deviceCount = 0;
-		VkResult vkRes = vkEnumeratePhysicalDevices(vkInstance, &deviceCount, nullptr);
-		QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Could not enumerate physical devices");
-		QK_CORE_ASSERT(deviceCount, "No physical graphics devices found");
+		vkEnumeratePhysicalDevices(vkInstance, &deviceCount, nullptr);
 
-		std::vector<VkPhysicalDevice> devices(deviceCount);
-		vkRes = vkEnumeratePhysicalDevices(vkInstance, &deviceCount, devices.data());
-		QK_CORE_ASSERT(vkRes == VK_SUCCESS, "Could not enumerate physical devices");
+		AutoRelease<VkPhysicalDevice> devices = StackAlloc(deviceCount * sizeof(VkPhysicalDevice));
+		vkEnumeratePhysicalDevices(vkInstance, &deviceCount, devices);
 
-		for (const auto& device : devices)
+		for (uint32_t i = 0; i < deviceCount; i++)
 		{
-			auto queueFamilies = Utils::FindVkQueueFamilies(device, vkSurface);
-			auto support = Utils::QuerySwapChainSupport(device, vkSurface);
-			if (Utils::IsVkDeviceSuitable(device, support, queueFamilies))
+			auto queueFamilies = Utils::FindVkQueueFamilies(devices[i], vkSurface);
+			auto support = Utils::QuerySwapChainSupport(devices[i], vkSurface);
+			if (Utils::IsVkDeviceSuitable(devices[i], support, queueFamilies))
 			{
-				vkPhysicalDevice = device;
-				queueFamilyIndices = std::move(queueFamilies);
-				supportDetails = std::move(support);
-				break;
+				return CreateScope<VulkanDevice>(devices[i], queueFamilies, std::move(support));
 			}
 		}
 
-		QK_CORE_ASSERT(vkPhysicalDevice, "Failed to find a suitable graphics device");
-
-		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-		std::set<uint32_t> uniqueQueueFamilies = {
-			*queueFamilyIndices.GraphicsFamily,
-			*queueFamilyIndices.PresentFamily
-		};
-
-		float queuePriorities = 1.0f;
-		for (uint32_t queueFamily : uniqueQueueFamilies)
-		{
-			VkDeviceQueueCreateInfo queueCreateInfo{};
-			queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-			queueCreateInfo.queueFamilyIndex = queueFamily;
-			queueCreateInfo.queueCount = 1;
-			queueCreateInfo.pQueuePriorities = &queuePriorities;
-			queueCreateInfos.push_back(queueCreateInfo);
-		}
-
-		return CreateScope<VulkanDevice>(vkPhysicalDevice, queueCreateInfos, std::move(queueFamilyIndices), std::move(supportDetails));
+		QK_CORE_ASSERT(false, "Failed to find a suitable graphics device");
+		return nullptr;
 	}
 }

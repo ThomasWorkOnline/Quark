@@ -6,6 +6,9 @@
 #include <string>
 #include <unordered_map>
 
+struct FT_FaceRec_;
+typedef struct FT_FaceRec_* Face;
+
 namespace Quark {
 
 	struct Glyph
@@ -19,19 +22,30 @@ namespace Quark {
 	class Font : public Texture
 	{
 	public:
-		virtual ~Font() = default;
+		static constexpr uint8_t GlyphCount = 255;
 
-		virtual const Glyph& GetGlyph(uint8_t charcode) const = 0;
-		virtual uint32_t GetGlyphCount() const = 0;
+	public:
+		Font(std::string_view filepath, uint32_t fontSize);
+		virtual ~Font();
 
-		virtual uint32_t GetFontSize() const = 0;
-		virtual uint32_t GetAtlasWidth() const = 0;
-		virtual uint32_t GetAtlasHeight() const = 0;
+		const Glyph& GetGlyph(uint8_t charcode) const;
 
-		virtual std::string_view GetStyleName() const = 0;
-		virtual std::string_view GetFamilyName() const = 0;
+		uint32_t GetGlyphCount() const;
+		uint32_t GetFontSize() const;
+
+		uint32_t GetAtlasWidth() const { return m_AtlasWidth; }
+		uint32_t GetAtlasHeight() const { return m_AtlasHeight; }
+
+		std::string_view GetStyleName() const;
+		std::string_view GetFamilyName() const;
 
 		static Scope<Font> Create(std::string_view filepath, uint32_t fontSize);
+
+	protected:
+		Face m_Face;
+		Glyph m_Glyphs[GlyphCount]{};
+
+		uint32_t m_AtlasWidth = 0, m_AtlasHeight = 0;
 	};
 
 	class FontLibrary

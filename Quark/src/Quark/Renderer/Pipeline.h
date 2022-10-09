@@ -5,14 +5,13 @@
 
 #include "Buffer.h"
 #include "RenderPass.h"
-#include "Sampler.h"
 #include "Shader.h"
-#include "UniformBuffer.h"
 
 namespace Quark {
 
-	enum PrimitiveTopology
+	enum class PrimitiveTopology
 	{
+		None = 0,
 		PointList,
 		LineList,
 		LineStrip,
@@ -23,13 +22,12 @@ namespace Quark {
 
 	struct PipelineSpecification
 	{
-		BufferLayout        Layout;
-		PrimitiveTopology   Topology{};
-		Shader*             Shader = nullptr;
-		RenderPass*         RenderPass = nullptr;
+		BufferLayout          Layout;
+		PrimitiveTopology     Topology{};
+		uint32_t              Samples = 1;
 
-		std::vector<UniformBuffer*> UniformBuffers;
-		std::vector<std::vector<Sampler2D*>> SamplersArray;
+		const Shader*         Shader = nullptr;
+		const RenderPass*     RenderPass = nullptr;
 	};
 
 	class Pipeline

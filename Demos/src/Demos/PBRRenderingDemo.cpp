@@ -12,48 +12,56 @@ PBRRenderingDemo::PBRRenderingDemo(const ApplicationOptions& options)
 	GetWindow()->SetVSync(true);
 
 	m_Scene = CreateScope<PresentableScene>();
-	m_Scene->GetSettings().GlobalFrictionCoeff = 4.0f;
-	m_Scene->SetEnvironment("assets/Environments/MonValley_G_DirtRoad_3k.hdr");
+	m_Scene->GetSettings().AirDensity = 4.0f;
+	//m_Scene->SetEnvironment("assets/Environments/MonValley_G_DirtRoad_3k.hdr");
 
 	m_CameraEntity = m_Scene->CreatePrimaryCamera();
 	m_CameraEntity.GetComponent<Transform3DComponent>().Position = { 0.0f, 0.0f, -2.0f };
 	m_CameraEntity.AddNativeScript<CameraController>();
 
-	m_MeshDataFuture = std::async(std::launch::async, Mesh::ReadOBJData, "assets/Models/poly_sphere.obj");
+	m_Scene->OnPlay();
 
+	m_MeshDataFuture = std::async(std::launch::async, Mesh::ReadOBJData, "assets/Models/poly_sphere.obj");
 	LoadMaterialsAsync();
 
 	{
 		CubemapSpecification spec;
 		spec.Width = 1;
 		spec.Height = 1;
-		spec.DataFormat = ColorDataFormat::RGB32f;
+		spec.DataFormat = ColorFormat::RGB32f;
 
 		m_Irradiance = Cubemap::Create(spec);
 
 		float data[3] = { 1.0f, 1.0f, 1.0f };
 		for (auto i = 0; i < 6; i++)
 		{
-			m_Irradiance->SetData(i, data, sizeof(data));
+			m_Irradiance->SetData(data, sizeof(data), i);
 		}
 	}
 
-	m_PBRShader = Shader::Create("assets/Shaders/PBR.glsl");
+	m_PBRShader = Shader::CreateLegacy("assets/Shaders/PBR.glsl");
 
 	{
 		UniformBufferSpecification spec;
 		spec.Size = sizeof(m_CameraBufferData);
-		spec.Binding = 0;
 		m_CameraUniformBuffer = UniformBuffer::Create(spec);
+	}
+
+	for (auto i = 0; i < sizeof_array(m_Samplers); i++)
+	{
+		SamplerSpecification spec;
+		spec.RenderModes.MinFilteringMode = SamplerFilterMode::Linear;
+		spec.RenderModes.MagFilteringMode = SamplerFilterMode::Linear;
+		m_Samplers[i] = Sampler::Create(spec);
 	}
 
 	{
 		PipelineSpecification spec;
-		spec.Layout = Mesh::GetBufferLayout();
-		spec.Topology = PrimitiveTopology::TriangleList;
-		spec.Shader = m_PBRShader.get();
-		spec.RenderPass = Renderer::GetGeometryPass();
-		spec.UniformBuffers = { m_CameraUniformBuffer.get() };
+		spec.Layout     = Mesh::GetBufferLayout();
+		spec.Topology   = PrimitiveTopology::TriangleList;
+		spec.Samples    = Renderer::GetMultisampling();
+		spec.Shader     = m_PBRShader.get();
+		spec.RenderPass = Renderer::GetRenderPass();
 
 		m_Pipeline = Pipeline::Create(spec);
 	}
@@ -83,8 +91,11 @@ PBRRenderingDemo::PBRRenderingDemo(const ApplicationOptions& options)
 	m_PBRShader->SetVec3f("u_LightPositions[1]", lightPositions[1]);
 	m_PBRShader->SetVec3f("u_LightPositions[2]", lightPositions[2]);
 	m_PBRShader->SetVec3f("u_LightPositions[3]", lightPositions[3]);
+}
 
-	m_Irradiance->Attach(5);
+PBRRenderingDemo::~PBRRenderingDemo()
+{
+	m_Scene->OnStop();
 }
 
 void PBRRenderingDemo::OnUpdate(Timestep elapsedTime)
@@ -108,13 +119,18 @@ void PBRRenderingDemo::OnRender()
 
 	if (m_Body)
 	{
-		if (m_Material.Albedo) m_Material.Albedo->Attach(0);
-		if (m_Material.Normal) m_Material.Normal->Attach(1);
-		if (m_Material.Metallic) m_Material.Metallic->Attach(2);
-		if (m_Material.Roughness) m_Material.Roughness->Attach(3);
-		if (m_Material.AO) m_Material.AO->Attach(4);
-
 		Renderer::BindPipeline(m_Pipeline.get());
+
+		Renderer::GetCommandBuffer()->BindUniformBuffer(m_CameraUniformBuffer.get(), 0);
+		Renderer::GetCommandBuffer()->BindTexture(m_Irradiance.get(), m_Samplers[5].get(), 0, 5);
+
+		if (m_Material.Albedo)    Renderer::GetCommandBuffer()->BindTexture(m_Material.Albedo.get(),    m_Samplers[0].get(), 0, 0);
+		if (m_Material.Normal)    Renderer::GetCommandBuffer()->BindTexture(m_Material.Normal.get(),    m_Samplers[1].get(), 0, 1);
+		if (m_Material.Metallic)  Renderer::GetCommandBuffer()->BindTexture(m_Material.Metallic.get(),  m_Samplers[2].get(), 0, 2);
+		if (m_Material.Roughness) Renderer::GetCommandBuffer()->BindTexture(m_Material.Roughness.get(), m_Samplers[3].get(), 0, 3);
+		if (m_Material.AO)        Renderer::GetCommandBuffer()->BindTexture(m_Material.AO.get(),        m_Samplers[4].get(), 0, 4);
+
+		Renderer::GetCommandBuffer()->BindDescriptorSets();
 		Renderer::Submit(m_Body.GetVertexBuffer(), m_Body.GetIndexBuffer());
 	}
 
@@ -130,7 +146,7 @@ void PBRRenderingDemo::OnEvent(Event& e)
 
 	e.Handled = e.IsInCategory(EventCategory::Input) && GetWindow()->IsCursorEnabled();
 
-	if (!e.Handled)
+	if (m_Scene && !e.Handled)
 		m_Scene->OnEvent(e);
 
 	DefaultEventHandler(e);
@@ -156,13 +172,15 @@ void PBRRenderingDemo::OnKeyPressed(KeyPressedEvent& e)
 			window->EnableCursor();
 			break;
 		}
+		default:
+			break;
 	}
 }
 
-static Scope<Texture2D> CreateTextureFromImage(const Image* image, const Texture2DSpecification& spec)
+static Scope<Texture2D> CreateTextureFromImage(const Image& image, const Texture2DSpecification& spec)
 {
 	auto texture = Texture2D::Create(spec);
-	texture->SetData(image->GetData(), image->GetMetadata().Size);
+	texture->SetData(image.GetData(), image.GetMetadata().Size);
 	texture->GenerateMipmaps();
 	return texture;
 }
@@ -213,10 +231,14 @@ void PBRRenderingDemo::LoadMaterialsAsync()
 		aoFilepath = "assets/Textures/pbr/gray-granite/gray-granite-flecks-ao.png";
 #endif
 
+#if MATERIAL >= 5
+#	error "Invalid material ID"
+#endif
+
 #if 1
 		auto newImageLambda = [](const char* filepath)
 		{
-			return CreateScope<Image>(filepath);
+			return Image(filepath);
 		};
 
 		m_AlbedoFuture    = std::async(std::launch::async, newImageLambda, albedoFilepath);
@@ -287,10 +309,7 @@ void PBRRenderingDemo::LoadMaterialsAsync()
 			Texture2DSpecification spec;
 			spec.Width = 1;
 			spec.Height = 1;
-			spec.DataFormat = ColorDataFormat::Red8;
-			spec.RenderModes.MagFilteringMode = TextureFilteringMode::Nearest;
-			spec.RenderModes.MinFilteringMode = TextureFilteringMode::Nearest;
-
+			spec.DataFormat = ColorFormat::Red8;
 			m_Material.AO = Texture2D::Create(spec);
 
 			uint8_t data = 0xff;
@@ -303,7 +322,7 @@ void PBRRenderingDemo::UploadAssets()
 {
 	if (m_MeshDataFuture.valid() && m_MeshDataFuture.wait_for(std::chrono::microseconds(0)) == std::future_status::ready)
 	{
-		OBJMeshData meshData = std::move(m_MeshDataFuture.get());
+		OBJMeshData meshData = m_MeshDataFuture.get();
 		m_Body = meshData;
 	}
 
@@ -312,13 +331,10 @@ void PBRRenderingDemo::UploadAssets()
 		auto image = m_AlbedoFuture.get();
 
 		Texture2DSpecification spec;
-		spec.Width = image->Width();
-		spec.Height = image->Height();
-		spec.DataFormat = image->Channels() == 4 ? ColorDataFormat::RGBA8_SRGB : ColorDataFormat::RGB8_SRGB;
-		spec.RenderModes.MagFilteringMode = TextureFilteringMode::Linear;
-		spec.RenderModes.MinFilteringMode = TextureFilteringMode::LinearMipmapLinear;
-
-		m_Material.Albedo = CreateTextureFromImage(image.get(), spec);
+		spec.Width = image.Width();
+		spec.Height = image.Height();
+		spec.DataFormat = image.Channels() == 4 ? ColorFormat::RGBA8SRGB : ColorFormat::RGB8SRGB;
+		m_Material.Albedo = CreateTextureFromImage(image, spec);
 	}
 
 	if (m_MetallicFuture.valid() && m_MetallicFuture.wait_for(std::chrono::microseconds(0)) == std::future_status::ready)
@@ -326,13 +342,10 @@ void PBRRenderingDemo::UploadAssets()
 		auto image = m_MetallicFuture.get();
 
 		Texture2DSpecification spec;
-		spec.Width = image->Width();
-		spec.Height = image->Height();
-		spec.DataFormat = image->Channels() == 4 ? ColorDataFormat::RGBA8 : ColorDataFormat::RGB8;
-		spec.RenderModes.MagFilteringMode = TextureFilteringMode::Linear;
-		spec.RenderModes.MinFilteringMode = TextureFilteringMode::LinearMipmapLinear;
-
-		m_Material.Metallic = CreateTextureFromImage(image.get(), spec);
+		spec.Width = image.Width();
+		spec.Height = image.Height();
+		spec.DataFormat = image.GetMetadata().DataFormat;
+		m_Material.Metallic = CreateTextureFromImage(image, spec);
 	}
 
 	if (m_NormalFuture.valid() && m_NormalFuture.wait_for(std::chrono::microseconds(0)) == std::future_status::ready)
@@ -340,13 +353,10 @@ void PBRRenderingDemo::UploadAssets()
 		auto image = m_NormalFuture.get();
 
 		Texture2DSpecification spec;
-		spec.Width = image->Width();
-		spec.Height = image->Height();
-		spec.DataFormat = image->Channels() == 4 ? ColorDataFormat::RGBA8 : ColorDataFormat::RGB8;
-		spec.RenderModes.MagFilteringMode = TextureFilteringMode::Linear;
-		spec.RenderModes.MinFilteringMode = TextureFilteringMode::LinearMipmapLinear;
-
-		m_Material.Normal = CreateTextureFromImage(image.get(), spec);
+		spec.Width = image.Width();
+		spec.Height = image.Height();
+		spec.DataFormat = image.GetMetadata().DataFormat;
+		m_Material.Normal = CreateTextureFromImage(image, spec);
 	}
 
 	if (m_RoughnessFuture.valid() && m_RoughnessFuture.wait_for(std::chrono::microseconds(0)) == std::future_status::ready)
@@ -354,13 +364,10 @@ void PBRRenderingDemo::UploadAssets()
 		auto image = m_RoughnessFuture.get();
 
 		Texture2DSpecification spec;
-		spec.Width = image->Width();
-		spec.Height = image->Height();
-		spec.DataFormat = image->Channels() == 4 ? ColorDataFormat::RGBA8 : ColorDataFormat::RGB8;
-		spec.RenderModes.MagFilteringMode = TextureFilteringMode::Linear;
-		spec.RenderModes.MinFilteringMode = TextureFilteringMode::LinearMipmapLinear;
-
-		m_Material.Roughness = CreateTextureFromImage(image.get(), spec);
+		spec.Width = image.Width();
+		spec.Height = image.Height();
+		spec.DataFormat = image.GetMetadata().DataFormat;
+		m_Material.Roughness = CreateTextureFromImage(image, spec);
 	}
 
 	if (m_AOFuture.valid() && m_AOFuture.wait_for(std::chrono::microseconds(0)) == std::future_status::ready)
@@ -368,12 +375,9 @@ void PBRRenderingDemo::UploadAssets()
 		auto image = m_AOFuture.get();
 
 		Texture2DSpecification spec;
-		spec.Width = image->Width();
-		spec.Height = image->Height();
-		spec.DataFormat = image->Channels() == 4 ? ColorDataFormat::RGBA8 : ColorDataFormat::RGB8;
-		spec.RenderModes.MagFilteringMode = TextureFilteringMode::Linear;
-		spec.RenderModes.MinFilteringMode = TextureFilteringMode::LinearMipmapLinear;
-
-		m_Material.AO = CreateTextureFromImage(image.get(), spec);
+		spec.Width = image.Width();
+		spec.Height = image.Height();
+		spec.DataFormat = image.GetMetadata().DataFormat;
+		m_Material.AO = CreateTextureFromImage(image, spec);
 	}
 }

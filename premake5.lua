@@ -23,12 +23,16 @@ group "Dependencies"
 	include "Quark/vendor/freetype"
 	include "Quark/vendor/glad"
 	include "Quark/vendor/glfw"
+	include "Quark/vendor/imgui"
 	include "Quark/vendor/lodepng"
 	include "Quark/vendor/spdlog"
-group ""
 
 group "Core"
 	include "Quark"
-group ""
 
+group "Tools"
+	include "Tools/Fuse"
+	include "Tools/InstalledVulkanVersion"
+
+group ""
 include "Demos"

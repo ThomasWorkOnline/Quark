@@ -1,5 +1,7 @@
 #include "MainLayer.h"
 
+#include <imgui_demo.cpp>
+
 MainLayer::MainLayer(Application* app) : Layer(app)
 {
 	auto window = GetApplication()->GetWindow();
@@ -39,15 +41,18 @@ void MainLayer::OnUpdate(Timestep elapsedTime)
 
 void MainLayer::OnRender()
 {
-	auto t = std::time(nullptr);
-
-	std::stringstream ss;
-	ss << std::put_time(std::localtime(&t), "%H:%M:%S");
-
 	Renderer2D::BeginScene(m_Camera.GetProjection(), Mat4f(1.0f));
-	//Renderer2D::DrawText(ss.str(), m_Font1.get());
-	Renderer2D::DrawText(m_Input);
+	{
+		auto t = std::time(nullptr);
+
+		std::stringstream ss;
+		ss << std::put_time(std::localtime(&t), "%H:%M:%S");
+
+		Renderer2D::DrawText(m_Input, m_Font1.get());
+	}
 	Renderer2D::EndScene();
+
+	ImGui::ShowDemoWindow();
 }
 
 void MainLayer::OnEvent(Event& e)
@@ -101,14 +106,15 @@ void MainLayer::OnKeyPressed(KeyPressedEvent& e)
 			m_Text1.SetValue("New text is now longer!");
 			break;
 		} 
-		case KeyCode::F:
+		case KeyCode::Period:
 		{
-			if (*m_Text1.GetStyle().Font == *m_Font1)
-				m_Text1.SetFont(m_Font2);
+			if (*m_Input.GetStyle().Font == *m_Font1)
+				m_Input.SetFont(m_Font2);
 			else
-				m_Text1.SetFont(m_Font1);
-
+				m_Input.SetFont(m_Font1);
 			break;
-		} 
+		}
+		default:
+			break;
 	}
 }

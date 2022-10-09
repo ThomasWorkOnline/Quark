@@ -16,10 +16,10 @@ namespace Quark {
 		{
 			switch (stage)
 			{
-				case ShaderStage::VertexStage:   return "Vertex Stage";
-				case ShaderStage::GeometryStage: return "Geometry Stage";
-				case ShaderStage::FragmentStage: return "Fragment Stage";
-				case ShaderStage::ComputeStage:  return "Compute Stage";
+				case ShaderStage::Vertex:   return "Vertex";
+				case ShaderStage::Geometry: return "Geometry";
+				case ShaderStage::Fragment: return "Fragment";
+				case ShaderStage::Compute:  return "Compute";
 
 				QK_ASSERT_NO_DEFAULT("Unknown shader stage");
 			}
@@ -33,11 +33,11 @@ namespace Quark {
 	{
 	}
 
-	void Shader::Reflect(ShaderStage stage, const SpirvSource& spirvSource)
+	void Shader::Reflect(ShaderStage stage, const uint32_t* spirvSource, size_t words)
 	{
 		QK_PROFILE_FUNCTION();
 
-		spirv_cross::Compiler compiler(spirvSource.data(), spirvSource.size());
+		spirv_cross::Compiler compiler(spirvSource, words);
 		spirv_cross::ShaderResources resources = compiler.get_shader_resources();
 
 		QK_CORE_TRACE("Shader::Reflect - \"{0}\" at {1}", m_Name, Utils::ShaderStageToString(stage));
@@ -47,8 +47,8 @@ namespace Quark {
 		auto entryPoints = compiler.get_entry_points_and_stages();
 		QK_CORE_ASSERT(entryPoints.size() == 1, "Shaders currently don't support multiple entry points");
 
-		m_BindingCount += (uint32_t)resources.uniform_buffers.size();
-		m_BindingCount += (uint32_t)resources.sampled_images.size();
+		m_ShaderResources.BindingCount += (uint32_t)resources.uniform_buffers.size();
+		m_ShaderResources.BindingCount += (uint32_t)resources.sampled_images.size();
 
 		QK_CORE_TRACE("Uniform buffers:");
 		for (const auto& resource : resources.uniform_buffers)
@@ -65,9 +65,10 @@ namespace Quark {
 			ubResource.Stage = stage;
 			ubResource.Decorators.Set = set;
 			ubResource.Decorators.Binding = binding;
+			ubResource.Decorators.Name = compiler.get_name(resource.id);
 
 			m_ShaderResources.UniformBuffers.push_back(ubResource);
-			m_DescriptorCount += 1;
+			m_ShaderResources.DescriptorCount++;
 
 			QK_CORE_TRACE(" \"{0}\"", resource.name);
 			QK_CORE_TRACE("    Set = {0}", set);
@@ -86,10 +87,17 @@ namespace Quark {
 			size_t dimension = type.array.size();
 			
 			uint32_t samplerCount = 0;
-			for (size_t i = 0; i < dimension; i++)
+			if (dimension > 0)
 			{
-				uint32_t length = type.array[i];
-				samplerCount += length;
+				for (size_t i = 0; i < dimension; i++)
+				{
+					uint32_t length = type.array[i];
+					samplerCount += length;
+				}
+			}
+			else
+			{
+				samplerCount = 1;
 			}
 
 			SamplerArrayResource sResource{};
@@ -97,9 +105,10 @@ namespace Quark {
 			sResource.Stage = stage;
 			sResource.Decorators.Set = set;
 			sResource.Decorators.Binding = binding;
+			sResource.Decorators.Name = compiler.get_name(resource.id);
 
 			m_ShaderResources.SamplerArrays.push_back(sResource);
-			m_DescriptorCount += samplerCount;
+			m_ShaderResources.DescriptorCount += samplerCount;
 
 			QK_CORE_TRACE(" \"{0}\"", resource.name);
 			QK_CORE_TRACE("    Set = {0}", set);
@@ -113,29 +122,43 @@ namespace Quark {
 		return s_GraphicsAPI->CreateShader(filepath);
 	}
 
-	Scope<Shader> Shader::Create(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& fragmentSource)
+	Scope<Shader> Shader::Create(std::string_view name, SpirvView vertexSource, SpirvView fragmentSource)
 	{
 		return s_GraphicsAPI->CreateShader(name, vertexSource, fragmentSource);
 	}
 
-	Scope<Shader> Shader::Create(std::string_view name, const SpirvSource& vertexSource, const SpirvSource& geometrySource, const SpirvSource& fragmentSource)
+	Scope<Shader> Shader::Create(std::string_view name, SpirvView vertexSource, SpirvView geometrySource, SpirvView fragmentSource)
 	{
 		return s_GraphicsAPI->CreateShader(name, vertexSource, geometrySource, fragmentSource);
+	}
+
+	Scope<Shader> Shader::CreateLegacy(std::string_view filepath)
+	{
+		return s_GraphicsAPI->CreateShaderLegacy(filepath);
+	}
+
+	Scope<Shader> Shader::CreateLegacy(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource)
+	{
+		return s_GraphicsAPI->CreateShaderLegacy(name, vertexSource, fragmentSource);
+	}
+
+	Scope<Shader> Shader::CreateLegacy(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource)
+	{
+		return s_GraphicsAPI->CreateShaderLegacy(name, vertexSource, geometrySource, fragmentSource);
 	}
 
 	SpirvSource ReadSpirvFile(std::string_view filepath)
 	{
 		SpirvSource result;
-		std::ifstream in(filepath.data(), std::ios::in | std::ios::binary);
+		std::ifstream in(filepath.data(), std::ios::ate | std::ios::in | std::ios::binary);
 		if (in)
 		{
-			in.seekg(0, std::ios::end);
 			size_t size = in.tellg();
-			QK_CORE_RUNTIME_VERIFY(size % sizeof(uint32_t) == 0, "Invalid byte alignment for file: '{0}' (SPIR-V required 4-byte alignment)", filepath);
+			Verify(size % sizeof(uint32_t) == 0, "Invalid byte alignment for file: '{0}' (SPIR-V requires 4-bytes per word)", filepath);
 
 			if (size != -1)
 			{
-				result.resize(size / 4);
+				result.resize(size / sizeof(uint32_t));
 				in.seekg(0, std::ios::beg);
 				in.read((char*)result.data(), size);
 				in.close();
@@ -144,7 +167,7 @@ namespace Quark {
 			}
 		}
 
-		QK_CORE_RUNTIME_ERROR("Could not open file '{0}'", filepath);
+		ThrowRuntimeError("Could not open file '{0}'", filepath);
 		return result;
 	}
 

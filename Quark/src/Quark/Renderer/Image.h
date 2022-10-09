@@ -3,29 +3,32 @@
 #include "Quark/Core/Core.h"
 #include "Quark/Utility/FileStream.h"
 
-#include "ColorFormats.h"
+#include "Formats.h"
 
 namespace Quark {
 
 	struct ImageMetadata
 	{
-		uint32_t Width = 0, Height = 0;
-		uint8_t  Channels = 0;
-		uint8_t  BitsPerPixel = 0;
 		size_t   Size = 0;
+		uint32_t Width = 0, Height = 0;
+		uint32_t BitsPerPixel = 0;
+		uint32_t Channels = 0;
 
-		ColorDataFormat DataFormat{};
+		ColorFormat DataFormat{};
 	};
 
 	class Image
 	{
 	public:
 		Image(std::string_view filepath);
+		Image(Image&& other) noexcept;
 		~Image();
+
+		Image& operator=(Image&& other) noexcept;
 
 		uint32_t Width() const { return m_Metadata.Width; }
 		uint32_t Height() const { return m_Metadata.Height; }
-		uint8_t Channels() const { return m_Metadata.Channels; }
+		uint32_t Channels() const { return m_Metadata.Channels; }
 
 		void* GetData() const { return m_ImageData; }
 		void* operator*() const { return GetData(); }

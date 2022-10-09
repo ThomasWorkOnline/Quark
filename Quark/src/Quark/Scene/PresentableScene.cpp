@@ -9,6 +9,14 @@
 
 namespace Quark {
 
+	void PresentableScene::OnEvent(Event& e)
+	{
+		EventDispatcher dispatcher(e);
+		dispatcher.Dispatch<WindowResizedEvent>(ATTACH_EVENT_FN(OnWindowResized));
+
+		Scene::OnEvent(e);
+	}
+
 	void PresentableScene::OnRender()
 	{
 		if (m_PrimaryCameraEntity)
@@ -24,7 +32,7 @@ namespace Quark {
 				for (auto entity : view)
 				{
 					auto [csrc, transform] = view.get<SpriteRendererComponent, Transform3DComponent>(entity);
-					Renderer2D::DrawSprite(csrc.Color, transform);
+					Renderer2D::DrawSprite(csrc.Color, transform.GetMatrix());
 				}
 			}
 
@@ -34,7 +42,7 @@ namespace Quark {
 				for (auto entity : view)
 				{
 					auto [tsrc, transform] = view.get<TexturedSpriteRendererComponent, Transform3DComponent>(entity);
-					Renderer2D::DrawSprite(tsrc.Texture.get(), tsrc.Tint, transform);
+					Renderer2D::DrawSprite(tsrc.Texture.get(), tsrc.Tint, transform.GetMatrix());
 				}
 			}
 
@@ -44,7 +52,7 @@ namespace Quark {
 				for (auto entity : view)
 				{
 					auto [trc, transform] = view.get<TextRendererComponent, Transform3DComponent>(entity);
-					Renderer2D::DrawText(trc.Label, transform);
+					Renderer2D::DrawText(trc.Label, transform.GetMatrix());
 				}
 			}
 
@@ -52,8 +60,8 @@ namespace Quark {
 
 			if (m_Data.Env)
 			{
-				Renderer::GetCommandBuffer()->SetCullFace(RenderCullMode::Back);
-				Renderer::GetCommandBuffer()->SetDepthFunction(RenderDepthFunction::LessEqual);
+				Renderer::GetCommandBuffer()->SetCullMode(RenderCullMode::Back);
+				Renderer::GetCommandBuffer()->SetDepthFunction(DepthCompareFunction::LessOrEqual);
 				Renderer::BindPipeline(m_Data.Env->SkyboxPipeline.get());
 
 				Mat4f cameraRotate = glm::toMat4(cameraTransform.Orientation);
@@ -64,24 +72,14 @@ namespace Quark {
 				m_Data.Env->SkyboxShader->SetInt("u_EnvironmentMap", 0);
 				m_Data.Env->SkyboxShader->SetFloat("u_Exposure", 1.0f);
 
-				m_Data.Env->Environment->Attach(0);
-				m_Data.Env->Irradiance->Attach(5); // TODO: put inside scene uniform buffer
+				Renderer::GetCommandBuffer()->BindTexture(m_Data.Env->Environment.get(), nullptr /*sampler*/, 0);
+				Renderer::GetCommandBuffer()->BindTexture(m_Data.Env->Environment.get(), nullptr /*sampler*/, 5);
 
 				Renderer::Submit(m_Data.Env->CubemapBox.GetVertexBuffer(), m_Data.Env->CubemapBox.GetIndexBuffer());
-				Renderer::GetCommandBuffer()->SetCullFace(RenderCullMode::Default);
-				Renderer::GetCommandBuffer()->SetDepthFunction(RenderDepthFunction::Default);
+				Renderer::GetCommandBuffer()->SetCullMode(RenderCullMode::Default);
+				Renderer::GetCommandBuffer()->SetDepthFunction(DepthCompareFunction::Default);
 			}
 		}
-	}
-
-	void PresentableScene::OnEvent(Event& e)
-	{
-		if (!this) return; // In the case we call an event on an empty scene
-
-		EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<WindowResizedEvent>(ATTACH_EVENT_FN(OnWindowResized));
-
-		Scene::OnEvent(e);
 	}
 
 	Entity PresentableScene::CreatePrimaryCamera()
@@ -101,7 +99,7 @@ namespace Quark {
 
 	void PresentableScene::SetEnvironment(std::string_view filepath)
 	{
-		NewEnvironment(filepath);
+		//NewEnvironment(filepath);
 	}
 
 	void PresentableScene::OnWindowResized(WindowResizedEvent& e)
@@ -121,12 +119,10 @@ namespace Quark {
 		{
 			auto& coreDirectory = Application::Get()->GetOptions().CoreDir;
 
-			QK_CORE_INFO(std::filesystem::current_path().string());
-
 			m_Data.Env = CreateScope<EnvironmentData>();
-			m_Data.Env->SkyboxShader = Shader::Create((coreDirectory / "Quark/assets/shaders/version/3.30/CubemapSkybox.glsl").string());
-			m_Data.Env->IrradianceShader = Shader::Create((coreDirectory / "Quark/assets/shaders/version/3.30/Irradiance.glsl").string());
-			m_Data.Env->EquirectangleToCubemapShader = Shader::Create((coreDirectory / "Quark/assets/shaders/version/3.30/EquirectangleToCubemap.glsl").string());
+			m_Data.Env->SkyboxShader = Shader::Create((coreDirectory / "assets/shaders/version/3.30/CubemapSkybox.glsl").string());
+			m_Data.Env->IrradianceShader = Shader::Create((coreDirectory / "assets/shaders/version/3.30/Irradiance.glsl").string());
+			m_Data.Env->EquirectangleToCubemapShader = Shader::Create((coreDirectory / "assets/shaders/version/3.30/EquirectangleToCubemap.glsl").string());
 
 			m_Data.Env->CubemapBox = Mesh::GenerateUnitCube();
 
@@ -145,7 +141,8 @@ namespace Quark {
 			{
 				RenderPassSpecification spec;
 				spec.BindPoint = PipelineBindPoint::Graphics;
-				spec.ColorFormat = ColorDataFormat::RGBA8;
+				spec.ColorAttachmentFormat = ColorFormat::RGBA8;
+				spec.DepthAttachmentFormat = ColorFormat::Depth32f;
 				spec.ClearBuffers = true;
 
 				m_Data.Env->RenderPass = RenderPass::Create(spec);
@@ -185,15 +182,17 @@ namespace Quark {
 				FramebufferAttachmentSpecification attachmentSpec = {
 					2048,
 					2048,
-					1,
-					ColorDataFormat::RGBA16f
+					Renderer::GetMultisampling(),
+					ColorFormat::RGBA16f
 				};
+
+				m_Data.Env->ColorAttachment = FramebufferAttachment::Create(attachmentSpec);
 
 				FramebufferSpecification spec;
 				spec.Width = 2048;
 				spec.Height = 2048;
 				spec.RenderPass = m_Data.Env->RenderPass.get();
-				spec.Specifications = { attachmentSpec };
+				spec.Attachments = { m_Data.Env->ColorAttachment.get() };
 
 				m_Data.Env->Framebuffer = Framebuffer::Create(spec);
 			}
@@ -210,10 +209,10 @@ namespace Quark {
 		};
 
 		auto hdrTexture = Texture2D::Create(filepath);
-		hdrTexture->Attach(0);
 
-		Renderer::GetCommandBuffer()->SetCullFace(RenderCullMode::Front);
-		Renderer::GetCommandBuffer()->SetDepthFunction(RenderDepthFunction::LessEqual);
+		Renderer::GetCommandBuffer()->BindTexture(hdrTexture.get(), nullptr /*sampler*/, 0);
+		Renderer::GetCommandBuffer()->SetCullMode(RenderCullMode::Front);
+		Renderer::GetCommandBuffer()->SetDepthFunction(DepthCompareFunction::LessOrEqual);
 
 		{
 			Renderer::BindPipeline(m_Data.Env->EnvironmentMapPipeline.get());
@@ -243,7 +242,8 @@ namespace Quark {
 
 			m_Data.Env->IrradianceShader->SetInt("u_EnvironmentMap", 0);
 			m_Data.Env->IrradianceShader->SetMat4f("u_Projection", captureProjection);
-			m_Data.Env->Environment->Attach(0);
+
+			Renderer::GetCommandBuffer()->BindTexture(m_Data.Env->Environment.get(), nullptr /*sampler*/, 0);
 
 			for (uint8_t i = 0; i < 6; i++)
 			{
@@ -258,7 +258,7 @@ namespace Quark {
 			Renderer::EndRenderPass();
 		}
 
-		Renderer::GetCommandBuffer()->SetCullFace(RenderCullMode::Default);
-		Renderer::GetCommandBuffer()->SetDepthFunction(RenderDepthFunction::Default);
+		Renderer::GetCommandBuffer()->SetCullMode(RenderCullMode::Default);
+		Renderer::GetCommandBuffer()->SetDepthFunction(DepthCompareFunction::Default);
 	}
 }

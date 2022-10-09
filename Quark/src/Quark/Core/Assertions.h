@@ -34,5 +34,5 @@
 
 #define QK_ASSERT_NO_DEFAULT(msg) default: { QK_CORE_ASSERT(false, msg); } break
 
-#define QK_CORE_RUNTIME_ERROR(f, ...) throw std::runtime_error(fmt::format(f, __VA_ARGS__))
-#define QK_CORE_RUNTIME_VERIFY(x, f, ...) do { if (!(x)) { QK_CORE_RUNTIME_ERROR(f, __VA_ARGS__); } } while (false)
+#define ThrowRuntimeError(...) throw std::runtime_error(fmt::format(__VA_ARGS__))
+#define Verify(x, ...) do { if (!(x)) { ThrowRuntimeError(__VA_ARGS__); } } while (false)

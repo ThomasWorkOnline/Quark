@@ -5,13 +5,13 @@
 
 namespace Quark {
 
-	Sampler2D::Sampler2D(const Sampler2DSpecification& spec)
+	Sampler::Sampler(const SamplerSpecification& spec)
 		: m_Spec(spec)
 	{
 	}
 
-	Scope<Sampler2D> Sampler2D::Create(const Sampler2DSpecification& spec)
+	Scope<Sampler> Sampler::Create(const SamplerSpecification& spec)
 	{
-		return s_GraphicsAPI->CreateSampler2D(spec);
+		return s_GraphicsAPI->CreateSampler(spec);
 	}
 }

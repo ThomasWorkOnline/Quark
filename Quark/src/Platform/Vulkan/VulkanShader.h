@@ -1,9 +1,10 @@
 #pragma once
 
 #include "Quark/Renderer/Shader.h"
+
+#include "Vulkan.h"
 #include "VulkanDevice.h"
 
-#include <vulkan/vulkan.h>
 #include <unordered_map>
 
 namespace Quark {
@@ -11,7 +12,6 @@ namespace Quark {
 	struct VulkanShaderModule
 	{
 		VkShaderModule Module{};
-		std::vector<uint32_t> VulkanSpirv;
 		std::string EntryPoint;
 	};
 
@@ -19,8 +19,13 @@ namespace Quark {
 	{
 	public:
 		VulkanShader(VulkanDevice* device, std::string_view filepath);
-		VulkanShader(VulkanDevice* device, std::string_view name, const SpirvSource& vertexSource, const SpirvSource& fragmentSource);
-		VulkanShader(VulkanDevice* device, std::string_view name, const SpirvSource& vertexSource, const SpirvSource& geometrySource, const SpirvSource& fragmentSource);
+		VulkanShader(VulkanDevice* device, std::string_view name, SpirvView vertexSource, SpirvView fragmentSource);
+		VulkanShader(VulkanDevice* device, std::string_view name, SpirvView vertexSource, SpirvView geometrySource, SpirvView fragmentSource);
+
+		// Legacy (compilation from GLSL sources)
+		VulkanShader(VulkanDevice* device, std::string_view name, std::string_view vertexSource, std::string_view fragmentSource);
+		VulkanShader(VulkanDevice* device, std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource);
+
 		virtual ~VulkanShader() final override;
 
 		virtual void SetInt(std::string_view name, int32_t value) final override {}
@@ -47,10 +52,7 @@ namespace Quark {
 		virtual void SetMat3d(std::string_view name, const Mat3d& matrix) final override {}
 		virtual void SetMat4d(std::string_view name, const Mat4d& matrix) final override {}
 
-		virtual bool operator==(const Shader& other) const final override
-		{
-			return m_Name == reinterpret_cast<const VulkanShader&>(other).m_Name;
-		}
+		virtual bool operator==(const Shader& other) const final override;
 
 		// Non-Copyable
 		VulkanShader(const VulkanShader&) = delete;
@@ -59,7 +61,7 @@ namespace Quark {
 		const std::unordered_map<VkShaderStageFlagBits, VulkanShaderModule>& GetShaderStages() const { return m_ShaderStages; }
 
 	private:
-		VulkanShaderModule CreateShader(ShaderStage stage, const SpirvSource& spirvSource);
+		VulkanShaderModule CreateShader(ShaderStage stage, SpirvView spirvSource);
 
 	private:
 		VulkanDevice* m_Device;

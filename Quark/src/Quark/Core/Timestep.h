@@ -1,19 +1,21 @@
 #pragma once
 
+#include "Quark/Math/Types.h"
+
 namespace Quark {
 
 	class Timestep
 	{
 	public:
-		Timestep(float time)
+		Timestep(Float time)
 			: m_Time(time)
 		{
 		}
 
-		float Seconds() const { return m_Time; }
-		operator float() const { return m_Time; }
+		Float Seconds() const { return m_Time; }
+		operator Float() const { return m_Time; }
 
 	private:
-		float m_Time;
+		Float m_Time;
 	};
 }
