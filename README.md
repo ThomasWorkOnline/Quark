@@ -135,7 +135,6 @@ namespace Quark {
 	Application* CreateApplication(CommandLineArgs args)
 	{
 		// Our constructor will use the engine's default options
-		// *See: [Core.h](Quark/src/Quark/Core/Application.h)*
 		return new BasicRenderingApplication();
 	}
 };
