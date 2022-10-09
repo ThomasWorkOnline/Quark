@@ -99,7 +99,7 @@ namespace Quark {
 }
 ```
 
-The following examples will guide you in learning the Quark API.
+The following examples will guide you in creating custom applications.
 
 <ins>**1. Creating a Quark application**</ins>
 ```c++
