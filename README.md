@@ -99,6 +99,9 @@ namespace Quark {
 }
 ```
 
+##If you run the application, you will see this output:
+![PBRRendering](Quark/docs/Example1/PBRRenderingDemo_GreasyMetalSphere.PNG)
+
 The following examples will guide you in creating custom applications.
 
 <ins>**1. Creating a Quark application**</ins>
