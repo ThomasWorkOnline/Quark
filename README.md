@@ -135,7 +135,7 @@ Use `Quark::CreateApplication(CommandLineArguments args)` as shown in this snipp
 
 namespace Quark {
 
-	Application* CreateApplication(CommandLineArgs args)
+	Application* CreateApplication(CommandLineArguments args)
 	{
 		// Our constructor will use the engine's default options
 		return new BasicRenderingApplication();
