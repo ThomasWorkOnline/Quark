@@ -74,7 +74,7 @@ Release mode can be useful when you need to test performance.*
 Quark provides a few examples on how to use the API.
 
 
-```
+```c++
 #include "Demos/PBRRenderingDemo.h"
 
 #include <Quark/EntryPoint.h>
