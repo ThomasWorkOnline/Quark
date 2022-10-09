@@ -111,13 +111,19 @@ using namespace Quark;
 // Create a class extending `Quark::Application`
 class BasicRenderingApplication : public Application
 {
+public:
+	// Provide a constructor forwarding the options to the application
+	BasicRenderingApplication(const ApplicationOptions& options = {})
+		: Application(options)
+	{
+	}
 	...
 };
 ```
 	
 <ins>**2. Launching your app**</ins>
 
-Use `Quark::CreateApplication()` as shown in this snippet below:
+Use `Quark::CreateApplication(CommandLineArguments args)` as shown in this snippet below:
 
 ```c++
 #include "Example1_BasicRendering.h"
@@ -126,8 +132,10 @@ Use `Quark::CreateApplication()` as shown in this snippet below:
 
 namespace Quark {
 
-	Application* CreateApplication()
+	Application* CreateApplication(CommandLineArgs args)
 	{
+		// Our constructor will use the engine's default options
+		// *See: [Core.h](Quark/src/Quark/Core/Application.h)*
 		return new BasicRenderingApplication();
 	}
 };
