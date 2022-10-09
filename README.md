@@ -71,6 +71,34 @@ Release mode can be useful when you need to test performance.*
 
 # How to use
 
+Quark provides a few examples on how to use the API.
+
+
+```
+#include "Demos/PBRRenderingDemo.h"
+
+#include <Quark/EntryPoint.h>
+
+namespace Quark {
+
+	Application* CreateApplication(CommandLineArguments args)
+	{
+		using App = PBRRenderingDemo;
+
+		// Application specification
+		ApplicationOptions options;
+		options.Samples = 4;
+		options.AppName = "Demo Application";
+		// This is the working directory path for required core assets
+		options.CoreDir = "../Quark"; 
+		options.CommandLineArgs = args;
+		options.GraphicsAPI = RHI::OpenGL;
+
+		return new App(options);
+	}
+}
+```
+
 The following examples will guide you in learning the Quark API.
 
 <ins>**1. Creating a Quark application**</ins>
