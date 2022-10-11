@@ -13,7 +13,7 @@ IncludeDir["ImGui"]      = "%{VendorDir}/imgui"
 IncludeDir["Metal"]      = "%{VendorDir}/metal"
 IncludeDir["OpenAL"]     = "%{VendorDir}/openal/include"
 IncludeDir["spdlog"]     = "%{VendorDir}/spdlog/include"
-IncludeDir["VulkanSDK"] = "%{VULKAN_SDK}/Include"
+IncludeDir["VulkanSDK"]  = "%{VULKAN_SDK}/Include"
 
 LibraryDir = {}
 LibraryDir["OpenAL"]     = "%{VendorDir}/openal/libs/Win64"

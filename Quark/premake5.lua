@@ -85,7 +85,8 @@ project "Quark"
 
 		defines
 		{
-			"_CRT_SECURE_NO_WARNINGS"
+			"_CRT_SECURE_NO_WARNINGS",
+			"_SILENCE_CXX23_ALIGNED_STORAGE_DEPRECATION_WARNING"
 		}
 
 		libdirs
