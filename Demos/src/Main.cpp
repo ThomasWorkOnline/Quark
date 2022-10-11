@@ -13,7 +13,7 @@ namespace Quark {
 
 	Application* CreateApplication(CommandLineArguments args)
 	{
-		using App = PBRRenderingDemo;
+		using App = VulkanApp;
 
 		ApplicationSpecification appSpec;
 		appSpec.Samples = 4;

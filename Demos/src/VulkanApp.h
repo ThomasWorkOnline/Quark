@@ -19,8 +19,10 @@ private:
 	void OnKeyPressed(KeyPressedEvent& e);
 
 private:
-	Ref<PresentableScene> m_Scene;
+	Scene m_Scene;
 	Entity m_CameraEntity;
+
+	SceneRenderer m_SceneRenderer = { &m_Scene };
 
 	Ref<Font> m_Font;
 	Text m_Text;

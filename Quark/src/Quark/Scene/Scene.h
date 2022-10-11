@@ -25,6 +25,7 @@ namespace Quark {
 		void                  OnStop();
 
 		Entity                CreateEntity();
+		Entity                CreatePrimaryCamera();
 		void                  DeleteEntity(Entity entity);
 
 		const SceneSettings&  GetSettings() const { return m_Settings; }

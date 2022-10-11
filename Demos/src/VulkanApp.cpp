@@ -4,8 +4,7 @@
 VulkanApp::VulkanApp(const ApplicationSpecification& spec)
 	: Application(spec)
 {
-	m_Scene = CreateRef<PresentableScene>();
-	m_CameraEntity = m_Scene->CreatePrimaryCamera();
+	m_CameraEntity = m_Scene.CreatePrimaryCamera();
 	m_CameraEntity.AddNativeScript<CameraController>();
 
 	Ref<Texture2D> texture1 = Texture2D::Create("assets/Textures/pbr/streaked-metal/albedo.png");
@@ -17,7 +16,7 @@ VulkanApp::VulkanApp(const ApplicationSpecification& spec)
 
 	for (uint32_t i = 0; i < 10000; i++)
 	{
-		auto sprite = m_Scene->CreateEntity();
+		auto sprite = m_Scene.CreateEntity();
 
 		Vec3f axis = { randomFloat.Next(), randomFloat.Next(), randomFloat.Next() };
 
@@ -34,7 +33,7 @@ VulkanApp::VulkanApp(const ApplicationSpecification& spec)
 		src.Tint = { randomFloat.Next(), randomFloat.Next(), randomFloat.Next(), 1.0f };
 	}
 
-	m_Scene->OnPlay();
+	m_Scene.OnPlay();
 
 	m_Font = Font::Create("assets/Fonts/arial.ttf", 48);
 	m_Text.SetFont(m_Font);
@@ -42,11 +41,13 @@ VulkanApp::VulkanApp(const ApplicationSpecification& spec)
 	auto* window = GetWindow();
 	m_TextCamera.SetOrthographic((float)window->GetWidth());
 	m_TextCamera.Resize(window->GetWidth(), window->GetHeight());
+
+	m_SceneRenderer.SetPrimaryCamera(m_CameraEntity);
 }
 
 VulkanApp::~VulkanApp()
 {
-	m_Scene->OnStop();
+	m_Scene.OnStop();
 }
 
 void VulkanApp::OnEvent(Event& e)
@@ -61,20 +62,20 @@ void VulkanApp::OnEvent(Event& e)
 
 	e.Handled = !m_ViewportSelected && e.IsInCategory(EventCategory::Input);
 
-	if (m_Scene && !e.Handled)
-		m_Scene->OnEvent(e);
+	if (!e.Handled)
+		m_Scene.OnEvent(e);
 
 	DefaultEventHandler(e);
 }
 
 void VulkanApp::OnRender()
 {
-	m_Scene->OnRender();
+	m_SceneRenderer.OnRender();
 }
 
 void VulkanApp::OnUpdate(Timestep elapsedTime)
 {
-	m_Scene->OnUpdate(elapsedTime);
+	m_Scene.OnUpdate(elapsedTime);
 }
 
 void VulkanApp::OnMouseButtonPressed(MouseButtonPressedEvent& e)

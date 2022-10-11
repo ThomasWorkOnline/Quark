@@ -74,6 +74,15 @@ namespace Quark {
 		return { m_Registry.create(), this };
 	}
 
+	Entity Scene::CreatePrimaryCamera()
+	{
+		auto entity = CreateEntity();
+		entity.AddComponent<Transform3DComponent>();
+		entity.AddComponent<PhysicsComponent>();
+		entity.AddComponent<CameraComponent>().Camera.SetPerspective(90.0f);
+		return entity;
+	}
+
 	void Scene::DeleteEntity(Entity entity)
 	{
 		m_Registry.destroy(entity);

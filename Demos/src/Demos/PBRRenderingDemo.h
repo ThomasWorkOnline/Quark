@@ -40,10 +40,12 @@ private:
 		Vec4f CameraPosition;
 	};
 
-	Scope<PresentableScene> m_Scene;
+	Scene m_Scene;
 	Entity m_CameraEntity;
 	Mesh m_Body;
 	Material m_Material;
+
+	SceneRenderer m_SceneRenderer = { &m_Scene };
 
 	Scope<Shader> m_PBRShader;
 	Scope<Cubemap> m_Irradiance;

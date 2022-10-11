@@ -4,27 +4,26 @@
 #include "Quark/Event/Event.h"
 #include "Quark/Event/WindowEvent.h"
 
-#include "Quark/Renderer/Renderer.h"
-#include "Quark/Renderer/Cubemap.h"
+#include "Cubemap.h"
+#include "Renderer.h"
 
-#include "Scene.h"
+#include "Quark/Scene/Scene.h"
 
 namespace Quark {
 
-	class PresentableScene : public Scene
+	class SceneRenderer
 	{
 	public:
-		void   OnEvent(Event& e);
-		void   OnRender();
+		SceneRenderer(Scene* scene);
 
-		Entity CreatePrimaryCamera();
+		void OnRender();
+		void OnViewportResized(uint32_t viewportWidth, uint32_t viewportHeight);
 
-		void   SetPrimaryCamera(Entity cameraEntity);
-		void   SetEnvironment(std::string_view filepath);
-		bool   HasPrimaryCamera() const { return (bool)m_PrimaryCameraEntity; }
+		void SetPrimaryCamera(Entity cameraEntity);
+		void SetEnvironment(std::string_view filepath);
+		bool HasPrimaryCamera() const { return (bool)m_PrimaryCameraEntity; }
 
 	private:
-		void OnWindowResized(WindowResizedEvent& e);
 		void NewEnvironment(std::string_view filepath);
 
 	private:
@@ -54,11 +53,13 @@ namespace Quark {
 		};
 
 		SceneData m_Data;
+
+		Scene* m_Scene;
 		Entity m_PrimaryCameraEntity;
 	};
 }
 
-#include "Components.h"
+#include "Quark/Scene/Components.h"
 
 namespace Quark {
 
