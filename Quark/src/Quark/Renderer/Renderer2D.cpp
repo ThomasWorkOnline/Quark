@@ -527,7 +527,7 @@ namespace Quark {
 		if (GraphicsAPI::GetAPI() == RHI::OpenGL &&
 			version.Major <= 4 && version.Minor <= 1)
 		{
-			auto& coreDirectory = Application::Get()->GetOptions().CoreDir;
+			auto& coreDirectory = Application::Get()->GetSpecification().CoreDir;
 			auto spriteVertexSource = Filesystem::ReadTextFile((coreDirectory / "assets/shaders/version/3.30/Sprite.vs.glsl").string());
 			auto spriteFragmentSource = Filesystem::ReadTextFile((coreDirectory / "assets/shaders/version/3.30/Sprite.fs.glsl").string());
 
@@ -542,7 +542,7 @@ namespace Quark {
 		}
 		else
 		{
-			auto& coreDirectory = Application::Get()->GetOptions().CoreDir;
+			auto& coreDirectory = Application::Get()->GetSpecification().CoreDir;
 			auto spriteVertexBinary = ReadSpirvFile((coreDirectory / "cache/spirv/Sprite.vert.spv").string());
 			auto spriteFragmentBinary = ReadSpirvFile((coreDirectory / "cache/spirv/Sprite.frag.spv").string());
 
@@ -574,7 +574,7 @@ namespace Quark {
 		if (GraphicsAPI::GetAPI() == RHI::OpenGL &&
 			version.Major <= 4 && version.Minor <= 1)
 		{
-			auto& coreDirectory = Application::Get()->GetOptions().CoreDir;
+			auto& coreDirectory = Application::Get()->GetSpecification().CoreDir;
 			auto lineVertexSource = Filesystem::ReadTextFile((coreDirectory / "assets/shaders/version/3.30/Line.vs.glsl").string());
 			auto lineFragmentSource = Filesystem::ReadTextFile((coreDirectory / "assets/shaders/version/3.30/Line.fs.glsl").string());
 
@@ -583,7 +583,7 @@ namespace Quark {
 		}
 		else
 		{
-			auto& coreDirectory = Application::Get()->GetOptions().CoreDir;
+			auto& coreDirectory = Application::Get()->GetSpecification().CoreDir;
 			auto lineVertexBinary = ReadSpirvFile((coreDirectory / "cache/spirv/Line.vert.spv").string());
 			auto lineFragmentBinary = ReadSpirvFile((coreDirectory / "cache/spirv/Line.frag.spv").string());
 

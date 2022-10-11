@@ -9,7 +9,7 @@ using namespace Quark;
 class PBRRenderingDemo : public Application
 {
 public:
-	PBRRenderingDemo(const ApplicationOptions& options);
+	PBRRenderingDemo(const ApplicationSpecification& spec);
 	~PBRRenderingDemo();
 
 	void OnUpdate(Timestep elapsedTime) override;

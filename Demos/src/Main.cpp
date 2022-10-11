@@ -15,14 +15,14 @@ namespace Quark {
 	{
 		using App = PBRRenderingDemo;
 
-		ApplicationOptions options;
-		options.Samples = 4;
-		options.AppName = "Demo Application";
-		options.CoreDir = "../Quark";
-		options.CommandLineArgs = args;
-		options.GraphicsAPI = RHI::OpenGL;
-		//options.Flags = ApplicationFlagBits::EnableAudioOutputDevice;
+		ApplicationSpecification appSpec;
+		appSpec.Samples = 4;
+		appSpec.AppName = "Demo Application";
+		appSpec.CoreDir = "../Quark";
+		appSpec.CommandLineArgs = args;
+		appSpec.GraphicsAPI = RHI::OpenGL;
+		appSpec.Flags = ApplicationFlagBits::LaunchRenderer2D;
 
-		return new App(options);
+		return new App(appSpec);
 	}
 }

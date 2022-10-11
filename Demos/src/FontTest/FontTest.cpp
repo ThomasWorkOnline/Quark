@@ -2,8 +2,8 @@
 
 #include "MainLayer.h"
 
-FontTest::FontTest(const ApplicationOptions& options)
-	: Application(options)
+FontTest::FontTest(const ApplicationSpecification& spec)
+	: Application(spec)
 {
 	PushLayer(new MainLayer(this));
 }

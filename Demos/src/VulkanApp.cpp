@@ -1,8 +1,8 @@
 #include "VulkanApp.h"
 #include "Quark/Scripts/CameraController.h"
 
-VulkanApp::VulkanApp(const ApplicationOptions& options)
-	: Application(options)
+VulkanApp::VulkanApp(const ApplicationSpecification& spec)
+	: Application(spec)
 {
 	m_Scene = CreateRef<PresentableScene>();
 	m_CameraEntity = m_Scene->CreatePrimaryCamera();

@@ -17,10 +17,11 @@ namespace Quark {
 
 	class ImGuiLayer;
 
-	enum ApplicationFlagBits : uint8_t
+	enum class ApplicationFlagBits : uint32_t
 	{
-		ApplicationFlagBitsNone = 0,
-		EnableAudioOutputDevice = BIT(0)
+		None = 0,
+		LaunchRenderer2D        = BIT(0),
+		EnableAudioOutputDevice = BIT(1)
 	};
 
 	struct CommandLineArguments
@@ -35,7 +36,7 @@ namespace Quark {
 		}
 	};
 
-	struct ApplicationOptions
+	struct ApplicationSpecification
 	{
 		uint32_t    Width = 1280, Height = 720;
 		uint32_t    Samples = 1;
@@ -47,25 +48,20 @@ namespace Quark {
 		CommandLineArguments  CommandLineArgs;
 		ApplicationFlagBits   Flags{};
 		KeyCode FullscreenKey = KeyCode::F11;
-
 		RHI GraphicsAPI = Renderer::GetPreferredRHI();
 
-		bool HasFlag(ApplicationFlagBits flag) const { return Flags & flag; }
+		bool HasFlags(ApplicationFlagBits flags) const { return static_cast<uint32_t>(Flags) & static_cast<uint32_t>(flags); }
 	};
 
 	class Application : public Singleton<Application>
 	{
 	public:
-		Application(const ApplicationOptions& options = {});
+		Application(const ApplicationSpecification& spec = {});
 		virtual ~Application();
-
-		virtual void OnEvent(Event& e) {}
-		virtual void OnRender() {}
-		virtual void OnUpdate(Timestep elapsedTime) {}
-		virtual void OnCrash() {}
 
 		void Run();
 		void Stop();
+		void Crash(std::exception& e);
 
 		void PushLayer(Layer* layer);
 		void PopLayer(Layer* layer);
@@ -73,8 +69,8 @@ namespace Quark {
 		float GetAppRunningTime() const { return m_TotalTime; }
 		std::thread::id GetThreadId() const { return m_AppMainThreadId; }
 
-		const ApplicationOptions& GetOptions() const { return m_Options; }
-		ApplicationOptions& GetOptions() { return m_Options; }
+		const ApplicationSpecification& GetSpecification() const { return m_Spec; }
+		ApplicationSpecification& GetSpecification() { return m_Spec; }
 
 		Window* GetWindow() const { return m_Window.get(); }
 		AudioOutputDevice* GetAudioOutputDevice() const { return m_AudioOutputDevice.get(); }
@@ -82,6 +78,11 @@ namespace Quark {
 		AudioOutputDevice* OpenAudioOutputDevice(const char* deviceName = nullptr);
 
 	protected:
+		virtual void OnEvent(Event& e) {}
+		virtual void OnRender() {}
+		virtual void OnUpdate(Timestep elapsedTime) {}
+		virtual void OnCrash(std::exception& e) {}
+
 		bool DefaultEventHandler(Event& e);
 
 	private:
@@ -89,7 +90,7 @@ namespace Quark {
 		void OnKeyPressed(KeyPressedEvent& e);
 
 	private:
-		ApplicationOptions m_Options;
+		ApplicationSpecification m_Spec;
 		Scope<Window> m_Window;
 		Scope<AudioOutputDevice> m_AudioOutputDevice;
 

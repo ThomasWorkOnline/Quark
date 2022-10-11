@@ -8,34 +8,38 @@
 
 namespace Quark {
 
-	Application::Application(const ApplicationOptions& options) : Singleton(this),
-		m_Options(options)
+	Application::Application(const ApplicationSpecification& spec) : Singleton(this),
+		m_Spec(spec)
 	{
 		QK_PROFILE_FUNCTION();
 
 		m_AppMainThreadId = std::this_thread::get_id();
 
-		if (!m_Options.AssetDir.empty())
-			std::filesystem::current_path(m_Options.AssetDir);
+		if (!m_Spec.AssetDir.empty())
+			std::filesystem::current_path(m_Spec.AssetDir);
 
-		Renderer::Configure(m_Options.GraphicsAPI);
+		Renderer::Configure(m_Spec.GraphicsAPI);
 
-		WindowSpecification spec = {
-			m_Options.AppName.empty() ? "Quark Engine" : m_Options.AppName, m_Options.Width, m_Options.Height, m_Options.Samples
+		WindowSpecification windowSpec = {
+			m_Spec.AppName.empty() ? "Quark Engine" : m_Spec.AppName, m_Spec.Width, m_Spec.Height, m_Spec.Samples
 		};
 
-		m_Window = Window::Create(spec);
+		m_Window = Window::Create(windowSpec);
 		m_Window->SetEventCallback(ATTACH_EVENT_FN(Application::OnEventInternal));
 
 		auto viewport = m_Window->GetViewportExtent();
-		Renderer::Initialize(viewport.Width, viewport.Height, m_Options.Samples);
-		Renderer2D::Initialize();
-
+		Renderer::Initialize(viewport.Width, viewport.Height, m_Spec.Samples);
 		QK_CORE_INFO(Renderer::GetSpecification());
 
 		m_Window->AppendTitle(fmt::format(" - {0} ({1})", QK_PLATFORM_NAME, Renderer::GetAPIName()));
 
-		if (m_Options.HasFlag(ApplicationFlagBits::EnableAudioOutputDevice))
+		if (m_Spec.HasFlags(ApplicationFlagBits::LaunchRenderer2D))
+		{
+			QK_CORE_TRACE("Initializing Renderer2D...");
+			Renderer2D::Initialize();
+		}
+
+		if (m_Spec.HasFlags(ApplicationFlagBits::EnableAudioOutputDevice))
 		{
 			QK_CORE_TRACE("Opening audio device...");
 			m_AudioOutputDevice = AudioOutputDevice::Create();
@@ -63,6 +67,14 @@ namespace Quark {
 	void Application::Stop()
 	{
 		m_Running = false;
+	}
+
+	void Application::Crash(std::exception& e)
+	{
+		OnCrash(e);
+
+		(void)e;
+		QK_CORE_ASSERT(false, e.what());
 	}
 
 	void Application::Run()
@@ -110,6 +122,12 @@ namespace Quark {
 		dispatcher.Dispatch<WindowClosedEvent>([&](auto& e) { Stop(); });
 		dispatcher.Dispatch<WindowMinimizedEvent>([&](auto& e) { m_Minimized = true; });
 		dispatcher.Dispatch<WindowRestoredEvent>([&](auto& e) { m_Minimized = false; });
+		dispatcher.Dispatch<WindowResizedEvent>([&](WindowResizedEvent& e)
+		{
+			m_Spec.Width = e.GetWidth();
+			m_Spec.Height = e.GetHeight();
+		});
+
 		dispatcher.Dispatch<ViewportResizedEvent>([](ViewportResizedEvent& e)
 		{
 			Renderer::SetViewport(e.GetWidth(), e.GetHeight());
@@ -146,7 +164,7 @@ namespace Quark {
 
 	void Application::OnKeyPressed(KeyPressedEvent& e)
 	{
-		if (e.GetKeyCode() == m_Options.FullscreenKey)
+		if (e.GetKeyCode() == m_Spec.FullscreenKey)
 		{
 			m_Window->SetFullscreen(!m_Window->IsFullscreen());
 		}

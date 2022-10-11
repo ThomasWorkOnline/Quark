@@ -7,7 +7,7 @@ using namespace Quark;
 class TextureArrayTest : public Application
 {
 public:
-	TextureArrayTest(const ApplicationOptions& options = {});
+	TextureArrayTest(const ApplicationSpecification& spec = {});
 
 	void OnUpdate(Timestep elapsedTime) override;
 	void OnRender() override;
@@ -22,8 +22,4 @@ private:
 	Mat4f m_ModelTransform = Mat4f(1.0f);
 
 	Scope<Texture2DArray> m_TextureArray;
-	Scope<Shader> m_Shader;
-
-	Scope<VertexBuffer> m_VertexBuffer;
-	Scope<IndexBuffer> m_IndexBuffer;
 };

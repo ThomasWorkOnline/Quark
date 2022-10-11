@@ -4,8 +4,8 @@
 
 #define MATERIAL 0
 
-PBRRenderingDemo::PBRRenderingDemo(const ApplicationOptions& options)
-	: Application(options)
+PBRRenderingDemo::PBRRenderingDemo(const ApplicationSpecification& spec)
+	: Application(spec)
 {
 	QK_PROFILE_FUNCTION();
 
@@ -133,8 +133,6 @@ void PBRRenderingDemo::OnRender()
 		Renderer::GetCommandBuffer()->BindDescriptorSets();
 		Renderer::Submit(m_Body.GetVertexBuffer(), m_Body.GetIndexBuffer());
 	}
-
-	m_Scene->OnRender();
 }
 
 void PBRRenderingDemo::OnEvent(Event& e)

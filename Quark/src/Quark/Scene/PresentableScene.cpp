@@ -117,7 +117,7 @@ namespace Quark {
 
 		if (!m_Data.Env)
 		{
-			auto& coreDirectory = Application::Get()->GetOptions().CoreDir;
+			auto& coreDirectory = Application::Get()->GetSpecification().CoreDir;
 
 			m_Data.Env = CreateScope<EnvironmentData>();
 			m_Data.Env->SkyboxShader = Shader::Create((coreDirectory / "assets/shaders/version/3.30/CubemapSkybox.glsl").string());
