@@ -4,25 +4,25 @@
 
 #define MATERIAL 0
 
-PBRRenderingDemo::PBRRenderingDemo(const ApplicationOptions& options)
-	: Application(options)
+PBRRenderingDemo::PBRRenderingDemo(const ApplicationSpecification& spec)
+	: Application(spec)
 {
 	QK_PROFILE_FUNCTION();
 
 	GetWindow()->SetVSync(true);
 
-	m_Scene = CreateScope<PresentableScene>();
-	m_Scene->GetSettings().AirDensity = 4.0f;
-	//m_Scene->SetEnvironment("assets/Environments/MonValley_G_DirtRoad_3k.hdr");
+	m_Scene.GetSettings().AirDensity = 4.0f;
+	m_Scene.OnPlay();
 
-	m_CameraEntity = m_Scene->CreatePrimaryCamera();
+	m_CameraEntity = m_Scene.CreatePrimaryCamera();
 	m_CameraEntity.GetComponent<Transform3DComponent>().Position = { 0.0f, 0.0f, -2.0f };
 	m_CameraEntity.AddNativeScript<CameraController>();
 
-	m_Scene->OnPlay();
-
 	m_MeshDataFuture = std::async(std::launch::async, Mesh::ReadOBJData, "assets/Models/poly_sphere.obj");
 	LoadMaterialsAsync();
+
+	m_SceneRenderer.SetEnvironment("assets/Environments/MonValley_G_DirtRoad_3k.hdr");
+	m_SceneRenderer.SetPrimaryCamera(m_CameraEntity);
 
 	{
 		CubemapSpecification spec;
@@ -95,12 +95,12 @@ PBRRenderingDemo::PBRRenderingDemo(const ApplicationOptions& options)
 
 PBRRenderingDemo::~PBRRenderingDemo()
 {
-	m_Scene->OnStop();
+	m_Scene.OnStop();
 }
 
 void PBRRenderingDemo::OnUpdate(Timestep elapsedTime)
 {
-	m_Scene->OnUpdate(elapsedTime);
+	m_Scene.OnUpdate(elapsedTime);
 }
 
 void PBRRenderingDemo::OnRender()
@@ -134,7 +134,7 @@ void PBRRenderingDemo::OnRender()
 		Renderer::Submit(m_Body.GetVertexBuffer(), m_Body.GetIndexBuffer());
 	}
 
-	m_Scene->OnRender();
+	m_SceneRenderer.OnRender();
 }
 
 void PBRRenderingDemo::OnEvent(Event& e)
@@ -146,8 +146,8 @@ void PBRRenderingDemo::OnEvent(Event& e)
 
 	e.Handled = e.IsInCategory(EventCategory::Input) && GetWindow()->IsCursorEnabled();
 
-	if (m_Scene && !e.Handled)
-		m_Scene->OnEvent(e);
+	if (!e.Handled)
+		m_Scene.OnEvent(e);
 
 	DefaultEventHandler(e);
 }

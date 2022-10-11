@@ -7,5 +7,5 @@ using namespace Quark;
 class ModelImporter : public Application
 {
 public:
-	ModelImporter(const ApplicationOptions& options);
+	ModelImporter(const ApplicationSpecification& spec = {});
 };

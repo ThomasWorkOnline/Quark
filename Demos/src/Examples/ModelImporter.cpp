@@ -1,7 +1,7 @@
 #include "ModelImporter.h"
 
-ModelImporter::ModelImporter(const ApplicationOptions& options)
-	: Application(options)
+ModelImporter::ModelImporter(const ApplicationSpecification& spec)
+	: Application(spec)
 {
 	Mesh mesh = Mesh::ReadOBJData("assets/Models/arrow.obj");
 }

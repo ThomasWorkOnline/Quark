@@ -7,7 +7,7 @@ using namespace Quark;
 class Pong : public Application
 {
 public:
-	Pong(const ApplicationOptions& options);
+	Pong(const ApplicationSpecification& spec = {});
 
 	void OnUpdate(Timestep elapsedTime) override;
 	void OnRender() override;

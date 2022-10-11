@@ -1,7 +1,7 @@
 #include "Pong.h"
 
-Pong::Pong(const ApplicationOptions& options)
-	: Application(options)
+Pong::Pong(const ApplicationSpecification& spec)
+	: Application(spec)
 {
 	auto window = GetWindow();
 

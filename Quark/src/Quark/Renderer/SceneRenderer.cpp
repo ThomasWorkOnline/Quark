@@ -1,23 +1,17 @@
 #include "qkpch.h"
-#include "PresentableScene.h"
+#include "SceneRenderer.h"
 
 #include "Quark/Core/Application.h"
-#include "Quark/Renderer/Renderer.h"
-#include "Quark/Renderer/Renderer2D.h"
-
-#include "Components.h"
+#include "Renderer2D.h"
 
 namespace Quark {
 
-	void PresentableScene::OnEvent(Event& e)
+	SceneRenderer::SceneRenderer(Scene* scene)
+		: m_Scene(scene)
 	{
-		EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<WindowResizedEvent>(ATTACH_EVENT_FN(OnWindowResized));
-
-		Scene::OnEvent(e);
 	}
 
-	void PresentableScene::OnRender()
+	void SceneRenderer::OnRender()
 	{
 		if (m_PrimaryCameraEntity)
 		{
@@ -28,7 +22,7 @@ namespace Quark {
 
 			// Colored sprites
 			{
-				auto view = m_Registry.view<SpriteRendererComponent, Transform3DComponent>();
+				auto view = m_Scene->GetRegistry().view<SpriteRendererComponent, Transform3DComponent>();
 				for (auto entity : view)
 				{
 					auto [csrc, transform] = view.get<SpriteRendererComponent, Transform3DComponent>(entity);
@@ -38,7 +32,7 @@ namespace Quark {
 
 			// Textured sprites
 			{
-				auto view = m_Registry.view<TexturedSpriteRendererComponent, Transform3DComponent>();
+				auto view = m_Scene->GetRegistry().view<TexturedSpriteRendererComponent, Transform3DComponent>();
 				for (auto entity : view)
 				{
 					auto [tsrc, transform] = view.get<TexturedSpriteRendererComponent, Transform3DComponent>(entity);
@@ -48,7 +42,7 @@ namespace Quark {
 
 			// Text renderer components
 			{
-				auto view = m_Registry.view<TextRendererComponent, Transform3DComponent>();
+				auto view = m_Scene->GetRegistry().view<TextRendererComponent, Transform3DComponent>();
 				for (auto entity : view)
 				{
 					auto [trc, transform] = view.get<TextRendererComponent, Transform3DComponent>(entity);
@@ -82,42 +76,33 @@ namespace Quark {
 		}
 	}
 
-	Entity PresentableScene::CreatePrimaryCamera()
+	void SceneRenderer::OnViewportResized(uint32_t viewportWidth, uint32_t viewportHeight)
 	{
-		auto entity = CreateEntity();
-		entity.AddComponent<Transform3DComponent>();
-		entity.AddComponent<PhysicsComponent>();
-		entity.AddComponent<CameraComponent>().Camera.SetPerspective(90.0f);
-		return m_PrimaryCameraEntity = entity;
+		if (m_PrimaryCameraEntity)
+		{
+			auto& cc = m_PrimaryCameraEntity.GetComponent<CameraComponent>();
+			cc.Camera.Resize(viewportWidth, viewportHeight);
+		}
 	}
 
-	void PresentableScene::SetPrimaryCamera(Entity cameraEntity)
+	void SceneRenderer::SetPrimaryCamera(Entity cameraEntity)
 	{
 		QK_CORE_ASSERT(cameraEntity.HasComponent<CameraComponent>(), "Entity must have a camera component");
 		m_PrimaryCameraEntity = cameraEntity;
 	}
 
-	void PresentableScene::SetEnvironment(std::string_view filepath)
+	void SceneRenderer::SetEnvironment(std::string_view filepath)
 	{
 		//NewEnvironment(filepath);
 	}
 
-	void PresentableScene::OnWindowResized(WindowResizedEvent& e)
-	{
-		if (m_PrimaryCameraEntity)
-		{
-			auto& cc = m_PrimaryCameraEntity.GetComponent<CameraComponent>();
-			cc.Camera.Resize(e.GetWidth(), e.GetHeight());
-		}
-	}
-
-	void PresentableScene::NewEnvironment(std::string_view filepath)
+	void SceneRenderer::NewEnvironment(std::string_view filepath)
 	{
 		QK_PROFILE_FUNCTION();
 
 		if (!m_Data.Env)
 		{
-			auto& coreDirectory = Application::Get()->GetOptions().CoreDir;
+			auto& coreDirectory = Application::Get()->GetSpecification().CoreDir;
 
 			m_Data.Env = CreateScope<EnvironmentData>();
 			m_Data.Env->SkyboxShader = Shader::Create((coreDirectory / "assets/shaders/version/3.30/CubemapSkybox.glsl").string());

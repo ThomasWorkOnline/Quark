@@ -7,7 +7,7 @@ using namespace Quark;
 class VulkanApp : public Application
 {
 public:
-	VulkanApp(const ApplicationOptions& options = {});
+	VulkanApp(const ApplicationSpecification& spec = {});
 	~VulkanApp();
 
 	virtual void OnEvent(Event& e) override;
@@ -19,8 +19,10 @@ private:
 	void OnKeyPressed(KeyPressedEvent& e);
 
 private:
-	Ref<PresentableScene> m_Scene;
+	Scene m_Scene;
 	Entity m_CameraEntity;
+
+	SceneRenderer m_SceneRenderer = { &m_Scene };
 
 	Ref<Font> m_Font;
 	Text m_Text;

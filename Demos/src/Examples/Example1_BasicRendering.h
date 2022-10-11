@@ -7,8 +7,8 @@ using namespace Quark;
 class BasicRenderingApplication : public Application
 {
 public:
-	BasicRenderingApplication(const ApplicationOptions& options = {})
-		: Application(options)
+	BasicRenderingApplication(const ApplicationSpecification& spec = {})
+		: Application(spec)
 	{
 		// Loading our texture
 		m_Texture = Texture2D::Create("assets/Textures/Example1_BasicRendering.png");

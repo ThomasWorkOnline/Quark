@@ -8,11 +8,10 @@ namespace Quark {
 		RuntimeCore::Init();
 
 		Application* app = nullptr;
+		CommandLineArguments args = { argc, argv };
 
 		try
 		{
-			CommandLineArguments args = { argc, argv };
-
 			QK_BEGIN_PROFILE_SESSION("startup.json");
 			app = Quark::CreateApplication(args);
 			QK_END_PROFILE_SESSION();
@@ -29,12 +28,9 @@ namespace Quark {
 		{
 			if (app)
 			{
-				app->OnCrash();
+				app->Crash(e);
 				delete app;
 			}
-
-			(void)e;
-			QK_CORE_ASSERT(false, e.what());
 		}
 
 		RuntimeCore::Shutdown();
