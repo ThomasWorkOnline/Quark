@@ -16,8 +16,8 @@ namespace Quark {
 		virtual void Init() = 0;
 		virtual void WaitUntilDeviceIdle() = 0;
 
-		virtual void BeginFrame() = 0;
-		virtual void Flush() = 0;
+		virtual void BeginFrame(uint32_t frameIndex) = 0;
+		virtual void Flush(CommandBuffer* commandBuffer, uint32_t frameIndex) = 0;
 
 		virtual void SwapBuffers() = 0;
 		virtual void SetSwapInterval(int interval) = 0;
@@ -26,9 +26,8 @@ namespace Quark {
 
 		virtual uint32_t GetCurrentImageIndex() const = 0;
 		virtual uint32_t GetSwapChainImageCount() const = 0;
-		virtual FramebufferAttachment* GetColorAttachment(uint32_t index) const = 0;
 
-		virtual CommandBuffer* GetCommandBuffer() = 0;
+		virtual FramebufferAttachment* GetColorAttachment(uint32_t index) const = 0;
 
 		static Scope<GraphicsContext> Create(void* windowHandle, bool native = false);
 	};

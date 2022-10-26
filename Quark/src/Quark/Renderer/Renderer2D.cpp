@@ -405,10 +405,10 @@ namespace Quark {
 			}
 
 			for (uint32_t i = 0; i < s_Data->MaxSamplerDestinations; i++)
-				Renderer::GetCommandBuffer()->BindTexture(s_Data->Textures[i], s_Data->Samplers[i].get(), 1, i);
+				Renderer::GetCommandBuffer()->BindTexture(s_Data->Textures[i], s_Data->Samplers[i].get(), Renderer::GetCurrentFrameIndex(), 1, i);
 
-			Renderer::GetCommandBuffer()->BindUniformBuffer(s_Data->CameraUniformBuffer.get(), 0);
-			Renderer::GetCommandBuffer()->BindDescriptorSets();
+			Renderer::GetCommandBuffer()->BindUniformBuffer(s_Data->CameraUniformBuffer.get(), Renderer::GetCurrentFrameIndex(), 0);
+			Renderer::GetCommandBuffer()->BindDescriptorSets(Renderer::GetCurrentFrameIndex());
 
 			Renderer::Submit(s_Data->QuadVertexBuffer.get(), s_Data->QuadIndexBuffer.get(), s_Data->QuadIndexCount);
 			s_Stats.DrawCalls++;
@@ -422,8 +422,8 @@ namespace Quark {
 			s_Data->LineVertexBuffer->SetData(s_Data->LineVertices, size);
 
 			Renderer::GetCommandBuffer()->SetLineWidth(1.0f);
-			Renderer::GetCommandBuffer()->BindUniformBuffer(s_Data->CameraUniformBuffer.get(), 0);
-			Renderer::GetCommandBuffer()->BindDescriptorSets();
+			Renderer::GetCommandBuffer()->BindUniformBuffer(s_Data->CameraUniformBuffer.get(), Renderer::GetCurrentFrameIndex(), 0);
+			Renderer::GetCommandBuffer()->BindDescriptorSets(Renderer::GetCurrentFrameIndex());
 
 			Renderer::Submit(s_Data->LineVertexBuffer.get(), vertexCount);
 			s_Stats.DrawCalls++;
@@ -554,6 +554,7 @@ namespace Quark {
 			spec.Layout             = s_QuadVertexLayout;
 			spec.Topology           = PrimitiveTopology::TriangleList;
 			spec.Samples            = Renderer::GetMultisampling();
+			spec.DescriptorSetCount = Renderer::GetFramesInFlight();
 			spec.RenderPass         = Renderer::GetRenderPass();
 			spec.Shader             = s_Data->QuadShader.get();
 
@@ -595,6 +596,7 @@ namespace Quark {
 			spec.Layout             = s_LineVertexLayout;
 			spec.Topology           = PrimitiveTopology::LineList;
 			spec.Samples            = Renderer::GetMultisampling();
+			spec.DescriptorSetCount = Renderer::GetFramesInFlight();
 			spec.RenderPass         = Renderer::GetRenderPass();
 			spec.Shader             = s_Data->LineShader.get();
 

@@ -3,9 +3,10 @@
 #include "Quark/Renderer/Pipeline.h"
 
 #include "Vulkan.h"
-#include "VulkanContext.h"
 #include "VulkanDevice.h"
 #include "VulkanSampler.h"
+
+#include <vector>
 
 namespace Quark {
 
@@ -22,8 +23,8 @@ namespace Quark {
 		VulkanPipeline& operator=(const VulkanPipeline&) = delete;
 
 		VkPipeline GetVkHandle() const { return m_Pipeline; }
+		VkDescriptorSet GetDescriptorSet(uint32_t frameIndex) const;
 		VkPipelineLayout GetPipelineLayout() const { return m_PipelineLayout; }
-		VkDescriptorSet GetDescriptorSet() const;
 
 	private:
 		void CreateDescriptorSetLayout();
@@ -38,6 +39,7 @@ namespace Quark {
 
 		VkDescriptorPool m_DescriptorPool = nullptr;
 		VkDescriptorSetLayout m_DescriptorSetLayout = nullptr;
-		VkDescriptorSet m_DescriptorSets[VulkanContext::FramesInFlight]{};
+
+		std::vector<VkDescriptorSet> m_DescriptorSets;
 	};
 }

@@ -65,8 +65,6 @@ namespace Quark {
 
 		VkMemoryRequirements AllocateImage(VulkanDevice* device, VkExtent3D extent, uint32_t layerCount, uint32_t levels, uint32_t samples, VkFormat format, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkImage* image, VkDeviceMemory* bufferMemory)
 		{
-			QK_PROFILE_FUNCTION();
-
 			VkImageCreateInfo createInfo{};
 			createInfo.sType         = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 			createInfo.imageType     = VK_IMAGE_TYPE_2D;
@@ -98,8 +96,6 @@ namespace Quark {
 
 		void AllocateImageView(VulkanDevice* device, VkImage image, VkFormat format, uint32_t layerCount, uint32_t levelCount, VkImageView* imageView)
 		{
-			QK_PROFILE_FUNCTION();
-
 			VkComponentMapping componentsSwizzle{};
 			componentsSwizzle.r = VK_COMPONENT_SWIZZLE_R;
 			componentsSwizzle.g = VK_COMPONENT_SWIZZLE_G;
@@ -149,8 +145,6 @@ namespace Quark {
 
 		void ClearImage(VulkanDevice* device, VkImage dstImage, VkImageLayout layout, VkClearColorValue clearColor, uint32_t layerCount, uint32_t baseLayer, uint32_t levelCount)
 		{
-			QK_PROFILE_FUNCTION();
-
 			VkCommandBuffer commandBuffer = device->GetCopyCommandBuffer();
 			vkResetCommandBuffer(commandBuffer, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
 
@@ -195,8 +189,6 @@ namespace Quark {
 		void CopyBufferToImage(VulkanDevice* device, VkBuffer srcBuffer, VkDeviceSize bufferOffset,
 			                   VkImage dstImage, VkExtent3D imageExtent, VkOffset3D imageOffset, uint32_t layerCount, uint32_t baseLayer, uint32_t levelCount)
 		{
-			QK_PROFILE_FUNCTION();
-
 			VkCommandBuffer commandBuffer = device->GetCopyCommandBuffer();
 			vkResetCommandBuffer(commandBuffer, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
 
@@ -258,8 +250,6 @@ namespace Quark {
 		void CopyImageToBuffer(VulkanDevice* device, VkImage srcImage, VkExtent3D imageExtent, VkOffset3D imageOffset, uint32_t layerCount, uint32_t baseLayer, uint32_t level,
 			                   VkBuffer dstBuffer, VkDeviceSize bufferOffset)
 		{
-			QK_PROFILE_FUNCTION();
-
 			VkCommandBuffer commandBuffer = device->GetCopyCommandBuffer();
 			vkResetCommandBuffer(commandBuffer, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
 
@@ -292,8 +282,6 @@ namespace Quark {
 
 		void GenerateMipmaps(VulkanDevice* device, VkImage image, uint32_t width, uint32_t height, uint32_t levelCount)
 		{
-			QK_PROFILE_FUNCTION();
-
 			VkCommandBuffer commandBuffer = device->GetCopyCommandBuffer();
 			vkResetCommandBuffer(commandBuffer, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
 
@@ -386,8 +374,6 @@ namespace Quark {
 
 		void TransitionImageLayout(VulkanDevice* device, VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t levelCount)
 		{
-			QK_PROFILE_FUNCTION();
-
 			VkCommandBuffer commandBuffer = device->GetCopyCommandBuffer();
 			vkResetCommandBuffer(commandBuffer, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
 

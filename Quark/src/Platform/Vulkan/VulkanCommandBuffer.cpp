@@ -61,9 +61,9 @@ namespace Quark {
 		vkCmdBindPipeline(m_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_BoundPipeline->GetVkHandle());
 	}
 
-	void VulkanCommandBuffer::BindDescriptorSets()
+	void VulkanCommandBuffer::BindDescriptorSets(uint32_t frameIndex)
 	{
-		auto descriptorSet = m_BoundPipeline->GetDescriptorSet();
+		auto descriptorSet = m_BoundPipeline->GetDescriptorSet(frameIndex);
 		vkCmdBindDescriptorSets(m_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_BoundPipeline->GetPipelineLayout(),
 			0, 1, &descriptorSet, 0, nullptr);
 	}
@@ -163,7 +163,7 @@ namespace Quark {
 		vkCmdBindIndexBuffer(m_CommandBuffer, buffer, 0, VK_INDEX_TYPE_UINT32);
 	}
 
-	void VulkanCommandBuffer::BindUniformBuffer(const UniformBuffer* uniformBuffer, uint32_t binding)
+	void VulkanCommandBuffer::BindUniformBuffer(const UniformBuffer* uniformBuffer, uint32_t frameIndex, uint32_t binding)
 	{
 		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
 
@@ -181,12 +181,12 @@ namespace Quark {
 		writeDescriptorSet.descriptorCount = 1;
 		writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		writeDescriptorSet.pBufferInfo = &bufferInfo;
-		writeDescriptorSet.dstSet = m_BoundPipeline->GetDescriptorSet();
+		writeDescriptorSet.dstSet = m_BoundPipeline->GetDescriptorSet(frameIndex);
 
 		vkUpdateDescriptorSets(m_Device->GetVkHandle(), 1, &writeDescriptorSet, 0, nullptr);
 	}
 
-	void VulkanCommandBuffer::BindTexture(const Texture* texture, const Sampler* sampler, uint32_t binding, uint32_t samplerIndex)
+	void VulkanCommandBuffer::BindTexture(const Texture* texture, const Sampler* sampler, uint32_t frameIndex, uint32_t binding, uint32_t samplerIndex)
 	{
 		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
 
@@ -208,7 +208,7 @@ namespace Quark {
 		writeDescriptorSet.descriptorCount = 1;
 		writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		writeDescriptorSet.pImageInfo = &imageInfo;
-		writeDescriptorSet.dstSet = m_BoundPipeline->GetDescriptorSet();
+		writeDescriptorSet.dstSet = m_BoundPipeline->GetDescriptorSet(frameIndex);
 
 		vkUpdateDescriptorSets(m_Device->GetVkHandle(), 1, &writeDescriptorSet, 0, nullptr);
 	}

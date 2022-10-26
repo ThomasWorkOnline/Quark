@@ -66,6 +66,9 @@ namespace Quark {
 		void PushLayer(Layer* layer);
 		void PopLayer(Layer* layer);
 
+		template<typename T, typename... Args>
+		void PushLayer(Args&&... args);
+
 		float GetAppRunningTime() const { return m_TotalTime; }
 		std::thread::id GetThreadId() const { return m_AppMainThreadId; }
 
@@ -103,4 +106,10 @@ namespace Quark {
 		bool m_Minimized = false;
 		bool m_Running = false;
 	};
+
+	template<typename T, typename ...Args>
+	inline void Application::PushLayer(Args && ...args)
+	{
+		m_Layers.push_back(new T(std::forward<Args>(args)...));
+	}
 }

@@ -66,8 +66,8 @@ namespace Quark {
 				m_Data.Env->SkyboxShader->SetInt("u_EnvironmentMap", 0);
 				m_Data.Env->SkyboxShader->SetFloat("u_Exposure", 1.0f);
 
-				Renderer::GetCommandBuffer()->BindTexture(m_Data.Env->Environment.get(), nullptr /*sampler*/, 0);
-				Renderer::GetCommandBuffer()->BindTexture(m_Data.Env->Environment.get(), nullptr /*sampler*/, 5);
+				Renderer::GetCommandBuffer()->BindTexture(m_Data.Env->Environment.get(), nullptr, Renderer::GetCurrentFrameIndex(), 0);
+				Renderer::GetCommandBuffer()->BindTexture(m_Data.Env->Environment.get(), nullptr, Renderer::GetCurrentFrameIndex(), 5);
 
 				Renderer::Submit(m_Data.Env->CubemapBox.GetVertexBuffer(), m_Data.Env->CubemapBox.GetIndexBuffer());
 				Renderer::GetCommandBuffer()->SetCullMode(RenderCullMode::Default);
@@ -195,7 +195,7 @@ namespace Quark {
 
 		auto hdrTexture = Texture2D::Create(filepath);
 
-		Renderer::GetCommandBuffer()->BindTexture(hdrTexture.get(), nullptr /*sampler*/, 0);
+		Renderer::GetCommandBuffer()->BindTexture(hdrTexture.get(), nullptr, Renderer::GetCurrentFrameIndex(), 0);
 		Renderer::GetCommandBuffer()->SetCullMode(RenderCullMode::Front);
 		Renderer::GetCommandBuffer()->SetDepthFunction(DepthCompareFunction::LessOrEqual);
 
@@ -228,7 +228,7 @@ namespace Quark {
 			m_Data.Env->IrradianceShader->SetInt("u_EnvironmentMap", 0);
 			m_Data.Env->IrradianceShader->SetMat4f("u_Projection", captureProjection);
 
-			Renderer::GetCommandBuffer()->BindTexture(m_Data.Env->Environment.get(), nullptr /*sampler*/, 0);
+			Renderer::GetCommandBuffer()->BindTexture(m_Data.Env->Environment.get(), nullptr, Renderer::GetCurrentFrameIndex(), 0);
 
 			for (uint8_t i = 0; i < 6; i++)
 			{

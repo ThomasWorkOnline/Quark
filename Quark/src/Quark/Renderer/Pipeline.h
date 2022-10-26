@@ -25,6 +25,7 @@ namespace Quark {
 		BufferLayout          Layout;
 		PrimitiveTopology     Topology{};
 		uint32_t              Samples = 1;
+		uint32_t              DescriptorSetCount = 0;
 
 		const Shader*         Shader = nullptr;
 		const RenderPass*     RenderPass = nullptr;

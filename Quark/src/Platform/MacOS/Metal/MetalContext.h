@@ -15,8 +15,8 @@ namespace Quark {
 		virtual void Init() final override;
 		virtual void WaitUntilDeviceIdle() final override {}
 
-		virtual void BeginFrame() final override {}
-		virtual void Flush() final override {}
+		virtual void BeginFrame(uint32_t frameIndex) final override {}
+		virtual void Flush(CommandBuffer* commandBuffer, uint32_t frameIndex) final override {}
 
 		virtual void SwapBuffers() final override;
 		virtual void SetSwapInterval(int interval) final override {}
@@ -25,9 +25,8 @@ namespace Quark {
 
 		virtual uint32_t GetCurrentImageIndex() const final override { return 0; }
 		virtual uint32_t GetSwapChainImageCount() const final override { return 1; }
-		virtual FramebufferAttachment* GetColorAttachment(uint32_t index) const final override { return nullptr; }
 
-		virtual CommandBuffer* GetCommandBuffer() final override { return nullptr; }
+		virtual FramebufferAttachment* GetColorAttachment(uint32_t index) const final override { return nullptr; }
 
 	private:
 		GLFWwindow* m_WindowHandle;

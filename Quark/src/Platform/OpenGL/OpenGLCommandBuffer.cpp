@@ -41,7 +41,7 @@ namespace Quark {
 		glUseProgram(glShader->GetRendererID());
 	}
 
-	void OpenGLCommandBuffer::BindDescriptorSets()
+	void OpenGLCommandBuffer::BindDescriptorSets(uint32_t frameIndex)
 	{
 	}
 
@@ -122,13 +122,13 @@ namespace Quark {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glIndexBuffer->GetRendererID());
 	}
 
-	void OpenGLCommandBuffer::BindUniformBuffer(const UniformBuffer* uniformBuffer, uint32_t binding)
+	void OpenGLCommandBuffer::BindUniformBuffer(const UniformBuffer* uniformBuffer, uint32_t frameIndex, uint32_t binding)
 	{
 		auto* glUniformBuffer = static_cast<const OpenGLUniformBuffer*>(uniformBuffer);
 		glBindBufferBase(GL_UNIFORM_BUFFER, binding, glUniformBuffer->GetRendererID());
 	}
 
-	void OpenGLCommandBuffer::BindTexture(const Texture* texture, const Sampler* sampler, uint32_t binding, uint32_t samplerIndex)
+	void OpenGLCommandBuffer::BindTexture(const Texture* texture, const Sampler* sampler, uint32_t frameIndex, uint32_t binding, uint32_t samplerIndex)
 	{
 		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
 

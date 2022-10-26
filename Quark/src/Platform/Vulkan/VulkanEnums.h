@@ -100,7 +100,7 @@ namespace Quark {
 		/*true*/                 VK_ATTACHMENT_LOAD_OP_CLEAR
 	};
 
-	inline constexpr VkCullModeFlagBits s_VulkanCullModeLUT[] = {
+	inline constexpr VkCullModeFlags s_VulkanCullModeLUT[] = {
 		/*None*/                 VK_CULL_MODE_NONE,
 		/*Front*/                VK_CULL_MODE_FRONT_BIT,
 		/*Back*/                 VK_CULL_MODE_BACK_BIT,
@@ -200,7 +200,7 @@ namespace Quark {
 		/*LinearMipmapLinear*/   VK_FILTER_LINEAR
 	};
 
-	inline constexpr VkShaderStageFlagBits s_VulkanShaderStageLUT[] = {
+	inline constexpr VkShaderStageFlags s_VulkanShaderStageLUT[] = {
 		/*None*/                 VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM,
 		/*Vertex*/               VK_SHADER_STAGE_VERTEX_BIT,
 		/*Geometry*/             VK_SHADER_STAGE_GEOMETRY_BIT,
@@ -223,7 +223,7 @@ namespace Quark {
 		return s_VulkanClearAttachmentLoadOpsLUT[clear];
 	}
 
-	constexpr VkCullModeFlagBits CullModeToVulkan(RenderCullMode mode)
+	constexpr VkCullModeFlags CullModeToVulkan(RenderCullMode mode)
 	{
 		return s_VulkanCullModeLUT[static_cast<size_t>(mode)];
 	}
@@ -283,7 +283,7 @@ namespace Quark {
 		return s_VulkanBaseShaderDataTypeLUT[static_cast<size_t>(type)];
 	}
 
-	constexpr VkShaderStageFlagBits ShaderStageToVulkan(ShaderStage	stage)
+	constexpr VkShaderStageFlags ShaderStageToVulkan(ShaderStage stage)
 	{
 		return s_VulkanShaderStageLUT[static_cast<size_t>(stage)];
 	}

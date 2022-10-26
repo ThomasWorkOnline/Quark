@@ -10,8 +10,6 @@ namespace Quark {
 	OpenGLUniformBuffer::OpenGLUniformBuffer(const UniformBufferSpecification& spec)
 		: UniformBuffer(spec)
 	{
-		QK_PROFILE_FUNCTION();
-
 		QK_CORE_ASSERT(spec.Size <= Renderer::GetCapabilities().UniformBuffer.MaxBufferSize,
 			"Uniform buffer Size too large: see Renderer::GetCapabilities() for more info");
 
@@ -24,8 +22,6 @@ namespace Quark {
 
 	OpenGLUniformBuffer::~OpenGLUniformBuffer()
 	{
-		QK_PROFILE_FUNCTION();
-
 		glDeleteBuffers(1, &m_RendererID);
 	}
 

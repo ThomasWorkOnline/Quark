@@ -49,6 +49,9 @@ namespace Quark {
 		static ViewportExtent  GetViewportExtent();
 		static uint32_t        GetMultisampling();
 
+		static uint32_t        GetFramesInFlight();
+		static uint32_t        GetCurrentFrameIndex();
+
 		static CommandBuffer*  GetCommandBuffer();
 
 		static ShaderLibrary&  GetShaderLibrary();
