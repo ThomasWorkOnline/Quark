@@ -5,7 +5,8 @@
 #include "Vulkan.h"
 #include "VulkanDevice.h"
 #include "VulkanSwapChain.h"
-#include "VulkanCommandBuffer.h"
+
+#include <vector>
 
 namespace Quark {
 
@@ -16,16 +17,14 @@ namespace Quark {
 	class VulkanContextBase : public GraphicsContext
 	{
 	public:
-		static constexpr uint32_t FramesInFlight = 2;
-
-	public:
+		VulkanContextBase();
 		virtual ~VulkanContextBase() override;
 
 		virtual void Init() override;
 		virtual void WaitUntilDeviceIdle() final override;
 
-		virtual void BeginFrame() final override;
-		virtual void Flush() final override;
+		virtual void BeginFrame(uint32_t frameIndex) final override;
+		virtual void Flush(CommandBuffer* commandBuffer, uint32_t frameIndex) final override;
 
 		virtual void SwapBuffers() final override;
 		virtual void SetSwapInterval(int interval) final override;
@@ -34,13 +33,11 @@ namespace Quark {
 
 		virtual uint32_t GetCurrentImageIndex() const final override;
 		virtual uint32_t GetSwapChainImageCount() const final override;
-		virtual FramebufferAttachment* GetColorAttachment(uint32_t index) const final override;
 
-		virtual CommandBuffer* GetCommandBuffer() final override;
+		virtual FramebufferAttachment* GetColorAttachment(uint32_t index) const final override;
 
 		VkInstance GetInstance() const { return m_Instance; }
 		VulkanSwapChain* GetSwapChain() { return m_SwapChain.get(); }
-		uint32_t GetCurrentFrameIndex() const { return m_CurrentFrameIndex; }
 
 	protected:
 		void CreateInstance(const char* appName, const std::vector<const char*>& extensions);
@@ -60,14 +57,12 @@ namespace Quark {
 	private:
 		struct FrameData
 		{
-			VkFence InFlightFence{};
-			VkSemaphore RenderFinishedSemaphore{};
-			VkSemaphore ImageAvailableSemaphore{};
-			VulkanCommandBuffer CommandBuffer;
+			VkFence InFlightFence;
+			VkSemaphore RenderFinishedSemaphore;
+			VkSemaphore ImageAvailableSemaphore;
 		};
 
-		FrameData m_Frames[FramesInFlight];
-		uint32_t m_CurrentFrameIndex = 0;
+		std::vector<FrameData> m_Frames;
 		bool m_SwapchainValid = false;
 
 #if QK_ENABLE_VULKAN_VALIDATION_LAYERS

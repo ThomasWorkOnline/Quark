@@ -8,8 +8,6 @@ namespace Quark {
 	VulkanVertexBuffer::VulkanVertexBuffer(VulkanDevice* device, size_t size)
 		: m_Device(device), m_Size(size)
 	{
-		QK_PROFILE_FUNCTION();
-
 		Utils::AllocateBuffer(m_Device, size,
 			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &m_Buffer, &m_BufferMemory);
@@ -18,8 +16,6 @@ namespace Quark {
 	VulkanVertexBuffer::VulkanVertexBuffer(VulkanDevice* device, const void* vertices, size_t size)
 		: m_Device(device), m_Size(size)
 	{
-		QK_PROFILE_FUNCTION();
-
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;
 		Utils::AllocateBuffer(m_Device, size,
@@ -47,8 +43,6 @@ namespace Quark {
 
 	VulkanVertexBuffer::~VulkanVertexBuffer()
 	{
-		QK_PROFILE_FUNCTION();
-
 		vkDestroyBuffer(m_Device->GetVkHandle(), m_Buffer, nullptr);
 		vkFreeMemory(m_Device->GetVkHandle(), m_BufferMemory, nullptr);
 	}
@@ -90,8 +84,6 @@ namespace Quark {
 	VulkanIndexBuffer::VulkanIndexBuffer(VulkanDevice* device, uint32_t count)
 		: m_Device(device), m_Count(count)
 	{
-		QK_PROFILE_FUNCTION();
-
 		size_t size = count * sizeof(uint32_t);
 		Utils::AllocateBuffer(m_Device, size,
 			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
@@ -101,8 +93,6 @@ namespace Quark {
 	VulkanIndexBuffer::VulkanIndexBuffer(VulkanDevice* device, const uint32_t* indices, uint32_t count)
 		: m_Device(device), m_Count(count)
 	{
-		QK_PROFILE_FUNCTION();
-
 		size_t size = count * sizeof(uint32_t);
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;
@@ -131,8 +121,6 @@ namespace Quark {
 
 	VulkanIndexBuffer::~VulkanIndexBuffer()
 	{
-		QK_PROFILE_FUNCTION();
-
 		vkDestroyBuffer(m_Device->GetVkHandle(), m_Buffer, nullptr);
 		vkFreeMemory(m_Device->GetVkHandle(), m_BufferMemory, nullptr);
 	}

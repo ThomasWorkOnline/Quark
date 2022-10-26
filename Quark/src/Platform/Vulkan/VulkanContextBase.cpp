@@ -2,6 +2,7 @@
 #include "VulkanContextBase.h"
 
 #include "VulkanUtils.h"
+#include "VulkanCommandBuffer.h"
 
 ///////////////////////////////////////
 /// Vulkan API customizations
@@ -143,12 +144,12 @@ namespace Quark {
 			vkCreateSemaphore(m_Device->GetVkHandle(), &semaphoreInfo, nullptr, &data.ImageAvailableSemaphore);
 		}
 
-		for (uint32_t i = 0; i < FramesInFlight; i++)
-		{
-			m_Frames[i].CommandBuffer = { m_Device.get() };
-		}
-
 		QK_CORE_TRACE("Created Vulkan graphics context!");
+	}
+
+	VulkanContextBase::VulkanContextBase()
+		: m_Frames(Renderer::GetFramesInFlight())
+	{
 	}
 
 	VulkanContextBase::~VulkanContextBase()
@@ -171,13 +172,13 @@ namespace Quark {
 		vkDestroyInstance(m_Instance, nullptr);
 	}
 
-	void VulkanContextBase::BeginFrame()
+	void VulkanContextBase::BeginFrame(uint32_t frameIndex)
 	{
-		VkFence waitFence = m_Frames[m_CurrentFrameIndex].InFlightFence;
+		VkFence waitFence = m_Frames[frameIndex].InFlightFence;
 		vkWaitForFences(m_Device->GetVkHandle(), 1, &waitFence, VK_TRUE, UINT64_MAX);
 		vkResetFences(m_Device->GetVkHandle(), 1, &waitFence);
 
-		VkResult res = m_SwapChain->AcquireNextImage(m_Frames[m_CurrentFrameIndex].ImageAvailableSemaphore);
+		VkResult res = m_SwapChain->AcquireNextImage(m_Frames[frameIndex].ImageAvailableSemaphore);
 		m_SwapchainValid = res == VK_SUCCESS;
 	}
 
@@ -186,10 +187,10 @@ namespace Quark {
 		m_Device->WaitUntilIdle();
 	}
 
-	void VulkanContextBase::Flush()
+	void VulkanContextBase::Flush(CommandBuffer* commandBuffer, uint32_t frameIndex)
 	{
 		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-		VkSemaphore waitSemaphores = m_Frames[m_CurrentFrameIndex].ImageAvailableSemaphore;
+		VkSemaphore waitSemaphores = m_Frames[frameIndex].ImageAvailableSemaphore;
 
 		VkSubmitInfo submitInfo{};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -201,28 +202,25 @@ namespace Quark {
 			submitInfo.pWaitSemaphores = &waitSemaphores;
 		}
 
-		VkCommandBuffer commandBuffers[] = {
-			m_Frames[m_CurrentFrameIndex].CommandBuffer.GetVkHandle()
-		};
+		VkCommandBuffer vulkanCommandBuffer = static_cast<VulkanCommandBuffer*>(commandBuffer)->GetVkHandle();
 
-		submitInfo.commandBufferCount = sizeof_array(commandBuffers);
-		submitInfo.pCommandBuffers = commandBuffers;
+		submitInfo.commandBufferCount = 1;
+		submitInfo.pCommandBuffers = &vulkanCommandBuffer;
 
-		VkSemaphore signalSemaphore = m_Frames[m_CurrentFrameIndex].RenderFinishedSemaphore;
+		VkSemaphore signalSemaphore = m_Frames[frameIndex].RenderFinishedSemaphore;
 		submitInfo.signalSemaphoreCount = 1;
 		submitInfo.pSignalSemaphores = &signalSemaphore;
 
 		VkQueue graphicsQueue = m_Device->GetGraphicsQueue();
-		vkQueueSubmit(graphicsQueue, 1, &submitInfo, m_Frames[m_CurrentFrameIndex].InFlightFence);
+		vkQueueSubmit(graphicsQueue, 1, &submitInfo, m_Frames[frameIndex].InFlightFence);
 	}
 
 	void VulkanContextBase::SwapBuffers()
 	{
 		auto presentQueue = m_Device->GetPresentQueue();
-		auto renderFinishedSemaphore = m_Frames[m_CurrentFrameIndex].RenderFinishedSemaphore;
+		auto renderFinishedSemaphore = m_Frames[Renderer::GetCurrentFrameIndex()].RenderFinishedSemaphore;
 		
 		m_SwapChain->Present(presentQueue, renderFinishedSemaphore);
-		m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % FramesInFlight;
 	}
 
 	void VulkanContextBase::SetSwapInterval(int interval)
@@ -248,11 +246,6 @@ namespace Quark {
 	uint32_t VulkanContextBase::GetCurrentImageIndex() const
 	{
 		return m_SwapChain->GetCurrentImageIndex();
-	}
-
-	CommandBuffer* VulkanContextBase::GetCommandBuffer()
-	{
-		return &m_Frames[m_CurrentFrameIndex].CommandBuffer;
 	}
 
 	void VulkanContextBase::CreateInstance(const char* appName, const std::vector<const char*>& extensions)

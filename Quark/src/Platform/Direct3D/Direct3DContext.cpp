@@ -116,11 +116,11 @@ namespace Quark {
 	{
 	}
 
-	void Direct3D12Context::BeginFrame()
+	void Direct3D12Context::BeginFrame(uint32_t frameIndex)
 	{
 	}
 
-	void Direct3D12Context::Flush()
+	void Direct3D12Context::Flush(CommandBuffer* commandBuffer, uint32_t frameIndex)
 	{
 	}
 
@@ -138,7 +138,7 @@ namespace Quark {
 
 	uint32_t Direct3D12Context::GetCurrentImageIndex() const
 	{
-		return uint32_t();
+		return 0;
 	}
 
 	uint32_t Direct3D12Context::GetSwapChainImageCount() const
@@ -147,11 +147,6 @@ namespace Quark {
 	}
 
 	FramebufferAttachment* Direct3D12Context::GetColorAttachment(uint32_t index) const
-	{
-		return nullptr;
-	}
-
-	CommandBuffer* Direct3D12Context::GetCommandBuffer()
 	{
 		return nullptr;
 	}

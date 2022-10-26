@@ -57,11 +57,12 @@ PBRRenderingDemo::PBRRenderingDemo(const ApplicationSpecification& spec)
 
 	{
 		PipelineSpecification spec;
-		spec.Layout     = Mesh::GetBufferLayout();
-		spec.Topology   = PrimitiveTopology::TriangleList;
-		spec.Samples    = Renderer::GetMultisampling();
-		spec.Shader     = m_PBRShader.get();
-		spec.RenderPass = Renderer::GetRenderPass();
+		spec.Layout             = Mesh::GetBufferLayout();
+		spec.Topology           = PrimitiveTopology::TriangleList;
+		spec.Samples            = Renderer::GetMultisampling();
+		spec.DescriptorSetCount = Renderer::GetCurrentFrameIndex();
+		spec.Shader             = m_PBRShader.get();
+		spec.RenderPass         = Renderer::GetRenderPass();
 
 		m_Pipeline = Pipeline::Create(spec);
 	}
@@ -121,16 +122,16 @@ void PBRRenderingDemo::OnRender()
 	{
 		Renderer::BindPipeline(m_Pipeline.get());
 
-		Renderer::GetCommandBuffer()->BindUniformBuffer(m_CameraUniformBuffer.get(), 0);
-		Renderer::GetCommandBuffer()->BindTexture(m_Irradiance.get(), m_Samplers[5].get(), 0, 5);
+		Renderer::GetCommandBuffer()->BindUniformBuffer(m_CameraUniformBuffer.get(), Renderer::GetCurrentFrameIndex(), 0);
+		Renderer::GetCommandBuffer()->BindTexture(m_Irradiance.get(), m_Samplers[5].get(), Renderer::GetCurrentFrameIndex(), 0, 5);
 
-		if (m_Material.Albedo)    Renderer::GetCommandBuffer()->BindTexture(m_Material.Albedo.get(),    m_Samplers[0].get(), 0, 0);
-		if (m_Material.Normal)    Renderer::GetCommandBuffer()->BindTexture(m_Material.Normal.get(),    m_Samplers[1].get(), 0, 1);
-		if (m_Material.Metallic)  Renderer::GetCommandBuffer()->BindTexture(m_Material.Metallic.get(),  m_Samplers[2].get(), 0, 2);
-		if (m_Material.Roughness) Renderer::GetCommandBuffer()->BindTexture(m_Material.Roughness.get(), m_Samplers[3].get(), 0, 3);
-		if (m_Material.AO)        Renderer::GetCommandBuffer()->BindTexture(m_Material.AO.get(),        m_Samplers[4].get(), 0, 4);
+		if (m_Material.Albedo)    Renderer::GetCommandBuffer()->BindTexture(m_Material.Albedo.get(),    m_Samplers[0].get(), Renderer::GetCurrentFrameIndex(), 0, 0);
+		if (m_Material.Normal)    Renderer::GetCommandBuffer()->BindTexture(m_Material.Normal.get(),    m_Samplers[1].get(), Renderer::GetCurrentFrameIndex(), 0, 1);
+		if (m_Material.Metallic)  Renderer::GetCommandBuffer()->BindTexture(m_Material.Metallic.get(),  m_Samplers[2].get(), Renderer::GetCurrentFrameIndex(), 0, 2);
+		if (m_Material.Roughness) Renderer::GetCommandBuffer()->BindTexture(m_Material.Roughness.get(), m_Samplers[3].get(), Renderer::GetCurrentFrameIndex(), 0, 3);
+		if (m_Material.AO)        Renderer::GetCommandBuffer()->BindTexture(m_Material.AO.get(),        m_Samplers[4].get(), Renderer::GetCurrentFrameIndex(), 0, 4);
 
-		Renderer::GetCommandBuffer()->BindDescriptorSets();
+		Renderer::GetCommandBuffer()->BindDescriptorSets(Renderer::GetCurrentFrameIndex());
 		Renderer::Submit(m_Body.GetVertexBuffer(), m_Body.GetIndexBuffer());
 	}
 

@@ -14,6 +14,7 @@ namespace Quark {
 	VulkanPipeline::VulkanPipeline(VulkanDevice* device, const PipelineSpecification& spec)
 		: Pipeline(spec)
 		, m_Device(device)
+		, m_DescriptorSets(spec.DescriptorSetCount)
 	{
 		QK_PROFILE_FUNCTION();
 
@@ -40,9 +41,9 @@ namespace Quark {
 		return false;
 	}
 
-	VkDescriptorSet VulkanPipeline::GetDescriptorSet() const
+	VkDescriptorSet VulkanPipeline::GetDescriptorSet(uint32_t frameIndex) const
 	{
-		return m_DescriptorSets[VulkanContext::Get()->GetCurrentFrameIndex()];
+		return m_DescriptorSets[frameIndex];
 	}
 
 	void VulkanPipeline::CreateDescriptorSetLayout()
@@ -93,31 +94,39 @@ namespace Quark {
 		{
 			const auto& shaderResources = m_Spec.Shader->GetShaderResources();
 
-			AutoRelease<VkDescriptorPoolSize> poolSizes = StackAlloc(shaderResources.BindingCount * sizeof(VkDescriptorPoolSize));
+			uint32_t descriptorPoolCount = 0;
+			descriptorPoolCount += shaderResources.UniformBuffers.size() > 0;
+			descriptorPoolCount += shaderResources.SamplerArrays.size() > 0;
+
+			AutoRelease<VkDescriptorPoolSize> poolSizes = StackAlloc(descriptorPoolCount * sizeof(VkDescriptorPoolSize));
 			VkDescriptorPoolSize* poolSizesPtr = poolSizes;
 
+			// - type is the type of descriptor.
+			// - descriptorCount is the number of descriptors of that type to allocate.
+			//     If type is VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK then descriptorCount is the number of bytes to allocate for descriptors of this type.
+
 			// Uniform Buffers
-			if (uint32_t count = (uint32_t)shaderResources.UniformBuffers.size() > 0)
+			if (uint32_t count = (uint32_t)shaderResources.UniformBuffers.size())
 			{
 				poolSizesPtr->type            = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
-				poolSizesPtr->descriptorCount = count * VulkanContext::FramesInFlight;
+				poolSizesPtr->descriptorCount = count;
 				poolSizesPtr++;
 			}
 			
 			// Samplers
-			if (uint32_t count = (uint32_t)shaderResources.SamplerArrays.size() > 0)
+			if (uint32_t count = (uint32_t)shaderResources.SamplerArrays.size())
 			{
 				poolSizesPtr->type            = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-				poolSizesPtr->descriptorCount = count * VulkanContext::FramesInFlight;
+				poolSizesPtr->descriptorCount = count;
 				poolSizesPtr++;
 			}
 
-			QK_CORE_ASSERT(poolSizesPtr - poolSizes == shaderResources.BindingCount, "Shader binding count and resources do not match!");
+			QK_CORE_ASSERT(poolSizesPtr - poolSizes == descriptorPoolCount, "Descriptor pool count and shader resources do not match!");
 
 			VkDescriptorPoolCreateInfo poolInfo{};
 			poolInfo.sType         = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-			poolInfo.maxSets       = VulkanContext::FramesInFlight;
-			poolInfo.poolSizeCount = shaderResources.BindingCount;
+			poolInfo.maxSets       = m_Spec.DescriptorSetCount;
+			poolInfo.poolSizeCount = descriptorPoolCount;
 			poolInfo.pPoolSizes    = poolSizes;
 
 			vkCreateDescriptorPool(m_Device->GetVkHandle(), &poolInfo, nullptr, &m_DescriptorPool);
@@ -126,17 +135,17 @@ namespace Quark {
 		// Descriptor sets
 		{
 			// Copy each layout for each frame in flight
-			VkDescriptorSetLayout layouts[VulkanContext::FramesInFlight]{};
-			for (uint32_t i = 0; i < VulkanContext::FramesInFlight; i++)
+			AutoRelease<VkDescriptorSetLayout> layouts = StackAlloc(m_Spec.DescriptorSetCount * sizeof(VkDescriptorSetLayout));
+			for (uint32_t i = 0; i < m_Spec.DescriptorSetCount; i++)
 				layouts[i] = m_DescriptorSetLayout;
 
 			VkDescriptorSetAllocateInfo allocInfo{};
 			allocInfo.sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 			allocInfo.descriptorPool     = m_DescriptorPool;
-			allocInfo.descriptorSetCount = 1 * VulkanContext::FramesInFlight;
+			allocInfo.descriptorSetCount = 1 * m_Spec.DescriptorSetCount;
 			allocInfo.pSetLayouts        = layouts;
 
-			vkAllocateDescriptorSets(m_Device->GetVkHandle(), &allocInfo, m_DescriptorSets);
+			vkAllocateDescriptorSets(m_Device->GetVkHandle(), &allocInfo, m_DescriptorSets.data());
 		}
 	}
 

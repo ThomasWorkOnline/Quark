@@ -10,12 +10,18 @@ namespace Quark {
 
 	struct RendererData
 	{
+		static constexpr uint32_t FramesInFlight = 2;
+
 		ShaderLibrary ShaderLib;
 		Scope<RenderPass> RenderPass;
-		uint32_t Samples = 0;
 		ViewportExtent ViewportExtent{};
 
+		uint32_t Samples = 0;
+		uint32_t CurrentFrameIndex = static_cast<uint32_t>(-1);
+
 		CommandBuffer* ActiveCommandBuffer = nullptr;
+		Scope<CommandBuffer> CommandBuffers[FramesInFlight];
+
 		std::vector<Scope<Framebuffer>> Framebuffers;
 		std::vector<Scope<FramebufferAttachment>> DepthAttachments;
 	};
@@ -145,6 +151,16 @@ namespace Quark {
 		return s_Data->Samples;
 	}
 
+	uint32_t Renderer::GetFramesInFlight()
+	{
+		return RendererData::FramesInFlight;
+	}
+
+	uint32_t Renderer::GetCurrentFrameIndex()
+	{
+		return s_Data->CurrentFrameIndex;
+	}
+
 	CommandBuffer* Renderer::GetCommandBuffer()
 	{
 		QK_ASSERT_RENDER_THREAD();
@@ -185,9 +201,11 @@ namespace Quark {
 	{
 		QK_ASSERT_RENDER_THREAD();
 
-		GraphicsContext::Get()->BeginFrame();
+		s_Data->CurrentFrameIndex = (s_Data->CurrentFrameIndex + 1) % RendererData::FramesInFlight;
 
-		s_Data->ActiveCommandBuffer = GraphicsContext::Get()->GetCommandBuffer();
+		GraphicsContext::Get()->BeginFrame(s_Data->CurrentFrameIndex);
+
+		s_Data->ActiveCommandBuffer = s_Data->CommandBuffers[s_Data->CurrentFrameIndex].get();
 		s_Data->ActiveCommandBuffer->Reset();
 		s_Data->ActiveCommandBuffer->Begin();
 		s_Data->ActiveCommandBuffer->SetViewport(s_Data->ViewportExtent.Width, s_Data->ViewportExtent.Height);
@@ -202,7 +220,7 @@ namespace Quark {
 		EndRenderPass();
 		s_Data->ActiveCommandBuffer->End();
 
-		GraphicsContext::Get()->Flush();
+		GraphicsContext::Get()->Flush(s_Data->ActiveCommandBuffer, s_Data->CurrentFrameIndex);
 	}
 
 	void Renderer::Configure(RHI api)
@@ -225,7 +243,10 @@ namespace Quark {
 		s_Data->ViewportExtent.Width = viewportWidth;
 		s_Data->ViewportExtent.Height = viewportHeight;
 
-		s_Data->ActiveCommandBuffer = GraphicsContext::Get()->GetCommandBuffer();
+		for (uint32_t i = 0; i < RendererData::FramesInFlight; i++)
+			s_Data->CommandBuffers[i] = CommandBuffer::Create();
+
+		s_Data->ActiveCommandBuffer = s_Data->CommandBuffers[0].get();
 
 		{
 			RenderPassSpecification spec;
@@ -235,7 +256,7 @@ namespace Quark {
 			spec.ClearColor            = { 0.01f, 0.01f, 0.01f, 1.0f };
 			spec.ClearBuffers          = true;
 			spec.Samples               = s_Data->Samples;
-			s_Data->RenderPass       = RenderPass::Create(spec);
+			s_Data->RenderPass = RenderPass::Create(spec);
 		}
 
 		const uint32_t swapChainImages = GraphicsContext::Get()->GetSwapChainImageCount();
