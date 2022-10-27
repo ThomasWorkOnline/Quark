@@ -10,7 +10,10 @@
 #include "Framebuffer.h"
 #include "Pipeline.h"
 #include "RenderPass.h"
+#include "UniformBuffer.h"
+#include "Sampler.h"
 #include "Shader.h"
+#include "Texture.h"
 
 #include <thread>
 
@@ -32,12 +35,18 @@ namespace Quark {
 		static void BeginRenderPass();
 		static void EndRenderPass();
 
-		static void Submit(const VertexBuffer* vertexBuffer, uint32_t vertexCount);
-		static void Submit(const VertexBuffer* vertexBuffer, const IndexBuffer* indexBuffer);
-		static void Submit(const VertexBuffer* vertexBuffer, const IndexBuffer* indexBuffer, uint32_t indexCount);
+		static void Draw(const VertexBuffer* vertexBuffer, uint32_t vertexCount);
+		static void DrawIndexed(const VertexBuffer* vertexBuffer, const IndexBuffer* indexBuffer);
+		static void DrawIndexed(const VertexBuffer* vertexBuffer, const IndexBuffer* indexBuffer, uint32_t indexCount);
 
+		static void BindTexture(const Texture* texture, const Sampler* sampler, uint32_t binding, uint32_t samplerIndex = 0);
+		static void BindUniformBuffer(const UniformBuffer* uniformBuffer, uint32_t binding);
+		static void BindDescriptorSets();
+
+		static void SetLineWidth(float width);
 		static void SetViewport(uint32_t viewportWidth, uint32_t viewportHeight);
 		static void SetClearColor(const Vec4f& clearColor);
+
 		static void WaitUntilDeviceIdle();
 
 		static const Vec4f&    GetClearColor();

@@ -66,10 +66,10 @@ namespace Quark {
 				m_Data.Env->SkyboxShader->SetInt("u_EnvironmentMap", 0);
 				m_Data.Env->SkyboxShader->SetFloat("u_Exposure", 1.0f);
 
-				Renderer::GetCommandBuffer()->BindTexture(m_Data.Env->Environment.get(), nullptr, Renderer::GetCurrentFrameIndex(), 0);
-				Renderer::GetCommandBuffer()->BindTexture(m_Data.Env->Environment.get(), nullptr, Renderer::GetCurrentFrameIndex(), 5);
+				Renderer::BindTexture(m_Data.Env->Environment.get(), nullptr, 0);
+				Renderer::BindTexture(m_Data.Env->Environment.get(), nullptr, 5);
 
-				Renderer::Submit(m_Data.Env->CubemapBox.GetVertexBuffer(), m_Data.Env->CubemapBox.GetIndexBuffer());
+				Renderer::DrawIndexed(m_Data.Env->CubemapBox.GetVertexBuffer(), m_Data.Env->CubemapBox.GetIndexBuffer());
 				Renderer::GetCommandBuffer()->SetCullMode(RenderCullMode::Default);
 				Renderer::GetCommandBuffer()->SetDepthFunction(DepthCompareFunction::Default);
 			}
@@ -213,7 +213,7 @@ namespace Quark {
 
 				// FIX:
 				//RenderCommand::Clear();
-				Renderer::Submit(m_Data.Env->CubemapBox.GetVertexBuffer(), m_Data.Env->CubemapBox.GetIndexBuffer());
+				Renderer::DrawIndexed(m_Data.Env->CubemapBox.GetVertexBuffer(), m_Data.Env->CubemapBox.GetIndexBuffer());
 			}
 
 			Renderer::EndRenderPass();
@@ -237,7 +237,7 @@ namespace Quark {
 
 				// FIX:
 				//RenderCommand::Clear();
-				Renderer::Submit(m_Data.Env->CubemapBox.GetVertexBuffer(), m_Data.Env->CubemapBox.GetIndexBuffer());
+				Renderer::DrawIndexed(m_Data.Env->CubemapBox.GetVertexBuffer(), m_Data.Env->CubemapBox.GetIndexBuffer());
 			}
 
 			Renderer::EndRenderPass();

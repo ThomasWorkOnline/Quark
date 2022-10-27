@@ -56,7 +56,7 @@ namespace Quark {
 		s_Data->ActiveCommandBuffer->EndRenderPass();
 	}
 
-	void Renderer::Submit(const VertexBuffer* vertexBuffer, uint32_t vertexCount)
+	void Renderer::Draw(const VertexBuffer* vertexBuffer, uint32_t vertexCount)
 	{
 		QK_ASSERT_RENDER_THREAD();
 
@@ -64,7 +64,7 @@ namespace Quark {
 		s_Data->ActiveCommandBuffer->Draw(vertexCount, 0);
 	}
 
-	void Renderer::Submit(const VertexBuffer* vertexBuffer, const IndexBuffer* indexBuffer)
+	void Renderer::DrawIndexed(const VertexBuffer* vertexBuffer, const IndexBuffer* indexBuffer)
 	{
 		QK_ASSERT_RENDER_THREAD();
 
@@ -73,13 +73,33 @@ namespace Quark {
 		s_Data->ActiveCommandBuffer->DrawIndexed(indexBuffer->GetCount());
 	}
 
-	void Renderer::Submit(const VertexBuffer* vertexBuffer, const IndexBuffer* indexBuffer, uint32_t indexCount)
+	void Renderer::DrawIndexed(const VertexBuffer* vertexBuffer, const IndexBuffer* indexBuffer, uint32_t indexCount)
 	{
 		QK_ASSERT_RENDER_THREAD();
 
 		s_Data->ActiveCommandBuffer->BindVertexBuffer(vertexBuffer);
 		s_Data->ActiveCommandBuffer->BindIndexBuffer(indexBuffer);
 		s_Data->ActiveCommandBuffer->DrawIndexed(indexCount);
+	}
+
+	void Renderer::BindTexture(const Texture* texture, const Sampler* sampler, uint32_t binding, uint32_t samplerIndex)
+	{
+		s_Data->ActiveCommandBuffer->BindTexture(texture, sampler, s_Data->CurrentFrameIndex, binding, samplerIndex);
+	}
+
+	void Renderer::BindUniformBuffer(const UniformBuffer* uniformBuffer, uint32_t binding)
+	{
+		s_Data->ActiveCommandBuffer->BindUniformBuffer(uniformBuffer, s_Data->CurrentFrameIndex, binding);
+	}
+
+	void Renderer::BindDescriptorSets()
+	{
+		s_Data->ActiveCommandBuffer->BindDescriptorSets(s_Data->CurrentFrameIndex);
+	}
+
+	void Renderer::SetLineWidth(float width)
+	{
+		s_Data->ActiveCommandBuffer->SetLineWidth(width);
 	}
 
 	void Renderer::SetViewport(uint32_t viewportWidth, uint32_t viewportHeight)

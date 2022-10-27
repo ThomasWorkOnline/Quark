@@ -405,12 +405,12 @@ namespace Quark {
 			}
 
 			for (uint32_t i = 0; i < s_Data->MaxSamplerDestinations; i++)
-				Renderer::GetCommandBuffer()->BindTexture(s_Data->Textures[i], s_Data->Samplers[i].get(), Renderer::GetCurrentFrameIndex(), 1, i);
+				Renderer::BindTexture(s_Data->Textures[i], s_Data->Samplers[i].get(), 1, i);
 
-			Renderer::GetCommandBuffer()->BindUniformBuffer(s_Data->CameraUniformBuffer.get(), Renderer::GetCurrentFrameIndex(), 0);
-			Renderer::GetCommandBuffer()->BindDescriptorSets(Renderer::GetCurrentFrameIndex());
+			Renderer::BindUniformBuffer(s_Data->CameraUniformBuffer.get(), 0);
+			Renderer::BindDescriptorSets();
 
-			Renderer::Submit(s_Data->QuadVertexBuffer.get(), s_Data->QuadIndexBuffer.get(), s_Data->QuadIndexCount);
+			Renderer::DrawIndexed(s_Data->QuadVertexBuffer.get(), s_Data->QuadIndexBuffer.get(), s_Data->QuadIndexCount);
 			s_Stats.DrawCalls++;
 		}
 
@@ -421,11 +421,11 @@ namespace Quark {
 			size_t size = ((uint8_t*)s_Data->LineVertexPtr - (uint8_t*)s_Data->LineVertices);
 			s_Data->LineVertexBuffer->SetData(s_Data->LineVertices, size);
 
-			Renderer::GetCommandBuffer()->SetLineWidth(1.0f);
-			Renderer::GetCommandBuffer()->BindUniformBuffer(s_Data->CameraUniformBuffer.get(), Renderer::GetCurrentFrameIndex(), 0);
-			Renderer::GetCommandBuffer()->BindDescriptorSets(Renderer::GetCurrentFrameIndex());
+			Renderer::SetLineWidth(1.0f);
+			Renderer::BindUniformBuffer(s_Data->CameraUniformBuffer.get(), 0);
+			Renderer::BindDescriptorSets();
 
-			Renderer::Submit(s_Data->LineVertexBuffer.get(), vertexCount);
+			Renderer::Draw(s_Data->LineVertexBuffer.get(), vertexCount);
 			s_Stats.DrawCalls++;
 		}
 	}
