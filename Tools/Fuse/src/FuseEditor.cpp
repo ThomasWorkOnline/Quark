@@ -4,8 +4,8 @@
 
 namespace Quark {
 
-	FuseEditor::FuseEditor(const ApplicationOptions& options)
-		: Application(options)
+	FuseEditor::FuseEditor(const ApplicationSpecification& spec)
+		: Application(spec)
 	{
 		ImGui::StyleColorsDark();
 

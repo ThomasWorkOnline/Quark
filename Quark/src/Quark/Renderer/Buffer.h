@@ -106,19 +106,19 @@ namespace Quark {
 	class BufferLayout
 	{
 	public:
-		QK_CONSTEXPR20 BufferLayout() = default;
-		QK_CONSTEXPR20 BufferLayout(std::initializer_list<BufferElement> elements)
+		BufferLayout() = default;
+		BufferLayout(std::initializer_list<BufferElement> elements)
 			: m_Elements(elements)
 		{
 			CalculateOffsetsAndStride();
 		}
 
-		constexpr size_t GetStride() const { return m_Stride; }
+		size_t GetStride() const { return m_Stride; }
 
-		QK_CONSTEXPR20 uint32_t GetCount() const { return static_cast<uint32_t>(m_Elements.size()); }
-		QK_CONSTEXPR20 const std::vector<BufferElement>& GetElements() const { return m_Elements; }
+		uint32_t GetCount() const { return static_cast<uint32_t>(m_Elements.size()); }
+		const std::vector<BufferElement>& GetElements() const { return m_Elements; }
 
-		QK_CONSTEXPR20 const BufferElement& operator[](std::string_view name) const
+		const BufferElement& operator[](std::string_view name) const
 		{
 			auto it = std::find_if(m_Elements.begin(), m_Elements.end(), [name](const BufferElement& element)
 			{
@@ -129,13 +129,13 @@ namespace Quark {
 			return *it;
 		}
 
-		QK_CONSTEXPR20 const BufferElement& operator[](size_t index) const
+		const BufferElement& operator[](size_t index) const
 		{
 			QK_CORE_ASSERT(index >= 0 && index < m_Elements.size(), "Buffer element index out of bounds");
 			return m_Elements[index];
 		}
 
-		QK_CONSTEXPR20 bool operator==(const BufferLayout& other) const
+		bool operator==(const BufferLayout& other) const
 		{
 			if (GetCount() != other.GetCount()) return false;
 
@@ -148,13 +148,13 @@ namespace Quark {
 			return true;
 		}
 
-		QK_CONSTEXPR20 std::vector<BufferElement>::iterator begin() { return m_Elements.begin(); }
-		QK_CONSTEXPR20 std::vector<BufferElement>::iterator end() { return m_Elements.end(); }
-		QK_CONSTEXPR20 std::vector<BufferElement>::const_iterator begin() const { return m_Elements.begin(); }
-		QK_CONSTEXPR20 std::vector<BufferElement>::const_iterator end() const { return m_Elements.end(); }
+		std::vector<BufferElement>::iterator begin() { return m_Elements.begin(); }
+		std::vector<BufferElement>::iterator end() { return m_Elements.end(); }
+		std::vector<BufferElement>::const_iterator begin() const { return m_Elements.begin(); }
+		std::vector<BufferElement>::const_iterator end() const { return m_Elements.end(); }
 
 	private:
-		QK_CONSTEXPR20 void CalculateOffsetsAndStride() noexcept
+		void CalculateOffsetsAndStride() noexcept
 		{
 			m_Stride = 0;
 			for (auto& element : m_Elements)

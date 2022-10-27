@@ -7,7 +7,7 @@ namespace Quark {
 	class FuseEditor : public Application
 	{
 	public:
-		FuseEditor(const ApplicationOptions& options);
+		FuseEditor(const ApplicationSpecification& spec);
 
 		virtual void OnUpdate(Timestep ts) final override;
 		virtual void OnRender() final override;

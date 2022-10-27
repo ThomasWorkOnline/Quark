@@ -13,6 +13,7 @@ namespace Quark {
 		virtual ~MetalContext() final override;
 
 		virtual void Init() final override;
+		virtual void CreateSwapChain(const SwapChainSpecification& spec) final override {}
 		virtual void WaitUntilDeviceIdle() final override {}
 
 		virtual void BeginFrame(uint32_t frameIndex) final override {}

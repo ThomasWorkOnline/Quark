@@ -42,7 +42,7 @@ namespace Quark {
 	static uint8_t s_ProgramHandle;
 
 	template<>
-	inline void Serialize(void* const& func, FILE* out)
+	inline void Serialize(const void* const& func, FILE* out)
 	{
 		auto fAddr = reinterpret_cast<intptr_t>(func);
 		auto offset = fAddr - reinterpret_cast<intptr_t>(&s_ProgramHandle);

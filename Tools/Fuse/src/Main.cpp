@@ -6,14 +6,14 @@ namespace Quark {
 
 	Application* CreateApplication(CommandLineArguments args)
 	{
-		ApplicationOptions options;
-		options.Width = 1280;
-		options.Height = 720;
-		options.AppName = "Fuse Editor";
-		options.CoreDir = "../../Quark";
-		options.CommandLineArgs = args;
-		options.GraphicsAPI = RHI::OpenGL;
+		ApplicationSpecification appSpec;
+		appSpec.Width = 1280;
+		appSpec.Height = 720;
+		appSpec.AppName = "Fuse Editor";
+		appSpec.CoreDir = "../../Quark";
+		appSpec.CommandLineArgs = args;
+		appSpec.GraphicsAPI = RHI::OpenGL;
 
-		return new FuseEditor(options);
+		return new FuseEditor(appSpec);
 	}
 }

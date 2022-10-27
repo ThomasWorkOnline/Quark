@@ -60,11 +60,11 @@ namespace Quark {
 	template<>
 	inline void SceneSerializer::SerializeComponent(const NativeScriptComponent& nsc, FILE* out)
 	{
-		Serialize<void*>(nsc.InstanciateScript, out);
-		Serialize<void*>(nsc.OnCreate, out);
-		Serialize<void*>(nsc.OnDestroy, out);
-		Serialize<void*>(nsc.OnUpdate, out);
-		Serialize<void*>(nsc.OnEvent, out);
+		Serialize<const void*>((const void*)nsc.InstanciateScript, out);
+		Serialize<const void*>((const void*)nsc.OnCreate, out);
+		Serialize<const void*>((const void*)nsc.OnDestroy, out);
+		Serialize<const void*>((const void*)nsc.OnUpdate, out);
+		Serialize<const void*>((const void*)nsc.OnEvent, out);
 	}
 
 	template<>
