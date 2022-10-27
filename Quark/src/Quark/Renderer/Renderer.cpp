@@ -21,9 +21,6 @@ namespace Quark {
 
 		CommandBuffer* ActiveCommandBuffer = nullptr;
 		Scope<CommandBuffer> CommandBuffers[FramesInFlight];
-
-		std::vector<Scope<Framebuffer>> Framebuffers;
-		std::vector<Scope<FramebufferAttachment>> DepthAttachments;
 	};
 
 	static RendererData* s_Data = nullptr;
@@ -106,16 +103,6 @@ namespace Quark {
 	{
 		QK_ASSERT_RENDER_THREAD();
 
-		GraphicsContext::Get()->Resize(viewportWidth, viewportHeight);
-
-		if (GraphicsAPI::GetAPI() == RHI::Vulkan)
-		{
-			for (auto& framebuffer : s_Data->Framebuffers)
-			{
-				framebuffer->Resize(viewportWidth, viewportHeight);
-			}
-		}
-
 		if (viewportWidth != 0 && viewportHeight != 0)
 		{
 			s_Data->ViewportExtent.Width = viewportWidth;
@@ -157,8 +144,7 @@ namespace Quark {
 	{
 		QK_ASSERT_RENDER_THREAD();
 
-		const uint32_t imageIndex = GraphicsContext::Get()->GetCurrentImageIndex();
-		return s_Data->Framebuffers[imageIndex].get();
+		return GraphicsContext::Get()->GetFramebuffer();
 	}
 
 	ViewportExtent Renderer::GetViewportExtent()
@@ -248,7 +234,7 @@ namespace Quark {
 		s_GraphicsAPI = GraphicsAPI::Instantiate(api);
 	}
 
-	void Renderer::Initialize(uint32_t viewportWidth, uint32_t viewportHeight, uint32_t samples)
+	void Renderer::Initialize(GraphicsContext* context, uint32_t samples)
 	{
 		QK_PROFILE_FUNCTION();
 
@@ -256,67 +242,31 @@ namespace Quark {
 
 		s_ThreadId = std::this_thread::get_id();
 
-		s_GraphicsAPI->Init();
-		s_Data = new RendererData();
+		context->Init();
 
+		s_GraphicsAPI->Init();
+
+		s_Data = new RendererData();
 		s_Data->Samples = samples;
-		s_Data->ViewportExtent.Width = viewportWidth;
-		s_Data->ViewportExtent.Height = viewportHeight;
+		s_Data->ViewportExtent = context->GetViewportExtent();
+
+		{
+			RenderPassSpecification spec;
+			spec.BindPoint = PipelineBindPoint::Graphics;
+			spec.ColorAttachmentFormat = ColorFormat::BGRA8SRGB;
+			spec.DepthAttachmentFormat = ColorFormat::Depth32f;
+			spec.ClearColor = { 0.01f, 0.01f, 0.01f, 1.0f };
+			spec.ClearBuffers = true;
+			spec.Samples = s_Data->Samples;
+			s_Data->RenderPass = RenderPass::Create(spec);
+		}
+
+		context->CreateSwapChain(s_Data->RenderPass.get());
 
 		for (uint32_t i = 0; i < RendererData::FramesInFlight; i++)
 			s_Data->CommandBuffers[i] = CommandBuffer::Create();
 
 		s_Data->ActiveCommandBuffer = s_Data->CommandBuffers[0].get();
-
-		{
-			RenderPassSpecification spec;
-			spec.BindPoint             = PipelineBindPoint::Graphics;
-			spec.ColorAttachmentFormat = ColorFormat::BGRA8SRGB;
-			spec.DepthAttachmentFormat = ColorFormat::Depth32f;
-			spec.ClearColor            = { 0.01f, 0.01f, 0.01f, 1.0f };
-			spec.ClearBuffers          = true;
-			spec.Samples               = s_Data->Samples;
-			s_Data->RenderPass = RenderPass::Create(spec);
-		}
-
-		const uint32_t swapChainImages = GraphicsContext::Get()->GetSwapChainImageCount();
-		s_Data->Framebuffers.resize(swapChainImages);
-
-		// Target the default framebuffer when using OpenGL
-		if (GraphicsAPI::GetAPI() == RHI::Vulkan)
-		{
-			{
-				s_Data->DepthAttachments.resize(swapChainImages);
-
-				FramebufferAttachmentSpecification spec;
-				spec.DataFormat = ColorFormat::Depth32f;
-				spec.Width = s_Data->ViewportExtent.Width;
-				spec.Height = s_Data->ViewportExtent.Height;
-				spec.Samples = 1;
-
-				for (uint32_t i = 0; i < swapChainImages; i++)
-				{
-					s_Data->DepthAttachments[i] = FramebufferAttachment::Create(spec);
-				}
-			}
-
-			FramebufferSpecification fbSpec;
-			fbSpec.Width           = s_Data->ViewportExtent.Width;
-			fbSpec.Height          = s_Data->ViewportExtent.Height;
-			fbSpec.Samples         = s_Data->Samples;
-			fbSpec.RenderPass      = s_Data->RenderPass.get();
-			fbSpec.SwapChainTarget = true;
-
-			for (uint32_t i = 0; i < swapChainImages; i++)
-			{
-				fbSpec.Attachments = {
-					GraphicsContext::Get()->GetColorAttachment(i),
-					s_Data->DepthAttachments[i].get()
-				};
-
-				s_Data->Framebuffers[i] = Framebuffer::Create(fbSpec);
-			}
-		}
 	}
 
 	void Renderer::Dispose()

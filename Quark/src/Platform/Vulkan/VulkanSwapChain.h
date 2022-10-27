@@ -4,6 +4,7 @@
 
 #include "Vulkan.h"
 #include "VulkanDevice.h"
+#include "VulkanRenderPass.h"
 #include "VulkanFramebuffer.h"
 
 namespace Quark {
@@ -15,6 +16,7 @@ namespace Quark {
 		VkSurfaceKHR       Surface;
 		VkSurfaceFormatKHR SurfaceFormat{};
 		VkPresentModeKHR   PresentMode{};
+		const RenderPass*  RenderPass = nullptr;
 	};
 
 	class VulkanSwapChain
@@ -27,7 +29,7 @@ namespace Quark {
 		void Present(VkQueue presentQueue, VkSemaphore renderFinishedSemaphore);
 		void Resize(uint32_t viewportWidth, uint32_t viewportHeight);
 
-		VulkanFramebufferAttachment* GetColorAttachment(uint32_t imageIndex) { return &m_ColorAttachments[imageIndex]; }
+		Framebuffer* GetFramebuffer() const;
 
 		uint32_t GetWidth() const { return m_Spec.Extent.width; }
 		uint32_t GetHeight() const { return m_Spec.Extent.width; }
@@ -51,6 +53,6 @@ namespace Quark {
 		uint32_t m_ImageIndex = 0;
 
 		std::vector<VkImage> m_SwapChainImages;
-		std::vector<VulkanFramebufferAttachment> m_ColorAttachments;
+		std::vector<Scope<VulkanFramebuffer>> m_Framebuffers;
 	};
 }

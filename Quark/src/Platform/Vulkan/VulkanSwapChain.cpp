@@ -88,6 +88,11 @@ namespace Quark {
 		}
 	}
 
+	Framebuffer* VulkanSwapChain::GetFramebuffer() const
+	{
+		return m_Framebuffers[m_ImageIndex].get();
+	}
+
 	void VulkanSwapChain::Invalidate()
 	{
 		QK_PROFILE_FUNCTION();
@@ -133,25 +138,50 @@ namespace Quark {
 		m_SwapChainImages.resize(imageCount);
 		vkGetSwapchainImagesKHR(m_Device->GetVkHandle(), m_SwapChain, &imageCount, m_SwapChainImages.data());
 
-		bool invalidated = isNew || imageCount != m_ColorAttachments.size();
+		bool invalidated = isNew || imageCount != m_Framebuffers.size();
+
 		if (invalidated)
 		{
-			m_ColorAttachments.clear();
-			m_ColorAttachments.reserve(imageCount);
+			m_Framebuffers.clear();
+			m_Framebuffers.reserve(imageCount);
 
-			FramebufferAttachmentSpecification spec;
-			spec.DataFormat = Utils::VulkanFormatToColorFormat(m_Spec.SurfaceFormat.format);
-			spec.Width = m_Spec.Extent.width;
-			spec.Height = m_Spec.Extent.height;
-			spec.Samples = 1;
+			FramebufferAttachmentSpecification colorAttachmentSpec;
+			colorAttachmentSpec.DataFormat = Utils::VulkanFormatToColorFormat(m_Spec.SurfaceFormat.format);
+			colorAttachmentSpec.Width = m_Spec.Extent.width;
+			colorAttachmentSpec.Height = m_Spec.Extent.height;
+			colorAttachmentSpec.Samples = 1;
 
-			for (size_t i = 0; i < imageCount; i++)
-				m_ColorAttachments.emplace_back(m_Device, m_SwapChainImages[i], spec);
+			FramebufferAttachmentSpecification depthAttachmentSpec;
+			depthAttachmentSpec.DataFormat = ColorFormat::Depth32f;
+			depthAttachmentSpec.Width = m_Spec.Extent.width;
+			depthAttachmentSpec.Height = m_Spec.Extent.height;
+			depthAttachmentSpec.Samples = 1;
+
+			FramebufferSpecification fbSpec;
+			fbSpec.Width = m_Spec.Extent.width;
+			fbSpec.Height = m_Spec.Extent.height;
+			fbSpec.Samples = 1;
+			fbSpec.RenderPass = m_Spec.RenderPass;
+			fbSpec.SwapChainTarget = true;
+
+			for (uint32_t i = 0; i < imageCount; i++)
+			{
+				fbSpec.Attachments = {
+					CreateRef<VulkanFramebufferAttachment>(m_Device, m_SwapChainImages[i], colorAttachmentSpec),
+					CreateRef<VulkanFramebufferAttachment>(m_Device, nullptr, depthAttachmentSpec)
+				};
+
+				m_Framebuffers.push_back(CreateScope<VulkanFramebuffer>(m_Device, fbSpec));
+			}
 		}
 		else
 		{
-			for (size_t i = 0; i < imageCount; i++)
-				m_ColorAttachments[i].SetImage(m_SwapChainImages[i]);
+			for (uint32_t i = 0; i < imageCount; i++)
+			{
+				auto* vulkanAttachment = static_cast<VulkanFramebufferAttachment*>(m_Framebuffers[i]->GetSpecification().Attachments[0].get());
+				vulkanAttachment->SetSwapChainImage(m_SwapChainImages[i]);
+				m_Framebuffers[i]->Resize(m_Spec.Extent.width, m_Spec.Extent.height);
+			}
 		}
 	}
 }

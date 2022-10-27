@@ -34,7 +34,6 @@ namespace Quark {
 			Scope<Shader> EquirectangleToCubemapShader;
 
 			Scope<RenderPass>  RenderPass;
-			Scope<FramebufferAttachment> ColorAttachment;
 			Scope<Framebuffer> Framebuffer;
 
 			Scope<Pipeline> EnvironmentMapPipeline;

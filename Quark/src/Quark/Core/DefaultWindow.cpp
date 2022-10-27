@@ -95,7 +95,6 @@ namespace Quark {
 
 		// Creating the graphics context
 		m_Data.Context = GraphicsContext::Create(m_Window);
-		m_Data.Context->Init();
 
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 
@@ -125,7 +124,9 @@ namespace Quark {
 				data.Width = (uint32_t)width;
 				data.Height = (uint32_t)height;
 
-				WindowResizedEvent event((uint32_t)width, (uint32_t)height);
+				data.Context->Resize(data.Width, data.Height);
+
+				WindowResizedEvent event(data.Width, data.Height);
 				data.EventCallback(event);
 			});
 
@@ -282,13 +283,6 @@ namespace Quark {
 
 		if (s_WindowCount == 0)
 			glfwTerminate();
-	}
-
-	ViewportExtent DefaultWindow::GetViewportExtent() const
-	{
-		int viewportWidth, viewportHeight;
-		glfwGetFramebufferSize(m_Window, &viewportWidth, &viewportHeight);
-		return { (uint32_t)viewportWidth, (uint32_t)viewportHeight };
 	}
 
 	Window& DefaultWindow::SetTitle(std::string title)

@@ -29,6 +29,10 @@ namespace Quark {
 		OpenGLContextBase::Init();
 	}
 
+	void OpenGLContext::CreateSwapChain(const RenderPass* renderPass)
+	{
+	}
+
 	void OpenGLContext::SwapBuffers()
 	{
 		glfwSwapBuffers(m_WindowHandle);
@@ -37,5 +41,12 @@ namespace Quark {
 	void OpenGLContext::SetSwapInterval(int interval)
 	{
 		glfwSwapInterval(interval);
+	}
+
+	ViewportExtent OpenGLContext::GetViewportExtent() const
+	{
+		int viewportWidth, viewportHeight;
+		glfwGetFramebufferSize(m_WindowHandle, &viewportWidth, &viewportHeight);
+		return { (uint32_t)viewportWidth, (uint32_t)viewportHeight };
 	}
 }

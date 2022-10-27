@@ -2,7 +2,8 @@
 
 #include "Quark/Core/Core.h"
 #include "Quark/Core/Input.h"
-#include "Quark/Renderer/Renderer.h" // TODO: remove
+
+#include "Quark/Renderer/GraphicsContext.h"
 
 #include "Quark/Event/ApplicationEvent.h"
 #include "Quark/Event/KeyEvent.h"
@@ -31,7 +32,8 @@ namespace Quark {
 
 		virtual uint32_t GetWidth() const = 0;
 		virtual uint32_t GetHeight() const = 0;
-		virtual ViewportExtent GetViewportExtent() const = 0;
+		virtual GraphicsContext* GetGraphicsContext() const = 0;
+
 		virtual float GetAspectRatio() const = 0;
 
 		virtual std::string_view GetTitle() const = 0;

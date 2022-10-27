@@ -78,9 +78,4 @@ namespace Quark {
 
 		QK_CORE_TRACE("Created OpenGL graphics context!");
 	}
-
-	FramebufferAttachment* OpenGLContextBase::GetColorAttachment(uint32_t index) const
-	{
-		return nullptr;
-	}
 }

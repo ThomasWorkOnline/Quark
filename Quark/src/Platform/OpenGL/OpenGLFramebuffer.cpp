@@ -65,6 +65,10 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
+		GLenum internalFormat = DataFormatToOpenGLInternalFormat(m_Spec.DataFormat);
+		GLenum dataFormat = DataFormatToOpenGLStorageFormat(m_Spec.DataFormat);
+		QK_CORE_ASSERT(internalFormat & dataFormat, "Invalid internal and data format combinaison");
+
 		if (m_RendererID)
 		{
 			glDeleteTextures(1, &m_RendererID);
@@ -79,12 +83,12 @@ namespace Quark {
 		if (multisampled)
 		{
 			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Spec.Samples,
-				DataFormatToOpenGLInternalFormat(m_Spec.DataFormat), m_Spec.Width, m_Spec.Height, GL_FALSE);
+				dataFormat, m_Spec.Width, m_Spec.Height, GL_FALSE);
 		}
 		else
 		{
-			glTexImage2D(GL_TEXTURE_2D, 0, DataFormatToOpenGLInternalFormat(m_Spec.DataFormat), m_Spec.Width, m_Spec.Height, 0,
-				DataFormatToOpenGLStorageFormat(m_Spec.DataFormat), GL_UNSIGNED_BYTE, NULL);
+			glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, m_Spec.Width, m_Spec.Height, 0,
+				dataFormat, GL_UNSIGNED_BYTE, NULL);
 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -178,9 +182,9 @@ namespace Quark {
 		glViewport(0, 0, m_Spec.Width, m_Spec.Height);
 		
 		GLsizei colorAttachmentIndex = 0;
-		for (auto* attachment : m_Spec.Attachments)
+		for (auto& attachment : m_Spec.Attachments)
 		{
-			auto* openglAttachment = static_cast<OpenGLFramebufferAttachment*>(attachment);
+			auto* openglAttachment = static_cast<OpenGLFramebufferAttachment*>(attachment.get());
 
 			if (Utils::IsDepthOrStencilAttachment(attachment->GetSpecification().DataFormat))
 			{

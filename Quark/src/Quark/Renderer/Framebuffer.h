@@ -39,10 +39,10 @@ namespace Quark {
 		uint32_t Width = 0, Height = 0;
 		uint32_t Samples = 1;
 
-		RenderPass* RenderPass = nullptr;
+		const RenderPass* RenderPass = nullptr;
 		bool SwapChainTarget = false;
 
-		std::vector<FramebufferAttachment*> Attachments;
+		std::vector<Ref<FramebufferAttachment>> Attachments;
 	};
 
 	class Framebuffer

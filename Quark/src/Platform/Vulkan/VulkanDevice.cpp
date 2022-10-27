@@ -118,6 +118,7 @@ namespace Quark {
 
 		VkPhysicalDeviceFeatures deviceFeatures{};
 		deviceFeatures.samplerAnisotropy = VK_TRUE;
+		deviceFeatures.shaderFloat64     = VK_TRUE;
 
 		std::set<uint32_t> uniqueQueueFamilies = {
 			*m_QueueFamilyIndices.GraphicsFamily,

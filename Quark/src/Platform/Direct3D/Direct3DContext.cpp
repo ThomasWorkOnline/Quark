@@ -15,7 +15,7 @@ namespace Quark {
 
 	static constexpr bool s_UseWarpDevice = false;
 
-	void GetHardwareAdapter(IDXGIFactory4* pFactory, IDXGIAdapter1** ppAdapter);
+	static void GetHardwareAdapter(IDXGIFactory4* pFactory, IDXGIAdapter1** ppAdapter);
 
 	Direct3D12Context::Direct3D12Context(void* windowHandle)
 		: m_WindowHandle(glfwGetWin32Window(static_cast<GLFWwindow*>(windowHandle)))
@@ -33,6 +33,8 @@ namespace Quark {
 		m_SwapChain->Release();
 		m_CommandQueue->Release();
 		m_Device->Release();
+
+		m_Factory->Release();
 	}
 
 	void Direct3D12Context::Init()
@@ -50,13 +52,12 @@ namespace Quark {
 		}
 #endif
 
-		IDXGIFactory4* factory;
-		CreateDXGIFactory1(IID_PPV_ARGS(&factory));
+		CreateDXGIFactory1(IID_PPV_ARGS(&m_Factory));
 
 		if constexpr (s_UseWarpDevice)
 		{
 			IDXGIAdapter* warpAdapter;
-			factory->EnumWarpAdapter(IID_PPV_ARGS(&warpAdapter));
+			m_Factory->EnumWarpAdapter(IID_PPV_ARGS(&warpAdapter));
 
 			QK_CORE_ASSERT(SUCCEEDED(D3D12CreateDevice(
 				warpAdapter,
@@ -69,7 +70,7 @@ namespace Quark {
 		else
 		{
 			IDXGIAdapter1* hardwareAdapter;
-			GetHardwareAdapter(factory, &hardwareAdapter);
+			GetHardwareAdapter(m_Factory, &hardwareAdapter);
 
 			QK_CORE_ASSERT(SUCCEEDED(D3D12CreateDevice(
 				hardwareAdapter,
@@ -87,7 +88,10 @@ namespace Quark {
 
 		QK_CORE_ASSERT(SUCCEEDED(m_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_CommandQueue))),
 			"Could not create Direct3D command queue!");
+	}
 
+	void Direct3D12Context::CreateSwapChain(const RenderPass* renderPass)
+	{
 		RECT extent{};
 		GetClientRect(m_WindowHandle, &extent);
 
@@ -103,13 +107,11 @@ namespace Quark {
 		swapChainDesc.SampleDesc.Count = 1;
 		swapChainDesc.Windowed = TRUE;
 
-		QK_CORE_ASSERT(SUCCEEDED(factory->CreateSwapChain(
+		QK_CORE_ASSERT(SUCCEEDED(m_Factory->CreateSwapChain(
 			m_CommandQueue,        // Swap chain needs the queue so that it can force a flush on it.
 			&swapChainDesc,
 			&m_SwapChain
 		)), "Could not create Direct3D swap chain!");
-
-		factory->Release();
 	}
 
 	void Direct3D12Context::WaitUntilDeviceIdle()
@@ -136,22 +138,17 @@ namespace Quark {
 	{
 	}
 
-	uint32_t Direct3D12Context::GetCurrentImageIndex() const
-	{
-		return 0;
-	}
-
-	uint32_t Direct3D12Context::GetSwapChainImageCount() const
-	{
-		return 3;
-	}
-
-	FramebufferAttachment* Direct3D12Context::GetColorAttachment(uint32_t index) const
+	Framebuffer* Direct3D12Context::GetFramebuffer() const
 	{
 		return nullptr;
 	}
 
-	void GetHardwareAdapter(IDXGIFactory4* pFactory, IDXGIAdapter1** ppAdapter)
+	ViewportExtent Direct3D12Context::GetViewportExtent() const
+	{
+		return {};
+	}
+
+	static void GetHardwareAdapter(IDXGIFactory4* pFactory, IDXGIAdapter1** ppAdapter)
 	{
 		*ppAdapter = nullptr;
 		for (UINT adapterIndex = 0; ; ++adapterIndex)

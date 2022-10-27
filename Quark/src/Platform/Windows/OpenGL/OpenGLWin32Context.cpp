@@ -59,6 +59,10 @@ namespace Quark {
 		OpenGLContextBase::Init();
 	}
 
+	void OpenGLWin32Context::CreateSwapChain(const RenderPass* renderPass)
+	{
+	}
+
 	void OpenGLWin32Context::SwapBuffers()
 	{
 		::SwapBuffers(m_DeviceContext);
@@ -66,5 +70,13 @@ namespace Quark {
 
 	void OpenGLWin32Context::SetSwapInterval(int interval)
 	{
+	}
+
+	ViewportExtent OpenGLWin32Context::GetViewportExtent() const
+	{
+		RECT rect;
+		GetClientRect(m_WindowHandle, &rect);
+
+		return { (uint32_t)rect.right, (uint32_t)rect.bottom };
 	}
 }

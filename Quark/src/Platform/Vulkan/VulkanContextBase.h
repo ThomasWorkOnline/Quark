@@ -31,10 +31,7 @@ namespace Quark {
 
 		virtual void Resize(uint32_t viewportWidth, uint32_t viewportHeight) final override;
 
-		virtual uint32_t GetCurrentImageIndex() const final override;
-		virtual uint32_t GetSwapChainImageCount() const final override;
-
-		virtual FramebufferAttachment* GetColorAttachment(uint32_t index) const final override;
+		virtual Framebuffer* GetFramebuffer() const final override;
 
 		VkInstance GetInstance() const { return m_Instance; }
 		VulkanSwapChain* GetSwapChain() { return m_SwapChain.get(); }

@@ -4,6 +4,8 @@
 #include "VulkanUtils.h"
 #include "VulkanCommandBuffer.h"
 
+#include "Quark/Renderer/Renderer.h"
+
 ///////////////////////////////////////
 /// Vulkan API customizations
 ///
@@ -233,19 +235,9 @@ namespace Quark {
 		m_SwapChain->Resize(viewportWidth, viewportHeight);
 	}
 
-	uint32_t VulkanContextBase::GetSwapChainImageCount() const
+	Framebuffer* VulkanContextBase::GetFramebuffer() const
 	{
-		return m_SwapChain->GetImageCount();
-	}
-
-	FramebufferAttachment* VulkanContextBase::GetColorAttachment(uint32_t index) const
-	{
-		return m_SwapChain->GetColorAttachment(index);
-	}
-
-	uint32_t VulkanContextBase::GetCurrentImageIndex() const
-	{
-		return m_SwapChain->GetCurrentImageIndex();
+		return m_SwapChain->GetFramebuffer();
 	}
 
 	void VulkanContextBase::CreateInstance(const char* appName, const std::vector<const char*>& extensions)

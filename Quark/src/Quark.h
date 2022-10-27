@@ -10,6 +10,7 @@
 #include "Quark/Core/MouseCodes.h"
 #include "Quark/Core/Timer.h"
 #include "Quark/Core/Timestep.h"
+#include "Quark/Core/Window.h"
 
 // Audio
 #include "Quark/Audio/AudioBuffer.h"

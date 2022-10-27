@@ -8,6 +8,7 @@
 #include "CommandBuffer.h"
 #include "Formats.h"
 #include "Framebuffer.h"
+#include "GraphicsContext.h"
 #include "Pipeline.h"
 #include "RenderPass.h"
 #include "UniformBuffer.h"
@@ -20,11 +21,6 @@
 #define QK_ASSERT_RENDER_THREAD() QK_CORE_ASSERT(std::this_thread::get_id() == ::Quark::Renderer::GetThreadId(), "Function must be called from the render thread!")
 
 namespace Quark {
-
-	struct ViewportExtent
-	{
-		uint32_t Width, Height;
-	};
 
 	class Renderer
 	{
@@ -77,7 +73,7 @@ namespace Quark {
 		static void EndFrame();
 
 		static void Configure(RHI api);
-		static void Initialize(uint32_t viewportWidth, uint32_t viewportHeight, uint32_t samples);
+		static void Initialize(GraphicsContext* context, uint32_t samples);
 		static void Dispose();
 
 	private:

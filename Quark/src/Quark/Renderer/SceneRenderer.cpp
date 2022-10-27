@@ -171,13 +171,11 @@ namespace Quark {
 					ColorFormat::RGBA16f
 				};
 
-				m_Data.Env->ColorAttachment = FramebufferAttachment::Create(attachmentSpec);
-
 				FramebufferSpecification spec;
 				spec.Width = 2048;
 				spec.Height = 2048;
 				spec.RenderPass = m_Data.Env->RenderPass.get();
-				spec.Attachments = { m_Data.Env->ColorAttachment.get() };
+				spec.Attachments = { FramebufferAttachment::Create(attachmentSpec) };
 
 				m_Data.Env->Framebuffer = Framebuffer::Create(spec);
 			}

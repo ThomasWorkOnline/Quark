@@ -47,7 +47,6 @@ namespace Quark {
 		++s_WindowCount;
 
 		m_Data.Context = GraphicsContext::Create(m_WindowHandle, true);
-		m_Data.Context->Init();
 	}
 
 	NativeWindowsWindow::~NativeWindowsWindow()
@@ -73,14 +72,6 @@ namespace Quark {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-	}
-
-	ViewportExtent NativeWindowsWindow::GetViewportExtent() const
-	{
-		RECT rect;
-		GetClientRect(m_WindowHandle, &rect);
-
-		return { (uint32_t)rect.right, (uint32_t)rect.bottom };
 	}
 
 	Window& NativeWindowsWindow::SetTitle(std::string title)
@@ -312,6 +303,9 @@ namespace Quark {
 		bool minimized = wParam == SIZE_MINIMIZED;
 		bool maximized = wParam == SIZE_MAXIMIZED;
 
+		UINT width = LOWORD(lParam);
+		UINT height = HIWORD(lParam);
+
 		if ((data.Minimized) && wParam == SIZE_RESTORED)
 		{
 			WindowRestoredEvent event;
@@ -340,14 +334,12 @@ namespace Quark {
 			}
 		}
 
-		UINT width = LOWORD(lParam);
-		UINT height = HIWORD(lParam);
-
+		data.Minimized = minimized;
+		data.Maximized = maximized;
 		data.Width = width;
 		data.Height = height;
 
-		data.Minimized = minimized;
-		data.Maximized = maximized;
+		data.Context->Resize(data.Width, data.Height);
 
 		WindowResizedEvent event(data.Width, data.Height);
 		if (data.EventCallback)

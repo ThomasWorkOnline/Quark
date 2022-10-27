@@ -10,14 +10,14 @@
 namespace Quark {
 
 	VulkanFramebufferAttachment::VulkanFramebufferAttachment(VulkanDevice* device, VkImage image, const FramebufferAttachmentSpecification& spec)
-		: FramebufferAttachment(spec), m_Device(device), m_Image(image), m_IsFromSwapChain(image)
+		: FramebufferAttachment(spec), m_Device(device), m_Image(image), m_SwapChainTarget(image)
 	{
 		Invalidate();
 	}
 
 	VulkanFramebufferAttachment::~VulkanFramebufferAttachment()
 	{
-		if (!m_IsFromSwapChain)
+		if (!m_SwapChainTarget)
 		{
 			vkDestroyImage(m_Device->GetVkHandle(), m_Image, nullptr);
 			vkFreeMemory(m_Device->GetVkHandle(), m_BufferMemory, nullptr);
@@ -42,11 +42,9 @@ namespace Quark {
 		return false;
 	}
 
-	void VulkanFramebufferAttachment::SetImage(VkImage image)
+	void VulkanFramebufferAttachment::SetSwapChainImage(VkImage image)
 	{
 		m_Image = image;
-
-		Invalidate();
 	}
 
 	void VulkanFramebufferAttachment::Invalidate()
@@ -55,7 +53,7 @@ namespace Quark {
 
 		VkFormat format = DataFormatToVulkan(m_Spec.DataFormat);
 
-		if (!m_IsFromSwapChain)
+		if (!m_SwapChainTarget)
 		{
 			vkDestroyImage(m_Device->GetVkHandle(), m_Image, nullptr);
 			vkFreeMemory(m_Device->GetVkHandle(), m_BufferMemory, nullptr);
@@ -115,13 +113,13 @@ namespace Quark {
 			return;
 		}
 
-		m_Spec.Width = width;
-		m_Spec.Height = height;
-
 		for (auto& attachment : m_Spec.Attachments)
 		{
 			attachment->Resize(width, height);
 		}
+
+		m_Spec.Width = width;
+		m_Spec.Height = height;
 
 		Invalidate();
 	}
@@ -136,14 +134,12 @@ namespace Quark {
 
 	void VulkanFramebuffer::Invalidate()
 	{
-		QK_PROFILE_FUNCTION();
-
 		AutoRelease<VkImageView> attachments = StackAlloc(m_Spec.Attachments.size() * sizeof(VkImageView));
 
 		uint32_t attachmentIndex = 0;
-		for (auto* attachment : m_Spec.Attachments)
+		for (auto& attachment : m_Spec.Attachments)
 		{
-			attachments[attachmentIndex] = static_cast<VulkanFramebufferAttachment*>(attachment)->GetVkHandle();
+			attachments[attachmentIndex] = static_cast<VulkanFramebufferAttachment*>(attachment.get())->GetVkHandle();
 			attachmentIndex++;
 		}
 
@@ -151,7 +147,7 @@ namespace Quark {
 
 		VkFramebufferCreateInfo framebufferInfo{};
 		framebufferInfo.sType           = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-		framebufferInfo.renderPass      = static_cast<VulkanRenderPass*>(m_Spec.RenderPass)->GetVkHandle();
+		framebufferInfo.renderPass      = static_cast<const VulkanRenderPass*>(m_Spec.RenderPass)->GetVkHandle();
 		framebufferInfo.attachmentCount = (uint32_t)m_Spec.Attachments.size();
 		framebufferInfo.pAttachments    = attachments;
 		framebufferInfo.width           = m_Spec.Width;

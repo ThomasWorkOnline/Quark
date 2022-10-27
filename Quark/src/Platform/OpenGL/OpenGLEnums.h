@@ -95,11 +95,11 @@ namespace Quark {
 							     
 		/*Red8*/                 GL_RED,
 							     
-		/*Depth16*/              GL_DEPTH,
-		/*Depth24*/              GL_DEPTH,
+		/*Depth16*/              GL_DEPTH_COMPONENT,
+		/*Depth24*/              GL_DEPTH_COMPONENT,
 		/*Depth24Stencil8*/      GL_DEPTH_STENCIL,
 							     
-		/*Depth32f*/             GL_DEPTH
+		/*Depth32f*/             GL_DEPTH_COMPONENT
 	};
 
 	inline constexpr GLenum s_OpenGLInternalFormatLUT[] = {

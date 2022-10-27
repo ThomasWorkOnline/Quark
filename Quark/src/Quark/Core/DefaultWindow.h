@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Quark/Core/Window.h"
-#include "Quark/Renderer/GraphicsContext.h"
 
 typedef struct GLFWwindow GLFWwindow;
 
@@ -18,7 +17,8 @@ namespace Quark {
 
 		virtual uint32_t GetWidth() const final override { return m_Data.Width; }
 		virtual uint32_t GetHeight() const final override { return m_Data.Height; }
-		virtual ViewportExtent GetViewportExtent() const final override;
+		virtual GraphicsContext* GetGraphicsContext() const final override { return m_Data.Context.get(); }
+
 		virtual float GetAspectRatio() const final override { return (float)m_Data.Width / (float)m_Data.Height; }
 		
 		virtual std::string_view GetTitle() const final override { return m_Data.Title; }

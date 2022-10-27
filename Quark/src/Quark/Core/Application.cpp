@@ -27,8 +27,9 @@ namespace Quark {
 		m_Window = Window::Create(windowSpec);
 		m_Window->SetEventCallback(ATTACH_EVENT_FN(Application::OnEventInternal));
 
-		auto viewport = m_Window->GetViewportExtent();
-		Renderer::Initialize(viewport.Width, viewport.Height, m_Spec.Samples);
+		auto* graphicsContext = m_Window->GetGraphicsContext();
+		Renderer::Initialize(graphicsContext, m_Spec.Samples);
+
 		QK_CORE_INFO(Renderer::GetSpecification());
 
 		m_Window->AppendTitle(fmt::format(" - {0} ({1})", QK_PLATFORM_NAME, Renderer::GetAPIName()));
