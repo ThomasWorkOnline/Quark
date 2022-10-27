@@ -33,7 +33,7 @@ namespace Quark {
 		// Depth attachment
 		VkAttachmentDescription depthAttachment{};
 		depthAttachment.format         = DataFormatToVulkan(m_Spec.DepthAttachmentFormat);
-		depthAttachment.samples        = VK_SAMPLE_COUNT_1_BIT;
+		depthAttachment.samples        = SampleCountToVulkan(m_Spec.Samples);
 		depthAttachment.loadOp         = GetVulkanLoadOrClearOp(m_Spec.ClearBuffers);
 		depthAttachment.storeOp        = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 		depthAttachment.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;

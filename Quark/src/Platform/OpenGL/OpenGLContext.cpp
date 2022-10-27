@@ -29,7 +29,7 @@ namespace Quark {
 		OpenGLContextBase::Init();
 	}
 
-	void OpenGLContext::CreateSwapChain(const RenderPass* renderPass)
+	void OpenGLContext::CreateSwapChain(const SwapChainSpecification& spec)
 	{
 	}
 
@@ -48,5 +48,31 @@ namespace Quark {
 		int viewportWidth, viewportHeight;
 		glfwGetFramebufferSize(m_WindowHandle, &viewportWidth, &viewportHeight);
 		return { (uint32_t)viewportWidth, (uint32_t)viewportHeight };
+	}
+
+	SwapSurfaceFormat OpenGLContext::ChooseSurfaceFormat(SwapSurfaceFormat preferred) const
+	{
+		SwapSurfaceFormat format;
+		format.ColorSpace = ColorSpace::SRGBNonLinear;
+		format.Format = ColorFormat::BGRA8SRGB;
+
+		return format;
+	}
+
+	SwapPresentMode OpenGLContext::ChooseSwapPresentMode(SwapPresentMode preferred) const
+	{
+		return SwapPresentMode::FIFO;
+	}
+
+	SwapExtent OpenGLContext::ChooseSwapExtent(uint32_t width, uint32_t height) const
+	{
+		int viewportWidth, viewportHeight;
+		glfwGetFramebufferSize(m_WindowHandle, &viewportWidth, &viewportHeight);
+		return { (uint32_t)viewportWidth, (uint32_t)viewportHeight };
+	}
+
+	uint32_t OpenGLContext::GetSwapChainImageCount() const
+	{
+		return 2; // OpenGL is always double buffered
 	}
 }

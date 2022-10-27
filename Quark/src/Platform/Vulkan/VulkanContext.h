@@ -14,7 +14,7 @@ namespace Quark {
 		virtual ~VulkanContext() = default;
 
 		virtual void Init() override;
-		virtual void CreateSwapChain(const RenderPass* renderPass) final override;
+		virtual void CreateSwapChain(const SwapChainSpecification& spec) final override;
 
 		virtual ViewportExtent GetViewportExtent() const final override;
 

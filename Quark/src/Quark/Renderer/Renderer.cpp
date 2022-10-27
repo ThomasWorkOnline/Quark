@@ -16,7 +16,6 @@ namespace Quark {
 		Scope<RenderPass> RenderPass;
 		ViewportExtent ViewportExtent{};
 
-		uint32_t Samples = 0;
 		uint32_t CurrentFrameIndex = static_cast<uint32_t>(-1);
 
 		CommandBuffer* ActiveCommandBuffer = nullptr;
@@ -154,7 +153,7 @@ namespace Quark {
 
 	uint32_t Renderer::GetMultisampling()
 	{
-		return s_Data->Samples;
+		return s_Data->RenderPass->GetSpecification().Samples;
 	}
 
 	uint32_t Renderer::GetFramesInFlight()
@@ -247,21 +246,33 @@ namespace Quark {
 		s_GraphicsAPI->Init();
 
 		s_Data = new RendererData();
-		s_Data->Samples = samples;
 		s_Data->ViewportExtent = context->GetViewportExtent();
+
+		SwapSurfaceFormat targetSurfaceFormat{};
+		targetSurfaceFormat.Format = ColorFormat::BGRA8SRGB;
+		targetSurfaceFormat.ColorSpace = ColorSpace::SRGBNonLinear;
+
+		SwapSurfaceFormat surfaceFormat = context->ChooseSurfaceFormat(targetSurfaceFormat);
 
 		{
 			RenderPassSpecification spec;
-			spec.BindPoint = PipelineBindPoint::Graphics;
-			spec.ColorAttachmentFormat = ColorFormat::BGRA8SRGB;
+			spec.BindPoint             = PipelineBindPoint::Graphics;
+			spec.ColorAttachmentFormat = surfaceFormat.Format;
 			spec.DepthAttachmentFormat = ColorFormat::Depth32f;
-			spec.ClearColor = { 0.01f, 0.01f, 0.01f, 1.0f };
-			spec.ClearBuffers = true;
-			spec.Samples = s_Data->Samples;
+			spec.ClearColor            = { 0.01f, 0.01f, 0.01f, 1.0f };
+			spec.ClearBuffers          = true;
+			spec.Samples               = samples;
 			s_Data->RenderPass = RenderPass::Create(spec);
 		}
 
-		context->CreateSwapChain(s_Data->RenderPass.get());
+		SwapChainSpecification swapChainSpec;
+		swapChainSpec.MinImageCount = context->GetSwapChainImageCount();
+		swapChainSpec.Extent        = context->ChooseSwapExtent(s_Data->ViewportExtent.Width, s_Data->ViewportExtent.Height);
+		swapChainSpec.SurfaceFormat = surfaceFormat;
+		swapChainSpec.PresentMode   = context->ChooseSwapPresentMode(SwapPresentMode::Mailbox);
+		swapChainSpec.RenderPass    = s_Data->RenderPass.get();
+
+		context->CreateSwapChain(swapChainSpec);
 
 		for (uint32_t i = 0; i < RendererData::FramesInFlight; i++)
 			s_Data->CommandBuffers[i] = CommandBuffer::Create();

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Quark/Core/Core.h"
+#include "Quark/Renderer/SwapChain.h"
 
 #include "Vulkan.h"
 #include "VulkanDevice.h"
@@ -22,7 +23,7 @@ namespace Quark {
 	class VulkanSwapChain
 	{
 	public:
-		VulkanSwapChain(VulkanDevice* device, const VulkanSwapChainSpecification& spec);
+		VulkanSwapChain(VulkanDevice* device, VkSurfaceKHR surface, const SwapChainSpecification& spec);
 		~VulkanSwapChain();
 
 		VkResult AcquireNextImage(VkSemaphore imageAvailableSemaphore);
@@ -31,12 +32,12 @@ namespace Quark {
 
 		Framebuffer* GetFramebuffer() const;
 
-		uint32_t GetWidth() const { return m_Spec.Extent.width; }
-		uint32_t GetHeight() const { return m_Spec.Extent.width; }
+		uint32_t GetWidth() const { return m_Spec.Extent.Width; }
+		uint32_t GetHeight() const { return m_Spec.Extent.Height; }
 		uint32_t GetImageCount() const { return (uint32_t)m_SwapChainImages.size(); }
 		uint32_t GetCurrentImageIndex() const { return m_ImageIndex; }
 
-		const VulkanSwapChainSpecification& GetSpecification() const { return m_Spec; }
+		const SwapChainSpecification& GetSpecification() const { return m_Spec; }
 
 		// Non-Copyable
 		VulkanSwapChain(const VulkanSwapChain&) = delete;
@@ -48,8 +49,9 @@ namespace Quark {
 	private:
 		VulkanDevice* m_Device;
 		VkSwapchainKHR m_SwapChain = nullptr;
+		VkSurfaceKHR m_Surface;
 
-		VulkanSwapChainSpecification m_Spec;
+		SwapChainSpecification m_Spec;
 		uint32_t m_ImageIndex = 0;
 
 		std::vector<VkImage> m_SwapChainImages;

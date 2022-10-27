@@ -33,16 +33,16 @@ namespace Quark {
 
 		virtual Framebuffer* GetFramebuffer() const final override;
 
+		virtual SwapSurfaceFormat ChooseSurfaceFormat(SwapSurfaceFormat preferred) const final override;
+		virtual SwapPresentMode ChooseSwapPresentMode(SwapPresentMode preferred) const final override;
+		virtual SwapExtent ChooseSwapExtent(uint32_t width, uint32_t height) const final override;
+		virtual uint32_t GetSwapChainImageCount() const final override;
+
 		VkInstance GetInstance() const { return m_Instance; }
 		VulkanSwapChain* GetSwapChain() { return m_SwapChain.get(); }
 
 	protected:
 		void CreateInstance(const char* appName, const std::vector<const char*>& extensions);
-
-		VkSurfaceFormatKHR ChooseSwapSurfaceFormat(VkSurfaceFormatKHR preferred);
-		VkPresentModeKHR ChooseSwapPresentMode(VkPresentModeKHR preferred);
-		VkExtent2D ChooseSwapExtent(uint32_t width, uint32_t height);
-		uint32_t GetSwapChainImageCount();
 
 	protected:
 		VkInstance m_Instance = nullptr;

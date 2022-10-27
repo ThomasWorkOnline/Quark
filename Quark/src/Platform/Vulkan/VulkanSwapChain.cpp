@@ -6,46 +6,8 @@
 
 namespace Quark {
 
-	namespace Utils {
-
-		static ColorFormat VulkanFormatToColorFormat(VkFormat format)
-		{
-			switch (format)
-			{
-				case VK_FORMAT_R8G8B8_UNORM:        return ColorFormat::RGB8;
-				case VK_FORMAT_R16G16B16_UNORM:     return ColorFormat::RGB16;
-				case VK_FORMAT_R32G32B32_UINT:      return ColorFormat::RGB32UInt;
-
-				case VK_FORMAT_R8G8B8A8_UNORM:      return ColorFormat::RGBA8;
-				case VK_FORMAT_R16G16B16A16_UNORM:  return ColorFormat::RGBA16;
-
-				case VK_FORMAT_R8G8B8_SRGB:         return ColorFormat::RGB8SRGB;
-				case VK_FORMAT_R8G8B8A8_SRGB:       return ColorFormat::RGBA8SRGB;
-
-				case VK_FORMAT_B8G8R8_SRGB:         return ColorFormat::BGR8SRGB;
-				case VK_FORMAT_B8G8R8A8_SRGB:       return ColorFormat::BGRA8SRGB;
-
-				case VK_FORMAT_R16G16B16_SFLOAT:    return ColorFormat::RGB16f;
-				case VK_FORMAT_R32G32B32_SFLOAT:    return ColorFormat::RGB32f;
-				case VK_FORMAT_R16G16B16A16_SFLOAT: return ColorFormat::RGBA16f;
-				case VK_FORMAT_R32G32B32A32_SFLOAT: return ColorFormat::RGBA32f;
-
-				case VK_FORMAT_R8_UNORM:            return ColorFormat::Red8;
-
-				case VK_FORMAT_D16_UNORM:           return ColorFormat::Depth16;
-				case VK_FORMAT_D24_UNORM_S8_UINT:   return ColorFormat::Depth24Stencil8;
-
-				case VK_FORMAT_D32_SFLOAT:          return ColorFormat::Depth32f;
-
-				QK_ASSERT_NO_DEFAULT("Unknown VkFormat");
-			}
-
-			return ColorFormat::None;
-		}
-	}
-
-	VulkanSwapChain::VulkanSwapChain(VulkanDevice* device, const VulkanSwapChainSpecification& spec)
-		: m_Device(device), m_Spec(spec)
+	VulkanSwapChain::VulkanSwapChain(VulkanDevice* device, VkSurfaceKHR surface, const SwapChainSpecification& spec)
+		: m_Device(device), m_Surface(surface), m_Spec(spec)
 	{
 		Invalidate();
 	}
@@ -79,10 +41,10 @@ namespace Quark {
 	{
 		if (viewportWidth == 0 || viewportHeight == 0) return;
 
-		if (m_Spec.Extent.width != viewportWidth || m_Spec.Extent.height != viewportHeight)
+		if (m_Spec.Extent.Width != viewportWidth || m_Spec.Extent.Height != viewportHeight)
 		{
-			m_Spec.Extent.width = viewportWidth;
-			m_Spec.Extent.height = viewportHeight;
+			m_Spec.Extent.Width = viewportWidth;
+			m_Spec.Extent.Height = viewportHeight;
 
 			Invalidate();
 		}
@@ -99,16 +61,16 @@ namespace Quark {
 
 		VkSwapchainCreateInfoKHR createInfo{};
 		createInfo.sType                     = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-		createInfo.surface                   = m_Spec.Surface;
+		createInfo.surface                   = m_Surface;
 		createInfo.minImageCount             = m_Spec.MinImageCount;
-		createInfo.imageFormat               = m_Spec.SurfaceFormat.format;
-		createInfo.imageColorSpace           = m_Spec.SurfaceFormat.colorSpace;
-		createInfo.imageExtent               = m_Spec.Extent;
+		createInfo.imageFormat               = DataFormatToVulkan(m_Spec.SurfaceFormat.Format);
+		createInfo.imageColorSpace           = (VkColorSpaceKHR)m_Spec.SurfaceFormat.ColorSpace;
+		createInfo.imageExtent               = VkExtent2D{ m_Spec.Extent.Width, m_Spec.Extent.Height };
 		createInfo.imageArrayLayers          = 1;
 		createInfo.imageUsage                = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 		createInfo.preTransform              = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
 		createInfo.compositeAlpha            = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-		createInfo.presentMode               = m_Spec.PresentMode;
+		createInfo.presentMode               = (VkPresentModeKHR)m_Spec.PresentMode;
 		createInfo.clipped                   = VK_TRUE;
 		createInfo.oldSwapchain              = m_SwapChain;
 
@@ -146,21 +108,20 @@ namespace Quark {
 			m_Framebuffers.reserve(imageCount);
 
 			FramebufferAttachmentSpecification colorAttachmentSpec;
-			colorAttachmentSpec.DataFormat = Utils::VulkanFormatToColorFormat(m_Spec.SurfaceFormat.format);
-			colorAttachmentSpec.Width = m_Spec.Extent.width;
-			colorAttachmentSpec.Height = m_Spec.Extent.height;
-			colorAttachmentSpec.Samples = 1;
+			colorAttachmentSpec.Width = m_Spec.Extent.Width;
+			colorAttachmentSpec.Height = m_Spec.Extent.Height;
+			colorAttachmentSpec.Samples = m_Spec.RenderPass->GetSpecification().Samples;
+			colorAttachmentSpec.DataFormat = m_Spec.SurfaceFormat.Format;
 
 			FramebufferAttachmentSpecification depthAttachmentSpec;
+			depthAttachmentSpec.Width = m_Spec.Extent.Width;
+			depthAttachmentSpec.Height = m_Spec.Extent.Height;
+			depthAttachmentSpec.Samples = m_Spec.RenderPass->GetSpecification().Samples;
 			depthAttachmentSpec.DataFormat = ColorFormat::Depth32f;
-			depthAttachmentSpec.Width = m_Spec.Extent.width;
-			depthAttachmentSpec.Height = m_Spec.Extent.height;
-			depthAttachmentSpec.Samples = 1;
 
 			FramebufferSpecification fbSpec;
-			fbSpec.Width = m_Spec.Extent.width;
-			fbSpec.Height = m_Spec.Extent.height;
-			fbSpec.Samples = 1;
+			fbSpec.Width = m_Spec.Extent.Width;
+			fbSpec.Height = m_Spec.Extent.Height;
 			fbSpec.RenderPass = m_Spec.RenderPass;
 			fbSpec.SwapChainTarget = true;
 
@@ -180,7 +141,7 @@ namespace Quark {
 			{
 				auto* vulkanAttachment = static_cast<VulkanFramebufferAttachment*>(m_Framebuffers[i]->GetSpecification().Attachments[0].get());
 				vulkanAttachment->SetSwapChainImage(m_SwapChainImages[i]);
-				m_Framebuffers[i]->Resize(m_Spec.Extent.width, m_Spec.Extent.height);
+				m_Framebuffers[i]->Resize(m_Spec.Extent.Width, m_Spec.Extent.Height);
 			}
 		}
 	}

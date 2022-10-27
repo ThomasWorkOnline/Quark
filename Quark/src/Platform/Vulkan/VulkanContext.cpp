@@ -40,24 +40,9 @@ namespace Quark {
 		VulkanContextBase::Init();
 	}
 
-	void VulkanContext::CreateSwapChain(const RenderPass* renderPass)
+	void VulkanContext::CreateSwapChain(const SwapChainSpecification& spec)
 	{
-		VkSurfaceFormatKHR surfaceFormat{};
-		surfaceFormat.format = VK_FORMAT_B8G8R8A8_SRGB;
-		surfaceFormat.colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
-
-		int width, height;
-		glfwGetFramebufferSize(m_WindowHandle, &width, &height);
-
-		VulkanSwapChainSpecification spec;
-		spec.Surface       = m_Surface;
-		spec.MinImageCount = GetSwapChainImageCount();
-		spec.Extent        = ChooseSwapExtent(width, height);
-		spec.SurfaceFormat = ChooseSwapSurfaceFormat(surfaceFormat);
-		spec.PresentMode   = ChooseSwapPresentMode(VK_PRESENT_MODE_MAILBOX_KHR);
-		spec.RenderPass    = renderPass;
-
-		m_SwapChain = CreateScope<VulkanSwapChain>(m_Device.get(), spec);
+		m_SwapChain = CreateScope<VulkanSwapChain>(m_Device.get(), m_Surface, spec);
 	}
 
 	ViewportExtent VulkanContext::GetViewportExtent() const

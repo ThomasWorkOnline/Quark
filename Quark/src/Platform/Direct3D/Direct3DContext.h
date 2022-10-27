@@ -18,7 +18,7 @@ namespace Quark {
 		virtual ~Direct3D12Context() final override;
 
 		virtual void Init() final override;
-		virtual void CreateSwapChain(const RenderPass* renderPass) final override;
+		virtual void CreateSwapChain(const SwapChainSpecification& spec) final override;
 		virtual void WaitUntilDeviceIdle() final override;
 
 		virtual void BeginFrame(uint32_t frameIndex) final override;
@@ -31,6 +31,11 @@ namespace Quark {
 
 		virtual Framebuffer* GetFramebuffer() const final override;
 		virtual ViewportExtent GetViewportExtent() const final override;
+
+		virtual SwapSurfaceFormat ChooseSurfaceFormat(SwapSurfaceFormat preferred) const final override;
+		virtual SwapPresentMode ChooseSwapPresentMode(SwapPresentMode preferred) const final override;
+		virtual SwapExtent ChooseSwapExtent(uint32_t width, uint32_t height) const final override;
+		virtual uint32_t GetSwapChainImageCount() const final override;
 
 	private:
 		HWND m_WindowHandle;

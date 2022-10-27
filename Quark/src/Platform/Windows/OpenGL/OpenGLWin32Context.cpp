@@ -59,7 +59,7 @@ namespace Quark {
 		OpenGLContextBase::Init();
 	}
 
-	void OpenGLWin32Context::CreateSwapChain(const RenderPass* renderPass)
+	void OpenGLWin32Context::CreateSwapChain(const SwapChainSpecification& spec)
 	{
 	}
 
@@ -74,9 +74,42 @@ namespace Quark {
 
 	ViewportExtent OpenGLWin32Context::GetViewportExtent() const
 	{
-		RECT rect;
-		GetClientRect(m_WindowHandle, &rect);
+		RECT extent{};
+		GetClientRect(m_WindowHandle, &extent);
 
-		return { (uint32_t)rect.right, (uint32_t)rect.bottom };
+		uint32_t width = extent.right - extent.left;
+		uint32_t height = extent.bottom - extent.top;
+
+		return { width, height };
+	}
+
+	SwapSurfaceFormat OpenGLWin32Context::ChooseSurfaceFormat(SwapSurfaceFormat preferred) const
+	{
+		SwapSurfaceFormat format;
+		format.ColorSpace = ColorSpace::SRGBNonLinear;
+		format.Format = ColorFormat::BGRA8SRGB;
+
+		return format;
+	}
+
+	SwapPresentMode OpenGLWin32Context::ChooseSwapPresentMode(SwapPresentMode preferred) const
+	{
+		return SwapPresentMode::FIFO;
+	}
+
+	SwapExtent OpenGLWin32Context::ChooseSwapExtent(uint32_t width, uint32_t height) const
+	{
+		RECT extent{};
+		GetClientRect(m_WindowHandle, &extent);
+
+		uint32_t w = extent.right - extent.left;
+		uint32_t h = extent.bottom - extent.top;
+
+		return { w, h };
+	}
+
+	uint32_t OpenGLWin32Context::GetSwapChainImageCount() const
+	{
+		return 2; // OpenGL is always double buffered
 	}
 }

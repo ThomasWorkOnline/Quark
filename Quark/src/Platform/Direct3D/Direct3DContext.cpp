@@ -20,6 +20,7 @@ namespace Quark {
 	Direct3D12Context::Direct3D12Context(void* windowHandle)
 		: m_WindowHandle(glfwGetWin32Window(static_cast<GLFWwindow*>(windowHandle)))
 		, m_Device(nullptr)
+		, m_Factory(nullptr)
 		, m_CommandQueue(nullptr)
 		, m_SwapChain(nullptr)
 	{
@@ -90,22 +91,19 @@ namespace Quark {
 			"Could not create Direct3D command queue!");
 	}
 
-	void Direct3D12Context::CreateSwapChain(const RenderPass* renderPass)
+	void Direct3D12Context::CreateSwapChain(const SwapChainSpecification& spec)
 	{
-		RECT extent{};
-		GetClientRect(m_WindowHandle, &extent);
-
 		// Describe and create the swap chain.
 		DXGI_SWAP_CHAIN_DESC swapChainDesc{};
-		swapChainDesc.BufferCount = 3;
-		swapChainDesc.BufferDesc.Width = extent.right - extent.left;
-		swapChainDesc.BufferDesc.Height = extent.bottom - extent.top;
+		swapChainDesc.BufferCount       = spec.MinImageCount;
+		swapChainDesc.BufferDesc.Width  = spec.Extent.Width;
+		swapChainDesc.BufferDesc.Height = spec.Extent.Height;
 		swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-		swapChainDesc.OutputWindow = m_WindowHandle;
-		swapChainDesc.SampleDesc.Count = 1;
-		swapChainDesc.Windowed = TRUE;
+		swapChainDesc.BufferUsage       = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		swapChainDesc.SwapEffect        = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+		swapChainDesc.OutputWindow      = m_WindowHandle;
+		swapChainDesc.SampleDesc.Count  = spec.RenderPass->GetSpecification().Samples;
+		swapChainDesc.Windowed          = TRUE;
 
 		QK_CORE_ASSERT(SUCCEEDED(m_Factory->CreateSwapChain(
 			m_CommandQueue,        // Swap chain needs the queue so that it can force a flush on it.
@@ -145,7 +143,43 @@ namespace Quark {
 
 	ViewportExtent Direct3D12Context::GetViewportExtent() const
 	{
-		return {};
+		RECT extent{};
+		GetClientRect(m_WindowHandle, &extent);
+
+		uint32_t width = extent.right - extent.left;
+		uint32_t height = extent.bottom - extent.top;
+
+		return { width, height };
+	}
+
+	SwapSurfaceFormat Direct3D12Context::ChooseSurfaceFormat(SwapSurfaceFormat preferred) const
+	{
+		SwapSurfaceFormat format;
+		format.ColorSpace = ColorSpace::SRGBNonLinear;
+		format.Format = ColorFormat::BGRA8SRGB;
+
+		return format;
+	}
+
+	SwapPresentMode Direct3D12Context::ChooseSwapPresentMode(SwapPresentMode preferred) const
+	{
+		return SwapPresentMode::FIFO;
+	}
+
+	SwapExtent Direct3D12Context::ChooseSwapExtent(uint32_t width, uint32_t height) const
+	{
+		RECT extent{};
+		GetClientRect(m_WindowHandle, &extent);
+
+		uint32_t w = extent.right - extent.left;
+		uint32_t h = extent.bottom - extent.top;
+
+		return { w, h };
+	}
+
+	uint32_t Direct3D12Context::GetSwapChainImageCount() const
+	{
+		return 3;
 	}
 
 	static void GetHardwareAdapter(IDXGIFactory4* pFactory, IDXGIAdapter1** ppAdapter)
