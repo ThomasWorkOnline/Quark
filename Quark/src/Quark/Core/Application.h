@@ -40,6 +40,8 @@ namespace Quark {
 	{
 		uint32_t    Width = 1280, Height = 720;
 		uint32_t    Samples = 1;
+		bool        VSync = true;
+
 		std::string AppName;
 
 		std::filesystem::path CoreDir;

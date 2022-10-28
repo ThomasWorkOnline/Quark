@@ -17,6 +17,7 @@ namespace Quark {
 		std::string Title;
 		uint32_t    Width, Height;
 		uint32_t    Samples = 1;
+		bool        VSync = true;
 	};
 
 	class Window

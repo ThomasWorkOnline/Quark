@@ -240,9 +240,6 @@ namespace Quark {
 		if (s_Data) return;
 
 		s_ThreadId = std::this_thread::get_id();
-
-		context->Init();
-
 		s_GraphicsAPI->Init();
 
 		s_Data = new RendererData();

@@ -84,6 +84,7 @@ namespace Quark {
 		m_Data.Samples = spec.Samples;
 		m_Data.Width   = spec.Width;
 		m_Data.Height  = spec.Height;
+		m_Data.VSync   = spec.VSync;
 
 		// MSAA anti-aliasing
 		glfwWindowHint(GLFW_SAMPLES, spec.Samples);
@@ -95,6 +96,8 @@ namespace Quark {
 
 		// Creating the graphics context
 		m_Data.Context = GraphicsContext::Create(m_Window);
+		m_Data.Context->Init();
+		m_Data.Context->SetSwapInterval(m_Data.VSync);
 
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 
@@ -360,7 +363,6 @@ namespace Quark {
 
 			// Switch to full screen
 			glfwSetWindowMonitor(m_Window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
-			m_Data.Context->SetSwapInterval(m_Data.VSync);
 		}
 		else
 		{

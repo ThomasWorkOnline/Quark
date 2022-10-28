@@ -21,7 +21,7 @@ namespace Quark {
 		Renderer::Configure(m_Spec.GraphicsAPI);
 
 		WindowSpecification windowSpec = {
-			m_Spec.AppName.empty() ? "Quark Engine" : m_Spec.AppName, m_Spec.Width, m_Spec.Height, m_Spec.Samples
+			m_Spec.AppName.empty() ? "Quark Engine" : m_Spec.AppName, m_Spec.Width, m_Spec.Height, m_Spec.Samples, m_Spec.VSync
 		};
 
 		m_Window = Window::Create(windowSpec);

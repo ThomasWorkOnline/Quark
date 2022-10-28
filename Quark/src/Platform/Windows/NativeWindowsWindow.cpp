@@ -47,6 +47,8 @@ namespace Quark {
 		++s_WindowCount;
 
 		m_Data.Context = GraphicsContext::Create(m_WindowHandle, true);
+		m_Data.Context->Init();
+		m_Data.Context->SetSwapInterval(spec.VSync);
 	}
 
 	NativeWindowsWindow::~NativeWindowsWindow()
