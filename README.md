@@ -241,8 +241,8 @@ First, we'll have to load a texture:
 class BasicRenderingApplication : public Application
 {
 public:
-	BasicRenderingApplication(const ApplicationOptions& options = {})
-		: Application(options)
+	BasicRenderingApplication(const ApplicationSpecification& spec = {})
+		: Application(spec)
 	{
 		// Loading our texture
 		m_Texture = Texture2D::Create("assets/textures/Example1_BasicRendering.png");
@@ -266,8 +266,8 @@ Finally, we can start drawing things to the screen:
 class BasicRenderingApplication : public Application
 {
 public:
-	BasicRenderingApplication(const ApplicationOptions& options = {})
-		: Application(options)
+	BasicRenderingApplication(const ApplicationSpecification& spec = {})
+		: Application(spec)
 	{
 		// Loading our texture
 		m_Texture = Texture2D::Create("assets/textures/Example1_BasicRendering.png");
