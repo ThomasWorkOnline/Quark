@@ -59,7 +59,6 @@ PBRRenderingDemo::PBRRenderingDemo(const ApplicationSpecification& spec)
 		PipelineSpecification spec;
 		spec.Layout             = Mesh::GetBufferLayout();
 		spec.Topology           = PrimitiveTopology::TriangleList;
-		spec.Samples            = Renderer::GetMultisampling();
 		spec.DescriptorSetCount = Renderer::GetCurrentFrameIndex();
 		spec.Shader             = m_PBRShader.get();
 		spec.RenderPass         = Renderer::GetRenderPass();

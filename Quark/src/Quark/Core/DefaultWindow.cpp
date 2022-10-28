@@ -87,7 +87,7 @@ namespace Quark {
 		m_Data.VSync   = spec.VSync;
 
 		// MSAA anti-aliasing
-		glfwWindowHint(GLFW_SAMPLES, spec.Samples);
+		glfwWindowHint(GLFW_SAMPLES, m_Data.Samples);
 
 		m_Window = glfwCreateWindow(spec.Width, spec.Height, spec.Title.c_str(), nullptr, nullptr);
 		QK_CORE_ASSERT(m_Window, "Failed to create window!");

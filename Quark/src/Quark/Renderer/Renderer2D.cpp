@@ -553,7 +553,6 @@ namespace Quark {
 			PipelineSpecification spec;
 			spec.Layout             = s_QuadVertexLayout;
 			spec.Topology           = PrimitiveTopology::TriangleList;
-			spec.Samples            = Renderer::GetMultisampling();
 			spec.DescriptorSetCount = Renderer::GetFramesInFlight();
 			spec.RenderPass         = Renderer::GetRenderPass();
 			spec.Shader             = s_Data->QuadShader.get();
@@ -595,7 +594,6 @@ namespace Quark {
 			PipelineSpecification spec;
 			spec.Layout             = s_LineVertexLayout;
 			spec.Topology           = PrimitiveTopology::LineList;
-			spec.Samples            = Renderer::GetMultisampling();
 			spec.DescriptorSetCount = Renderer::GetFramesInFlight();
 			spec.RenderPass         = Renderer::GetRenderPass();
 			spec.Shader             = s_Data->LineShader.get();

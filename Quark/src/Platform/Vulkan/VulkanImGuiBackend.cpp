@@ -2,6 +2,7 @@
 #include "VulkanImGuiBackend.h"
 
 #include "VulkanContext.h"
+#include "VulkanEnums.h"
 #include "VulkanRenderPass.h"
 #include "VulkanCommandBuffer.h"
 
@@ -31,9 +32,15 @@ namespace Quark {
 		bool initialized = ImGui_ImplGlfw_InitForVulkan(m_WindowHandle, true);
 		QK_CORE_ASSERT(initialized, "ImGui_ImplGlfw_InitForVulkan() failed!");
 
+		VkDescriptorPoolSize poolSize{};
+		poolSize.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		poolSize.descriptorCount = 1;
+
 		VkDescriptorPoolCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 		createInfo.maxSets = 1;
+		createInfo.poolSizeCount = 1;
+		createInfo.pPoolSizes = &poolSize;
 		vkCreateDescriptorPool(m_Device->GetVkHandle(), &createInfo, nullptr, &m_DescriptorPool);
 
 		auto* ctx = VulkanContext::Get();
@@ -47,7 +54,7 @@ namespace Quark {
 		info.DescriptorPool = m_DescriptorPool;
 		info.MinImageCount  = ctx->GetSwapChain()->GetImageCount();
 		info.ImageCount     = info.MinImageCount;
-		info.MSAASamples    = VK_SAMPLE_COUNT_1_BIT;
+		info.MSAASamples    = SampleCountToVulkan(renderPass->GetSpecification().Samples);
 
 		auto vulkanRenderPass = static_cast<VulkanRenderPass*>(renderPass)->GetVkHandle();
 		initialized = ImGui_ImplVulkan_Init(&info, vulkanRenderPass);

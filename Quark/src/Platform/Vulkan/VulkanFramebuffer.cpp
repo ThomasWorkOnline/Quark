@@ -9,7 +9,7 @@
 
 namespace Quark {
 
-	VulkanFramebufferAttachment::VulkanFramebufferAttachment(VulkanDevice* device, VkImage image, const FramebufferAttachmentSpecification& spec)
+	VulkanFramebufferAttachment::VulkanFramebufferAttachment(VulkanDevice* device, const FramebufferAttachmentSpecification& spec, VkImage image)
 		: FramebufferAttachment(spec), m_Device(device), m_Image(image), m_SwapChainTarget(image)
 	{
 		Invalidate();
@@ -148,7 +148,7 @@ namespace Quark {
 		VkFramebufferCreateInfo framebufferInfo{};
 		framebufferInfo.sType           = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 		framebufferInfo.renderPass      = static_cast<const VulkanRenderPass*>(m_Spec.RenderPass)->GetVkHandle();
-		framebufferInfo.attachmentCount = (uint32_t)m_Spec.Attachments.size();
+		framebufferInfo.attachmentCount = attachmentIndex;
 		framebufferInfo.pAttachments    = attachments;
 		framebufferInfo.width           = m_Spec.Width;
 		framebufferInfo.height          = m_Spec.Height;

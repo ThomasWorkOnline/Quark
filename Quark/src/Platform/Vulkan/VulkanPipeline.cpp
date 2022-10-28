@@ -18,6 +18,8 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
+		QK_CORE_ASSERT(spec.RenderPass, "RenderPass must be a valid pointer to a render pass");
+
 		CreateDescriptorSetLayout();
 		CreateDescriptorPoolAndSets();
 		CreatePipeline();
@@ -109,7 +111,7 @@ namespace Quark {
 			if (uint32_t count = (uint32_t)shaderResources.UniformBuffers.size())
 			{
 				poolSizesPtr->type            = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
-				poolSizesPtr->descriptorCount = count;
+				poolSizesPtr->descriptorCount = count * m_Spec.DescriptorSetCount;
 				poolSizesPtr++;
 			}
 			
@@ -117,7 +119,7 @@ namespace Quark {
 			if (uint32_t count = (uint32_t)shaderResources.SamplerArrays.size())
 			{
 				poolSizesPtr->type            = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-				poolSizesPtr->descriptorCount = count;
+				poolSizesPtr->descriptorCount = count * m_Spec.DescriptorSetCount;
 				poolSizesPtr++;
 			}
 
@@ -201,7 +203,7 @@ namespace Quark {
 		VkPipelineMultisampleStateCreateInfo multisampling{};
 		multisampling.sType                       = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
 		multisampling.sampleShadingEnable         = VK_FALSE;
-		multisampling.rasterizationSamples        = SampleCountToVulkan(m_Spec.Samples);
+		multisampling.rasterizationSamples        = SampleCountToVulkan(m_Spec.RenderPass->GetSpecification().Samples);
 		multisampling.minSampleShading            = 1.0f;
 		multisampling.alphaToCoverageEnable       = VK_FALSE;
 		multisampling.alphaToOneEnable            = VK_FALSE;

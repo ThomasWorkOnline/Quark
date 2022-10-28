@@ -9,6 +9,8 @@ namespace Quark {
 	VulkanSwapChain::VulkanSwapChain(VulkanDevice* device, VkSurfaceKHR surface, const SwapChainSpecification& spec)
 		: m_Device(device), m_Surface(surface), m_Spec(spec)
 	{
+		QK_CORE_ASSERT(spec.RenderPass, "RenderPass must be a valid pointer to a render pass");
+
 		Invalidate();
 	}
 
@@ -107,30 +109,45 @@ namespace Quark {
 			m_Framebuffers.clear();
 			m_Framebuffers.reserve(imageCount);
 
-			FramebufferAttachmentSpecification colorAttachmentSpec;
-			colorAttachmentSpec.Width = m_Spec.Extent.Width;
-			colorAttachmentSpec.Height = m_Spec.Extent.Height;
-			colorAttachmentSpec.Samples = m_Spec.RenderPass->GetSpecification().Samples;
-			colorAttachmentSpec.DataFormat = m_Spec.SurfaceFormat.Format;
-
-			FramebufferAttachmentSpecification depthAttachmentSpec;
-			depthAttachmentSpec.Width = m_Spec.Extent.Width;
-			depthAttachmentSpec.Height = m_Spec.Extent.Height;
-			depthAttachmentSpec.Samples = m_Spec.RenderPass->GetSpecification().Samples;
-			depthAttachmentSpec.DataFormat = ColorFormat::Depth32f;
-
-			FramebufferSpecification fbSpec;
-			fbSpec.Width = m_Spec.Extent.Width;
-			fbSpec.Height = m_Spec.Extent.Height;
-			fbSpec.RenderPass = m_Spec.RenderPass;
-			fbSpec.SwapChainTarget = true;
-
 			for (uint32_t i = 0; i < imageCount; i++)
 			{
-				fbSpec.Attachments = {
-					CreateRef<VulkanFramebufferAttachment>(m_Device, m_SwapChainImages[i], colorAttachmentSpec),
-					CreateRef<VulkanFramebufferAttachment>(m_Device, nullptr, depthAttachmentSpec)
-				};
+				FramebufferSpecification fbSpec;
+				fbSpec.Width = m_Spec.Extent.Width;
+				fbSpec.Height = m_Spec.Extent.Height;
+				fbSpec.RenderPass = m_Spec.RenderPass;
+				fbSpec.SwapChainTarget = true;
+
+				if (m_Spec.RenderPass->GetSpecification().Samples > 1)
+				{
+					FramebufferAttachmentSpecification resolveAttachmentSpec;
+					resolveAttachmentSpec.Width = m_Spec.Extent.Width;
+					resolveAttachmentSpec.Height = m_Spec.Extent.Height;
+					resolveAttachmentSpec.Samples = m_Spec.RenderPass->GetSpecification().Samples;
+					resolveAttachmentSpec.DataFormat = m_Spec.SurfaceFormat.Format;
+
+					fbSpec.Attachments.push_back(CreateRef<VulkanFramebufferAttachment>(m_Device, resolveAttachmentSpec));
+				}
+
+				{
+					FramebufferAttachmentSpecification colorAttachmentSpec;
+					colorAttachmentSpec.Width = m_Spec.Extent.Width;
+					colorAttachmentSpec.Height = m_Spec.Extent.Height;
+					colorAttachmentSpec.Samples = 1;
+					colorAttachmentSpec.DataFormat = m_Spec.SurfaceFormat.Format;
+
+					fbSpec.Attachments.push_back(CreateRef<VulkanFramebufferAttachment>(m_Device, colorAttachmentSpec, m_SwapChainImages[i]));
+				}
+
+				if (m_Spec.RenderPass->GetSpecification().DepthAttachmentFormat != ColorFormat::None)
+				{
+					FramebufferAttachmentSpecification depthAttachmentSpec;
+					depthAttachmentSpec.Width = m_Spec.Extent.Width;
+					depthAttachmentSpec.Height = m_Spec.Extent.Height;
+					depthAttachmentSpec.Samples = m_Spec.RenderPass->GetSpecification().Samples;
+					depthAttachmentSpec.DataFormat = m_Spec.RenderPass->GetSpecification().DepthAttachmentFormat;
+
+					fbSpec.Attachments.push_back(CreateRef<VulkanFramebufferAttachment>(m_Device, depthAttachmentSpec));
+				}
 
 				m_Framebuffers.push_back(CreateScope<VulkanFramebuffer>(m_Device, fbSpec));
 			}
@@ -139,7 +156,7 @@ namespace Quark {
 		{
 			for (uint32_t i = 0; i < imageCount; i++)
 			{
-				auto* vulkanAttachment = static_cast<VulkanFramebufferAttachment*>(m_Framebuffers[i]->GetSpecification().Attachments[0].get());
+				auto* vulkanAttachment = static_cast<VulkanFramebufferAttachment*>(m_Framebuffers[i]->GetSpecification().Attachments[1].get());
 				vulkanAttachment->SetSwapChainImage(m_SwapChainImages[i]);
 				m_Framebuffers[i]->Resize(m_Spec.Extent.Width, m_Spec.Extent.Height);
 			}

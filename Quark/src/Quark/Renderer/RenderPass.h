@@ -34,6 +34,9 @@ namespace Quark {
 		virtual bool operator==(const RenderPass& other) const = 0;
 
 		void SetClearColor(const Vec4f& clearColor) { m_Spec.ClearColor = clearColor; }
+		void SetClearDepth(float value) { m_Spec.ClearDepth = value; }
+
+		uint32_t GetAttachmentCount() const { return m_AttachmentCount; }
 
 		const RenderPassSpecification& GetSpecification() const { return m_Spec; }
 
@@ -41,5 +44,6 @@ namespace Quark {
 
 	protected:
 		RenderPassSpecification m_Spec{};
+		uint32_t m_AttachmentCount = 0;
 	};
 }

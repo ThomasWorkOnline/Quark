@@ -108,14 +108,30 @@ namespace Quark {
 		renderPassInfo.renderArea.offset = VkOffset2D{ 0, 0 };
 		renderPassInfo.renderArea.extent = VkExtent2D{ framebuffer->GetWidth(), framebuffer->GetHeight() };
 
-		VkClearValue clearValues[2]{};
+		uint32_t clearValueCount = renderPass->GetAttachmentCount();
+		AutoRelease<VkClearValue> clearValues = StackAlloc(clearValueCount * sizeof(VkClearValue));
+
 		if (renderPass->GetSpecification().ClearBuffers)
 		{
-			auto& clearColor = renderPass->GetSpecification().ClearColor;
-			clearValues[0].color = { clearColor.r, clearColor.g, clearColor.b, clearColor.a };
-			clearValues[1].depthStencil = { renderPass->GetSpecification().ClearDepth, 0 };
+			uint32_t clearValueIndex = 0;
 
-			renderPassInfo.clearValueCount = sizeof_array(clearValues);
+			auto& clearColor = renderPass->GetSpecification().ClearColor;
+			clearValues[clearValueIndex].color = { clearColor.r, clearColor.g, clearColor.b, clearColor.a };
+			clearValueIndex++;
+
+			if (renderPass->GetSpecification().Samples > 1)
+			{
+				clearValues[clearValueIndex].color = { clearColor.r, clearColor.g, clearColor.b, clearColor.a };
+				clearValueIndex++;
+			}
+
+			if (renderPass->GetSpecification().DepthAttachmentFormat != ColorFormat::None)
+			{
+				clearValues[clearValueIndex].depthStencil = { renderPass->GetSpecification().ClearDepth, 0 };
+				clearValueIndex++;
+			}
+
+			renderPassInfo.clearValueCount = clearValueCount;
 			renderPassInfo.pClearValues = clearValues;
 		}
 
