@@ -17,7 +17,7 @@ namespace Quark {
 		subpass.pipelineBindPoint = PipelineBindPointToVulkan(m_Spec.BindPoint);
 
 		m_AttachmentCount += m_Spec.ColorAttachmentFormat != ColorFormat::None;
-		m_AttachmentCount += m_Spec.Samples > 1;
+		m_AttachmentCount += m_Spec.Samples > SampleCount::SampleCount1;
 		m_AttachmentCount += m_Spec.DepthAttachmentFormat != ColorFormat::None;
 
 		AutoRelease<VkAttachmentDescription> attachments = StackAlloc(m_AttachmentCount * sizeof(VkAttachmentDescription));
@@ -36,7 +36,7 @@ namespace Quark {
 			colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 			colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 			colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-			colorAttachment.finalLayout = m_Spec.Samples > 1 ? VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL : VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+			colorAttachment.finalLayout = m_Spec.Samples > SampleCount::SampleCount1 ? VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL : VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
 			VkAttachmentReference& colorAttachmentRef = attachmentRefs[attachmentIndex];
 			colorAttachmentRef = {};
@@ -51,7 +51,7 @@ namespace Quark {
 			dstAccessFlags |= VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 		}
 
-		if (m_Spec.Samples > 1)
+		if (m_Spec.Samples > SampleCount::SampleCount1)
 		{
 			VkAttachmentDescription& colorAttachmentResolve = attachments[attachmentIndex];
 			colorAttachmentResolve = {};

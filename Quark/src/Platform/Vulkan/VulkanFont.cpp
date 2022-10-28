@@ -26,7 +26,7 @@ namespace Quark {
 		atlasExtent.height = m_AtlasHeight;
 		atlasExtent.depth = 1;
 
-		Utils::AllocateImage(m_Device, atlasExtent, 1, 1, 1, VK_FORMAT_R8_UNORM,
+		Utils::AllocateImage(m_Device, atlasExtent, 1, 1, VK_SAMPLE_COUNT_1_BIT, VK_FORMAT_R8_UNORM,
 			VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &m_Image, &m_BufferMemory);
 

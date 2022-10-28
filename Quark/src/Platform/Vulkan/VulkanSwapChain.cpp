@@ -117,7 +117,7 @@ namespace Quark {
 				fbSpec.RenderPass = m_Spec.RenderPass;
 				fbSpec.SwapChainTarget = true;
 
-				if (m_Spec.RenderPass->GetSpecification().Samples > 1)
+				if (m_Spec.RenderPass->GetSpecification().Samples > SampleCount::SampleCount1)
 				{
 					FramebufferAttachmentSpecification resolveAttachmentSpec;
 					resolveAttachmentSpec.Width = m_Spec.Extent.Width;
@@ -132,7 +132,7 @@ namespace Quark {
 					FramebufferAttachmentSpecification colorAttachmentSpec;
 					colorAttachmentSpec.Width = m_Spec.Extent.Width;
 					colorAttachmentSpec.Height = m_Spec.Extent.Height;
-					colorAttachmentSpec.Samples = 1;
+					colorAttachmentSpec.Samples = SampleCount::SampleCount1;
 					colorAttachmentSpec.DataFormat = m_Spec.SurfaceFormat.Format;
 
 					fbSpec.Attachments.push_back(CreateRef<VulkanFramebufferAttachment>(m_Device, colorAttachmentSpec, m_SwapChainImages[i]));

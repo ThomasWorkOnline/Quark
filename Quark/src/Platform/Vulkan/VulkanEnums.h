@@ -258,19 +258,9 @@ namespace Quark {
 		return s_VulkanSamplerMipmapModeLUT[static_cast<size_t>(mode)];
 	}
 
-	inline uint32_t uint64_log2(uint64_t n)
+	constexpr VkSampleCountFlagBits SampleCountToVulkan(SampleCount samples)
 	{
-#define S(k) if (n >= (UINT64_C(1) << k)) { i += k; n >>= k; }
-
-		uint32_t i = -(n == 0); S(32); S(16); S(8); S(4); S(2); S(1); return i;
-
-#undef S
-	}
-
-	inline VkSampleCountFlagBits SampleCountToVulkan(uint32_t samples)
-	{
-		uint32_t index = uint64_log2(samples);
-		return s_VulkanSampleCountLUT[index];
+		return s_VulkanSampleCountLUT[static_cast<size_t>(samples)];
 	}
 
 	constexpr VkFilter SamplerFilterModeToVulkan(SamplerFilterMode mode)

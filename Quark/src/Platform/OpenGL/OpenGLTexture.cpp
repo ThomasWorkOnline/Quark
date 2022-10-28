@@ -24,7 +24,7 @@ namespace Quark {
 		m_DataFormat = DataFormatToOpenGLStorageFormat(m_Spec.DataFormat);
 		QK_CORE_ASSERT(m_InternalFormat & m_DataFormat, "Invalid internal and data format combinaison");
 
-		bool multisampled = m_Spec.Samples > 1;
+		bool multisampled = m_Spec.Samples > SampleCount::SampleCount1;
 		m_Target = multisampled ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
 
 		glGenTextures(1, &m_RendererID);
@@ -34,7 +34,7 @@ namespace Quark {
 		if (multisampled)
 		{
 			QK_CORE_ASSERT(m_Spec.Levels == 1, "Mipmaps are not compatible when multisampling is enabled");
-			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Spec.Samples, m_InternalFormat, m_Spec.Width, m_Spec.Height, GL_FALSE);
+			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, GetIntegerSampleCount(m_Spec.Samples), m_InternalFormat, m_Spec.Width, m_Spec.Height, GL_FALSE);
 		}
 		else
 		{
@@ -144,7 +144,7 @@ namespace Quark {
 		m_DataFormat = DataFormatToOpenGLStorageFormat(m_Spec.DataFormat);
 		QK_CORE_ASSERT(m_InternalFormat & m_DataFormat, "Invalid internal and data format combinaison");
 
-		bool multisampled = m_Spec.Samples > 1;
+		bool multisampled = m_Spec.Samples > SampleCount::SampleCount1;
 		m_Target = multisampled ? GL_TEXTURE_2D_MULTISAMPLE_ARRAY : GL_TEXTURE_2D_ARRAY;
 
 		glGenTextures(1, &m_RendererID);
@@ -154,7 +154,7 @@ namespace Quark {
 		if (multisampled)
 		{
 			QK_CORE_ASSERT(m_Spec.Levels == 1, "Mipmaps are not compatible when multisampling is enabled");
-			glTexImage3DMultisample(GL_TEXTURE_2D_MULTISAMPLE_ARRAY, m_Spec.Samples, m_InternalFormat, m_Spec.Width, m_Spec.Height, m_Spec.Layers, GL_FALSE);
+			glTexImage3DMultisample(GL_TEXTURE_2D_MULTISAMPLE_ARRAY, GetIntegerSampleCount(m_Spec.Samples), m_InternalFormat, m_Spec.Width, m_Spec.Height, m_Spec.Layers, GL_FALSE);
 
 			QK_DEBUG_CALL(glBindTexture(GL_TEXTURE_2D_MULTISAMPLE_ARRAY, 0));
 		}

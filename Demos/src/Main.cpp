@@ -13,14 +13,14 @@ namespace Quark {
 
 	Application* CreateApplication(CommandLineArguments args)
 	{
-		using App = BasicRenderingApplication;
+		using App = VulkanApp;
 
 		ApplicationSpecification appSpec;
-		appSpec.Samples = 4;
+		appSpec.Samples = SampleCount::SampleCount8;
 		appSpec.AppName = "Demo Application";
 		appSpec.CoreDir = "../Quark";
 		appSpec.CommandLineArgs = args;
-		appSpec.GraphicsAPI = RHI::OpenGL;
+		appSpec.GraphicsAPI = RHI::Vulkan;
 		appSpec.Flags = ApplicationFlagBits::LaunchRenderer2D;
 
 		return new App(appSpec);

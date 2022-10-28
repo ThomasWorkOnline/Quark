@@ -16,7 +16,7 @@ namespace Quark {
 		VkMemoryRequirements AllocateBuffer(VulkanDevice* device, VkDeviceSize size,
 			                    VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer* buffer, VkDeviceMemory* bufferMemory);
 
-		VkMemoryRequirements AllocateImage(VulkanDevice* device, VkExtent3D extent, uint32_t layerCount, uint32_t levels, uint32_t samples, VkFormat format,
+		VkMemoryRequirements AllocateImage(VulkanDevice* device, VkExtent3D extent, uint32_t layerCount, uint32_t levels, VkSampleCountFlagBits samples, VkFormat format,
 			                  VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkImage* image, VkDeviceMemory* bufferMemory);
 
 		void AllocateImageView(VulkanDevice* device, VkImage image, VkFormat format, uint32_t layerCount, uint32_t levelCount, VkImageView* imageView);

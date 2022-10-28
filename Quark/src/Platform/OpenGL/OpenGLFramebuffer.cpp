@@ -76,13 +76,13 @@ namespace Quark {
 
 		glGenTextures(1, &m_RendererID);
 
-		bool multisampled = m_Spec.Samples > 1;
+		bool multisampled = m_Spec.Samples > SampleCount::SampleCount1;
 		m_Target = multisampled ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
 		glBindTexture(m_Target, m_RendererID);
 
 		if (multisampled)
 		{
-			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Spec.Samples,
+			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, GetIntegerSampleCount(m_Spec.Samples),
 				dataFormat, m_Spec.Width, m_Spec.Height, GL_FALSE);
 		}
 		else

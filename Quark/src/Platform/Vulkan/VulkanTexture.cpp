@@ -27,7 +27,7 @@ namespace Quark {
 		imageExtent.depth = 1;
 
 		VkFormat format = DataFormatToVulkan(m_Spec.DataFormat);
-		Utils::AllocateImage(m_Device, imageExtent, 1, m_Spec.Levels, m_Spec.Samples, format,
+		Utils::AllocateImage(m_Device, imageExtent, 1, m_Spec.Levels, SampleCountToVulkan(m_Spec.Samples), format,
 			VK_IMAGE_USAGE_TRANSFER_DST_BIT | (m_Spec.Levels > 1 ? VK_IMAGE_USAGE_TRANSFER_SRC_BIT : 0) | VK_IMAGE_USAGE_SAMPLED_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &m_Image, &m_BufferMemory);
 
@@ -57,7 +57,7 @@ namespace Quark {
 		imageExtent.depth = 1;
 
 		VkFormat format = DataFormatToVulkan(m_Spec.DataFormat);
-		Utils::AllocateImage(m_Device, imageExtent, 1, m_Spec.Levels, m_Spec.Samples, format,
+		Utils::AllocateImage(m_Device, imageExtent, 1, m_Spec.Levels, SampleCountToVulkan(m_Spec.Samples), format,
 			VK_IMAGE_USAGE_TRANSFER_DST_BIT | (m_Spec.Levels > 1 ? VK_IMAGE_USAGE_TRANSFER_SRC_BIT : 0) | VK_IMAGE_USAGE_SAMPLED_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &m_Image, &m_BufferMemory);
 
@@ -198,7 +198,7 @@ namespace Quark {
 		imageExtent.depth = 1;
 
 		VkFormat format = DataFormatToVulkan(m_Spec.DataFormat);
-		Utils::AllocateImage(m_Device, imageExtent, m_Spec.Layers, m_Spec.Levels, m_Spec.Samples, format,
+		Utils::AllocateImage(m_Device, imageExtent, m_Spec.Layers, m_Spec.Levels, SampleCountToVulkan(m_Spec.Samples), format,
 			VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &m_Image, &m_BufferMemory);
 

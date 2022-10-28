@@ -83,6 +83,11 @@ namespace Quark {
 		return mips + 1;
 	}
 
+	uint32_t GetIntegerSampleCount(SampleCount samples)
+	{
+		return 1 << static_cast<uint32_t>(samples);
+	}
+
 	bool IsFormatUsingMips(SamplerFilterMode mode)
 	{
 		return s_FilteringModeHasMipsLUT[static_cast<size_t>(mode)];

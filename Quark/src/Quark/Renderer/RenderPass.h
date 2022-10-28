@@ -17,7 +17,7 @@ namespace Quark {
 		PipelineBindPoint BindPoint{};
 		ColorFormat       ColorAttachmentFormat{};
 		ColorFormat       DepthAttachmentFormat{};
-		uint32_t          Samples;
+		SampleCount       Samples;
 
 		Vec4f             ClearColor{};
 		float             ClearDepth = 1.0f;

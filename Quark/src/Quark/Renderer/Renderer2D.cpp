@@ -505,7 +505,7 @@ namespace Quark {
 
 		{
 			uint32_t textureColor = 0xffffffff;
-			Texture2DSpecification spec = { 1, 1, 1, 1, ColorFormat::RGBA8 };
+			Texture2DSpecification spec = { 1, 1, 1, SampleCount::SampleCount1, ColorFormat::RGBA8 };
 
 			s_Data->DefaultTexture = Texture2D::Create(spec);
 			s_Data->DefaultTexture->SetData(&textureColor, sizeof(textureColor));

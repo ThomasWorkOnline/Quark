@@ -119,7 +119,7 @@ namespace Quark {
 			clearValues[clearValueIndex].color = { clearColor.r, clearColor.g, clearColor.b, clearColor.a };
 			clearValueIndex++;
 
-			if (renderPass->GetSpecification().Samples > 1)
+			if (renderPass->GetSpecification().Samples > SampleCount::SampleCount1)
 			{
 				clearValues[clearValueIndex].color = { clearColor.r, clearColor.g, clearColor.b, clearColor.a };
 				clearValueIndex++;

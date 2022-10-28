@@ -39,7 +39,7 @@ namespace Quark {
 	struct ApplicationSpecification
 	{
 		uint32_t    Width = 1280, Height = 720;
-		uint32_t    Samples = 1;
+		SampleCount Samples{};
 		bool        VSync = true;
 
 		std::string AppName;

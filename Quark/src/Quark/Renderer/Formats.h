@@ -83,6 +83,7 @@ namespace Quark {
 
 	size_t   GetPixelFormatSize(ColorFormat format);
 	uint32_t GetMipLevelsForResolution(uint32_t width, uint32_t height);
+	uint32_t GetIntegerSampleCount(SampleCount samples);
 
 	bool IsFormatUsingMips(SamplerFilterMode mode);
 	bool IsColorFormatAlpha(ColorFormat format);

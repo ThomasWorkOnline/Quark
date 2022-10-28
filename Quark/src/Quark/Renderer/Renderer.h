@@ -52,7 +52,7 @@ namespace Quark {
 
 		static Framebuffer*    GetTargetFramebuffer();
 		static ViewportExtent  GetViewportExtent();
-		static uint32_t        GetMultisampling();
+		static SampleCount     GetMultisampling();
 
 		static uint32_t        GetFramesInFlight();
 		static uint32_t        GetCurrentFrameIndex();
@@ -73,7 +73,7 @@ namespace Quark {
 		static void EndFrame();
 
 		static void Configure(RHI api);
-		static void Initialize(GraphicsContext* context, uint32_t samples);
+		static void Initialize(GraphicsContext* context, SampleCount samples);
 		static void Dispose();
 
 	private:

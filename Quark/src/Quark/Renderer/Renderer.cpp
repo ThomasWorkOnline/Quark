@@ -151,7 +151,7 @@ namespace Quark {
 		return s_Data->ViewportExtent;
 	}
 
-	uint32_t Renderer::GetMultisampling()
+	SampleCount Renderer::GetMultisampling()
 	{
 		return s_Data->RenderPass->GetSpecification().Samples;
 	}
@@ -233,7 +233,7 @@ namespace Quark {
 		s_GraphicsAPI = GraphicsAPI::Instantiate(api);
 	}
 
-	void Renderer::Initialize(GraphicsContext* context, uint32_t samples)
+	void Renderer::Initialize(GraphicsContext* context, SampleCount samples)
 	{
 		QK_PROFILE_FUNCTION();
 

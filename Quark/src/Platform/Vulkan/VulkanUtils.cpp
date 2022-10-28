@@ -63,7 +63,7 @@ namespace Quark {
 			return req;
 		}
 
-		VkMemoryRequirements AllocateImage(VulkanDevice* device, VkExtent3D extent, uint32_t layerCount, uint32_t levels, uint32_t samples, VkFormat format, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkImage* image, VkDeviceMemory* bufferMemory)
+		VkMemoryRequirements AllocateImage(VulkanDevice* device, VkExtent3D extent, uint32_t layerCount, uint32_t levels, VkSampleCountFlagBits samples, VkFormat format, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkImage* image, VkDeviceMemory* bufferMemory)
 		{
 			VkImageCreateInfo createInfo{};
 			createInfo.sType         = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -72,7 +72,7 @@ namespace Quark {
 			createInfo.extent        = extent;
 			createInfo.mipLevels     = levels;
 			createInfo.arrayLayers   = layerCount;
-			createInfo.samples       = SampleCountToVulkan(samples);
+			createInfo.samples       = samples;
 			createInfo.tiling        = VK_IMAGE_TILING_OPTIMAL;
 			createInfo.usage         = usage;
 			createInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;

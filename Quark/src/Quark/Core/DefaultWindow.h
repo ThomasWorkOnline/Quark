@@ -65,7 +65,6 @@ namespace Quark {
 		struct WindowData
 		{
 			std::string Title;
-			uint32_t    Samples;
 
 			uint32_t    Width, Height;
 			int32_t     Xpos, Ypos;
