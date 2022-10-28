@@ -86,15 +86,17 @@ namespace Quark {
 		using App = PBRRenderingDemo;
 
 		// Application specification
-		ApplicationOptions options;
-		options.Samples = 4;
-		options.AppName = "Demo Application";
+		ApplicationSpecification appSpec;
+		appSpec.Samples = SampleCount::SampleCount8;
+		appSpec.VSync = true;
+		appSpec.AppName = "Demo Application";
+		
 		// This is the working directory path for required core assets
-		options.CoreDir = "../Quark"; 
-		options.CommandLineArgs = args;
-		options.GraphicsAPI = RHI::OpenGL;
+		appSpec.CoreDir = "../Quark"; 
+		appSpec.CommandLineArgs = args;
+		appSpec.GraphicsAPI = RHI::OpenGL;
 
-		return new App(options);
+		return new App(appSpec);
 	}
 }
 ```
@@ -116,8 +118,8 @@ class BasicRenderingApplication : public Application
 {
 public:
 	// Provide a constructor forwarding the options to the application
-	BasicRenderingApplication(const ApplicationOptions& options = {})
-		: Application(options)
+	BasicRenderingApplication(const ApplicationSpecification& spec = {})
+		: Application(spec)
 	{
 	}
 	...
@@ -308,8 +310,8 @@ Let's fix this:
 class BasicRenderingApplication : public Application
 {
 public:
-	BasicRenderingApplication(const ApplicationOptions& options = {})
-		: Application(options)
+	BasicRenderingApplication(const ApplicationSpecification& spec = {})
+		: Application(spec)
 	{
 		// Loading our texture
 		m_Texture = Texture2D::Create("assets/textures/Example1_BasicRendering.png");
