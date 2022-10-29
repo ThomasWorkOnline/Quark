@@ -67,9 +67,23 @@ namespace Quark {
 		/*LinearMipmapLinear*/   true
 	};
 
+	static uint32_t uint64_log2(uint64_t n)
+	{
+#define S(k) if (n >= (UINT64_C(1) << k)) { i += k; n >>= k; }
+
+		uint32_t i = -(n == 0); S(32); S(16); S(8); S(4); S(2); S(1); return i;
+
+#undef S
+	}
+
 	size_t GetPixelFormatSize(ColorFormat format)
 	{
 		return s_PixelFormatSizeLUT[static_cast<size_t>(format)];
+	}
+
+	SampleCount GetHighestSampleCount(uint32_t samples)
+	{
+		return static_cast<SampleCount>(uint64_log2(samples));
 	}
 
 	uint32_t GetMipLevelsForResolution(uint32_t width, uint32_t height)

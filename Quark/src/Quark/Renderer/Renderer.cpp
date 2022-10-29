@@ -42,7 +42,7 @@ namespace Quark {
 
 	void Renderer::BeginRenderPass()
 	{
-		BeginRenderPass(s_Data->RenderPass.get(), GetTargetFramebuffer());
+		BeginRenderPass(s_Data->RenderPass.get(), GetFramebuffer());
 	}
 
 	void Renderer::EndRenderPass()
@@ -139,21 +139,21 @@ namespace Quark {
 		return s_Data->RenderPass.get();
 	}
 
-	Framebuffer* Renderer::GetTargetFramebuffer()
+	Framebuffer* Renderer::GetFramebuffer()
 	{
 		QK_ASSERT_RENDER_THREAD();
 
 		return GraphicsContext::Get()->GetFramebuffer();
 	}
 
+	SampleCount Renderer::GetSupportedMSAA()
+	{
+		return s_GraphicsAPI->GetCapabilities().Framebuffer.MaxMSAA;
+	}
+
 	ViewportExtent Renderer::GetViewportExtent()
 	{
 		return s_Data->ViewportExtent;
-	}
-
-	SampleCount Renderer::GetMultisampling()
-	{
-		return s_Data->RenderPass->GetSpecification().Samples;
 	}
 
 	uint32_t Renderer::GetFramesInFlight()

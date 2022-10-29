@@ -81,7 +81,9 @@ namespace Quark {
 		SamplerAddressMode AddressMode      = SamplerAddressMode::Default;
 	};
 
-	size_t   GetPixelFormatSize(ColorFormat format);
+	size_t GetPixelFormatSize(ColorFormat format);
+	SampleCount GetHighestSampleCount(uint32_t samples);
+
 	uint32_t GetMipLevelsForResolution(uint32_t width, uint32_t height);
 	uint32_t GetIntegerSampleCount(SampleCount samples);
 

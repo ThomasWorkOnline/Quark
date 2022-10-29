@@ -50,9 +50,9 @@ namespace Quark {
 
 		static RenderPass*     GetRenderPass();
 
-		static Framebuffer*    GetTargetFramebuffer();
+		static Framebuffer*    GetFramebuffer();
+		static SampleCount     GetSupportedMSAA();
 		static ViewportExtent  GetViewportExtent();
-		static SampleCount     GetMultisampling();
 
 		static uint32_t        GetFramesInFlight();
 		static uint32_t        GetCurrentFrameIndex();

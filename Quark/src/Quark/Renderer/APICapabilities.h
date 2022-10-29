@@ -2,6 +2,8 @@
 
 #include "Quark/Core/Core.h"
 
+#include "Formats.h"
+
 namespace Quark {
 
 	// Supported APIs
@@ -23,10 +25,11 @@ namespace Quark {
 
 	struct FramebufferCapabilities
 	{
-		uint32_t MaxWidth;
-		uint32_t MaxHeight;
-		uint32_t MaxLayers;
-		uint32_t MaxAttachments;
+		uint32_t    MaxWidth;
+		uint32_t    MaxHeight;
+		uint32_t    MaxLayers;
+		uint32_t    MaxAttachments;
+		SampleCount MaxMSAA;
 	};
 
 	struct SamplerCapabilities

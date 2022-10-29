@@ -38,19 +38,19 @@ namespace Quark {
 
 	struct ApplicationSpecification
 	{
-		uint32_t    Width = 1280, Height = 720;
-		SampleCount Samples{};
-		bool        VSync = true;
-
-		std::string AppName;
-
-		std::filesystem::path CoreDir;
+		std::string           AppName;
 		std::filesystem::path AssetDir;
+		std::filesystem::path CoreDir;
 
 		CommandLineArguments  CommandLineArgs;
 		ApplicationFlagBits   Flags{};
-		KeyCode FullscreenKey = KeyCode::F11;
-		RHI GraphicsAPI = Renderer::GetPreferredRHI();
+		KeyCode               FullscreenKey = KeyCode::F11;
+
+		RHI                   GraphicsAPI = Renderer::GetPreferredRHI();
+		SampleCount           Samples     = SampleCount::SampleCount8;
+
+		uint32_t              Width = 1280, Height = 720;
+		bool                  VSync = true;
 
 		bool HasFlags(ApplicationFlagBits flags) const { return static_cast<uint32_t>(Flags) & static_cast<uint32_t>(flags); }
 	};

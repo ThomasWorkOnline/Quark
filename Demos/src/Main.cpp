@@ -16,7 +16,6 @@ namespace Quark {
 		using App = VulkanApp;
 
 		ApplicationSpecification appSpec;
-		appSpec.Samples = SampleCount::SampleCount8;
 		appSpec.AppName = "Demo Application";
 		appSpec.CoreDir = "../Quark";
 		appSpec.CommandLineArgs = args;

@@ -30,6 +30,9 @@ namespace Quark {
 			m_Capabilities.Framebuffer.MaxHeight = props.limits.maxFramebufferHeight;
 			m_Capabilities.Framebuffer.MaxLayers = props.limits.maxFramebufferLayers;
 			m_Capabilities.Framebuffer.MaxAttachments = props.limits.maxColorAttachments;
+
+			VkSampleCountFlags samples = props.limits.framebufferColorSampleCounts & props.limits.framebufferDepthSampleCounts;
+			m_Capabilities.Framebuffer.MaxMSAA = GetHighestSampleCount(samples);
 		}
 
 		// Sampler capabilities
