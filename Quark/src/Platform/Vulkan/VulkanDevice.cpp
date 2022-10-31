@@ -9,7 +9,8 @@
 namespace Quark {
 
 	static const char* s_DeviceExtensions[] = {
-		VK_KHR_SWAPCHAIN_EXTENSION_NAME
+		VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+		VK_KHR_MAINTENANCE1_EXTENSION_NAME
 	};
 
 	namespace Utils {

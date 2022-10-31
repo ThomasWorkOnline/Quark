@@ -77,8 +77,10 @@ namespace Quark {
 	void VulkanCommandBuffer::SetViewport(uint32_t viewportWidth, uint32_t viewportHeight)
 	{
 		VkViewport viewport{};
+		viewport.x = 0.0f;
+		viewport.y = (float)viewportHeight;
 		viewport.width = (float)viewportWidth;
-		viewport.height = (float)viewportHeight;
+		viewport.height = -(float)viewportHeight;
 		viewport.minDepth = 0.0f;
 		viewport.maxDepth = 1.0f;
 		vkCmdSetViewport(m_CommandBuffer, 0, 1, &viewport);

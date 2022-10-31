@@ -39,13 +39,13 @@ namespace Quark {
 		QK_CORE_ASSERT(success, "Failed to initialize OpenGL context");
 
 #ifdef QK_DEBUG
-		if (GLVersion.major >= 4 && GLVersion.minor >= 3)
+		if (glDebugMessageCallback)
 		{
 			glEnable(GL_DEBUG_OUTPUT);
 			glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 
 			glDebugMessageCallback(OnOpenGLMessage, nullptr); // <-- This is not supported on OpenGL 4.2 or lower
-			glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
+			glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, NULL, GL_FALSE);
 		}
 #endif
 
@@ -62,6 +62,8 @@ namespace Quark {
 		glFrontFace(GL_CCW);
 		//           ^^^-- we use a counter-clockwise winding order
 
+		glDepthRangef(0.0f, 1.0f);
+
 		// Depth Testing
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
@@ -72,6 +74,9 @@ namespace Quark {
 
 		// Extensions
 		//glEnable(GL_TEXTURE_2D_ARRAY_EXT);
+
+		// Viewport in the same range as Vulkan and DirectX
+		//glClipControl(GL_UPPER_LEFT, GL_ZERO_TO_ONE);
 
 		// Experimental
 		//glEnable(GL_PROGRAM_POINT_SIZE);
