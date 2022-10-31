@@ -132,7 +132,7 @@ namespace Quark {
 	{
 		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
 
-		QK_CORE_ASSERT(samplerIndex <= Renderer::GetCapabilities().Sampler.MaxPerStageSamplers,
+		QK_CORE_ASSERT(samplerIndex < Renderer::GetCapabilities().Sampler.MaxPerStageSamplers,
 			"Sampler index out of range: max writable index is: {0}",
 			Renderer::GetCapabilities().Sampler.MaxPerStageSamplers - 1);
 
