@@ -29,47 +29,49 @@ namespace Quark {
 			// Color attachment
 			VkAttachmentDescription& colorAttachment = attachments[attachmentIndex];
 			colorAttachment = {};
-			colorAttachment.format = DataFormatToVulkan(m_Spec.ColorAttachmentFormat);
-			colorAttachment.samples = SampleCountToVulkan(m_Spec.Samples);
-			colorAttachment.loadOp = GetVulkanLoadOrClearOp(m_Spec.ClearBuffers);
-			colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-			colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+			colorAttachment.format         = DataFormatToVulkan(m_Spec.ColorAttachmentFormat);
+			colorAttachment.samples        = SampleCountToVulkan(m_Spec.Samples);
+			colorAttachment.loadOp         = GetVulkanLoadOrClearOp(m_Spec.ClearBuffers);
+			colorAttachment.storeOp        = VK_ATTACHMENT_STORE_OP_STORE;
+			colorAttachment.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 			colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-			colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-			colorAttachment.finalLayout = m_Spec.Samples > SampleCount::SampleCount1 ? VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL : VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+			colorAttachment.initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED;
+			colorAttachment.finalLayout    = m_Spec.Samples > SampleCount::SampleCount1 ? VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL : VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
 			VkAttachmentReference& colorAttachmentRef = attachmentRefs[attachmentIndex];
 			colorAttachmentRef = {};
 			colorAttachmentRef.attachment = attachmentIndex;
 			colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-			subpass.pColorAttachments = &colorAttachmentRef;
-			subpass.colorAttachmentCount++;
 			attachmentIndex++;
 
 			srcStageFlags |= VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 			dstStageFlags |= VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 			dstAccessFlags |= VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+			subpass.pColorAttachments = &colorAttachmentRef;
+			subpass.colorAttachmentCount++;
 		}
 
 		if (m_Spec.Samples > SampleCount::SampleCount1)
 		{
 			VkAttachmentDescription& colorAttachmentResolve = attachments[attachmentIndex];
 			colorAttachmentResolve = {};
-			colorAttachmentResolve.format = DataFormatToVulkan(m_Spec.ColorAttachmentFormat);
-			colorAttachmentResolve.samples = VK_SAMPLE_COUNT_1_BIT;
-			colorAttachmentResolve.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-			colorAttachmentResolve.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-			colorAttachmentResolve.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+			colorAttachmentResolve.format         = DataFormatToVulkan(m_Spec.ColorAttachmentFormat);
+			colorAttachmentResolve.samples        = VK_SAMPLE_COUNT_1_BIT;
+			colorAttachmentResolve.loadOp         = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+			colorAttachmentResolve.storeOp        = VK_ATTACHMENT_STORE_OP_STORE;
+			colorAttachmentResolve.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 			colorAttachmentResolve.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-			colorAttachmentResolve.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-			colorAttachmentResolve.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+			colorAttachmentResolve.initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED;
+			colorAttachmentResolve.finalLayout    = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
 			VkAttachmentReference& colorAttachmentResolveRef = attachmentRefs[attachmentIndex];
 			colorAttachmentResolveRef = {};
 			colorAttachmentResolveRef.attachment = attachmentIndex;
 			colorAttachmentResolveRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-			subpass.pResolveAttachments = &colorAttachmentResolveRef;
 			attachmentIndex++;
+
+			subpass.pResolveAttachments = &colorAttachmentResolveRef;
 		}
 
 		if (m_Spec.DepthAttachmentFormat != ColorFormat::None)
@@ -90,12 +92,13 @@ namespace Quark {
 			depthAttachmentRef = {};
 			depthAttachmentRef.attachment = attachmentIndex;
 			depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-			subpass.pDepthStencilAttachment = &depthAttachmentRef;
 			attachmentIndex++;
 
 			srcStageFlags |= VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 			dstStageFlags |= VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 			dstAccessFlags |= VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+			subpass.pDepthStencilAttachment = &depthAttachmentRef;
 		}
 
 		VkSubpassDependency dependency{};

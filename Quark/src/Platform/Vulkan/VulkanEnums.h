@@ -137,7 +137,7 @@ namespace Quark {
 		/*Depth32f*/             VK_FORMAT_D32_SFLOAT
 	};
 
-	inline constexpr VkCompareOp s_DepthCompareFunctionLUT[] = {
+	inline constexpr VkCompareOp s_VulkanDepthCompareFunctionLUT[] = {
 		/*Never*/                VK_COMPARE_OP_NEVER,
 		/*Always*/               VK_COMPARE_OP_ALWAYS,
 		/*NotEqual*/             VK_COMPARE_OP_NOT_EQUAL,
@@ -240,7 +240,7 @@ namespace Quark {
 
 	constexpr VkCompareOp DepthCompareFunctionToVulkan(DepthCompareFunction func)
 	{
-		return s_DepthCompareFunctionLUT[static_cast<size_t>(func)];
+		return s_VulkanDepthCompareFunctionLUT[static_cast<size_t>(func)];
 	}
 
 	constexpr VkPrimitiveTopology PrimitiveTopologyToVulkan(PrimitiveTopology topology)

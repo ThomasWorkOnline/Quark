@@ -114,8 +114,8 @@ namespace Quark {
 		if (renderPass->GetSpecification().ClearBuffers)
 		{
 			uint32_t clearValueIndex = 0;
-
 			auto& clearColor = renderPass->GetSpecification().ClearColor;
+
 			clearValues[clearValueIndex].color = { clearColor.r, clearColor.g, clearColor.b, clearColor.a };
 			clearValueIndex++;
 
