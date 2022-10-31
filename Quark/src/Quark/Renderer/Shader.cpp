@@ -50,31 +50,19 @@ namespace Quark {
 		m_ShaderResources.BindingCount += (uint32_t)resources.uniform_buffers.size();
 		m_ShaderResources.BindingCount += (uint32_t)resources.sampled_images.size();
 
-		QK_CORE_TRACE("Uniform buffers:");
-		for (const auto& resource : resources.uniform_buffers)
+		QK_CORE_TRACE("Push constants:");
+		for (const auto& resource : resources.push_constant_buffers)
 		{
-			const auto& type = compiler.get_type(resource.base_type_id);
-			uint32_t set = compiler.get_decoration(resource.id, spv::DecorationDescriptorSet);
-			uint32_t binding = compiler.get_decoration(resource.id, spv::DecorationBinding);
+			const auto& type = compiler.get_type(resource.type_id);
 
 			size_t bufferSize = compiler.get_declared_struct_size(type);
-			size_t memberCount = type.member_types.size();
 
-			UniformBufferResource ubResource{};
-			ubResource.Size = bufferSize;
-			ubResource.Stage = stage;
-			ubResource.Decorators.Set = set;
-			ubResource.Decorators.Binding = binding;
-			ubResource.Decorators.Name = compiler.get_name(resource.id);
+			PushConstantResource pcResource{};
+			pcResource.Size = bufferSize;
+			pcResource.Stage = stage;
+			pcResource.Name = compiler.get_name(resource.id);
 
-			m_ShaderResources.UniformBuffers.push_back(ubResource);
-			m_ShaderResources.DescriptorCount++;
-
-			QK_CORE_TRACE(" \"{0}\"", resource.name);
-			QK_CORE_TRACE("    Set = {0}", set);
-			QK_CORE_TRACE("    Binding = {0}", binding);
-			QK_CORE_TRACE("    Size = {0} bytes", bufferSize);
-			QK_CORE_TRACE("    Members = {0}", memberCount);
+			m_ShaderResources.PushConstants.push_back(pcResource);
 		}
 
 		QK_CORE_TRACE("Image samplers:");
@@ -115,6 +103,34 @@ namespace Quark {
 			QK_CORE_TRACE("    Binding = {0}", binding);
 			QK_CORE_TRACE("    Samplers = {0}", samplerCount);
 ;		}
+
+		QK_CORE_TRACE("Uniform buffers:");
+		for (const auto& resource : resources.uniform_buffers)
+		{
+			const auto& type = compiler.get_type(resource.base_type_id);
+			uint32_t set = compiler.get_decoration(resource.id, spv::DecorationDescriptorSet);
+			uint32_t binding = compiler.get_decoration(resource.id, spv::DecorationBinding);
+
+			size_t bufferSize = compiler.get_declared_struct_size(type);
+			size_t memberCount = type.member_types.size();
+
+			UniformBufferResource ubResource{};
+			ubResource.Size = bufferSize;
+			ubResource.Stage = stage;
+			ubResource.Decorators.Set = set;
+			ubResource.Decorators.Binding = binding;
+			ubResource.Decorators.Name = compiler.get_name(resource.id);
+
+			m_ShaderResources.UniformBuffers.push_back(ubResource);
+			m_ShaderResources.DescriptorCount++;
+
+			QK_CORE_TRACE(" \"{0}\"", resource.name);
+			QK_CORE_TRACE("    Set = {0}", set);
+			QK_CORE_TRACE("    Binding = {0}", binding);
+			QK_CORE_TRACE("    Size = {0} bytes", bufferSize);
+			QK_CORE_TRACE("    Members = {0}", memberCount);
+		}
+
 	}
 
 	Scope<Shader> Shader::Create(std::string_view filepath)

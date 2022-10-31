@@ -57,16 +57,6 @@ namespace Quark {
 		AutoRelease<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings = StackAlloc(shaderResources.BindingCount * sizeof(VkDescriptorSetLayoutBinding));
 		VkDescriptorSetLayoutBinding* descriptorSetLayoutbindingPtr = descriptorSetLayoutBindings;
 
-		for (auto& uniformBuffer : shaderResources.UniformBuffers)
-		{
-			*descriptorSetLayoutbindingPtr = {};
-			descriptorSetLayoutbindingPtr->binding            = uniformBuffer.Decorators.Binding;
-			descriptorSetLayoutbindingPtr->descriptorType     = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			descriptorSetLayoutbindingPtr->descriptorCount    = 1;
-			descriptorSetLayoutbindingPtr->stageFlags         = ShaderStageToVulkan(uniformBuffer.Stage);
-			descriptorSetLayoutbindingPtr++;
-		}
-
 		for (auto& samplerArray : shaderResources.SamplerArrays)
 		{
 			*descriptorSetLayoutbindingPtr = {};
@@ -75,6 +65,16 @@ namespace Quark {
 			descriptorSetLayoutbindingPtr->descriptorCount    = samplerArray.SamplerCount;
 			descriptorSetLayoutbindingPtr->stageFlags         = ShaderStageToVulkan(samplerArray.Stage);
 			descriptorSetLayoutbindingPtr->pImmutableSamplers = nullptr;
+			descriptorSetLayoutbindingPtr++;
+		}
+
+		for (auto& uniformBuffer : shaderResources.UniformBuffers)
+		{
+			*descriptorSetLayoutbindingPtr = {};
+			descriptorSetLayoutbindingPtr->binding            = uniformBuffer.Decorators.Binding;
+			descriptorSetLayoutbindingPtr->descriptorType     = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			descriptorSetLayoutbindingPtr->descriptorCount    = 1;
+			descriptorSetLayoutbindingPtr->stageFlags         = ShaderStageToVulkan(uniformBuffer.Stage);
 			descriptorSetLayoutbindingPtr++;
 		}
 
@@ -153,6 +153,8 @@ namespace Quark {
 
 	void VulkanPipeline::CreatePipeline()
 	{
+		const auto& shaderResources = m_Spec.Shader->GetShaderResources();
+
 		AutoRelease<VkVertexInputAttributeDescription> attributeDescriptions = StackAlloc(m_Spec.Layout.GetCount() * sizeof(VkVertexInputAttributeDescription));
 
 		for (uint32_t i = 0; i < m_Spec.Layout.GetCount(); i++)
@@ -248,10 +250,26 @@ namespace Quark {
 		dynamicState.dynamicStateCount            = sizeof_array(dynamicStates);
 		dynamicState.pDynamicStates               = dynamicStates;
 
+		// Push constants
+		uint32_t pushConstantRangeCount = (uint32_t)shaderResources.PushConstants.size();
+
+		AutoRelease<VkPushConstantRange> pushConstantRanges = StackAlloc(pushConstantRangeCount * sizeof(VkPushConstantRange));
+		VkPushConstantRange* pushConstantRangePtr = pushConstantRanges;
+
+		for (auto& pushConstant : shaderResources.PushConstants)
+		{
+			*pushConstantRangePtr = {};
+			pushConstantRangePtr->offset     = 0;
+			pushConstantRangePtr->size       = (uint32_t)pushConstant.Size;
+			pushConstantRangePtr->stageFlags = ShaderStageToVulkan(pushConstant.Stage);
+			pushConstantRangePtr++;
+		}
+
 		// Pipeline creation
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 		pipelineLayoutInfo.sType                  = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		pipelineLayoutInfo.pushConstantRangeCount = 0;
+		pipelineLayoutInfo.pushConstantRangeCount = pushConstantRangeCount;
+		pipelineLayoutInfo.pPushConstantRanges    = pushConstantRanges;
 		pipelineLayoutInfo.setLayoutCount         = 1;
 		pipelineLayoutInfo.pSetLayouts            = &m_DescriptorSetLayout;
 

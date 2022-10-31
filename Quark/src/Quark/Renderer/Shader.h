@@ -33,29 +33,37 @@ namespace Quark {
 
 	struct ResourceDecorators
 	{
-		uint32_t Set;
-		uint32_t Binding;
+		uint32_t    Set;
+		uint32_t    Binding;
 		std::string Name;
 	};
 
-	struct UniformBufferResource
+	struct PushConstantResource
 	{
-		size_t      Size;
-		ShaderStage Stage;
-		ResourceDecorators Decorators;
+		size_t             Size;
+		ShaderStage        Stage;
+		std::string        Name;
 	};
 
 	struct SamplerArrayResource
 	{
-		uint32_t    SamplerCount;
-		ShaderStage Stage;
+		uint32_t           SamplerCount;
+		ShaderStage        Stage;
+		ResourceDecorators Decorators;
+	};
+
+	struct UniformBufferResource
+	{
+		size_t             Size;
+		ShaderStage        Stage;
 		ResourceDecorators Decorators;
 	};
 
 	struct ShaderResources
 	{
-		std::vector<UniformBufferResource> UniformBuffers;
+		std::vector<PushConstantResource>  PushConstants;
 		std::vector<SamplerArrayResource>  SamplerArrays;
+		std::vector<UniformBufferResource> UniformBuffers;
 
 		uint32_t DescriptorCount = 0;
 		uint32_t BindingCount = 0;
