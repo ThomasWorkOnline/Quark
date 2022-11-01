@@ -60,6 +60,7 @@
 #	define QK_DEPRECATED [[deprecated]]	
 #endif
 
+#define SPDLOG_COMPILED_LIB
 #include <spdlog/fmt/fmt.h>
 #include <stdexcept>
 
