@@ -1,6 +1,8 @@
 #include "qkpch.h"
 #include "RuntimeApplication.h"
 
+#include <Quark/EntryPoint.h>
+
 namespace Quark {
 
 	int Main(int argc, char** argv)

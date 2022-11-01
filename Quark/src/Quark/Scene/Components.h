@@ -152,7 +152,7 @@ namespace Quark {
 				if constexpr (HasOnDestroy<T>::value)
 					static_cast<T*>(nsc.ScriptInstance)->OnDestroy();
 
-				delete nsc.ScriptInstance;
+				delete static_cast<T*>(nsc.ScriptInstance);
 				nsc.ScriptInstance = nullptr;
 			};
 

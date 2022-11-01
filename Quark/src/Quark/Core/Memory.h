@@ -1,7 +1,6 @@
 #pragma once
 
 #include <memory>
-#include <stdexcept>
 
 #if defined QK_PLATFORM_WINDOWS
 #	define Freea      _freea
@@ -13,8 +12,6 @@
 #endif
 
 #define sizeof_array(x) (sizeof(x) / sizeof(x[0]))
-
-#include <cassert>
 
 namespace Quark {
 

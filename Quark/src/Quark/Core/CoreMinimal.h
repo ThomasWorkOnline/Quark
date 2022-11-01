@@ -60,6 +60,12 @@
 #	define QK_DEPRECATED [[deprecated]]	
 #endif
 
+#include <format>
+#include <stdexcept>
+
+#define ThrowRuntimeError(...) throw std::runtime_error(std::format(__VA_ARGS__))
+#define Verify(x, ...) do { if (!(x)) { ThrowRuntimeError(__VA_ARGS__); } } while (false)
+
 #include "Config.h"
 #include "Assertions.h"
 #include "Platform.h"
