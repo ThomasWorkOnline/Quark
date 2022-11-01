@@ -17,6 +17,7 @@ project "InstalledVulkanVersion"
 	{
 		"src",
 		"%{wks.location}/Quark/src",
+		"%{IncludeDir.spdlog}",
 		"%{IncludeDir.VulkanSDK}"
 	}
 
@@ -46,10 +47,18 @@ project "InstalledVulkanVersion"
 		}
 
 	filter "system:macosx"
-	
 		includedirs
 		{
 			"/Users/thomaslessard/VulkanSDK/1.3.224.1/MoltenVK/include"
+		}
+
+		links
+		{
+			"Quark",
+			"spdlog",
+
+			"vulkan",
+			"MoltenVK"
 		}
 
 	filter "configurations:Debug"

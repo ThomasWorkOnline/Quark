@@ -60,10 +60,10 @@
 #	define QK_DEPRECATED [[deprecated]]	
 #endif
 
-#include <format>
+#include <spdlog/fmt/fmt.h>
 #include <stdexcept>
 
-#define ThrowRuntimeError(...) throw std::runtime_error(std::format(__VA_ARGS__))
+#define ThrowRuntimeError(...) throw std::runtime_error(fmt::format(__VA_ARGS__))
 #define Verify(x, ...) do { if (!(x)) { ThrowRuntimeError(__VA_ARGS__); } } while (false)
 
 #include "Config.h"

@@ -1,5 +1,6 @@
 #include "qkpch.h"
 
+#include <dlfcn.h>
 #include <unistd.h>
 
 namespace Quark {
