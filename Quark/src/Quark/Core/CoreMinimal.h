@@ -45,16 +45,22 @@
 #	error "Unknown platform"
 #endif
 
-namespace Platform {
+#if __cplusplus >= 202002L
+	// C++20 and forward
+#	define QK_CONSTEXPR20 constexpr
+#else
+#	define QK_CONSTEXPR20 inline
+#endif
 
-	extern void* LoadLibrary(const char* name);
-	extern void  FreeLibrary(void* library);
+#define QK_NODISCARD [[nodiscard]]
 
-	extern void* GetProcAddress(void* library, const char* procName);
+#if QK_IGNORE_DEPRECATED_SYMBOLS
+#	define QK_DEPRECATED
+#else
+#	define QK_DEPRECATED [[deprecated]]	
+#endif
 
-	template<typename Proc>
-	inline Proc GetProcAddress(void* library, const char* procName)
-	{
-		return (Proc)GetProcAddress(library, procName);
-	}
-}
+#include "Config.h"
+#include "Assertions.h"
+#include "Platform.h"
+#include "Memory.h"

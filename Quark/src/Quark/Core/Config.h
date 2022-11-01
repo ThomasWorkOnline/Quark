@@ -15,8 +15,3 @@
 #else
 #	define QK_CONFIG_NAME "Unknown configuration"
 #endif
-
-constexpr const char* GetConfigurationName()
-{
-	return QK_CONFIG_NAME;
-}

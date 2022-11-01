@@ -4,6 +4,7 @@
 #   define QK_ENABLE_ASSERTIONS
 #endif
 
+#include <format>
 #include <stdexcept>
 
 // Debugbreak
@@ -34,5 +35,5 @@
 
 #define QK_ASSERT_NO_DEFAULT(msg) default: { QK_CORE_ASSERT(false, msg); } break
 
-#define ThrowRuntimeError(...) throw std::runtime_error(fmt::format(__VA_ARGS__))
+#define ThrowRuntimeError(...) throw std::runtime_error(std::format(__VA_ARGS__))
 #define Verify(x, ...) do { if (!(x)) { ThrowRuntimeError(__VA_ARGS__); } } while (false)

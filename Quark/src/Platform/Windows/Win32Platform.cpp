@@ -1,8 +1,15 @@
+#include "qkpch.h"
+
 #include <Windows.h>
 
-#undef LoadLibrary
+#undef LoadLibrary // From Windows.h
 
-namespace Platform {
+namespace Quark {
+
+	uint32_t GetCurrentProcessId()
+	{
+		return static_cast<uint32_t>(::GetCurrentProcessId());
+	}
 
 	void* LoadLibrary(const char* name)
 	{

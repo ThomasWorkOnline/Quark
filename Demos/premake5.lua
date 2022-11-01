@@ -17,6 +17,7 @@ project "Demos"
 	{
 		"src",
 		"%{wks.location}/Quark/src",
+		"%{wks.location}/RuntimeCore/src",
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.spdlog}",
@@ -25,7 +26,7 @@ project "Demos"
 
 	links
 	{
-		"Quark"
+		"RuntimeCore"
 	}
 
 	filter { "configurations:Dist", "system:windows" }
@@ -49,6 +50,7 @@ project "Demos"
 		
 		links
 		{
+			"Quark",
 			"freetype",
 			"Glad",
 			"GLFW",
@@ -98,6 +100,7 @@ project "Demos"
 	filter "system:linux"
 		links
 		{
+			"Quark",
 			"freetype",
 			"Glad",
 			"GLFW",

@@ -5,14 +5,14 @@
 #	include "Platform/Windows/NativeWindowsWindow.h"
 #endif
 
-#include "DefaultWindow.h"
+#include "GenericWindow.h"
 
 namespace Quark {
 
 #if defined(QK_PLATFORM_WINDOWS)
 	using NativeWindow = NativeWindowsWindow;
 #else
-	using NativeWindow = DefaultWindow;
+	using NativeWindow = GenericWindow;
 #endif
 
 	Scope<Window> Window::Create(const WindowSpecification& spec, bool native)
@@ -23,7 +23,7 @@ namespace Quark {
 		}
 		else
 		{
-			return CreateScope<DefaultWindow>(spec);
+			return CreateScope<GenericWindow>(spec);
 		}
 	}
 }

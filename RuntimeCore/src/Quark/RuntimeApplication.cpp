@@ -1,9 +1,9 @@
 #include "qkpch.h"
-#include "EntryPoint.h"
+#include "RuntimeApplication.h"
 
 namespace Quark {
 
-	static int Main(int argc, char** argv)
+	int Main(int argc, char** argv)
 	{
 		RuntimeCore::Init();
 
@@ -38,20 +38,3 @@ namespace Quark {
 		return EXIT_SUCCESS;
 	}
 }
-
-#if defined(QK_PLATFORM_WINDOWS) && defined(QK_DIST)
-#include <Windows.h>
-
-INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ INT nShowCmd)
-{
-	return Quark::Main(__argc, __argv);
-}
-
-#else
-
-int main(int argc, char** argv)
-{
-	return Quark::Main(argc, argv);
-}
-
-#endif /* QK_PLATFORM_WINDOWS */

@@ -1,12 +1,8 @@
 #pragma once
 
-#include "Core/Core.h"
-#include "Core/Application.h"
+#include "Core/CoreMinimal.h"
 
 namespace Quark {
 
-	///
-	/// Entry point: must be defined by client
-	///
-	extern Application* CreateApplication(CommandLineArguments args);
+	extern int Main(int argc, char** argv);
 }

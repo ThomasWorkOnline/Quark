@@ -29,6 +29,7 @@ group "Dependencies"
 
 group "Core"
 	include "Quark"
+	include "RuntimeCore"
 
 group "Tools"
 	include "Tools/Fuse"

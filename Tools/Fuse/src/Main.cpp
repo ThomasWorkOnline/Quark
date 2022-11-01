@@ -1,4 +1,4 @@
-#include <Quark/EntryPoint.h>
+#include <Quark/RuntimeApplication.h>
 
 #include "FuseEditor.h"
 

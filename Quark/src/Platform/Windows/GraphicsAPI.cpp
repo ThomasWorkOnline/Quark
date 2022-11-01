@@ -18,8 +18,8 @@ namespace Quark {
 		switch (api)
 		{
 			case RHI::Direct3D12: return CreateScope<Direct3DGraphicsAPI>();
-			case RHI::OpenGL:   return CreateScope<OpenGLGraphicsAPI>();
-			case RHI::Vulkan:   return CreateScope<VulkanGraphicsAPI>();
+			case RHI::OpenGL:     return CreateScope<OpenGLGraphicsAPI>();
+			case RHI::Vulkan:     return CreateScope<VulkanGraphicsAPI>();
 
 			QK_ASSERT_NO_DEFAULT("Graphics API is not supported!");
 		}

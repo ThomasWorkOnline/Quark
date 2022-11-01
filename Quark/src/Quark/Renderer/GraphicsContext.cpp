@@ -7,7 +7,7 @@
 #endif
 
 #ifdef QK_PLATFORM_APPLE
-#	include "Platform/MacOS/Metal/MetalContext.h"
+#	include "Platform/Apple/Metal/MetalContext.h"
 #endif
 
 #include "Platform/OpenGL/OpenGLContext.h"

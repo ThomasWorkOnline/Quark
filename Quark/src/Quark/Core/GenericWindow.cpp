@@ -1,5 +1,5 @@
 #include "qkpch.h"
-#include "DefaultWindow.h"
+#include "GenericWindow.h"
 
 #include "Quark/Renderer/GraphicsAPI.h"
 
@@ -50,23 +50,23 @@ namespace Quark {
 		QK_CORE_ASSERT(false, description);
 	}
 
-	DefaultWindow::DefaultWindow(const WindowSpecification& spec)
+	GenericWindow::GenericWindow(const WindowSpecification& spec)
 	{
 		Init(spec);
 	}
 
-	DefaultWindow::~DefaultWindow()
+	GenericWindow::~GenericWindow()
 	{
 		Shutdown();
 	}
 
-	void DefaultWindow::OnUpdate()
+	void GenericWindow::OnUpdate()
 	{
 		m_Data.Context->SwapBuffers();
 		glfwPollEvents();
 	}
 
-	void DefaultWindow::Init(const WindowSpecification& spec)
+	void GenericWindow::Init(const WindowSpecification& spec)
 	{
 		QK_PROFILE_FUNCTION();
 
@@ -275,7 +275,7 @@ namespace Quark {
 			});
 	}
 
-	void DefaultWindow::Shutdown()
+	void GenericWindow::Shutdown()
 	{
 		QK_PROFILE_FUNCTION();
 
@@ -287,67 +287,67 @@ namespace Quark {
 			glfwTerminate();
 	}
 
-	Window& DefaultWindow::SetTitle(std::string title)
+	Window& GenericWindow::SetTitle(std::string title)
 	{
 		m_Data.Title = std::move(title);
 		glfwSetWindowTitle(m_Window, m_Data.Title.c_str());
 		return *this;
 	}
 
-	Window& DefaultWindow::AppendTitle(std::string title)
+	Window& GenericWindow::AppendTitle(std::string title)
 	{
 		m_Data.Title.append(std::move(title));
 		glfwSetWindowTitle(m_Window, m_Data.Title.c_str());
 		return *this;
 	}
 
-	void DefaultWindow::Resize(uint32_t width, uint32_t height)
+	void GenericWindow::Resize(uint32_t width, uint32_t height)
 	{
 		glfwSetWindowSize(m_Window, width, height);
 	}
 
-	void DefaultWindow::Focus()
+	void GenericWindow::Focus()
 	{
 		glfwFocusWindow(m_Window);
 	}
 
-	void DefaultWindow::Minimize()
+	void GenericWindow::Minimize()
 	{
 		glfwIconifyWindow(m_Window);
 	}
 
-	void DefaultWindow::Maximize()
+	void GenericWindow::Maximize()
 	{
 		glfwMaximizeWindow(m_Window);
 	}
 
-	void DefaultWindow::Restore()
+	void GenericWindow::Restore()
 	{
 		glfwRestoreWindow(m_Window);
 	}
 
-	void DefaultWindow::RequestAttention()
+	void GenericWindow::RequestAttention()
 	{
 		glfwRequestWindowAttention(m_Window);
 	}
 
-	void DefaultWindow::DisableCursor()
+	void GenericWindow::DisableCursor()
 	{
 		glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	}
 
-	void DefaultWindow::EnableCursor()
+	void GenericWindow::EnableCursor()
 	{
 		glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	}
 
-	void DefaultWindow::SetVSync(bool enabled)
+	void GenericWindow::SetVSync(bool enabled)
 	{
 		m_Data.Context->SetSwapInterval(enabled);
 		m_Data.VSync = enabled;
 	}
 
-	void DefaultWindow::SetFullscreen(bool enabled)
+	void GenericWindow::SetFullscreen(bool enabled)
 	{
 		bool isFullScreen = glfwGetWindowMonitor(m_Window) != nullptr;
 		if (isFullScreen == enabled) return;
@@ -373,37 +373,37 @@ namespace Quark {
 		}
 	}
 
-	bool DefaultWindow::IsFocused() const
+	bool GenericWindow::IsFocused() const
 	{
 		return glfwGetWindowAttrib(m_Window, GLFW_FOCUSED);
 	}
 
-	bool DefaultWindow::IsMinimized() const
+	bool GenericWindow::IsMinimized() const
 	{
 		return glfwGetWindowAttrib(m_Window, GLFW_ICONIFIED);
 	}
 
-	bool DefaultWindow::IsMaximized() const
+	bool GenericWindow::IsMaximized() const
 	{
 		return glfwGetWindowAttrib(m_Window, GLFW_MAXIMIZED);
 	}
 
-	bool DefaultWindow::IsCursorEnabled() const
+	bool GenericWindow::IsCursorEnabled() const
 	{
 		return glfwGetInputMode(m_Window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL;
 	}
 
-	bool DefaultWindow::IsFullscreen() const
+	bool GenericWindow::IsFullscreen() const
 	{
 		return glfwGetWindowMonitor(m_Window) != nullptr;
 	}
 
-	const char* DefaultWindow::GetClipboardText() const
+	const char* GenericWindow::GetClipboardText() const
 	{
 		return glfwGetClipboardString(m_Window);
 	}
 
-	void DefaultWindow::SetClipboardText(const char* string)
+	void GenericWindow::SetClipboardText(const char* string)
 	{
 		glfwSetClipboardString(m_Window, string);
 	}

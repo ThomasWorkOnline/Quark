@@ -25,12 +25,7 @@ namespace Quark {
 
 		struct InstrumentorSettings
 		{
-			static std::string CreateOutputDir()
-			{
-				return fmt::format("instrumentor/{0}/", GetConfigurationName());
-			}
-
-			static inline std::string OutputDir = CreateOutputDir();
+			static inline const char* OutputDir = "instrumentor/" QK_CONFIG_NAME "/";
 		};
 
 		void Instrumentor::BeginSession(const std::string& sessionName)

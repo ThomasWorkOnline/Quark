@@ -1,4 +1,4 @@
-#include <Quark/EntryPoint.h>
+#include <Quark/RuntimeApplication.h>
 
 #include "Demos/PBRRenderingDemo.h"
 #include "Examples/Example1_BasicRendering.h"
@@ -19,7 +19,7 @@ namespace Quark {
 		appSpec.AppName = "Demo Application";
 		appSpec.CoreDir = "../Quark";
 		appSpec.CommandLineArgs = args;
-		appSpec.GraphicsAPI = RHI::Vulkan;
+		appSpec.GraphicsAPI = RHI::OpenGL;
 		appSpec.Flags = ApplicationFlagBits::LaunchRenderer2D;
 
 		return new App(appSpec);

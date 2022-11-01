@@ -16,10 +16,10 @@ project "Quark"
 		"src/Quark/**.inl",
 		"src/Quark/**.cpp",
 		"src/Quark.h",
+
 		"src/qkpch.h",
 		"src/qkpch.cpp",
-		"src/Quark/EntryPoint.h",
-		"src/Quark/EntryPoint.cpp",
+
 		"src/Platform/GLFW/**.h",
 		"src/Platform/GLFW/**.cpp",
 		"src/Platform/OpenAL/**.h",
@@ -103,16 +103,14 @@ project "Quark"
 			"%{Library.Vulkan}"
 		}
 
-		postbuildcommands
-		{
-			--"%{wks.location}Scripts\\Windows\\CompileShaders.bat"
-		}
-
 	filter "system:macosx"
 		files
 		{
-			"src/Platform/MacOS/**.h",
-			"src/Platform/MacOS/**.cpp"
+			"src/Platform/Apple/**.h",
+			"src/Platform/Apple/**.cpp",
+
+			"src/Platform/Unix/**.h",
+			"src/Platform/Unix/**.cpp"
 		}
 
 		includedirs
@@ -126,7 +124,10 @@ project "Quark"
 		files
 		{
 			"src/Platform/Linux/**.h",
-			"src/Platform/Linux/**.cpp"
+			"src/Platform/Linux/**.cpp",
+
+			"src/Platform/Unix/**.h",
+			"src/Platform/Unix/**.cpp"
 		}
 
 		links

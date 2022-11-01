@@ -1,5 +1,5 @@
-project "InstalledVulkanVersion"
-	kind "ConsoleApp"
+project "RuntimeCore"
+	kind "StaticLib"
 	language "C++"
 	cppdialect "C++20"
 	staticruntime "Off"
@@ -7,16 +7,29 @@ project "InstalledVulkanVersion"
 	targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("%{wks.location}/bin-int/" .. outputdir .. "/%{prj.name}")
 
+	pchheader "qkpch.h"
+	pchsource "src/qkpch.cpp"
+
 	files
 	{
 		"src/**.h",
 		"src/**.cpp"
 	}
 
+	defines
+	{
+		"GLM_FORCE_LEFT_HANDED"
+	}
+
 	includedirs
 	{
 		"src",
 		"%{wks.location}/Quark/src",
+		"%{VendorDir}",
+		"%{IncludeDir.entt}",
+		"%{IncludeDir.glm}",
+		"%{IncludeDir.ImGui}",
+		"%{IncludeDir.spdlog}",
 		"%{IncludeDir.VulkanSDK}"
 	}
 
@@ -25,43 +38,34 @@ project "InstalledVulkanVersion"
 		"Quark"
 	}
 
-	flags
-	{
-		"FatalCompileWarnings",
-		"ShadowedVariables"
-	}
-
-	filter { "configurations:Dist", "system:windows" }
-		kind "WindowedApp"
-
 	filter "system:windows"
+		systemversion "latest"
+
+		flags
+		{
+			"FatalCompileWarnings",
+			"ShadowedVariables"
+		}
+
 		defines
 		{
-			"_CRT_SECURE_NO_WARNINGS"
-		}
-
-		links
-		{
-			"%{Library.Vulkan}"
-		}
-
-	filter "system:macosx"
-	
-		includedirs
-		{
-			"/Users/thomaslessard/VulkanSDK/1.3.224.1/MoltenVK/include"
+			"_CRT_SECURE_NO_WARNINGS",
+			"_SILENCE_CXX23_ALIGNED_STORAGE_DEPRECATION_WARNING"
 		}
 
 	filter "configurations:Debug"
+		defines "QK_DEBUG"
 		runtime "Debug"
 		symbols "On"
 
 	filter "configurations:Release"
+		defines "QK_RELEASE"
 		runtime "Release"
 		optimize "On"
 		symbols	"On"
 
 	filter "configurations:Dist"
+		defines "QK_DIST"
 		runtime "Release"
 		optimize "Full"
 		symbols "Off"

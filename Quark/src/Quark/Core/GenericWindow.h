@@ -6,11 +6,11 @@ typedef struct GLFWwindow GLFWwindow;
 
 namespace Quark {
 
-	class DefaultWindow final : public Window
+	class GenericWindow final : public Window
 	{
 	public:
-		DefaultWindow(const WindowSpecification& spec);
-		virtual ~DefaultWindow() final override;
+		GenericWindow(const WindowSpecification& spec);
+		virtual ~GenericWindow() final override;
 
 		virtual void SetEventCallback(const EventCallbackFn& callback) final override { m_Data.EventCallback = callback; }
 		virtual void OnUpdate() final override;
@@ -51,12 +51,12 @@ namespace Quark {
 		virtual void* GetNativeWindow() const final override { return m_Window; }
 
 		// Non-Copyable
-		DefaultWindow(const DefaultWindow&) = delete;
-		DefaultWindow& operator=(const DefaultWindow&) = delete;
+		GenericWindow(const GenericWindow&) = delete;
+		GenericWindow& operator=(const GenericWindow&) = delete;
 
 		// Non-Movable
-		DefaultWindow(DefaultWindow&&) = delete;
-		DefaultWindow& operator=(DefaultWindow&&) = delete;
+		GenericWindow(GenericWindow&&) = delete;
+		GenericWindow& operator=(GenericWindow&&) = delete;
 
 	private:
 		void Init(const WindowSpecification& spec);

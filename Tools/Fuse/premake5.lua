@@ -17,6 +17,7 @@ project "Fuse"
 	{
 		"src",
 		"%{wks.location}/Quark/src",
+		"%{wks.location}/RuntimeCore/src",
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.spdlog}",
@@ -25,7 +26,7 @@ project "Fuse"
 
 	links
 	{
-		"Quark"
+		"RuntimeCore"
 	}
 
 	filter { "configurations:Dist", "system:windows" }
@@ -40,7 +41,8 @@ project "Fuse"
 
 		defines
 		{
-			"_CRT_SECURE_NO_WARNINGS"
+			"_CRT_SECURE_NO_WARNINGS",
+			"_SILENCE_CXX23_ALIGNED_STORAGE_DEPRECATION_WARNING"
 		}
 
 	filter "system:macosx"
@@ -48,6 +50,7 @@ project "Fuse"
 		
 		links
 		{
+			"Quark",
 			"freetype",
 			"Glad",
 			"GLFW",
@@ -97,6 +100,7 @@ project "Fuse"
 	filter "system:linux"
 		links
 		{
+			"Quark",
 			"freetype",
 			"Glad",
 			"GLFW",
