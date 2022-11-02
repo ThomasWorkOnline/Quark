@@ -32,9 +32,6 @@ project "InstalledVulkanVersion"
 		"ShadowedVariables"
 	}
 
-	filter { "configurations:Dist", "system:windows" }
-		kind "WindowedApp"
-
 	filter "system:windows"
 		defines
 		{
@@ -54,7 +51,6 @@ project "InstalledVulkanVersion"
 
 		links
 		{
-			"Quark",
 			"spdlog",
 
 			"vulkan",
@@ -62,15 +58,18 @@ project "InstalledVulkanVersion"
 		}
 
 	filter "configurations:Debug"
+		defines "QK_DEBUG"
 		runtime "Debug"
 		symbols "On"
 
 	filter "configurations:Release"
+		defines "QK_RELEASE"
 		runtime "Release"
 		optimize "On"
 		symbols	"On"
 
 	filter "configurations:Dist"
+		defines "QK_DIST"
 		runtime "Release"
 		optimize "Full"
 		symbols "Off"
