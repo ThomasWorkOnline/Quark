@@ -42,7 +42,7 @@ private:
 
 	Scene m_Scene;
 	Entity m_CameraEntity;
-	Mesh m_Body;
+	StaticMesh m_Body;
 	Material m_Material;
 
 	SceneRenderer m_SceneRenderer = { &m_Scene };

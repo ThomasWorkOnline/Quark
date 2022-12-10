@@ -66,6 +66,7 @@ namespace Quark {
 		static RHI             GetPreferredRHI();
 		static RHIVersion      GetRHIVersion();
 		static std::string     GetSpecification();
+		static const char*     GetDeviceName();
 		static const char*     GetAPIName();
 
 	private:

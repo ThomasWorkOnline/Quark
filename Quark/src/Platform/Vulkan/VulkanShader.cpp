@@ -28,68 +28,66 @@ namespace Quark {
 		QK_CORE_ASSERT(false, "Loading a Vulkan shader from a filepath is not supported");
 	}
 
-	VulkanShader::VulkanShader(VulkanDevice* device, std::string_view name, SpirvView vertexSource, SpirvView fragmentSource)
-		: Shader(name), m_Device(device), m_ShaderStages(2)
-	{
-		QK_PROFILE_FUNCTION();
-
-		m_ShaderStages[VK_SHADER_STAGE_VERTEX_BIT]   = CreateShader(ShaderStage::Vertex, vertexSource);
-		m_ShaderStages[VK_SHADER_STAGE_FRAGMENT_BIT] = CreateShader(ShaderStage::Fragment, fragmentSource);
-	}
-
-	VulkanShader::VulkanShader(VulkanDevice* device, std::string_view name, SpirvView vertexSource, SpirvView geometrySource, SpirvView fragmentSource)
-		: Shader(name), m_Device(device), m_ShaderStages(3)
-	{
-		QK_PROFILE_FUNCTION();
-
-		m_ShaderStages[VK_SHADER_STAGE_VERTEX_BIT]   = CreateShader(ShaderStage::Vertex, vertexSource);
-		m_ShaderStages[VK_SHADER_STAGE_GEOMETRY_BIT] = CreateShader(ShaderStage::Geometry, geometrySource);
-		m_ShaderStages[VK_SHADER_STAGE_FRAGMENT_BIT] = CreateShader(ShaderStage::Fragment, fragmentSource);
-	}
-
 	VulkanShader::VulkanShader(VulkanDevice* device, std::string_view name, std::string_view vertexSource, std::string_view fragmentSource)
 		: Shader(name), m_Device(device)
 	{
-		QK_CORE_ASSERT(false, "Legacy shaders in Vulkan are not supported!");
+		QK_CORE_ASSERT(false, "Source shaders in Vulkan are not supported!");
 	}
 
 	VulkanShader::VulkanShader(VulkanDevice* device, std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource)
 		: Shader(name), m_Device(device)
 	{
-		QK_CORE_ASSERT(false, "Legacy shaders in Vulkan are not supported!");
+		QK_CORE_ASSERT(false, "Source shaders in Vulkan are not supported!");
+	}
+
+	VulkanShader::VulkanShader(VulkanDevice* device, std::string_view name, std::span<const uint32_t> vertexSpirv, std::span<const uint32_t> fragmentSpirv)
+		: Shader(name), m_Device(device), m_ShaderStages(2)
+	{
+		QK_PROFILE_FUNCTION();
+
+		m_ShaderStages[VK_SHADER_STAGE_VERTEX_BIT]   = CreateShader(ShaderStage::Vertex, vertexSpirv);
+		m_ShaderStages[VK_SHADER_STAGE_FRAGMENT_BIT] = CreateShader(ShaderStage::Fragment, fragmentSpirv);
+	}
+
+	VulkanShader::VulkanShader(VulkanDevice* device, std::string_view name, std::span<const uint32_t> vertexSpirv, std::span<const uint32_t> geometrySpirv, std::span<const uint32_t> fragmentSpirv)
+		: Shader(name), m_Device(device), m_ShaderStages(3)
+	{
+		QK_PROFILE_FUNCTION();
+
+		m_ShaderStages[VK_SHADER_STAGE_VERTEX_BIT]   = CreateShader(ShaderStage::Vertex, vertexSpirv);
+		m_ShaderStages[VK_SHADER_STAGE_GEOMETRY_BIT] = CreateShader(ShaderStage::Geometry, geometrySpirv);
+		m_ShaderStages[VK_SHADER_STAGE_FRAGMENT_BIT] = CreateShader(ShaderStage::Fragment, fragmentSpirv);
 	}
 
 	VulkanShader::~VulkanShader()
 	{
 		QK_PROFILE_FUNCTION();
 
-		for (auto& kv : m_ShaderStages)
+		for (auto& [stage, module] : m_ShaderStages)
 		{
-			vkDestroyShaderModule(m_Device->GetVkHandle(), kv.second.Module, nullptr);
+			vkDestroyShaderModule(m_Device->GetVkHandle(), module, nullptr);
 		}
 	}
 
 	bool VulkanShader::operator==(const Shader& other) const
 	{
 		if (auto* o = dynamic_cast<decltype(this)>(&other))
-			return m_Name == o->m_Name;
+			return GetName() == o->GetName();
 
 		return false;
 	}
 
-	VulkanShaderModule VulkanShader::CreateShader(ShaderStage stage, SpirvView spirvSource)
+	VkShaderModule VulkanShader::CreateShader(ShaderStage stage, std::span<const uint32_t> spirvSource)
 	{
 		VkShaderModuleCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-		createInfo.codeSize = spirvSource.WordCount * sizeof(uint32_t);
-		createInfo.pCode = spirvSource.Data;
+		createInfo.codeSize = spirvSource.size_bytes();
+		createInfo.pCode = spirvSource.data();
 
-		VulkanShaderModule shaderModule;
-		vkCreateShaderModule(m_Device->GetVkHandle(), &createInfo, nullptr, &shaderModule.Module);
-		Reflect(stage, spirvSource.Data, spirvSource.WordCount);
+		VkShaderModule shaderModule;
+		vkCreateShaderModule(m_Device->GetVkHandle(), &createInfo, nullptr, &shaderModule);
 
-		// TODO: get entry point from reflection
-		shaderModule.EntryPoint = "main";
+		Reflect(stage, spirvSource);
 
 		return shaderModule;
 	}

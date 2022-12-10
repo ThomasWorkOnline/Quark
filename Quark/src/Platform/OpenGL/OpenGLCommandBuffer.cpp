@@ -132,9 +132,9 @@ namespace Quark {
 	{
 		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
 
-		QK_CORE_ASSERT(samplerIndex < Renderer::GetCapabilities().Sampler.MaxPerStageSamplers,
+		QK_CORE_ASSERT(samplerIndex < Renderer::GetCapabilities().Sampler.MaxTextureUnits,
 			"Sampler index out of range: max writable index is: {0}",
-			Renderer::GetCapabilities().Sampler.MaxPerStageSamplers - 1);
+			Renderer::GetCapabilities().Sampler.MaxTextureUnits - 1);
 
 		auto* glTexture = static_cast<const OpenGLTexture*>(texture->GetHandle());
 		glActiveTexture(GL_TEXTURE0 + samplerIndex);

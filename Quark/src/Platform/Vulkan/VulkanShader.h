@@ -9,22 +9,14 @@
 
 namespace Quark {
 
-	struct VulkanShaderModule
-	{
-		VkShaderModule Module{};
-		std::string EntryPoint;
-	};
-
 	class VulkanShader final : public Shader
 	{
 	public:
 		VulkanShader(VulkanDevice* device, std::string_view filepath);
-		VulkanShader(VulkanDevice* device, std::string_view name, SpirvView vertexSource, SpirvView fragmentSource);
-		VulkanShader(VulkanDevice* device, std::string_view name, SpirvView vertexSource, SpirvView geometrySource, SpirvView fragmentSource);
-
-		// Legacy (compilation from GLSL sources)
 		VulkanShader(VulkanDevice* device, std::string_view name, std::string_view vertexSource, std::string_view fragmentSource);
 		VulkanShader(VulkanDevice* device, std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource);
+		VulkanShader(VulkanDevice* device, std::string_view name, std::span<const uint32_t> vertexSpirv, std::span<const uint32_t> fragmentSpirv);
+		VulkanShader(VulkanDevice* device, std::string_view name, std::span<const uint32_t> vertexSpirv, std::span<const uint32_t> geometrySpirv, std::span<const uint32_t> fragmentSpirv);
 
 		virtual ~VulkanShader() final override;
 
@@ -58,13 +50,13 @@ namespace Quark {
 		VulkanShader(const VulkanShader&) = delete;
 		VulkanShader& operator=(const VulkanShader&) = delete;
 
-		const std::unordered_map<VkShaderStageFlagBits, VulkanShaderModule>& GetShaderStages() const { return m_ShaderStages; }
+		const std::unordered_map<VkShaderStageFlagBits, VkShaderModule>& GetShaderStages() const { return m_ShaderStages; }
 
 	private:
-		VulkanShaderModule CreateShader(ShaderStage stage, SpirvView spirvSource);
+		VkShaderModule CreateShader(ShaderStage stage, std::span<const uint32_t> spirvSource);
 
 	private:
 		VulkanDevice* m_Device;
-		std::unordered_map<VkShaderStageFlagBits, VulkanShaderModule> m_ShaderStages;
+		std::unordered_map<VkShaderStageFlagBits, VkShaderModule> m_ShaderStages;
 	};
 }

@@ -24,9 +24,9 @@ namespace Quark {
 		AutoRelease<VkAttachmentReference> attachmentRefs = StackAlloc(m_AttachmentCount * sizeof(VkAttachmentReference));
 		uint32_t attachmentIndex = 0;
 	
+		// Color attachment
 		if (m_Spec.ColorAttachmentFormat != ColorFormat::None)
 		{
-			// Color attachment
 			VkAttachmentDescription& colorAttachment = attachments[attachmentIndex];
 			colorAttachment = {};
 			colorAttachment.format         = DataFormatToVulkan(m_Spec.ColorAttachmentFormat);
@@ -52,6 +52,7 @@ namespace Quark {
 			subpass.colorAttachmentCount++;
 		}
 
+		// Resolve attachments
 		if (m_Spec.Samples > SampleCount::SampleCount1)
 		{
 			VkAttachmentDescription& colorAttachmentResolve = attachments[attachmentIndex];
@@ -74,9 +75,9 @@ namespace Quark {
 			subpass.pResolveAttachments = &colorAttachmentResolveRef;
 		}
 
+		// Depth attachment
 		if (m_Spec.DepthAttachmentFormat != ColorFormat::None)
 		{
-			// Depth attachment
 			VkAttachmentDescription& depthAttachment = attachments[attachmentIndex];
 			depthAttachment = {};
 			depthAttachment.format         = DataFormatToVulkan(m_Spec.DepthAttachmentFormat);

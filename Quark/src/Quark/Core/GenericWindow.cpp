@@ -362,6 +362,7 @@ namespace Quark {
 
 			// Switch to full screen
 			glfwSetWindowMonitor(m_Window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+			m_Data.Context->SetSwapInterval(m_Data.VSync);
 		}
 		else
 		{

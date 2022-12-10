@@ -30,12 +30,24 @@ namespace Quark {
 		virtual Scope<FramebufferAttachment> CreateFramebufferAttachment(const FramebufferAttachmentSpecification& spec) final override;
 
 		virtual Scope<Shader>                CreateShader(std::string_view filepath) final override;
-		virtual Scope<Shader>                CreateShader(std::string_view name, SpirvView vertexSource, SpirvView fragmentSource) final override;
-		virtual Scope<Shader>                CreateShader(std::string_view name, SpirvView vertexSource, SpirvView geometrySource, SpirvView fragmentSource) final override;
 
-		virtual Scope<Shader>                CreateShaderLegacy(std::string_view filepath) final override;
-		virtual Scope<Shader>                CreateShaderLegacy(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource) final override;
-		virtual Scope<Shader>                CreateShaderLegacy(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource) final override;
+		virtual Scope<Shader>                CreateShader(std::string_view name,
+		                                                  std::string_view vertexSource,
+		                                                  std::string_view fragmentSource) final override;
+
+		virtual Scope<Shader>                CreateShader(std::string_view name,
+		                                                  std::string_view vertexSource,
+		                                                  std::string_view geometrySource,
+		                                                  std::string_view fragmentSource) final override;
+
+		virtual Scope<Shader>                CreateShader(std::string_view name,
+		                                                  std::span<const uint32_t> vertexSpirv,
+		                                                  std::span<const uint32_t> fragmentSpirv) final override;
+
+		virtual Scope<Shader>                CreateShader(std::string_view name,
+		                                                  std::span<const uint32_t> vertexSpirv,
+		                                                  std::span<const uint32_t> geometrySpirv,
+		                                                  std::span<const uint32_t> fragmentSpirv) final override;
 
 		virtual Scope<Sampler>               CreateSampler(const SamplerSpecification& spec) final override;
 
@@ -46,7 +58,8 @@ namespace Quark {
 
 		virtual Scope<UniformBuffer>         CreateUniformBuffer(const UniformBufferSpecification& spec) final override;
 
-		virtual const char*                  GetName() const final override;
+		virtual const char*                  GetName() const final override { return "Direct3D"; }
+		virtual const char*                  GetDeviceName() const final override;
 		virtual std::string                  GetSpecification() const final override;
 	};
 }

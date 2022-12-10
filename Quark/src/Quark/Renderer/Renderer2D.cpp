@@ -84,6 +84,8 @@ namespace Quark {
 		static constexpr uint32_t MaxVertices = MaxQuads * 4;
 		static constexpr uint32_t MaxIndices  = MaxQuads * 6;
 
+		static constexpr uint32_t TabSpaces = 4;
+
 		QuadVertex* QuadVertexPtr = nullptr;
 		QuadVertex* QuadVertices  = nullptr;
 		uint32_t QuadIndexCount   = 0;
@@ -112,6 +114,17 @@ namespace Quark {
 		{
 			Mat4f ViewProjection;
 		};
+
+		struct TextRendererData
+		{
+			int StartX = 0;
+			int StartY = 0;
+			int X = StartX, Y = StartY;
+
+			const Font* Font = nullptr;
+		};
+
+		TextRendererData TextData;
 
 		CameraData CameraBufferData{};
 		Scope<UniformBuffer> CameraUniformBuffer;
@@ -214,7 +227,7 @@ namespace Quark {
 		DrawSprite(subTexture.GetTexture(), subTexture.GetCoords(), tint, transform);
 	}
 
-	void Renderer2D::DrawSprite(const Vec4f& color, const Mat4f& transform)
+	void Renderer2D::DrawQuad(const Vec4f& color, const Mat4f& transform)
 	{
 		QK_ASSERT_RENDER_THREAD();
 
@@ -234,6 +247,49 @@ namespace Quark {
 
 			s_Data->QuadVertexPtr++;
 		}
+
+		s_Data->QuadIndexCount += 6;
+		s_Stats.QuadsDrawn++;
+	}
+
+	void Renderer2D::DrawQuad(const Vec3f& start, const Vec3f& end, const Vec4f& color)
+	{
+		QK_ASSERT_RENDER_THREAD();
+
+		// Check if buffer is full
+		if (s_Data->QuadIndexCount + 6 > Renderer2DData::MaxIndices)
+		{
+			PushBatch();
+			StartBatch();
+		}
+
+		// Vertex [-, -]
+		s_Data->QuadVertexPtr->Position = start;
+		s_Data->QuadVertexPtr->TexCoord = { 0.0f, 0.0f };
+		s_Data->QuadVertexPtr->Color    = color;
+		s_Data->QuadVertexPtr->TexIndex = 0;
+		s_Data->QuadVertexPtr++;
+
+		// Vertex [+, -]
+		s_Data->QuadVertexPtr->Position = { end.x, start.y, start.z };
+		s_Data->QuadVertexPtr->TexCoord = { 0.0f, 0.0f };
+		s_Data->QuadVertexPtr->Color    = color;
+		s_Data->QuadVertexPtr->TexIndex = 0;
+		s_Data->QuadVertexPtr++;
+
+		// Vertex [+, +]
+		s_Data->QuadVertexPtr->Position = end;
+		s_Data->QuadVertexPtr->TexCoord = { 0.0f, 0.0f };
+		s_Data->QuadVertexPtr->Color    = color;
+		s_Data->QuadVertexPtr->TexIndex = 0;
+		s_Data->QuadVertexPtr++;
+
+		// Vertex [-, +]
+		s_Data->QuadVertexPtr->Position = { start.x, end.y, start.z };
+		s_Data->QuadVertexPtr->TexCoord = { 0.0f, 0.0f };
+		s_Data->QuadVertexPtr->Color    = color;
+		s_Data->QuadVertexPtr->TexIndex = 0;
+		s_Data->QuadVertexPtr++;
 
 		s_Data->QuadIndexCount += 6;
 		s_Stats.QuadsDrawn++;
@@ -262,7 +318,17 @@ namespace Quark {
 		s_Stats.LinesDrawn++;
 	}
 
-	void Renderer2D::DrawText(std::string_view text, const Font* font, const Vec4f& color, const Mat4f& transform)
+	void Renderer2D::BeginText()
+	{
+		QK_ASSERT_RENDER_THREAD();
+		s_Data->TextData = {};
+	}
+
+	void Renderer2D::EndText()
+	{
+	}
+
+	void Renderer2D::PushText(std::string_view text, const Font* font, const Vec4f& color, const Mat4f& transform)
 	{
 		QK_ASSERT_RENDER_THREAD();
 
@@ -292,10 +358,6 @@ namespace Quark {
 			s_Data->TextureSamplerIndex++;
 		}
 
-		int startX = 0;
-		int startY = 0;
-		int x = startX, y = startY;
-
 		uint32_t atlasWidth = font->GetAtlasWidth();
 		uint32_t atlasHeight = font->GetAtlasHeight();
 
@@ -307,13 +369,13 @@ namespace Quark {
 				{
 					// Newline and carriage return
 					case '\n':
-						x = startX;
-						y -= atlasHeight;
+						s_Data->TextData.X = s_Data->TextData.StartX;
+						s_Data->TextData.Y -= atlasHeight;
 						break;
 
 					// Tabs
 					case '\t':
-						x += 4 * 32;
+						s_Data->TextData.X += 32 * Renderer2DData::TabSpaces;
 						break;
 				}
 
@@ -322,10 +384,10 @@ namespace Quark {
 
 			auto& g = font->GetGlyph(charcode);
 
-			int xpos = (x + g.Bearing.x);
-			int ypos = (y + g.Bearing.y);
+			int xpos = (s_Data->TextData.X + g.Bearing.x);
+			int ypos = (s_Data->TextData.Y + g.Bearing.y);
 
-			x += (g.Advance.x >> 6);
+			s_Data->TextData.X += (g.Advance.x >> 6);
 
 			if (g.Size.x == 0 || g.Size.y == 0)
 				continue;
@@ -374,10 +436,134 @@ namespace Quark {
 		}
 	}
 
+	void Renderer2D::PushText(std::string_view text, const Font* font, const Vec4f& color, const Vec3f& position)
+	{
+		QK_ASSERT_RENDER_THREAD();
+
+		// Check if texture exists in samplers
+		uint32_t textureIndex = 0;
+		for (uint32_t i = 1; i < s_Data->TextureSamplerIndex; i++)
+		{
+			if (*s_Data->Textures[i] == *font)
+			{
+				textureIndex = i;
+				break;
+			}
+		}
+
+		// If texture was not found in samplers
+		if (textureIndex == 0)
+		{
+			// If not enough space to attach new font texture
+			if (s_Data->TextureSamplerIndex >= s_Data->MaxSamplerDestinations)
+			{
+				PushBatch();
+				StartBatch();
+			}
+
+			textureIndex = s_Data->TextureSamplerIndex;
+			s_Data->Textures[textureIndex] = font;
+			s_Data->TextureSamplerIndex++;
+		}
+
+		uint32_t atlasWidth = font->GetAtlasWidth();
+		uint32_t atlasHeight = font->GetAtlasHeight();
+
+		for (auto charcode : text)
+		{
+			if (charcode < 32)
+			{
+				switch (charcode)
+				{
+					// Newline and carriage return
+					case '\n':
+						s_Data->TextData.X = s_Data->TextData.StartX;
+						s_Data->TextData.Y -= atlasHeight;
+						break;
+
+					// Tabs
+					case '\t':
+						s_Data->TextData.X += 32 * Renderer2DData::TabSpaces;
+						break;
+				}
+
+				continue;
+			}
+
+			auto& g = font->GetGlyph(charcode);
+
+			int xpos = (s_Data->TextData.X + g.Bearing.x);
+			int ypos = (s_Data->TextData.Y + g.Bearing.y);
+
+			s_Data->TextData.X += (g.Advance.x >> 6);
+
+			if (g.Size.x == 0 || g.Size.y == 0)
+				continue;
+
+			float tx = (float)g.OffsetX / (float)atlasWidth;
+			float w = (float)g.Size.x;
+			float h = (float)g.Size.y;
+
+			// Check if buffer is full
+			if (s_Data->QuadIndexCount + 6 > Renderer2DData::MaxIndices)
+			{
+				PushBatch();
+				StartBatch();
+			}
+
+			// Vertex [-, -]
+			s_Data->QuadVertexPtr->Position = position + Vec3f(xpos, (ypos - h), 0.0f);
+			s_Data->QuadVertexPtr->TexCoord = { tx, h / (float)atlasHeight };
+			s_Data->QuadVertexPtr->Color    = color;
+			s_Data->QuadVertexPtr->TexIndex = textureIndex;
+			s_Data->QuadVertexPtr++;
+
+			// Vertex [+, -]
+			s_Data->QuadVertexPtr->Position = position + Vec3f(xpos + w, (ypos - h), 0.0f);
+			s_Data->QuadVertexPtr->TexCoord = { tx + w / (float)atlasWidth, h / (float)atlasHeight };
+			s_Data->QuadVertexPtr->Color    = color;
+			s_Data->QuadVertexPtr->TexIndex = textureIndex;
+			s_Data->QuadVertexPtr++;
+
+			// Vertex [+, +]
+			s_Data->QuadVertexPtr->Position = position + Vec3f(xpos + w, ypos, 0.0f);
+			s_Data->QuadVertexPtr->TexCoord = { tx + w / (float)atlasWidth, 0.0f };
+			s_Data->QuadVertexPtr->Color    = color;
+			s_Data->QuadVertexPtr->TexIndex = textureIndex;
+			s_Data->QuadVertexPtr++;
+
+			// Vertex [-, +]
+			s_Data->QuadVertexPtr->Position = position + Vec3f(xpos, ypos, 0.0f);
+			s_Data->QuadVertexPtr->TexCoord = { tx, 0.0f };
+			s_Data->QuadVertexPtr->Color    = color;
+			s_Data->QuadVertexPtr->TexIndex = textureIndex;
+			s_Data->QuadVertexPtr++;
+
+			s_Data->QuadIndexCount += 6;
+			s_Stats.QuadsDrawn++;
+		}
+	}
+
+	void Renderer2D::DrawText(std::string_view text, const Font* font, const Vec4f& color, const Mat4f& transform)
+	{
+		BeginText();
+			PushText(text, font, color, transform);
+		EndText();
+	}
+
+	void Renderer2D::DrawText(std::string_view text, const Font* font, const Vec4f& color, const Vec3f& position)
+	{
+		BeginText();
+			PushText(text, font, color, position);
+		EndText();
+	}
+
 	void Renderer2D::DrawText(const Text& text, const Mat4f& transform)
 	{
 		auto& traits = text.GetStyle();
-		DrawText(text, traits.Font.get(), traits.Color, transform);
+		BeginText();
+			PushText(text, traits.Font.get(), traits.Color, transform);
+		EndText();
 	}
 
 	void Renderer2D::StartBatch()
@@ -446,7 +632,7 @@ namespace Quark {
 		s_Data = new Renderer2DData();
 
 		// Samplers
-		s_Data->MaxSamplerDestinations = Renderer::GetCapabilities().Sampler.MaxPerStageSamplers;
+		s_Data->MaxSamplerDestinations = Renderer::GetCapabilities().Sampler.MaxTextureUnits;
 
 		// Camera buffer
 		{
@@ -517,36 +703,18 @@ namespace Quark {
 		{
 			SamplerSpecification spec;
 			spec.RenderModes.MinFilteringMode = SamplerFilterMode::Linear;
-			spec.RenderModes.MagFilteringMode = SamplerFilterMode::Linear;
+			spec.RenderModes.MagFilteringMode = SamplerFilterMode::Nearest;
 			spec.RenderModes.AddressMode = SamplerAddressMode::ClampToEdge;
 
 			s_Data->Samplers[i] = Sampler::Create(spec);
 		}
 
-		auto version = Renderer::GetRHIVersion();
-		if (GraphicsAPI::GetAPI() == RHI::OpenGL &&
-			version.Major <= 4 && version.Minor <= 1)
 		{
 			auto& coreDirectory = Application::Get()->GetSpecification().CoreDir;
-			auto spriteVertexSource = Filesystem::ReadTextFile((coreDirectory / "assets/shaders/version/3.30/Sprite.vs.glsl").string());
-			auto spriteFragmentSource = Filesystem::ReadTextFile((coreDirectory / "assets/shaders/version/3.30/Sprite.fs.glsl").string());
+			auto spriteVertexSource = Filesystem::ReadTextFile((coreDirectory / "assets/shaders/version/4.50/Sprite.vert").string());
+			auto spriteFragmentSource = Filesystem::ReadTextFile((coreDirectory / "assets/shaders/version/4.50/Sprite.frag").string());
 
-			QK_CORE_TRACE("Compiling legacy glsl shader defaultSprite...");
-			s_Data->QuadShader = Shader::CreateLegacy("defaultSprite", spriteVertexSource, spriteFragmentSource);
-
-			AutoRelease<int32_t> samplers = StackAlloc(s_Data->MaxSamplerDestinations * sizeof(int32_t));
-			for (uint32_t i = 0; i < s_Data->MaxSamplerDestinations; i++)
-				samplers[i] = (int32_t)i;
-
-			s_Data->QuadShader->SetIntArray("u_Samplers", samplers, s_Data->MaxSamplerDestinations);
-		}
-		else
-		{
-			auto& coreDirectory = Application::Get()->GetSpecification().CoreDir;
-			auto spriteVertexBinary = ReadSpirvFile((coreDirectory / "cache/spirv/Sprite.vert.spv").string());
-			auto spriteFragmentBinary = ReadSpirvFile((coreDirectory / "cache/spirv/Sprite.frag.spv").string());
-
-			s_Data->QuadShader = Shader::Create("defaultSprite", spriteVertexBinary, spriteFragmentBinary);
+			s_Data->QuadShader = Shader::Create("defaultSprite", spriteVertexSource, spriteFragmentSource);
 		}
 
 		{
@@ -570,24 +738,12 @@ namespace Quark {
 
 		s_Data->LineVertices = new LineVertex[Renderer2DData::MaxVertices];
 
-		auto version = Renderer::GetRHIVersion();
-		if (GraphicsAPI::GetAPI() == RHI::OpenGL &&
-			version.Major <= 4 && version.Minor <= 1)
 		{
 			auto& coreDirectory = Application::Get()->GetSpecification().CoreDir;
-			auto lineVertexSource = Filesystem::ReadTextFile((coreDirectory / "assets/shaders/version/3.30/Line.vs.glsl").string());
-			auto lineFragmentSource = Filesystem::ReadTextFile((coreDirectory / "assets/shaders/version/3.30/Line.fs.glsl").string());
+			auto lineVertexSource = Filesystem::ReadTextFile((coreDirectory / "assets/shaders/version/4.20/Line.vert").string());
+			auto lineFragmentSource = Filesystem::ReadTextFile((coreDirectory / "assets/shaders/version/4.20/Line.frag").string());
 
-			QK_CORE_TRACE("Compiling legacy glsl shader defaultLine...");
-			s_Data->LineShader = Shader::CreateLegacy("defaultLine", lineVertexSource, lineFragmentSource);
-		}
-		else
-		{
-			auto& coreDirectory = Application::Get()->GetSpecification().CoreDir;
-			auto lineVertexBinary = ReadSpirvFile((coreDirectory / "cache/spirv/Line.vert.spv").string());
-			auto lineFragmentBinary = ReadSpirvFile((coreDirectory / "cache/spirv/Line.frag.spv").string());
-
-			s_Data->LineShader = Shader::Create("defaultLine", lineVertexBinary, lineFragmentBinary);
+			s_Data->LineShader = Shader::Create("defaultLine", lineVertexSource, lineFragmentSource);
 		}
 
 		{

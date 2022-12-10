@@ -31,8 +31,7 @@ namespace Quark {
 		FT_GlyphSlot g = m_Face->glyph;
 		for (uint8_t i = 0; i < GlyphCount; i++)
 		{
-			if (FT_Load_Char(m_Face, i, FT_LOAD_RENDER) != FT_Err_Ok &&
-				g->bitmap.width == 0 || g->bitmap.rows == 0)
+			if (FT_Load_Char(m_Face, i, FT_LOAD_RENDER) != FT_Err_Ok || (g->bitmap.width == 0 || g->bitmap.rows == 0))
 				continue;
 
 			const Glyph& glyph = m_Glyphs[i];
@@ -41,11 +40,6 @@ namespace Quark {
 
 		GLint swizzleMask[] = { GL_ONE, GL_ONE, GL_ONE, GL_RED };
 		glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
 		QK_CORE_ASSERT(glIsTexture(m_RendererID), "Font atlas is incomplete!");
 		QK_DEBUG_CALL(glBindTexture(GL_TEXTURE_2D, 0));

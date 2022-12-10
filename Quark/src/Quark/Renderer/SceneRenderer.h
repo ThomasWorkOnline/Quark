@@ -40,7 +40,7 @@ namespace Quark {
 			Scope<Pipeline> IrradiancePipeline;
 			Scope<Pipeline> SkyboxPipeline;
 
-			Mesh CubemapBox;
+			StaticMesh CubemapBox;
 
 			Scope<Cubemap> Environment;
 			Scope<Cubemap> Irradiance;
@@ -70,6 +70,6 @@ namespace Quark {
 	inline void Scene::OnComponentAdded(Entity entity, CameraComponent& cc)
 	{
 		auto extent = Renderer::GetViewportExtent();
-		cc.Camera.Resize(extent.Width, extent.Height);
+		cc.Camera.Resize((float)extent.Width, (float)extent.Height);
 	}
 }

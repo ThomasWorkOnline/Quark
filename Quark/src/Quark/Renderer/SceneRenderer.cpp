@@ -26,7 +26,7 @@ namespace Quark {
 				for (auto entity : view)
 				{
 					auto [csrc, transform] = view.get<SpriteRendererComponent, Transform3DComponent>(entity);
-					Renderer2D::DrawSprite(csrc.Color, transform.GetMatrix());
+					Renderer2D::DrawQuad(csrc.Color, transform.GetMatrix());
 				}
 			}
 
@@ -69,7 +69,7 @@ namespace Quark {
 				Renderer::BindTexture(m_Data.Env->Environment.get(), nullptr, 0);
 				Renderer::BindTexture(m_Data.Env->Environment.get(), nullptr, 5);
 
-				Renderer::DrawIndexed(m_Data.Env->CubemapBox.GetVertexBuffer(), m_Data.Env->CubemapBox.GetIndexBuffer());
+				Renderer::DrawIndexed(m_Data.Env->CubemapBox.VertexBuffer.get(), m_Data.Env->CubemapBox.IndexBuffer.get());
 				Renderer::GetCommandBuffer()->SetCullMode(RenderCullMode::Default);
 				Renderer::GetCommandBuffer()->SetDepthFunction(DepthCompareFunction::Default);
 			}
@@ -81,7 +81,7 @@ namespace Quark {
 		if (m_PrimaryCameraEntity)
 		{
 			auto& cc = m_PrimaryCameraEntity.GetComponent<CameraComponent>();
-			cc.Camera.Resize(viewportWidth, viewportHeight);
+			cc.Camera.Resize((float)viewportWidth, (float)viewportHeight);
 		}
 	}
 
@@ -109,7 +109,7 @@ namespace Quark {
 			m_Data.Env->IrradianceShader = Shader::Create((coreDirectory / "assets/shaders/version/3.30/Irradiance.glsl").string());
 			m_Data.Env->EquirectangleToCubemapShader = Shader::Create((coreDirectory / "assets/shaders/version/3.30/EquirectangleToCubemap.glsl").string());
 
-			m_Data.Env->CubemapBox = Mesh::GenerateUnitCube();
+			m_Data.Env->CubemapBox = StaticMesh::GenerateUnitCube();
 
 			{
 				CubemapSpecification environmentSpec;
@@ -135,7 +135,7 @@ namespace Quark {
 
 			{
 				PipelineSpecification spec;
-				spec.Layout = Mesh::GetBufferLayout();
+				spec.Layout = StaticMesh::GetBufferLayout();
 				spec.Topology = PrimitiveTopology::TriangleList;
 				spec.Shader = m_Data.Env->IrradianceShader.get();
 				spec.RenderPass = m_Data.Env->RenderPass.get();
@@ -145,7 +145,7 @@ namespace Quark {
 
 			{
 				PipelineSpecification spec;
-				spec.Layout = Mesh::GetBufferLayout();
+				spec.Layout = StaticMesh::GetBufferLayout();
 				spec.Topology = PrimitiveTopology::TriangleList;
 				spec.Shader = m_Data.Env->EquirectangleToCubemapShader.get();
 				spec.RenderPass = m_Data.Env->RenderPass.get();
@@ -155,7 +155,7 @@ namespace Quark {
 
 			{
 				PipelineSpecification spec;
-				spec.Layout = Mesh::GetBufferLayout();
+				spec.Layout = StaticMesh::GetBufferLayout();
 				spec.Topology = PrimitiveTopology::TriangleList;
 				spec.Shader = m_Data.Env->SkyboxShader.get();
 				spec.RenderPass = m_Data.Env->RenderPass.get();
@@ -211,7 +211,7 @@ namespace Quark {
 
 				// FIX:
 				//RenderCommand::Clear();
-				Renderer::DrawIndexed(m_Data.Env->CubemapBox.GetVertexBuffer(), m_Data.Env->CubemapBox.GetIndexBuffer());
+				Renderer::DrawIndexed(m_Data.Env->CubemapBox.VertexBuffer.get(), m_Data.Env->CubemapBox.IndexBuffer.get());
 			}
 
 			Renderer::EndRenderPass();
@@ -235,7 +235,7 @@ namespace Quark {
 
 				// FIX:
 				//RenderCommand::Clear();
-				Renderer::DrawIndexed(m_Data.Env->CubemapBox.GetVertexBuffer(), m_Data.Env->CubemapBox.GetIndexBuffer());
+				Renderer::DrawIndexed(m_Data.Env->CubemapBox.VertexBuffer.get(), m_Data.Env->CubemapBox.IndexBuffer.get());
 			}
 
 			Renderer::EndRenderPass();

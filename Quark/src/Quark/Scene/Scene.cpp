@@ -14,7 +14,7 @@ namespace Quark {
 			for (auto entity : view)
 			{
 				auto& nsc = view.get<NativeScriptComponent>(entity);
-				nsc.OnEvent(nsc.ScriptInstance, e);
+				nsc.OnEvent(e);
 			}
 		}
 	}
@@ -25,12 +25,12 @@ namespace Quark {
 		{
 			nsc.ScriptInstance = nsc.InstanciateScript();
 			nsc.ScriptInstance->m_Entity = entity;
-			nsc.OnCreate(nsc);
+			nsc.OnCreate();
 		};
 
 		DestroyScript = [](NativeScriptComponent& nsc)
 		{
-			nsc.OnDestroy(nsc);
+			nsc.OnDestroy();
 		};
 
 		// Instanciate native scripts
@@ -42,7 +42,7 @@ namespace Quark {
 
 				nsc.ScriptInstance = nsc.InstanciateScript();
 				nsc.ScriptInstance->m_Entity = { entity, this };
-				nsc.OnCreate(nsc);
+				nsc.OnCreate();
 			}
 		}
 	}
@@ -55,7 +55,7 @@ namespace Quark {
 			for (auto entity : view)
 			{
 				auto& nsc = view.get<NativeScriptComponent>(entity);
-				nsc.OnDestroy(nsc);
+				nsc.OnDestroy();
 			}
 		}
 
@@ -96,7 +96,7 @@ namespace Quark {
 			for (auto entity : view)
 			{
 				auto& nsComponent = view.get<NativeScriptComponent>(entity);
-				nsComponent.OnUpdate(nsComponent.ScriptInstance, elapsedTime);
+				nsComponent.OnUpdate(elapsedTime);
 			}
 		}
 	}

@@ -2,25 +2,13 @@
 
 #include "Quark/Core/Core.h"
 
+#include <filesystem>
 #include <unordered_map>
 #include <vector>
+#include <span>
+#include <string>
 
 namespace Quark {
-
-	using SpirvSource = std::vector<uint32_t>;
-
-	struct SpirvView
-	{
-		const uint32_t* Data = nullptr;
-		size_t          WordCount = 0;
-
-		SpirvView() = default;
-		SpirvView(const SpirvSource& src)
-			: Data(src.data())
-			, WordCount(src.size())
-		{
-		}
-	};
 
 	enum class ShaderStage
 	{
@@ -59,8 +47,10 @@ namespace Quark {
 		ResourceDecorators Decorators;
 	};
 
-	struct ShaderResources
+	struct ShaderReflection
 	{
+		std::unordered_map<ShaderStage, std::string> EntryPoints;
+
 		std::vector<PushConstantResource>  PushConstants;
 		std::vector<SamplerArrayResource>  SamplerArrays;
 		std::vector<UniformBufferResource> UniformBuffers;
@@ -72,6 +62,8 @@ namespace Quark {
 	class Shader
 	{
 	public:
+		static inline const std::filesystem::path CacheDirectory = "cache/shaders";
+
 		Shader(std::string_view name);
 		virtual ~Shader() = default;
 
@@ -101,37 +93,38 @@ namespace Quark {
 
 		virtual bool operator==(const Shader& other) const = 0;
 
-		std::string_view GetName() const { return m_Name; }
-
-		const ShaderResources& GetShaderResources() const { return m_ShaderResources; }
+		std::string_view        GetName() const { return m_Name; }
+		const ShaderReflection& GetReflection() const { return m_Reflection; }
 
 		static Scope<Shader> Create(std::string_view filepath);
-		static Scope<Shader> Create(std::string_view name, SpirvView vertexSource, SpirvView fragmentSource);
-		static Scope<Shader> Create(std::string_view name, SpirvView vertexSource, SpirvView geometrySource, SpirvView fragmentSource);
+		static Scope<Shader> Create(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource);
+		static Scope<Shader> Create(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource);
 
-		static Scope<Shader> CreateLegacy(std::string_view filepath);
-		static Scope<Shader> CreateLegacy(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource);
-		static Scope<Shader> CreateLegacy(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource);
+		static Scope<Shader> Create(std::string_view name, std::span<const uint32_t> vertexSpirv, std::span<const uint32_t> fragmentSpirv);
+		static Scope<Shader> Create(std::string_view name, std::span<const uint32_t> vertexSpirv, std::span<const uint32_t> geometrySpirv, std::span<const uint32_t> fragmentSpirv);
 
 	protected:
-		void Reflect(ShaderStage stage, const uint32_t* spirvSource, size_t words);
+		void Reflect(ShaderStage stage, std::span<const uint32_t> spirvSource);
+		
+		static std::string Parse(std::string_view source);
+		static std::unordered_map<ShaderStage, std::string_view> SubstrStages(std::string_view source);
 
 	protected:
 		std::string m_Name;
-		ShaderResources m_ShaderResources;
+		ShaderReflection m_Reflection;
 	};
-
-	SpirvSource ReadSpirvFile(std::string_view filepath);
 
 	class ShaderLibrary
 	{
 	public:
 		void Add(std::string_view name, const Ref<Shader>& shader);
 		void Add(const Ref<Shader>& shader);
+
 		bool Exists(std::string_view name) const;
 
 		Ref<Shader> Load(std::string_view filepath);
 		Ref<Shader> Load(std::string_view name, std::string_view filepath);
+
 		Ref<Shader> Get(std::string_view name) const;
 
 		size_t Size() const { return m_Shaders.size(); }

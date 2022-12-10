@@ -20,7 +20,7 @@ namespace Quark {
 		TagComponent,
 		Transform3DComponent,
 		PhysicsComponent,
-		MeshComponent,
+		StaticMeshComponent,
 		SpriteRendererComponent,
 		TexturedSpriteRendererComponent,
 		TextRendererComponent,
@@ -85,17 +85,17 @@ namespace Quark {
 		COMPONENT_TYPE(PhysicsComponent);
 	};
 
-	struct MeshComponent
+	struct StaticMeshComponent
 	{
-		Mesh* MeshInstance = nullptr;
+		StaticMesh* MeshInstance = nullptr;
 
-		MeshComponent() = default;
-		MeshComponent(Mesh* meshInstance)
+		StaticMeshComponent() = default;
+		StaticMeshComponent(StaticMesh* meshInstance)
 			: MeshInstance(meshInstance)
 		{
 		}
 
-		COMPONENT_TYPE(MeshComponent);
+		COMPONENT_TYPE(StaticMeshComponent);
 	};
 
 	struct SpriteRendererComponent
@@ -128,10 +128,31 @@ namespace Quark {
 		NativeScriptEntity* (*InstanciateScript)();
 
 		// Script methods impl
-		void (*OnCreate)(NativeScriptComponent&);
-		void (*OnDestroy)(NativeScriptComponent&);
-		void (*OnUpdate)(NativeScriptEntity*, Timestep);
-		void (*OnEvent)(NativeScriptEntity*, Event&);
+		void (*OnCreateImpl)(NativeScriptEntity*);
+		void (*OnDestroyImpl)(NativeScriptEntity*);
+		void (*OnUpdateImpl)(NativeScriptEntity*, Timestep);
+		void (*OnEventImpl)(NativeScriptEntity*, Event&);
+
+		inline void OnCreate()
+		{
+			OnCreateImpl(ScriptInstance);
+		}
+
+		inline void OnDestroy()
+		{
+			OnDestroyImpl(ScriptInstance);
+			ScriptInstance = nullptr;
+		}
+
+		inline void OnUpdate(Timestep ts)
+		{
+			OnUpdateImpl(ScriptInstance, ts);
+		}
+
+		inline void OnEvent(Event& e)
+		{
+			OnEventImpl(ScriptInstance, e);
+		}
 
 		template<typename T>
 		inline NativeScriptComponent& Bind()
@@ -141,28 +162,27 @@ namespace Quark {
 				return static_cast<NativeScriptEntity*>(new T());
 			};
 
-			OnCreate = [](NativeScriptComponent& nsc)
+			OnCreateImpl = [](NativeScriptEntity* script)
 			{
 				if constexpr (HasOnCreate<T>::value)
-					static_cast<T*>(nsc.ScriptInstance)->OnCreate();
+					static_cast<T*>(script)->OnCreate();
 			};
 
-			OnDestroy = [](NativeScriptComponent& nsc)
+			OnDestroyImpl = [](NativeScriptEntity* script)
 			{
 				if constexpr (HasOnDestroy<T>::value)
-					static_cast<T*>(nsc.ScriptInstance)->OnDestroy();
+					static_cast<T*>(script)->OnDestroy();
 
-				delete static_cast<T*>(nsc.ScriptInstance);
-				nsc.ScriptInstance = nullptr;
+				delete static_cast<T*>(script);
 			};
 
-			OnUpdate = [](NativeScriptEntity* script, Timestep ts)
+			OnUpdateImpl = [](NativeScriptEntity* script, Timestep ts)
 			{
 				if constexpr (HasOnUpdate<T>::value)
 					static_cast<T*>(script)->OnUpdate(ts);
 			};
 
-			OnEvent = [](NativeScriptEntity* script, Event& e)
+			OnEventImpl = [](NativeScriptEntity* script, Event& e)
 			{
 				if constexpr (HasOnEvent<T>::value)
 					static_cast<T*>(script)->OnEvent(e);
@@ -187,7 +207,7 @@ namespace Quark {
 	using AllComponents = ComponentGroup<
 		CameraComponent, TagComponent,
 		Transform3DComponent, PhysicsComponent,
-		MeshComponent, SpriteRendererComponent, TexturedSpriteRendererComponent, TextRendererComponent,
+		StaticMeshComponent, SpriteRendererComponent, TexturedSpriteRendererComponent, TextRendererComponent,
 		NativeScriptComponent
 	>;
 }

@@ -39,8 +39,7 @@ VulkanApp::VulkanApp(const ApplicationSpecification& spec)
 	m_Text.SetFont(m_Font);
 	
 	auto* window = GetWindow();
-	m_TextCamera.SetOrthographic((float)window->GetWidth());
-	m_TextCamera.Resize(window->GetWidth(), window->GetHeight());
+	m_TextCamera.SetOrthographic((float)window->GetWidth(), (float)window->GetHeight());
 
 	m_SceneRenderer.SetPrimaryCamera(m_CameraEntity);
 }
@@ -57,7 +56,7 @@ void VulkanApp::OnEvent(Event& e)
 	dispatcher.Dispatch<KeyPressedEvent>(ATTACH_EVENT_FN(OnKeyPressed));
 	dispatcher.Dispatch<WindowResizedEvent>([&](WindowResizedEvent& e)
 	{
-		m_TextCamera.Resize(e.GetWidth(), e.GetHeight());
+		m_TextCamera.Resize((float)e.GetWidth(), (float)e.GetHeight());
 	});
 
 	e.Handled = !m_ViewportSelected && e.IsInCategory(EventCategory::Input);

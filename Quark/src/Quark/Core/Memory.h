@@ -72,6 +72,9 @@ namespace Quark {
 			Freea(m_Pointer);
 		}
 
+		const T* Data() const { return m_Pointer; }
+		T* Data() { return m_Pointer; }
+
 		operator const T* () const { return m_Pointer; }
 		operator T* () { return m_Pointer; }
 

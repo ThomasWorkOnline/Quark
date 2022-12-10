@@ -42,7 +42,7 @@ namespace Quark {
 		{
 			GLint maxSamplers;
 			glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxSamplers);
-			m_Capabilities.Sampler.MaxPerStageSamplers = maxSamplers;
+			m_Capabilities.Sampler.MaxTextureUnits = maxSamplers;
 
 			GLfloat maxAnisotropy;
 			glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &maxAnisotropy);
@@ -141,29 +141,37 @@ namespace Quark {
 		return CreateScope<OpenGLShader>(filepath);
 	}
 
-	Scope<Shader> OpenGLGraphicsAPI::CreateShader(std::string_view name, SpirvView vertexSource, SpirvView fragmentSource)
+	Scope<Shader> OpenGLGraphicsAPI::CreateShader(
+		std::string_view name,
+		std::string_view vertexSource,
+		std::string_view fragmentSource)
 	{
 		return CreateScope<OpenGLShader>(name, vertexSource, fragmentSource);
 	}
 
-	Scope<Shader> OpenGLGraphicsAPI::CreateShader(std::string_view name, SpirvView vertexSource, SpirvView geometrySource, SpirvView fragmentSource)
+	Scope<Shader> OpenGLGraphicsAPI::CreateShader(
+		std::string_view name,
+		std::string_view vertexSource,
+		std::string_view geometrySource,
+		std::string_view fragmentSource)
 	{
 		return CreateScope<OpenGLShader>(name, vertexSource, geometrySource, fragmentSource);
 	}
 
-	Scope<Shader> OpenGLGraphicsAPI::CreateShaderLegacy(std::string_view filepath)
+	Scope<Shader> OpenGLGraphicsAPI::CreateShader(
+		std::string_view name,
+		std::span<const uint32_t> vertexSpirv,
+		std::span<const uint32_t> fragmentSpirv)
 	{
-		return CreateScope<OpenGLShader>(nullptr, filepath); // Legacy variant
+		return CreateScope<OpenGLShader>(name, vertexSpirv, fragmentSpirv);
 	}
 
-	Scope<Shader> OpenGLGraphicsAPI::CreateShaderLegacy(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource)
+	Scope<Shader> OpenGLGraphicsAPI::CreateShader(std::string_view name,
+		std::span<const uint32_t> vertexSpirv,
+		std::span<const uint32_t> geometrySpirv,
+		std::span<const uint32_t> fragmentSpirv)
 	{
-		return CreateScope<OpenGLShader>(name, vertexSource, fragmentSource);
-	}
-
-	Scope<Shader> OpenGLGraphicsAPI::CreateShaderLegacy(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource)
-	{
-		return CreateScope<OpenGLShader>(name, vertexSource, geometrySource, fragmentSource);
+		return CreateScope<OpenGLShader>(name, vertexSpirv, geometrySpirv, fragmentSpirv);
 	}
 
 	Scope<Sampler> OpenGLGraphicsAPI::CreateSampler(const SamplerSpecification& spec)
@@ -191,6 +199,12 @@ namespace Quark {
 		return CreateScope<OpenGLUniformBuffer>(spec);
 	}
 
+	const char* OpenGLGraphicsAPI::GetDeviceName() const
+	{
+		static_assert(sizeof(GLubyte) == sizeof(char));
+		return (const char*)glGetString(GL_RENDERER);
+	}
+
 	std::string OpenGLGraphicsAPI::GetSpecification() const
 	{
 		std::stringstream ss;
@@ -200,7 +214,7 @@ namespace Quark {
 		ss << "|  " << glGetString(GL_VERSION) << '\n';
 		ss << "|  Per-stage Capabilities:\n";
 		ss << "|    Max uniform buffers = " << m_Capabilities.UniformBuffer.MaxPerStageBuffers << '\n';
-		ss << "|    Max samplers        = " << m_Capabilities.Sampler.MaxPerStageSamplers;
+		ss << "|    Max samplers        = " << m_Capabilities.Sampler.MaxTextureUnits;
 		return ss.str();
 	}
 }

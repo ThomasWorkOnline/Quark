@@ -3,6 +3,8 @@
 #include "Quark/Core/Core.h"
 #include "Quark/Renderer/Buffer.h"
 
+#include <vector>
+
 namespace Quark {
 
 	struct MeshVertex
@@ -35,30 +37,20 @@ namespace Quark {
 		uint32_t VertexCount() const { return (uint32_t)FacesIndices.size(); }
 	};
 
-	struct MeshFormatDescriptor
+	struct StaticMesh
 	{
-		bool ZFlip = false;
-	};
+		Scope<VertexBuffer> VertexBuffer;
+		Scope<IndexBuffer>  IndexBuffer;
 
-	class Mesh
-	{
-	public:
-		Mesh() = default;
-		Mesh(const OBJMeshData& meshData);
+		StaticMesh() = default;
+		StaticMesh(const OBJMeshData& meshData);
 
-		VertexBuffer* GetVertexBuffer() const { return m_VertexBuffer.get(); }
-		IndexBuffer* GetIndexBuffer() const { return m_IndexBuffer.get(); }
-
-		static Mesh ConstructMeshFromOBJData(const OBJMeshData& data);
-		static Mesh GenerateUnitCube();
+		static StaticMesh ConstructMeshFromOBJData(const OBJMeshData& data);
+		static StaticMesh GenerateUnitCube();
 
 		static const BufferLayout& GetBufferLayout();
 		static OBJMeshData ReadOBJData(std::string_view filepath);
 
-		operator bool() const { return m_VertexBuffer != nullptr; }
-
-	private:
-		Scope<VertexBuffer> m_VertexBuffer;
-		Scope<IndexBuffer> m_IndexBuffer;
+		operator bool() const { return IndexBuffer != nullptr; }
 	};
 }

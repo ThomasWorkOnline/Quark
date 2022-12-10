@@ -7,6 +7,7 @@ namespace Quark {
 	class Timestep
 	{
 	public:
+		Timestep() = default;
 		Timestep(Float time)
 			: m_Time(time)
 		{
@@ -16,6 +17,6 @@ namespace Quark {
 		operator Float() const { return m_Time; }
 
 	private:
-		Float m_Time;
+		Float m_Time{};
 	};
 }

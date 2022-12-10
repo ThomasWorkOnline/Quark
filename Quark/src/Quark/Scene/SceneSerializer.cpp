@@ -93,7 +93,7 @@ namespace Quark {
 				DESERIALIZE_COMPONENT(TagComponent,                    in, entity);
 				DESERIALIZE_COMPONENT(Transform3DComponent,            in, entity);
 				DESERIALIZE_COMPONENT(PhysicsComponent,                in, entity);
-				DESERIALIZE_COMPONENT(MeshComponent,                   in, entity);
+				DESERIALIZE_COMPONENT(StaticMeshComponent,             in, entity);
 				DESERIALIZE_COMPONENT(SpriteRendererComponent,         in, entity);
 				DESERIALIZE_COMPONENT(TexturedSpriteRendererComponent, in, entity);
 				DESERIALIZE_COMPONENT(TextRendererComponent,           in, entity);

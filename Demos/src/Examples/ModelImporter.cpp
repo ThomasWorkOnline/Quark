@@ -3,5 +3,5 @@
 ModelImporter::ModelImporter(const ApplicationSpecification& spec)
 	: Application(spec)
 {
-	Mesh mesh = Mesh::ReadOBJData("assets/Models/arrow.obj");
+	StaticMesh mesh = StaticMesh::ReadOBJData("assets/Models/arrow.obj");
 }

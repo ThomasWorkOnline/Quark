@@ -202,6 +202,11 @@ namespace Quark {
 		return s_GraphicsAPI->GetName();
 	}
 
+	const char* Renderer::GetDeviceName()
+	{
+		return s_GraphicsAPI->GetDeviceName();
+	}
+
 	void Renderer::BeginFrame()
 	{
 		QK_ASSERT_RENDER_THREAD();

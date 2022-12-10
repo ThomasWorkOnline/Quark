@@ -18,7 +18,7 @@ PBRRenderingDemo::PBRRenderingDemo(const ApplicationSpecification& spec)
 	m_CameraEntity.GetComponent<Transform3DComponent>().Position = { 0.0f, 0.0f, -2.0f };
 	m_CameraEntity.AddNativeScript<CameraController>();
 
-	m_MeshDataFuture = std::async(std::launch::async, Mesh::ReadOBJData, "assets/Models/poly_sphere.obj");
+	m_MeshDataFuture = std::async(std::launch::async, StaticMesh::ReadOBJData, "assets/Models/poly_sphere.obj");
 	LoadMaterialsAsync();
 
 	m_SceneRenderer.SetEnvironment("assets/Environments/MonValley_G_DirtRoad_3k.hdr");
@@ -39,7 +39,7 @@ PBRRenderingDemo::PBRRenderingDemo(const ApplicationSpecification& spec)
 		}
 	}
 
-	m_PBRShader = Shader::CreateLegacy("assets/Shaders/PBR.glsl");
+	//m_PBRShader = Shader::CreateLegacy("assets/Shaders/PBR.glsl");
 
 	{
 		UniformBufferSpecification spec;
@@ -57,7 +57,7 @@ PBRRenderingDemo::PBRRenderingDemo(const ApplicationSpecification& spec)
 
 	{
 		PipelineSpecification spec;
-		spec.Layout             = Mesh::GetBufferLayout();
+		spec.Layout             = StaticMesh::GetBufferLayout();
 		spec.Topology           = PrimitiveTopology::TriangleList;
 		spec.DescriptorSetCount = Renderer::GetCurrentFrameIndex();
 		spec.Shader             = m_PBRShader.get();
@@ -131,7 +131,7 @@ void PBRRenderingDemo::OnRender()
 		if (m_Material.AO)        Renderer::BindTexture(m_Material.AO.get(),        m_Samplers[4].get(), 0, 4);
 
 		Renderer::BindDescriptorSets();
-		Renderer::DrawIndexed(m_Body.GetVertexBuffer(), m_Body.GetIndexBuffer());
+		Renderer::DrawIndexed(m_Body.VertexBuffer.get(), m_Body.IndexBuffer.get());
 	}
 
 	m_SceneRenderer.OnRender();

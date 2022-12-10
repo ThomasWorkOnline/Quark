@@ -34,7 +34,7 @@ namespace Quark {
 
 	struct SamplerCapabilities
 	{
-		uint32_t MaxPerStageSamplers;
+		uint32_t MaxTextureUnits;
 		float    MaxAnisotropy;
 	};
 

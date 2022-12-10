@@ -11,6 +11,24 @@
 
 namespace Quark {
 
+	namespace Utils {
+
+		static ShaderStage ShaderStageFromVulkanStage(VkShaderStageFlags stage)
+		{
+			switch (stage)
+			{
+				case VK_SHADER_STAGE_VERTEX_BIT:   return ShaderStage::Vertex;
+				case VK_SHADER_STAGE_GEOMETRY_BIT: return ShaderStage::Geometry;
+				case VK_SHADER_STAGE_FRAGMENT_BIT: return ShaderStage::Fragment;
+				case VK_SHADER_STAGE_COMPUTE_BIT:  return ShaderStage::Compute;
+
+				QK_ASSERT_NO_DEFAULT("Unknown VkShaderStageFlags");
+			}
+
+			return ShaderStage::None;
+		}
+	}
+
 	VulkanPipeline::VulkanPipeline(VulkanDevice* device, const PipelineSpecification& spec)
 		: Pipeline(spec)
 		, m_Device(device)
@@ -52,12 +70,12 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		const auto& shaderResources = m_Spec.Shader->GetShaderResources();
+		const auto& shaderReflection = m_Spec.Shader->GetReflection();
 
-		AutoRelease<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings = StackAlloc(shaderResources.BindingCount * sizeof(VkDescriptorSetLayoutBinding));
+		AutoRelease<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings = StackAlloc(shaderReflection.BindingCount * sizeof(VkDescriptorSetLayoutBinding));
 		VkDescriptorSetLayoutBinding* descriptorSetLayoutbindingPtr = descriptorSetLayoutBindings;
 
-		for (auto& samplerArray : shaderResources.SamplerArrays)
+		for (auto& samplerArray : shaderReflection.SamplerArrays)
 		{
 			*descriptorSetLayoutbindingPtr = {};
 			descriptorSetLayoutbindingPtr->binding            = samplerArray.Decorators.Binding;
@@ -68,7 +86,7 @@ namespace Quark {
 			descriptorSetLayoutbindingPtr++;
 		}
 
-		for (auto& uniformBuffer : shaderResources.UniformBuffers)
+		for (auto& uniformBuffer : shaderReflection.UniformBuffers)
 		{
 			*descriptorSetLayoutbindingPtr = {};
 			descriptorSetLayoutbindingPtr->binding            = uniformBuffer.Decorators.Binding;
@@ -78,11 +96,11 @@ namespace Quark {
 			descriptorSetLayoutbindingPtr++;
 		}
 
-		QK_CORE_ASSERT(descriptorSetLayoutbindingPtr - descriptorSetLayoutBindings == shaderResources.BindingCount, "Shader binding count and resources do not match!");
+		QK_CORE_ASSERT(descriptorSetLayoutbindingPtr - descriptorSetLayoutBindings == shaderReflection.BindingCount, "Shader binding count and resources do not match!");
 
 		VkDescriptorSetLayoutCreateInfo layoutInfo{};
 		layoutInfo.sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-		layoutInfo.bindingCount = shaderResources.BindingCount;
+		layoutInfo.bindingCount = shaderReflection.BindingCount;
 		layoutInfo.pBindings    = descriptorSetLayoutBindings;
 
 		vkCreateDescriptorSetLayout(m_Device->GetVkHandle(), &layoutInfo, nullptr, &m_DescriptorSetLayout);
@@ -94,11 +112,11 @@ namespace Quark {
 
 		// Descriptor pool shared for all frames in flight
 		{
-			const auto& shaderResources = m_Spec.Shader->GetShaderResources();
+			const auto& shaderReflection = m_Spec.Shader->GetReflection();
 
 			uint32_t descriptorPoolCount = 0;
-			descriptorPoolCount += shaderResources.UniformBuffers.size() > 0;
-			descriptorPoolCount += shaderResources.SamplerArrays.size() > 0;
+			descriptorPoolCount += shaderReflection.UniformBuffers.size() > 0;
+			descriptorPoolCount += shaderReflection.SamplerArrays.size() > 0;
 
 			AutoRelease<VkDescriptorPoolSize> poolSizes = StackAlloc(descriptorPoolCount * sizeof(VkDescriptorPoolSize));
 			VkDescriptorPoolSize* poolSizesPtr = poolSizes;
@@ -108,7 +126,7 @@ namespace Quark {
 			//     If type is VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK then descriptorCount is the number of bytes to allocate for descriptors of this type.
 
 			// Uniform Buffers
-			if (uint32_t count = (uint32_t)shaderResources.UniformBuffers.size())
+			if (uint32_t count = (uint32_t)shaderReflection.UniformBuffers.size())
 			{
 				poolSizesPtr->type            = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
 				poolSizesPtr->descriptorCount = count * m_Spec.DescriptorSetCount;
@@ -116,7 +134,7 @@ namespace Quark {
 			}
 			
 			// Samplers
-			if (uint32_t count = (uint32_t)shaderResources.SamplerArrays.size())
+			if (uint32_t count = (uint32_t)shaderReflection.SamplerArrays.size())
 			{
 				poolSizesPtr->type            = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 				poolSizesPtr->descriptorCount = count * m_Spec.DescriptorSetCount;
@@ -153,7 +171,7 @@ namespace Quark {
 
 	void VulkanPipeline::CreatePipeline()
 	{
-		const auto& shaderResources = m_Spec.Shader->GetShaderResources();
+		const auto& shaderReflection = m_Spec.Shader->GetReflection();
 
 		AutoRelease<VkVertexInputAttributeDescription> attributeDescriptions = StackAlloc(m_Spec.Layout.GetCount() * sizeof(VkVertexInputAttributeDescription));
 
@@ -251,12 +269,12 @@ namespace Quark {
 		dynamicState.pDynamicStates               = dynamicStates;
 
 		// Push constants
-		uint32_t pushConstantRangeCount = (uint32_t)shaderResources.PushConstants.size();
+		uint32_t pushConstantRangeCount = (uint32_t)shaderReflection.PushConstants.size();
 
 		AutoRelease<VkPushConstantRange> pushConstantRanges = StackAlloc(pushConstantRangeCount * sizeof(VkPushConstantRange));
 		VkPushConstantRange* pushConstantRangePtr = pushConstantRanges;
 
-		for (auto& pushConstant : shaderResources.PushConstants)
+		for (auto& pushConstant : shaderReflection.PushConstants)
 		{
 			*pushConstantRangePtr = {};
 			pushConstantRangePtr->offset     = 0;
@@ -284,11 +302,13 @@ namespace Quark {
 		size_t stageIndex = 0;
 		for (auto& [shaderStage, shaderModule] : shaderStages)
 		{
+			ShaderStage stage = Utils::ShaderStageFromVulkanStage(shaderStage);
+
 			stages[stageIndex] = {};
 			stages[stageIndex].sType     = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 			stages[stageIndex].stage     = shaderStage;
-			stages[stageIndex].module    = shaderModule.Module;
-			stages[stageIndex].pName     = shaderModule.EntryPoint.c_str();
+			stages[stageIndex].module    = shaderModule;
+			stages[stageIndex].pName     = shaderReflection.EntryPoints.at(stage).c_str();
 			stages[stageIndex].pSpecializationInfo = nullptr;
 			stageIndex++;
 		}

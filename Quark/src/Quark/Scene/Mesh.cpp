@@ -4,7 +4,6 @@
 #include "Quark/Filesystem/Filesystem.h"
 
 #include <charconv>
-#include <vector>
 
 namespace Quark {
 
@@ -78,13 +77,13 @@ namespace Quark {
 		{ ShaderDataType::Float3, "a_Normal"   }
 	};
 
-	Mesh::Mesh(const OBJMeshData& meshData)
-		: Mesh(ConstructMeshFromOBJData(meshData))
+	StaticMesh::StaticMesh(const OBJMeshData& meshData)
+		: StaticMesh(ConstructMeshFromOBJData(meshData))
 	{
 	}
 
-	// TODO: rework all this mess
-	Mesh Mesh::ConstructMeshFromOBJData(const OBJMeshData& data)
+	// TODO: rework all this
+	StaticMesh StaticMesh::ConstructMeshFromOBJData(const OBJMeshData& data)
 	{
 		QK_PROFILE_FUNCTION();
 
@@ -115,11 +114,11 @@ namespace Quark {
 			indices[i + 2] = i + 1;
 		}
 
-		Mesh mesh;
-		mesh.m_VertexBuffer = VertexBuffer::Create(baseVertices, vertexCount * sizeof(MeshVertex));
-		mesh.m_VertexBuffer->SetLayout(s_Layout);
+		StaticMesh mesh;
+		mesh.VertexBuffer = VertexBuffer::Create(baseVertices, vertexCount * sizeof(MeshVertex));
+		mesh.VertexBuffer->SetLayout(s_Layout);
 
-		mesh.m_IndexBuffer = IndexBuffer::Create(indices, vertexCount);
+		mesh.IndexBuffer = IndexBuffer::Create(indices, vertexCount);
 
 		delete[] baseVertices;
 		delete[] indices;
@@ -127,15 +126,15 @@ namespace Quark {
 		return mesh;
 	}
 
-	Mesh Mesh::GenerateUnitCube()
+	StaticMesh StaticMesh::GenerateUnitCube()
 	{
 		QK_PROFILE_FUNCTION();
 
-		Mesh mesh;
-		mesh.m_VertexBuffer = VertexBuffer::Create(CubeVertices, sizeof(CubeVertices));
-		mesh.m_VertexBuffer->SetLayout(s_Layout);
+		StaticMesh mesh;
+		mesh.VertexBuffer = VertexBuffer::Create(CubeVertices, sizeof(CubeVertices));
+		mesh.VertexBuffer->SetLayout(s_Layout);
 
-		mesh.m_IndexBuffer = IndexBuffer::Create(CubeIndices, sizeof_array(CubeIndices));
+		mesh.IndexBuffer = IndexBuffer::Create(CubeIndices, sizeof_array(CubeIndices));
 		return mesh;
 	}
 
@@ -185,16 +184,15 @@ namespace Quark {
 		return std::strtof(token.data(), &end);
 	}
 
-	const BufferLayout& Mesh::GetBufferLayout()
+	const BufferLayout& StaticMesh::GetBufferLayout()
 	{
 		return s_Layout;
 	}
 
-	OBJMeshData Mesh::ReadOBJData(std::string_view filepath)
+	OBJMeshData StaticMesh::ReadOBJData(std::string_view filepath)
 	{
 		QK_PROFILE_FUNCTION();
 
-#if 1
 		const std::string fileRaw = Filesystem::ReadTextFile(filepath);
 
 		OBJMeshData data;
@@ -272,6 +270,5 @@ namespace Quark {
 		}
 
 		return data;
-#endif
 	}
 }

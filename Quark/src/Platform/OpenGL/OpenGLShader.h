@@ -13,13 +13,10 @@ namespace Quark {
 	{
 	public:
 		OpenGLShader(std::string_view filepath);
-		OpenGLShader(std::string_view name, SpirvView vertexSource, SpirvView fragmentSource);
-		OpenGLShader(std::string_view name, SpirvView vertexSource, SpirvView geometrySource, SpirvView fragmentSource);
-
-		// Legacy OpenGL shaders (not compatible with SPIR-V reflection)
-		OpenGLShader(std::nullptr_t, std::string_view filepath);
 		OpenGLShader(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource);
 		OpenGLShader(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource);
+		OpenGLShader(std::string_view name, std::span<const uint32_t> vertexSpirv, std::span<const uint32_t> fragmentSpirv);
+		OpenGLShader(std::string_view name, std::span<const uint32_t> vertexSpirv, std::span<const uint32_t> geometrySpirv, std::span<const uint32_t> fragmentSpirv);
 
 		virtual ~OpenGLShader() final override;
 
@@ -81,17 +78,22 @@ namespace Quark {
 
 		GLint GetUniformLocation(std::string_view name) const;
 
-		static std::unordered_map<GLenum, std::string_view> SubstrStages(std::string_view source);
-		static std::string ParseGLSL(std::string_view source);
+		void CompileOrReadFromCache(const std::unordered_map<GLenum, std::string_view>& shaderSources);
 
-		GLuint CompileGLSLSources(const std::unordered_map<GLenum, std::string>& shaderSources);
-		GLuint CompileGLSLSourcesLegacy(const std::unordered_map<GLenum, std::string>& shaderSources);
-		GLuint CompileSPIRV(const std::unordered_map<GLenum, SpirvView>& spirvBinaries);
+		GLuint CompileVulkanSources(const std::unordered_map<GLenum, std::string>& shaderSources, uint32_t glslVersion = GetGLSLVersion());
+		GLuint CompileVulkanSourcesLegacy(const std::unordered_map<GLenum, std::string>& shaderSources, uint32_t glslVersion = GetGLSLVersion());
+		GLuint CompileVulkanSpirv(const std::unordered_map<GLenum, std::span<const uint32_t>>& spirvBinaries, uint32_t glslVersion = GetGLSLVersion());
+		
+		GLuint CreateProgram(const std::unordered_map<GLenum, std::vector<uint32_t>>& spirvBinaries);
+		GLuint CreateProgram(const std::unordered_map<GLenum, std::string>& shaderSources);
+		GLint  LinkProgram(GLuint program);
 
-		GLint LinkProgram(GLuint program);
+		static bool IsLegacyCompiler();
+		static uint32_t GetGLSLVersion();
 
 	private:
 		GLuint m_RendererID = 0;
 		mutable std::unordered_map<size_t, GLint> m_UniformLocationCache;
+		std::unordered_map<GLenum, std::vector<uint32_t>> m_OpenGLSpirv;
 	};
 }

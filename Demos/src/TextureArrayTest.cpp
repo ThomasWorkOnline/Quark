@@ -18,7 +18,7 @@ TextureArrayTest::TextureArrayTest(const ApplicationSpecification& spec)
 
 	auto* window = GetWindow();
 	m_Camera.SetPerspective(70.0f);
-	m_Camera.Resize(window->GetWidth(), window->GetHeight());
+	m_Camera.Resize((float)window->GetWidth(), (float)window->GetHeight());
 }
 
 void TextureArrayTest::OnUpdate(Timestep elapsedTime)
@@ -32,7 +32,7 @@ void TextureArrayTest::OnRender()
 
 	Renderer2D::BeginScene(m_Camera.GetProjection(), m_CameraTransform);
 
-	Renderer2D::DrawSprite(color);
+	Renderer2D::DrawQuad(color);
 	Renderer2D::DrawLine(Vec3f(-100.0f, -100.0f, 1.0f), Vec3f(100.0f, 100.0f, 1.0f), color, color);
 
 	Renderer2D::EndScene();
@@ -44,8 +44,7 @@ void TextureArrayTest::OnEvent(Event& e)
 	dispatcher.Dispatch<WindowResizedEvent>(ATTACH_EVENT_FN(TextureArrayTest::OnWindowResized));
 }
 
-bool TextureArrayTest::OnWindowResized(WindowResizedEvent& e)
+void TextureArrayTest::OnWindowResized(WindowResizedEvent& e)
 {
-	m_Camera.Resize(e.GetWidth(), e.GetHeight());
-	return false;
+	m_Camera.Resize((float)e.GetWidth(), (float)e.GetHeight());
 }

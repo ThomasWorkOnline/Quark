@@ -78,8 +78,6 @@ namespace Quark {
 
 	Image::~Image()
 	{
-		QK_PROFILE_FUNCTION();
-
 		free(m_ImageData);
 	}
 
@@ -91,8 +89,6 @@ namespace Quark {
 
 	void Image::DecodePNG(FileStream& in)
 	{	
-		QK_PROFILE_FUNCTION();
-
 		LodePNGState state;
 		lodepng_state_init(&state);
 
@@ -132,8 +128,6 @@ namespace Quark {
 
 	void Image::DecodeHDR(FileStream& in)
 	{
-		QK_PROFILE_FUNCTION();
-
 		int width, height, channels;
 		float* imageData = stbi_loadf_from_file(in.GetHandle(), &width, &height, &channels, 0);
 

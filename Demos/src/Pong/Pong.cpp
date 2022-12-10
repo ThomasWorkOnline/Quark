@@ -11,7 +11,7 @@ Pong::Pong(const ApplicationSpecification& spec)
 	m_Entity.AddComponent<CameraComponent>().Camera.SetPerspective(70.0f);
 
 	m_BallTransform.Position = Vec3f(0.0f, 0.0f, 10.0f);
-	m_Ball = Mesh::ReadOBJData("assets/Models/sphere.obj");
+	m_Ball = StaticMesh::ReadOBJData("assets/Models/sphere.obj");
 	m_Shader = Shader::Create("assets/Shaders/PBR.glsl");
 
 	m_AudioBuffer = AudioBuffer::Create("assets/Audio/Down V1.2.wav");

@@ -31,8 +31,7 @@ MainLayer::MainLayer(Application* app) : Layer(app)
 		m_Input = TextInput(style1);
 	}
 
-	m_Camera.SetOrthographic((float)window->GetWidth());
-	m_Camera.Resize(window->GetWidth(), window->GetHeight());
+	m_Camera.SetOrthographic((float)window->GetWidth(), (float)window->GetHeight());
 }
 
 void MainLayer::OnUpdate(Timestep elapsedTime)
@@ -48,7 +47,7 @@ void MainLayer::OnRender()
 		std::stringstream ss;
 		ss << std::put_time(std::localtime(&t), "%H:%M:%S");
 
-		Renderer2D::DrawText(m_Input, m_Font1.get());
+		Renderer2D::DrawText(m_Input);
 	}
 	Renderer2D::EndScene();
 
@@ -67,7 +66,7 @@ void MainLayer::OnEvent(Event& e)
 
 void MainLayer::OnWindowResized(WindowResizedEvent& e)
 {
-	m_Camera.Resize(e.GetWidth(), e.GetHeight());
+	m_Camera.Resize((float)e.GetWidth(), (float)e.GetHeight());
 }
 
 void MainLayer::OnKeyPressed(KeyPressedEvent& e)

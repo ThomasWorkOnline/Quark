@@ -37,7 +37,7 @@ namespace Quark {
 
 		// Sampler capabilities
 		{
-			m_Capabilities.Sampler.MaxPerStageSamplers = 32; // TODO: fix
+			m_Capabilities.Sampler.MaxTextureUnits = 32; // TODO: fix
 			m_Capabilities.Sampler.MaxAnisotropy = props.limits.maxSamplerAnisotropy;
 		}
 
@@ -130,29 +130,38 @@ namespace Quark {
 		return CreateScope<VulkanShader>(VulkanContext::GetCurrentDevice(), filepath);
 	}
 
-	Scope<Shader> VulkanGraphicsAPI::CreateShader(std::string_view name, SpirvView vertexSource, SpirvView fragmentSource)
+	Scope<Shader> VulkanGraphicsAPI::CreateShader(
+		std::string_view name,
+		std::string_view vertexSource,
+		std::string_view fragmentSource)
 	{
 		return CreateScope<VulkanShader>(VulkanContext::GetCurrentDevice(), name, vertexSource, fragmentSource);
 	}
 
-	Scope<Shader> VulkanGraphicsAPI::CreateShader(std::string_view name, SpirvView vertexSource, SpirvView geometrySource, SpirvView fragmentSource)
+	Scope<Shader> VulkanGraphicsAPI::CreateShader(
+		std::string_view name,
+		std::string_view vertexSource,
+		std::string_view geometrySource,
+		std::string_view fragmentSource)
 	{
 		return CreateScope<VulkanShader>(VulkanContext::GetCurrentDevice(), name, vertexSource, geometrySource, fragmentSource);
 	}
 
-	Scope<Shader> VulkanGraphicsAPI::CreateShaderLegacy(std::string_view filepath)
+	Scope<Shader> VulkanGraphicsAPI::CreateShader(
+		std::string_view name,
+		std::span<const uint32_t> vertexSpirv,
+		std::span<const uint32_t> fragmentSpirv)
 	{
-		return CreateScope<VulkanShader>(VulkanContext::GetCurrentDevice(), filepath);
+		return CreateScope<VulkanShader>(VulkanContext::GetCurrentDevice(), name, vertexSpirv, fragmentSpirv);
 	}
 
-	Scope<Shader> VulkanGraphicsAPI::CreateShaderLegacy(std::string_view name, std::string_view vertexSource, std::string_view fragmentSource)
+	Scope<Shader> VulkanGraphicsAPI::CreateShader(
+		std::string_view name,
+		std::span<const uint32_t> vertexSpirv,
+		std::span<const uint32_t> geometrySpirv,
+		std::span<const uint32_t> fragmentSpirv)
 	{
-		return CreateScope<VulkanShader>(VulkanContext::GetCurrentDevice(), name, vertexSource, fragmentSource);
-	}
-
-	Scope<Shader> VulkanGraphicsAPI::CreateShaderLegacy(std::string_view name, std::string_view vertexSource, std::string_view geometrySource, std::string_view fragmentSource)
-	{
-		return CreateScope<VulkanShader>(VulkanContext::GetCurrentDevice(), name, vertexSource, geometrySource, fragmentSource);
+		return CreateScope<VulkanShader>(VulkanContext::GetCurrentDevice(), name, vertexSpirv, geometrySpirv, fragmentSpirv);
 	}
 
 	Scope<Sampler> VulkanGraphicsAPI::CreateSampler(const SamplerSpecification& spec)
@@ -180,6 +189,11 @@ namespace Quark {
 		return CreateScope<VulkanUniformBuffer>(VulkanContext::GetCurrentDevice(), spec);
 	}
 
+	const char* VulkanGraphicsAPI::GetDeviceName() const
+	{
+		return VulkanContext::GetCurrentDevice()->GetName();
+	}
+
 	std::string VulkanGraphicsAPI::GetSpecification() const
 	{
 		auto ver = GetRHIVersion();
@@ -192,7 +206,7 @@ namespace Quark {
 		ss << "|  " << ver.Major << '.' << ver.Minor << '\n';
 		ss << "|  Per-stage Capabilities:\n";
 		ss << "|    Max uniform buffers = " << m_Capabilities.UniformBuffer.MaxPerStageBuffers << '\n';
-		ss << "|    Max samplers        = " << m_Capabilities.Sampler.MaxPerStageSamplers;
+		ss << "|    Max samplers        = " << m_Capabilities.Sampler.MaxTextureUnits;
 		return ss.str();
 	}
 }

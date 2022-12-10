@@ -14,7 +14,7 @@ public:
 	void OnEvent(Event& e) override;
 
 private:
-	bool OnWindowResized(WindowResizedEvent& e);
+	void OnWindowResized(WindowResizedEvent& e);
 
 private:
 	SceneCamera m_Camera;

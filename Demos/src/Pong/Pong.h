@@ -25,7 +25,7 @@ private:
 	Scene m_Scene;
 	Entity m_Entity;
 
-	Mesh m_Ball;
+	StaticMesh m_Ball;
 	Scope<Shader> m_Shader;
 	Transform3DComponent m_BallTransform;
 
