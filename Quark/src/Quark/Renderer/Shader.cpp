@@ -113,12 +113,10 @@ namespace Quark {
 			pcResource.Stage = stage;
 			pcResource.Name = compiler.get_name(resource.id);
 
-			if (pcResource.Name.empty())
-			{
-				pcResource.Name = compiler.get_fallback_name(resource.id);
-			}
-
 			m_Reflection.PushConstants.push_back(pcResource);
+
+			QK_CORE_TRACE(" \"{0} ({1})\"", resource.name, pcResource.Name);
+			QK_CORE_TRACE("    Size = {0} bytes", bufferSize);
 		}
 
 		QK_CORE_TRACE("Image samplers:");
@@ -151,15 +149,10 @@ namespace Quark {
 			sResource.Decorators.Binding = binding;
 			sResource.Decorators.Name = compiler.get_name(resource.id);
 
-			if (sResource.Decorators.Name.empty())
-			{
-				sResource.Decorators.Name = compiler.get_fallback_name(resource.id);
-			}
-
 			m_Reflection.SamplerArrays.push_back(sResource);
 			m_Reflection.DescriptorCount += samplerCount;
 
-			QK_CORE_TRACE(" \"{0}\"", resource.name);
+			QK_CORE_TRACE(" \"{0} ({1})\"", resource.name, sResource.Decorators.Name);
 			QK_CORE_TRACE("    Set = {0}", set);
 			QK_CORE_TRACE("    Binding = {0}", binding);
 			QK_CORE_TRACE("    Samplers = {0}", samplerCount);
@@ -182,15 +175,10 @@ namespace Quark {
 			ubResource.Decorators.Binding = binding;
 			ubResource.Decorators.Name = compiler.get_name(resource.id);
 
-			if (ubResource.Decorators.Name.empty())
-			{
-				ubResource.Decorators.Name = compiler.get_fallback_name(resource.id);
-			}
-
 			m_Reflection.UniformBuffers.push_back(ubResource);
 			m_Reflection.DescriptorCount++;
 
-			QK_CORE_TRACE(" \"{0}\"", resource.name);
+			QK_CORE_TRACE(" \"{0} ({1})\"", resource.name, ubResource.Decorators.Name);
 			QK_CORE_TRACE("    Set = {0}", set);
 			QK_CORE_TRACE("    Binding = {0}", binding);
 			QK_CORE_TRACE("    Size = {0} bytes", bufferSize);

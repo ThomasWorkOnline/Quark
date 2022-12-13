@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Formats.h"
-#include "RenderPass.h"
 
 #include <cstdint>
 
@@ -37,29 +36,46 @@ namespace Quark {
 		SharedContinuousRefresh = 1000111001
 	};
 
-	struct SwapExtent
-	{
-		uint32_t Width = 0, Height = 0;
-	};
-
 	struct SwapSurfaceFormat
 	{
 		ColorFormat Format;
 		ColorSpace  ColorSpace;
 	};
 
+	struct ViewportExtent
+	{
+		uint32_t Width, Height;
+	};
+
 	struct SwapChainSpecification
 	{
 		uint32_t          MinImageCount = 1;
-		SwapExtent        Extent;
+		ViewportExtent    Extent;
 		SwapSurfaceFormat SurfaceFormat{};
 		SwapPresentMode   PresentMode{};
-		const RenderPass* RenderPass = nullptr;
+		SampleCount       Samples{};
 	};
 
 	class SwapChain
 	{
 	public:
+		SwapChain() = default;
+		SwapChain(const SwapChainSpecification& spec);
 		virtual ~SwapChain() = default;
+
+		virtual void Resize(uint32_t viewportWidth, uint32_t viewportHeight) = 0;
+
+		virtual uint32_t GetBufferCount() const = 0;
+		virtual uint32_t GetCurrentImageIndex() const = 0;
+
+		uint32_t GetWidth() const { return m_Spec.Extent.Width; }
+		uint32_t GetHeight() const { return m_Spec.Extent.Height; }
+
+		ViewportExtent GetViewportExtent() const { return m_Spec.Extent; }
+
+		const SwapChainSpecification& GetSpecification() const { return m_Spec; }
+
+	protected:
+		SwapChainSpecification m_Spec;
 	};
 }

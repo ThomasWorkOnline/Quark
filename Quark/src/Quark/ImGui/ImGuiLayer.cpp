@@ -35,9 +35,6 @@ namespace Quark {
 			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 		}
 
-		//ImGui::StyleColorsLight();
-		//ImGui::StyleColorsDark();
-
 		//SetStyleDarkTheme();
 
 		auto* renderPass = Renderer::GetRenderPass();
@@ -66,6 +63,9 @@ namespace Quark {
 
 	void ImGuiLayer::SetStyleDarkTheme()
 	{
+		//ImGui::StyleColorsLight();
+		//ImGui::StyleColorsDark();
+
 		auto& style = ImGui::GetStyle();
 
 		auto& colors = style.Colors;

@@ -83,11 +83,11 @@ namespace Quark {
 		std::string source = Filesystem::ReadTextFile(filepath);
 		auto shaderSources = SubstrStages(source);
 
-		std::unordered_map<GLenum, std::string_view> parsedGlslSources;
+		std::unordered_map<GLenum, std::string_view> glslSources;
 		for (auto&& [stage, source] : shaderSources)
-			parsedGlslSources[ShaderStageToOpenGL(stage)] = source;
+			glslSources[ShaderStageToOpenGL(stage)] = source;
 
-		CompileOrReadFromCache(parsedGlslSources);
+		CompileOrReadFromCache(glslSources);
 
 		for (auto&& [stage, binary] : m_OpenGLSpirv)
 			Reflect(Utils::GetShaderStageFromOpenGLType(stage), binary);
@@ -108,12 +108,12 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		std::unordered_map<GLenum, std::string_view> parsedGlslSources = {
+		std::unordered_map<GLenum, std::string_view> glslSources = {
 			{ GL_VERTEX_SHADER,   vertexSource   },
 			{ GL_FRAGMENT_SHADER, fragmentSource }
 		};
 
-		CompileOrReadFromCache(parsedGlslSources);
+		CompileOrReadFromCache(glslSources);
 
 		for (auto&& [stage, binary] : m_OpenGLSpirv)
 			Reflect(Utils::GetShaderStageFromOpenGLType(stage), binary);
@@ -134,13 +134,13 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		std::unordered_map<GLenum, std::string_view> parsedGlslSources = {
+		std::unordered_map<GLenum, std::string_view> glslSources = {
 			{ GL_VERTEX_SHADER,   vertexSource   },
 			{ GL_VERTEX_SHADER,   geometrySource },
 			{ GL_FRAGMENT_SHADER, fragmentSource }
 		};
 
-		CompileOrReadFromCache(parsedGlslSources);
+		CompileOrReadFromCache(glslSources);
 
 		for (auto&& [stage, binary] : m_OpenGLSpirv)
 			Reflect(Utils::GetShaderStageFromOpenGLType(stage), binary);
@@ -270,13 +270,15 @@ namespace Quark {
 		}
 
 		// Add new compiled sources to cache
-		for (auto&& [stage, binary] : m_OpenGLSpirv)
+		for (auto&& [stage, source] : parsedGlslSources)
 		{
-			if (parsedGlslSources.find(stage) != parsedGlslSources.end())
+			auto it = m_OpenGLSpirv.find(stage);
+			if (it != m_OpenGLSpirv.end())
 			{
 				std::filesystem::path filename = CacheDirectory / Utils::GetCacheExtension(m_Name, stage);
 				std::ofstream out(filename, std::ios::out | std::ios::binary);
 
+				auto&& [stage, binary] = *it;
 				out.write((const char*)binary.data(), binary.size() * sizeof(uint32_t));
 				out.close();
 			}
@@ -285,19 +287,25 @@ namespace Quark {
 
 	GLuint OpenGLShader::CompileVulkanSources(const std::unordered_map<GLenum, std::string>& shaderSources, uint32_t glslVersion)
 	{
+		static constexpr bool optimize = false;
+
 		shaderc::Compiler vulkanCompiler;
 		shaderc::CompileOptions vulkanOptions;
 
 		vulkanOptions.SetSourceLanguage(shaderc_source_language_glsl);
 		vulkanOptions.SetTargetEnvironment(shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_3);
-		//vulkanOptions.SetOptimizationLevel(shaderc_optimization_level_performance);
+
+		if constexpr (optimize)
+			vulkanOptions.SetOptimizationLevel(shaderc_optimization_level_performance);
 		
 		shaderc::Compiler openglCompiler;
 		shaderc::CompileOptions openglOptions;
 		openglOptions.SetTargetEnvironment(shaderc_target_env_opengl, shaderc_env_version_opengl_4_5);
 		openglOptions.SetAutoMapLocations(true);
 		openglOptions.SetAutoBindUniforms(true);
-		//openglOptions.SetOptimizationLevel(shaderc_optimization_level_performance);
+
+		if constexpr (optimize)
+			openglOptions.SetOptimizationLevel(shaderc_optimization_level_performance);
 		
 		for (auto&& [stage, vulkanGlslSource] : shaderSources)
 		{

@@ -2,7 +2,7 @@
 
 #include "Quark/ImGui/ImGuiBackend.h"
 
-#include <Windows.h>
+typedef struct HWND__* HWND;
 
 namespace Quark {
 

@@ -14,7 +14,7 @@
 namespace Quark {
 
 	VulkanImGuiBackend::VulkanImGuiBackend(void* windowHandle)
-		: m_Device(VulkanContext::Get()->GetCurrentDevice()), m_WindowHandle(static_cast<GLFWwindow*>(windowHandle))
+		: m_Device(VulkanContext::GetCurrentDevice()), m_WindowHandle(static_cast<GLFWwindow*>(windowHandle))
 	{
 	}
 
@@ -43,7 +43,7 @@ namespace Quark {
 		createInfo.pPoolSizes = &poolSize;
 		vkCreateDescriptorPool(m_Device->GetVkHandle(), &createInfo, nullptr, &m_DescriptorPool);
 
-		auto* ctx = VulkanContext::Get();
+		auto* ctx = GraphicsContext::Get<VulkanContext>();
 
 		ImGui_ImplVulkan_InitInfo info{};
 		info.Instance       = ctx->GetInstance();
@@ -52,7 +52,7 @@ namespace Quark {
 		info.QueueFamily    = m_Device->GetQueueFamilyIndices().GraphicsFamily.value();
 		info.Queue          = m_Device->GetGraphicsQueue();
 		info.DescriptorPool = m_DescriptorPool;
-		info.MinImageCount  = ctx->GetSwapChain()->GetImageCount();
+		info.MinImageCount  = ctx->GetSwapChain()->GetBufferCount();
 		info.ImageCount     = info.MinImageCount;
 		info.MSAASamples    = SampleCountToVulkan(renderPass->GetSpecification().Samples);
 

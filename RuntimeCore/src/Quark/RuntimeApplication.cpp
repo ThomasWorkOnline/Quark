@@ -28,6 +28,8 @@ namespace Quark {
 		}
 		catch (std::exception& e)
 		{
+			QK_CORE_ERROR(e.what());
+
 			if (app)
 			{
 				app->Crash(e);

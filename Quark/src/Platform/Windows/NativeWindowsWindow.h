@@ -44,9 +44,6 @@ namespace Quark {
 		virtual bool IsVSync() const final override { return false; }
 		virtual bool IsFullscreen() const final override { return false; }
 
-		virtual const char* GetClipboardText() const final override;
-		virtual void SetClipboardText(const char* string) final override;
-
 		virtual bool IsNative() const final override { return true; }
 		virtual void* GetNativeWindow() const final override { return m_WindowHandle; }
 
@@ -78,7 +75,7 @@ namespace Quark {
 			double      CursorXpos, CursorYpos;
 
 			Scope<GraphicsContext> Context;
-			EventCallbackFn EventCallback;
+			EventCallbackFn EventCallback = [](Event&) {};
 		};
 
 		WindowData m_Data{};

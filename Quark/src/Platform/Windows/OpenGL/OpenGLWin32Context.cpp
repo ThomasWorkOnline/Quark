@@ -1,14 +1,79 @@
 #include "qkpch.h"
 #include "OpenGLWin32Context.h"
 
+#include <Windows.h>
+#include <glad/glad.h>
+
+#if QK_ASSERT_API_VALIDATION_ERRORS
+#	define QK_OPENGL_ERROR_CALLBACK(message) QK_CORE_ASSERT(false, message)
+#else
+#	define QK_OPENGL_ERROR_CALLBACK(message) QK_CORE_ERROR(message)
+#endif
+
 namespace Quark {
+
+	static void OnOpenGLMessage(
+		GLenum source,
+		GLenum type,
+		GLuint id,
+		GLenum severity,
+		GLsizei length,
+		const GLchar* message,
+		const void* userParam)
+	{
+		switch (severity)
+		{
+			case GL_DEBUG_SEVERITY_HIGH:         QK_OPENGL_ERROR_CALLBACK(message); return;
+			case GL_DEBUG_SEVERITY_MEDIUM:       QK_CORE_WARN(message);             return;
+			case GL_DEBUG_SEVERITY_LOW:          QK_CORE_INFO(message);             return;
+			case GL_DEBUG_SEVERITY_NOTIFICATION: QK_CORE_TRACE(message);            return;
+
+			QK_ASSERT_NO_DEFAULT("OnOpenGLMessage had an unknown severity level");
+		}
+	}
 
 	OpenGLWin32Context::OpenGLWin32Context(void* windowHandle)
 		: m_WindowHandle(static_cast<HWND>(windowHandle))
 		, m_DeviceContext(nullptr)
 		, m_Context(nullptr)
 	{
+		QK_PROFILE_FUNCTION();
+
 		QK_CORE_ASSERT(m_WindowHandle, "Window handle is nullptr");
+
+		// Initialize WGL
+		HDC dc = GetDC(m_WindowHandle);
+		QK_CORE_ASSERT(dc, "Could not get a device context!");
+
+		PIXELFORMATDESCRIPTOR pfd{};
+		pfd.nSize = sizeof(pfd);
+		pfd.nVersion = 1;
+		pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
+		pfd.iPixelType = PFD_TYPE_RGBA;
+		pfd.cColorBits = 24;
+
+		int format = ChoosePixelFormat(dc, &pfd);
+		SetPixelFormat(dc, format, &pfd);
+
+		HGLRC rc = wglCreateContext(dc);
+		QK_CORE_ASSERT(rc, "Could not create a graphics context!");
+
+		m_DeviceContext = wglGetCurrentDC();
+		m_Context = wglGetCurrentContext();
+
+		if (!wglMakeCurrent(dc, rc))
+		{
+			wglMakeCurrent(m_DeviceContext, m_Context);
+			wglDeleteContext(rc);
+
+			ThrowRuntimeError("Could not set the current context!");
+		}
+
+		int success = gladLoadGL();
+		Verify(success, "Failed to initialize OpenGL context");
+
+		wglMakeCurrent(m_DeviceContext, m_Context);
+		wglDeleteContext(rc);
 	}
 
 	OpenGLWin32Context::~OpenGLWin32Context()
@@ -20,9 +85,20 @@ namespace Quark {
 		wglDeleteContext(m_Context);
 	}
 
-	void OpenGLWin32Context::Init()
+	void OpenGLWin32Context::Init(const SwapChainSpecification& spec)
 	{
 		QK_PROFILE_FUNCTION();
+
+		// TODO: support multisampling
+		//       support vsync
+		//       resizing
+
+		// Create WGL context
+		m_DeviceContext = GetDC(m_WindowHandle);
+		QK_CORE_ASSERT(m_DeviceContext, "Could not get a device context!");
+
+		// Create swapchain with specification
+		m_SwapChain = { spec };
 
 		PIXELFORMATDESCRIPTOR pfd = {
 			sizeof(PIXELFORMATDESCRIPTOR),
@@ -43,24 +119,56 @@ namespace Quark {
 			0, 0, 0
 		};
 
-		m_DeviceContext = GetDC(m_WindowHandle);
-		QK_CORE_ASSERT(m_DeviceContext, "Could not get a device context!");
-
 		int format = ChoosePixelFormat(m_DeviceContext, &pfd);
 		SetPixelFormat(m_DeviceContext, format, &pfd);
 
 		m_Context = wglCreateContext(m_DeviceContext);
 		QK_CORE_ASSERT(m_Context, "Could not create a graphics context!");
 
-		// Make the context before init OpenGL
 		BOOL success = wglMakeCurrent(m_DeviceContext, m_Context);
 		QK_CORE_ASSERT(success, "Could not set the current context!");
 
-		OpenGLContextBase::Init();
-	}
+#ifdef QK_DEBUG
+		if (glDebugMessageCallback)
+		{
+			glEnable(GL_DEBUG_OUTPUT);
+			glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 
-	void OpenGLWin32Context::CreateSwapChain(const SwapChainSpecification& spec)
-	{
+			glDebugMessageCallback(OnOpenGLMessage, nullptr); // <-- This is not supported on OpenGL 4.2 or lower
+			glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, NULL, GL_FALSE);
+		}
+#endif
+
+		// Gamma correction
+		glEnable(GL_FRAMEBUFFER_SRGB);
+
+		// Alpha and Blending
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		// Face Culling
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+		glFrontFace(GL_CCW);
+		//           ^^^-- we use a counter-clockwise winding order
+
+		glDepthRangef(0.0f, 1.0f);
+
+		// Depth Testing
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LESS);
+
+		// Filtering
+		glEnable(GL_MULTISAMPLE);
+		glEnable(GL_LINE_SMOOTH); // <-- NOTE: this massively slows down line rendering
+
+		// Viewport in the same range as Vulkan and DirectX
+		//glClipControl(GL_UPPER_LEFT, GL_ZERO_TO_ONE);
+
+		// Experimental
+		glEnable(GL_PROGRAM_POINT_SIZE);
+
+		QK_CORE_TRACE("Created OpenGL graphics context!");
 	}
 
 	void OpenGLWin32Context::SwapBuffers()
@@ -72,32 +180,21 @@ namespace Quark {
 	{
 	}
 
-	ViewportExtent OpenGLWin32Context::GetViewportExtent() const
+	void OpenGLWin32Context::Resize(uint32_t viewportWidth, uint32_t viewportHeight)
 	{
-		RECT extent{};
-		GetClientRect(m_WindowHandle, &extent);
-
-		uint32_t width = extent.right - extent.left;
-		uint32_t height = extent.bottom - extent.top;
-
-		return { width, height };
+		m_SwapChain.Resize(viewportWidth, viewportHeight);
 	}
 
 	SwapSurfaceFormat OpenGLWin32Context::ChooseSurfaceFormat(SwapSurfaceFormat preferred) const
 	{
-		SwapSurfaceFormat format;
+		SwapSurfaceFormat format{};
 		format.ColorSpace = ColorSpace::SRGBNonLinear;
 		format.Format = ColorFormat::BGRA8SRGB;
 
 		return format;
 	}
 
-	SwapPresentMode OpenGLWin32Context::ChooseSwapPresentMode(SwapPresentMode preferred) const
-	{
-		return SwapPresentMode::FIFO;
-	}
-
-	SwapExtent OpenGLWin32Context::ChooseSwapExtent(uint32_t width, uint32_t height) const
+	ViewportExtent OpenGLWin32Context::ChooseSwapExtent(uint32_t width, uint32_t height) const
 	{
 		RECT extent{};
 		GetClientRect(m_WindowHandle, &extent);
@@ -106,10 +203,5 @@ namespace Quark {
 		uint32_t h = extent.bottom - extent.top;
 
 		return { w, h };
-	}
-
-	uint32_t OpenGLWin32Context::GetSwapChainImageCount() const
-	{
-		return 2; // OpenGL is always double buffered
 	}
 }

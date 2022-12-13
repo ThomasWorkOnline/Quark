@@ -43,12 +43,38 @@ namespace Quark {
 			&m_Data     // Additional application data
 		);
 
-		QK_CORE_ASSERT(m_WindowHandle, "Window handle is nullptr");
+		Verify(m_WindowHandle, "Window handle is nullptr");
 		++s_WindowCount;
 
-		m_Data.Context = GraphicsContext::Create(m_WindowHandle, true);
-		m_Data.Context->Init();
-		m_Data.Context->SetSwapInterval(spec.VSync);
+		// Creating the graphics context
+		{
+			m_Data.Context = GraphicsContext::Create(m_WindowHandle, true);
+
+			SwapSurfaceFormat targetSurfaceFormat{};
+			targetSurfaceFormat.Format = ColorFormat::BGRA8SRGB;
+			targetSurfaceFormat.ColorSpace = ColorSpace::SRGBNonLinear;
+
+			RECT extent;
+			GetClientRect(m_WindowHandle, &extent);
+
+			uint32_t viewportWidth = extent.right - extent.left;
+			uint32_t viewportHeight = extent.bottom - extent.top;
+
+			ViewportExtent    swapExtent = m_Data.Context->ChooseSwapExtent(viewportWidth, viewportHeight);
+			SwapPresentMode   presentMode = m_Data.Context->ChooseSwapPresentMode(SwapPresentMode::Mailbox);
+			SwapSurfaceFormat surfaceFormat = m_Data.Context->ChooseSurfaceFormat(targetSurfaceFormat);
+			uint32_t          bufferCount = m_Data.Context->QuerySwapChainImageCount();
+
+			SwapChainSpecification swapChainSpec;
+			swapChainSpec.MinImageCount = bufferCount;
+			swapChainSpec.Extent = swapExtent;
+			swapChainSpec.SurfaceFormat = surfaceFormat;
+			swapChainSpec.PresentMode = presentMode;
+			swapChainSpec.Samples = spec.Samples;
+
+			m_Data.Context->Init(swapChainSpec);
+			m_Data.Context->SetSwapInterval(spec.VSync);
+		}
 	}
 
 	NativeWindowsWindow::~NativeWindowsWindow()
@@ -153,16 +179,6 @@ namespace Quark {
 		return IsZoomed(m_WindowHandle);
 	}
 
-	const char* NativeWindowsWindow::GetClipboardText() const
-	{
-		return nullptr;
-	}
-
-	void NativeWindowsWindow::SetClipboardText(const char* string)
-	{
-		(void)string;
-	}
-
 #pragma pop_macro("DisableIsMinimizedMaximized")
 
 	void NativeWindowsWindow::Init()
@@ -214,8 +230,7 @@ namespace Quark {
 				WindowData& data = *(WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 
 				WindowClosedEvent event;
-				if (data.EventCallback)
-					data.EventCallback(event);
+				data.EventCallback(event);
 
 			} break;
 
@@ -239,8 +254,7 @@ namespace Quark {
 				WindowData& data = *(WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 
 				WindowFocusedEvent event;
-				if (data.EventCallback)
-					data.EventCallback(event);
+				data.EventCallback(event);
 
 			} break;
 
@@ -249,8 +263,7 @@ namespace Quark {
 				WindowData& data = *(WindowData*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 
 				WindowLostFocusEvent event;
-				if (data.EventCallback)
-					data.EventCallback(event);
+				data.EventCallback(event);
 
 			} break;
 
@@ -260,8 +273,7 @@ namespace Quark {
 				SHORT scroll = -(SHORT)HIWORD(wParam) / WHEEL_DELTA;
 				
 				MouseScrolledEvent event((float)scroll, 0.0f);
-				if (data.EventCallback)
-					data.EventCallback(event);
+				data.EventCallback(event);
 
 			} break;
 
@@ -271,8 +283,7 @@ namespace Quark {
 				SHORT scroll = (SHORT)HIWORD(wParam) / WHEEL_DELTA;
 
 				MouseScrolledEvent event(0.0f, (float)scroll);
-				if (data.EventCallback)
-					data.EventCallback(event);
+				data.EventCallback(event);
 
 			} break;
 		}
@@ -294,8 +305,7 @@ namespace Quark {
 		data.Ypos = p.rcNormalPosition.top;
 
 		WindowMovedEvent event(data.Xpos, data.Ypos, xOffset, yOffset);
-		if (data.EventCallback)
-			data.EventCallback(event);
+		data.EventCallback(event);
 	}
 
 	void NativeWindowsWindow::OnWindowSizeChanged(HWND hWnd, WPARAM wParam, LPARAM lParam)
@@ -311,8 +321,7 @@ namespace Quark {
 		if ((data.Minimized) && wParam == SIZE_RESTORED)
 		{
 			WindowRestoredEvent event;
-			if (data.EventCallback)
-				data.EventCallback(event);
+			data.EventCallback(event);
 		}
 		else
 		{
@@ -321,16 +330,14 @@ namespace Quark {
 				case SIZE_MINIMIZED:
 				{
 					WindowMinimizedEvent event;
-					if (data.EventCallback)
-						data.EventCallback(event);
+					data.EventCallback(event);
 
 				} break;
 
 				case SIZE_MAXIMIZED:
 				{
 					WindowMaximizedEvent event;
-					if (data.EventCallback)
-						data.EventCallback(event);
+					data.EventCallback(event);
 
 				} break;
 			}
@@ -341,10 +348,11 @@ namespace Quark {
 		data.Width = width;
 		data.Height = height;
 
-		data.Context->Resize(data.Width, data.Height);
+		// Might resize on window creation
+		if (data.Context)
+			data.Context->Resize(data.Width, data.Height);
 
 		WindowResizedEvent event(data.Width, data.Height);
-		if (data.EventCallback)
-			data.EventCallback(event);
+		data.EventCallback(event);
 	}
 }

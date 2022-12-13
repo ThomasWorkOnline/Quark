@@ -1,19 +1,17 @@
 #pragma once
 
-#include "Platform/OpenGL/OpenGLContext.h"
-#include "Platform/OpenGL/OpenGLSwapChain.h"
+#include "OpenGLContext.h"
+#include "OpenGLSwapChain.h"
 
-typedef struct HWND__* HWND;
-typedef struct HDC__* HDC;
-typedef struct HGLRC__* HGLRC;
+typedef struct GLFWwindow GLFWwindow;
 
 namespace Quark {
 
-	class OpenGLWin32Context final : public OpenGLContext
+	class OpenGLGenericContext final : public OpenGLContext
 	{
 	public:
-		OpenGLWin32Context(void* windowHandle);
-		virtual ~OpenGLWin32Context() final override;
+		OpenGLGenericContext(void* windowHandle);
+		virtual ~OpenGLGenericContext() final override;
 
 		virtual void Init(const SwapChainSpecification& spec) final override;
 
@@ -24,16 +22,13 @@ namespace Quark {
 
 		virtual SwapChain*        GetSwapChain() final override { return std::addressof(m_SwapChain); }
 		virtual uint32_t          QuerySwapChainImageCount() const final override { return 1; }
-
+		
 		virtual SwapPresentMode   ChooseSwapPresentMode(SwapPresentMode preferred) const final override { return SwapPresentMode::FIFO; }
 		virtual SwapSurfaceFormat ChooseSurfaceFormat(SwapSurfaceFormat preferred) const final override;
 		virtual ViewportExtent    ChooseSwapExtent(uint32_t width, uint32_t height) const final override;
 
 	private:
-		HWND m_WindowHandle;
-		HDC m_DeviceContext;
-		HGLRC m_Context;
-
+		GLFWwindow* m_WindowHandle;
 		OpenGLSwapChain m_SwapChain;
 	};
 }

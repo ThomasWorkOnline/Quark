@@ -73,7 +73,8 @@ namespace Quark {
 		if (s_WindowCount == 0)
 		{
 			int initCode = glfwInit();
-			QK_CORE_ASSERT(initCode == GLFW_TRUE, "Could not initialize GLFW!");
+			Verify(initCode == GLFW_TRUE, "Could not initialize GLFW!");
+
 			QK_CORE_TRACE("Initialized GLFW!");
 
 			glfwSetErrorCallback(GLFWErrorCallback);
@@ -89,14 +90,36 @@ namespace Quark {
 		glfwWindowHint(GLFW_SAMPLES, GetIntegerSampleCount(spec.Samples));
 
 		m_Window = glfwCreateWindow(spec.Width, spec.Height, spec.Title.c_str(), nullptr, nullptr);
-		QK_CORE_ASSERT(m_Window, "Failed to create window!");
+		Verify(m_Window, "Failed to create window!");
 
 		++s_WindowCount;
 
 		// Creating the graphics context
-		m_Data.Context = GraphicsContext::Create(m_Window);
-		m_Data.Context->Init();
-		m_Data.Context->SetSwapInterval(m_Data.VSync);
+		{
+			m_Data.Context = GraphicsContext::Create(m_Window);
+
+			SwapSurfaceFormat targetSurfaceFormat{};
+			targetSurfaceFormat.Format     = ColorFormat::BGRA8SRGB;
+			targetSurfaceFormat.ColorSpace = ColorSpace::SRGBNonLinear;
+
+			int framebufferWidth, framebufferHeight;
+			glfwGetFramebufferSize(m_Window, &framebufferWidth, &framebufferHeight);
+
+			ViewportExtent    swapExtent    = m_Data.Context->ChooseSwapExtent(framebufferWidth, framebufferHeight);
+			SwapPresentMode   presentMode   = m_Data.Context->ChooseSwapPresentMode(SwapPresentMode::Mailbox);
+			SwapSurfaceFormat surfaceFormat = m_Data.Context->ChooseSurfaceFormat(targetSurfaceFormat);
+			uint32_t          bufferCount   = m_Data.Context->QuerySwapChainImageCount();
+
+			SwapChainSpecification swapChainSpec;
+			swapChainSpec.MinImageCount = bufferCount;
+			swapChainSpec.Extent        = swapExtent;
+			swapChainSpec.SurfaceFormat = surfaceFormat;
+			swapChainSpec.PresentMode   = presentMode;
+			swapChainSpec.Samples       = spec.Samples;
+
+			m_Data.Context->Init(swapChainSpec);
+			m_Data.Context->SetSwapInterval(m_Data.VSync);
+		}
 
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 
@@ -107,172 +130,175 @@ namespace Quark {
 		// CALLBACKS
 		// -----------------------------------------------------------------------
 		glfwSetWindowPosCallback(m_Window, [](GLFWwindow* window, int xpos, int ypos)
-			{
-				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+		{
+			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 
-				int32_t xOffset = xpos - data.Xpos;
-				int32_t yOffset = ypos - data.Ypos;
+			int32_t xOffset = xpos - data.Xpos;
+			int32_t yOffset = ypos - data.Ypos;
 
-				data.Xpos = xpos;
-				data.Ypos = ypos;
+			data.Xpos = xpos;
+			data.Ypos = ypos;
 
-				WindowMovedEvent event(xpos, ypos, xOffset, yOffset);
-				data.EventCallback(event);
-			});
+			WindowMovedEvent event(xpos, ypos, xOffset, yOffset);
+			data.EventCallback(event);
+		});
 
 		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
-			{
-				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-				data.Width = (uint32_t)width;
-				data.Height = (uint32_t)height;
+		{
+			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+			data.Width = (uint32_t)width;
+			data.Height = (uint32_t)height;
 
-				data.Context->Resize(data.Width, data.Height);
+			WindowResizedEvent event(data.Width, data.Height);
+			data.EventCallback(event);
+		});
 
-				WindowResizedEvent event(data.Width, data.Height);
-				data.EventCallback(event);
-			});
+		glfwSetFramebufferSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
+		{
+			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 
-		glfwSetFramebufferSizeCallback(m_Window, [](GLFWwindow* window, int viewportWidth, int viewportHeight)
-			{
-				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+			uint32_t viewportWidth = (uint32_t)width;
+			uint32_t viewportHeight = (uint32_t)height;
 
-				ViewportResizedEvent event((uint32_t)viewportWidth, (uint32_t)viewportHeight);
-				data.EventCallback(event);
-			});
+			data.Context->Resize(viewportWidth, viewportHeight);
+
+			ViewportResizedEvent event(viewportWidth, viewportHeight);
+			data.EventCallback(event);
+		});
 
 		glfwSetWindowIconifyCallback(m_Window, [](GLFWwindow* window, int iconified)
-			{
-				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+		{
+			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 
-				if (iconified)
-				{
-					WindowMinimizedEvent event;
-					data.EventCallback(event);
-				}
-				else
-				{
-					WindowRestoredEvent event;
-					data.EventCallback(event);
-				}
-			});
+			if (iconified)
+			{
+				WindowMinimizedEvent event;
+				data.EventCallback(event);
+			}
+			else
+			{
+				WindowRestoredEvent event;
+				data.EventCallback(event);
+			}
+		});
 
 		glfwSetWindowMaximizeCallback(m_Window, [](GLFWwindow* window, int maximized)
-			{
-				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+		{
+			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 
-				if (maximized)
-				{
-					WindowMaximizedEvent event;
-					data.EventCallback(event);
-				}
-				else
-				{
-					WindowRestoredEvent event;
-					data.EventCallback(event);
-				}
-			});
+			if (maximized)
+			{
+				WindowMaximizedEvent event;
+				data.EventCallback(event);
+			}
+			else
+			{
+				WindowRestoredEvent event;
+				data.EventCallback(event);
+			}
+		});
 
 		glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window)
-			{
-				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-				WindowClosedEvent event;
-				data.EventCallback(event);
-			});
+		{
+			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+			WindowClosedEvent event;
+			data.EventCallback(event);
+		});
 
 		glfwSetWindowFocusCallback(m_Window, [](GLFWwindow* window, int focused)
-			{
-				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+		{
+			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 
-				if (focused)
-				{
-					WindowFocusedEvent event;
-					data.EventCallback(event);
-				}
-				else
-				{
-					WindowLostFocusEvent event;
-					data.EventCallback(event);
-				}
-			});
+			if (focused)
+			{
+				WindowFocusedEvent event;
+				data.EventCallback(event);
+			}
+			else
+			{
+				WindowLostFocusEvent event;
+				data.EventCallback(event);
+			}
+		});
 
 		glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
-			{
-				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-				ModifierKey modKeys = static_cast<ModifierKey>(mods);
+		{
+			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+			ModifierKey modKeys = static_cast<ModifierKey>(mods);
 
-				switch (action)
+			switch (action)
+			{
+				case GLFW_PRESS:
 				{
-					case GLFW_PRESS:
-					{
-						KeyPressedEvent event(static_cast<KeyCode>(key), modKeys, 0);
-						data.EventCallback(event);
-						break;
-					}
-					case GLFW_RELEASE:
-					{
-						KeyReleasedEvent event(static_cast<KeyCode>(key), modKeys);
-						data.EventCallback(event);
-						break;
-					}
-					case GLFW_REPEAT:
-					{
-						KeyPressedEvent event(static_cast<KeyCode>(key), modKeys, 1);
-						data.EventCallback(event);
-						break;
-					}
+					KeyPressedEvent event(static_cast<KeyCode>(key), modKeys, 0);
+					data.EventCallback(event);
+					break;
 				}
-			});
+				case GLFW_RELEASE:
+				{
+					KeyReleasedEvent event(static_cast<KeyCode>(key), modKeys);
+					data.EventCallback(event);
+					break;
+				}
+				case GLFW_REPEAT:
+				{
+					KeyPressedEvent event(static_cast<KeyCode>(key), modKeys, 1);
+					data.EventCallback(event);
+					break;
+				}
+			}
+		});
 
 		glfwSetCharCallback(m_Window, [](GLFWwindow* window, unsigned int keycode)
-			{
-				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+		{
+			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 
-				KeyTypedEvent event(static_cast<KeyCode>(keycode));
-				data.EventCallback(event);
-			});
+			KeyTypedEvent event(static_cast<KeyCode>(keycode));
+			data.EventCallback(event);
+		});
 
 		glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods)
-			{
-				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+		{
+			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 
-				switch (action)
+			switch (action)
+			{
+				case GLFW_PRESS:
 				{
-					case GLFW_PRESS:
-					{
-						MouseButtonPressedEvent event(static_cast<MouseCode>(button));
-						data.EventCallback(event);
-						break;
-					}
-					case GLFW_RELEASE:
-					{
-						MouseButtonReleasedEvent event(static_cast<MouseCode>(button));
-						data.EventCallback(event);
-						break;
-					}
+					MouseButtonPressedEvent event(static_cast<MouseCode>(button));
+					data.EventCallback(event);
+					break;
 				}
-			});
+				case GLFW_RELEASE:
+				{
+					MouseButtonReleasedEvent event(static_cast<MouseCode>(button));
+					data.EventCallback(event);
+					break;
+				}
+			}
+		});
 
 		glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xOffset, double yOffset)
-			{
-				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+		{
+			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 
-				MouseScrolledEvent event((float)xOffset, (float)yOffset);
-				data.EventCallback(event);
-			});
+			MouseScrolledEvent event((float)xOffset, (float)yOffset);
+			data.EventCallback(event);
+		});
 
 		glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xPos, double yPos)
-			{
-				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+		{
+			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 
-				double xOffset = xPos - data.CursorXpos;
-				double yOffset = yPos - data.CursorYpos;
+			double xOffset = xPos - data.CursorXpos;
+			double yOffset = yPos - data.CursorYpos;
 
-				data.CursorXpos = xPos;
-				data.CursorYpos = yPos;
+			data.CursorXpos = xPos;
+			data.CursorYpos = yPos;
 
-				MouseMovedEvent event((float)xPos, (float)yPos, (float)xOffset, (float)yOffset);
-				data.EventCallback(event);
-			});
+			MouseMovedEvent event((float)xPos, (float)yPos, (float)xOffset, (float)yOffset);
+			data.EventCallback(event);
+		});
 	}
 
 	void GenericWindow::Shutdown()
@@ -397,15 +423,5 @@ namespace Quark {
 	bool GenericWindow::IsFullscreen() const
 	{
 		return glfwGetWindowMonitor(m_Window) != nullptr;
-	}
-
-	const char* GenericWindow::GetClipboardText() const
-	{
-		return glfwGetClipboardString(m_Window);
-	}
-
-	void GenericWindow::SetClipboardText(const char* string)
-	{
-		glfwSetClipboardString(m_Window, string);
 	}
 }

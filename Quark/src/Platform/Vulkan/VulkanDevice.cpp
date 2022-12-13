@@ -160,7 +160,7 @@ namespace Quark {
 		VmaAllocatorCreateInfo allocatorInfo{};
 		allocatorInfo.physicalDevice = m_PhysicalDevice;
 		allocatorInfo.device = m_Device;
-		allocatorInfo.instance = VulkanContext::Get()->GetInstance();
+		allocatorInfo.instance = GraphicsContext::Get<VulkanContext>()->GetInstance();
 		vmaCreateAllocator(&allocatorInfo, &m_Allocator);
 
 		{

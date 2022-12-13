@@ -63,6 +63,12 @@ namespace Quark {
 
 	void OpenGLFramebufferAttachment::Invalidate()
 	{
+		if (m_Spec.SwapChainTarget)
+		{
+			// Use default framebuffer
+			return;
+		}
+
 		QK_PROFILE_FUNCTION();
 
 		GLenum internalFormat = DataFormatToOpenGLInternalFormat(m_Spec.DataFormat);
@@ -83,7 +89,7 @@ namespace Quark {
 		if (multisampled)
 		{
 			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, GetIntegerSampleCount(m_Spec.Samples),
-				dataFormat, m_Spec.Width, m_Spec.Height, GL_FALSE);
+				internalFormat, m_Spec.Width, m_Spec.Height, GL_FALSE);
 		}
 		else
 		{
@@ -169,6 +175,12 @@ namespace Quark {
 
 	void OpenGLFramebuffer::Invalidate()
 	{
+		if (m_Spec.SwapChainTarget)
+		{
+			// Use default framebuffer
+			return;
+		}
+
 		QK_PROFILE_FUNCTION();
 
 		if (m_RendererID)

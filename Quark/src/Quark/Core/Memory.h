@@ -53,7 +53,9 @@ namespace Quark {
 		AutoRelease() = default;
 		AutoRelease(void* memory) noexcept
 			: m_Pointer(static_cast<T*>(memory))
-		{}
+		{
+			new (m_Pointer) T{};
+		}
 
 		AutoRelease(AutoRelease&& other) noexcept
 			: m_Pointer(other.m_Pointer)
@@ -175,6 +177,11 @@ namespace Quark {
 			: m_Size(elementCount)
 			, m_Memory(new T[elementCount])
 		{
+			auto ptr = m_Memory;
+			while (ptr < m_Memory + m_Size)
+			{
+				new (ptr++) T{};
+			}
 		}
 
 		Array(Array&& other) noexcept

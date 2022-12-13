@@ -3,4 +3,8 @@
 
 namespace Quark {
 
+	SwapChain::SwapChain(const SwapChainSpecification& spec)
+		: m_Spec(spec)
+	{
+	}
 }

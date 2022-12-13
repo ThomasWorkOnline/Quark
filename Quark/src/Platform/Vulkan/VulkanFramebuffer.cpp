@@ -9,15 +9,15 @@
 
 namespace Quark {
 
-	VulkanFramebufferAttachment::VulkanFramebufferAttachment(VulkanDevice* device, const FramebufferAttachmentSpecification& spec, VkImage image)
-		: FramebufferAttachment(spec), m_Device(device), m_Image(image), m_SwapChainTarget(image)
+	VulkanFramebufferAttachment::VulkanFramebufferAttachment(VulkanDevice* device, const FramebufferAttachmentSpecification& spec)
+		: FramebufferAttachment(spec), m_Device(device)
 	{
 		Invalidate();
 	}
 
 	VulkanFramebufferAttachment::~VulkanFramebufferAttachment()
 	{
-		if (!m_SwapChainTarget)
+		if (!m_Spec.SwapChainTarget)
 		{
 			vkDestroyImage(m_Device->GetVkHandle(), m_Image, nullptr);
 			vkFreeMemory(m_Device->GetVkHandle(), m_BufferMemory, nullptr);
@@ -53,7 +53,7 @@ namespace Quark {
 
 		VkFormat format = DataFormatToVulkan(m_Spec.DataFormat);
 
-		if (!m_SwapChainTarget)
+		if (!m_Spec.SwapChainTarget)
 		{
 			vkDestroyImage(m_Device->GetVkHandle(), m_Image, nullptr);
 			vkFreeMemory(m_Device->GetVkHandle(), m_BufferMemory, nullptr);
@@ -70,6 +70,9 @@ namespace Quark {
 
 		// Image view allocation
 		{
+			// TODO: update image from swapchain
+			QK_CORE_ASSERT(false, "TODO: update image from swapchain");
+
 			vkDestroyImageView(m_Device->GetVkHandle(), m_ImageView, nullptr);
 
 			VkImageViewCreateInfo info{};

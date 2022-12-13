@@ -2,6 +2,7 @@
 
 // Core
 #include "Quark/Core/Application.h"
+#include "Quark/Core/Clipboard.h"
 #include "Quark/Core/Core.h"
 #include "Quark/Core/Input.h"
 #include "Quark/Core/KeyCodes.h"

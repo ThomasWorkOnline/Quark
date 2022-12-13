@@ -74,7 +74,7 @@ namespace Quark {
 		static void EndFrame();
 
 		static void Configure(RHI api);
-		static void Initialize(GraphicsContext* context, SampleCount samples);
+		static void Initialize(const SwapChain* swapChain);
 		static void Dispose();
 
 	private:

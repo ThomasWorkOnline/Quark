@@ -15,15 +15,16 @@ namespace Quark {
 	using NativeWindow = GenericWindow;
 #endif
 
-	Scope<Window> Window::Create(const WindowSpecification& spec, bool native)
+	Scope<Window> Window::Create(const WindowSpecification& spec, WindowType type)
 	{
-		if (native)
+		switch (type)
 		{
-			return CreateScope<NativeWindow>(spec);
+			case WindowType::Generic: return CreateScope<GenericWindow>(spec); 
+			case WindowType::Native:  return CreateScope<NativeWindow>(spec);
+
+			QK_ASSERT_NO_DEFAULT("Unknown WindowType");
 		}
-		else
-		{
-			return CreateScope<GenericWindow>(spec);
-		}
+
+		return nullptr;
 	}
 }

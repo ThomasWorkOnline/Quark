@@ -5,8 +5,8 @@
 #include <GLFW/glfw3.h>
 
 #define IMGUI_IMPL_OPENGL_LOADER_CUSTOM
-#include <backends/imgui_impl_glfw.h>
-#include <backends/imgui_impl_opengl3.cpp>
+#include <backends/imgui_impl_glfw.cpp>
+#include <backends/imgui_impl_opengl3.h>
 
 namespace Quark {
 
@@ -25,6 +25,7 @@ namespace Quark {
 	{
 		(void)renderPass;
 		(void)commandBuffer;
+
 		bool initialized = ImGui_ImplGlfw_InitForOpenGL(m_WindowHandle, true);
 		QK_CORE_ASSERT(initialized, "Failed to initialize the ImGui Layer");
 
@@ -41,6 +42,7 @@ namespace Quark {
 	void OpenGLImGuiBackend::RenderDrawData(CommandBuffer* commandBuffer, ImDrawData* drawData)
 	{
 		(void)commandBuffer;
+
 		GLboolean gammaEnabled = glIsEnabled(GL_FRAMEBUFFER_SRGB);
 		glDisable(GL_FRAMEBUFFER_SRGB);
 
@@ -59,3 +61,5 @@ namespace Quark {
 		}
 	}
 }
+
+#include <backends/imgui_impl_opengl3.cpp>

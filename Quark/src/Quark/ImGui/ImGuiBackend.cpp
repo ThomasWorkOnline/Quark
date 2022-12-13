@@ -10,8 +10,6 @@
 #	include "Platform/Windows/OpenGL/OpenGLWin32ImGuiBackend.h"
 #endif
 
-#include <backends/imgui_impl_glfw.cpp>
-
 namespace Quark {
 
 	static Scope<ImGuiBackend> CreateOpenGLBackend(void* windowHandle, bool native)

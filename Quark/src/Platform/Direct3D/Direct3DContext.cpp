@@ -1,6 +1,8 @@
 #include "qkpch.h"
 #include "Direct3DContext.h"
 
+#include <Windows.h>
+
 #include <d3d12.h>
 #include <d3d12SDKLayers.h>
 
@@ -25,22 +27,6 @@ namespace Quark {
 		, m_SwapChain(nullptr)
 	{
 		QK_CORE_ASSERT(m_WindowHandle, "Window handle is nullptr");
-	}
-
-	Direct3D12Context::~Direct3D12Context()
-	{
-		QK_PROFILE_FUNCTION();
-
-		m_SwapChain->Release();
-		m_CommandQueue->Release();
-		m_Device->Release();
-
-		m_Factory->Release();
-	}
-
-	void Direct3D12Context::Init()
-	{
-		QK_PROFILE_FUNCTION();
 
 		HINSTANCE hInstance = GetModuleHandle(NULL);
 
@@ -91,8 +77,21 @@ namespace Quark {
 			"Could not create Direct3D command queue!");
 	}
 
-	void Direct3D12Context::CreateSwapChain(const SwapChainSpecification& spec)
+	Direct3D12Context::~Direct3D12Context()
 	{
+		QK_PROFILE_FUNCTION();
+
+		m_SwapChain->Release();
+		m_CommandQueue->Release();
+		m_Device->Release();
+
+		m_Factory->Release();
+	}
+
+	void Direct3D12Context::Init(const SwapChainSpecification& spec)
+	{
+		QK_PROFILE_FUNCTION();
+
 		// Describe and create the swap chain.
 		DXGI_SWAP_CHAIN_DESC swapChainDesc{};
 		swapChainDesc.BufferCount       = spec.MinImageCount;
@@ -102,7 +101,7 @@ namespace Quark {
 		swapChainDesc.BufferUsage       = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		swapChainDesc.SwapEffect        = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 		swapChainDesc.OutputWindow      = m_WindowHandle;
-		swapChainDesc.SampleDesc.Count  = GetIntegerSampleCount(spec.RenderPass->GetSpecification().Samples);
+		swapChainDesc.SampleDesc.Count  = GetIntegerSampleCount(spec.Samples);
 		swapChainDesc.Windowed          = TRUE;
 
 		QK_CORE_ASSERT(SUCCEEDED(m_Factory->CreateSwapChain(
@@ -120,7 +119,7 @@ namespace Quark {
 	{
 	}
 
-	void Direct3D12Context::Flush(CommandBuffer* commandBuffer, uint32_t frameIndex)
+	void Direct3D12Context::Flush(CommandBuffer* commandBuffer)
 	{
 	}
 
@@ -136,20 +135,14 @@ namespace Quark {
 	{
 	}
 
-	Framebuffer* Direct3D12Context::GetFramebuffer() const
+	SwapChain* Direct3D12Context::GetSwapChain()
 	{
 		return nullptr;
 	}
 
-	ViewportExtent Direct3D12Context::GetViewportExtent() const
+	uint32_t Direct3D12Context::QuerySwapChainImageCount() const
 	{
-		RECT extent{};
-		GetClientRect(m_WindowHandle, &extent);
-
-		uint32_t width = extent.right - extent.left;
-		uint32_t height = extent.bottom - extent.top;
-
-		return { width, height };
+		return 3;
 	}
 
 	SwapSurfaceFormat Direct3D12Context::ChooseSurfaceFormat(SwapSurfaceFormat preferred) const
@@ -166,7 +159,7 @@ namespace Quark {
 		return SwapPresentMode::FIFO;
 	}
 
-	SwapExtent Direct3D12Context::ChooseSwapExtent(uint32_t width, uint32_t height) const
+	ViewportExtent Direct3D12Context::ChooseSwapExtent(uint32_t width, uint32_t height) const
 	{
 		RECT extent{};
 		GetClientRect(m_WindowHandle, &extent);
@@ -175,11 +168,6 @@ namespace Quark {
 		uint32_t h = extent.bottom - extent.top;
 
 		return { w, h };
-	}
-
-	uint32_t Direct3D12Context::GetSwapChainImageCount() const
-	{
-		return 3;
 	}
 
 	static void GetHardwareAdapter(IDXGIFactory4* pFactory, IDXGIAdapter1** ppAdapter)

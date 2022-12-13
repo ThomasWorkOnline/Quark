@@ -10,8 +10,8 @@
 #	include "Platform/Apple/Metal/MetalContext.h"
 #endif
 
-#include "Platform/OpenGL/OpenGLContext.h"
-#include "Platform/Vulkan/VulkanContext.h"
+#include "Platform/OpenGL/OpenGLGenericContext.h"
+#include "Platform/Vulkan/VulkanGenericContext.h"
 
 #if defined(QK_PLATFORM_WINDOWS)
 	// Windows specific graphics context
@@ -24,10 +24,10 @@ namespace Quark {
 	{
 #if defined(QK_PLATFORM_WINDOWS)
 		if (native) return CreateScope<OpenGLWin32Context>(windowHandle);
-		else        return CreateScope<OpenGLContext>(windowHandle);
+		else        return CreateScope<OpenGLGenericContext>(windowHandle);
 #endif
 		(void)native;
-		return CreateScope<OpenGLContext>(windowHandle);
+		return CreateScope<OpenGLGenericContext>(windowHandle);
 	}
 
 	Scope<GraphicsContext> CreateVulkanContext(void* windowHandle, bool native)
@@ -40,11 +40,11 @@ namespace Quark {
 		}
 		else
 		{
-			return CreateScope<VulkanContext>(windowHandle);
+			return CreateScope<VulkanGenericContext>(windowHandle);
 		}
 #endif
 		(void)native;
-		return CreateScope<VulkanContext>(windowHandle);
+		return CreateScope<VulkanGenericContext>(windowHandle);
 	}
 
 #if defined(QK_PLATFORM_WINDOWS)

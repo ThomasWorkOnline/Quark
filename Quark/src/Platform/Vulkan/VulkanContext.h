@@ -1,27 +1,44 @@
 #pragma once
 
-#include "Vulkan.h"
-#include "VulkanContextBase.h"
+#include "Quark/Renderer/GraphicsContext.h"
 
-typedef struct GLFWwindow GLFWwindow;
+#include "Vulkan.h"
+#include "VulkanDevice.h"
+#include "VulkanSwapChain.h"
+
+#include <span>
 
 namespace Quark {
 
-	class VulkanContext final : public VulkanContextBase
+	inline const char* g_ValidationLayers[] = {
+		"VK_LAYER_KHRONOS_validation"
+	};
+
+	class VulkanContext : public GraphicsContext
 	{
 	public:
-		VulkanContext(void* windowHandle);
-		virtual ~VulkanContext() = default;
+		virtual ~VulkanContext() override;
 
-		virtual void Init() override;
-		virtual void CreateSwapChain(const SwapChainSpecification& spec) final override;
+		virtual void WaitUntilDeviceIdle() final override;
 
-		virtual ViewportExtent GetViewportExtent() const final override;
+		virtual uint32_t          QuerySwapChainImageCount() const final override;
+		virtual SwapSurfaceFormat ChooseSurfaceFormat(SwapSurfaceFormat preferred) const final override;
+		virtual SwapPresentMode   ChooseSwapPresentMode(SwapPresentMode preferred) const final override;
+		virtual ViewportExtent    ChooseSwapExtent(uint32_t width, uint32_t height) const final override;
 
-		static VulkanContext* Get() { return GraphicsContext::Get<VulkanContext>(); }
-		static VulkanDevice*  GetCurrentDevice() { return Get()->m_Device.get(); }
+		VkInstance                GetInstance() const { return m_Instance; }
 
-	private:
-		GLFWwindow* m_WindowHandle;
+		static VulkanDevice*      GetCurrentDevice() { return Get<VulkanContext>()->m_Device.get(); }
+
+	protected:
+		void CreateInstance(const char* appName, std::span<const char*> extensions);
+
+	protected:
+		VkInstance m_Instance = nullptr;
+		Scope<VulkanDevice> m_Device;
+
+#if QK_ENABLE_VULKAN_VALIDATION_LAYERS
+		VkDebugUtilsMessengerEXT m_DebugMessenger = nullptr;
+#endif
 	};
 }

@@ -1,7 +1,8 @@
 #include "qkpch.h"
-#include "OpenGLContextBase.h"
+#include "OpenGLGenericContext.h"
 
 #include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
 #if QK_ASSERT_API_VALIDATION_ERRORS
 #	define QK_OPENGL_ERROR_CALLBACK(message) QK_CORE_ASSERT(false, message)
@@ -31,12 +32,34 @@ namespace Quark {
 		}
 	}
 
-	void OpenGLContextBase::Init()
+	OpenGLGenericContext::OpenGLGenericContext(void* windowHandle)
+		: m_WindowHandle(static_cast<GLFWwindow*>(windowHandle))
 	{
 		QK_PROFILE_FUNCTION();
 
+		QK_CORE_ASSERT(m_WindowHandle, "Window handle is nullptr");
+
+		// Make the context before init OpenGL
+		glfwMakeContextCurrent(m_WindowHandle);
+
 		int success = gladLoadGL();
-		QK_CORE_ASSERT(success, "Failed to initialize OpenGL context");
+		Verify(success, "Failed to initialize OpenGL context");
+	}
+
+	OpenGLGenericContext::~OpenGLGenericContext()
+	{
+		QK_PROFILE_FUNCTION();
+
+		// Detaching the current context
+		glfwMakeContextCurrent(NULL);
+	}
+
+	void OpenGLGenericContext::Init(const SwapChainSpecification& spec)
+	{
+		QK_PROFILE_FUNCTION();
+
+		// Create swapchain with specification
+		m_SwapChain = { spec };
 
 #ifdef QK_DEBUG
 		if (glDebugMessageCallback)
@@ -48,6 +71,9 @@ namespace Quark {
 			glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, NULL, GL_FALSE);
 		}
 #endif
+
+		// Gamma correction
+		glEnable(GL_FRAMEBUFFER_SRGB);
 
 		// Gamma correction
 		glEnable(GL_FRAMEBUFFER_SRGB);
@@ -72,15 +98,43 @@ namespace Quark {
 		glEnable(GL_MULTISAMPLE);
 		glEnable(GL_LINE_SMOOTH); // <-- NOTE: this massively slows down line rendering
 
-		// Extensions
-		//glEnable(GL_TEXTURE_2D_ARRAY_EXT);
-
 		// Viewport in the same range as Vulkan and DirectX
 		//glClipControl(GL_UPPER_LEFT, GL_ZERO_TO_ONE);
 
 		// Experimental
-		//glEnable(GL_PROGRAM_POINT_SIZE);
+		glEnable(GL_PROGRAM_POINT_SIZE);
 
 		QK_CORE_TRACE("Created OpenGL graphics context!");
+	}
+
+	void OpenGLGenericContext::SwapBuffers()
+	{
+		glfwSwapBuffers(m_WindowHandle);
+	}
+
+	void OpenGLGenericContext::SetSwapInterval(int interval)
+	{
+		glfwSwapInterval(interval);
+	}
+
+	void OpenGLGenericContext::Resize(uint32_t viewportWidth, uint32_t viewportHeight)
+	{
+		m_SwapChain.Resize(viewportWidth, viewportHeight);
+	}
+
+	SwapSurfaceFormat OpenGLGenericContext::ChooseSurfaceFormat(SwapSurfaceFormat preferred) const
+	{
+		SwapSurfaceFormat format{};
+		format.ColorSpace = ColorSpace::SRGBNonLinear;
+		format.Format = ColorFormat::BGRA8SRGB;
+
+		return format;
+	}
+
+	ViewportExtent OpenGLGenericContext::ChooseSwapExtent(uint32_t width, uint32_t height) const
+	{
+		int viewportWidth, viewportHeight;
+		glfwGetFramebufferSize(m_WindowHandle, &viewportWidth, &viewportHeight);
+		return { (uint32_t)viewportWidth, (uint32_t)viewportHeight };
 	}
 }

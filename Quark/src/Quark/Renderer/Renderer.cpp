@@ -3,23 +3,23 @@
 
 #include "Quark/Filesystem/Filesystem.h"
 
-#include "GraphicsContext.h"
 #include "GraphicsAPI.cpp"
 
 namespace Quark {
 
 	struct RendererData
 	{
-		static constexpr uint32_t FramesInFlight = 2;
+		uint32_t FramesInFlight = 1;
 
-		ShaderLibrary ShaderLib;
+		ShaderLibrary     ShaderLib;
 		Scope<RenderPass> RenderPass;
-		ViewportExtent ViewportExtent{};
+		ViewportExtent    ViewportExtent{};
 
 		uint32_t CurrentFrameIndex = static_cast<uint32_t>(-1);
 
 		CommandBuffer* ActiveCommandBuffer = nullptr;
-		Scope<CommandBuffer> CommandBuffers[FramesInFlight];
+		std::vector<Scope<CommandBuffer>> CommandBuffers;
+		std::vector<Scope<Framebuffer>>   Framebuffers;
 	};
 
 	static RendererData* s_Data = nullptr;
@@ -107,6 +107,13 @@ namespace Quark {
 			s_Data->ViewportExtent.Width = viewportWidth;
 			s_Data->ViewportExtent.Height = viewportHeight;
 		}
+
+		for (uint32_t i = 0; i < s_Data->Framebuffers.size(); i++)
+		{
+			//auto* vulkanAttachment = static_cast<VulkanFramebufferAttachment*>(m_Framebuffers[i]->GetSpecification().Attachments[1].get());
+			//vulkanAttachment->SetSwapChainImage(m_SwapChainImages[i]);
+			s_Data->Framebuffers[i]->Resize(viewportWidth, viewportHeight);
+		}
 	}
 
 	void Renderer::SetClearColor(const Vec4f& clearColor)
@@ -142,8 +149,7 @@ namespace Quark {
 	Framebuffer* Renderer::GetFramebuffer()
 	{
 		QK_ASSERT_RENDER_THREAD();
-
-		return GraphicsContext::Get()->GetFramebuffer();
+		return s_Data->Framebuffers[s_Data->CurrentFrameIndex].get();
 	}
 
 	SampleCount Renderer::GetSupportedMSAA()
@@ -158,7 +164,7 @@ namespace Quark {
 
 	uint32_t Renderer::GetFramesInFlight()
 	{
-		return RendererData::FramesInFlight;
+		return s_Data->FramesInFlight;
 	}
 
 	uint32_t Renderer::GetCurrentFrameIndex()
@@ -211,7 +217,7 @@ namespace Quark {
 	{
 		QK_ASSERT_RENDER_THREAD();
 
-		s_Data->CurrentFrameIndex = (s_Data->CurrentFrameIndex + 1) % RendererData::FramesInFlight;
+		s_Data->CurrentFrameIndex = (s_Data->CurrentFrameIndex + 1) % s_Data->FramesInFlight;
 
 		GraphicsContext::Get()->BeginFrame(s_Data->CurrentFrameIndex);
 
@@ -230,7 +236,7 @@ namespace Quark {
 		EndRenderPass();
 		s_Data->ActiveCommandBuffer->End();
 
-		GraphicsContext::Get()->Flush(s_Data->ActiveCommandBuffer, s_Data->CurrentFrameIndex);
+		GraphicsContext::Get()->Flush(s_Data->ActiveCommandBuffer);
 	}
 
 	void Renderer::Configure(RHI api)
@@ -238,7 +244,7 @@ namespace Quark {
 		s_GraphicsAPI = GraphicsAPI::Instantiate(api);
 	}
 
-	void Renderer::Initialize(GraphicsContext* context, SampleCount samples)
+	void Renderer::Initialize(const SwapChain* swapChain)
 	{
 		QK_PROFILE_FUNCTION();
 
@@ -248,38 +254,82 @@ namespace Quark {
 		s_GraphicsAPI->Init();
 
 		s_Data = new RendererData();
-		s_Data->ViewportExtent = context->GetViewportExtent();
-
-		SwapSurfaceFormat targetSurfaceFormat{};
-		targetSurfaceFormat.Format = ColorFormat::BGRA8SRGB;
-		targetSurfaceFormat.ColorSpace = ColorSpace::SRGBNonLinear;
-
-		SwapSurfaceFormat surfaceFormat = context->ChooseSurfaceFormat(targetSurfaceFormat);
+		s_Data->ViewportExtent = swapChain->GetViewportExtent();
 
 		{
+			ColorFormat surfaceFormat  = swapChain->GetSpecification().SurfaceFormat.Format;
+			SampleCount samples        = swapChain->GetSpecification().Samples;
+
 			RenderPassSpecification spec;
 			spec.BindPoint             = PipelineBindPoint::Graphics;
-			spec.ColorAttachmentFormat = surfaceFormat.Format;
+			spec.ColorAttachmentFormat = surfaceFormat;
 			spec.DepthAttachmentFormat = ColorFormat::Depth32f;
 			spec.ClearColor            = { 0.01f, 0.01f, 0.01f, 1.0f };
 			spec.ClearBuffers          = true;
 			spec.Samples               = samples;
+
 			s_Data->RenderPass = RenderPass::Create(spec);
 		}
 
-		SwapChainSpecification swapChainSpec;
-		swapChainSpec.MinImageCount = context->GetSwapChainImageCount();
-		swapChainSpec.Extent        = context->ChooseSwapExtent(s_Data->ViewportExtent.Width, s_Data->ViewportExtent.Height);
-		swapChainSpec.SurfaceFormat = surfaceFormat;
-		swapChainSpec.PresentMode   = context->ChooseSwapPresentMode(SwapPresentMode::Mailbox);
-		swapChainSpec.RenderPass    = s_Data->RenderPass.get();
+		const uint32_t bufferCount = swapChain->GetBufferCount();
 
-		context->CreateSwapChain(swapChainSpec);
+		s_Data->FramesInFlight = std::min(bufferCount, 2u);
+		s_Data->CommandBuffers.resize(s_Data->FramesInFlight);
+		s_Data->Framebuffers.resize(bufferCount);
 
-		for (uint32_t i = 0; i < RendererData::FramesInFlight; i++)
+		for (uint32_t i = 0; i < s_Data->FramesInFlight; i++)
 			s_Data->CommandBuffers[i] = CommandBuffer::Create();
 
 		s_Data->ActiveCommandBuffer = s_Data->CommandBuffers[0].get();
+
+		for (uint32_t i = 0; i < bufferCount; i++)
+		{
+			FramebufferSpecification fbSpec;
+			fbSpec.Width           = s_Data->ViewportExtent.Width;
+			fbSpec.Height          = s_Data->ViewportExtent.Height;
+			fbSpec.RenderPass      = s_Data->RenderPass.get();
+			fbSpec.SwapChainTarget = true;
+
+			if (s_Data->RenderPass->GetSpecification().Samples > SampleCount::SampleCount1)
+			{
+				FramebufferAttachmentSpecification resolveAttachmentSpec;
+				resolveAttachmentSpec.Width = s_Data->ViewportExtent.Width;
+				resolveAttachmentSpec.Height = s_Data->ViewportExtent.Height;
+				resolveAttachmentSpec.Samples = s_Data->RenderPass->GetSpecification().Samples;
+				resolveAttachmentSpec.DataFormat = s_Data->RenderPass->GetSpecification().ColorAttachmentFormat;
+				resolveAttachmentSpec.SwapChainTarget = true;
+
+				auto&& attachment = fbSpec.Attachments.emplace_back();
+				attachment = FramebufferAttachment::Create(resolveAttachmentSpec);
+			}
+
+			{
+				FramebufferAttachmentSpecification colorAttachmentSpec;
+				colorAttachmentSpec.Width = s_Data->ViewportExtent.Width;
+				colorAttachmentSpec.Height = s_Data->ViewportExtent.Height;
+				colorAttachmentSpec.Samples = SampleCount::SampleCount1;
+				colorAttachmentSpec.DataFormat = s_Data->RenderPass->GetSpecification().ColorAttachmentFormat;
+				colorAttachmentSpec.SwapChainTarget = true;
+
+				auto&& attachment = fbSpec.Attachments.emplace_back();
+				attachment = FramebufferAttachment::Create(colorAttachmentSpec);
+			}
+
+			if (s_Data->RenderPass->GetSpecification().DepthAttachmentFormat != ColorFormat::None)
+			{
+				FramebufferAttachmentSpecification depthAttachmentSpec;
+				depthAttachmentSpec.Width = s_Data->ViewportExtent.Width;
+				depthAttachmentSpec.Height = s_Data->ViewportExtent.Height;
+				depthAttachmentSpec.Samples = s_Data->RenderPass->GetSpecification().Samples;
+				depthAttachmentSpec.DataFormat = s_Data->RenderPass->GetSpecification().DepthAttachmentFormat;
+				depthAttachmentSpec.SwapChainTarget = true;
+
+				auto&& attachment = fbSpec.Attachments.emplace_back();
+				attachment = FramebufferAttachment::Create(depthAttachmentSpec);
+			}
+
+			s_Data->Framebuffers[i] = Framebuffer::Create(fbSpec);
+		}
 	}
 
 	void Renderer::Dispose()

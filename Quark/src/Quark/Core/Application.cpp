@@ -28,7 +28,7 @@ namespace Quark {
 		m_Window->SetEventCallback(ATTACH_EVENT_FN(Application::OnEventInternal));
 
 		auto* graphicsContext = m_Window->GetGraphicsContext();
-		Renderer::Initialize(graphicsContext, m_Spec.Samples);
+		Renderer::Initialize(graphicsContext->GetSwapChain());
 
 		QK_CORE_INFO(Renderer::GetSpecification());
 
