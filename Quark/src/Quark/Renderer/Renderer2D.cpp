@@ -104,10 +104,11 @@ namespace Quark {
 
 		uint32_t MaxSamplerDestinations = 0;
 		uint32_t TextureSamplerIndex = 1; // Next texture slot to be attached, 0 is reserved for default texture
-		std::vector<Scope<Sampler>> Samplers;
+		std::vector<Scope<Sampler>> SamplerPool;
 
 		Scope<Texture2D> DefaultTexture;
 		const Texture** Textures = nullptr;
+		const Sampler** Samplers = nullptr;
 
 		// Ensure std140 layout
 		struct CameraData
@@ -198,6 +199,7 @@ namespace Quark {
 
 			textureIndex = s_Data->TextureSamplerIndex;
 			s_Data->Textures[textureIndex] = texture;
+			s_Data->Samplers[textureIndex] = s_Data->SamplerPool[textureIndex].get();
 			s_Data->TextureSamplerIndex++;
 		}
 
@@ -355,6 +357,7 @@ namespace Quark {
 
 			textureIndex = s_Data->TextureSamplerIndex;
 			s_Data->Textures[textureIndex] = font;
+			s_Data->Samplers[textureIndex] = s_Data->SamplerPool[textureIndex].get();
 			s_Data->TextureSamplerIndex++;
 		}
 
@@ -463,6 +466,7 @@ namespace Quark {
 
 			textureIndex = s_Data->TextureSamplerIndex;
 			s_Data->Textures[textureIndex] = font;
+			s_Data->Samplers[textureIndex] = s_Data->SamplerPool[textureIndex].get();
 			s_Data->TextureSamplerIndex++;
 		}
 
@@ -587,11 +591,12 @@ namespace Quark {
 			while (s_Data->TextureSamplerIndex != s_Data->MaxSamplerDestinations)
 			{
 				s_Data->Textures[s_Data->TextureSamplerIndex] = s_Data->DefaultTexture.get();
+				s_Data->Samplers[s_Data->TextureSamplerIndex] = s_Data->SamplerPool[s_Data->TextureSamplerIndex].get();
 				s_Data->TextureSamplerIndex++;
 			}
 
 			for (uint32_t i = 0; i < s_Data->MaxSamplerDestinations; i++)
-				Renderer::BindTexture(s_Data->Textures[i], s_Data->Samplers[i].get(), 1, i);
+				Renderer::BindTexture(s_Data->Textures[i], s_Data->Samplers[i], 1, i);
 
 			Renderer::BindUniformBuffer(s_Data->CameraUniformBuffer.get(), 0);
 			Renderer::BindDescriptorSets();
@@ -654,6 +659,7 @@ namespace Quark {
 		delete[] s_Data->QuadVertices;
 		delete[] s_Data->LineVertices;
 		delete[] s_Data->Textures;
+		delete[] s_Data->Samplers;
 
 		delete s_Data;
 		s_Data = nullptr;
@@ -686,8 +692,11 @@ namespace Quark {
 
 		s_Data->QuadVertices = new QuadVertex[Renderer2DData::MaxVertices];
 
-		s_Data->Textures = new const Texture*[s_Data->MaxSamplerDestinations];
+		s_Data->Textures = new const Texture* [s_Data->MaxSamplerDestinations];
 		std::memset(s_Data->Textures, 0, s_Data->MaxSamplerDestinations * sizeof(Texture*));
+
+		s_Data->Samplers = new const Sampler* [s_Data->MaxSamplerDestinations];
+		std::memset(s_Data->Textures, 0, s_Data->MaxSamplerDestinations * sizeof(Sampler*));
 
 		{
 			uint32_t textureColor = 0xffffffff;
@@ -695,19 +704,23 @@ namespace Quark {
 
 			s_Data->DefaultTexture = Texture2D::Create(spec);
 			s_Data->DefaultTexture->SetData(&textureColor, sizeof(textureColor));
-			s_Data->Textures[0] = s_Data->DefaultTexture.get();
 		}
 
-		s_Data->Samplers.resize(s_Data->MaxSamplerDestinations);
+		s_Data->SamplerPool.resize(s_Data->MaxSamplerDestinations);
 		for (uint32_t i = 0; i < s_Data->MaxSamplerDestinations; i++)
 		{
 			SamplerSpecification spec;
 			spec.RenderModes.MinFilteringMode = SamplerFilterMode::Linear;
 			spec.RenderModes.MagFilteringMode = SamplerFilterMode::Nearest;
+			spec.RenderModes.MipmapMode = SamplerMipmapMode::Linear;
 			spec.RenderModes.AddressMode = SamplerAddressMode::ClampToEdge;
 
-			s_Data->Samplers[i] = Sampler::Create(spec);
+			s_Data->SamplerPool[i] = Sampler::Create(spec);
 		}
+
+		// Reserved sampler locations
+		s_Data->Textures[0] = s_Data->DefaultTexture.get();
+		s_Data->Samplers[0] = s_Data->SamplerPool[0].get();
 
 		{
 			auto& coreDirectory = Application::Get()->GetSpecification().CoreDir;
