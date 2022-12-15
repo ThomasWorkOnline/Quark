@@ -64,7 +64,7 @@ namespace Quark {
 			if (entity.HasComponent<Component>())
 			{
 				// [uint64_t] ComponentType
-				ComponentType type = Component::GetStaticType();
+				uint64_t type = (uint64_t)Component::GetStaticType();
 				std::fwrite(&type, sizeof(uint64_t), 1, out);
 
 				SerializeComponent<Component>(entity.GetComponent<Component>(), out);
