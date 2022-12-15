@@ -77,6 +77,9 @@ namespace Quark {
 
 	Font::~Font()
 	{
+		FT_Error error = FT_Done_Face(m_Face);
+		QK_CORE_ASSERT(error == FT_Err_Ok, "Could not delete font! ({0})", FT_Error_String(error));
+
 		--s_FontCount;
 
 		if (s_FontCount == 0)

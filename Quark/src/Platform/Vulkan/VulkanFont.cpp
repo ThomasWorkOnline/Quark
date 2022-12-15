@@ -54,7 +54,7 @@ namespace Quark {
 		FT_GlyphSlot g = m_Face->glyph;
 		for (uint8_t i = 0; i < GlyphCount; i++)
 		{
-			if (FT_Load_Char(m_Face, i, FT_LOAD_RENDER) != FT_Err_Ok &&
+			if (FT_Load_Char(m_Face, i, FT_LOAD_RENDER) != FT_Err_Ok ||
 				g->bitmap.width == 0 || g->bitmap.rows == 0)
 				continue;
 

@@ -31,7 +31,8 @@ namespace Quark {
 		FT_GlyphSlot g = m_Face->glyph;
 		for (uint8_t i = 0; i < GlyphCount; i++)
 		{
-			if (FT_Load_Char(m_Face, i, FT_LOAD_RENDER) != FT_Err_Ok || (g->bitmap.width == 0 || g->bitmap.rows == 0))
+			if (FT_Load_Char(m_Face, i, FT_LOAD_RENDER) != FT_Err_Ok ||
+				g->bitmap.width == 0 || g->bitmap.rows == 0)
 				continue;
 
 			const Glyph& glyph = m_Glyphs[i];
@@ -52,9 +53,6 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		glDeleteTextures(1, &m_RendererID);
-
-		FT_Error error = FT_Done_Face(m_Face);
-		QK_CORE_ASSERT(error == FT_Err_Ok, "Could not delete font! ({0})", FT_Error_String(error));
 	}
 
 	bool OpenGLFont::operator==(const Texture& other) const
