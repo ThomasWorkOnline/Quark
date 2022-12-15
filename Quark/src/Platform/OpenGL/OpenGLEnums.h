@@ -161,21 +161,28 @@ namespace Quark {
 	};
 
 	inline constexpr GLenum s_OpenGLSamplerFilterModeLUT[] = {
-		/*None*/                 GL_NONE,
 		/*Nearest*/              GL_NEAREST,
-		/*Linear*/               GL_LINEAR,
-		/*NearestMipmapNearest*/ GL_NEAREST_MIPMAP_NEAREST,
-		/*NearestMipmapLinear*/  GL_NEAREST_MIPMAP_LINEAR,	
-		/*LinearMipmapNearest*/  GL_LINEAR_MIPMAP_NEAREST,
-		/*LinearMipmapLinear*/   GL_LINEAR_MIPMAP_LINEAR
+		/*Linear*/               GL_LINEAR
 	};
 
 	inline constexpr GLenum s_OpenGLSamplerAddressModeLUT[] = {
-		/*None*/                 GL_NONE,
-		/*ClampToBorder*/        GL_CLAMP_TO_BORDER,
 		/*ClampToEdge*/          GL_CLAMP_TO_EDGE,
+		/*ClampToBorder*/        GL_CLAMP_TO_BORDER,
 		/*Repeat*/               GL_REPEAT
 	};
+
+	inline constexpr GLenum s_OpenGLCombinedSamplerFilterModeLUT[] = {
+		/*0 -> NearestMipmapNearest*/ GL_NEAREST_MIPMAP_NEAREST,
+		/*1 -> NearestMipmapLinear */ GL_NEAREST_MIPMAP_LINEAR,
+		/*2 -> LinearMipmapNearest */ GL_LINEAR_MIPMAP_NEAREST,
+		/*3 -> LinearMipmapLinear  */ GL_LINEAR_MIPMAP_LINEAR
+	};
+
+	constexpr GLenum GetOpenGLCombinedSamplerFilterMode(SamplerFilterMode filterMode, SamplerMipmapMode mipmapMode)
+	{
+		size_t lutIndex = static_cast<size_t>(filterMode) * 2 + static_cast<size_t>(mipmapMode);
+		return s_OpenGLCombinedSamplerFilterModeLUT[lutIndex];
+	}
 
 	constexpr GLenum CullModeToOpenGL(RenderCullMode mode)
 	{

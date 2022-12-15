@@ -22,13 +22,33 @@ namespace Quark {
 	{
 		if (viewportWidth == 0 || viewportHeight == 0) return;
 
-		if (m_Spec.Extent.Width != viewportWidth || m_Spec.Extent.Height != viewportHeight)
+		if (m_Spec.Width != viewportWidth || m_Spec.Height != viewportHeight)
 		{
-			m_Spec.Extent.Width = viewportWidth;
-			m_Spec.Extent.Height = viewportHeight;
+			m_Spec.Width = viewportWidth;
+			m_Spec.Height = viewportHeight;
 
 			Invalidate();
 		}
+	}
+
+	void VulkanSwapChain::SetPresentMode(SwapPresentMode presentMode)
+	{
+		if (m_Spec.PresentMode == presentMode)
+			return;
+
+		m_Spec.PresentMode = presentMode;
+
+		Invalidate();
+	}
+
+	uint32_t VulkanSwapChain::GetBufferCount() const
+	{
+		return static_cast<uint32_t>(m_SwapChainImages.size());
+	}
+
+	Ref<FramebufferAttachment> VulkanSwapChain::GetColorAttachment(uint32_t index) const
+	{
+		return m_ColorAttachments[index];
 	}
 
 	void VulkanSwapChain::Present(VkQueue presentQueue, VkSemaphore renderFinishedSemaphore)
@@ -59,12 +79,12 @@ namespace Quark {
 		createInfo.minImageCount             = m_Spec.MinImageCount;
 		createInfo.imageFormat               = DataFormatToVulkan(m_Spec.SurfaceFormat.Format);
 		createInfo.imageColorSpace           = (VkColorSpaceKHR)m_Spec.SurfaceFormat.ColorSpace;
-		createInfo.imageExtent               = VkExtent2D{ m_Spec.Extent.Width, m_Spec.Extent.Height };
+		createInfo.imageExtent               = VkExtent2D{ m_Spec.Width, m_Spec.Height };
 		createInfo.imageArrayLayers          = 1;
 		createInfo.imageUsage                = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 		createInfo.preTransform              = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
 		createInfo.compositeAlpha            = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-		createInfo.presentMode               = (VkPresentModeKHR)m_Spec.PresentMode;
+		createInfo.presentMode               = PresentModeToVulkan(m_Spec.PresentMode);
 		createInfo.clipped                   = VK_TRUE;
 		createInfo.oldSwapchain              = m_SwapChain;
 
@@ -85,7 +105,7 @@ namespace Quark {
 			createInfo.queueFamilyIndexCount = 0;
 		}
 
-		bool isNew = !m_SwapChain;
+		bool isNew = m_SwapChain == nullptr;
 		vkCreateSwapchainKHR(m_Device->GetVkHandle(), &createInfo, nullptr, &m_SwapChain);
 
 		uint32_t imageCount;
@@ -93,5 +113,27 @@ namespace Quark {
 
 		m_SwapChainImages.resize(imageCount);
 		vkGetSwapchainImagesKHR(m_Device->GetVkHandle(), m_SwapChain, &imageCount, m_SwapChainImages.data());
+
+		if (isNew)
+		{
+			m_ColorAttachments.resize(imageCount);
+
+			{
+				FramebufferAttachmentSpecification spec;
+				spec.Width = m_Spec.Width;
+				spec.Height = m_Spec.Height;
+				spec.Samples = m_Spec.Samples;
+				spec.DataFormat = m_Spec.SurfaceFormat.Format;
+				spec.SwapChainTarget = true;
+
+				for (size_t i = 0; i < m_ColorAttachments.size(); i++)
+					m_ColorAttachments[i] = CreateRef<VulkanFramebufferAttachment>(m_Device, m_SwapChainImages[i], spec);
+			}
+		}
+		else
+		{
+			for (size_t i = 0; i < m_ColorAttachments.size(); i++)
+				m_ColorAttachments[i]->SetSwapChainImage(m_SwapChainImages[i]);
+		}
 	}
 }

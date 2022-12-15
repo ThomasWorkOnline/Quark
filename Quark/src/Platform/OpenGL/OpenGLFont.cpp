@@ -41,6 +41,8 @@ namespace Quark {
 		GLint swizzleMask[] = { GL_ONE, GL_ONE, GL_ONE, GL_RED };
 		glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask);
 
+		glGenerateMipmap(GL_TEXTURE_2D);
+
 		QK_CORE_ASSERT(glIsTexture(m_RendererID), "Font atlas is incomplete!");
 		QK_DEBUG_CALL(glBindTexture(GL_TEXTURE_2D, 0));
 	}

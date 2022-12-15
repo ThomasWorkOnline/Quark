@@ -11,6 +11,7 @@ namespace Quark {
 	{
 	public:
 		VulkanFramebufferAttachment(VulkanDevice* device, const FramebufferAttachmentSpecification& spec);
+		VulkanFramebufferAttachment(VulkanDevice* device, VkImage image, const FramebufferAttachmentSpecification& spec);
 		virtual ~VulkanFramebufferAttachment() final override;
 
 		virtual void Resize(uint32_t width, uint32_t height) final override;

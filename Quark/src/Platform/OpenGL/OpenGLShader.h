@@ -1,7 +1,9 @@
 #pragma once
 
 #include "Quark/Renderer/Shader.h"
+
 #include <unordered_map>
+#include <vector>
 
 typedef unsigned int GLenum;
 typedef unsigned int GLuint;
@@ -76,8 +78,6 @@ namespace Quark {
 		void UploadUniformMat3d(std::string_view name, const Mat3d& matrix);
 		void UploadUniformMat4d(std::string_view name, const Mat4d& matrix);
 
-		GLint GetUniformLocation(std::string_view name) const;
-
 		void CompileOrReadFromCache(const std::unordered_map<GLenum, std::string_view>& shaderSources);
 
 		GLuint CompileVulkanSources(const std::unordered_map<GLenum, std::string>& shaderSources, uint32_t glslVersion = GetGLSLVersion());
@@ -86,7 +86,9 @@ namespace Quark {
 		
 		GLuint CreateProgram(const std::unordered_map<GLenum, std::vector<uint32_t>>& spirvBinaries);
 		GLuint CreateProgram(const std::unordered_map<GLenum, std::string>& shaderSources);
-		GLint  LinkProgram(GLuint program);
+
+		GLint LinkProgram(GLuint program);
+		GLint GetUniformLocation(std::string_view name) const;
 
 		static bool IsLegacyCompiler();
 		static uint32_t GetGLSLVersion();

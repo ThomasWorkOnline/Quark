@@ -15,6 +15,12 @@ namespace Quark {
 		Invalidate();
 	}
 
+	VulkanFramebufferAttachment::VulkanFramebufferAttachment(VulkanDevice* device, VkImage image, const FramebufferAttachmentSpecification& spec)
+		: FramebufferAttachment(spec), m_Device(device), m_Image(image)
+	{
+		Invalidate();
+	}
+
 	VulkanFramebufferAttachment::~VulkanFramebufferAttachment()
 	{
 		if (!m_Spec.SwapChainTarget)
@@ -44,6 +50,7 @@ namespace Quark {
 
 	void VulkanFramebufferAttachment::SetSwapChainImage(VkImage image)
 	{
+		QK_CORE_ASSERT(m_Spec.SwapChainTarget, "Cannot assign an image to an attachment that is not part of the swapchain");
 		m_Image = image;
 	}
 
@@ -70,9 +77,6 @@ namespace Quark {
 
 		// Image view allocation
 		{
-			// TODO: update image from swapchain
-			QK_CORE_ASSERT(false, "TODO: update image from swapchain");
-
 			vkDestroyImageView(m_Device->GetVkHandle(), m_ImageView, nullptr);
 
 			VkImageViewCreateInfo info{};

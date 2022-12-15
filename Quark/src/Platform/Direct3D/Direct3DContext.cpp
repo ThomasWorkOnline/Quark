@@ -95,8 +95,8 @@ namespace Quark {
 		// Describe and create the swap chain.
 		DXGI_SWAP_CHAIN_DESC swapChainDesc{};
 		swapChainDesc.BufferCount       = spec.MinImageCount;
-		swapChainDesc.BufferDesc.Width  = spec.Extent.Width;
-		swapChainDesc.BufferDesc.Height = spec.Extent.Height;
+		swapChainDesc.BufferDesc.Width  = spec.Width;
+		swapChainDesc.BufferDesc.Height = spec.Height;
 		swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		swapChainDesc.BufferUsage       = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		swapChainDesc.SwapEffect        = DXGI_SWAP_EFFECT_FLIP_DISCARD;

@@ -6,6 +6,7 @@
 #include "Quark/Renderer/RenderModes.h"
 #include "Quark/Renderer/RenderPass.h"
 #include "Quark/Renderer/Shader.h"
+#include "Quark/Renderer/SwapChain.h"
 
 #include "Vulkan.h"
 
@@ -164,20 +165,14 @@ namespace Quark {
 	};
 
 	inline constexpr VkSamplerAddressMode s_VulkanSamplerAddressModeLUT[] = {
-		/*None*/                 VK_SAMPLER_ADDRESS_MODE_MAX_ENUM,
-		/*ClampToBorder*/        VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER,
 		/*ClampToEdge*/          VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+		/*ClampToBorder*/        VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER,
 		/*Repeat*/               VK_SAMPLER_ADDRESS_MODE_REPEAT
 	};
 
 	inline constexpr VkSamplerMipmapMode s_VulkanSamplerMipmapModeLUT[] = {
-		/*None*/                 VK_SAMPLER_MIPMAP_MODE_MAX_ENUM,
 		/*Nearest*/              VK_SAMPLER_MIPMAP_MODE_NEAREST,
-		/*Linear*/               VK_SAMPLER_MIPMAP_MODE_NEAREST,
-		/*NearestMipmapNearest*/ VK_SAMPLER_MIPMAP_MODE_NEAREST,
-		/*NearestMipmapLinear*/  VK_SAMPLER_MIPMAP_MODE_LINEAR,
-		/*LinearMipmapNearest*/  VK_SAMPLER_MIPMAP_MODE_NEAREST,
-		/*LinearMipmapLinear*/   VK_SAMPLER_MIPMAP_MODE_LINEAR
+		/*Linear*/               VK_SAMPLER_MIPMAP_MODE_LINEAR
 	};
 
 	inline constexpr VkSampleCountFlagBits s_VulkanSampleCountLUT[] = {
@@ -191,13 +186,8 @@ namespace Quark {
 	};
 
 	inline constexpr VkFilter s_VulkanSamplerFilterModeLUT[] = {
-		/*None*/                 VK_FILTER_MAX_ENUM,
 		/*Nearest*/              VK_FILTER_NEAREST,
-		/*Linear*/               VK_FILTER_LINEAR,
-		/*NearestMipmapNearest*/ VK_FILTER_NEAREST,
-		/*NearestMipmapLinear*/  VK_FILTER_NEAREST,
-		/*LinearMipmapNearest*/  VK_FILTER_LINEAR,
-		/*LinearMipmapLinear*/   VK_FILTER_LINEAR
+		/*Linear*/               VK_FILTER_LINEAR
 	};
 
 	inline constexpr VkShaderStageFlags s_VulkanShaderStageLUT[] = {
@@ -233,14 +223,19 @@ namespace Quark {
 		return s_VulkanDataFormatLUT[static_cast<size_t>(format)];
 	}
 
+	constexpr VkCompareOp DepthCompareFunctionToVulkan(DepthCompareFunction func)
+	{
+		return s_VulkanDepthCompareFunctionLUT[static_cast<size_t>(func)];
+	}
+
 	constexpr VkPipelineBindPoint PipelineBindPointToVulkan(PipelineBindPoint bindpoint)
 	{
 		return s_VulkanPipelineBindPointLUT[static_cast<size_t>(bindpoint)];
 	}
 
-	constexpr VkCompareOp DepthCompareFunctionToVulkan(DepthCompareFunction func)
+	constexpr VkPresentModeKHR PresentModeToVulkan(SwapPresentMode mode)
 	{
-		return s_VulkanDepthCompareFunctionLUT[static_cast<size_t>(func)];
+		return static_cast<VkPresentModeKHR>(mode);
 	}
 
 	constexpr VkPrimitiveTopology PrimitiveTopologyToVulkan(PrimitiveTopology topology)
@@ -248,19 +243,14 @@ namespace Quark {
 		return s_VulkanPrimitiveTopologyLUT[static_cast<size_t>(topology)];
 	}
 
-	constexpr VkSamplerAddressMode SamplerAddressModeToVulkan(SamplerAddressMode mode)
-	{
-		return s_VulkanSamplerAddressModeLUT[static_cast<size_t>(mode)];
-	}
-
-	constexpr VkSamplerMipmapMode TextureMipmapModeToVulkan(SamplerFilterMode mode)
-	{
-		return s_VulkanSamplerMipmapModeLUT[static_cast<size_t>(mode)];
-	}
-
 	constexpr VkSampleCountFlagBits SampleCountToVulkan(SampleCount samples)
 	{
 		return s_VulkanSampleCountLUT[static_cast<size_t>(samples)];
+	}
+
+	constexpr VkSamplerAddressMode SamplerAddressModeToVulkan(SamplerAddressMode mode)
+	{
+		return s_VulkanSamplerAddressModeLUT[static_cast<size_t>(mode)];
 	}
 
 	constexpr VkFilter SamplerFilterModeToVulkan(SamplerFilterMode mode)
@@ -276,5 +266,10 @@ namespace Quark {
 	constexpr VkShaderStageFlags ShaderStageToVulkan(ShaderStage stage)
 	{
 		return s_VulkanShaderStageLUT[static_cast<size_t>(stage)];
+	}
+
+	constexpr VkSamplerMipmapMode TextureMipmapModeToVulkan(SamplerMipmapMode mode)
+	{
+		return s_VulkanSamplerMipmapModeLUT[static_cast<size_t>(mode)];
 	}
 }

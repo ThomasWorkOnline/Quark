@@ -40,24 +40,21 @@ namespace Quark {
 
 	enum class SamplerFilterMode
 	{
-		None = 0,
+		Nearest = 0,
+		Linear
+	};
 
-		// Filter formats
-		Nearest,
-		Linear,
-		NearestMipmapNearest,
-		NearestMipmapLinear,
-		LinearMipmapNearest,
-		LinearMipmapLinear
+	enum class SamplerMipmapMode
+	{
+		Nearest = 0,
+		Linear
 	};
 
 	enum class SamplerAddressMode
 	{
-		None = 0,
-
 		// Tiling formats
+		ClampToEdge = 0,
 		ClampToBorder,
-		ClampToEdge,
 		Repeat,
 
 		Default = ClampToEdge
@@ -76,9 +73,10 @@ namespace Quark {
 
 	struct SamplerRenderModes
 	{
-		SamplerFilterMode  MagFilteringMode = SamplerFilterMode::Linear;
-		SamplerFilterMode  MinFilteringMode = SamplerFilterMode::LinearMipmapLinear;
-		SamplerAddressMode AddressMode      = SamplerAddressMode::Default;
+		SamplerFilterMode  MagFilteringMode{};
+		SamplerFilterMode  MinFilteringMode{};
+		SamplerMipmapMode  MipmapMode{};
+		SamplerAddressMode AddressMode{};
 	};
 
 	size_t GetPixelFormatSize(ColorFormat format);

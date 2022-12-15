@@ -105,8 +105,10 @@ namespace Quark {
 
 	protected:
 		void Reflect(ShaderStage stage, std::span<const uint32_t> spirvSource);
-		
-		static std::string Parse(std::string_view source);
+
+		static std::string      Parse(std::string_view source);
+		static std::string_view ExtractNameFromPath(std::string_view filepath);
+
 		static std::unordered_map<ShaderStage, std::string_view> SubstrStages(std::string_view source);
 
 	protected:

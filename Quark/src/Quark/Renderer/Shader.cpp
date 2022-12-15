@@ -201,6 +201,15 @@ namespace Quark {
 		return parsedGlslSource;
 	}
 
+	std::string_view Shader::ExtractNameFromPath(std::string_view filepath)
+	{
+		auto lastSlash = filepath.find_last_of("/\\");
+		lastSlash = lastSlash == std::string::npos ? 0 : lastSlash + 1;
+		auto lastDot = filepath.rfind('.');
+		auto count = lastDot == std::string::npos ? filepath.size() - lastSlash : lastDot - lastSlash;
+		return filepath.substr(lastSlash, count);
+	}
+
 	std::unordered_map<ShaderStage, std::string_view> Shader::SubstrStages(std::string_view source)
 	{
 		std::unordered_map<ShaderStage, std::string_view> shaderSources;

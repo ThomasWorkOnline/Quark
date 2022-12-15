@@ -5,22 +5,26 @@
 
 #include "Vulkan.h"
 #include "VulkanDevice.h"
+#include "VulkanFramebuffer.h"
 
 namespace Quark {
 
 	class VulkanSwapChain : public SwapChain
 	{
 	public:
-		VulkanSwapChain() = default;
 		VulkanSwapChain(VulkanDevice* device, VkSurfaceKHR surface, const SwapChainSpecification& spec);
 		virtual ~VulkanSwapChain() final override;
 
 		virtual void Resize(uint32_t viewportWidth, uint32_t viewportHeight) final override;
 
-		virtual uint32_t GetBufferCount() const final override { return (uint32_t)m_SwapChainImages.size(); }
+		virtual uint32_t GetBufferCount() const final override;
 		virtual uint32_t GetCurrentImageIndex() const final override { return m_ImageIndex; }
 
-		void     Present(VkQueue presentQueue, VkSemaphore renderFinishedSemaphore);
+		virtual Ref<FramebufferAttachment> GetColorAttachment(uint32_t index) const final override;
+
+		void Present(VkQueue presentQueue, VkSemaphore renderFinishedSemaphore);
+		void SetPresentMode(SwapPresentMode presentMode);
+
 		VkResult AcquireNextImage(VkSemaphore imageAvailableSemaphore);
 
 		// Non-Copyable
@@ -37,5 +41,6 @@ namespace Quark {
 
 		uint32_t m_ImageIndex = 0;
 		std::vector<VkImage> m_SwapChainImages;
+		std::vector<Ref<VulkanFramebufferAttachment>> m_ColorAttachments;
 	};
 }

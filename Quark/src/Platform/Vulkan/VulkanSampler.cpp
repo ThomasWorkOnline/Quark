@@ -17,7 +17,7 @@ namespace Quark {
 		samplerInfo.sType            = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
 		samplerInfo.magFilter        = SamplerFilterModeToVulkan(m_Spec.RenderModes.MagFilteringMode);
 		samplerInfo.minFilter        = SamplerFilterModeToVulkan(m_Spec.RenderModes.MinFilteringMode);
-		samplerInfo.mipmapMode       = TextureMipmapModeToVulkan(m_Spec.RenderModes.MinFilteringMode);
+		samplerInfo.mipmapMode       = TextureMipmapModeToVulkan(m_Spec.RenderModes.MipmapMode);
 		samplerInfo.addressModeU     = addressMode;
 		samplerInfo.addressModeV     = addressMode;
 		samplerInfo.addressModeW     = addressMode;

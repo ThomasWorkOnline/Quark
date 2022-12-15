@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Quark/Core/Core.h"
+
 #include "Formats.h"
 #include "RenderPass.h"
 
@@ -37,9 +38,9 @@ namespace Quark {
 
 	struct FramebufferSpecification
 	{
-		uint32_t Width = 0, Height = 0;
+		uint32_t          Width = 0, Height = 0;
+		bool              SwapChainTarget = false;
 		const RenderPass* RenderPass = nullptr;
-		bool SwapChainTarget = false;
 
 		std::vector<Ref<FramebufferAttachment>> Attachments;
 	};

@@ -20,8 +20,10 @@ namespace Quark {
 		GLenum tilingMode = SamplerAddressModeToOpenGL(m_Spec.RenderModes.AddressMode);
 		GLfloat maxAnisotropy = Renderer::GetCapabilities().Sampler.MaxAnisotropy;
 
-		glSamplerParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, SamplerFilterModeToOpenGL(m_Spec.RenderModes.MinFilteringMode));
-		glSamplerParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, SamplerFilterModeToOpenGL(m_Spec.RenderModes.MagFilteringMode));
+		glSamplerParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER,
+			GetOpenGLCombinedSamplerFilterMode(m_Spec.RenderModes.MinFilteringMode, m_Spec.RenderModes.MipmapMode));
+		glSamplerParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER,
+			SamplerFilterModeToOpenGL(m_Spec.RenderModes.MagFilteringMode));
 		glSamplerParameteri(m_RendererID, GL_TEXTURE_WRAP_S, tilingMode);
 		glSamplerParameteri(m_RendererID, GL_TEXTURE_WRAP_T, tilingMode);
 		glSamplerParameterf(m_RendererID, GL_TEXTURE_MAX_ANISOTROPY, maxAnisotropy);

@@ -112,7 +112,8 @@ namespace Quark {
 
 			SwapChainSpecification swapChainSpec;
 			swapChainSpec.MinImageCount = bufferCount;
-			swapChainSpec.Extent        = swapExtent;
+			swapChainSpec.Width         = swapExtent.Width;
+			swapChainSpec.Height        = swapExtent.Height;
 			swapChainSpec.SurfaceFormat = surfaceFormat;
 			swapChainSpec.PresentMode   = presentMode;
 			swapChainSpec.Samples       = spec.Samples;

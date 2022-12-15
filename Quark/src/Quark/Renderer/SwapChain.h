@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Formats.h"
+#include "Framebuffer.h"
 
 #include <cstdint>
 
@@ -49,8 +50,8 @@ namespace Quark {
 
 	struct SwapChainSpecification
 	{
+		uint32_t          Width = 0, Height = 0;
 		uint32_t          MinImageCount = 1;
-		ViewportExtent    Extent;
 		SwapSurfaceFormat SurfaceFormat{};
 		SwapPresentMode   PresentMode{};
 		SampleCount       Samples{};
@@ -68,10 +69,12 @@ namespace Quark {
 		virtual uint32_t GetBufferCount() const = 0;
 		virtual uint32_t GetCurrentImageIndex() const = 0;
 
-		uint32_t GetWidth() const { return m_Spec.Extent.Width; }
-		uint32_t GetHeight() const { return m_Spec.Extent.Height; }
+		virtual Ref<FramebufferAttachment> GetColorAttachment(uint32_t index) const = 0;
 
-		ViewportExtent GetViewportExtent() const { return m_Spec.Extent; }
+		uint32_t GetWidth() const { return m_Spec.Width; }
+		uint32_t GetHeight() const { return m_Spec.Height; }
+
+		ViewportExtent GetViewportExtent() const { return { m_Spec.Width, m_Spec.Height }; }
 
 		const SwapChainSpecification& GetSpecification() const { return m_Spec; }
 

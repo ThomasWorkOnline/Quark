@@ -60,8 +60,8 @@ namespace Quark {
 
 		m_SwapChain = CreateScope<VulkanSwapChain>(m_Device.get(), m_Surface, spec);
 
-		const uint32_t imageCount = m_SwapChain->GetBufferCount();
-		m_Frames.resize(imageCount);
+		const uint32_t framesInFlight = std::min(m_SwapChain->GetBufferCount(), 2u);
+		m_Frames.resize(framesInFlight);
 
 		// Synchronization
 		VkFenceCreateInfo fenceInfo{};
@@ -128,6 +128,8 @@ namespace Quark {
 
 	void VulkanGenericContext::SetSwapInterval(int interval)
 	{
+		// TODO: check if swap chain supports Mailbox (unlocked)
+		//m_SwapChain->SetPresentMode(interval ? SwapPresentMode::FIFO : SwapPresentMode::Mailbox);
 	}
 
 	void VulkanGenericContext::Resize(uint32_t viewportWidth, uint32_t viewportHeight)

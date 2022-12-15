@@ -6,9 +6,6 @@
 #include "VulkanShader.h"
 #include "VulkanUniformBuffer.h"
 
-#include <shaderc/shaderc.hpp>
-#include <spirv_cross/spirv_cross.hpp>
-
 namespace Quark {
 
 	namespace Utils {
@@ -306,7 +303,7 @@ namespace Quark {
 
 			stages[stageIndex] = {};
 			stages[stageIndex].sType     = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-			stages[stageIndex].stage     = shaderStage;
+			stages[stageIndex].stage     = (VkShaderStageFlagBits)shaderStage;
 			stages[stageIndex].module    = shaderModule;
 			stages[stageIndex].pName     = shaderReflection.EntryPoints.at(stage).c_str();
 			stages[stageIndex].pSpecializationInfo = nullptr;

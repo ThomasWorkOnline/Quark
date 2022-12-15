@@ -6,6 +6,7 @@
 #include "VulkanDevice.h"
 
 #include <unordered_map>
+#include <vector>
 
 namespace Quark {
 
@@ -50,13 +51,17 @@ namespace Quark {
 		VulkanShader(const VulkanShader&) = delete;
 		VulkanShader& operator=(const VulkanShader&) = delete;
 
-		const std::unordered_map<VkShaderStageFlagBits, VkShaderModule>& GetShaderStages() const { return m_ShaderStages; }
+		const std::unordered_map<VkShaderStageFlags, VkShaderModule>& GetShaderStages() const { return m_ShaderModules; }
 
 	private:
-		VkShaderModule CreateShader(ShaderStage stage, std::span<const uint32_t> spirvSource);
+		VkShaderModule CreateShader(std::span<const uint32_t> spirvSource);
+
+		void CompileOrReadFromCache(const std::unordered_map<VkShaderStageFlags, std::string_view>& shaderSources);
+		void CompileVulkanSources(const std::unordered_map<VkShaderStageFlags, std::string>& shaderSources);
 
 	private:
 		VulkanDevice* m_Device;
-		std::unordered_map<VkShaderStageFlagBits, VkShaderModule> m_ShaderStages;
+		std::unordered_map<VkShaderStageFlags, VkShaderModule> m_ShaderModules;
+		std::unordered_map<VkShaderStageFlags, std::vector<uint32_t>> m_VulkanSpirv;
 	};
 }

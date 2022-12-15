@@ -51,7 +51,7 @@ namespace Quark {
 			m_Data.Context = GraphicsContext::Create(m_WindowHandle, true);
 
 			SwapSurfaceFormat targetSurfaceFormat{};
-			targetSurfaceFormat.Format = ColorFormat::BGRA8SRGB;
+			targetSurfaceFormat.Format     = ColorFormat::BGRA8SRGB;
 			targetSurfaceFormat.ColorSpace = ColorSpace::SRGBNonLinear;
 
 			RECT extent;
@@ -60,17 +60,18 @@ namespace Quark {
 			uint32_t viewportWidth = extent.right - extent.left;
 			uint32_t viewportHeight = extent.bottom - extent.top;
 
-			ViewportExtent    swapExtent = m_Data.Context->ChooseSwapExtent(viewportWidth, viewportHeight);
-			SwapPresentMode   presentMode = m_Data.Context->ChooseSwapPresentMode(SwapPresentMode::Mailbox);
+			ViewportExtent    swapExtent    = m_Data.Context->ChooseSwapExtent(viewportWidth, viewportHeight);
+			SwapPresentMode   presentMode   = m_Data.Context->ChooseSwapPresentMode(SwapPresentMode::Mailbox);
 			SwapSurfaceFormat surfaceFormat = m_Data.Context->ChooseSurfaceFormat(targetSurfaceFormat);
-			uint32_t          bufferCount = m_Data.Context->QuerySwapChainImageCount();
+			uint32_t          bufferCount   = m_Data.Context->QuerySwapChainImageCount();
 
 			SwapChainSpecification swapChainSpec;
 			swapChainSpec.MinImageCount = bufferCount;
-			swapChainSpec.Extent = swapExtent;
+			swapChainSpec.Width         = swapExtent.Width;
+			swapChainSpec.Height        = swapExtent.Height;
 			swapChainSpec.SurfaceFormat = surfaceFormat;
-			swapChainSpec.PresentMode = presentMode;
-			swapChainSpec.Samples = spec.Samples;
+			swapChainSpec.PresentMode   = presentMode;
+			swapChainSpec.Samples       = spec.Samples;
 
 			m_Data.Context->Init(swapChainSpec);
 			m_Data.Context->SetSwapInterval(spec.VSync);

@@ -110,8 +110,6 @@ namespace Quark {
 
 		for (uint32_t i = 0; i < s_Data->Framebuffers.size(); i++)
 		{
-			//auto* vulkanAttachment = static_cast<VulkanFramebufferAttachment*>(m_Framebuffers[i]->GetSpecification().Attachments[1].get());
-			//vulkanAttachment->SetSwapChainImage(m_SwapChainImages[i]);
 			s_Data->Framebuffers[i]->Resize(viewportWidth, viewportHeight);
 		}
 	}
@@ -149,7 +147,8 @@ namespace Quark {
 	Framebuffer* Renderer::GetFramebuffer()
 	{
 		QK_ASSERT_RENDER_THREAD();
-		return s_Data->Framebuffers[s_Data->CurrentFrameIndex].get();
+		uint32_t imageIndex = GraphicsContext::Get()->GetSwapChain()->GetCurrentImageIndex();
+		return s_Data->Framebuffers[imageIndex].get();
 	}
 
 	SampleCount Renderer::GetSupportedMSAA()
@@ -297,23 +296,13 @@ namespace Quark {
 				resolveAttachmentSpec.Height = s_Data->ViewportExtent.Height;
 				resolveAttachmentSpec.Samples = s_Data->RenderPass->GetSpecification().Samples;
 				resolveAttachmentSpec.DataFormat = s_Data->RenderPass->GetSpecification().ColorAttachmentFormat;
-				resolveAttachmentSpec.SwapChainTarget = true;
 
-				auto&& attachment = fbSpec.Attachments.emplace_back();
-				attachment = FramebufferAttachment::Create(resolveAttachmentSpec);
+				auto&& resolveAttachment = fbSpec.Attachments.emplace_back();
+				resolveAttachment = FramebufferAttachment::Create(resolveAttachmentSpec);
 			}
 
-			{
-				FramebufferAttachmentSpecification colorAttachmentSpec;
-				colorAttachmentSpec.Width = s_Data->ViewportExtent.Width;
-				colorAttachmentSpec.Height = s_Data->ViewportExtent.Height;
-				colorAttachmentSpec.Samples = SampleCount::SampleCount1;
-				colorAttachmentSpec.DataFormat = s_Data->RenderPass->GetSpecification().ColorAttachmentFormat;
-				colorAttachmentSpec.SwapChainTarget = true;
-
-				auto&& attachment = fbSpec.Attachments.emplace_back();
-				attachment = FramebufferAttachment::Create(colorAttachmentSpec);
-			}
+			auto&& colorAttachment = fbSpec.Attachments.emplace_back();
+			colorAttachment = swapChain->GetColorAttachment(i);
 
 			if (s_Data->RenderPass->GetSpecification().DepthAttachmentFormat != ColorFormat::None)
 			{
@@ -322,10 +311,9 @@ namespace Quark {
 				depthAttachmentSpec.Height = s_Data->ViewportExtent.Height;
 				depthAttachmentSpec.Samples = s_Data->RenderPass->GetSpecification().Samples;
 				depthAttachmentSpec.DataFormat = s_Data->RenderPass->GetSpecification().DepthAttachmentFormat;
-				depthAttachmentSpec.SwapChainTarget = true;
 
-				auto&& attachment = fbSpec.Attachments.emplace_back();
-				attachment = FramebufferAttachment::Create(depthAttachmentSpec);
+				auto&& depthAttachment = fbSpec.Attachments.emplace_back();
+				depthAttachment = FramebufferAttachment::Create(depthAttachmentSpec);
 			}
 
 			s_Data->Framebuffers[i] = Framebuffer::Create(fbSpec);
