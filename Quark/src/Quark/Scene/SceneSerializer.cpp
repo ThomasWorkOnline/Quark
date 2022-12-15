@@ -64,8 +64,8 @@ namespace Quark {
 			if (entity.HasComponent<Component>())
 			{
 				// [uint64_t] ComponentType
-				uint64_t type = (uint64_t)Component::GetStaticType();
-				std::fwrite(&type, sizeof(uint64_t), 1, out);
+				uint32_t type = (uint32_t)Component::GetStaticType();
+				std::fwrite(&type, sizeof(uint32_t), 1, out);
 
 				SerializeComponent<Component>(entity.GetComponent<Component>(), out);
 			}
@@ -82,8 +82,8 @@ namespace Quark {
 		for (uint32_t componentIndex = 0; componentIndex < componentCount; componentIndex++)
 		{
 			// [uint64_t] ComponentType
-			uint64_t componentType;
-			std::fread(&componentType, sizeof(uint64_t), 1, in);
+			uint32_t componentType;
+			std::fread(&componentType, sizeof(uint32_t), 1, in);
 
 			// TODO: runtime validation
 			ComponentType type = (ComponentType)componentType;
