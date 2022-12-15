@@ -3,7 +3,6 @@
 #include "Quark/Core/Core.h"
 
 #include "Quark/UI/Text.h"
-#include "Quark/Event/Event.h"
 #include "Quark/Renderer/Texture.h"
 
 #include "Mesh.h"
@@ -117,6 +116,7 @@ namespace Quark {
 		COMPONENT_TYPE(TextRendererComponent);
 	};
 
+	class Event;
 	class NativeScriptEntity;
 
 	struct NativeScriptComponent
