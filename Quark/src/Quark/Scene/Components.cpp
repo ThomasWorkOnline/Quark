@@ -74,4 +74,9 @@ namespace Quark {
 	{
 		Velocity += force;
 	}
+
+	StaticMeshComponent::StaticMeshComponent(StaticMesh* meshInstance)
+		: MeshInstance(meshInstance)
+	{
+	}
 }

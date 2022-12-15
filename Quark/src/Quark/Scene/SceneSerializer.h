@@ -2,50 +2,64 @@
 
 #include "Scene.h"
 #include "Entity.h"
-#include "Components.h"
 
 #include <cstdio>
+#include <type_traits>
 
 namespace Quark {
 
-	class SceneSerializer
+	struct SceneSerializer
+	{
+		virtual ~SceneSerializer() = default;
+
+		virtual void Serialize(Scene* scene) = 0;
+	};
+
+	struct SceneDeserializer
+	{
+		virtual ~SceneDeserializer() = default;
+
+		virtual void Deserialize(Scene* scene) = 0;
+	};
+
+	class RuntimeSceneSerializer : public SceneSerializer
 	{
 	public:
-		void SerializeRuntime(Scene* scene, std::string_view sceneName);
-		void DeserializeRuntime(Scene* scene, std::string_view sceneName);
+		RuntimeSceneSerializer(std::string_view scenePath);
+		virtual ~RuntimeSceneSerializer() final override;
 
-		///////////////////////////////////////////////////////////////////////
-		// Default impl for component serialization/deserialization
-		//
-		template<typename Component>
-		static inline void SerializeComponent(const Component& component, FILE* out)
-		{
-			std::fwrite(&component, sizeof(Component), 1, out);
-		}
+		virtual void Serialize(Scene* scene) final override;
 
-		template<typename Component>
-		static inline void DeserializeComponent(FILE* in, Entity entity)
-		{
-			auto& c = entity.GetScene().GetRegistry().emplace<Component>(entity);
-			std::fread(&c, sizeof(Component), 1, in);
-		}
+	private:
+		FILE* m_SceneFile;
+	};
+
+	class RuntimeSceneDeserializer : public SceneDeserializer
+	{
+	public:
+		RuntimeSceneDeserializer(std::string_view scenePath);
+		virtual ~RuntimeSceneDeserializer() final override;
+
+		virtual void Deserialize(Scene* scene) final override;
+
+	private:
+		FILE* m_SceneFile;
 	};
 
 	///////////////////////////////////////////////////////////////////////
-	// Type serialization
+	// Default implementation for component serialization/deserialization
 	//
-	template<typename T>
-	inline void Serialize(const T&, FILE*)
+	template<typename Component>
+	static inline void SerializeComponent(const Component& component, FILE* out)
 	{
-		static_assert(sizeof(T) == 0, "No serialize specialization was defined for type T.");
+		static_assert(sizeof(Component) == 0, "No SerializeComponent specialization was defined for Component");
 	}
 
-	template<typename T>
-	inline auto Deserialize(FILE*) -> T
+	template<typename Component>
+	static inline auto DeserializeComponent(FILE* in) -> Component
 	{
-		static_assert(sizeof(T) == 0, "No deserialize specialization was defined for type T.");
+		static_assert(sizeof(Component) == 0, "No DeserializeComponent specialization was defined for Component");
 	}
 }
 
-#include "Serialize.inl"
 #include "SerializeComponent.inl"

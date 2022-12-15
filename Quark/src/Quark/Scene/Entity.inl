@@ -14,9 +14,6 @@ namespace Quark {
 	template<typename Component, typename... Args>
 	inline Component& Entity::AddComponent(Args&&... args)
 	{
-		static_assert(!std::is_same_v<Component, NativeScriptComponent>,
-			"Invalid usage. Please, use the AddNativeScript() method when adding a native script component.");
-
 		QK_CORE_ASSERT(!HasComponent<Component>(), "Entity already has a {0}!", typeid(Component).name());
 
 		auto& component = m_Scene->m_Registry.emplace<Component>(m_Entity, std::forward<Args>(args)...);
@@ -41,16 +38,9 @@ namespace Quark {
 
 		QK_CORE_ASSERT(!HasComponent<NativeScriptComponent>(), "Entity already has a NativeScriptComponent installed!");
 
-		auto& script = m_Scene->m_Registry.emplace<NativeScriptComponent>(m_Entity).Bind<Script>();
-		m_Scene->OnComponentAdded<NativeScriptComponent>(*this, script);
-		return script;
-	}
-
-	template<>
-	inline NativeScriptComponent& Entity::AddNativeScript<std::nullptr_t>()
-	{
-		QK_CORE_ASSERT(!HasComponent<NativeScriptComponent>(), "Entity already has a NativeScriptComponent installed!");
-		return m_Scene->m_Registry.emplace<NativeScriptComponent>(m_Entity);
+		auto& nsc = m_Scene->m_Registry.emplace<NativeScriptComponent>(m_Entity).Bind<Script>();
+		m_Scene->OnComponentAdded<NativeScriptComponent>(*this, nsc);
+		return nsc;
 	}
 
 	template<typename Component>

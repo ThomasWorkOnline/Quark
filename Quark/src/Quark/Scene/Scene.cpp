@@ -59,6 +59,9 @@ namespace Quark {
 			}
 		}
 
+		InstanciateScript = [](Entity entity, NativeScriptComponent& nsc) {};
+		DestroyScript = [](NativeScriptComponent& nsc) {};
+
 		m_Registry.clear();
 	}
 

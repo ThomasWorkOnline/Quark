@@ -8,7 +8,7 @@
 
 #include "Mesh.h"
 #include "SceneCamera.h"
-#include "TypeTraits.h"
+#include "ScriptTypeTraits.h"
 
 #include <type_traits>
 
@@ -90,10 +90,7 @@ namespace Quark {
 		StaticMesh* MeshInstance = nullptr;
 
 		StaticMeshComponent() = default;
-		StaticMeshComponent(StaticMesh* meshInstance)
-			: MeshInstance(meshInstance)
-		{
-		}
+		StaticMeshComponent(StaticMesh* meshInstance);
 
 		COMPONENT_TYPE(StaticMeshComponent);
 	};

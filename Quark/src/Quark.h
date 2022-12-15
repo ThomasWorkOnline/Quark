@@ -58,6 +58,7 @@
 #include "Quark/Scene/Scene.h"
 #include "Quark/Scene/SceneCamera.h"
 #include "Quark/Scene/SceneSerializer.h"
+#include "Quark/Scene/Serialization.h"
 
 // UI
 #include "Quark/UI/UIElement.h"

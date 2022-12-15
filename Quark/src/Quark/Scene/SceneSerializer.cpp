@@ -9,6 +9,7 @@ namespace Quark {
 
 	//
 	// FORMAT:
+	//     ["qscn"]     Format Header
 	//     [uint64_t]   SceneVersion
 	//     [uint32_t]   EntityCount
 	//     
@@ -29,15 +30,14 @@ namespace Quark {
 	//     ]
 	//
 
-#define DESERIALIZE_COMPONENT(type, in, entity)                  \
-	case ComponentType::type:                                    \
-		SceneSerializer::DeserializeComponent<type>(             \
-			in,                                                  \
-			entity);                                             \
-		break
-
 	static const uint64_t s_SceneVersion = typeid(AllComponents).hash_code();
-	
+
+	template<typename Component>
+	static void AddEntityComponent(Entity entity, FILE* in)
+	{
+		auto component = DeserializeComponent<Component>(in);
+		entity.AddComponent<Component>(component);
+	}
 
 	template<typename... Component>
 	static uint32_t GetSerializableComponentsCount(ComponentGroup<Component...>, Entity entity)
@@ -67,7 +67,7 @@ namespace Quark {
 				ComponentType type = Component::GetStaticType();
 				std::fwrite(&type, sizeof(uint64_t), 1, out);
 
-				SceneSerializer::SerializeComponent<Component>(entity.GetComponent<Component>(), out);
+				SerializeComponent<Component>(entity.GetComponent<Component>(), out);
 			}
 		}());
 	}
@@ -87,85 +87,103 @@ namespace Quark {
 
 			// TODO: runtime validation
 			ComponentType type = (ComponentType)componentType;
+
 			switch (type)
 			{
-				DESERIALIZE_COMPONENT(CameraComponent,                 in, entity);
-				DESERIALIZE_COMPONENT(TagComponent,                    in, entity);
-				DESERIALIZE_COMPONENT(Transform3DComponent,            in, entity);
-				DESERIALIZE_COMPONENT(PhysicsComponent,                in, entity);
-				DESERIALIZE_COMPONENT(StaticMeshComponent,             in, entity);
-				DESERIALIZE_COMPONENT(SpriteRendererComponent,         in, entity);
-				DESERIALIZE_COMPONENT(TexturedSpriteRendererComponent, in, entity);
-				DESERIALIZE_COMPONENT(TextRendererComponent,           in, entity);
-				DESERIALIZE_COMPONENT(NativeScriptComponent,           in, entity);
-
-				// TODO: make this work for custom components
+				case ComponentType::CameraComponent: AddEntityComponent<CameraComponent>(entity, in); break;
+				case ComponentType::TagComponent: AddEntityComponent<TagComponent>(entity, in); break;
+				case ComponentType::Transform3DComponent: AddEntityComponent<Transform3DComponent>(entity, in); break;
+				case ComponentType::PhysicsComponent: AddEntityComponent<PhysicsComponent>(entity, in); break;
+				case ComponentType::StaticMeshComponent: AddEntityComponent<StaticMeshComponent>(entity, in); break;
+				case ComponentType::SpriteRendererComponent: AddEntityComponent<SpriteRendererComponent>(entity, in); break;
+				case ComponentType::TexturedSpriteRendererComponent: AddEntityComponent<TexturedSpriteRendererComponent>(entity, in); break;
+				case ComponentType::TextRendererComponent: AddEntityComponent<TextRendererComponent>(entity, in); break;
+				case ComponentType::NativeScriptComponent: AddEntityComponent<NativeScriptComponent>(entity, in); break;
 			}
 		}
 	}
 
-	void SceneSerializer::SerializeRuntime(Scene* scene, std::string_view sceneName)
+	RuntimeSceneSerializer::RuntimeSceneSerializer(std::string_view scenePath)
+		: m_SceneFile(std::fopen(scenePath.data(), "wb"))
+	{
+		Verify(m_SceneFile, "Could not open '{0}'!", scenePath);
+	}
+
+	RuntimeSceneSerializer::~RuntimeSceneSerializer()
+	{
+		std::fclose(m_SceneFile);
+	}
+
+	void RuntimeSceneSerializer::Serialize(Scene* scene)
 	{
 		QK_PROFILE_FUNCTION();
 
-		FILE* out = std::fopen(sceneName.data(), "wb");
-
-		if (!out)
-			return;
+		// ["qscn"] Format header
+		std::fwrite("qscn", sizeof(char), 4, m_SceneFile);
 
 		// [uint64_t] SceneVersion
-		std::fwrite(&s_SceneVersion, sizeof(s_SceneVersion), 1, out);
+		std::fwrite(&s_SceneVersion, sizeof(s_SceneVersion), 1, m_SceneFile);
 
 		// [uint32_t] EntityCount
 		uint32_t entityCount = (uint32_t)scene->GetRegistry().size();
-		std::fwrite(&entityCount, sizeof(uint32_t), 1, out);
+		std::fwrite(&entityCount, sizeof(uint32_t), 1, m_SceneFile);
 
 		scene->GetRegistry().each([&](entt::entity e)
 		{
 			Entity entity = { e, scene };
-			SerializeComponents(AllComponents{}, entity, out);
+			SerializeComponents(AllComponents{}, entity, m_SceneFile);
 		});
 
-		std::fclose(out);
+		std::fflush(m_SceneFile);
 	}
 
-	void SceneSerializer::DeserializeRuntime(Scene* scene, std::string_view sceneName)
+	RuntimeSceneDeserializer::RuntimeSceneDeserializer(std::string_view scenePath)
+		: m_SceneFile(std::fopen(scenePath.data(), "rb"))
+	{
+		Verify(m_SceneFile, "No given scene '{0}' exists!", scenePath);
+	}
+
+	RuntimeSceneDeserializer::~RuntimeSceneDeserializer()
+	{
+		std::fclose(m_SceneFile);
+	}
+
+	void RuntimeSceneDeserializer::Deserialize(Scene* scene)
 	{
 		QK_PROFILE_FUNCTION();
 
-		FILE* in = std::fopen(sceneName.data(), "rb");
+		std::fseek(m_SceneFile, 0, SEEK_END);
+		size_t size = std::ftell(m_SceneFile);
+		std::fseek(m_SceneFile, 0, SEEK_SET);
 
-		if (!in)
+		// ["qscn"] Format header
+		char header[4];
+		std::fread(header, sizeof(char), 4, m_SceneFile);
+
+		if (std::strncmp(header, "qscn", 4) != 0)
 		{
-			QK_CORE_ERROR("No given scene '{0}' exists!", sceneName);
+			QK_CORE_ERROR("Scene could not be deserialized correctly!");
 			return;
 		}
 
-		std::fseek(in, 0, SEEK_END);
-		size_t size = std::ftell(in);
-		std::fseek(in, 0, SEEK_SET);
-
 		// [uint64_t] SceneVersion
 		uint64_t sceneVersion;
-		std::fread(&sceneVersion, sizeof(s_SceneVersion), 1, in);
+		std::fread(&sceneVersion, sizeof(s_SceneVersion), 1, m_SceneFile);
 
 		if (sceneVersion != s_SceneVersion)
 		{
-			QK_CORE_ERROR("'{0}' could not be deserialized correctly!", sceneName);
-			std::fclose(in);
+			QK_CORE_ERROR("Scene could not be deserialized correctly!");
 			return; // Invalid scene version
 		}
 
 		// [uint32_t] EntityCount
 		uint32_t entityCount;
-		std::fread(&entityCount, sizeof(uint32_t), 1, in);
+		std::fread(&entityCount, sizeof(uint32_t), 1, m_SceneFile);
 
 		for (uint32_t entityIndex = 0; entityIndex < entityCount; entityIndex++)
 		{
 			Entity newEntity = scene->CreateEntity();
-			DeserializeComponents(newEntity, in);
+			DeserializeComponents(newEntity, m_SceneFile);
 		}
-
-		std::fclose(in);
 	}
 }

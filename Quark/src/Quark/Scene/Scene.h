@@ -51,6 +51,7 @@ namespace Quark {
 
 	private:
 		// Scripts are instanciated OnPlay() or when a script is added after OnPlay() was called
+		// Calling these functions while the scene is not playing will do nothing
 		void (*InstanciateScript)(Entity entity, NativeScriptComponent& nsc) = [](Entity, NativeScriptComponent&) {};
 		void (*DestroyScript)(NativeScriptComponent& nsc) = [](NativeScriptComponent&) {};
 
@@ -59,7 +60,6 @@ namespace Quark {
 		SceneSettings m_Settings;
 
 		friend class Entity;
-		friend class SceneSerializer;
 	};
 }
 
