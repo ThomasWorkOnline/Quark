@@ -23,7 +23,10 @@ namespace Quark {
 			QK_CORE_INFO(ss.str());
 		}
 
-		uint32_t GetBufferMemoryType(VkPhysicalDevice physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties)
+		uint32_t GetBufferMemoryType(
+			VkPhysicalDevice physicalDevice,
+			uint32_t typeFilter,
+			VkMemoryPropertyFlags properties)
 		{
 			VkPhysicalDeviceMemoryProperties memProperties;
 			vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
@@ -37,7 +40,13 @@ namespace Quark {
 			return 0;
 		}
 
-		VkMemoryRequirements AllocateBuffer(VulkanDevice* device, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer* buffer, VkDeviceMemory* bufferMemory)
+		VkMemoryRequirements AllocateBuffer(
+			VulkanDevice* device,
+			VkDeviceSize size,
+			VkBufferUsageFlags usage,
+			VkMemoryPropertyFlags properties,
+			VkBuffer* buffer,
+			VkDeviceMemory* bufferMemory)
 		{
 			VkBufferCreateInfo bufferInfo{};
 			bufferInfo.sType       = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -63,7 +72,17 @@ namespace Quark {
 			return req;
 		}
 
-		VkMemoryRequirements AllocateImage(VulkanDevice* device, VkExtent3D extent, uint32_t layerCount, uint32_t levels, VkSampleCountFlagBits samples, VkFormat format, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkImage* image, VkDeviceMemory* bufferMemory)
+		VkMemoryRequirements AllocateImage(
+			VulkanDevice* device,
+			VkExtent3D extent,
+			uint32_t layerCount,
+			uint32_t levels,
+			VkSampleCountFlagBits samples,
+			VkFormat format,
+			VkBufferUsageFlags usage,
+			VkMemoryPropertyFlags properties,
+			VkImage* image,
+			VkDeviceMemory* bufferMemory)
 		{
 			VkImageCreateInfo createInfo{};
 			createInfo.sType         = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -94,7 +113,13 @@ namespace Quark {
 			return req;
 		}
 
-		void AllocateImageView(VulkanDevice* device, VkImage image, VkFormat format, uint32_t layerCount, uint32_t levelCount, VkImageView* imageView)
+		void AllocateImageView(
+			VulkanDevice* device,
+			VkImage image,
+			VkFormat format,
+			uint32_t layerCount,
+			uint32_t levelCount,
+			VkImageView* imageView)
 		{
 			VkComponentMapping componentsSwizzle{};
 			componentsSwizzle.r = VK_COMPONENT_SWIZZLE_R;
@@ -115,7 +140,13 @@ namespace Quark {
 			vkCreateImageView(device->GetVkHandle(), &createInfo, nullptr, imageView);
 		}
 
-		void CopyBuffer(VulkanDevice* device, VkBuffer dstBuffer, VkBuffer srcBuffer, size_t size, size_t srcOffset, size_t dstOffset)
+		void CopyBuffer(
+			VulkanDevice* device,
+			VkBuffer dstBuffer,
+			VkBuffer srcBuffer,
+			size_t size,
+			size_t srcOffset,
+			size_t dstOffset)
 		{
 			VkCommandBuffer commandBuffer = device->GetCopyCommandBuffer();
 			vkResetCommandBuffer(commandBuffer, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
@@ -143,7 +174,14 @@ namespace Quark {
 			vkQueueWaitIdle(transferQueue);
 		}
 
-		void ClearImage(VulkanDevice* device, VkImage dstImage, VkImageLayout layout, VkClearColorValue clearColor, uint32_t layerCount, uint32_t baseLayer, uint32_t levelCount)
+		void ClearImage(
+			VulkanDevice* device,
+			VkImage dstImage,
+			VkImageLayout layout,
+			VkClearColorValue clearColor,
+			uint32_t layerCount,
+			uint32_t baseLayer,
+			uint32_t levelCount)
 		{
 			VkCommandBuffer commandBuffer = device->GetCopyCommandBuffer();
 			vkResetCommandBuffer(commandBuffer, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
@@ -186,8 +224,16 @@ namespace Quark {
 			vkQueueWaitIdle(transferQueue);
 		}
 
-		void CopyBufferToImage(VulkanDevice* device, VkBuffer srcBuffer, VkDeviceSize bufferOffset,
-			                   VkImage dstImage, VkExtent3D imageExtent, VkOffset3D imageOffset, uint32_t layerCount, uint32_t baseLayer, uint32_t levelCount)
+		void CopyBufferToImage(
+			VulkanDevice* device,
+			VkBuffer srcBuffer,
+			VkDeviceSize bufferOffset,
+			VkImage dstImage,
+			VkExtent3D imageExtent,
+			VkOffset3D imageOffset,
+			uint32_t layerCount,
+			uint32_t baseLayer,
+			uint32_t levelCount)
 		{
 			VkCommandBuffer commandBuffer = device->GetCopyCommandBuffer();
 			vkResetCommandBuffer(commandBuffer, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
@@ -247,8 +293,16 @@ namespace Quark {
 			vkQueueWaitIdle(transferQueue);
 		}
 
-		void CopyImageToBuffer(VulkanDevice* device, VkImage srcImage, VkExtent3D imageExtent, VkOffset3D imageOffset, uint32_t layerCount, uint32_t baseLayer, uint32_t level,
-			                   VkBuffer dstBuffer, VkDeviceSize bufferOffset)
+		void CopyImageToBuffer(
+			VulkanDevice* device,
+			VkImage srcImage,
+			VkExtent3D imageExtent,
+			VkOffset3D imageOffset,
+			uint32_t layerCount,
+			uint32_t baseLayer,
+			uint32_t level,
+			VkBuffer dstBuffer,
+			VkDeviceSize bufferOffset)
 		{
 			VkCommandBuffer commandBuffer = device->GetCopyCommandBuffer();
 			vkResetCommandBuffer(commandBuffer, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
@@ -280,7 +334,14 @@ namespace Quark {
 			vkQueueWaitIdle(transferQueue);
 		}
 
-		void GenerateMipmaps(VulkanDevice* device, VkImage image, uint32_t width, uint32_t height, uint32_t levelCount)
+		void GenerateMipmaps(
+			VulkanDevice* device,
+			VkImage image,
+			uint32_t width,
+			uint32_t height,
+			uint32_t layerCount,
+			uint32_t baseLayer,
+			uint32_t levelCount)
 		{
 			VkCommandBuffer commandBuffer = device->GetCopyCommandBuffer();
 			vkResetCommandBuffer(commandBuffer, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
@@ -290,74 +351,80 @@ namespace Quark {
 			beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 			vkBeginCommandBuffer(commandBuffer, &beginInfo);
 
-			VkImageMemoryBarrier barrier{};
-			barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-			barrier.image                           = image;
-			barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-			barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-			barrier.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
-			barrier.subresourceRange.baseArrayLayer = 0;
-			barrier.subresourceRange.layerCount     = 1;
-			barrier.subresourceRange.levelCount     = 1;
-
-			int32_t mipWidth = width;
-			int32_t mipHeight = height;
-
-			for (uint32_t i = 1; i < levelCount; i++)
+			for (uint32_t layer = baseLayer; layer < layerCount + baseLayer; layer++)
 			{
-				barrier.subresourceRange.baseMipLevel = i - 1;
+				VkImageMemoryBarrier barrier{};
+				barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+				barrier.image = image;
+				barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+				barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+				barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+				barrier.subresourceRange.baseArrayLayer = layer;
+				barrier.subresourceRange.layerCount = 1;
+				barrier.subresourceRange.levelCount = 1; // Initial layout has 1 level
+
+				int32_t mipWidth = width;
+				int32_t mipHeight = height;
+
+				for (uint32_t i = 1; i < levelCount; i++)
+				{
+					barrier.subresourceRange.baseMipLevel = i - 1;
+					barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+					barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+					barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+					barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+
+					vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
+						0, nullptr,
+						0, nullptr,
+						1, &barrier);
+
+					VkImageBlit blit{};
+					blit.srcOffsets[0] = { 0, 0, 0 };
+					blit.srcOffsets[1] = { mipWidth, mipHeight, 1 };
+					blit.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+					blit.srcSubresource.mipLevel = i - 1;
+					blit.srcSubresource.baseArrayLayer = layer;
+					blit.srcSubresource.layerCount = 1;
+
+					mipWidth > 1 ? mipWidth >>= 1 : 1;
+					mipHeight > 1 ? mipHeight >>= 1 : 1;
+
+					blit.dstOffsets[0] = { 0, 0, 0 };
+					blit.dstOffsets[1] = { mipWidth, mipHeight, 1 };
+					blit.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+					blit.dstSubresource.mipLevel = i;
+					blit.dstSubresource.baseArrayLayer = layer;
+					blit.dstSubresource.layerCount = 1;
+
+					vkCmdBlitImage(commandBuffer,
+						image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+						image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+						1, &blit,
+						VK_FILTER_LINEAR);
+
+					barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+					barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+					barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+					barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+					vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
+						0, nullptr,
+						0, nullptr,
+						1, &barrier);
+				}
+
+				barrier.subresourceRange.baseMipLevel = levelCount - 1;
 				barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-				barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-				barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-				barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-
-				vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
-					0, nullptr, 0, nullptr, 1, &barrier);
-
-				VkImageBlit blit{};
-				blit.srcOffsets[0]                 = { 0, 0, 0 };
-				blit.srcOffsets[1]                 = { mipWidth, mipHeight, 1 };
-				blit.srcSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
-				blit.srcSubresource.mipLevel       = i - 1;
-				blit.srcSubresource.baseArrayLayer = 0;
-				blit.srcSubresource.layerCount     = 1;
-				blit.dstOffsets[0]                 = { 0, 0, 0 };
-				blit.dstOffsets[1]                 = { mipWidth > 1 ? mipWidth / 2 : 1, mipHeight > 1 ? mipHeight / 2 : 1, 1 };
-				blit.dstSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
-				blit.dstSubresource.mipLevel       = i;
-				blit.dstSubresource.baseArrayLayer = 0;
-				blit.dstSubresource.layerCount     = 1;
-
-				vkCmdBlitImage(commandBuffer,
-					image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-					image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-					1, &blit,
-					VK_FILTER_LINEAR);
-
-				barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
 				barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-				barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+				barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
 				barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
 				vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
 					0, nullptr,
 					0, nullptr,
 					1, &barrier);
-
-				if (mipWidth > 1) mipWidth >>= 1;
-				if (mipHeight > 1) mipHeight >>= 2;
 			}
-
-			barrier.subresourceRange.baseMipLevel = levelCount - 1;
-			barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-			barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-			barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-			barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-
-			vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
-				0, nullptr,
-				0, nullptr,
-				1, &barrier);
 
 			vkEndCommandBuffer(commandBuffer);
 
@@ -372,7 +439,15 @@ namespace Quark {
 			vkQueueWaitIdle(transferQueue);
 		}
 
-		void TransitionImageLayout(VulkanDevice* device, VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t levelCount)
+		void TransitionImageLayout(
+			VulkanDevice* device,
+			VkImage image,
+			VkFormat format,
+			VkImageLayout oldLayout,
+			VkImageLayout newLayout,
+			uint32_t layerCount,
+			uint32_t baseLayer,
+			uint32_t levelCount)
 		{
 			VkCommandBuffer commandBuffer = device->GetCopyCommandBuffer();
 			vkResetCommandBuffer(commandBuffer, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
@@ -392,8 +467,8 @@ namespace Quark {
 			barrier.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
 			barrier.subresourceRange.baseMipLevel   = 0;
 			barrier.subresourceRange.levelCount     = levelCount;
-			barrier.subresourceRange.baseArrayLayer = 0;
-			barrier.subresourceRange.layerCount     = 1;
+			barrier.subresourceRange.baseArrayLayer = baseLayer;
+			barrier.subresourceRange.layerCount     = layerCount;
 
 			VkPipelineStageFlags sourceStage;
 			VkPipelineStageFlags destinationStage;

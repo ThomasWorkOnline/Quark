@@ -27,6 +27,8 @@ namespace Quark {
 		glSamplerParameteri(m_RendererID, GL_TEXTURE_WRAP_S, tilingMode);
 		glSamplerParameteri(m_RendererID, GL_TEXTURE_WRAP_T, tilingMode);
 		glSamplerParameterf(m_RendererID, GL_TEXTURE_MAX_ANISOTROPY, maxAnisotropy);
+		glSamplerParameterf(m_RendererID, GL_TEXTURE_MIN_LOD, 0.0f);
+		glSamplerParameterf(m_RendererID, GL_TEXTURE_MAX_LOD, 32.0f);
 
 		QK_CORE_ASSERT(glIsSampler(m_RendererID), "Sampler is incomplete!");
 	}

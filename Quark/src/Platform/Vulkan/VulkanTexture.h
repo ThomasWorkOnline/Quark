@@ -41,7 +41,7 @@ namespace Quark {
 		virtual ~VulkanTexture2DArray() final override;
 
 		virtual void SetData(const void* data, size_t size, uint32_t layer) final override;
-		virtual void GenerateMipmaps() final override {}
+		virtual void GenerateMipmaps() final override;
 
 		virtual const void* GetHandle() const final override { return m_ImageView; }
 

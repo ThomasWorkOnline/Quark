@@ -25,7 +25,7 @@ namespace Quark {
 		samplerInfo.anisotropyEnable = VK_TRUE;
 		samplerInfo.maxAnisotropy    = m_Device->GetPhysicalDeviceProperties().limits.maxSamplerAnisotropy;
 		samplerInfo.minLod           = 0.0f;
-		samplerInfo.maxLod           = 0.0f;
+		samplerInfo.maxLod           = 32.0f;
 		samplerInfo.borderColor      = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
 		samplerInfo.unnormalizedCoordinates = VK_FALSE;
 

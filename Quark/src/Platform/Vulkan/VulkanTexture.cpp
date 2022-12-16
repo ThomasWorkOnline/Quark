@@ -97,8 +97,17 @@ namespace Quark {
 
 		if (m_Spec.Levels > 1)
 		{
-			Utils::TransitionImageLayout(m_Device, m_Image, format, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, m_Spec.Levels);
-			Utils::GenerateMipmaps(m_Device, m_Image, m_Spec.Width, m_Spec.Height, m_Spec.Levels);
+			VkFormatProperties formatProperties;
+			vkGetPhysicalDeviceFormatProperties(m_Device->GetPhysicalDevice(), format, &formatProperties);
+
+			if (!(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT))
+			{
+				QK_CORE_WARN("Image required mipmaps but Vulkan format [{0}] is not supported!", format);
+				return;
+			}
+
+			Utils::TransitionImageLayout(m_Device, m_Image, format, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, 0, m_Spec.Levels);
+			Utils::GenerateMipmaps(m_Device, m_Image, m_Spec.Width, m_Spec.Height, 1, 0, m_Spec.Levels);
 		}
 	}
 
@@ -163,8 +172,8 @@ namespace Quark {
 
 		VkFormat format = DataFormatToVulkan(m_Spec.DataFormat);
 
-		Utils::TransitionImageLayout(m_Device, m_Image, format, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, m_Spec.Levels);
-		Utils::GenerateMipmaps(m_Device, m_Image, m_Spec.Width, m_Spec.Height, m_Spec.Levels);
+		Utils::TransitionImageLayout(m_Device, m_Image, format, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, 0, m_Spec.Levels);
+		Utils::GenerateMipmaps(m_Device, m_Image, m_Spec.Width, m_Spec.Height, 1, 0, m_Spec.Levels);
 	}
 
 	bool VulkanTexture2D::operator==(const Texture& other) const
@@ -199,7 +208,7 @@ namespace Quark {
 
 		VkFormat format = DataFormatToVulkan(m_Spec.DataFormat);
 		Utils::AllocateImage(m_Device, imageExtent, m_Spec.Layers, m_Spec.Levels, SampleCountToVulkan(m_Spec.Samples), format,
-			VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+			VK_IMAGE_USAGE_TRANSFER_DST_BIT | (m_Spec.Levels > 1 ? VK_IMAGE_USAGE_TRANSFER_SRC_BIT : 0) | VK_IMAGE_USAGE_SAMPLED_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &m_Image, &m_BufferMemory);
 
 		// Image view allocation
@@ -222,6 +231,15 @@ namespace Quark {
 
 			vkCreateImageView(m_Device->GetVkHandle(), &info, nullptr, &m_ImageView);
 		}
+	}
+
+	VulkanTexture2DArray::~VulkanTexture2DArray()
+	{
+		QK_PROFILE_FUNCTION();
+
+		vkDestroyImageView(m_Device->GetVkHandle(), m_ImageView, nullptr);
+		vkDestroyImage(m_Device->GetVkHandle(), m_Image, nullptr);
+		vkFreeMemory(m_Device->GetVkHandle(), m_BufferMemory, nullptr);
 	}
 
 	void VulkanTexture2DArray::SetData(const void* data, size_t size, uint32_t layer)
@@ -268,13 +286,25 @@ namespace Quark {
 		vkFreeMemory(m_Device->GetVkHandle(), stagingBufferMemory, nullptr);
 	}
 
-	VulkanTexture2DArray::~VulkanTexture2DArray()
+	void VulkanTexture2DArray::GenerateMipmaps()
 	{
 		QK_PROFILE_FUNCTION();
 
-		vkDestroyImageView(m_Device->GetVkHandle(), m_ImageView, nullptr);
-		vkDestroyImage(m_Device->GetVkHandle(), m_Image, nullptr);
-		vkFreeMemory(m_Device->GetVkHandle(), m_BufferMemory, nullptr);
+		QK_CORE_ASSERT(m_Spec.Levels > 1, "Invalid texture specification for mipmaps");
+
+		VkFormat format = DataFormatToVulkan(m_Spec.DataFormat);
+
+		VkFormatProperties formatProperties;
+		vkGetPhysicalDeviceFormatProperties(m_Device->GetPhysicalDevice(), format, &formatProperties);
+
+		if (!(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT))
+		{
+			QK_CORE_WARN("Image required mipmaps but Vulkan format [{0}] is not supported!", format);
+			return;
+		}
+
+		Utils::TransitionImageLayout(m_Device, m_Image, format, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, m_Spec.Layers, 0, m_Spec.Levels);
+		Utils::GenerateMipmaps(m_Device, m_Image, m_Spec.Width, m_Spec.Height, m_Spec.Layers, 0, m_Spec.Levels);
 	}
 
 	bool VulkanTexture2DArray::operator==(const Texture& other) const
