@@ -24,7 +24,6 @@ namespace Quark {
 		virtual uint32_t          QuerySwapChainImageCount() const final override;
 		virtual SwapSurfaceFormat ChooseSurfaceFormat(SwapSurfaceFormat preferred) const final override;
 		virtual SwapPresentMode   ChooseSwapPresentMode(SwapPresentMode preferred) const final override;
-		virtual ViewportExtent    ChooseSwapExtent(uint32_t width, uint32_t height) const final override;
 
 		VkInstance                GetInstance() const { return m_Instance; }
 

@@ -22,10 +22,10 @@ namespace Quark {
 
 		virtual SwapChain*        GetSwapChain() final override { return std::addressof(m_SwapChain); }
 		virtual uint32_t          QuerySwapChainImageCount() const final override { return 1; }
+		virtual ViewportExtent    QuerySwapExtent() const final override;
 		
 		virtual SwapPresentMode   ChooseSwapPresentMode(SwapPresentMode preferred) const final override { return SwapPresentMode::FIFO; }
 		virtual SwapSurfaceFormat ChooseSurfaceFormat(SwapSurfaceFormat preferred) const final override;
-		virtual ViewportExtent    ChooseSwapExtent(uint32_t width, uint32_t height) const final override;
 
 	private:
 		GLFWwindow* m_WindowHandle;

@@ -229,22 +229,6 @@ namespace Quark {
 		return (SwapPresentMode)VK_PRESENT_MODE_FIFO_KHR;
 	}
 
-	ViewportExtent VulkanContext::ChooseSwapExtent(uint32_t width, uint32_t height) const
-	{
-		auto& capabilities = m_Device->GetSupportDetails().Capabilities;
-		if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
-		{
-			return { capabilities.currentExtent.width, capabilities.currentExtent.height };
-		}
-		else
-		{
-			ViewportExtent extent = { width, height };
-			extent.Width = std::clamp(extent.Width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
-			extent.Height = std::clamp(extent.Height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
-			return extent;
-		}
-	}
-
 	void VulkanContext::CreateInstance(const char* appName, std::span<const char*> extensions)
 	{
 		QK_PROFILE_FUNCTION();

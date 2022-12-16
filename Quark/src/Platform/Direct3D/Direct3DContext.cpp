@@ -145,6 +145,17 @@ namespace Quark {
 		return 3;
 	}
 
+	ViewportExtent Direct3D12Context::QuerySwapExtent() const
+	{
+		RECT extent{};
+		GetClientRect(m_WindowHandle, &extent);
+
+		uint32_t w = extent.right - extent.left;
+		uint32_t h = extent.bottom - extent.top;
+
+		return { w, h };
+	}
+
 	SwapSurfaceFormat Direct3D12Context::ChooseSurfaceFormat(SwapSurfaceFormat preferred) const
 	{
 		SwapSurfaceFormat format;
@@ -157,17 +168,6 @@ namespace Quark {
 	SwapPresentMode Direct3D12Context::ChooseSwapPresentMode(SwapPresentMode preferred) const
 	{
 		return SwapPresentMode::FIFO;
-	}
-
-	ViewportExtent Direct3D12Context::ChooseSwapExtent(uint32_t width, uint32_t height) const
-	{
-		RECT extent{};
-		GetClientRect(m_WindowHandle, &extent);
-
-		uint32_t w = extent.right - extent.left;
-		uint32_t h = extent.bottom - extent.top;
-
-		return { w, h };
 	}
 
 	static void GetHardwareAdapter(IDXGIFactory4* pFactory, IDXGIAdapter1** ppAdapter)

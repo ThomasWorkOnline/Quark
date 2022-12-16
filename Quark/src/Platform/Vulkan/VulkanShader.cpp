@@ -232,7 +232,7 @@ namespace Quark {
 
 	void VulkanShader::CompileVulkanSources(const std::unordered_map<VkShaderStageFlags, std::string>& shaderSources)
 	{
-		static constexpr bool optimize = false;
+		static constexpr bool optimize = true;
 
 		shaderc::Compiler compiler;
 		shaderc::CompileOptions options;

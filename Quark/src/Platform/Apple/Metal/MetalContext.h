@@ -25,10 +25,10 @@ namespace Quark {
 
 		virtual SwapChain*        GetSwapChain() final override { return nullptr; }
 		virtual uint32_t          QuerySwapChainImageCount() const final override { return 0; }
+		virtual ViewportExtent    QuerySwapExtent() const final override { return {}; }
 
 		virtual SwapSurfaceFormat ChooseSurfaceFormat(SwapSurfaceFormat preferred) const final override { return {}; }
 		virtual SwapPresentMode   ChooseSwapPresentMode(SwapPresentMode preferred) const final override { return {}; }
-		virtual ViewportExtent    ChooseSwapExtent(uint32_t width, uint32_t height) const final override { return {}; }
 
 	private:
 		GLFWwindow* m_WindowHandle;

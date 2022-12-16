@@ -54,16 +54,10 @@ namespace Quark {
 			targetSurfaceFormat.Format     = ColorFormat::BGRA8SRGB;
 			targetSurfaceFormat.ColorSpace = ColorSpace::SRGBNonLinear;
 
-			RECT extent;
-			GetClientRect(m_WindowHandle, &extent);
-
-			uint32_t viewportWidth = extent.right - extent.left;
-			uint32_t viewportHeight = extent.bottom - extent.top;
-
-			ViewportExtent    swapExtent    = m_Data.Context->ChooseSwapExtent(viewportWidth, viewportHeight);
+			uint32_t          bufferCount   = m_Data.Context->QuerySwapChainImageCount();
+			ViewportExtent    swapExtent    = m_Data.Context->QuerySwapExtent();
 			SwapPresentMode   presentMode   = m_Data.Context->ChooseSwapPresentMode(SwapPresentMode::Mailbox);
 			SwapSurfaceFormat surfaceFormat = m_Data.Context->ChooseSurfaceFormat(targetSurfaceFormat);
-			uint32_t          bufferCount   = m_Data.Context->QuerySwapChainImageCount();
 
 			SwapChainSpecification swapChainSpec;
 			swapChainSpec.MinImageCount     = bufferCount;

@@ -117,6 +117,13 @@ namespace Quark {
 		m_SwapChain.Resize(viewportWidth, viewportHeight);
 	}
 
+	ViewportExtent OpenGLGenericContext::QuerySwapExtent() const
+	{
+		int viewportWidth, viewportHeight;
+		glfwGetFramebufferSize(m_WindowHandle, &viewportWidth, &viewportHeight);
+		return { (uint32_t)viewportWidth, (uint32_t)viewportHeight };
+	}
+
 	SwapSurfaceFormat OpenGLGenericContext::ChooseSurfaceFormat(SwapSurfaceFormat preferred) const
 	{
 		SwapSurfaceFormat format{};
@@ -124,12 +131,5 @@ namespace Quark {
 		format.Format = ColorFormat::BGRA8SRGB;
 
 		return format;
-	}
-
-	ViewportExtent OpenGLGenericContext::ChooseSwapExtent(uint32_t width, uint32_t height) const
-	{
-		int viewportWidth, viewportHeight;
-		glfwGetFramebufferSize(m_WindowHandle, &viewportWidth, &viewportHeight);
-		return { (uint32_t)viewportWidth, (uint32_t)viewportHeight };
 	}
 }

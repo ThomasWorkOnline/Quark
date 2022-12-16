@@ -22,7 +22,8 @@ namespace Quark {
 
 		virtual void Resize(uint32_t viewportWidth, uint32_t viewportHeight) final override;
 
-		virtual SwapChain* GetSwapChain() final override;
+		virtual SwapChain*     GetSwapChain() final override;
+		virtual ViewportExtent QuerySwapExtent() const final override;
 
 	private:
 		struct FrameData

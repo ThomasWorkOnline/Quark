@@ -102,13 +102,10 @@ namespace Quark {
 			targetSurfaceFormat.Format     = ColorFormat::BGRA8SRGB;
 			targetSurfaceFormat.ColorSpace = ColorSpace::SRGBNonLinear;
 
-			int framebufferWidth, framebufferHeight;
-			glfwGetFramebufferSize(m_Window, &framebufferWidth, &framebufferHeight);
-
-			ViewportExtent    swapExtent    = m_Data.Context->ChooseSwapExtent(framebufferWidth, framebufferHeight);
+			uint32_t          bufferCount   = m_Data.Context->QuerySwapChainImageCount();
+			ViewportExtent    swapExtent    = m_Data.Context->QuerySwapExtent();
 			SwapPresentMode   presentMode   = m_Data.Context->ChooseSwapPresentMode(SwapPresentMode::Mailbox);
 			SwapSurfaceFormat surfaceFormat = m_Data.Context->ChooseSurfaceFormat(targetSurfaceFormat);
-			uint32_t          bufferCount   = m_Data.Context->QuerySwapChainImageCount();
 
 			SwapChainSpecification swapChainSpec;
 			swapChainSpec.MinImageCount     = bufferCount;

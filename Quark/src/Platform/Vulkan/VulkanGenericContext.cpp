@@ -142,4 +142,23 @@ namespace Quark {
 	{
 		return static_cast<SwapChain*>(m_SwapChain.get());
 	}
+
+	ViewportExtent VulkanGenericContext::QuerySwapExtent() const
+	{
+		auto& capabilities = m_Device->GetSupportDetails().Capabilities;
+		if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
+		{
+			return { capabilities.currentExtent.width, capabilities.currentExtent.height };
+		}
+		else
+		{
+			int framebufferWidth, framebufferHeight;
+			glfwGetFramebufferSize(m_WindowHandle, &framebufferWidth, &framebufferHeight);
+
+			ViewportExtent extent = { (uint32_t)framebufferWidth, (uint32_t)framebufferHeight };
+			extent.Width = std::clamp(extent.Width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
+			extent.Height = std::clamp(extent.Height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
+			return extent;
+		}
+	}
 }

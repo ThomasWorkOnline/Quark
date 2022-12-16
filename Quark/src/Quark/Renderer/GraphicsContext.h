@@ -26,10 +26,10 @@ namespace Quark {
 
 		virtual SwapChain*        GetSwapChain() = 0;
 		virtual uint32_t          QuerySwapChainImageCount() const = 0;
+		virtual ViewportExtent    QuerySwapExtent() const = 0;
 
 		virtual SwapSurfaceFormat ChooseSurfaceFormat(SwapSurfaceFormat preferred) const = 0;
 		virtual SwapPresentMode   ChooseSwapPresentMode(SwapPresentMode preferred) const = 0;
-		virtual ViewportExtent    ChooseSwapExtent(uint32_t width, uint32_t height) const = 0;
 
 		static Scope<GraphicsContext> Create(void* windowHandle, bool native = false);
 	};

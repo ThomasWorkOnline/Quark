@@ -183,16 +183,7 @@ namespace Quark {
 		m_SwapChain.Resize(viewportWidth, viewportHeight);
 	}
 
-	SwapSurfaceFormat OpenGLWin32Context::ChooseSurfaceFormat(SwapSurfaceFormat preferred) const
-	{
-		SwapSurfaceFormat format{};
-		format.ColorSpace = ColorSpace::SRGBNonLinear;
-		format.Format = ColorFormat::BGRA8SRGB;
-
-		return format;
-	}
-
-	ViewportExtent OpenGLWin32Context::ChooseSwapExtent(uint32_t width, uint32_t height) const
+	ViewportExtent OpenGLWin32Context::QuerySwapExtent() const
 	{
 		RECT extent{};
 		GetClientRect(m_WindowHandle, &extent);
@@ -201,5 +192,14 @@ namespace Quark {
 		uint32_t h = extent.bottom - extent.top;
 
 		return { w, h };
+	}
+
+	SwapSurfaceFormat OpenGLWin32Context::ChooseSurfaceFormat(SwapSurfaceFormat preferred) const
+	{
+		SwapSurfaceFormat format{};
+		format.ColorSpace = ColorSpace::SRGBNonLinear;
+		format.Format = ColorFormat::BGRA8SRGB;
+
+		return format;
 	}
 }
