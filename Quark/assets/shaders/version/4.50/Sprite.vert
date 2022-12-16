@@ -5,7 +5,7 @@ layout(location = 1) in vec2 a_TexCoord;
 layout(location = 2) in vec4 a_Tint;
 layout(location = 3) in int  a_TexIndex;
 
-layout(std140, set = 0, binding = 0) uniform Camera {
+layout(push_constant) uniform Camera {
 	mat4 ViewProjection;
 } u_Camera;
 

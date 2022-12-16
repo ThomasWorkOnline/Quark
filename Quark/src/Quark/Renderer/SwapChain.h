@@ -55,6 +55,7 @@ namespace Quark {
 		SwapSurfaceFormat SurfaceFormat{};
 		SwapPresentMode   PresentMode{};
 		SampleCount       Samples{};
+		ColorFormat       DepthBufferFormat{};
 	};
 
 	class SwapChain
@@ -70,6 +71,8 @@ namespace Quark {
 		virtual uint32_t GetCurrentImageIndex() const = 0;
 
 		virtual Ref<FramebufferAttachment> GetColorAttachment(uint32_t index) const = 0;
+		virtual Ref<FramebufferAttachment> GetDepthAttachment(uint32_t index) const = 0;
+		virtual Ref<FramebufferAttachment> GetResolveAttachment(uint32_t index) const = 0;
 
 		uint32_t GetWidth() const { return m_Spec.Width; }
 		uint32_t GetHeight() const { return m_Spec.Height; }

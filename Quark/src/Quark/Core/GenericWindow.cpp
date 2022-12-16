@@ -111,12 +111,13 @@ namespace Quark {
 			uint32_t          bufferCount   = m_Data.Context->QuerySwapChainImageCount();
 
 			SwapChainSpecification swapChainSpec;
-			swapChainSpec.MinImageCount = bufferCount;
-			swapChainSpec.Width         = swapExtent.Width;
-			swapChainSpec.Height        = swapExtent.Height;
-			swapChainSpec.SurfaceFormat = surfaceFormat;
-			swapChainSpec.PresentMode   = presentMode;
-			swapChainSpec.Samples       = spec.Samples;
+			swapChainSpec.MinImageCount     = bufferCount;
+			swapChainSpec.Width             = swapExtent.Width;
+			swapChainSpec.Height            = swapExtent.Height;
+			swapChainSpec.SurfaceFormat     = surfaceFormat;
+			swapChainSpec.PresentMode       = presentMode;
+			swapChainSpec.Samples           = spec.Samples;
+			swapChainSpec.DepthBufferFormat = ColorFormat::Depth32f;
 
 			m_Data.Context->Init(swapChainSpec);
 			m_Data.Context->SetSwapInterval(m_Data.VSync);

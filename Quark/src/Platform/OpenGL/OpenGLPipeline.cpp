@@ -2,6 +2,7 @@
 #include "OpenGLPipeline.h"
 
 #include "OpenGLEnums.h"
+#include "OpenGLShader.h"
 
 #include <glad/glad.h>
 
@@ -9,7 +10,9 @@ namespace Quark {
 
 	OpenGLPipeline::OpenGLPipeline(const PipelineSpecification& spec)
 		: Pipeline(spec)
-		, m_PrimitiveTopology(PrimitiveTopologyToOpenGL(spec.Topology))
+		, m_PrimitiveTopologyState(PrimitiveTopologyToOpenGL(spec.Topology))
+		, m_BlendSrcFactorState(GL_SRC_ALPHA)
+		, m_BlendDstFactorState(GL_ONE_MINUS_SRC_ALPHA)
 	{
 		glGenVertexArrays(1, &m_RendererID);
 		glBindVertexArray(m_RendererID);
@@ -26,6 +29,14 @@ namespace Quark {
 			return m_RendererID == o->m_RendererID;
 
 		return false;
+	}
+
+	void OpenGLPipeline::Bind() const
+	{
+		auto* glShader = static_cast<const OpenGLShader*>(m_Spec.Shader);
+		glUseProgram(glShader->GetRendererID());
+
+		glBlendFunc(m_BlendSrcFactorState, m_BlendDstFactorState);
 	}
 
 	void OpenGLPipeline::BindVertexAttrib() const

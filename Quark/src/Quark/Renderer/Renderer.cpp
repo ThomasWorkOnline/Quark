@@ -224,6 +224,8 @@ namespace Quark {
 		s_Data->ActiveCommandBuffer->Reset();
 		s_Data->ActiveCommandBuffer->Begin();
 		s_Data->ActiveCommandBuffer->SetViewport(s_Data->ViewportExtent.Width, s_Data->ViewportExtent.Height);
+		s_Data->ActiveCommandBuffer->SetDepthFunction(DepthCompareFunction::Default);
+		s_Data->ActiveCommandBuffer->SetCullMode(RenderCullMode::Default);
 
 		BeginRenderPass();
 	}
@@ -257,12 +259,13 @@ namespace Quark {
 
 		{
 			ColorFormat surfaceFormat  = swapChain->GetSpecification().SurfaceFormat.Format;
+			ColorFormat depthFormat    = swapChain->GetSpecification().DepthBufferFormat;
 			SampleCount samples        = swapChain->GetSpecification().Samples;
 
 			RenderPassSpecification spec;
 			spec.BindPoint             = PipelineBindPoint::Graphics;
 			spec.ColorAttachmentFormat = surfaceFormat;
-			spec.DepthAttachmentFormat = ColorFormat::Depth32f;
+			spec.DepthAttachmentFormat = depthFormat;
 			spec.ClearColor            = { 0.01f, 0.01f, 0.01f, 1.0f };
 			spec.ClearBuffers          = true;
 			spec.Samples               = samples;
@@ -289,31 +292,19 @@ namespace Quark {
 			fbSpec.RenderPass      = s_Data->RenderPass.get();
 			fbSpec.SwapChainTarget = true;
 
-			if (s_Data->RenderPass->GetSpecification().Samples > SampleCount::SampleCount1)
+			if (swapChain->GetSpecification().Samples > SampleCount::SampleCount1)
 			{
-				FramebufferAttachmentSpecification resolveAttachmentSpec;
-				resolveAttachmentSpec.Width = s_Data->ViewportExtent.Width;
-				resolveAttachmentSpec.Height = s_Data->ViewportExtent.Height;
-				resolveAttachmentSpec.Samples = s_Data->RenderPass->GetSpecification().Samples;
-				resolveAttachmentSpec.DataFormat = s_Data->RenderPass->GetSpecification().ColorAttachmentFormat;
-
 				auto&& resolveAttachment = fbSpec.Attachments.emplace_back();
-				resolveAttachment = FramebufferAttachment::Create(resolveAttachmentSpec);
+				resolveAttachment = swapChain->GetResolveAttachment(i);
 			}
 
 			auto&& colorAttachment = fbSpec.Attachments.emplace_back();
 			colorAttachment = swapChain->GetColorAttachment(i);
 
-			if (s_Data->RenderPass->GetSpecification().DepthAttachmentFormat != ColorFormat::None)
+			if (swapChain->GetSpecification().DepthBufferFormat != ColorFormat::None)
 			{
-				FramebufferAttachmentSpecification depthAttachmentSpec;
-				depthAttachmentSpec.Width = s_Data->ViewportExtent.Width;
-				depthAttachmentSpec.Height = s_Data->ViewportExtent.Height;
-				depthAttachmentSpec.Samples = s_Data->RenderPass->GetSpecification().Samples;
-				depthAttachmentSpec.DataFormat = s_Data->RenderPass->GetSpecification().DepthAttachmentFormat;
-
 				auto&& depthAttachment = fbSpec.Attachments.emplace_back();
-				depthAttachment = FramebufferAttachment::Create(depthAttachmentSpec);
+				depthAttachment = swapChain->GetDepthAttachment(i);
 			}
 
 			s_Data->Framebuffers[i] = Framebuffer::Create(fbSpec);

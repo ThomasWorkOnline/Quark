@@ -19,12 +19,17 @@ namespace Quark {
 		OpenGLPipeline(const OpenGLPipeline&) = delete;
 		OpenGLPipeline& operator=(const OpenGLPipeline&) = delete;
 
-		GLenum GetPrimitiveTopology() const { return m_PrimitiveTopology; }
+		GLenum GetPrimitiveTopologyState() const { return m_PrimitiveTopologyState; }
 
+		void Bind() const;
 		void BindVertexAttrib() const;
 
 	private:
 		GLuint m_RendererID = 0;
-		GLenum m_PrimitiveTopology = 0;
+
+		// Static states
+		GLenum m_PrimitiveTopologyState = 0;
+		GLenum m_BlendSrcFactorState = 0;
+		GLenum m_BlendDstFactorState = 0;
 	};
 }

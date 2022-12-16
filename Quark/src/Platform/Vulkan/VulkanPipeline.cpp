@@ -255,9 +255,11 @@ namespace Quark {
 
 		// Dynamic states
 		VkDynamicState dynamicStates[] = {
+			VK_DYNAMIC_STATE_CULL_MODE,
+			VK_DYNAMIC_STATE_DEPTH_COMPARE_OP,
 			VK_DYNAMIC_STATE_LINE_WIDTH,
 			VK_DYNAMIC_STATE_SCISSOR,
-			VK_DYNAMIC_STATE_VIEWPORT
+			VK_DYNAMIC_STATE_VIEWPORT,
 		};
 
 		VkPipelineDynamicStateCreateInfo dynamicState{};

@@ -598,8 +598,16 @@ namespace Quark {
 			for (uint32_t i = 0; i < s_Data->MaxSamplerDestinations; i++)
 				Renderer::BindTexture(s_Data->Textures[i], s_Data->Samplers[i], 1, i);
 
-			Renderer::BindUniformBuffer(s_Data->CameraUniformBuffer.get(), 0);
 			Renderer::BindDescriptorSets();
+
+			if (GraphicsAPI::GetAPI() == RHI::OpenGL)
+			{
+				Renderer::BindUniformBuffer(s_Data->CameraUniformBuffer.get(), 0);
+			}
+			else
+			{
+				Renderer::GetCommandBuffer()->PushConstant(ShaderStage::Vertex, &s_Data->CameraBufferData, sizeof(s_Data->CameraBufferData));
+			}
 
 			Renderer::DrawIndexed(s_Data->QuadVertexBuffer.get(), s_Data->QuadIndexBuffer.get(), s_Data->QuadIndexCount);
 			s_Stats.DrawCalls++;
@@ -613,8 +621,16 @@ namespace Quark {
 			s_Data->LineVertexBuffer->SetData(s_Data->LineVertices, size);
 
 			Renderer::SetLineWidth(1.0f);
-			Renderer::BindUniformBuffer(s_Data->CameraUniformBuffer.get(), 0);
 			Renderer::BindDescriptorSets();
+
+			if (GraphicsAPI::GetAPI() == RHI::OpenGL)
+			{
+				Renderer::BindUniformBuffer(s_Data->CameraUniformBuffer.get(), 0);
+			}
+			else
+			{
+				Renderer::GetCommandBuffer()->PushConstant(ShaderStage::Vertex, &s_Data->CameraBufferData, sizeof(s_Data->CameraBufferData));
+			}
 
 			Renderer::Draw(s_Data->LineVertexBuffer.get(), vertexCount);
 			s_Stats.DrawCalls++;

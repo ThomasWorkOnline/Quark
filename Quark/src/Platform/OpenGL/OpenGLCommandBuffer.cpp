@@ -7,7 +7,6 @@
 #include "OpenGLFramebuffer.h"
 #include "OpenGLPipeline.h"
 #include "OpenGLSampler.h"
-#include "OpenGLShader.h"
 #include "OpenGLTexture.h"
 #include "OpenGLUniformBuffer.h"
 
@@ -21,10 +20,6 @@ namespace Quark {
 
 	void OpenGLCommandBuffer::SetCullMode(RenderCullMode mode)
 	{
-		mode == RenderCullMode::None
-			? glDisable(GL_CULL_FACE)
-			: glEnable(GL_CULL_FACE);
-
 		glCullFace(CullModeToOpenGL(mode));
 	}
 
@@ -36,9 +31,7 @@ namespace Quark {
 	void OpenGLCommandBuffer::BindPipeline(const Pipeline* pipeline)
 	{
 		m_BoundPipeline = static_cast<const OpenGLPipeline*>(pipeline);
-
-		auto* glShader = static_cast<const OpenGLShader*>(m_BoundPipeline->GetSpecification().Shader);
-		glUseProgram(glShader->GetRendererID());
+		m_BoundPipeline->Bind();
 	}
 
 	void OpenGLCommandBuffer::BindDescriptorSets(uint32_t frameIndex)
@@ -62,16 +55,23 @@ namespace Quark {
 
 	void OpenGLCommandBuffer::BeginRenderPass(const RenderPass* renderPass, const Framebuffer* framebuffer)
 	{
-		framebuffer ? static_cast<const OpenGLFramebuffer*>(framebuffer)->Bind() : OpenGLFramebuffer::Bind(0);
+		static_cast<const OpenGLFramebuffer*>(framebuffer)->Bind();
 
 		m_CurrentRenderPass = renderPass;
 		if (m_CurrentRenderPass->GetSpecification().ClearBuffers)
 		{
 			auto& color = m_CurrentRenderPass->GetSpecification().ClearColor;
-			glClearColor(color.r, color.g, color.b, color.a);
-			glClearDepthf(renderPass->GetSpecification().ClearDepth);
 
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glClearColor(color.r, color.g, color.b, color.a);
+			GLenum bufferBits = GL_COLOR_BUFFER_BIT;
+
+			if (renderPass->GetSpecification().DepthAttachmentFormat != ColorFormat::None)
+			{
+				glClearDepthf(renderPass->GetSpecification().ClearDepth);
+				bufferBits |= GL_DEPTH_BUFFER_BIT;
+			}
+
+			glClear(bufferBits);
 		}
 	}
 
@@ -83,25 +83,25 @@ namespace Quark {
 	void OpenGLCommandBuffer::Draw(uint32_t vertexCount, uint32_t vertexOffset)
 	{
 		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
-		glDrawArrays(m_BoundPipeline->GetPrimitiveTopology(), vertexOffset, vertexCount);
+		glDrawArrays(m_BoundPipeline->GetPrimitiveTopologyState(), vertexOffset, vertexCount);
 	}
 
 	void OpenGLCommandBuffer::DrawIndexed(uint32_t indexCount)
 	{
 		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
-		glDrawElements(m_BoundPipeline->GetPrimitiveTopology(), indexCount, GL_UNSIGNED_INT, NULL);
+		glDrawElements(m_BoundPipeline->GetPrimitiveTopologyState(), indexCount, GL_UNSIGNED_INT, NULL);
 	}
 
 	void OpenGLCommandBuffer::DrawInstanced(uint32_t vertexCount, uint32_t vertexOffset, uint32_t instanceCount)
 	{
 		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
-		glDrawArraysInstanced(m_BoundPipeline->GetPrimitiveTopology(), vertexOffset, vertexCount, instanceCount);
+		glDrawArraysInstanced(m_BoundPipeline->GetPrimitiveTopologyState(), vertexOffset, vertexCount, instanceCount);
 	}
 
 	void OpenGLCommandBuffer::DrawIndexedInstanced(uint32_t indexCount, uint32_t instanceCount)
 	{
 		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
-		glDrawElementsInstanced(m_BoundPipeline->GetPrimitiveTopology(), indexCount, GL_UNSIGNED_INT, NULL, instanceCount);
+		glDrawElementsInstanced(m_BoundPipeline->GetPrimitiveTopologyState(), indexCount, GL_UNSIGNED_INT, NULL, instanceCount);
 	}
 
 	void OpenGLCommandBuffer::BindVertexBuffer(const VertexBuffer* vertexBuffer)

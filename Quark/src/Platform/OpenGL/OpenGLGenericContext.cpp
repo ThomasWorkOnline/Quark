@@ -75,28 +75,23 @@ namespace Quark {
 		// Gamma correction
 		glEnable(GL_FRAMEBUFFER_SRGB);
 
-		// Gamma correction
-		glEnable(GL_FRAMEBUFFER_SRGB);
-
 		// Alpha and Blending
 		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		// Face Culling
 		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
-		glFrontFace(GL_CCW);
-		//           ^^^-- we use a counter-clockwise winding order
-
-		glDepthRangef(0.0f, 1.0f);
 
 		// Depth Testing
 		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LESS);
+
+		glDepthRangef(0.0f, 1.0f);
+
+		glFrontFace(GL_CCW);
+		//           ^^^-- we use a counter-clockwise winding order
 
 		// Filtering
 		glEnable(GL_MULTISAMPLE);
-		glEnable(GL_LINE_SMOOTH); // <-- NOTE: this massively slows down line rendering
+		glEnable(GL_LINE_SMOOTH);
 
 		// Viewport in the same range as Vulkan and DirectX
 		//glClipControl(GL_UPPER_LEFT, GL_ZERO_TO_ONE);

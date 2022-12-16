@@ -132,7 +132,7 @@ namespace Quark {
 		/*Depth32f*/             GL_DEPTH_COMPONENT32F
 	};
 
-	inline constexpr GLenum s_DepthFunctionLUT[] = {
+	inline constexpr GLenum s_OpenGLDepthFunctionLUT[] = {
 		/*Never*/                GL_NEVER,
 		/*Always*/               GL_ALWAYS,
 		/*NotEqual*/             GL_NOTEQUAL,
@@ -206,7 +206,7 @@ namespace Quark {
 
 	constexpr GLenum DepthCompareFunctionToOpenGL(DepthCompareFunction func)
 	{
-		return s_DepthFunctionLUT[static_cast<size_t>(func)];
+		return s_OpenGLDepthFunctionLUT[static_cast<size_t>(func)];
 	}
 
 	constexpr GLenum PrimitiveTopologyToOpenGL(PrimitiveTopology topology)

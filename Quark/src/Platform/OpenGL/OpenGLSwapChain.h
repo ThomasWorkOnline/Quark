@@ -16,5 +16,7 @@ namespace Quark {
 		virtual uint32_t GetCurrentImageIndex() const final override { return 0; }
 
 		virtual Ref<FramebufferAttachment> GetColorAttachment(uint32_t index) const final override { return nullptr; }
+		virtual Ref<FramebufferAttachment> GetDepthAttachment(uint32_t index) const final override { return nullptr; }
+		virtual Ref<FramebufferAttachment> GetResolveAttachment(uint32_t index) const final override { return nullptr; }
 	};
 }
