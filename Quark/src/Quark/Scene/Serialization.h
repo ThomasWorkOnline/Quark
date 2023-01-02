@@ -17,9 +17,7 @@ namespace Quark {
 		template<typename T>
 		inline void SerializeValue(const T& value)
 		{
-			if constexpr (!std::is_trivially_constructible_v<T>)
-				static_assert(sizeof(T) == 0, "No serialize specialization was defined for type T.");
-
+			static_assert(std::is_trivially_constructible_v<T>, "No serialize specialization was defined for type T.");
 			std::fwrite(&value, sizeof(T), 1, m_OutFile);
 		}
 
@@ -38,8 +36,7 @@ namespace Quark {
 		template<typename T>
 		inline auto DeserializeValue() -> T
 		{
-			if constexpr (!std::is_trivially_constructible_v<T>)
-				static_assert(sizeof(T) == 0, "No deserialize specialization was defined for type T.");
+			static_assert(std::is_trivially_constructible_v<T>, "No deserialize specialization was defined for type T.");
 
 			T value;
 			std::fread(&value, sizeof(T), 1, m_InFile);
