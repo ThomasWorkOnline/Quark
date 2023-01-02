@@ -18,7 +18,6 @@ namespace Quark {
 
 	static GLuint s_PushBufferRendererID = 0;
 	static GLenum s_CurrentIndexType = GL_NONE;
-	static const BufferLayout* s_BoundLayout = nullptr;
 	static const OpenGLPipeline* s_BoundPipeline = nullptr;
 
 	OpenGLCommandBuffer::OpenGLCommandBuffer()
@@ -131,11 +130,7 @@ namespace Quark {
 		auto* glVertexBuffer = static_cast<const OpenGLVertexBuffer*>(vertexBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, glVertexBuffer->GetRendererID());
 
-		if (!s_BoundLayout || vertexBuffer->GetLayout() != *s_BoundLayout)
-		{
-			s_BoundPipeline->BindVertexAttrib();
-			s_BoundLayout = std::addressof(s_BoundPipeline->GetLayout());
-		}
+		s_BoundPipeline->BindVertexAttrib();
 	}
 
 	void OpenGLCommandBuffer::BindIndexBuffer(const IndexBuffer* indexBuffer)

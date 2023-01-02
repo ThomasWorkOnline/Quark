@@ -13,7 +13,7 @@ namespace Quark {
 		OpenGLVertexBuffer(const void* vertices, size_t size);
 		virtual ~OpenGLVertexBuffer() final override;
 
-		virtual void SetData(const void* data, size_t size, size_t offset) final override;
+		virtual void SetData(const void* vertices, size_t size, size_t offset) final override;
 
 		virtual bool operator==(const VertexBuffer& other) const final override;
 
@@ -32,10 +32,10 @@ namespace Quark {
 	{
 	public:
 		OpenGLIndexBuffer(uint32_t count, IndexType indexType);
-		OpenGLIndexBuffer(const uint32_t* indices, uint32_t count, IndexType indexType);
+		OpenGLIndexBuffer(const void* indices, uint32_t count, IndexType indexType);
 		virtual ~OpenGLIndexBuffer() final override;
 
-		virtual void SetData(const uint32_t* data, uint32_t count, uint32_t firstIndex = 0) final override;
+		virtual void SetData(const void* indices, uint32_t count, uint32_t firstIndex = 0) final override;
 		virtual bool operator==(const IndexBuffer& other) const final override;
 
 		// Non-Copyable

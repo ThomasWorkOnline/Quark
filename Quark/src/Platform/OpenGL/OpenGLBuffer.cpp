@@ -30,14 +30,14 @@ namespace Quark {
 		glDeleteBuffers(1, &m_RendererID);
 	}
 
-	void OpenGLVertexBuffer::SetData(const void* data, size_t size, size_t offset)
+	void OpenGLVertexBuffer::SetData(const void* vertices, size_t size, size_t offset)
 	{
 		QK_CORE_ASSERT(size + offset <= m_Size,
 			"Written size is too large: Size and Offset parameters must be within the total buffer size");
 
 		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
 		glBufferData(GL_ARRAY_BUFFER, size, NULL, GL_DYNAMIC_DRAW);
-		glBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
+		glBufferSubData(GL_ARRAY_BUFFER, offset, size, vertices);
 
 		QK_DEBUG_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
 	}
@@ -60,7 +60,7 @@ namespace Quark {
 		QK_DEBUG_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 	}
 
-	OpenGLIndexBuffer::OpenGLIndexBuffer(const uint32_t* indices, uint32_t count, IndexType indexType)
+	OpenGLIndexBuffer::OpenGLIndexBuffer(const void* indices, uint32_t count, IndexType indexType)
 		: IndexBuffer(count, indexType)
 	{
 		glGenBuffers(1, &m_RendererID);
@@ -75,7 +75,7 @@ namespace Quark {
 		glDeleteBuffers(1, &m_RendererID);
 	}
 
-	void OpenGLIndexBuffer::SetData(const uint32_t* data, uint32_t count, uint32_t firstIndex)
+	void OpenGLIndexBuffer::SetData(const void* indices, uint32_t count, uint32_t firstIndex)
 	{
 		QK_CORE_ASSERT(count + firstIndex <= m_Count,
 			"Written size is too large: Count and FirstIndex parameters must be within the total buffer size");
@@ -86,7 +86,7 @@ namespace Quark {
 			GL_ELEMENT_ARRAY_BUFFER,
 			firstIndex * IndexDataTypeSize(m_IndexType),
 			count * IndexDataTypeSize(m_IndexType),
-			data);
+			indices);
 
 		QK_DEBUG_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 	}

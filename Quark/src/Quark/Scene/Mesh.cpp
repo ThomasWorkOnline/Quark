@@ -45,7 +45,7 @@ namespace Quark {
 	   -0.5f,  0.5f, -0.5f,   0.0f, 0.0f,   0.0f,  1.0f,  0.0f
 	};
 
-	static constexpr uint32_t CubeIndices[] = {
+	static constexpr uint8_t CubeIndices[] = {
 		// front
 		0, 1, 2,
 		2, 3, 0,
@@ -120,8 +120,7 @@ namespace Quark {
 		mesh.VertexBuffer = VertexBuffer::Create(baseVertices, vertexCount * sizeof(MeshVertex));
 		mesh.VertexBuffer->SetLayout(s_Layout);
 
-		IndexType indexType = GetIndexTypeBasedOnIndexCount(indexCount);
-		mesh.IndexBuffer = IndexBuffer::Create(indices, indexCount, indexType);
+		mesh.IndexBuffer = IndexBuffer::Create(indices, indexCount, IndexType::Uint32);
 
 		delete[] baseVertices;
 		delete[] indices;
@@ -138,9 +137,7 @@ namespace Quark {
 		mesh.VertexBuffer->SetLayout(s_Layout);
 
 		static constexpr uint32_t indexCount = sizeof_array(CubeIndices);
-		static constexpr IndexType indexType = GetIndexTypeBasedOnIndexCount(indexCount);
-
-		mesh.IndexBuffer = IndexBuffer::Create(CubeIndices, indexCount, indexType);
+		mesh.IndexBuffer = IndexBuffer::Create(CubeIndices, indexCount, IndexType::Uint8);
 		return mesh;
 	}
 

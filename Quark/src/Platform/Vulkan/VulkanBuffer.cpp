@@ -47,7 +47,7 @@ namespace Quark {
 		vkFreeMemory(m_Device->GetVkHandle(), m_BufferMemory, nullptr);
 	}
 
-	void VulkanVertexBuffer::SetData(const void* data, size_t size, size_t offset)
+	void VulkanVertexBuffer::SetData(const void* vertices, size_t size, size_t offset)
 	{
 		QK_CORE_ASSERT(size + offset <= m_Size,
 			"Written size is too large : Size and Offset parameters must be within the total buffer size");
@@ -63,7 +63,7 @@ namespace Quark {
 		{
 			void* mappedMemory;
 			vkMapMemory(m_Device->GetVkHandle(), stagingBufferMemory, offset, size, 0, &mappedMemory);
-			std::memcpy(mappedMemory, data, size);
+			std::memcpy(mappedMemory, vertices, size);
 			vkUnmapMemory(m_Device->GetVkHandle(), stagingBufferMemory);
 		}
 
@@ -90,7 +90,7 @@ namespace Quark {
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &m_Buffer, &m_BufferMemory);
 	}
 
-	VulkanIndexBuffer::VulkanIndexBuffer(VulkanDevice* device, const uint32_t* indices, uint32_t count, IndexType indexType)
+	VulkanIndexBuffer::VulkanIndexBuffer(VulkanDevice* device, const void* indices, uint32_t count, IndexType indexType)
 		: IndexBuffer(count, indexType), m_Device(device)
 	{
 		size_t size = count * IndexDataTypeSize(indexType);
@@ -125,7 +125,7 @@ namespace Quark {
 		vkFreeMemory(m_Device->GetVkHandle(), m_BufferMemory, nullptr);
 	}
 
-	void VulkanIndexBuffer::SetData(const uint32_t* data, uint32_t count, uint32_t firstIndex)
+	void VulkanIndexBuffer::SetData(const void* indices, uint32_t count, uint32_t firstIndex)
 	{
 		QK_CORE_ASSERT(count + firstIndex <= m_Count,
 			"Written size is too large : Count and FirstIndex parameters must be within the total buffer size");
@@ -143,7 +143,7 @@ namespace Quark {
 		{
 			void* mappedMemory;
 			vkMapMemory(m_Device->GetVkHandle(), stagingBufferMemory, offset, size, 0, &mappedMemory);
-			std::memcpy(mappedMemory, data, size);
+			std::memcpy(mappedMemory, indices, size);
 			vkUnmapMemory(m_Device->GetVkHandle(), stagingBufferMemory);
 		}
 

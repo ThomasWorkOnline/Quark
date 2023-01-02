@@ -37,7 +37,7 @@ namespace Quark {
 		return nullptr;
 	}
 
-	Scope<IndexBuffer> Direct3DGraphicsAPI::CreateIndexBuffer(const uint32_t* indices, uint32_t count, IndexType indexType)
+	Scope<IndexBuffer> Direct3DGraphicsAPI::CreateIndexBuffer(const void* indices, uint32_t count, IndexType indexType)
 	{
 		return nullptr;
 	}

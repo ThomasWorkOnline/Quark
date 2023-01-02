@@ -133,7 +133,7 @@ namespace Quark {
 	public:
 		virtual ~VertexBuffer() = default;
 
-		virtual void SetData(const void* data, size_t size, size_t offset = 0) = 0;
+		virtual void SetData(const void* vertices, size_t size, size_t offset = 0) = 0;
 		virtual bool operator==(const VertexBuffer& other) const = 0;
 
 		const BufferLayout& GetLayout() const { return m_Layout; }
@@ -152,13 +152,13 @@ namespace Quark {
 		IndexBuffer(uint32_t count, IndexType indexType);
 		virtual ~IndexBuffer() = default;
 
-		virtual void SetData(const uint32_t* data, uint32_t count, uint32_t firstIndex = 0) = 0;
+		virtual void SetData(const void* indices, uint32_t count, uint32_t firstIndex = 0) = 0;
 		virtual bool operator==(const IndexBuffer& other) const = 0;
 
 		uint32_t GetCount() const { return m_Count; }
 		IndexType GetIndexType() const { return m_IndexType; }
 
-		static Scope<IndexBuffer> Create(const uint32_t* indices, uint32_t count, IndexType indexType);
+		static Scope<IndexBuffer> Create(const void* indices, uint32_t count, IndexType indexType);
 		static Scope<IndexBuffer> Create(uint32_t count, IndexType indexType);
 
 	protected:

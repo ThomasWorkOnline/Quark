@@ -95,7 +95,7 @@ namespace Quark {
 		return CreateScope<VulkanVertexBuffer>(VulkanContext::GetCurrentDevice(), size);
 	}
 
-	Scope<IndexBuffer> VulkanGraphicsAPI::CreateIndexBuffer(const uint32_t* indices, uint32_t count, IndexType indexType)
+	Scope<IndexBuffer> VulkanGraphicsAPI::CreateIndexBuffer(const void* indices, uint32_t count, IndexType indexType)
 	{
 		return CreateScope<VulkanIndexBuffer>(VulkanContext::GetCurrentDevice(), indices, count, indexType);
 	}

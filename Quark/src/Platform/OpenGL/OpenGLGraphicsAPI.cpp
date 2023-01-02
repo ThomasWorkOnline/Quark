@@ -106,7 +106,7 @@ namespace Quark {
 		return CreateScope<OpenGLVertexBuffer>(size);
 	}
 
-	Scope<IndexBuffer> OpenGLGraphicsAPI::CreateIndexBuffer(const uint32_t* indices, uint32_t count, IndexType indexType)
+	Scope<IndexBuffer> OpenGLGraphicsAPI::CreateIndexBuffer(const void* indices, uint32_t count, IndexType indexType)
 	{
 		return CreateScope<OpenGLIndexBuffer>(indices, count, indexType);
 	}

@@ -84,7 +84,7 @@ namespace Quark {
 	{
 	}
 
-	Scope<IndexBuffer> IndexBuffer::Create(const uint32_t* indices, uint32_t count, IndexType indexType)
+	Scope<IndexBuffer> IndexBuffer::Create(const void* indices, uint32_t count, IndexType indexType)
 	{
 		return s_GraphicsAPI->CreateIndexBuffer(indices, count, indexType);
 	}
