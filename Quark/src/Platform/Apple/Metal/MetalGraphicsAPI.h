@@ -19,8 +19,8 @@ namespace Quark {
 		virtual Scope<VertexBuffer>          CreateVertexBuffer(const void* vertices, size_t size) final override { return nullptr; }
 		virtual Scope<VertexBuffer>          CreateVertexBuffer(size_t size) final override { return nullptr; }
 
-		virtual Scope<IndexBuffer>           CreateIndexBuffer(const uint32_t* indices, uint32_t count) final override { return nullptr; }
-		virtual Scope<IndexBuffer>           CreateIndexBuffer(uint32_t count) final override { return nullptr; }
+		virtual Scope<IndexBuffer>           CreateIndexBuffer(const uint32_t* indices, uint32_t count, IndexType indexType) final override { return nullptr; }
+		virtual Scope<IndexBuffer>           CreateIndexBuffer(uint32_t count, IndexType indexType) final override { return nullptr; }
 
 		virtual Scope<Cubemap>               CreateCubemap(const CubemapSpecification& spec) final override { return nullptr; }
 

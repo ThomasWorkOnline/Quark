@@ -2,6 +2,7 @@
 
 #include "Quark/Core/Core.h"
 
+#include <limits>
 #include <vector>
 
 namespace Quark {
@@ -9,6 +10,7 @@ namespace Quark {
 	enum class ShaderDataType
 	{
 		None = 0,
+
 		Float,
 		Float2,
 		Float3,
@@ -31,61 +33,18 @@ namespace Quark {
 		Bool
 	};
 
-	static constexpr size_t ShaderDataTypeSize(ShaderDataType type)
+	enum class IndexType
 	{
-		switch (type)
-		{
-			case ShaderDataType::Float:     return sizeof(float);
-			case ShaderDataType::Float2:    return sizeof(float) * 2;
-			case ShaderDataType::Float3:    return sizeof(float) * 3;
-			case ShaderDataType::Float4:    return sizeof(float) * 4;
-			case ShaderDataType::Double:    return sizeof(double);
-			case ShaderDataType::Double2:   return sizeof(double) * 2;
-			case ShaderDataType::Double3:   return sizeof(double) * 3;
-			case ShaderDataType::Double4:   return sizeof(double) * 4;
-			case ShaderDataType::Mat3f:     return sizeof(float) * 3 * 3;
-			case ShaderDataType::Mat4f:     return sizeof(float) * 4 * 4;
-			case ShaderDataType::Mat3d:     return sizeof(double) * 3 * 3;
-			case ShaderDataType::Mat4d:     return sizeof(double) * 4 * 4;
-			case ShaderDataType::Int:       return sizeof(int32_t);
-			case ShaderDataType::Int2:      return sizeof(int32_t) * 2;
-			case ShaderDataType::Int3:      return sizeof(int32_t) * 3;
-			case ShaderDataType::Int4:      return sizeof(int32_t) * 4;
-			case ShaderDataType::Bool:      return sizeof(bool);
+		None = 0,
+		Uint8,
+		Uint16,
+		Uint32
+	};
 
-			QK_ASSERT_NO_DEFAULT("Unknown ShaderDataType");
-		}
+	size_t ShaderDataTypeSize(ShaderDataType type);
+	size_t IndexDataTypeSize(IndexType type);
 
-		return 0;
-	}
-
-	static constexpr uint32_t ShaderDataTypeComponentCount(ShaderDataType type)
-	{
-		switch (type)
-		{
-			case ShaderDataType::Float:   return 1;
-			case ShaderDataType::Float2:  return 2;
-			case ShaderDataType::Float3:  return 3;
-			case ShaderDataType::Float4:  return 4;
-			case ShaderDataType::Double:  return 1;
-			case ShaderDataType::Double2: return 2;
-			case ShaderDataType::Double3: return 3;
-			case ShaderDataType::Double4: return 4;
-			case ShaderDataType::Mat3f:   return 3; // 3 * float3
-			case ShaderDataType::Mat4f:   return 4; // 4 * float4
-			case ShaderDataType::Mat3d:   return 3;
-			case ShaderDataType::Mat4d:   return 4;
-			case ShaderDataType::Int:     return 1;
-			case ShaderDataType::Int2:    return 2;
-			case ShaderDataType::Int3:    return 3;
-			case ShaderDataType::Int4:    return 4;
-			case ShaderDataType::Bool:    return 1;
-
-			QK_ASSERT_NO_DEFAULT("Unknown ShaderDataType");
-		}
-
-		return 0;
-	}
+	uint32_t ShaderDataTypeComponentCount(ShaderDataType type);
 
 	struct BufferElement
 	{
@@ -95,30 +54,30 @@ namespace Quark {
 		size_t Offset;
 		bool Normalized;
 
-		constexpr BufferElement(ShaderDataType type, const char* name, bool normalized = false)
+		BufferElement(ShaderDataType type, const char* name, bool normalized = false)
 			: Name(name), Type(type), Size(ShaderDataTypeSize(type)), Offset(0), Normalized(normalized)
 		{
 		}
 
-		constexpr uint32_t GetComponentCount() const { return ShaderDataTypeComponentCount(Type); }
+		uint32_t GetComponentCount() const { return ShaderDataTypeComponentCount(Type); }
 	};
 
 	class BufferLayout
 	{
 	public:
-		constexpr BufferLayout() = default;
-		constexpr BufferLayout(std::initializer_list<BufferElement> elements)
+		BufferLayout() = default;
+		BufferLayout(std::initializer_list<BufferElement> elements)
 			: m_Elements(elements)
 		{
 			CalculateOffsetsAndStride();
 		}
 
-		constexpr size_t GetStride() const { return m_Stride; }
+		size_t GetStride() const { return m_Stride; }
 
-		constexpr uint32_t GetCount() const { return static_cast<uint32_t>(m_Elements.size()); }
-		constexpr const std::vector<BufferElement>& GetElements() const { return m_Elements; }
+		uint32_t GetCount() const { return static_cast<uint32_t>(m_Elements.size()); }
+		const std::vector<BufferElement>& GetElements() const { return m_Elements; }
 
-		constexpr const BufferElement& operator[](std::string_view name) const
+		const BufferElement& operator[](std::string_view name) const
 		{
 			auto it = std::find_if(m_Elements.begin(), m_Elements.end(), [name](const BufferElement& element)
 			{
@@ -129,13 +88,13 @@ namespace Quark {
 			return *it;
 		}
 
-		constexpr const BufferElement& operator[](size_t index) const
+		const BufferElement& operator[](size_t index) const
 		{
 			QK_CORE_ASSERT(index >= 0 && index < m_Elements.size(), "Buffer element index out of bounds");
 			return m_Elements[index];
 		}
 
-		constexpr bool operator==(const BufferLayout& other) const
+		bool operator==(const BufferLayout& other) const
 		{
 			if (GetCount() != other.GetCount()) return false;
 
@@ -148,13 +107,13 @@ namespace Quark {
 			return true;
 		}
 
-		constexpr std::vector<BufferElement>::iterator begin() { return m_Elements.begin(); }
-		constexpr std::vector<BufferElement>::iterator end() { return m_Elements.end(); }
-		constexpr std::vector<BufferElement>::const_iterator begin() const { return m_Elements.begin(); }
-		constexpr std::vector<BufferElement>::const_iterator end() const { return m_Elements.end(); }
+		std::vector<BufferElement>::iterator begin() { return m_Elements.begin(); }
+		std::vector<BufferElement>::iterator end() { return m_Elements.end(); }
+		std::vector<BufferElement>::const_iterator begin() const { return m_Elements.begin(); }
+		std::vector<BufferElement>::const_iterator end() const { return m_Elements.end(); }
 
 	private:
-		constexpr void CalculateOffsetsAndStride() noexcept
+		void CalculateOffsetsAndStride() noexcept
 		{
 			m_Stride = 0;
 			for (auto& element : m_Elements)
@@ -190,18 +149,34 @@ namespace Quark {
 	class IndexBuffer
 	{
 	public:
-		IndexBuffer(uint32_t count);
+		IndexBuffer(uint32_t count, IndexType indexType);
 		virtual ~IndexBuffer() = default;
 
 		virtual void SetData(const uint32_t* data, uint32_t count, uint32_t firstIndex = 0) = 0;
 		virtual bool operator==(const IndexBuffer& other) const = 0;
 
 		uint32_t GetCount() const { return m_Count; }
+		IndexType GetIndexType() const { return m_IndexType; }
 
-		static Scope<IndexBuffer> Create(const uint32_t* indices, uint32_t count);
-		static Scope<IndexBuffer> Create(uint32_t count);
+		static Scope<IndexBuffer> Create(const uint32_t* indices, uint32_t count, IndexType indexType);
+		static Scope<IndexBuffer> Create(uint32_t count, IndexType indexType);
 
 	protected:
 		uint32_t m_Count = 0;
+		IndexType m_IndexType;
 	};
+
+	constexpr IndexType GetIndexTypeBasedOnIndexCount(uint32_t indexCount)
+	{
+		if (indexCount <= std::numeric_limits<uint8_t>::max())
+		{
+			return IndexType::Uint8;
+		}
+		else if (indexCount <= std::numeric_limits<uint16_t>::max())
+		{
+			return IndexType::Uint16;
+		}
+
+		return IndexType::Uint32;
+	}
 }

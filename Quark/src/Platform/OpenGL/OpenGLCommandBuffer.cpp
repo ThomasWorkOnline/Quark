@@ -17,6 +17,7 @@
 namespace Quark {
 
 	static GLuint s_PushBufferRendererID = 0;
+	static GLenum s_CurrentIndexType = GL_NONE;
 	static const BufferLayout* s_BoundLayout = nullptr;
 	static const OpenGLPipeline* s_BoundPipeline = nullptr;
 
@@ -110,7 +111,7 @@ namespace Quark {
 
 	void OpenGLCommandBuffer::DrawIndexed(uint32_t indexCount)
 	{
-		glDrawElements(s_BoundPipeline->GetPrimitiveTopologyState(), indexCount, GL_UNSIGNED_INT, NULL);
+		glDrawElements(s_BoundPipeline->GetPrimitiveTopologyState(), indexCount, s_CurrentIndexType, NULL);
 	}
 
 	void OpenGLCommandBuffer::DrawInstanced(uint32_t vertexCount, uint32_t vertexOffset, uint32_t instanceCount)
@@ -120,7 +121,7 @@ namespace Quark {
 
 	void OpenGLCommandBuffer::DrawIndexedInstanced(uint32_t indexCount, uint32_t instanceCount)
 	{
-		glDrawElementsInstanced(s_BoundPipeline->GetPrimitiveTopologyState(), indexCount, GL_UNSIGNED_INT, NULL, instanceCount);
+		glDrawElementsInstanced(s_BoundPipeline->GetPrimitiveTopologyState(), indexCount, s_CurrentIndexType, NULL, instanceCount);
 	}
 
 	void OpenGLCommandBuffer::BindVertexBuffer(const VertexBuffer* vertexBuffer)
@@ -141,6 +142,8 @@ namespace Quark {
 	{
 		auto* glIndexBuffer = static_cast<const OpenGLIndexBuffer*>(indexBuffer);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glIndexBuffer->GetRendererID());
+
+		s_CurrentIndexType = IndexTypeToOpenGL(indexBuffer->GetIndexType());
 	}
 
 	void OpenGLCommandBuffer::BindUniformBuffer(const Pipeline* pipeline, const UniformBuffer* uniformBuffer, uint32_t frameIndex, uint32_t binding)

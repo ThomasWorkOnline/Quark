@@ -34,8 +34,8 @@ namespace Quark {
 	class VulkanIndexBuffer final : public IndexBuffer
 	{
 	public:
-		VulkanIndexBuffer(VulkanDevice* device, uint32_t count);
-		VulkanIndexBuffer(VulkanDevice* device, const uint32_t* indices, uint32_t count);
+		VulkanIndexBuffer(VulkanDevice* device, uint32_t count, IndexType indexType);
+		VulkanIndexBuffer(VulkanDevice* device, const uint32_t* indices, uint32_t count, IndexType indexType);
 		virtual ~VulkanIndexBuffer() final override;
 
 		virtual void SetData(const uint32_t* data, uint32_t count, uint32_t firstIndex = 0) final override;

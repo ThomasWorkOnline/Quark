@@ -31,8 +31,8 @@ namespace Quark {
 	class OpenGLIndexBuffer final : public IndexBuffer
 	{
 	public:
-		OpenGLIndexBuffer(uint32_t count);
-		OpenGLIndexBuffer(const uint32_t* indices, uint32_t count);
+		OpenGLIndexBuffer(uint32_t count, IndexType indexType);
+		OpenGLIndexBuffer(const uint32_t* indices, uint32_t count, IndexType indexType);
 		virtual ~OpenGLIndexBuffer() final override;
 
 		virtual void SetData(const uint32_t* data, uint32_t count, uint32_t firstIndex = 0) final override;

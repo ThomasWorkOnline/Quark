@@ -114,11 +114,14 @@ namespace Quark {
 			indices[i + 2] = i + 1;
 		}
 
+		uint32_t indexCount = vertexCount;
+
 		StaticMesh mesh;
 		mesh.VertexBuffer = VertexBuffer::Create(baseVertices, vertexCount * sizeof(MeshVertex));
 		mesh.VertexBuffer->SetLayout(s_Layout);
 
-		mesh.IndexBuffer = IndexBuffer::Create(indices, vertexCount);
+		IndexType indexType = GetIndexTypeBasedOnIndexCount(indexCount);
+		mesh.IndexBuffer = IndexBuffer::Create(indices, indexCount, indexType);
 
 		delete[] baseVertices;
 		delete[] indices;
@@ -134,7 +137,10 @@ namespace Quark {
 		mesh.VertexBuffer = VertexBuffer::Create(CubeVertices, sizeof(CubeVertices));
 		mesh.VertexBuffer->SetLayout(s_Layout);
 
-		mesh.IndexBuffer = IndexBuffer::Create(CubeIndices, sizeof_array(CubeIndices));
+		static constexpr uint32_t indexCount = sizeof_array(CubeIndices);
+		static constexpr IndexType indexType = GetIndexTypeBasedOnIndexCount(indexCount);
+
+		mesh.IndexBuffer = IndexBuffer::Create(CubeIndices, indexCount, indexType);
 		return mesh;
 	}
 

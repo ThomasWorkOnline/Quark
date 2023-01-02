@@ -34,8 +34,8 @@ namespace Quark {
 		virtual Scope<VertexBuffer>          CreateVertexBuffer(const void* vertices, size_t size) = 0;
 		virtual Scope<VertexBuffer>          CreateVertexBuffer(size_t size) = 0;
 
-		virtual Scope<IndexBuffer>           CreateIndexBuffer(const uint32_t* indices, uint32_t count) = 0;
-		virtual Scope<IndexBuffer>           CreateIndexBuffer(uint32_t count) = 0;
+		virtual Scope<IndexBuffer>           CreateIndexBuffer(const uint32_t* indices, uint32_t count, IndexType indexType) = 0;
+		virtual Scope<IndexBuffer>           CreateIndexBuffer(uint32_t count, IndexType indexType) = 0;
 
 		virtual Scope<Cubemap>               CreateCubemap(const CubemapSpecification& spec) = 0;
 

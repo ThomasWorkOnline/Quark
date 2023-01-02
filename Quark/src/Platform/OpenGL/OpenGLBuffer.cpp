@@ -49,8 +49,8 @@ namespace Quark {
 		return false;
 	}
 
-	OpenGLIndexBuffer::OpenGLIndexBuffer(uint32_t count)
-		: IndexBuffer(count)
+	OpenGLIndexBuffer::OpenGLIndexBuffer(uint32_t count, IndexType indexType)
+		: IndexBuffer(count, indexType)
 	{
 		glGenBuffers(1, &m_RendererID);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
@@ -59,12 +59,12 @@ namespace Quark {
 		QK_DEBUG_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 	}
 
-	OpenGLIndexBuffer::OpenGLIndexBuffer(const uint32_t* indices, uint32_t count)
-		: IndexBuffer(count)
+	OpenGLIndexBuffer::OpenGLIndexBuffer(const uint32_t* indices, uint32_t count, IndexType indexType)
+		: IndexBuffer(count, indexType)
 	{
 		glGenBuffers(1, &m_RendererID);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), indices, GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * IndexDataTypeSize(indexType), indices, GL_STATIC_DRAW);
 
 		QK_DEBUG_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 	}
@@ -80,7 +80,11 @@ namespace Quark {
 			"Written size is too large: Count and FirstIndex parameters must be within the total buffer size");
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
-		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, firstIndex * sizeof(uint32_t), count * sizeof(uint32_t), data);
+		glBufferSubData(
+			GL_ELEMENT_ARRAY_BUFFER,
+			firstIndex * IndexDataTypeSize(m_IndexType),
+			count * IndexDataTypeSize(m_IndexType),
+			data);
 
 		QK_DEBUG_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 	}

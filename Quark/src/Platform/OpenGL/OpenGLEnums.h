@@ -35,6 +35,13 @@ namespace Quark {
 		/*Bool*/                 GL_BOOL
 	};
 
+	inline constexpr GLenum s_OpenGLIndexTypeLUT[] = {
+		/*None	 */              GL_NONE,
+		/*Uint8	 */              GL_UNSIGNED_BYTE,
+		/*Uint16 */              GL_UNSIGNED_SHORT,
+		/*Uint32 */              GL_UNSIGNED_INT
+	};
+
 	inline constexpr GLenum s_OpenGLCullModeLUT[] = {
 		/*None*/                 GL_NONE,
 		/*Front*/                GL_FRONT,
@@ -232,5 +239,10 @@ namespace Quark {
 	constexpr GLenum ShaderDataTypeToOpenGLBaseType(ShaderDataType type)
 	{
 		return s_OpenGLBaseShaderDataTypeLUT[static_cast<size_t>(type)];
+	}
+
+	constexpr GLenum IndexTypeToOpenGL(IndexType type)
+	{
+		return s_OpenGLIndexTypeLUT[static_cast<size_t>(type)];
 	}
 }

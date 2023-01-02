@@ -175,7 +175,7 @@ namespace Quark {
 	void VulkanCommandBuffer::BindIndexBuffer(const IndexBuffer* indexBuffer)
 	{
 		VkBuffer buffer = static_cast<const VulkanIndexBuffer*>(indexBuffer)->GetVkHandle();
-		vkCmdBindIndexBuffer(m_CommandBuffer, buffer, 0, VK_INDEX_TYPE_UINT32);
+		vkCmdBindIndexBuffer(m_CommandBuffer, buffer, 0, IndexTypeToVulkan(indexBuffer->GetIndexType()));
 	}
 
 	void VulkanCommandBuffer::BindUniformBuffer(const Pipeline* pipeline, const UniformBuffer* uniformBuffer, uint32_t frameIndex, uint32_t binding)

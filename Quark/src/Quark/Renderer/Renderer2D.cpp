@@ -681,7 +681,8 @@ namespace Quark {
 			offset += 4;
 		}
 
-		s_Data->QuadIndexBuffer = IndexBuffer::Create(indices, Renderer2DData::MaxIndices);
+		static constexpr IndexType indexType = GetIndexTypeBasedOnIndexCount(Renderer2DData::MaxIndices);
+		s_Data->QuadIndexBuffer = IndexBuffer::Create(indices, Renderer2DData::MaxIndices, indexType);
 		delete[] indices;
 
 		s_Data->QuadVertices = new QuadVertex[Renderer2DData::MaxVertices];

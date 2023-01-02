@@ -96,6 +96,13 @@ namespace Quark {
 		/*Bool*/                 VK_FORMAT_R8_UINT
 	};
 
+	inline constexpr VkIndexType s_VulkanIndexTypeLUT[] = {
+		/*None	 */              VK_INDEX_TYPE_MAX_ENUM,
+		/*Uint8	 */              VK_INDEX_TYPE_UINT8_EXT,
+		/*Uint16 */              VK_INDEX_TYPE_UINT16,
+		/*Uint32 */              VK_INDEX_TYPE_UINT32
+	};
+
 	inline constexpr VkAttachmentLoadOp s_VulkanClearAttachmentLoadOpsLUT[] = {
 		/*false*/                VK_ATTACHMENT_LOAD_OP_LOAD,
 		/*true*/                 VK_ATTACHMENT_LOAD_OP_CLEAR
@@ -226,6 +233,11 @@ namespace Quark {
 	constexpr VkCompareOp DepthCompareFunctionToVulkan(DepthCompareFunction func)
 	{
 		return s_VulkanDepthCompareFunctionLUT[static_cast<size_t>(func)];
+	}
+
+	constexpr VkIndexType IndexTypeToVulkan(IndexType type)
+	{
+		return s_VulkanIndexTypeLUT[static_cast<size_t>(type)];
 	}
 
 	constexpr VkPipelineBindPoint PipelineBindPointToVulkan(PipelineBindPoint bindpoint)

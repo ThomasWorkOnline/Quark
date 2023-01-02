@@ -81,19 +81,19 @@ namespace Quark {
 		return false;
 	}
 
-	VulkanIndexBuffer::VulkanIndexBuffer(VulkanDevice* device, uint32_t count)
-		: IndexBuffer(count), m_Device(device)
+	VulkanIndexBuffer::VulkanIndexBuffer(VulkanDevice* device, uint32_t count, IndexType indexType)
+		: IndexBuffer(count, indexType), m_Device(device)
 	{
-		size_t size = count * sizeof(uint32_t);
+		size_t size = count * IndexDataTypeSize(indexType);
 		Utils::AllocateBuffer(m_Device, size,
 			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &m_Buffer, &m_BufferMemory);
 	}
 
-	VulkanIndexBuffer::VulkanIndexBuffer(VulkanDevice* device, const uint32_t* indices, uint32_t count)
-		: IndexBuffer(count), m_Device(device)
+	VulkanIndexBuffer::VulkanIndexBuffer(VulkanDevice* device, const uint32_t* indices, uint32_t count, IndexType indexType)
+		: IndexBuffer(count, indexType), m_Device(device)
 	{
-		size_t size = count * sizeof(uint32_t);
+		size_t size = count * IndexDataTypeSize(indexType);
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;
 		Utils::AllocateBuffer(m_Device, size,
@@ -130,8 +130,8 @@ namespace Quark {
 		QK_CORE_ASSERT(count + firstIndex <= m_Count,
 			"Written size is too large : Count and FirstIndex parameters must be within the total buffer size");
 
-		size_t size = count * sizeof(uint32_t);
-		size_t offset = firstIndex * sizeof(uint32_t);
+		size_t size = count * IndexDataTypeSize(m_IndexType);
+		size_t offset = firstIndex * IndexDataTypeSize(m_IndexType);
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;
 		Utils::AllocateBuffer(m_Device, size,
