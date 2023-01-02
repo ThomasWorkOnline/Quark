@@ -31,6 +31,7 @@ namespace Quark {
 			"Written size is too large: Size and Offset parameters must be within the total buffer size");
 
 		glBindBuffer(GL_UNIFORM_BUFFER, m_RendererID);
+		glBufferData(GL_UNIFORM_BUFFER, size, NULL, GL_DYNAMIC_DRAW);
 		glBufferSubData(GL_UNIFORM_BUFFER, offset, size, data);
 
 		QK_DEBUG_CALL(glBindBuffer(GL_UNIFORM_BUFFER, 0));

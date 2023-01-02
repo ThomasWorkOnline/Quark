@@ -36,6 +36,7 @@ namespace Quark {
 			"Written size is too large: Size and Offset parameters must be within the total buffer size");
 
 		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
+		glBufferData(GL_ARRAY_BUFFER, size, NULL, GL_DYNAMIC_DRAW);
 		glBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
 
 		QK_DEBUG_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
@@ -80,6 +81,7 @@ namespace Quark {
 			"Written size is too large: Count and FirstIndex parameters must be within the total buffer size");
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * IndexDataTypeSize(m_IndexType), NULL, GL_DYNAMIC_DRAW);
 		glBufferSubData(
 			GL_ELEMENT_ARRAY_BUFFER,
 			firstIndex * IndexDataTypeSize(m_IndexType),
