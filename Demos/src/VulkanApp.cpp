@@ -56,6 +56,7 @@ void VulkanApp::OnEvent(Event& e)
 	dispatcher.Dispatch<KeyPressedEvent>(ATTACH_EVENT_FN(OnKeyPressed));
 	dispatcher.Dispatch<WindowResizedEvent>([&](WindowResizedEvent& e)
 	{
+		m_CameraEntity.GetComponent<CameraComponent>().Camera.Resize((float)e.GetWidth(), (float)e.GetHeight());
 		m_TextCamera.Resize((float)e.GetWidth(), (float)e.GetHeight());
 	});
 

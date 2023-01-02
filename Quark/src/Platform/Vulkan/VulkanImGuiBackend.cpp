@@ -72,7 +72,7 @@ namespace Quark {
 
 		vkEndCommandBuffer(vulkanCommandBuffer);
 	}
-		
+	
 	void VulkanImGuiBackend::NewFrame()
 	{
 		ImGui_ImplVulkan_NewFrame();
