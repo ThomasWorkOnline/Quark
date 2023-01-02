@@ -1,6 +1,8 @@
 #include "qkpch.h"
 #include "OpenGLCommandBuffer.h"
 
+#include "Quark/Renderer/Renderer.h"
+
 #include "OpenGLBuffer.h"
 #include "OpenGLEnums.h"
 #include "OpenGLFont.h"
@@ -10,13 +12,31 @@
 #include "OpenGLTexture.h"
 #include "OpenGLUniformBuffer.h"
 
-#include "Quark/Renderer/Renderer.h"
-
 #include <glad/glad.h>
 
-#define QK_ASSERT_PIPELINE_VALID_STATE(pipeline) QK_CORE_ASSERT(pipeline, "No pipeline was actively bound to the current command buffer!")
-
 namespace Quark {
+
+	static GLuint s_PushBufferRendererID = 0;
+	static const BufferLayout* s_BoundLayout = nullptr;
+	static const OpenGLPipeline* s_BoundPipeline = nullptr;
+
+	OpenGLCommandBuffer::OpenGLCommandBuffer()
+	{
+		GLint maxBindings;
+		glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, &maxBindings);
+
+		glGenBuffers(1, &s_PushBufferRendererID);
+		glBindBuffer(GL_UNIFORM_BUFFER, s_PushBufferRendererID);
+		glBindBufferBase(GL_UNIFORM_BUFFER, maxBindings - 1, s_PushBufferRendererID);
+		glBufferData(GL_UNIFORM_BUFFER, 128, NULL, GL_DYNAMIC_DRAW);
+
+		QK_DEBUG_CALL(glBindBuffer(GL_UNIFORM_BUFFER, 0));
+	}
+
+	OpenGLCommandBuffer::~OpenGLCommandBuffer()
+	{
+		glDeleteBuffers(1, &s_PushBufferRendererID);
+	}
 
 	void OpenGLCommandBuffer::SetCullMode(RenderCullMode mode)
 	{
@@ -30,17 +50,20 @@ namespace Quark {
 
 	void OpenGLCommandBuffer::BindPipeline(const Pipeline* pipeline)
 	{
-		m_BoundPipeline = static_cast<const OpenGLPipeline*>(pipeline);
-		m_BoundPipeline->Bind();
+		s_BoundPipeline = static_cast<const OpenGLPipeline*>(pipeline);
+		s_BoundPipeline->Bind();
 	}
 
-	void OpenGLCommandBuffer::BindDescriptorSets(uint32_t frameIndex)
+	void OpenGLCommandBuffer::BindDescriptorSets(const Pipeline* pipeline, uint32_t frameIndex)
 	{
 	}
 
-	void OpenGLCommandBuffer::PushConstant(ShaderStage stage, const void* data, size_t size)
+	void OpenGLCommandBuffer::PushConstant(const Pipeline* pipeline, ShaderStage stage, const void* data, size_t size)
 	{
-		QK_CORE_ASSERT(false, "Push constants are not supported with OpenGL!");
+		glBindBuffer(GL_UNIFORM_BUFFER, s_PushBufferRendererID);
+		glBufferSubData(GL_UNIFORM_BUFFER, 0, size, data);
+
+		QK_DEBUG_CALL(glBindBuffer(GL_UNIFORM_BUFFER, 0));
 	}
 
 	void OpenGLCommandBuffer::SetViewport(uint32_t viewportWidth, uint32_t viewportHeight)
@@ -82,56 +105,52 @@ namespace Quark {
 
 	void OpenGLCommandBuffer::Draw(uint32_t vertexCount, uint32_t vertexOffset)
 	{
-		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
-		glDrawArrays(m_BoundPipeline->GetPrimitiveTopologyState(), vertexOffset, vertexCount);
+		glDrawArrays(s_BoundPipeline->GetPrimitiveTopologyState(), vertexOffset, vertexCount);
 	}
 
 	void OpenGLCommandBuffer::DrawIndexed(uint32_t indexCount)
 	{
-		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
-		glDrawElements(m_BoundPipeline->GetPrimitiveTopologyState(), indexCount, GL_UNSIGNED_INT, NULL);
+		glDrawElements(s_BoundPipeline->GetPrimitiveTopologyState(), indexCount, GL_UNSIGNED_INT, NULL);
 	}
 
 	void OpenGLCommandBuffer::DrawInstanced(uint32_t vertexCount, uint32_t vertexOffset, uint32_t instanceCount)
 	{
-		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
-		glDrawArraysInstanced(m_BoundPipeline->GetPrimitiveTopologyState(), vertexOffset, vertexCount, instanceCount);
+		glDrawArraysInstanced(s_BoundPipeline->GetPrimitiveTopologyState(), vertexOffset, vertexCount, instanceCount);
 	}
 
 	void OpenGLCommandBuffer::DrawIndexedInstanced(uint32_t indexCount, uint32_t instanceCount)
 	{
-		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
-		glDrawElementsInstanced(m_BoundPipeline->GetPrimitiveTopologyState(), indexCount, GL_UNSIGNED_INT, NULL, instanceCount);
+		glDrawElementsInstanced(s_BoundPipeline->GetPrimitiveTopologyState(), indexCount, GL_UNSIGNED_INT, NULL, instanceCount);
 	}
 
 	void OpenGLCommandBuffer::BindVertexBuffer(const VertexBuffer* vertexBuffer)
 	{
-		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
-		QK_CORE_ASSERT(vertexBuffer->GetLayout() == m_BoundPipeline->GetLayout(), "Buffer layout does not match the currently bound pipeline layout");
+		QK_CORE_ASSERT(vertexBuffer->GetLayout() == s_BoundPipeline->GetLayout(), "Buffer layout does not match the currently bound pipeline layout");
 
 		auto* glVertexBuffer = static_cast<const OpenGLVertexBuffer*>(vertexBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, glVertexBuffer->GetRendererID());
-		m_BoundPipeline->BindVertexAttrib();
+
+		if (!s_BoundLayout || vertexBuffer->GetLayout() != *s_BoundLayout)
+		{
+			s_BoundPipeline->BindVertexAttrib();
+			s_BoundLayout = std::addressof(s_BoundPipeline->GetLayout());
+		}
 	}
 
 	void OpenGLCommandBuffer::BindIndexBuffer(const IndexBuffer* indexBuffer)
 	{
-		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
-
 		auto* glIndexBuffer = static_cast<const OpenGLIndexBuffer*>(indexBuffer);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glIndexBuffer->GetRendererID());
 	}
 
-	void OpenGLCommandBuffer::BindUniformBuffer(const UniformBuffer* uniformBuffer, uint32_t frameIndex, uint32_t binding)
+	void OpenGLCommandBuffer::BindUniformBuffer(const Pipeline* pipeline, const UniformBuffer* uniformBuffer, uint32_t frameIndex, uint32_t binding)
 	{
 		auto* glUniformBuffer = static_cast<const OpenGLUniformBuffer*>(uniformBuffer);
 		glBindBufferBase(GL_UNIFORM_BUFFER, binding, glUniformBuffer->GetRendererID());
 	}
 
-	void OpenGLCommandBuffer::BindTexture(const Texture* texture, const Sampler* sampler, uint32_t frameIndex, uint32_t binding, uint32_t samplerIndex)
+	void OpenGLCommandBuffer::BindTexture(const Pipeline* pipeline, const Texture* texture, const Sampler* sampler, uint32_t frameIndex, uint32_t binding, uint32_t samplerIndex)
 	{
-		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
-
 		QK_CORE_ASSERT(samplerIndex < Renderer::GetCapabilities().Sampler.MaxTextureUnits,
 			"Sampler index out of range: max writable index is: {0}",
 			Renderer::GetCapabilities().Sampler.MaxTextureUnits - 1);

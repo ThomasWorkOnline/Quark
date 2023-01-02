@@ -6,6 +6,7 @@
 
 #include "Quark/Audio/AudioDevice.h"
 #include "Quark/Event/ApplicationEvent.h"
+#include "Quark/ImGui/ImGuiLayer.h"
 
 #include "Quark/Renderer/Renderer.h"
 #include "Quark/Renderer/Renderer2D.h"
@@ -15,13 +16,19 @@
 
 namespace Quark {
 
-	class ImGuiLayer;
-
-	enum class ApplicationFlagBits : uint32_t
+	enum ApplicationFlagBits
 	{
-		None = 0,
+		None                    = 0,
 		LaunchRenderer2D        = BIT(0),
 		EnableAudioOutputDevice = BIT(1)
+	};
+
+	using ApplicationFlags = std::underlying_type_t<ApplicationFlagBits>;
+
+	enum class ApplicationRestartPolicy
+	{
+		RunOnce = 0,
+		Restart
 	};
 
 	struct CommandLineArguments
@@ -42,17 +49,17 @@ namespace Quark {
 		std::filesystem::path AssetDir;
 		std::filesystem::path CoreDir;
 
+		uint32_t              Width = 1280, Height = 720;
+
 		CommandLineArguments  CommandLineArgs;
-		ApplicationFlagBits   Flags{};
+		ApplicationFlags      Flags{};
 		KeyCode               FullscreenKey = KeyCode::F11;
 
 		RHI                   GraphicsAPI = Renderer::GetPreferredRHI();
 		SampleCount           Samples     = SampleCount::SampleCount8;
-
-		uint32_t              Width = 1280, Height = 720;
 		bool                  VSync = true;
 
-		bool HasFlags(ApplicationFlagBits flags) const { return static_cast<uint32_t>(Flags) & static_cast<uint32_t>(flags); }
+		bool HasFlags(ApplicationFlags flags) const { return Flags & flags; }
 	};
 
 	class Application : public Singleton<Application>
@@ -80,7 +87,9 @@ namespace Quark {
 		Window* GetWindow() const { return m_Window.get(); }
 		AudioOutputDevice* GetAudioOutputDevice() const { return m_AudioOutputDevice.get(); }
 
-		AudioOutputDevice* OpenAudioOutputDevice(const char* deviceName = nullptr);
+		AudioOutputDevice* OpenAudioOutputDevice(std::string_view deviceName);
+
+		static void SetRestartPolicy(ApplicationRestartPolicy policy);
 
 	protected:
 		virtual void OnEvent(Event& e) {}

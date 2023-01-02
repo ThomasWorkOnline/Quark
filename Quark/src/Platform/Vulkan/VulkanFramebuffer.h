@@ -30,6 +30,8 @@ namespace Quark {
 		VkImage m_Image = nullptr;
 		VkImageView m_ImageView = nullptr;
 		VkDeviceMemory m_BufferMemory = nullptr;
+
+		bool m_SwapChainTarget = false;
 	};
 
 	class VulkanFramebuffer final : public Framebuffer

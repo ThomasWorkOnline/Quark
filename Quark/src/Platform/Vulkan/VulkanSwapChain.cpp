@@ -43,25 +43,13 @@ namespace Quark {
 
 	uint32_t VulkanSwapChain::GetBufferCount() const
 	{
-		return static_cast<uint32_t>(m_SwapChainImages.size());
+		return static_cast<uint32_t>(m_ColorAttachments.size());
 	}
 
-	Ref<FramebufferAttachment> VulkanSwapChain::GetColorAttachment(uint32_t index) const
+	const FramebufferAttachment* VulkanSwapChain::GetColorAttachment(uint32_t index) const
 	{
 		QK_CORE_ASSERT(index < m_ColorAttachments.size(), "Index out of bounds");
-		return m_ColorAttachments[index];
-	}
-
-	Ref<FramebufferAttachment> VulkanSwapChain::GetDepthAttachment(uint32_t index) const
-	{
-		QK_CORE_ASSERT(index < m_DepthAttachments.size(), "Index out of bounds");
-		return m_DepthAttachments[index];
-	}
-
-	Ref<FramebufferAttachment> VulkanSwapChain::GetResolveAttachment(uint32_t index) const
-	{
-		QK_CORE_ASSERT(index < m_ResolveAttachments.size(), "Index out of bounds");
-		return m_ResolveAttachments[index];
+		return m_ColorAttachments[index].get();
 	}
 
 	void VulkanSwapChain::Present(VkQueue presentQueue, VkSemaphore renderFinishedSemaphore)
@@ -124,60 +112,30 @@ namespace Quark {
 		uint32_t imageCount;
 		vkGetSwapchainImagesKHR(m_Device->GetVkHandle(), m_SwapChain, &imageCount, nullptr);
 
-		m_SwapChainImages.resize(imageCount);
-		vkGetSwapchainImagesKHR(m_Device->GetVkHandle(), m_SwapChain, &imageCount, m_SwapChainImages.data());
+		m_ColorAttachments.resize(imageCount);
+
+		AutoRelease<VkImage> images = StackAlloc(imageCount * sizeof(VkImage));
+		vkGetSwapchainImagesKHR(m_Device->GetVkHandle(), m_SwapChain, &imageCount, images.Data());
 
 		if (isNew)
 		{
 			// Color buffers
-			{
-				m_ColorAttachments.resize(imageCount);
+			FramebufferAttachmentSpecification colorAttachmentSpec;
+			colorAttachmentSpec.Width = m_Spec.Width;
+			colorAttachmentSpec.Height = m_Spec.Height;
+			colorAttachmentSpec.Samples = m_Spec.Samples;
+			colorAttachmentSpec.DataFormat = m_Spec.SurfaceFormat.Format;
 
-				FramebufferAttachmentSpecification colorAttachmentSpec;
-				colorAttachmentSpec.Width = m_Spec.Width;
-				colorAttachmentSpec.Height = m_Spec.Height;
-				colorAttachmentSpec.Samples = m_Spec.Samples;
-				colorAttachmentSpec.DataFormat = m_Spec.SurfaceFormat.Format;
-				colorAttachmentSpec.SwapChainTarget = true;
-
-				for (size_t i = 0; i < m_ColorAttachments.size(); i++)
-					m_ColorAttachments[i] = CreateRef<VulkanFramebufferAttachment>(m_Device, m_SwapChainImages[i], colorAttachmentSpec);
-			}
-
-			// Resolve buffers
-			if (m_Spec.Samples > SampleCount::SampleCount1)
-			{
-				m_ResolveAttachments.resize(imageCount);
-
-				FramebufferAttachmentSpecification resolveAttachmentSpec;
-				resolveAttachmentSpec.Width = m_Spec.Width;
-				resolveAttachmentSpec.Height = m_Spec.Height;
-				resolveAttachmentSpec.Samples = m_Spec.Samples;
-				resolveAttachmentSpec.DataFormat = m_Spec.SurfaceFormat.Format;
-
-				for (size_t i = 0; i < m_ResolveAttachments.size(); i++)
-					m_ResolveAttachments[i] = CreateRef<VulkanFramebufferAttachment>(m_Device, resolveAttachmentSpec);
-			}
-
-			// Depth buffers
-			if (m_Spec.DepthBufferFormat != ColorFormat::None)
-			{
-				m_DepthAttachments.resize(imageCount);
-
-				FramebufferAttachmentSpecification depthAttachmentSpec;
-				depthAttachmentSpec.Width = m_Spec.Width;
-				depthAttachmentSpec.Height = m_Spec.Height;
-				depthAttachmentSpec.Samples = m_Spec.Samples;
-				depthAttachmentSpec.DataFormat = m_Spec.DepthBufferFormat;
-
-				for (size_t i = 0; i < m_DepthAttachments.size(); i++)
-					m_DepthAttachments[i] = CreateRef<VulkanFramebufferAttachment>(m_Device, depthAttachmentSpec);
-			}
+			for (size_t i = 0; i < m_ColorAttachments.size(); i++)
+				m_ColorAttachments[i] = CreateScope<VulkanFramebufferAttachment>(m_Device, images[i], colorAttachmentSpec);
 		}
 		else
 		{
 			for (size_t i = 0; i < m_ColorAttachments.size(); i++)
-				m_ColorAttachments[i]->SetSwapChainImage(m_SwapChainImages[i]);
+			{
+				m_ColorAttachments[i]->SetSwapChainImage(images[i]);
+				m_ColorAttachments[i]->Resize(m_Spec.Width, m_Spec.Height);
+			}
 		}
 	}
 }

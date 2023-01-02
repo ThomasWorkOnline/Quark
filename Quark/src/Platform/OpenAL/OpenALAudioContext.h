@@ -11,9 +11,9 @@ namespace Quark {
 	{
 	public:
 		OpenALAudioContext(void* device);
-		virtual ~OpenALAudioContext() override;
+		virtual ~OpenALAudioContext() final override;
 
-		virtual void Init() override;
+		virtual void Init() final override;
 
 		// Non-Copyable
 		OpenALAudioContext(const OpenALAudioContext&) = delete;

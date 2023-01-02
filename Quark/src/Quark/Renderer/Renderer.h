@@ -31,6 +31,8 @@ namespace Quark {
 		static void BeginRenderPass();
 		static void EndRenderPass();
 
+		static void PushConstant(ShaderStage stage, const void* data, size_t size);
+
 		static void Draw(const VertexBuffer* vertexBuffer, uint32_t vertexCount);
 		static void DrawIndexed(const VertexBuffer* vertexBuffer, const IndexBuffer* indexBuffer);
 		static void DrawIndexed(const VertexBuffer* vertexBuffer, const IndexBuffer* indexBuffer, uint32_t indexCount);

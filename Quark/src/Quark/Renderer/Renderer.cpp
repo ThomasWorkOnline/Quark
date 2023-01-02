@@ -15,11 +15,16 @@ namespace Quark {
 		Scope<RenderPass> RenderPass;
 		ViewportExtent    ViewportExtent{};
 
-		uint32_t CurrentFrameIndex = static_cast<uint32_t>(-1);
+		uint32_t CurrentFrameIndex = ~0U;
 
-		CommandBuffer* ActiveCommandBuffer = nullptr;
+		const Pipeline* BoundPipeline = nullptr;
+		CommandBuffer*  ActiveCommandBuffer = nullptr;
+
 		std::vector<Scope<CommandBuffer>> CommandBuffers;
 		std::vector<Scope<Framebuffer>>   Framebuffers;
+
+		Scope<FramebufferAttachment> ResolveBuffer;
+		Scope<FramebufferAttachment> DepthBuffer;
 	};
 
 	static RendererData* s_Data = nullptr;
@@ -29,6 +34,7 @@ namespace Quark {
 		QK_ASSERT_RENDER_THREAD();
 		QK_CORE_ASSERT(s_Data->ActiveCommandBuffer->IsInsideRenderPass(), "Cannot bind a graphics pipeline outside of a render pass!");
 
+		s_Data->BoundPipeline = pipeline;
 		s_Data->ActiveCommandBuffer->BindPipeline(pipeline);
 	}
 
@@ -50,6 +56,13 @@ namespace Quark {
 		QK_ASSERT_RENDER_THREAD();
 		QK_CORE_ASSERT(s_Data->ActiveCommandBuffer->IsInsideRenderPass(), "Active command buffer is not inside a render pass!");
 		s_Data->ActiveCommandBuffer->EndRenderPass();
+	}
+
+	void Renderer::PushConstant(ShaderStage stage, const void* data, size_t size)
+	{
+		QK_ASSERT_RENDER_THREAD();
+
+		s_Data->ActiveCommandBuffer->PushConstant(s_Data->BoundPipeline, stage, data, size);
 	}
 
 	void Renderer::Draw(const VertexBuffer* vertexBuffer, uint32_t vertexCount)
@@ -80,17 +93,17 @@ namespace Quark {
 
 	void Renderer::BindTexture(const Texture* texture, const Sampler* sampler, uint32_t binding, uint32_t samplerIndex)
 	{
-		s_Data->ActiveCommandBuffer->BindTexture(texture, sampler, s_Data->CurrentFrameIndex, binding, samplerIndex);
+		s_Data->ActiveCommandBuffer->BindTexture(s_Data->BoundPipeline, texture, sampler, s_Data->CurrentFrameIndex, binding, samplerIndex);
 	}
 
 	void Renderer::BindUniformBuffer(const UniformBuffer* uniformBuffer, uint32_t binding)
 	{
-		s_Data->ActiveCommandBuffer->BindUniformBuffer(uniformBuffer, s_Data->CurrentFrameIndex, binding);
+		s_Data->ActiveCommandBuffer->BindUniformBuffer(s_Data->BoundPipeline, uniformBuffer, s_Data->CurrentFrameIndex, binding);
 	}
 
 	void Renderer::BindDescriptorSets()
 	{
-		s_Data->ActiveCommandBuffer->BindDescriptorSets(s_Data->CurrentFrameIndex);
+		s_Data->ActiveCommandBuffer->BindDescriptorSets(s_Data->BoundPipeline, s_Data->CurrentFrameIndex);
 	}
 
 	void Renderer::SetLineWidth(float width)
@@ -102,13 +115,19 @@ namespace Quark {
 	{
 		QK_ASSERT_RENDER_THREAD();
 
-		if (viewportWidth != 0 && viewportHeight != 0)
-		{
-			s_Data->ViewportExtent.Width = viewportWidth;
-			s_Data->ViewportExtent.Height = viewportHeight;
-		}
+		if (viewportWidth == 0 || viewportHeight == 0)
+			return;
 
-		for (uint32_t i = 0; i < s_Data->Framebuffers.size(); i++)
+		s_Data->ViewportExtent.Width = viewportWidth;
+		s_Data->ViewportExtent.Height = viewportHeight;
+
+		if (s_Data->DepthBuffer)
+			s_Data->DepthBuffer->Resize(viewportWidth, viewportHeight);
+
+		if (s_Data->ResolveBuffer)
+			s_Data->ResolveBuffer->Resize(viewportWidth, viewportHeight);
+
+		for (size_t i = 0; i < s_Data->Framebuffers.size(); i++)
 		{
 			s_Data->Framebuffers[i]->Resize(viewportWidth, viewportHeight);
 		}
@@ -259,13 +278,12 @@ namespace Quark {
 
 		{
 			ColorFormat surfaceFormat  = swapChain->GetSpecification().SurfaceFormat.Format;
-			ColorFormat depthFormat    = swapChain->GetSpecification().DepthBufferFormat;
 			SampleCount samples        = swapChain->GetSpecification().Samples;
 
 			RenderPassSpecification spec;
 			spec.BindPoint             = PipelineBindPoint::Graphics;
 			spec.ColorAttachmentFormat = surfaceFormat;
-			spec.DepthAttachmentFormat = depthFormat;
+			spec.DepthAttachmentFormat = ColorFormat::Depth32f;
 			spec.ClearColor            = { 0.01f, 0.01f, 0.01f, 1.0f };
 			spec.ClearBuffers          = true;
 			spec.Samples               = samples;
@@ -275,7 +293,7 @@ namespace Quark {
 
 		const uint32_t bufferCount = swapChain->GetBufferCount();
 
-		s_Data->FramesInFlight = std::min(bufferCount, 2u);
+		s_Data->FramesInFlight = std::min(bufferCount, 1u);
 		s_Data->CommandBuffers.resize(s_Data->FramesInFlight);
 		s_Data->Framebuffers.resize(bufferCount);
 
@@ -284,27 +302,51 @@ namespace Quark {
 
 		s_Data->ActiveCommandBuffer = s_Data->CommandBuffers[0].get();
 
+		// Resolve buffer
+		if (s_Data->RenderPass->GetSpecification().Samples > SampleCount::SampleCount1)
+		{
+			FramebufferAttachmentSpecification resolveAttachmentSpec;
+			resolveAttachmentSpec.Width = s_Data->ViewportExtent.Width;
+			resolveAttachmentSpec.Height = s_Data->ViewportExtent.Height;
+			resolveAttachmentSpec.Samples = s_Data->RenderPass->GetSpecification().Samples;
+			resolveAttachmentSpec.DataFormat = s_Data->RenderPass->GetSpecification().ColorAttachmentFormat;
+
+			s_Data->ResolveBuffer = FramebufferAttachment::Create(resolveAttachmentSpec);
+		}
+
+		// Depth buffer
+		if (s_Data->RenderPass->GetSpecification().DepthAttachmentFormat != ColorFormat::None)
+		{
+			FramebufferAttachmentSpecification depthAttachmentSpec;
+			depthAttachmentSpec.Width = s_Data->ViewportExtent.Width;
+			depthAttachmentSpec.Height = s_Data->ViewportExtent.Height;
+			depthAttachmentSpec.Samples = s_Data->RenderPass->GetSpecification().Samples;
+			depthAttachmentSpec.DataFormat = s_Data->RenderPass->GetSpecification().DepthAttachmentFormat;
+
+			s_Data->DepthBuffer = FramebufferAttachment::Create(depthAttachmentSpec);
+		}
+
 		for (uint32_t i = 0; i < bufferCount; i++)
 		{
 			FramebufferSpecification fbSpec;
-			fbSpec.Width           = s_Data->ViewportExtent.Width;
-			fbSpec.Height          = s_Data->ViewportExtent.Height;
-			fbSpec.RenderPass      = s_Data->RenderPass.get();
+			fbSpec.Width = s_Data->ViewportExtent.Width;
+			fbSpec.Height = s_Data->ViewportExtent.Height;
+			fbSpec.RenderPass = s_Data->RenderPass.get();
 			fbSpec.SwapChainTarget = true;
 
-			if (swapChain->GetSpecification().Samples > SampleCount::SampleCount1)
+			if (s_Data->ResolveBuffer)
 			{
 				auto&& resolveAttachment = fbSpec.Attachments.emplace_back();
-				resolveAttachment = swapChain->GetResolveAttachment(i);
+				resolveAttachment = s_Data->ResolveBuffer.get();
 			}
 
 			auto&& colorAttachment = fbSpec.Attachments.emplace_back();
 			colorAttachment = swapChain->GetColorAttachment(i);
 
-			if (swapChain->GetSpecification().DepthBufferFormat != ColorFormat::None)
+			if (s_Data->DepthBuffer)
 			{
 				auto&& depthAttachment = fbSpec.Attachments.emplace_back();
-				depthAttachment = swapChain->GetDepthAttachment(i);
+				depthAttachment = s_Data->DepthBuffer.get();
 			}
 
 			s_Data->Framebuffers[i] = Framebuffer::Create(fbSpec);

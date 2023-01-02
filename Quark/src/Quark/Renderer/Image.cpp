@@ -7,16 +7,18 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 
+#include <stdexcept>
+
 namespace Quark {
 
 	namespace Utils {
 
-		static bool IsImageHDR(const FileStream& in)
+		static bool IsImageHDR(FILE* in)
 		{
-			return stbi_is_hdr_from_file(in.GetHandle());
+			return stbi_is_hdr_from_file(in);
 		}
 
-		//                                             Number of bits per pixel ---v
+		//                                         Number of bits per pixel ---v
 		static constexpr ColorFormat GetDataFormat(uint32_t channels, uint32_t bpp, bool srgb, bool fp)
 		{
 			switch (channels)
@@ -56,27 +58,38 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		FileStream in = filepath;
+		FILE* in = std::fopen(filepath.data(), "rb");
+		Verify(in, "Could not open image: '{0}'", filepath);
 
-		if (Utils::IsImageHDR(in))
+		try
 		{
-			DecodeHDR(in);
+			if (Utils::IsImageHDR(in))
+			{
+				DecodeHDR(in);
+			}
+			else
+			{
+				DecodePNG(in);
+			}
 		}
-		else
+		catch (std::exception& e)
 		{
-			DecodePNG(in);
+			std::fclose(in);
+			throw e;
 		}
+
+		std::fclose(in);
 	}
 
 	Image::Image(Image&& other) noexcept
-		: m_ImageData(other.m_ImageData)
-		, m_Metadata(other.m_Metadata)
+		: m_Spec(other.m_Spec)
+		, m_ImageData(other.m_ImageData)
 	{
+		other.m_Spec = {};
 		other.m_ImageData = nullptr;
-		other.m_Metadata = {};
 	}
 
-	Image::~Image()
+	Image::~Image() noexcept
 	{
 		free(m_ImageData);
 	}
@@ -87,65 +100,70 @@ namespace Quark {
 		return *this;
 	}
 
-	void Image::DecodePNG(FileStream& in)
+	size_t Image::GetSize() const
+	{
+		return (size_t)m_Spec.Width * m_Spec.Height * (m_Spec.BitsPerPixel >> 3);
+	}
+
+	void Image::DecodePNG(FILE* in)
 	{	
 		LodePNGState state;
 		lodepng_state_init(&state);
 
 		unsigned char* imageData;
-		unsigned width, height;
+		unsigned int width, height;
 		{
-			size_t fileSize = in.GetFileSize();
+			std::fseek(in, 0, SEEK_END);
+			size_t fileSize = std::ftell(in);
+			std::fseek(in, 0, SEEK_SET);
 
 			std::vector<uint8_t> fileData;
-			fileData.reserve(fileSize);
+			fileData.resize(fileSize);
+			size_t readSize = std::fread(fileData.data(), 1, fileSize, in);
+			fileData.resize(readSize);
 
-			size_t readSize = std::fread(fileData.data(), 1, fileSize, in.GetHandle());
 			Verify(readSize == fileSize, "Expected size and read size do not match");
-			
 			unsigned int error = lodepng_decode(&imageData, &width, &height, &state, fileData.data(), fileSize);
 
 			if (error)
 			{
 				lodepng_state_cleanup(&state);
-				ThrowRuntimeError("Failed to decode image: {0}", lodepng_error_text(error));
+				ThrowRuntimeError("Failed to decode PNG image: {0}", lodepng_error_text(error));
 			}
 		}
 
 		auto bpp = lodepng_get_bpp(&state.info_raw);
 		auto channels = lodepng_get_channels(&state.info_raw);
 
+		m_Spec.Width = width;
+		m_Spec.Height = height;
+		m_Spec.Channels = channels;
+		m_Spec.BitsPerPixel = bpp;
+		m_Spec.DataFormat = Utils::GetDataFormat(channels, bpp, state.info_png.srgb_defined, false);
 		m_ImageData = imageData;
-		m_Metadata.Width = width;
-		m_Metadata.Height = height;
-		m_Metadata.Channels = channels;
-		m_Metadata.BitsPerPixel = bpp;
-		m_Metadata.DataFormat = Utils::GetDataFormat(channels, bpp, state.info_png.srgb_defined, false);
-		m_Metadata.Size = (size_t)width * height * (bpp >> 3);
 
 		lodepng_state_cleanup(&state);
 	}
 
-	void Image::DecodeHDR(FileStream& in)
+	void Image::DecodeHDR(FILE* in)
 	{
 		int width, height, channels;
-		float* imageData = stbi_loadf_from_file(in.GetHandle(), &width, &height, &channels, 0);
+		float* imageData = stbi_loadf_from_file(in, &width, &height, &channels, 0);
 
-		Verify(imageData, "Failed to load image data");
+		Verify(imageData, "Failed to load HDR image data");
 
 		uint32_t bitsPerChannel;
-		stbi_is_16_bit_from_file(in.GetHandle())
+		stbi_is_16_bit_from_file(in)
 			? bitsPerChannel = 16
 			: bitsPerChannel = 32;
 
 		uint32_t bpp = bitsPerChannel * channels;
 
+		m_Spec.Width = width;
+		m_Spec.Height = height;
+		m_Spec.Channels = channels;
+		m_Spec.BitsPerPixel = bpp;
+		m_Spec.DataFormat = Utils::GetDataFormat(channels, bpp, false, true);
 		m_ImageData = imageData;
-		m_Metadata.Width = width;
-		m_Metadata.Height = height;
-		m_Metadata.Channels = channels;
-		m_Metadata.BitsPerPixel = bpp;
-		m_Metadata.DataFormat = Utils::GetDataFormat(channels, bpp, false, true);
-		m_Metadata.Size = (size_t)width * height * (bpp >> 3);
 	}
 }

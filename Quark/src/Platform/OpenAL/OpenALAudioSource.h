@@ -2,21 +2,27 @@
 
 #include "Quark/Audio/AudioSource.h"
 
+typedef unsigned int ALuint;
+
 namespace Quark {
 
 	class OpenALAudioSource final : public AudioSource
 	{
 	public:
 		OpenALAudioSource();
-		virtual ~OpenALAudioSource() override;
+		virtual ~OpenALAudioSource() final override;
 
-		virtual void SetBuffer(AudioBuffer* buffer) override;
+		virtual void SetBuffer(const AudioBuffer* buffer) final override;
 
-		virtual void Play() override;
-		virtual void Stop() override;
-		virtual void Pause() override;
+		virtual void Play() final override;
+		virtual void Stop() final override;
+		virtual void Pause() final override;
+
+		// Non-Copyable
+		OpenALAudioSource(const OpenALAudioSource&) = delete;
+		OpenALAudioSource& operator=(const OpenALAudioSource&) = delete;
 
 	private:
-		uint32_t m_SourceID = 0;
+		ALuint m_SourceID = 0;
 	};
 }

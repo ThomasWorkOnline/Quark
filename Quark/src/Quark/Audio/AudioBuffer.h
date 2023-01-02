@@ -7,8 +7,9 @@ namespace Quark {
 
 	struct AudioBufferSpecification
 	{
-		size_t      Size;
-		uint32_t    Samplerate;
+		uint32_t    Samplerate = 0;
+		uint32_t    BitDepth = 0;
+		uint32_t    Channels = 0;
 		AudioFormat Format{};
 	};
 
@@ -21,6 +22,8 @@ namespace Quark {
 
 		virtual ~AudioBuffer() = default;
 		virtual void SetData(const void* data, size_t size) = 0;
+
+		virtual double GetDuration() const = 0;
 
 		const AudioBufferSpecification& GetSpecification() const { return m_Spec; }
 

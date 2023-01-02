@@ -106,19 +106,19 @@ namespace Quark {
 	class BufferLayout
 	{
 	public:
-		BufferLayout() = default;
-		BufferLayout(std::initializer_list<BufferElement> elements)
+		constexpr BufferLayout() = default;
+		constexpr BufferLayout(std::initializer_list<BufferElement> elements)
 			: m_Elements(elements)
 		{
 			CalculateOffsetsAndStride();
 		}
 
-		size_t GetStride() const { return m_Stride; }
+		constexpr size_t GetStride() const { return m_Stride; }
 
-		uint32_t GetCount() const { return static_cast<uint32_t>(m_Elements.size()); }
-		const std::vector<BufferElement>& GetElements() const { return m_Elements; }
+		constexpr uint32_t GetCount() const { return static_cast<uint32_t>(m_Elements.size()); }
+		constexpr const std::vector<BufferElement>& GetElements() const { return m_Elements; }
 
-		const BufferElement& operator[](std::string_view name) const
+		constexpr const BufferElement& operator[](std::string_view name) const
 		{
 			auto it = std::find_if(m_Elements.begin(), m_Elements.end(), [name](const BufferElement& element)
 			{
@@ -129,13 +129,13 @@ namespace Quark {
 			return *it;
 		}
 
-		const BufferElement& operator[](size_t index) const
+		constexpr const BufferElement& operator[](size_t index) const
 		{
 			QK_CORE_ASSERT(index >= 0 && index < m_Elements.size(), "Buffer element index out of bounds");
 			return m_Elements[index];
 		}
 
-		bool operator==(const BufferLayout& other) const
+		constexpr bool operator==(const BufferLayout& other) const
 		{
 			if (GetCount() != other.GetCount()) return false;
 
@@ -148,13 +148,13 @@ namespace Quark {
 			return true;
 		}
 
-		std::vector<BufferElement>::iterator begin() { return m_Elements.begin(); }
-		std::vector<BufferElement>::iterator end() { return m_Elements.end(); }
-		std::vector<BufferElement>::const_iterator begin() const { return m_Elements.begin(); }
-		std::vector<BufferElement>::const_iterator end() const { return m_Elements.end(); }
+		constexpr std::vector<BufferElement>::iterator begin() { return m_Elements.begin(); }
+		constexpr std::vector<BufferElement>::iterator end() { return m_Elements.end(); }
+		constexpr std::vector<BufferElement>::const_iterator begin() const { return m_Elements.begin(); }
+		constexpr std::vector<BufferElement>::const_iterator end() const { return m_Elements.end(); }
 
 	private:
-		void CalculateOffsetsAndStride() noexcept
+		constexpr void CalculateOffsetsAndStride() noexcept
 		{
 			m_Stride = 0;
 			for (auto& element : m_Elements)
@@ -175,11 +175,10 @@ namespace Quark {
 		virtual ~VertexBuffer() = default;
 
 		virtual void SetData(const void* data, size_t size, size_t offset = 0) = 0;
+		virtual bool operator==(const VertexBuffer& other) const = 0;
 
 		const BufferLayout& GetLayout() const { return m_Layout; }
 		void SetLayout(const BufferLayout& layout) { m_Layout = layout; }
-
-		virtual bool operator==(const VertexBuffer& other) const = 0;
 
 		static Scope<VertexBuffer> Create(const void* vertices, size_t size);
 		static Scope<VertexBuffer> Create(size_t size);
@@ -191,14 +190,18 @@ namespace Quark {
 	class IndexBuffer
 	{
 	public:
+		IndexBuffer(uint32_t count);
 		virtual ~IndexBuffer() = default;
 
 		virtual void SetData(const uint32_t* data, uint32_t count, uint32_t firstIndex = 0) = 0;
-		virtual uint32_t GetCount() const = 0;
-
 		virtual bool operator==(const IndexBuffer& other) const = 0;
+
+		uint32_t GetCount() const { return m_Count; }
 
 		static Scope<IndexBuffer> Create(const uint32_t* indices, uint32_t count);
 		static Scope<IndexBuffer> Create(uint32_t count);
+
+	protected:
+		uint32_t m_Count = 0;
 	};
 }

@@ -82,7 +82,7 @@ namespace Quark {
 			Reflect(Utils::GetShaderStageFromOpenGLType(stage), binary);
 
 		// Set uniform locations for samplers automatically (parity with other APIs)
-		for (auto& samplerArray : GetReflection().SamplerArrays)
+		for (auto& samplerArray : m_Reflection.SamplerArrays)
 		{
 			AutoRelease<int32_t> samplerIndexes = StackAlloc(samplerArray.SamplerCount * sizeof(int32_t));
 			for (uint32_t i = 0; i < samplerArray.SamplerCount; i++)
@@ -108,7 +108,7 @@ namespace Quark {
 			Reflect(Utils::GetShaderStageFromOpenGLType(stage), binary);
 
 		// Set uniform locations for samplers automatically (parity with other APIs)
-		for (auto& samplerArray : GetReflection().SamplerArrays)
+		for (auto& samplerArray : m_Reflection.SamplerArrays)
 		{
 			AutoRelease<int32_t> samplerIndexes = StackAlloc(samplerArray.SamplerCount * sizeof(int32_t));
 			for (uint32_t i = 0; i < samplerArray.SamplerCount; i++)
@@ -135,7 +135,7 @@ namespace Quark {
 			Reflect(Utils::GetShaderStageFromOpenGLType(stage), binary);
 
 		// Set uniform locations for samplers automatically (parity with other APIs)
-		for (auto& samplerArray : GetReflection().SamplerArrays)
+		for (auto& samplerArray : m_Reflection.SamplerArrays)
 		{
 			AutoRelease<int32_t> samplerIndexes = StackAlloc(samplerArray.SamplerCount * sizeof(int32_t));
 			for (uint32_t i = 0; i < samplerArray.SamplerCount; i++)
@@ -150,20 +150,20 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		std::unordered_map<GLenum, std::span<const uint32_t>> spirvSources = {
+		std::unordered_map<GLenum, std::span<const uint32_t>> spirvBinaries = {
 			{ GL_VERTEX_SHADER,   vertexSpirv   },
 			{ GL_FRAGMENT_SHADER, fragmentSpirv }
 		};
 
 		m_RendererID = IsLegacyCompiler()
 			? 0
-			: CompileVulkanSpirv(spirvSources);
+			: CompileVulkanSpirv(spirvBinaries);
 
 		for (auto&& [stage, binary] : m_OpenGLSpirv)
 			Reflect(Utils::GetShaderStageFromOpenGLType(stage), binary);
 
 		// Set uniform locations for samplers automatically (parity with other APIs)
-		for (auto& samplerArray : GetReflection().SamplerArrays)
+		for (auto& samplerArray : m_Reflection.SamplerArrays)
 		{
 			AutoRelease<int32_t> samplerIndexes = StackAlloc(samplerArray.SamplerCount * sizeof(int32_t));
 			for (uint32_t i = 0; i < samplerArray.SamplerCount; i++)
@@ -178,7 +178,7 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		std::unordered_map<GLenum, std::span<const uint32_t>> spirvSources = {
+		std::unordered_map<GLenum, std::span<const uint32_t>> spirvBinaries = {
 			{ GL_VERTEX_SHADER,   vertexSpirv   },
 			{ GL_GEOMETRY_SHADER, geometrySpirv },
 			{ GL_FRAGMENT_SHADER, fragmentSpirv }
@@ -186,13 +186,13 @@ namespace Quark {
 
 		m_RendererID = IsLegacyCompiler()
 			? 0
-			: CompileVulkanSpirv(spirvSources);
+			: CompileVulkanSpirv(spirvBinaries);
 
 		for (auto&& [stage, binary] : m_OpenGLSpirv)
 			Reflect(Utils::GetShaderStageFromOpenGLType(stage), binary);
 
 		// Set uniform locations for samplers automatically (parity with other APIs)
-		for (auto& samplerArray : GetReflection().SamplerArrays)
+		for (auto& samplerArray : m_Reflection.SamplerArrays)
 		{
 			AutoRelease<int32_t> samplerIndexes = StackAlloc(samplerArray.SamplerCount * sizeof(int32_t));
 			for (uint32_t i = 0; i < samplerArray.SamplerCount; i++)
@@ -209,37 +209,38 @@ namespace Quark {
 
 	void OpenGLShader::CompileOrReadFromCache(const std::unordered_map<GLenum, std::string_view>& shaderSources)
 	{
-		std::unordered_map<GLenum, std::string> parsedGlslSources;
+		std::unordered_map<GLenum, std::string> compileQueue;
 
-		// Get shaders from cache
+		// Get shaders from cache or add to compile queue
 		for (auto&& [stage, shaderSource] : shaderSources)
 		{
-			std::filesystem::path filename = CacheDirectory / Utils::GetCacheExtension(m_Name, stage);
-			if (std::filesystem::exists(filename))
+			try
 			{
+				std::filesystem::path filename = CacheDirectory / Utils::GetCacheExtension(m_Name, stage);
 				m_OpenGLSpirv[stage] = Filesystem::ReadSpirvFile(filename.string());
 			}
-			else
+			catch (...)
 			{
-				parsedGlslSources[stage] = Parse(shaderSource);
+				// If any of these files are missing, recompile the shader stage
+				compileQueue[stage] = Parse(shaderSource);
+				continue;
 			}
 		}
 
-		if (parsedGlslSources.empty())
+		if (compileQueue.empty())
 		{
 			// Create program from cache
 			m_RendererID = CreateProgram(m_OpenGLSpirv);
+			return;
 		}
-		else
-		{
-			// Compile not-found shaders
-			m_RendererID = IsLegacyCompiler()
-				? CompileVulkanSourcesLegacy(parsedGlslSources)
-				: CompileVulkanSources(parsedGlslSources);
-		}
+	
+		// Compile not-found shaders
+		m_RendererID = IsLegacyCompiler()
+			? CompileVulkanSourcesLegacy(compileQueue)
+			: CompileVulkanSources(compileQueue);
 
 		// Add new compiled sources to cache
-		for (auto&& [stage, source] : parsedGlslSources)
+		for (auto&& [stage, source] : compileQueue)
 		{
 			auto it = m_OpenGLSpirv.find(stage);
 			if (it != m_OpenGLSpirv.end())
@@ -254,7 +255,7 @@ namespace Quark {
 		}
 	}
 
-	GLuint OpenGLShader::CompileVulkanSources(const std::unordered_map<GLenum, std::string>& shaderSources, uint32_t glslVersion)
+	GLuint OpenGLShader::CompileVulkanSources(const std::unordered_map<GLenum, std::string>& shaderSources)
 	{
 		static constexpr bool optimize = false;
 
@@ -288,13 +289,9 @@ namespace Quark {
 			}
 
 			// Recompile SPIR-V to OpenGL GLSL sources
-			spirv_cross::CompilerGLSL glslCompiler(result.cbegin(), result.cend() - result.cbegin());
-			spirv_cross::CompilerGLSL::Options glslOptions;
-			glslOptions.version = glslVersion;
-			glslOptions.emit_push_constant_as_uniform_buffer = true;
-			glslCompiler.set_common_options(glslOptions);
-
-			std::string openglGlslSource = glslCompiler.compile();
+			size_t size = result.cend() - result.cbegin();
+			std::span<const uint32_t> binary = { result.cbegin(), size };
+			std::string openglGlslSource = CrossCompileToGlsl(stage, binary);
 
 			// Compile GLSL sources back into OpenGL compatible SPIR-V
 			auto openglResult = openglCompiler.CompileGlslToSpv(openglGlslSource, Utils::GLShaderStageToShaderC(stage), GetName().data(), "main", openglOptions);
@@ -316,8 +313,7 @@ namespace Quark {
 		return CreateProgram(m_OpenGLSpirv);
 	}
 
-	// TODO: deprecate
-	GLuint OpenGLShader::CompileVulkanSourcesLegacy(const std::unordered_map<GLenum, std::string>& shaderSources, uint32_t glslVersion)
+	GLuint OpenGLShader::CompileVulkanSourcesLegacy(const std::unordered_map<GLenum, std::string>& shaderSources)
 	{
 		static constexpr bool optimize = false;
 
@@ -344,19 +340,15 @@ namespace Quark {
 			}
 
 			// Recompile SPIR-V to OpenGL GLSL sources
-			spirv_cross::CompilerGLSL glslCompiler(result.cbegin(), result.cend() - result.cbegin());
-			spirv_cross::CompilerGLSL::Options glslOptions;
-			glslOptions.version = glslVersion;
-			glslOptions.emit_push_constant_as_uniform_buffer = true;
-			glslCompiler.set_common_options(glslOptions);
-
-			glslShaderSources[stage] = glslCompiler.compile();
+			size_t size = result.cend() - result.cbegin();
+			std::span<const uint32_t> binary = { result.cbegin(), size };
+			glslShaderSources[stage] = CrossCompileToGlsl(stage, binary);
 		}
 
 		return CreateProgram(glslShaderSources);
 	}
 
-	GLuint OpenGLShader::CompileVulkanSpirv(const std::unordered_map<GLenum, std::span<const uint32_t>>& spirvBinaries, uint32_t glslVersion)
+	GLuint OpenGLShader::CompileVulkanSpirv(const std::unordered_map<GLenum, std::span<const uint32_t>>& spirvBinaries)
 	{
 		static constexpr bool optimize = false;
 
@@ -371,13 +363,7 @@ namespace Quark {
 
 		for (auto&& [stage, vulkanBinary] : spirvBinaries)
 		{
-			spirv_cross::CompilerGLSL glslCompiler(vulkanBinary.data(), vulkanBinary.size());
-			spirv_cross::CompilerGLSL::Options glslOptions;
-			glslOptions.version = glslVersion;
-			glslOptions.emit_push_constant_as_uniform_buffer = true;
-			glslCompiler.set_common_options(glslOptions);
-
-			std::string source = glslCompiler.compile();
+			std::string source = CrossCompileToGlsl(stage, vulkanBinary);
 			auto result = compiler.CompileGlslToSpv(source, Utils::GLShaderStageToShaderC(stage), GetName().data(), "main", options);
 
 			size_t warnings = result.GetNumWarnings();
@@ -398,6 +384,25 @@ namespace Quark {
 			return 0;
 
 		return CreateProgram(m_OpenGLSpirv);
+	}
+
+	std::string OpenGLShader::CrossCompileToGlsl(GLenum stage, std::span<const uint32_t> spirv)
+	{
+		spirv_cross::CompilerGLSL glslCompiler(spirv.data(), spirv.size());
+		spirv_cross::CompilerGLSL::Options glslOptions;
+		glslOptions.version = GetGLSLVersion();
+		glslOptions.emit_push_constant_as_uniform_buffer = true;
+		glslCompiler.set_common_options(glslOptions);
+
+		auto resources = glslCompiler.get_shader_resources();
+		for (const auto& resource : resources.push_constant_buffers)
+		{
+			GLint maxBindings;
+			glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, &maxBindings);
+			glslCompiler.set_decoration(resource.id, spv::DecorationBinding, maxBindings - 1);
+		}
+
+		return glslCompiler.compile();
 	}
 
 	GLuint OpenGLShader::CreateProgram(const std::unordered_map<GLenum, std::vector<uint32_t>>& spirvBinaries)

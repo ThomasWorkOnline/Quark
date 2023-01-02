@@ -5,8 +5,13 @@
 
 namespace Quark {
 
-	Scope<UniformBuffer> UniformBuffer::Create(const UniformBufferSpecification& spec)
+	UniformBuffer::UniformBuffer(size_t size)
+		: m_Size(size)
 	{
-		return s_GraphicsAPI->CreateUniformBuffer(spec);
+	}
+
+	Scope<UniformBuffer> UniformBuffer::Create(size_t size)
+	{
+		return s_GraphicsAPI->CreateUniformBuffer(size);
 	}
 }

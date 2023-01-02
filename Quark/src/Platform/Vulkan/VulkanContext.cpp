@@ -11,27 +11,27 @@
 
 
 #if QK_ASSERT_API_VALIDATION_ERRORS
-#	define QK_VULKAN_ERROR_CALLBACK(message) QK_CORE_ASSERT(false, message)
+	#define QK_VULKAN_ERROR_CALLBACK(message) QK_CORE_ASSERT(false, message)
 #else
-#	define QK_VULKAN_ERROR_CALLBACK(message) QK_CORE_ERROR(message)
+	#define QK_VULKAN_ERROR_CALLBACK(message) QK_CORE_ERROR(message)
 #endif
 
 #if QK_ENABLE_VULKAN_VALIDATION_LAYERS
-#	define AssureDebugValidationLayerSupport ::Quark::AssureValidationLayerSupport
-#	define CreateDebugUtilsMessengerEXT ::Quark::CreateVkDebugUtilsMessengerEXT
-#	define DestroyDebugUtilsMessengerEXT ::Quark::DestroyVkDebugUtilsMessengerEXT
+	#define AssureDebugValidationLayerSupport ::Quark::AssureValidationLayerSupport
+	#define CreateDebugUtilsMessengerEXT ::Quark::CreateVkDebugUtilsMessengerEXT
+	#define DestroyDebugUtilsMessengerEXT ::Quark::DestroyVkDebugUtilsMessengerEXT
 #else
-#	define AssureDebugValidationLayerSupport(...)
-#	define CreateDebugUtilsMessengerEXT(...) VK_SUCCESS
-#	define DestroyDebugUtilsMessengerEXT(...)
+	#define AssureDebugValidationLayerSupport(...)
+	#define CreateDebugUtilsMessengerEXT(...) VK_SUCCESS
+	#define DestroyDebugUtilsMessengerEXT(...)
 #endif
 
 #if QK_VULKAN_DEBUG_UTILS_VERBOSE
-#	define _VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT
-#	define _VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT
+	#define _VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT
+	#define _VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT
 #else
-#	define _VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT 0
-#	define _VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT 0
+	#define _VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT 0
+	#define _VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT 0
 #endif
 
 namespace Quark {
@@ -73,6 +73,11 @@ namespace Quark {
 			}
 
 			return ColorFormat::None;
+		}
+
+		static SwapPresentMode VulkanPresentModeToPresentMode(VkPresentModeKHR presentMode)
+		{
+			return static_cast<SwapPresentMode>(presentMode);
 		}
 	}
 
@@ -222,11 +227,11 @@ namespace Quark {
 		for (const auto& availablePresentMode : availablePresentModes)
 		{
 			if (availablePresentMode == (VkPresentModeKHR)preferred)
-				return (SwapPresentMode)availablePresentMode;
+				return Utils::VulkanPresentModeToPresentMode(availablePresentMode);
 		}
 
 		QK_CORE_WARN("Swap present mode not found: fallback to default FIFO present mode");
-		return (SwapPresentMode)VK_PRESENT_MODE_FIFO_KHR;
+		return Utils::VulkanPresentModeToPresentMode(VK_PRESENT_MODE_FIFO_KHR);
 	}
 
 	void VulkanContext::CreateInstance(const char* appName, std::span<const char*> extensions)

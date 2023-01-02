@@ -31,7 +31,7 @@ namespace Quark {
 			VK_IMAGE_USAGE_TRANSFER_DST_BIT | (m_Spec.Levels > 1 ? VK_IMAGE_USAGE_TRANSFER_SRC_BIT : 0) | VK_IMAGE_USAGE_SAMPLED_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &m_Image, &m_BufferMemory);
 
-		Utils::AllocateImageView(m_Device, m_Image, format, 1, m_Spec.Levels, &m_ImageView);
+		Utils::AllocateImageView(m_Device, m_Image, GetVulkanAspectFlags(m_Spec.DataFormat), format, 1, m_Spec.Levels, &m_ImageView);
 	}
 
 	VulkanTexture2D::VulkanTexture2D(VulkanDevice* device, std::string_view filepath)
@@ -40,15 +40,15 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		Image image = filepath;
-		auto& metadata = image.GetMetadata();
+		auto& spec = image.GetSpecification();
 
-		QK_CORE_ASSERT(metadata.Width <= Renderer::GetCapabilities().Texture.Max2DSize
-			&& metadata.Height <= Renderer::GetCapabilities().Texture.Max2DSize,
+		QK_CORE_ASSERT(spec.Width <= Renderer::GetCapabilities().Texture.Max2DSize
+			&& spec.Height <= Renderer::GetCapabilities().Texture.Max2DSize,
 			"Texture dimensions too large: see Renderer::GetCapabilities() for more info");
 
-		m_Spec.Width      = metadata.Width;
-		m_Spec.Height     = metadata.Height;
-		m_Spec.DataFormat = metadata.DataFormat;
+		m_Spec.Width      = spec.Width;
+		m_Spec.Height     = spec.Height;
+		m_Spec.DataFormat = spec.DataFormat;
 		m_Spec.Levels     = m_Spec.Levels == 0 ? GetMipLevelsForResolution(m_Spec.Width, m_Spec.Height) : 1;
 
 		VkExtent3D imageExtent{};
@@ -61,10 +61,10 @@ namespace Quark {
 			VK_IMAGE_USAGE_TRANSFER_DST_BIT | (m_Spec.Levels > 1 ? VK_IMAGE_USAGE_TRANSFER_SRC_BIT : 0) | VK_IMAGE_USAGE_SAMPLED_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &m_Image, &m_BufferMemory);
 
-		Utils::AllocateImageView(m_Device, m_Image, format, 1, m_Spec.Levels, &m_ImageView);
+		Utils::AllocateImageView(m_Device, m_Image, GetVulkanAspectFlags(m_Spec.DataFormat), format, 1, m_Spec.Levels, &m_ImageView);
 
 		// Staging buffer
-		VkDeviceSize size = metadata.Size;
+		VkDeviceSize size = image.GetSize();
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;
 		VkMemoryRequirements req = Utils::AllocateBuffer(m_Device, size,

@@ -42,9 +42,6 @@ namespace Quark {
 		2, 3, 0
 	};
 
-	// NOTE: UVs are flipped vertically since the image loader
-	// does not provide any way to flip it while loading
-	// TODO: this is only applicable for OpenGL, change
 	static constexpr Vec2f s_TextureCoords[4] = {
 		{ 0.0f, 1.0f },
 		{ 1.0f, 1.0f },
@@ -126,7 +123,6 @@ namespace Quark {
 		};
 
 		TextRendererData TextData;
-
 		CameraData CameraBufferData{};
 		Scope<UniformBuffer> CameraUniformBuffer;
 	};
@@ -598,16 +594,8 @@ namespace Quark {
 			for (uint32_t i = 0; i < s_Data->MaxSamplerDestinations; i++)
 				Renderer::BindTexture(s_Data->Textures[i], s_Data->Samplers[i], 1, i);
 
+			Renderer::BindUniformBuffer(s_Data->CameraUniformBuffer.get(), 0);
 			Renderer::BindDescriptorSets();
-
-			if (GraphicsAPI::GetAPI() == RHI::OpenGL)
-			{
-				Renderer::BindUniformBuffer(s_Data->CameraUniformBuffer.get(), 0);
-			}
-			else
-			{
-				Renderer::GetCommandBuffer()->PushConstant(ShaderStage::Vertex, &s_Data->CameraBufferData, sizeof(s_Data->CameraBufferData));
-			}
 
 			Renderer::DrawIndexed(s_Data->QuadVertexBuffer.get(), s_Data->QuadIndexBuffer.get(), s_Data->QuadIndexCount);
 			s_Stats.DrawCalls++;
@@ -621,16 +609,9 @@ namespace Quark {
 			s_Data->LineVertexBuffer->SetData(s_Data->LineVertices, size);
 
 			Renderer::SetLineWidth(1.0f);
-			Renderer::BindDescriptorSets();
 
-			if (GraphicsAPI::GetAPI() == RHI::OpenGL)
-			{
-				Renderer::BindUniformBuffer(s_Data->CameraUniformBuffer.get(), 0);
-			}
-			else
-			{
-				Renderer::GetCommandBuffer()->PushConstant(ShaderStage::Vertex, &s_Data->CameraBufferData, sizeof(s_Data->CameraBufferData));
-			}
+			Renderer::BindUniformBuffer(s_Data->CameraUniformBuffer.get(), 0);
+			Renderer::BindDescriptorSets();
 
 			Renderer::Draw(s_Data->LineVertexBuffer.get(), vertexCount);
 			s_Stats.DrawCalls++;
@@ -656,11 +637,8 @@ namespace Quark {
 		s_Data->MaxSamplerDestinations = Renderer::GetCapabilities().Sampler.MaxTextureUnits;
 
 		// Camera buffer
-		{
-			UniformBufferSpecification spec;
-			spec.Size = sizeof(s_Data->CameraBufferData);
-			s_Data->CameraUniformBuffer = UniformBuffer::Create(spec);
-		}
+		static constexpr size_t ubSize = sizeof(s_Data->CameraBufferData);
+		s_Data->CameraUniformBuffer = UniformBuffer::Create(ubSize);
 
 		SetupQuadRenderer();
 		SetupLineRenderer();

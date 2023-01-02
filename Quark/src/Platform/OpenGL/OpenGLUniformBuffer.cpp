@@ -7,15 +7,15 @@
 
 namespace Quark {
 
-	OpenGLUniformBuffer::OpenGLUniformBuffer(const UniformBufferSpecification& spec)
-		: UniformBuffer(spec)
+	OpenGLUniformBuffer::OpenGLUniformBuffer(size_t size)
+		: UniformBuffer(size)
 	{
-		QK_CORE_ASSERT(spec.Size <= Renderer::GetCapabilities().UniformBuffer.MaxBufferSize,
+		QK_CORE_ASSERT(m_Size <= Renderer::GetCapabilities().UniformBuffer.MaxBufferSize,
 			"Uniform buffer Size too large: see Renderer::GetCapabilities() for more info");
 
 		glGenBuffers(1, &m_RendererID);
 		glBindBuffer(GL_UNIFORM_BUFFER, m_RendererID);
-		glBufferData(GL_UNIFORM_BUFFER, spec.Size, NULL, GL_DYNAMIC_DRAW);
+		glBufferData(GL_UNIFORM_BUFFER, m_Size, NULL, GL_DYNAMIC_DRAW);
 
 		QK_DEBUG_CALL(glBindBuffer(GL_UNIFORM_BUFFER, 0));
 	}
@@ -27,7 +27,7 @@ namespace Quark {
 
 	void OpenGLUniformBuffer::SetData(const void* data, size_t size, size_t offset)
 	{
-		QK_CORE_ASSERT(size + offset <= m_Spec.Size,
+		QK_CORE_ASSERT(size + offset <= m_Size,
 			"Written size is too large: Size and Offset parameters must be within the total buffer size");
 
 		glBindBuffer(GL_UNIFORM_BUFFER, m_RendererID);

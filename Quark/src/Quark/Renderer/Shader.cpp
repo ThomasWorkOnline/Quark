@@ -193,7 +193,7 @@ namespace Quark {
 		uint32_t maxTextureUnits = Renderer::GetCapabilities().Sampler.MaxTextureUnits;
 
 		char buffer[4];
-		std::to_chars(buffer, buffer + sizeof_array(buffer), maxTextureUnits);
+		std::to_chars(buffer, buffer + sizeof(buffer), maxTextureUnits);
 
 		// Replace all occurences of "Quark.MaxTextureUnits"
 		Utils::FindAndReplace("Quark.MaxTextureUnits", buffer, parsedGlslSource);

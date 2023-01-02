@@ -4,29 +4,20 @@
 
 namespace Quark {
 
-	struct UniformBufferSpecification
-	{
-		size_t Size = 0;
-	};
-
 	class UniformBuffer
 	{
 	public:
-		UniformBuffer(const UniformBufferSpecification& spec)
-			: m_Spec(spec) {}
-
+		UniformBuffer(size_t size);
 		virtual ~UniformBuffer() = default;
-		virtual void SetData(const void* data, size_t size, size_t offset = 0) = 0;
 
+		virtual void SetData(const void* data, size_t size, size_t offset = 0) = 0;
 		virtual bool operator==(const UniformBuffer& other) const = 0;
 
-		size_t GetSize() const { return m_Spec.Size; }
+		size_t GetSize() const { return m_Size; }
 
-		const UniformBufferSpecification& GetSpecification() const { return m_Spec; }
-
-		static Scope<UniformBuffer> Create(const UniformBufferSpecification& spec);
+		static Scope<UniformBuffer> Create(size_t size);
 
 	protected:
-		UniformBufferSpecification m_Spec{};
+		size_t m_Size = 0;
 	};
 }

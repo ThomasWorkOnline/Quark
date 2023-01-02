@@ -10,18 +10,18 @@ namespace Quark {
 	class OpenALAudioOutputDevice final : public AudioOutputDevice
 	{
 	public:
-		OpenALAudioOutputDevice(const char* deviceName = nullptr);
-		virtual ~OpenALAudioOutputDevice() override;
+		OpenALAudioOutputDevice(std::string_view deviceName);
+		virtual ~OpenALAudioOutputDevice() final override;
 
-		virtual const char* GetDeviceName() const override { return m_DeviceName; }
-		virtual void* GetNativeDevice() const override { return m_Device; }
+		virtual const char* GetDeviceName() const final override { return m_DeviceName; }
+		virtual void* GetNativeDevice() const final override { return m_Device; }
 
 		// Non-Copyable
 		OpenALAudioOutputDevice(const OpenALAudioOutputDevice&) = delete;
 		OpenALAudioOutputDevice& operator=(const OpenALAudioOutputDevice&) = delete;
 
 	private:
-		ALCdevice* m_Device;
+		ALCdevice* m_Device = nullptr;
 		Scope<AudioContext> m_Context;
 
 		const char* m_DeviceName = nullptr;

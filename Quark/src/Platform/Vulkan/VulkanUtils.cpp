@@ -24,8 +24,8 @@ namespace Quark {
 		}
 
 		uint32_t GetBufferMemoryType(
-			VkPhysicalDevice physicalDevice,
-			uint32_t typeFilter,
+			VkPhysicalDevice      physicalDevice,
+			uint32_t              typeFilter,
 			VkMemoryPropertyFlags properties)
 		{
 			VkPhysicalDeviceMemoryProperties memProperties;
@@ -41,12 +41,12 @@ namespace Quark {
 		}
 
 		VkMemoryRequirements AllocateBuffer(
-			VulkanDevice* device,
-			VkDeviceSize size,
-			VkBufferUsageFlags usage,
+			VulkanDevice*         device,
+			VkDeviceSize          size,
+			VkBufferUsageFlags    usage,
 			VkMemoryPropertyFlags properties,
-			VkBuffer* buffer,
-			VkDeviceMemory* bufferMemory)
+			VkBuffer*             buffer,
+			VkDeviceMemory*       bufferMemory)
 		{
 			VkBufferCreateInfo bufferInfo{};
 			bufferInfo.sType       = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -73,16 +73,16 @@ namespace Quark {
 		}
 
 		VkMemoryRequirements AllocateImage(
-			VulkanDevice* device,
-			VkExtent3D extent,
-			uint32_t layerCount,
-			uint32_t levels,
+			VulkanDevice*         device,
+			VkExtent3D            extent,
+			uint32_t              layerCount,
+			uint32_t              levels,
 			VkSampleCountFlagBits samples,
-			VkFormat format,
-			VkBufferUsageFlags usage,
+			VkFormat              format,
+			VkBufferUsageFlags    usage,
 			VkMemoryPropertyFlags properties,
-			VkImage* image,
-			VkDeviceMemory* bufferMemory)
+			VkImage*              image,
+			VkDeviceMemory*       bufferMemory)
 		{
 			VkImageCreateInfo createInfo{};
 			createInfo.sType         = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -114,12 +114,13 @@ namespace Quark {
 		}
 
 		void AllocateImageView(
-			VulkanDevice* device,
-			VkImage image,
-			VkFormat format,
-			uint32_t layerCount,
-			uint32_t levelCount,
-			VkImageView* imageView)
+			VulkanDevice*      device,
+			VkImage            image,
+			VkImageAspectFlags aspectMask,
+			VkFormat           format,
+			uint32_t           layerCount,
+			uint32_t           levelCount,
+			VkImageView*       imageView)
 		{
 			VkComponentMapping componentsSwizzle{};
 			componentsSwizzle.r = VK_COMPONENT_SWIZZLE_R;
@@ -133,7 +134,7 @@ namespace Quark {
 			createInfo.viewType                    = VK_IMAGE_VIEW_TYPE_2D;
 			createInfo.format                      = format;
 			createInfo.components                  = componentsSwizzle;
-			createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			createInfo.subresourceRange.aspectMask = aspectMask;
 			createInfo.subresourceRange.levelCount = levelCount;
 			createInfo.subresourceRange.layerCount = layerCount;
 
@@ -142,11 +143,11 @@ namespace Quark {
 
 		void CopyBuffer(
 			VulkanDevice* device,
-			VkBuffer dstBuffer,
-			VkBuffer srcBuffer,
-			size_t size,
-			size_t srcOffset,
-			size_t dstOffset)
+			VkBuffer      dstBuffer,
+			VkBuffer      srcBuffer,
+			size_t        size,
+			size_t        srcOffset,
+			size_t        dstOffset)
 		{
 			VkCommandBuffer commandBuffer = device->GetCopyCommandBuffer();
 			vkResetCommandBuffer(commandBuffer, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
@@ -175,13 +176,13 @@ namespace Quark {
 		}
 
 		void ClearImage(
-			VulkanDevice* device,
-			VkImage dstImage,
-			VkImageLayout layout,
+			VulkanDevice*     device,
+			VkImage           dstImage,
+			VkImageLayout     layout,
 			VkClearColorValue clearColor,
-			uint32_t layerCount,
-			uint32_t baseLayer,
-			uint32_t levelCount)
+			uint32_t          layerCount,
+			uint32_t          baseLayer,
+			uint32_t          levelCount)
 		{
 			VkCommandBuffer commandBuffer = device->GetCopyCommandBuffer();
 			vkResetCommandBuffer(commandBuffer, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
@@ -226,14 +227,14 @@ namespace Quark {
 
 		void CopyBufferToImage(
 			VulkanDevice* device,
-			VkBuffer srcBuffer,
-			VkDeviceSize bufferOffset,
-			VkImage dstImage,
-			VkExtent3D imageExtent,
-			VkOffset3D imageOffset,
-			uint32_t layerCount,
-			uint32_t baseLayer,
-			uint32_t levelCount)
+			VkBuffer      srcBuffer,
+			VkDeviceSize  bufferOffset,
+			VkImage       dstImage,
+			VkExtent3D    imageExtent,
+			VkOffset3D    imageOffset,
+			uint32_t      layerCount,
+			uint32_t      baseLayer,
+			uint32_t      levelCount)
 		{
 			VkCommandBuffer commandBuffer = device->GetCopyCommandBuffer();
 			vkResetCommandBuffer(commandBuffer, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
@@ -295,14 +296,14 @@ namespace Quark {
 
 		void CopyImageToBuffer(
 			VulkanDevice* device,
-			VkImage srcImage,
-			VkExtent3D imageExtent,
-			VkOffset3D imageOffset,
-			uint32_t layerCount,
-			uint32_t baseLayer,
-			uint32_t level,
-			VkBuffer dstBuffer,
-			VkDeviceSize bufferOffset)
+			VkImage       srcImage,
+			VkExtent3D    imageExtent,
+			VkOffset3D    imageOffset,
+			uint32_t      layerCount,
+			uint32_t      baseLayer,
+			uint32_t      level,
+			VkBuffer      dstBuffer,
+			VkDeviceSize  bufferOffset)
 		{
 			VkCommandBuffer commandBuffer = device->GetCopyCommandBuffer();
 			vkResetCommandBuffer(commandBuffer, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
@@ -336,12 +337,12 @@ namespace Quark {
 
 		void GenerateMipmaps(
 			VulkanDevice* device,
-			VkImage image,
-			uint32_t width,
-			uint32_t height,
-			uint32_t layerCount,
-			uint32_t baseLayer,
-			uint32_t levelCount)
+			VkImage       image,
+			uint32_t      width,
+			uint32_t      height,
+			uint32_t      layerCount,
+			uint32_t      baseLayer,
+			uint32_t      levelCount)
 		{
 			VkCommandBuffer commandBuffer = device->GetCopyCommandBuffer();
 			vkResetCommandBuffer(commandBuffer, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
@@ -433,7 +434,7 @@ namespace Quark {
 			submitInfo.commandBufferCount = 1;
 			submitInfo.pCommandBuffers = &commandBuffer;
 
-			// Warning: this queue must have graphics capabilities
+			// Note: this queue must have graphics capabilities
 			VkQueue transferQueue = device->GetTransferQueue();
 			vkQueueSubmit(transferQueue, 1, &submitInfo, nullptr);
 			vkQueueWaitIdle(transferQueue);
@@ -441,13 +442,13 @@ namespace Quark {
 
 		void TransitionImageLayout(
 			VulkanDevice* device,
-			VkImage image,
-			VkFormat format,
+			VkImage       image,
+			VkFormat      format,
 			VkImageLayout oldLayout,
 			VkImageLayout newLayout,
-			uint32_t layerCount,
-			uint32_t baseLayer,
-			uint32_t levelCount)
+			uint32_t      layerCount,
+			uint32_t      baseLayer,
+			uint32_t      levelCount)
 		{
 			VkCommandBuffer commandBuffer = device->GetCopyCommandBuffer();
 			vkResetCommandBuffer(commandBuffer, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
@@ -470,8 +471,8 @@ namespace Quark {
 			barrier.subresourceRange.baseArrayLayer = baseLayer;
 			barrier.subresourceRange.layerCount     = layerCount;
 
-			VkPipelineStageFlags sourceStage;
-			VkPipelineStageFlags destinationStage;
+			VkPipelineStageFlags sourceStage{};
+			VkPipelineStageFlags destinationStage{};
 
 			if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
 			{

@@ -27,8 +27,8 @@ namespace Quark {
 		virtual void SetDepthFunction(DepthCompareFunction func) = 0;
 
 		virtual void BindPipeline(const Pipeline* pipeline) = 0;
-		virtual void BindDescriptorSets(uint32_t frameIndex) = 0;
-		virtual void PushConstant(ShaderStage stage, const void* data, size_t size) = 0;
+		virtual void BindDescriptorSets(const Pipeline* pipeline, uint32_t frameIndex) = 0;
+		virtual void PushConstant(const Pipeline* pipeline, ShaderStage stage, const void* data, size_t size) = 0;
 
 		virtual void SetViewport(uint32_t viewportWidth, uint32_t viewportHeight) = 0;
 		virtual void SetLineWidth(float width) = 0;
@@ -44,8 +44,8 @@ namespace Quark {
 		virtual void BindVertexBuffer(const VertexBuffer* vertexBuffer) = 0;
 		virtual void BindIndexBuffer(const IndexBuffer* indexBuffer) = 0;
 
-		virtual void BindUniformBuffer(const UniformBuffer* uniformBuffer, uint32_t frameIndex, uint32_t binding) = 0;
-		virtual void BindTexture(const Texture* texture, const Sampler* sampler, uint32_t frameIndex, uint32_t binding, uint32_t samplerIndex = 0) = 0;
+		virtual void BindUniformBuffer(const Pipeline* pipeline, const UniformBuffer* uniformBuffer, uint32_t frameIndex, uint32_t binding) = 0;
+		virtual void BindTexture(const Pipeline* pipeline, const Texture* texture, const Sampler* sampler, uint32_t frameIndex, uint32_t binding, uint32_t samplerIndex = 0) = 0;
 
 		virtual bool IsInsideRenderPass() const = 0;
 

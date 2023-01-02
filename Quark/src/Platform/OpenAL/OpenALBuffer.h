@@ -2,6 +2,8 @@
 
 #include "Quark/Audio/AudioBuffer.h"
 
+typedef unsigned int ALuint;
+
 namespace Quark {
 
 	class OpenALAudioBuffer final : public AudioBuffer
@@ -9,17 +11,20 @@ namespace Quark {
 	public:
 		OpenALAudioBuffer(std::string_view filepath);
 		OpenALAudioBuffer(const AudioBufferSpecification& spec, const void* data);
-		virtual ~OpenALAudioBuffer() override;
+		virtual ~OpenALAudioBuffer() final override;
 
-		virtual void SetData(const void* data, size_t size) override;
+		virtual void SetData(const void* data, size_t size) final override;
 
-		uint32_t GetBufferID() const { return m_BufferID; }
+		virtual double GetDuration() const final override { return m_Duration; }
+
+		ALuint GetBufferID() const { return m_BufferID; }
 
 		// Non-Copyable
 		OpenALAudioBuffer(const OpenALAudioBuffer&) = delete;
 		OpenALAudioBuffer& operator=(const OpenALAudioBuffer&) = delete;
 
 	private:
-		uint32_t m_BufferID = 0;
+		ALuint m_BufferID = 0;
+		double m_Duration = 0.0;
 	};
 }

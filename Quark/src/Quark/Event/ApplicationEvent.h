@@ -4,15 +4,6 @@
 
 namespace Quark {
 
-    class AppTickEvent : public Event
-	{
-	public:
-		AppTickEvent() = default;
-
-		EVENT_CLASS_TYPE(EventType::AppTick);
-		EVENT_CLASS_CATEGORY(EventCategory::Application);
-	};
-
     class AppUpdateEvent : public Event
 	{
 	public:

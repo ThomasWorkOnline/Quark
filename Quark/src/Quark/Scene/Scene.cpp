@@ -130,3 +130,27 @@ namespace Quark {
 		}
 	}
 }
+
+#include "Quark/Renderer/Renderer.h"
+
+namespace Quark {
+
+	template<>
+	void Scene::OnComponentAdded(Entity entity, NativeScriptComponent& nsc)
+	{
+		InstanciateScript(entity, nsc);
+	}
+
+	template<>
+	void Scene::OnComponentRemove(Entity entity, NativeScriptComponent& nsc)
+	{
+		DestroyScript(nsc);
+	}
+
+	template<>
+	void Scene::OnComponentAdded(Entity entity, CameraComponent& cc)
+	{
+		auto extent = Renderer::GetViewportExtent();
+		cc.Camera.Resize((float)extent.Width, (float)extent.Height);
+	}
+}

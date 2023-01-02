@@ -171,11 +171,13 @@ namespace Quark {
 					ColorFormat::RGBA16f
 				};
 
+				m_Data.Env->EnvironmentBuffer = FramebufferAttachment::Create(attachmentSpec);
+
 				FramebufferSpecification spec;
 				spec.Width = 2048;
 				spec.Height = 2048;
 				spec.RenderPass = m_Data.Env->RenderPass.get();
-				spec.Attachments = { FramebufferAttachment::Create(attachmentSpec) };
+				spec.Attachments = { m_Data.Env->EnvironmentBuffer.get() };
 
 				m_Data.Env->Framebuffer = Framebuffer::Create(spec);
 			}
@@ -193,7 +195,7 @@ namespace Quark {
 
 		auto hdrTexture = Texture2D::Create(filepath);
 
-		Renderer::GetCommandBuffer()->BindTexture(hdrTexture.get(), nullptr, Renderer::GetCurrentFrameIndex(), 0);
+		Renderer::BindTexture(hdrTexture.get(), nullptr, Renderer::GetCurrentFrameIndex(), 0);
 		Renderer::GetCommandBuffer()->SetCullMode(RenderCullMode::Front);
 		Renderer::GetCommandBuffer()->SetDepthFunction(DepthCompareFunction::LessOrEqual);
 
@@ -226,7 +228,7 @@ namespace Quark {
 			m_Data.Env->IrradianceShader->SetInt("u_EnvironmentMap", 0);
 			m_Data.Env->IrradianceShader->SetMat4f("u_Projection", captureProjection);
 
-			Renderer::GetCommandBuffer()->BindTexture(m_Data.Env->Environment.get(), nullptr, Renderer::GetCurrentFrameIndex(), 0);
+			Renderer::BindTexture(m_Data.Env->Environment.get(), nullptr, Renderer::GetCurrentFrameIndex(), 0);
 
 			for (uint8_t i = 0; i < 6; i++)
 			{

@@ -58,7 +58,7 @@ namespace Quark {
 
 		virtual Scope<Texture2DArray>        CreateTexture2DArray(const Texture2DArraySpecification& spec) final override;
 
-		virtual Scope<UniformBuffer>         CreateUniformBuffer(const UniformBufferSpecification& spec) final override;
+		virtual Scope<UniformBuffer>         CreateUniformBuffer(size_t size) final override;
 
 		virtual const char*                  GetName() const final override { return "Vulkan"; }
 		virtual const char*                  GetDeviceName() const final override;

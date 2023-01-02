@@ -5,17 +5,16 @@
 
 namespace Quark {
 
-	int Main(int argc, char** argv)
-	{
-		RuntimeCore::Init();
+	inline bool g_Running = false;
 
+	static void LaunchApplication(CommandLineArguments args)
+	{
 		Application* app = nullptr;
-		CommandLineArguments args = { argc, argv };
 
 		try
 		{
 			QK_BEGIN_PROFILE_SESSION("startup.json");
-			app = Quark::CreateApplication(args);
+			app = CreateApplication(args);
 			QK_END_PROFILE_SESSION();
 
 			QK_BEGIN_PROFILE_SESSION("runtime.json");
@@ -36,6 +35,19 @@ namespace Quark {
 				delete app;
 			}
 		}
+	}
+
+	int Main(int argc, char** argv)
+	{
+		RuntimeCore::Init();
+		
+		CommandLineArguments args = { argc, argv };
+
+		do
+		{
+			LaunchApplication(args);
+		}
+		while (g_Running);
 
 		RuntimeCore::Shutdown();
 

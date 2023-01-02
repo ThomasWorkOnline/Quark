@@ -3,18 +3,15 @@
 #include "Quark/Core/Core.h"
 
 #ifdef QK_PLATFORM_APPLE
-#	include <MoltenVK/mvk_vulkan.h>
+	#include <MoltenVK/mvk_vulkan.h>
 #else
-#	include <vulkan/vulkan.h>
+	#include <vulkan/vulkan.h>
 #endif
 
 #include <vma/vk_mem_alloc.h>
 
 #if defined(QK_DEBUG)
-#	ifdef QK_ENABLE_VULKAN_VALIDATION_LAYERS
-#		undef QK_ENABLE_VULKAN_VALIDATION_LAYERS
-#	endif
-#	define QK_ENABLE_VULKAN_VALIDATION_LAYERS 1
+	#define QK_ENABLE_VULKAN_VALIDATION_LAYERS 1
 #else
-#	define QK_ENABLE_VULKAN_VALIDATION_LAYERS 0
+	#define QK_ENABLE_VULKAN_VALIDATION_LAYERS 0
 #endif

@@ -1,12 +1,11 @@
 #include "qkpch.h"
 #include "Application.h"
 
-#include "Quark/ImGui/ImGuiLayer.h"
-
-#include <ctime>
-#include <filesystem>
+#include <chrono>
 
 namespace Quark {
+
+	extern bool g_Running;
 
 	Application::Application(const ApplicationSpecification& spec) : Singleton(this),
 		m_Spec(spec)
@@ -149,7 +148,7 @@ namespace Quark {
 		}
 	}
 
-	AudioOutputDevice* Application::OpenAudioOutputDevice(const char* deviceName)
+	AudioOutputDevice* Application::OpenAudioOutputDevice(std::string_view deviceName)
 	{
 		m_AudioOutputDevice = AudioOutputDevice::Create(deviceName);
 		return m_AudioOutputDevice.get();
@@ -182,5 +181,10 @@ namespace Quark {
 
 		if (it != m_Layers.end())
 			m_Layers.erase(it);
+	}
+
+	void Application::SetRestartPolicy(ApplicationRestartPolicy policy)
+	{
+		g_Running = policy == ApplicationRestartPolicy::Restart;
 	}
 }

@@ -5,6 +5,6 @@
 namespace Quark {
 
 	// Converting between SRGB and linear colors
-	Vec4 EncodeSRGB(const Vec4& color);
-	Vec4 DecodeSRGB(const Vec4& color);
+	Vec4f EncodeSRGB(const Vec4f& color);
+	Vec4f DecodeSRGB(const Vec4f& color);
 }

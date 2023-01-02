@@ -20,9 +20,7 @@ namespace Quark {
 		virtual uint32_t GetBufferCount() const final override;
 		virtual uint32_t GetCurrentImageIndex() const final override { return m_ImageIndex; }
 
-		virtual Ref<FramebufferAttachment> GetColorAttachment(uint32_t index) const final override;
-		virtual Ref<FramebufferAttachment> GetDepthAttachment(uint32_t index) const final override;
-		virtual Ref<FramebufferAttachment> GetResolveAttachment(uint32_t index) const final override;
+		virtual const FramebufferAttachment* GetColorAttachment(uint32_t index) const final override;
 
 		void Present(VkQueue presentQueue, VkSemaphore renderFinishedSemaphore);
 		void SetPresentMode(SwapPresentMode presentMode);
@@ -42,9 +40,6 @@ namespace Quark {
 		VkSurfaceKHR m_Surface = nullptr;
 
 		uint32_t m_ImageIndex = 0;
-		std::vector<VkImage> m_SwapChainImages;
-		std::vector<Ref<VulkanFramebufferAttachment>> m_ColorAttachments;
-		std::vector<Ref<VulkanFramebufferAttachment>> m_DepthAttachments;
-		std::vector<Ref<VulkanFramebufferAttachment>> m_ResolveAttachments;
+		std::vector<Scope<VulkanFramebufferAttachment>> m_ColorAttachments;
 	};
 }

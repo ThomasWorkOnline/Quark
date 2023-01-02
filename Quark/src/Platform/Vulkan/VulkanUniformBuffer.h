@@ -10,7 +10,7 @@ namespace Quark {
 	class VulkanUniformBuffer final : public UniformBuffer
 	{
 	public:
-		VulkanUniformBuffer(VulkanDevice* device, const UniformBufferSpecification& spec);
+		VulkanUniformBuffer(VulkanDevice* device, size_t size);
 		virtual ~VulkanUniformBuffer() final override;
 
 		virtual void SetData(const void* data, size_t size, size_t offset = 0) final override;

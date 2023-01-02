@@ -24,7 +24,7 @@ namespace Quark {
 		GLuint GetRendererID() const { return m_RendererID; }
 
 	private:
-		GLuint m_RendererID;
+		GLuint m_RendererID = 0;
 		size_t m_Size;
 	};
 
@@ -36,8 +36,6 @@ namespace Quark {
 		virtual ~OpenGLIndexBuffer() final override;
 
 		virtual void SetData(const uint32_t* data, uint32_t count, uint32_t firstIndex = 0) final override;
-		virtual uint32_t GetCount() const final override { return m_Count; };
-
 		virtual bool operator==(const IndexBuffer& other) const final override;
 
 		// Non-Copyable
@@ -47,7 +45,6 @@ namespace Quark {
 		GLuint GetRendererID() const { return m_RendererID; }
 
 	private:
-		GLuint m_RendererID;
-		uint32_t m_Count;
+		GLuint m_RendererID = 0;
 	};
 }

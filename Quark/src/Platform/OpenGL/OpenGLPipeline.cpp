@@ -35,7 +35,6 @@ namespace Quark {
 	{
 		auto* glShader = static_cast<const OpenGLShader*>(m_Spec.Shader);
 		glUseProgram(glShader->GetRendererID());
-
 		glBlendFunc(m_BlendSrcFactorState, m_BlendDstFactorState);
 	}
 

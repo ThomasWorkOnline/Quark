@@ -14,7 +14,6 @@ namespace Quark {
 		uint32_t    Width = 0, Height = 0;
 		SampleCount Samples{};
 		ColorFormat DataFormat{};
-		bool        SwapChainTarget = false;
 	};
 
 	class FramebufferAttachment
@@ -42,7 +41,7 @@ namespace Quark {
 		bool              SwapChainTarget = false;
 		const RenderPass* RenderPass = nullptr;
 
-		std::vector<Ref<FramebufferAttachment>> Attachments;
+		std::vector<const FramebufferAttachment*> Attachments;
 	};
 
 	class Framebuffer

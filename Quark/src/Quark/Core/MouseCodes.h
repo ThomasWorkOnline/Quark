@@ -2,7 +2,7 @@
 
 namespace Quark {
 
-	typedef enum class MouseCode : uint16_t
+	enum class MouseCode : uint16_t
 	{
 		// Code from glfw3.h
 		Button0                = 0,
@@ -18,7 +18,7 @@ namespace Quark {
 		ButtonLeft             = Button0,
 		ButtonRight            = Button1,
 		ButtonMiddle           = Button2
-	} Mouse;
+	};
 
 	inline std::ostream& operator<<(std::ostream& os, MouseCode mouseCode)
 	{

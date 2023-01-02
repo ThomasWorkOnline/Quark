@@ -104,17 +104,16 @@ namespace Quark {
 
 			uint32_t          bufferCount   = m_Data.Context->QuerySwapChainImageCount();
 			ViewportExtent    swapExtent    = m_Data.Context->QuerySwapExtent();
-			SwapPresentMode   presentMode   = m_Data.Context->ChooseSwapPresentMode(SwapPresentMode::Mailbox);
+			SwapPresentMode   presentMode   = m_Data.Context->ChooseSwapPresentMode(spec.VSync ? SwapPresentMode::FIFO : SwapPresentMode::Mailbox);
 			SwapSurfaceFormat surfaceFormat = m_Data.Context->ChooseSurfaceFormat(targetSurfaceFormat);
 
 			SwapChainSpecification swapChainSpec;
-			swapChainSpec.MinImageCount     = bufferCount;
-			swapChainSpec.Width             = swapExtent.Width;
-			swapChainSpec.Height            = swapExtent.Height;
-			swapChainSpec.SurfaceFormat     = surfaceFormat;
-			swapChainSpec.PresentMode       = presentMode;
-			swapChainSpec.Samples           = spec.Samples;
-			swapChainSpec.DepthBufferFormat = ColorFormat::Depth32f;
+			swapChainSpec.MinImageCount = bufferCount;
+			swapChainSpec.Width         = swapExtent.Width;
+			swapChainSpec.Height        = swapExtent.Height;
+			swapChainSpec.SurfaceFormat = surfaceFormat;
+			swapChainSpec.PresentMode   = presentMode;
+			swapChainSpec.Samples       = spec.Samples;
 
 			m_Data.Context->Init(swapChainSpec);
 			m_Data.Context->SetSwapInterval(m_Data.VSync);

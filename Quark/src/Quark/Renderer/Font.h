@@ -3,7 +3,6 @@
 #include "Quark/Core/Core.h"
 #include "Texture.h"
 
-#include <string>
 #include <unordered_map>
 
 struct FT_FaceRec_;
@@ -24,7 +23,6 @@ namespace Quark {
 	public:
 		static constexpr uint8_t GlyphCount = 255;
 
-	public:
 		Font(std::string_view filepath, uint32_t fontSize);
 		virtual ~Font();
 

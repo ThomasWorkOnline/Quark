@@ -13,7 +13,7 @@ namespace Quark {
 	{
 		None = 0,
 		WindowClosed, WindowResized, WindowFocused, WindowLostFocus, WindowMoved, WindowMaximized, WindowMinimized, WindowRestored,
-		AppTick, AppUpdate, AppRender, ViewportResized,
+		AppUpdate, AppRender, ViewportResized,
 		KeyPressed, KeyReleased, KeyTyped,
 		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled
 	};

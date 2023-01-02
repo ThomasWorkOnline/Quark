@@ -32,6 +32,7 @@ namespace Quark {
 
 			Scope<RenderPass>  RenderPass;
 			Scope<Framebuffer> Framebuffer;
+			Scope<FramebufferAttachment> EnvironmentBuffer;
 
 			Scope<Pipeline> EnvironmentMapPipeline;
 			Scope<Pipeline> IrradiancePipeline;
@@ -53,20 +54,4 @@ namespace Quark {
 		Scene* m_Scene;
 		Entity m_PrimaryCameraEntity;
 	};
-}
-
-#include "Quark/Scene/Components.h"
-
-namespace Quark {
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////
-	// Component template specialization
-	//
-
-	template<>
-	inline void Scene::OnComponentAdded(Entity entity, CameraComponent& cc)
-	{
-		auto extent = Renderer::GetViewportExtent();
-		cc.Camera.Resize((float)extent.Width, (float)extent.Height);
-	}
 }

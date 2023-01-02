@@ -9,7 +9,7 @@ namespace Quark {
 	class OpenGLUniformBuffer final : public UniformBuffer
 	{
 	public:
-		OpenGLUniformBuffer(const UniformBufferSpecification& spec);
+		OpenGLUniformBuffer(size_t size);
 		virtual ~OpenGLUniformBuffer() final override;
 
 		virtual void SetData(const void* data, size_t size, size_t offset = 0) final override;

@@ -1,45 +1,33 @@
 #pragma once
 
-#include "Quark/Core/Core.h"
 #include "Quark/Core/Timer.h"
 
 #include "FuncSig.h"
 #include "Logger.h"
 
-// define QK_FORCE_ENABLE_PROFILING 1 to force profiling (see Core/Tweaks.h)
-#if defined(QK_DEBUG) || defined(QK_RELEASE) || QK_FORCE_ENABLE_PROFILING
-#	define QK_PROFILING_ENABLED 1
-#else
-#	define QK_PROFILING_ENABLED 0
-#endif
-
 #if QK_FORCE_ENABLE_PROFILE_LOGS
-#	define QK_PROFILE_LOGS_ENABLED 1
-#else
-#	define QK_PROFILE_LOGS_ENABLED 0
+	#define QK_PROFILE_LOGS_ENABLED 1
 #endif
 
 #if QK_FORCE_ENABLE_PROFILE_DUMP
-#	define QK_PROFILE_DUMP_ENABLED 1
-#else
-#	define QK_PROFILE_DUMP_ENABLED 0
+	#define QK_PROFILE_DUMP_ENABLED 1
 #endif
 
 #if QK_PROFILING_ENABLED
-#	define CONCAT_IMPL(a, b) a ## b
-#	define CONCAT(a, b) CONCAT_IMPL(a, b)
+	#define CONCAT_IMPL(a, b) a ## b
+	#define CONCAT(a, b) CONCAT_IMPL(a, b)
 
-#	define QK_PROFILE_SCOPE(scope) ::Quark::Profile::ScopeTimer CONCAT(profiler, __LINE__)(#scope)
-#	define QK_PROFILE_FUNCTION()   ::Quark::Profile::ScopeTimer CONCAT(profiler, __LINE__)(QK_FUNCTION_SIG)
+	#define QK_PROFILE_SCOPE(scope) ::Quark::Profile::ScopeTimer CONCAT(profiler, __LINE__)(#scope)
+	#define QK_PROFILE_FUNCTION()   ::Quark::Profile::ScopeTimer CONCAT(profiler, __LINE__)(QK_FUNCTION_SIG)
 
-#	define QK_BEGIN_PROFILE_SESSION(sessionName) ::Quark::Profile::Instrumentor::Get().BeginSession(sessionName);
-#	define QK_END_PROFILE_SESSION()              ::Quark::Profile::Instrumentor::Get().EndSession();
+	#define QK_BEGIN_PROFILE_SESSION(sessionName) ::Quark::Profile::Instrumentor::Get().BeginSession(sessionName);
+	#define QK_END_PROFILE_SESSION()              ::Quark::Profile::Instrumentor::Get().EndSession();
 #else
-#	define QK_PROFILE_SCOPE(scope)
-#	define QK_PROFILE_FUNCTION()
+	#define QK_PROFILE_SCOPE(scope)
+	#define QK_PROFILE_FUNCTION()
 
-#	define QK_BEGIN_PROFILE_SESSION(sessionName)
-#	define QK_END_PROFILE_SESSION()
+	#define QK_BEGIN_PROFILE_SESSION(sessionName)
+	#define QK_END_PROFILE_SESSION()
 #endif
 
 #include <chrono>

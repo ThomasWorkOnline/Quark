@@ -82,7 +82,7 @@ namespace Quark {
 	}
 
 	VulkanIndexBuffer::VulkanIndexBuffer(VulkanDevice* device, uint32_t count)
-		: m_Device(device), m_Count(count)
+		: IndexBuffer(count), m_Device(device)
 	{
 		size_t size = count * sizeof(uint32_t);
 		Utils::AllocateBuffer(m_Device, size,
@@ -91,7 +91,7 @@ namespace Quark {
 	}
 
 	VulkanIndexBuffer::VulkanIndexBuffer(VulkanDevice* device, const uint32_t* indices, uint32_t count)
-		: m_Device(device), m_Count(count)
+		: IndexBuffer(count), m_Device(device)
 	{
 		size_t size = count * sizeof(uint32_t);
 		VkBuffer stagingBuffer;

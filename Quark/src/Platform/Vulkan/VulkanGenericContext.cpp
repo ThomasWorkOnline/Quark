@@ -60,7 +60,7 @@ namespace Quark {
 
 		m_SwapChain = CreateScope<VulkanSwapChain>(m_Device.get(), m_Surface, spec);
 
-		const uint32_t framesInFlight = std::min(m_SwapChain->GetBufferCount(), 2u);
+		const uint32_t framesInFlight = std::min(m_SwapChain->GetBufferCount(), 1u);
 		m_Frames.resize(framesInFlight);
 
 		// Synchronization
@@ -140,7 +140,7 @@ namespace Quark {
 
 	SwapChain* VulkanGenericContext::GetSwapChain()
 	{
-		return static_cast<SwapChain*>(m_SwapChain.get());
+		return m_SwapChain.get();
 	}
 
 	ViewportExtent VulkanGenericContext::QuerySwapExtent() const

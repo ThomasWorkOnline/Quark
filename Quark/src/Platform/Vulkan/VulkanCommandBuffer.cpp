@@ -12,8 +12,6 @@
 
 #include "Quark/Renderer/Renderer.h"
 
-#define QK_ASSERT_PIPELINE_VALID_STATE(pipeline) QK_CORE_ASSERT(pipeline, "No pipeline was actively bound to the current command buffer!")
-
 namespace Quark {
 
 	VulkanCommandBuffer::VulkanCommandBuffer(VulkanDevice* device)
@@ -57,21 +55,22 @@ namespace Quark {
 
 	void VulkanCommandBuffer::BindPipeline(const Pipeline* pipeline)
 	{
-		m_BoundPipeline = static_cast<const VulkanPipeline*>(pipeline);
-		vkCmdBindPipeline(m_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_BoundPipeline->GetVkHandle());
+		auto* vulkanPipeline = static_cast<const VulkanPipeline*>(pipeline);
+		vkCmdBindPipeline(m_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vulkanPipeline->GetVkHandle());
 	}
 
-	void VulkanCommandBuffer::BindDescriptorSets(uint32_t frameIndex)
+	void VulkanCommandBuffer::BindDescriptorSets(const Pipeline* pipeline, uint32_t frameIndex)
 	{
-		auto descriptorSet = m_BoundPipeline->GetDescriptorSet(frameIndex);
-		vkCmdBindDescriptorSets(m_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_BoundPipeline->GetPipelineLayout(),
+		auto* vulkanPipeline = static_cast<const VulkanPipeline*>(pipeline);
+		auto descriptorSet = vulkanPipeline->GetDescriptorSet(frameIndex);
+		vkCmdBindDescriptorSets(m_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vulkanPipeline->GetPipelineLayout(),
 			0, 1, &descriptorSet, 0, nullptr);
 	}
 
-	void VulkanCommandBuffer::PushConstant(ShaderStage stage, const void* data, size_t size)
+	void VulkanCommandBuffer::PushConstant(const Pipeline* pipeline, ShaderStage stage, const void* data, size_t size)
 	{
-		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
-		vkCmdPushConstants(m_CommandBuffer, m_BoundPipeline->GetPipelineLayout(), ShaderStageToVulkan(stage), 0, (uint32_t)size, data);
+		auto* vulkanPipeline = static_cast<const VulkanPipeline*>(pipeline);
+		vkCmdPushConstants(m_CommandBuffer, vulkanPipeline->GetPipelineLayout(), ShaderStageToVulkan(stage), 0, (uint32_t)size, data);
 	}
 
 	void VulkanCommandBuffer::SetViewport(uint32_t viewportWidth, uint32_t viewportHeight)
@@ -168,8 +167,6 @@ namespace Quark {
 
 	void VulkanCommandBuffer::BindVertexBuffer(const VertexBuffer* vertexBuffer)
 	{
-		QK_CORE_ASSERT(vertexBuffer->GetLayout() == m_BoundPipeline->GetLayout(), "Buffer layout does not match the currently bound pipeline layout");
-
 		VkDeviceSize offsets[] = { 0 };
 		VkBuffer buffer = static_cast<const VulkanVertexBuffer*>(vertexBuffer)->GetVkHandle();
 		vkCmdBindVertexBuffers(m_CommandBuffer, 0, 1, &buffer, offsets);
@@ -181,10 +178,9 @@ namespace Quark {
 		vkCmdBindIndexBuffer(m_CommandBuffer, buffer, 0, VK_INDEX_TYPE_UINT32);
 	}
 
-	void VulkanCommandBuffer::BindUniformBuffer(const UniformBuffer* uniformBuffer, uint32_t frameIndex, uint32_t binding)
+	void VulkanCommandBuffer::BindUniformBuffer(const Pipeline* pipeline, const UniformBuffer* uniformBuffer, uint32_t frameIndex, uint32_t binding)
 	{
-		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
-
+		auto* vulkanPipeline = static_cast<const VulkanPipeline*>(pipeline);
 		auto* vulkanUniformBuffer = static_cast<const VulkanUniformBuffer*>(uniformBuffer);
 
 		VkDescriptorBufferInfo bufferInfo{};
@@ -199,19 +195,18 @@ namespace Quark {
 		writeDescriptorSet.descriptorCount = 1;
 		writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		writeDescriptorSet.pBufferInfo = &bufferInfo;
-		writeDescriptorSet.dstSet = m_BoundPipeline->GetDescriptorSet(frameIndex);
+		writeDescriptorSet.dstSet = vulkanPipeline->GetDescriptorSet(frameIndex);
 
 		vkUpdateDescriptorSets(m_Device->GetVkHandle(), 1, &writeDescriptorSet, 0, nullptr);
 	}
 
-	void VulkanCommandBuffer::BindTexture(const Texture* texture, const Sampler* sampler, uint32_t frameIndex, uint32_t binding, uint32_t samplerIndex)
+	void VulkanCommandBuffer::BindTexture(const Pipeline* pipeline, const Texture* texture, const Sampler* sampler, uint32_t frameIndex, uint32_t binding, uint32_t samplerIndex)
 	{
-		QK_ASSERT_PIPELINE_VALID_STATE(m_BoundPipeline);
-
 		QK_CORE_ASSERT(samplerIndex < Renderer::GetCapabilities().Sampler.MaxTextureUnits,
 			"Sampler index out of range: max writable index is: {0}",
 			Renderer::GetCapabilities().Sampler.MaxTextureUnits - 1);
 
+		auto* vulkanPipeline = static_cast<const VulkanPipeline*>(pipeline);
 		auto* vulkanSampler = static_cast<const VulkanSampler*>(sampler);
 
 		VkDescriptorImageInfo imageInfo{};
@@ -226,7 +221,7 @@ namespace Quark {
 		writeDescriptorSet.descriptorCount = 1;
 		writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		writeDescriptorSet.pImageInfo = &imageInfo;
-		writeDescriptorSet.dstSet = m_BoundPipeline->GetDescriptorSet(frameIndex);
+		writeDescriptorSet.dstSet = vulkanPipeline->GetDescriptorSet(frameIndex);
 
 		vkUpdateDescriptorSets(m_Device->GetVkHandle(), 1, &writeDescriptorSet, 0, nullptr);
 	}

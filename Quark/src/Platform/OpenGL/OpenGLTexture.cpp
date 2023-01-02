@@ -51,15 +51,15 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		Image image = filepath;
-		auto& metadata = image.GetMetadata();
+		auto& spec = image.GetSpecification();
 
-		QK_CORE_ASSERT(metadata.Width <= Renderer::GetCapabilities().Texture.Max2DSize
-			&& metadata.Height <= Renderer::GetCapabilities().Texture.Max2DSize,
+		QK_CORE_ASSERT(spec.Width <= Renderer::GetCapabilities().Texture.Max2DSize
+			&& spec.Height <= Renderer::GetCapabilities().Texture.Max2DSize,
 			"Texture dimensions too large: see Renderer::GetCapabilities() for more info");
 
-		m_Spec.Width      = metadata.Width;
-		m_Spec.Height     = metadata.Height;
-		m_Spec.DataFormat = metadata.DataFormat;
+		m_Spec.Width      = spec.Width;
+		m_Spec.Height     = spec.Height;
+		m_Spec.DataFormat = spec.DataFormat;
 		m_Spec.Levels     = m_Spec.Levels == 0 ? GetMipLevelsForResolution(m_Spec.Width, m_Spec.Height) : m_Spec.Levels;
 
 		m_DataFormat = DataFormatToOpenGLStorageFormat(m_Spec.DataFormat);
@@ -71,7 +71,7 @@ namespace Quark {
 		glBindTexture(GL_TEXTURE_2D, m_RendererID);
 		glPixelStorei(GL_UNPACK_ALIGNMENT, IsPixel4BytesAligned(m_Spec.DataFormat) ? 4 : 1);
 		glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Spec.Width, m_Spec.Height, 0, m_DataFormat,
-			DataFormatToOpenGLDataType(m_Spec.DataFormat), *image);
+			DataFormatToOpenGLDataType(m_Spec.DataFormat), image.GetData());
 
 		if (m_Spec.Levels > 1)
 		{

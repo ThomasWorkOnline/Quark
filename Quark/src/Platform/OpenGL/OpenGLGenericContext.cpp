@@ -5,9 +5,9 @@
 #include <GLFW/glfw3.h>
 
 #if QK_ASSERT_API_VALIDATION_ERRORS
-#	define QK_OPENGL_ERROR_CALLBACK(message) QK_CORE_ASSERT(false, message)
+	#define QK_OPENGL_ERROR_CALLBACK(message) QK_CORE_ASSERT(false, message)
 #else
-#	define QK_OPENGL_ERROR_CALLBACK(message) QK_CORE_ERROR(message)
+	#define QK_OPENGL_ERROR_CALLBACK(message) QK_CORE_ERROR(message)
 #endif
 
 namespace Quark {
@@ -49,7 +49,7 @@ namespace Quark {
 	OpenGLGenericContext::~OpenGLGenericContext()
 	{
 		QK_PROFILE_FUNCTION();
-
+		
 		// Detaching the current context
 		glfwMakeContextCurrent(NULL);
 	}

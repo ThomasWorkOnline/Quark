@@ -16,14 +16,14 @@ namespace Quark {
 	}
 
 	VulkanFramebufferAttachment::VulkanFramebufferAttachment(VulkanDevice* device, VkImage image, const FramebufferAttachmentSpecification& spec)
-		: FramebufferAttachment(spec), m_Device(device), m_Image(image)
+		: FramebufferAttachment(spec), m_Device(device), m_Image(image), m_SwapChainTarget(true)
 	{
 		Invalidate();
 	}
 
 	VulkanFramebufferAttachment::~VulkanFramebufferAttachment()
 	{
-		if (!m_Spec.SwapChainTarget)
+		if (!m_SwapChainTarget)
 		{
 			vkDestroyImage(m_Device->GetVkHandle(), m_Image, nullptr);
 			vkFreeMemory(m_Device->GetVkHandle(), m_BufferMemory, nullptr);
@@ -50,7 +50,7 @@ namespace Quark {
 
 	void VulkanFramebufferAttachment::SetSwapChainImage(VkImage image)
 	{
-		QK_CORE_ASSERT(m_Spec.SwapChainTarget, "Cannot assign an image to an attachment that is not part of the swapchain");
+		QK_CORE_ASSERT(m_SwapChainTarget, "Cannot assign an image to an attachment that is not part of the swapchain");
 		m_Image = image;
 	}
 
@@ -60,7 +60,7 @@ namespace Quark {
 
 		VkFormat format = DataFormatToVulkan(m_Spec.DataFormat);
 
-		if (!m_Spec.SwapChainTarget)
+		if (!m_SwapChainTarget)
 		{
 			vkDestroyImage(m_Device->GetVkHandle(), m_Image, nullptr);
 			vkFreeMemory(m_Device->GetVkHandle(), m_BufferMemory, nullptr);
@@ -75,21 +75,8 @@ namespace Quark {
 				VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &m_Image, &m_BufferMemory);
 		}
 
-		// Image view allocation
-		{
-			vkDestroyImageView(m_Device->GetVkHandle(), m_ImageView, nullptr);
-
-			VkImageViewCreateInfo info{};
-			info.sType                       = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-			info.image                       = m_Image;
-			info.viewType                    = VK_IMAGE_VIEW_TYPE_2D;
-			info.format                      = format;
-			info.subresourceRange.aspectMask = GetVulkanAspectFlags(m_Spec.DataFormat);
-			info.subresourceRange.levelCount = 1;
-			info.subresourceRange.layerCount = 1;
-
-			vkCreateImageView(m_Device->GetVkHandle(), &info, nullptr, &m_ImageView);
-		}
+		vkDestroyImageView(m_Device->GetVkHandle(), m_ImageView, nullptr);
+		Utils::AllocateImageView(m_Device, m_Image, GetVulkanAspectFlags(m_Spec.DataFormat), format, 1, 1, &m_ImageView);
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////
@@ -120,11 +107,6 @@ namespace Quark {
 			return;
 		}
 
-		for (auto& attachment : m_Spec.Attachments)
-		{
-			attachment->Resize(width, height);
-		}
-
 		m_Spec.Width = width;
 		m_Spec.Height = height;
 
@@ -146,7 +128,7 @@ namespace Quark {
 		uint32_t attachmentIndex = 0;
 		for (auto& attachment : m_Spec.Attachments)
 		{
-			attachments[attachmentIndex] = static_cast<VulkanFramebufferAttachment*>(attachment.get())->GetVkHandle();
+			attachments[attachmentIndex] = static_cast<const VulkanFramebufferAttachment*>(attachment)->GetVkHandle();
 			attachmentIndex++;
 		}
 

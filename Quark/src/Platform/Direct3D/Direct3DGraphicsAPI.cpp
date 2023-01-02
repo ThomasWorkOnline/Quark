@@ -124,7 +124,7 @@ namespace Quark {
 		return nullptr;
 	}
 
-	Scope<UniformBuffer> Direct3DGraphicsAPI::CreateUniformBuffer(const UniformBufferSpecification& spec)
+	Scope<UniformBuffer> Direct3DGraphicsAPI::CreateUniformBuffer(size_t size)
 	{
 		return nullptr;
 	}

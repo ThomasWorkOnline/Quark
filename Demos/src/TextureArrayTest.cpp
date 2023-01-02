@@ -12,8 +12,8 @@ TextureArrayTest::TextureArrayTest(const ApplicationSpecification& spec)
 	textureSpec.Layers = 2;
 
 	m_TextureArray = Texture2DArray::Create(textureSpec);
-	m_TextureArray->SetData(texture1.GetData(), texture1.GetMetadata().Size, 0);
-	m_TextureArray->SetData(texture1.GetData(), texture1.GetMetadata().Size, 1);
+	m_TextureArray->SetData(texture1.GetData(), texture1.GetSize(), 0);
+	m_TextureArray->SetData(texture1.GetData(), texture1.GetSize(), 1);
 	m_TextureArray->GenerateMipmaps();
 
 	auto* window = GetWindow();

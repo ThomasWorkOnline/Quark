@@ -7,18 +7,18 @@
 
 namespace Quark {
 
+	inline constexpr ALenum s_OpenALFormatLUT[] = {
+		/*None              */ AL_NONE,
+		/*Integer8BitMono	*/ AL_FORMAT_MONO8,
+		/*Integer16BitMono	*/ AL_FORMAT_MONO16,
+		/*Integer8BitStereo	*/ AL_FORMAT_STEREO8,
+		/*Integer16BitStereo*/ AL_FORMAT_STEREO16,
+		/*Float32BitMono	*/ AL_NONE,
+		/*Float32BitStereo	*/ AL_NONE
+	};
+
 	constexpr ALenum AudioFormatToOpenALFormat(AudioFormat format)
 	{
-		switch (format)
-		{
-			case AudioFormat::Integer8BitMono:    return AL_FORMAT_MONO8;
-			case AudioFormat::Integer16BitMono:   return AL_FORMAT_MONO16;
-			case AudioFormat::Integer8BitStereo:  return AL_FORMAT_STEREO8;
-			case AudioFormat::Integer16BitStereo: return AL_FORMAT_STEREO16;
-
-			QK_ASSERT_NO_DEFAULT("Invalid audio format");
-		}
-
-		return AL_NONE;
+		return s_OpenALFormatLUT[static_cast<size_t>(format)];
 	}
 }

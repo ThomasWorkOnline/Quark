@@ -17,7 +17,7 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		ALCALL(alcMakeContextCurrent(nullptr));
+		ALCALL(alcMakeContextCurrent(NULL));
 		ALCALL(alcDestroyContext(m_Context));
 	}
 
@@ -25,7 +25,7 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		m_Context = ALCALL(alcCreateContext(m_DeviceHandle, nullptr));
+		m_Context = ALCALL(alcCreateContext(m_DeviceHandle, NULL));
 
 		ALCboolean result = ALCALL(alcMakeContextCurrent(m_Context));
 		QK_CORE_ASSERT(result, "Failed to initialize OpenAL context");

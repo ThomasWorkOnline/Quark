@@ -1,19 +1,29 @@
 #pragma once
 
 #include <memory>
+#include <type_traits>
 
 #if defined QK_PLATFORM_WINDOWS
-#	define Freea      _freea
-#	define StackAlloc _malloca
+	#define Freea            ::_freea
+	#define StackAlloc(size) ::Quark::StackAllocation{ _malloca(size) };
 #else
 	// Automatic stack cleanup
-#	define Freea(mem) ((void)mem)
-#	define StackAlloc __alloca
+	#error "GetStackAddress() implementation not defined for platform"
+	#define Freea(mem)       ((void)mem)
+	#define StackAlloc(size) ::Quark::StackAllocation{ __alloca(size) }
 #endif
 
-#define sizeof_array(x) (sizeof(x) / sizeof(x[0]))
-
 namespace Quark {
+
+	struct StackAllocation
+	{
+		void* Memory = nullptr;
+
+		explicit StackAllocation(void* mem)
+			: Memory(mem)
+		{
+		}
+	};
 
 	template<typename T, typename Deleter = std::default_delete<T>>
 	using Scope = std::unique_ptr<T, Deleter>;
@@ -32,16 +42,16 @@ namespace Quark {
 	}
 
 	template<typename T, typename Deleter, typename ... Args>
-	constexpr Ref<T> CreateRef(Args&& ... args)
+	constexpr Ref<T> CreateRef(T* pointer)
 	{
-		return std::shared_ptr<T>(new T(std::forward<Args>(args)...), Deleter());
+		return std::shared_ptr<T>(pointer, Deleter());
 	}
 
 	template<typename T>
 	using WeakRef = std::weak_ptr<T>;
 
 	/*
-	* Holds a pointer of T allocated on the stack via alloca() or _malloca()
+	* Holds a pointer of T allocated on the stack via StackAlloc()
 	* Memory is automatically freed after instance lifetime
 	* NOTE: _malloca() may allocate using malloc() if the requested size is greater than the stack limit
 	*		Not safe to use in time critical operations
@@ -50,9 +60,11 @@ namespace Quark {
 	class AutoRelease
 	{
 	public:
+		static_assert(std::is_trivial_v<T>, "Cannot create an AutoRelease<T> out of a non trivial type T");
+
 		AutoRelease() = default;
-		AutoRelease(void* memory) noexcept
-			: m_Pointer(static_cast<T*>(memory))
+		AutoRelease(StackAllocation allocation) noexcept
+			: m_Pointer(static_cast<T*>(allocation.Memory))
 		{
 		}
 
@@ -73,8 +85,8 @@ namespace Quark {
 			Freea(m_Pointer);
 		}
 
-		const T* Data() const { return m_Pointer; }
-		T* Data() { return m_Pointer; }
+		const T* Data() const noexcept { return m_Pointer; }
+		T* Data() noexcept { return m_Pointer; }
 
 		operator const T* () const { return m_Pointer; }
 		operator T* () { return m_Pointer; }
@@ -108,55 +120,55 @@ namespace Quark {
 			: m_Pointer(ptr)
 		{}
 
-		QK_CONSTEXPR20 bool operator==(const ArrayIterator& other) const {
+		constexpr bool operator==(const ArrayIterator& other) const {
 			return this->m_Pointer == other.m_Pointer;
 		}
 
-		QK_CONSTEXPR20 bool operator!=(const ArrayIterator& other) const {
+		constexpr bool operator!=(const ArrayIterator& other) const {
 			return this->m_Pointer != other.m_Pointer;
 		}
 
-		QK_CONSTEXPR20 reference operator*() const noexcept { return *m_Pointer; }
+		constexpr reference operator*() const noexcept { return *m_Pointer; }
 
-		QK_CONSTEXPR20 pointer operator->() const noexcept { return m_Pointer; }
+		constexpr pointer operator->() const noexcept { return m_Pointer; }
 
-		QK_CONSTEXPR20 ArrayIterator& operator++() noexcept {
+		constexpr ArrayIterator& operator++() noexcept {
 			m_Pointer++;
 			return *this;
 		}
 
-		QK_CONSTEXPR20 ArrayIterator  operator++(int) noexcept {
+		constexpr ArrayIterator  operator++(int) noexcept {
 			ArrayIterator tmp = *this;
 			m_Pointer++;
 			return tmp;
 		}
 
-		QK_CONSTEXPR20 ArrayIterator& operator--() noexcept {
+		constexpr ArrayIterator& operator--() noexcept {
 			m_Pointer--;
 			return *this;
 		}
 
-		QK_CONSTEXPR20 ArrayIterator  operator--(int) noexcept {
+		constexpr ArrayIterator  operator--(int) noexcept {
 			ArrayIterator tmp = *this;
 			m_Pointer--;
 			return tmp;
 		}
 
-		QK_CONSTEXPR20 ArrayIterator& operator+=(const difference_type offset) noexcept {
+		constexpr ArrayIterator& operator+=(const difference_type offset) noexcept {
 			m_Pointer += offset;
 			return *this;
 		}
 
-		QK_CONSTEXPR20 ArrayIterator  operator +(const difference_type offset) const noexcept {
+		constexpr ArrayIterator  operator +(const difference_type offset) const noexcept {
 			return (*this) + offset;
 		}
 
-		QK_CONSTEXPR20 ArrayIterator& operator-=(const difference_type offset) noexcept {
+		constexpr ArrayIterator& operator-=(const difference_type offset) noexcept {
 			m_Pointer -= offset;
 			return *this;
 		}
 
-		QK_CONSTEXPR20 ArrayIterator  operator-(const difference_type offset) const noexcept {
+		constexpr ArrayIterator  operator-(const difference_type offset) const noexcept {
 			return (*this) - offset;
 		}
 

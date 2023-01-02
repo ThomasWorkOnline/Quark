@@ -80,10 +80,12 @@ namespace Quark {
 
 		void CompileOrReadFromCache(const std::unordered_map<GLenum, std::string_view>& shaderSources);
 
-		GLuint CompileVulkanSources(const std::unordered_map<GLenum, std::string>& shaderSources, uint32_t glslVersion = GetGLSLVersion());
-		GLuint CompileVulkanSourcesLegacy(const std::unordered_map<GLenum, std::string>& shaderSources, uint32_t glslVersion = GetGLSLVersion());
-		GLuint CompileVulkanSpirv(const std::unordered_map<GLenum, std::span<const uint32_t>>& spirvBinaries, uint32_t glslVersion = GetGLSLVersion());
+		GLuint CompileVulkanSources(const std::unordered_map<GLenum, std::string>& shaderSources);
+		GLuint CompileVulkanSourcesLegacy(const std::unordered_map<GLenum, std::string>& shaderSources);
+		GLuint CompileVulkanSpirv(const std::unordered_map<GLenum, std::span<const uint32_t>>& spirvBinaries);
 		
+		std::string CrossCompileToGlsl(GLenum stage, std::span<const uint32_t> spirv);
+
 		GLuint CreateProgram(const std::unordered_map<GLenum, std::vector<uint32_t>>& spirvBinaries);
 		GLuint CreateProgram(const std::unordered_map<GLenum, std::string>& shaderSources);
 
@@ -96,6 +98,7 @@ namespace Quark {
 	private:
 		GLuint m_RendererID = 0;
 		mutable std::unordered_map<size_t, GLint> m_UniformLocationCache;
+
 		std::unordered_map<GLenum, std::vector<uint32_t>> m_OpenGLSpirv;
 	};
 }

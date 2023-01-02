@@ -15,6 +15,11 @@ namespace Quark {
 		return s_GraphicsAPI->CreateVertexBuffer(size);
 	}
 
+	IndexBuffer::IndexBuffer(uint32_t count)
+		: m_Count(count)
+	{
+	}
+
 	Scope<IndexBuffer> IndexBuffer::Create(const uint32_t* indices, uint32_t count)
 	{
 		return s_GraphicsAPI->CreateIndexBuffer(indices, count);

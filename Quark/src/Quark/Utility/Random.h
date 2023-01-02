@@ -60,7 +60,7 @@ namespace Quark {
 	inline int32_t Random<int32_t>::Next()
 	{
 		// Return value unnormalized in range [-INT32_MAX, INT32_MAX]
-		return m_NoiseEngine() - std::numeric_limits<int32_t>::max();
+		return static_cast<int32_t>(m_NoiseEngine()) + std::numeric_limits<int32_t>::min();
 	}
 
 	template<>

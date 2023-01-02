@@ -118,6 +118,7 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		VkPhysicalDeviceFeatures deviceFeatures{};
+		deviceFeatures.fillModeNonSolid  = VK_TRUE;
 		deviceFeatures.samplerAnisotropy = VK_TRUE;
 		deviceFeatures.shaderFloat64     = VK_TRUE;
 

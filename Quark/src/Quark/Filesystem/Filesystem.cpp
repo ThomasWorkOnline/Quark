@@ -9,21 +9,18 @@ namespace Quark {
 	{
 		std::string result;
 		std::ifstream in(filepath.data(), std::ios::ate | std::ios::in | std::ios::binary);
-		if (in)
-		{
-			size_t size = in.tellg();
-			if (size != -1)
-			{
-				result.resize(size);
-				in.seekg(0, std::ios::beg);
-				in.read(result.data(), size);
-				in.close();
 
-				return result;
-			}
+		Verify(in, "Could not open file '{0}'", filepath);
+
+		size_t size = in.tellg();
+		if (size != -1)
+		{
+			result.resize(size);
+			in.seekg(0, std::ios::beg);
+			in.read(result.data(), size);
+			in.close();
 		}
 
-		ThrowRuntimeError("Could not open file '{0}'", filepath);
 		return result;
 	}
 
@@ -31,23 +28,20 @@ namespace Quark {
 	{
 		std::vector<uint32_t> result;
 		std::ifstream in(filepath.data(), std::ios::ate | std::ios::in | std::ios::binary);
-		if (in)
+
+		Verify(in, "Could not open file '{0}'", filepath);
+
+		size_t size = in.tellg();
+		Verify(size % sizeof(uint32_t) == 0, "Invalid byte alignment for file: '{0}' (SPIR-V requires 4-bytes words)", filepath);
+
+		if (size != -1)
 		{
-			size_t size = in.tellg();
-			Verify(size % sizeof(uint32_t) == 0, "Invalid byte alignment for file: '{0}' (SPIR-V requires 4-bytes words)", filepath);
-
-			if (size != -1)
-			{
-				result.resize(size / sizeof(uint32_t));
-				in.seekg(0, std::ios::beg);
-				in.read((char*)result.data(), size);
-				in.close();
-
-				return result;
-			}
+			result.resize(size / sizeof(uint32_t));
+			in.seekg(0, std::ios::beg);
+			in.read((char*)result.data(), size);
+			in.close();
 		}
 
-		ThrowRuntimeError("Could not open file '{0}'", filepath);
 		return result;
 	}
 }

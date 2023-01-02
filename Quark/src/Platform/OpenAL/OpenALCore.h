@@ -24,7 +24,9 @@ namespace Quark {
 }
 
 #ifdef QK_DEBUG
-#	define ALCALL(x) x; do { ALenum err = alGetError(); QK_CORE_ASSERT(err == AL_NO_ERROR, "{0} returned an error: {1}", #x, OpenALErrorToString(err)); } while (false)
+#	define ALCALL(x) x; do { ALenum err = alGetError();                                                      \
+           QK_CORE_ASSERT(err == AL_NO_ERROR, "{0} returned an error: {1}", #x, OpenALErrorToString(err)); } \
+           while (false)
 #else
 #	define ALCALL(x) x
 #endif

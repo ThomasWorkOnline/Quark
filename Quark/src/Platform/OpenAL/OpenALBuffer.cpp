@@ -4,55 +4,80 @@
 
 #include "OpenALCore.h"
 
-#include <fstream>
+#include <cstdio>
+#include <stdexcept>
 
-#define WAV_FORMAT_PCM         1
-#define WAV_FORMAT_MULAW       6
-#define WAV_FORMAT_ALAW        7
-#define WAV_FORMAT_IBM_MULAW 257
-#define WAV_FORMAT_IBM_ALAW  258
-#define WAV_FORMAT_ADPCM     259
+enum WaveAudioFormat : uint16_t
+{
+	WAVE_FORMAT_PCM        = 0x0001,
+	WAVE_FORMAT_IEEE_FLOAT = 0x0003,
+	WAVE_FORMAT_ALAW       = 0x0006,
+	WAVE_FORMAT_MULAW      = 0x0007,
+	WAVE_FORMAT_EXTENSIBLE = 0xFFFE,
+
+	WAVE_FORMAT_IBM_MULAW_EXT = 257,
+	WAVE_FORMAT_IBM_ALAW_EXT  = 258,
+	WAVE_FORMAT_ADPCM_EXT     = 259,
+
+	WAVE_FORMAT_MAX_ENUM = UINT16_MAX
+};
 
 namespace Quark {
 
+	// WAVE files often have information chunks that precede or follow the sound data (data chunk).
+	// Some programs (naively) assume that for PCM data,
+	// the preamble in the file header is exactly 44 bytes long
+	// and that the rest of the file contains sound data. This is not a safe assumption.
+
 	struct WavHeader
 	{
-		/* RIFF Chunk Descriptor */
-		uint8_t         RIFF[4];        // RIFF Header Magic header
-		uint32_t        ChunkSize;      // RIFF Chunk Size
-		uint8_t         WAVE[4];        // WAVE Header
-		/* "fmt" sub-chunk */
-		uint8_t         FMT[4];         // FMT header
-		uint32_t        Subchunk1Size;  // Size of the fmt chunk
-		uint16_t        AudioFormat;    // Audio format 1=PCM, 6=mulaw, 7=alaw,    257=IBM Mu-Law, 258=IBM A-Law, 259=ADPCM
-		uint16_t        Channels;       // Number of channels 1=Mono 2=Stereo
-		uint32_t        Samplerate;     // Sampling Frequency in Hz
-		uint32_t        BytesPerSec;    // bytes per second
-		uint16_t        BlockAlign;     // 2=16-bit mono, 4=16-bit stereo
-		uint16_t        BitDepth;       // Number of bits per sample
-		/* "data" sub-chunk */
-		uint8_t         DataChunkID[4]; // "data" string
-		uint32_t        DataChunkSize;  // Sampled data length
+		// Wave files have a master RIFF chunk which includes a WAVE identifier followed by sub-chunks.
+		// The data is stored in little-endian byte order.
+
+		// RIFF Chunk Descriptor
+		uint8_t         RIFF[4];          // RIFF Header Magic header
+		uint32_t        ChunkSize;        // RIFF Chunk Size
+		uint8_t         WAVE[4];          // WAVE Header
+
+		// The fmt specifies the format of the data.
+		// There are 3 variants of the Format chunk for sampled data.
+		// These differ in the extensions to the basic fmt chunk.
+
+		// fmt Sub-Chunk
+		uint8_t         FormatChunkID[4]; // FMT header
+		uint32_t        FormatChunkSize;  // Size of the fmt chunk
+		WaveAudioFormat AudioFormat;      // Audio format 1=PCM, 6=alaw, 7=mulaw,    257=IBM Mu-Law, 258=IBM A-Law, 259=ADPCM
+		uint16_t        Channels;         // Number of channels 1=Mono 2=Stereo
+		uint32_t        Samplerate;       // Sampling Frequency in Hz
+		uint32_t        BytesPerSec;      // bytes per second
+		uint16_t        BlockAlign;       // 2=16-bit mono, 4=16-bit stereo
+		uint16_t        BitDepth;         // Number of bits per sample
+
+		// "data" Sub-Chunk
+		uint8_t         DataChunkID[4];   // "data" string
+		uint32_t        DataChunkSize;    // Sampled data length
+
+		// Samples
+		// 1 pad byte if DataChunkSize is odd
 	};
 
 	namespace Utils {
 
-		static WavHeader ReadWavHeader(std::ifstream& in)
+		static bool ValidateWavHeader(const WavHeader& header)
 		{
-			WavHeader header;
-			in.read((char*)&header, sizeof(WavHeader));
-
-			Verify(
+			bool magicHeadersOk =
 				std::memcmp(header.RIFF, "RIFF", sizeof WavHeader::RIFF) == 0 &&
 				std::memcmp(header.WAVE, "WAVE", sizeof WavHeader::WAVE) == 0 &&
-				std::memcmp(header.FMT,  "fmt ", sizeof WavHeader::FMT) == 0 &&
-				std::memcmp(header.DataChunkID, "data", sizeof WavHeader::DataChunkID) == 0,
-				"Invalid or possibly corrupt .wav file");
+				std::memcmp(header.FormatChunkID, "fmt ", sizeof WavHeader::FormatChunkID) == 0 &&
+				std::memcmp(header.DataChunkID, "data", sizeof WavHeader::DataChunkID) == 0;
 
-			Verify(header.DataChunkSize != 0, "Invalid file contains no data");
-			Verify(header.AudioFormat == WAV_FORMAT_PCM, "Quark does not support audio formats other than PCM");
+			// Possible values for FormatChunkSize include 16, 18 and 40.
+			// Currently, only 16 byte formats are supported.
 
-			return header;
+			bool formatChunkOk = header.FormatChunkSize == 16 && header.AudioFormat == WAVE_FORMAT_PCM;
+			bool dataChunkOk = header.DataChunkSize != 0;
+
+			return dataChunkOk && formatChunkOk && magicHeadersOk;
 		}
 	}
 
@@ -60,27 +85,42 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		QK_CORE_ASSERT(filepath.rfind(".wav") != std::string::npos, "Quark only supports .wav formats");
+		FILE* in = std::fopen(filepath.data(), "rb");
+		Verify(in, "Could not open audio file: '{0}'", filepath);
 
-		std::ifstream in(filepath.data(), std::ios::in | std::ios::binary);
-		QK_CORE_ASSERT(in, "Could not open audio file: '{0}'", filepath);
+		std::vector<std::byte> audioData;
 
-		// Read the header
-		WavHeader header = Utils::ReadWavHeader(in);
+		try
+		{
+			WavHeader header;
+			std::fread(&header, sizeof(WavHeader), 1, in);
 
-		m_Spec.Size = static_cast<size_t>(header.DataChunkSize);
-		m_Spec.Samplerate = header.Samplerate;
-		m_Spec.Format = GetFormat(header.Channels, header.BitDepth, false);
+			Verify(Utils::ValidateWavHeader(header), "Invalid or possibly corrupt wave file");
 
-		// Read the data
-		std::vector<char> audioData;
-		audioData.reserve(header.DataChunkSize);
+			audioData.resize(header.DataChunkSize);
+			size_t readSize = std::fread(audioData.data(), 1, header.DataChunkSize, in);
+			audioData.resize(readSize);
 
-		in.read(audioData.data(), header.DataChunkSize);
-		in.close();
+			Verify(readSize == header.DataChunkSize, "Invalid or possibly corrupt wave file");
+
+			m_Spec.Samplerate = header.Samplerate;
+			m_Spec.BitDepth = header.BitDepth;
+			m_Spec.Channels = header.Channels;
+			m_Spec.Format = GetFormat(header.Channels, header.BitDepth, false);
+
+			uint32_t sampleCountPerChannel = static_cast<uint32_t>(readSize / (header.BitDepth >> 3) / header.Channels);
+			m_Duration = (double)sampleCountPerChannel / (double)header.Samplerate;
+		}
+		catch (std::exception& e)
+		{
+			std::fclose(in);
+			throw e;
+		}
+
+		std::fclose(in);
 
 		ALCALL(alGenBuffers(1, &m_BufferID));
-		ALCALL(alBufferData(m_BufferID, AudioFormatToOpenALFormat(m_Spec.Format), audioData.data(), (ALsizei)m_Spec.Size, m_Spec.Samplerate));
+		ALCALL(alBufferData(m_BufferID, AudioFormatToOpenALFormat(m_Spec.Format), audioData.data(), (ALsizei)audioData.size(), m_Spec.Samplerate));
 
 		QK_CORE_ASSERT(alIsBuffer(m_BufferID), "Audio buffer is invalid");
 	}
@@ -91,8 +131,10 @@ namespace Quark {
 
 		QK_CORE_ASSERT(data, "Data must be a valid pointer");
 
+		ALsizei bufferSize = m_Spec.Samplerate * m_Spec.BitDepth * m_Spec.Channels;
+
 		ALCALL(alGenBuffers(1, &m_BufferID));
-		ALCALL(alBufferData(m_BufferID, AudioFormatToOpenALFormat(m_Spec.Format), data, (ALsizei)m_Spec.Size, m_Spec.Samplerate));
+		ALCALL(alBufferData(m_BufferID, AudioFormatToOpenALFormat(m_Spec.Format), data, bufferSize, m_Spec.Samplerate));
 
 		QK_CORE_ASSERT(alIsBuffer(m_BufferID), "Audio buffer is invalid");
 	}
@@ -101,15 +143,18 @@ namespace Quark {
 	{
 		QK_PROFILE_FUNCTION();
 
-		ALCALL(alDeleteBuffers(1, &m_BufferID));
+		if (m_BufferID > 0)
+			ALCALL(alDeleteBuffers(1, &m_BufferID));
 	}
 
 	void OpenALAudioBuffer::SetData(const void* data, size_t size)
 	{
 		QK_PROFILE_FUNCTION();
 
+		ALsizei bufferSize = m_Spec.Samplerate * m_Spec.BitDepth * m_Spec.Channels;
+
 		QK_CORE_ASSERT(data, "Data must be a valid pointer");
-		QK_CORE_ASSERT(size == m_Spec.Size, "Could not copy buffer, data size must equal specification");
+		QK_CORE_ASSERT(size == bufferSize, "Could not copy buffer, data size must equal specification");
 
 		ALCALL(alBufferData(m_BufferID, AudioFormatToOpenALFormat(m_Spec.Format), data, (ALsizei)size, m_Spec.Samplerate));
 	}

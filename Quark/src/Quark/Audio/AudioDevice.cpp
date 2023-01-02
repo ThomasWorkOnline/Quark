@@ -5,7 +5,7 @@
 
 namespace Quark {
 
-	Scope<AudioOutputDevice> AudioOutputDevice::Create(const char* deviceName)
+	Scope<AudioOutputDevice> AudioOutputDevice::Create(std::string_view deviceName)
 	{
 		return CreateScope<OpenALAudioOutputDevice>(deviceName);
 	}

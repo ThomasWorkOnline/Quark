@@ -186,36 +186,37 @@ namespace Quark {
 
 	void VulkanShader::CompileOrReadFromCache(const std::unordered_map<VkShaderStageFlags, std::string_view>& shaderSources)
 	{
-		std::unordered_map<VkShaderStageFlags, std::string> parsedGlslSources;
+		std::unordered_map<VkShaderStageFlags, std::string> compileQueue;
 
 		// Get shaders from cache
 		for (auto&& [stage, shaderSource] : shaderSources)
 		{
 			std::filesystem::path filename = CacheDirectory / Utils::GetCacheExtension(m_Name, stage);
-			if (std::filesystem::exists(filename))
+
+			try
 			{
 				m_VulkanSpirv[stage] = Filesystem::ReadSpirvFile(filename.string());
 			}
-			else
+			catch (...)
 			{
-				parsedGlslSources[stage] = Parse(shaderSource);
+				compileQueue[stage] = Parse(shaderSource);
 			}
 		}
 
-		if (parsedGlslSources.empty())
+		if (compileQueue.empty())
 		{
 			// Create program from cache
 			for (auto&& [stage, binary] : m_VulkanSpirv)
 				m_ShaderModules[stage] = CreateShader(binary);
-		}
-		else
-		{
-			// Compile not-found shaders
-			CompileVulkanSources(parsedGlslSources);
+
+			return;
 		}
 
+		// Compile not-found shaders
+		CompileVulkanSources(compileQueue);
+
 		// Add new compiled sources to cache
-		for (auto&& [stage, source] : parsedGlslSources)
+		for (auto&& [stage, source] : compileQueue)
 		{
 			auto it = m_VulkanSpirv.find(stage);
 			if (it != m_VulkanSpirv.end())

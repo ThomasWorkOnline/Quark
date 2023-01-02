@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Quark/Renderer/SwapChain.h"
+#include "OpenGLFramebuffer.h"
 
 namespace Quark {
 
@@ -15,8 +16,9 @@ namespace Quark {
 		virtual uint32_t GetBufferCount() const final override { return 1; }
 		virtual uint32_t GetCurrentImageIndex() const final override { return 0; }
 
-		virtual Ref<FramebufferAttachment> GetColorAttachment(uint32_t index) const final override { return nullptr; }
-		virtual Ref<FramebufferAttachment> GetDepthAttachment(uint32_t index) const final override { return nullptr; }
-		virtual Ref<FramebufferAttachment> GetResolveAttachment(uint32_t index) const final override { return nullptr; }
+		virtual const FramebufferAttachment* GetColorAttachment(uint32_t index) const final override;
+
+	private:
+		Scope<OpenGLFramebufferAttachment> m_ColorAttachment;
 	};
 }

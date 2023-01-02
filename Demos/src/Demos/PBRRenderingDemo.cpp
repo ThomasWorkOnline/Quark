@@ -40,12 +40,7 @@ PBRRenderingDemo::PBRRenderingDemo(const ApplicationSpecification& spec)
 	}
 
 	//m_PBRShader = Shader::CreateLegacy("assets/Shaders/PBR.glsl");
-
-	{
-		UniformBufferSpecification spec;
-		spec.Size = sizeof(m_CameraBufferData);
-		m_CameraUniformBuffer = UniformBuffer::Create(spec);
-	}
+	m_CameraUniformBuffer = UniformBuffer::Create(sizeof(CameraUniformBufferData));
 
 	for (auto i = 0; i < sizeof_array(m_Samplers); i++)
 	{
@@ -181,7 +176,7 @@ void PBRRenderingDemo::OnKeyPressed(KeyPressedEvent& e)
 static Scope<Texture2D> CreateTextureFromImage(const Image& image, const Texture2DSpecification& spec)
 {
 	auto texture = Texture2D::Create(spec);
-	texture->SetData(image.GetData(), image.GetMetadata().Size);
+	texture->SetData(image.GetData(), image.GetSize());
 	texture->GenerateMipmaps();
 	return texture;
 }
@@ -345,7 +340,7 @@ void PBRRenderingDemo::UploadAssets()
 		Texture2DSpecification spec;
 		spec.Width = image.Width();
 		spec.Height = image.Height();
-		spec.DataFormat = image.GetMetadata().DataFormat;
+		spec.DataFormat = image.GetSpecification().DataFormat;
 		m_Material.Metallic = CreateTextureFromImage(image, spec);
 	}
 
@@ -356,7 +351,7 @@ void PBRRenderingDemo::UploadAssets()
 		Texture2DSpecification spec;
 		spec.Width = image.Width();
 		spec.Height = image.Height();
-		spec.DataFormat = image.GetMetadata().DataFormat;
+		spec.DataFormat = image.GetSpecification().DataFormat;
 		m_Material.Normal = CreateTextureFromImage(image, spec);
 	}
 
@@ -367,7 +362,7 @@ void PBRRenderingDemo::UploadAssets()
 		Texture2DSpecification spec;
 		spec.Width = image.Width();
 		spec.Height = image.Height();
-		spec.DataFormat = image.GetMetadata().DataFormat;
+		spec.DataFormat = image.GetSpecification().DataFormat;
 		m_Material.Roughness = CreateTextureFromImage(image, spec);
 	}
 
@@ -378,7 +373,7 @@ void PBRRenderingDemo::UploadAssets()
 		Texture2DSpecification spec;
 		spec.Width = image.Width();
 		spec.Height = image.Height();
-		spec.DataFormat = image.GetMetadata().DataFormat;
+		spec.DataFormat = image.GetSpecification().DataFormat;
 		m_Material.AO = CreateTextureFromImage(image, spec);
 	}
 }

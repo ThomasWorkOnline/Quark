@@ -2,6 +2,7 @@
 
 #include "Quark/Core/Core.h"
 #include "Quark/Core/Timestep.h"
+
 #include "Quark/Event/Event.h"
 
 #include "Entity.h"
@@ -73,14 +74,11 @@ namespace Quark {
 	//
 
 	template<>
-	inline void Scene::OnComponentAdded(Entity entity, NativeScriptComponent& nsc)
-	{
-		InstanciateScript(entity, nsc);
-	}
+	void Scene::OnComponentAdded(Entity entity, NativeScriptComponent& nsc);
 
 	template<>
-	inline void Scene::OnComponentRemove(Entity entity, NativeScriptComponent& nsc)
-	{
-		DestroyScript(nsc);
-	}
+	void Scene::OnComponentRemove(Entity entity, NativeScriptComponent& nsc);
+
+	template<>
+	void Scene::OnComponentAdded(Entity entity, CameraComponent& cc);
 }

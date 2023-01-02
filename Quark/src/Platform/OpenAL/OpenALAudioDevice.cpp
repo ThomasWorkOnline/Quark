@@ -6,11 +6,11 @@
 
 namespace Quark {
 
-	OpenALAudioOutputDevice::OpenALAudioOutputDevice(const char* deviceName)
+	OpenALAudioOutputDevice::OpenALAudioOutputDevice(std::string_view deviceName)
 	{
 		QK_PROFILE_FUNCTION();
 
-		m_Device = ALCALL(alcOpenDevice(deviceName));
+		m_Device = ALCALL(alcOpenDevice(deviceName.data()));
 		ALCboolean extension = ALCALL(alcIsExtensionPresent(m_Device, "ALC_ENUMERATE_ALL_EXT"));
 
 		if (extension)

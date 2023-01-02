@@ -16,6 +16,7 @@ namespace Quark {
 			{
 				case ColorFormat::Depth24:         return GL_DEPTH_ATTACHMENT;
 				case ColorFormat::Depth24Stencil8: return GL_DEPTH_STENCIL_ATTACHMENT;
+				case ColorFormat::Depth32f:        return GL_DEPTH_ATTACHMENT;
 
 				QK_ASSERT_NO_DEFAULT("Invalid framebuffer depth attachment");
 			}
@@ -28,7 +29,8 @@ namespace Quark {
 			switch (attachmentFormat)
 			{
 				case ColorFormat::Depth24:
-				case ColorFormat::Depth24Stencil8: return true;
+				case ColorFormat::Depth24Stencil8:
+				case ColorFormat::Depth32f:        return true;
 				default:                           return false;
 			}
 		}
@@ -63,12 +65,6 @@ namespace Quark {
 
 	void OpenGLFramebufferAttachment::Invalidate()
 	{
-		if (m_Spec.SwapChainTarget)
-		{
-			// Use default framebuffer
-			return;
-		}
-
 		QK_PROFILE_FUNCTION();
 
 		GLenum internalFormat = DataFormatToOpenGLInternalFormat(m_Spec.DataFormat);
@@ -107,7 +103,7 @@ namespace Quark {
 	// OpenGlFramebuffer
 	//
 
-	GLuint s_ActiveFramebuffer = 0;
+	static GLuint s_ActiveFramebuffer = 0;
 
 	OpenGLFramebuffer::OpenGLFramebuffer(const FramebufferSpecification& spec)
 		: Framebuffer(spec)
@@ -116,12 +112,6 @@ namespace Quark {
 
 		QK_CORE_ASSERT(m_Spec.Attachments.size() <= Renderer::GetCapabilities().Framebuffer.MaxAttachments,
 			"Framebuffer contains too many attachments");
-
-		if (m_Spec.SwapChainTarget)
-		{
-			// Use default framebuffer
-			return;
-		}
 
 		Invalidate();
 	}
@@ -144,17 +134,6 @@ namespace Quark {
 
 		m_Spec.Width = width;
 		m_Spec.Height = height;
-
-		if (m_Spec.SwapChainTarget)
-		{
-			// Use default framebuffer
-			return;
-		}
-
-		for (auto& attachment : m_Spec.Attachments)
-		{
-			attachment->Resize(width, height);
-		}
 
 		Invalidate();
 	}
@@ -187,6 +166,9 @@ namespace Quark {
 
 	void OpenGLFramebuffer::Invalidate()
 	{
+		if (m_Spec.SwapChainTarget)
+			return;
+
 		QK_PROFILE_FUNCTION();
 
 		if (m_RendererID)
@@ -202,7 +184,7 @@ namespace Quark {
 		GLsizei colorAttachmentIndex = 0;
 		for (auto& attachment : m_Spec.Attachments)
 		{
-			auto* openglAttachment = static_cast<OpenGLFramebufferAttachment*>(attachment.get());
+			auto* openglAttachment = static_cast<const OpenGLFramebufferAttachment*>(attachment);
 
 			if (Utils::IsDepthOrStencilAttachment(attachment->GetSpecification().DataFormat))
 			{
