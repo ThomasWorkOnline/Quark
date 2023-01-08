@@ -4,7 +4,43 @@
 #include "Components.h"
 #include "NativeScriptEntity.h"
 
+#include "Quark/Scripting/ScriptRuntime.h"
+
 namespace Quark {
+
+	template<>
+	void Scene::InstanciateScript(Entity entity, ScriptComponent& sc)
+	{
+		sc.ScriptInstance.Instanciate();
+
+		if (sc.OnCreate)
+			sc.OnCreate.Invoke(sc.ScriptInstance);
+	}
+
+	template<>
+	void Scene::DestroyScript(ScriptComponent& sc)
+	{
+		if (sc.OnDestroy)
+			sc.OnDestroy.Invoke(sc.ScriptInstance);
+
+		// TODO: destroy the instance
+		sc.ScriptInstance = nullptr;
+	}
+
+	template<>
+	void Scene::InstanciateScript(Entity entity, NativeScriptComponent& nsc)
+	{
+		nsc.ScriptInstance = nsc.InstanciateScript();
+		nsc.ScriptInstance->m_Entity = entity;
+		nsc.OnCreate(nsc.ScriptInstance);
+	}
+
+	template<>
+	void Scene::DestroyScript(NativeScriptComponent& nsc)
+	{
+		nsc.OnDestroy(nsc.ScriptInstance);
+		nsc.ScriptInstance = nullptr;
+	}
 
 	void Scene::OnEvent(Event& e)
 	{
@@ -14,24 +50,16 @@ namespace Quark {
 			for (auto entity : view)
 			{
 				auto& nsc = view.get<NativeScriptComponent>(entity);
-				nsc.OnEvent(e);
+				nsc.OnEvent(nsc.ScriptInstance, e);
 			}
 		}
 	}
 
 	void Scene::OnPlay()
 	{
-		InstanciateScript = [](Entity entity, NativeScriptComponent& nsc)
-		{
-			nsc.ScriptInstance = nsc.InstanciateScript();
-			nsc.ScriptInstance->m_Entity = entity;
-			nsc.OnCreate();
-		};
+		m_Status = SceneStatus::Playing;
 
-		DestroyScript = [](NativeScriptComponent& nsc)
-		{
-			nsc.OnDestroy();
-		};
+		ScriptRuntime::OnRuntimeStart(this);
 
 		// Instanciate native scripts
 		{
@@ -39,10 +67,19 @@ namespace Quark {
 			for (auto entity : view)
 			{
 				auto& nsc = view.get<NativeScriptComponent>(entity);
+				Entity e = { entity, this };
+				InstanciateScript(e, nsc);
+			}
+		}
 
-				nsc.ScriptInstance = nsc.InstanciateScript();
-				nsc.ScriptInstance->m_Entity = { entity, this };
-				nsc.OnCreate();
+		// Instanciate C# scripts
+		{
+			auto view = m_Registry.view<ScriptComponent>();
+			for (auto entity : view)
+			{
+				auto& sc = view.get<ScriptComponent>(entity);
+				Entity e = { entity, this };
+				InstanciateScript(e, sc);
 			}
 		}
 	}
@@ -55,51 +92,82 @@ namespace Quark {
 			for (auto entity : view)
 			{
 				auto& nsc = view.get<NativeScriptComponent>(entity);
-				nsc.OnDestroy();
+				DestroyScript(nsc);
 			}
 		}
 
-		InstanciateScript = [](Entity entity, NativeScriptComponent& nsc) {};
-		DestroyScript = [](NativeScriptComponent& nsc) {};
+		// Destroy C# scripts
+		{
+			auto view = m_Registry.view<ScriptComponent>();
+			for (auto entity : view)
+			{
+				auto& sc = view.get<ScriptComponent>(entity);
+				DestroyScript(sc);
+			}
+		}
 
+		ScriptRuntime::OnRuntimeStop();
+
+		m_Status = SceneStatus::Stopped;
 		m_Registry.clear();
 	}
 
 	void Scene::OnUpdate(Timestep elapsedTime)
 	{
-		UpdateNativeScripts(elapsedTime);
+		UpdateScripts(elapsedTime);
 		UpdatePhysicsBodies(elapsedTime);
 		UpdateTransforms(elapsedTime);
 	}
 
 	Entity Scene::CreateEntity()
 	{
-		return { m_Registry.create(), this };
+		Entity entity = CreateEmptyEntity();
+		entity.AddComponent<Transform3DComponent>();
+		entity.AddComponent<PhysicsComponent>();
+		return entity;
 	}
 
 	Entity Scene::CreatePrimaryCamera()
 	{
-		auto entity = CreateEntity();
-		entity.AddComponent<Transform3DComponent>();
-		entity.AddComponent<PhysicsComponent>();
+		Entity entity = CreateEntity();
 		entity.AddComponent<CameraComponent>().Camera.SetPerspective(90.0f);
 		return entity;
 	}
 
-	void Scene::DeleteEntity(Entity entity)
+	Entity Scene::CreateEmptyEntity()
+	{
+		return { m_Registry.create(), this };
+	}
+
+	void Scene::DestroyEntity(Entity entity)
 	{
 		m_Registry.destroy(entity);
 	}
 
-	void Scene::UpdateNativeScripts(Timestep elapsedTime)
+	void Scene::UpdateScripts(Timestep elapsedTime)
 	{
 		// Native scripts
 		{
 			auto view = m_Registry.view<NativeScriptComponent>();
 			for (auto entity : view)
 			{
-				auto& nsComponent = view.get<NativeScriptComponent>(entity);
-				nsComponent.OnUpdate(elapsedTime);
+				auto& nsc = view.get<NativeScriptComponent>(entity);
+				nsc.OnUpdate(nsc.ScriptInstance, elapsedTime);
+			}
+		}
+
+		// C# scripts
+		{
+			float ts = (float)elapsedTime.Seconds();
+			void* params[] = { &ts };
+
+			auto view = m_Registry.view<ScriptComponent>();
+			for (auto entity : view)
+			{
+				auto& sc = view.get<ScriptComponent>(entity);
+
+				if (sc.OnUpdate)
+					sc.OnUpdate.Invoke(sc.ScriptInstance, params);
 			}
 		}
 	}
@@ -136,14 +204,38 @@ namespace Quark {
 namespace Quark {
 
 	template<>
+	void Scene::OnComponentAdded(Entity entity, ScriptComponent& sc)
+	{
+		if (m_Status != SceneStatus::Playing)
+			return;
+
+		InstanciateScript(entity, sc);
+	}
+
+	template<>
+	void Scene::OnComponentRemove(Entity entity, ScriptComponent& sc)
+	{
+		if (m_Status != SceneStatus::Playing)
+			return;
+
+		DestroyScript(sc);
+	}
+
+	template<>
 	void Scene::OnComponentAdded(Entity entity, NativeScriptComponent& nsc)
 	{
+		if (m_Status != SceneStatus::Playing)
+			return;
+
 		InstanciateScript(entity, nsc);
 	}
 
 	template<>
 	void Scene::OnComponentRemove(Entity entity, NativeScriptComponent& nsc)
 	{
+		if (m_Status != SceneStatus::Playing)
+			return;
+
 		DestroyScript(nsc);
 	}
 

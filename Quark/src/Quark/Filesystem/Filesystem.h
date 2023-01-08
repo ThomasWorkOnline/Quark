@@ -10,5 +10,6 @@ namespace Quark {
 
 		std::string           ReadTextFile(std::string_view filepath);
 		std::vector<uint32_t> ReadSpirvFile(std::string_view filepath);
+		std::vector<uint8_t>  ReadBinaryFile(std::string_view filepath);
 	}
 }

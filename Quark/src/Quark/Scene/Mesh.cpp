@@ -120,7 +120,8 @@ namespace Quark {
 		mesh.VertexBuffer = VertexBuffer::Create(baseVertices, vertexCount * sizeof(MeshVertex));
 		mesh.VertexBuffer->SetLayout(s_Layout);
 
-		mesh.IndexBuffer = IndexBuffer::Create(indices, indexCount, IndexType::Uint32);
+		IndexType indexType = GetIndexTypeBasedOnIndexCount(indexCount);
+		mesh.IndexBuffer = IndexBuffer::Create(indices, indexCount, indexType);
 
 		delete[] baseVertices;
 		delete[] indices;

@@ -60,6 +60,9 @@
 #include "Quark/Scene/SceneSerializer.h"
 #include "Quark/Scene/Serialization.h"
 
+#include "Quark/Scripting/ScriptClass.h"
+#include "Quark/Scripting/ScriptRuntime.h"
+
 // UI
 #include "Quark/UI/UIElement.h"
 #include "Quark/UI/Canvas.h"

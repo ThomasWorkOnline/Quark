@@ -6,7 +6,7 @@ namespace Quark {
 	FileStream::FileStream(std::string_view filepath, const char* pOpenMode)
 		: m_Handle(std::fopen(filepath.data(), pOpenMode))
 	{
-		Verify(m_Handle, "Could not open file at: {0}", filepath);
+		QK_CORE_VERIFY(m_Handle, "Could not open file at: {0}", filepath);
 	}
 
 	FileStream::FileStream(FileStream&& other) noexcept

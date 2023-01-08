@@ -19,7 +19,7 @@ project "Quark"
 
 		"src/qkpch.h",
 		"src/qkpch.cpp",
-
+		
 		"src/Platform/GLFW/**.h",
 		"src/Platform/GLFW/**.cpp",
 		"src/Platform/OpenAL/**.h",
@@ -27,17 +27,7 @@ project "Quark"
 		"src/Platform/OpenGL/**.h",
 		"src/Platform/OpenGL/**.cpp",
 		"src/Platform/Vulkan/**.h",
-		"src/Platform/Vulkan/**.cpp",
-
-		"assets/shaders/**.vert",
-		"assets/shaders/**.frag"
-	}
-
-	defines
-	{
-		"AL_LIBTYPE_STATIC",
-		"GLFW_INCLUDE_NONE",
-		"GLM_FORCE_LEFT_HANDED"
+		"src/Platform/Vulkan/**.cpp"
 	}
 
 	includedirs
@@ -50,6 +40,7 @@ project "Quark"
 		"%{IncludeDir.glfw}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.ImGui}",
+		"%{IncludeDir.mono}",
 		"%{IncludeDir.OpenAL}",
 		"%{IncludeDir.spdlog}",
 		"%{IncludeDir.VulkanSDK}"
@@ -65,14 +56,21 @@ project "Quark"
 		"spdlog"
 	}
 
+	defines
+	{
+		"AL_LIBTYPE_STATIC",
+		"GLFW_INCLUDE_NONE",
+		"GLM_FORCE_LEFT_HANDED"
+	}
+
+	flags
+	{
+		"FatalCompileWarnings",
+		"ShadowedVariables"
+	}
+
 	filter "system:windows"
 		systemversion "latest"
-
-		flags
-		{
-			"FatalCompileWarnings",
-			"ShadowedVariables"
-		}
 
 		files
 		{
@@ -97,10 +95,17 @@ project "Quark"
 		links
 		{
 			"%{Library.DXGI}",
-			"%{Library.Direct3D12}",
+			"%{Library.D3D12}",
+			"%{Library.mono}",
 			"%{Library.OpenAL}",
 			"%{Library.OpenGL}",
-			"%{Library.Vulkan}"
+			"%{Library.Vulkan}",
+
+			-- Win32 mono dependencies
+			"Bcrypt.lib",
+			"Version.lib",
+			"winmm.lib",
+			"Ws2_32.lib"
 		}
 
 	filter "system:macosx"
@@ -149,6 +154,11 @@ project "Quark"
 			"%{Library.SPIRVCross_GLSL_Debug}"
 		}
 
+		libdirs
+		{
+			"%{LibraryDir.mono_Debug}"
+		}
+
 	filter "configurations:Release"
 		defines "QK_RELEASE"
 		runtime "Release"
@@ -162,6 +172,11 @@ project "Quark"
 			"%{Library.SPIRVCross_GLSL_Release}"
 		}
 
+		libdirs
+		{
+			"%{LibraryDir.mono_Release}"
+		}
+
 	filter "configurations:Dist"
 		defines "QK_DIST"
 		runtime "Release"
@@ -173,6 +188,11 @@ project "Quark"
 			"%{Library.ShaderC_Release}",
 			"%{Library.SPIRVCross_Release}",
 			"%{Library.SPIRVCross_GLSL_Release}"
+		}
+
+		libdirs
+		{
+			"%{LibraryDir.mono_Release}"
 		}
 
 	filter { "configurations:Release", "system:windows" }

@@ -4,7 +4,9 @@
 namespace Quark {
 
 	TagComponent::TagComponent(std::string_view name)
-		: Name(name) {}
+		: Name(name)
+	{
+	}
 
 	Vec3 Transform3DComponent::GetFrontVector() const
 	{
@@ -51,32 +53,46 @@ namespace Quark {
 	}
 
 	Transform3DComponent::Transform3DComponent(const Transform3DComponent& other)
-		: Position(other.Position), Scale(other.Scale), Orientation(other.Orientation)
+		: Position(other.Position)
+		, Scale(other.Scale)
+		, Orientation(other.Orientation)
 	{
 	}
 
 	Transform3DComponent::Transform3DComponent(const Vec3& position, const Vec3& scale, const Quat& orientation)
-		: Position(position), Scale(scale), Orientation(orientation)
+		: Position(position)
+		, Scale(scale)
+		, Orientation(orientation)
 	{
 	}
 
 	PhysicsComponent::PhysicsComponent()
 		: Velocity(0.0)
+		, AngularVelocity(0.0)
 	{
 	}
 
-	PhysicsComponent::PhysicsComponent(const Vec3& velocity)
+	PhysicsComponent::PhysicsComponent(const Vec3& velocity, const Vec3& angularVelocity)
 		: Velocity(velocity)
+		, AngularVelocity(angularVelocity)
 	{
 	}
 
-	void PhysicsComponent::AddForce(const Vec3& force)
+	void PhysicsComponent::ApplyForce(const Vec3& force)
 	{
 		Velocity += force;
 	}
 
 	StaticMeshComponent::StaticMeshComponent(StaticMesh* meshInstance)
 		: MeshInstance(meshInstance)
+	{
+	}
+
+	ScriptComponent::ScriptComponent(ScriptClass scriptClass)
+		: ScriptInstance(scriptClass.CreateInstance())
+		, OnUpdate(scriptClass.GetMethodByName("OnUpdate", 1))
+		, OnCreate(scriptClass.GetMethodByName("OnCreate", 0))
+		, OnDestroy(scriptClass.GetMethodByName("OnDestroy", 0))
 	{
 	}
 }

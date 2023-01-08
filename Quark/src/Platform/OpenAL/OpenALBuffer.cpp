@@ -86,7 +86,7 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		FILE* in = std::fopen(filepath.data(), "rb");
-		Verify(in, "Could not open audio file: '{0}'", filepath);
+		QK_CORE_VERIFY(in, "Could not open audio file: '{0}'", filepath);
 
 		std::vector<std::byte> audioData;
 
@@ -95,13 +95,13 @@ namespace Quark {
 			WavHeader header;
 			std::fread(&header, sizeof(WavHeader), 1, in);
 
-			Verify(Utils::ValidateWavHeader(header), "Invalid or possibly corrupt wave file");
+			QK_CORE_VERIFY(Utils::ValidateWavHeader(header), "Invalid or possibly corrupt wave file");
 
 			audioData.resize(header.DataChunkSize);
 			size_t readSize = std::fread(audioData.data(), 1, header.DataChunkSize, in);
 			audioData.resize(readSize);
 
-			Verify(readSize == header.DataChunkSize, "Invalid or possibly corrupt wave file");
+			QK_CORE_VERIFY(readSize == header.DataChunkSize, "Invalid or possibly corrupt wave file");
 
 			m_Spec.Samplerate = header.Samplerate;
 			m_Spec.BitDepth = header.BitDepth;

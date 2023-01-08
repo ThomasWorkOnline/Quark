@@ -2,7 +2,6 @@
 
 #include "Quark/Core/Core.h"
 #include "Quark/Core/Timestep.h"
-
 #include "Quark/Event/Event.h"
 
 #include "Entity.h"
@@ -16,6 +15,12 @@ namespace Quark {
 		Float AirDensity = 1.225f;
 	};
 
+	enum class SceneStatus
+	{
+		Stopped = 0,
+		Playing = 1
+	};
+
 	class Scene
 	{
 	public:
@@ -27,7 +32,8 @@ namespace Quark {
 
 		Entity                CreateEntity();
 		Entity                CreatePrimaryCamera();
-		void                  DeleteEntity(Entity entity);
+		Entity                CreateEmptyEntity();
+		void                  DestroyEntity(Entity entity);
 
 		const SceneSettings&  GetSettings() const { return m_Settings; }
 		SceneSettings&        GetSettings() { return m_Settings; }
@@ -35,30 +41,27 @@ namespace Quark {
 		const entt::registry& GetRegistry() const { return m_Registry; }
 		entt::registry&       GetRegistry() { return m_Registry; }
 
-	protected:
-		void UpdateNativeScripts(Timestep elapsedTime);
+	private:
+		template<typename Script>
+		static inline void InstanciateScript(Entity entity, Script& sc) {}
+
+		template<typename Script>
+		static inline void DestroyScript(Script& sc) {}
+
+		template<typename Component>
+		inline void OnComponentAdded(Entity entity, Component& c) {}
+
+		template<typename Component>
+		inline void OnComponentRemove(Entity entity, Component& c) {}
+
+		void UpdateScripts(Timestep elapsedTime);
 		void UpdatePhysicsBodies(Timestep elapsedTime);
 		void UpdateTransforms(Timestep elapsedTime);
 
-		template<typename Component>
-		inline void OnComponentAdded(Entity entity, Component& c)
-		{
-		}
-
-		template<typename Component>
-		inline void OnComponentRemove(Entity entity, Component& c)
-		{
-		}
-
 	private:
-		// Scripts are instanciated OnPlay() or when a script is added after OnPlay() was called
-		// Calling these functions while the scene is not playing will do nothing
-		void (*InstanciateScript)(Entity entity, NativeScriptComponent& nsc) = [](Entity, NativeScriptComponent&) {};
-		void (*DestroyScript)(NativeScriptComponent& nsc) = [](NativeScriptComponent&) {};
-
-	protected:
 		entt::registry m_Registry;
 		SceneSettings m_Settings;
+		SceneStatus m_Status{};
 
 		friend class Entity;
 	};
@@ -72,6 +75,12 @@ namespace Quark {
 	///////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Component template specialization
 	//
+
+	template<>
+	void Scene::OnComponentAdded(Entity entity, ScriptComponent& sc);
+
+	template<>
+	void Scene::OnComponentRemove(Entity entity, ScriptComponent& sc);
 
 	template<>
 	void Scene::OnComponentAdded(Entity entity, NativeScriptComponent& nsc);

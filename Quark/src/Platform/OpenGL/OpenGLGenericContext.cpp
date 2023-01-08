@@ -43,7 +43,7 @@ namespace Quark {
 		glfwMakeContextCurrent(m_WindowHandle);
 
 		int success = gladLoadGL();
-		Verify(success, "Failed to initialize OpenGL context");
+		QK_CORE_VERIFY(success, "Failed to initialize OpenGL context");
 	}
 
 	OpenGLGenericContext::~OpenGLGenericContext()

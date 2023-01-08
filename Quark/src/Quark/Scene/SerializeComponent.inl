@@ -115,6 +115,19 @@ namespace Quark {
 	}
 
 	template<>
+	inline void SerializeComponent(const ScriptComponent& sc, FILE* out)
+	{
+		// TODO: implement
+	}
+
+	template<>
+	inline auto DeserializeComponent(FILE* in) -> ScriptComponent
+	{
+		// TODO: implement
+		return {};
+	}
+
+	template<>
 	inline void SerializeComponent(const NativeScriptComponent& nsc, FILE* out)
 	{
 		Serializer serializer(out);
@@ -122,16 +135,16 @@ namespace Quark {
 			reinterpret_cast<std::uintptr_t>(nsc.InstanciateScript)
 		);
 		serializer.SerializeValue<std::uintptr_t>(
-			reinterpret_cast<std::uintptr_t>(nsc.OnCreateImpl)
+			reinterpret_cast<std::uintptr_t>(nsc.OnCreate)
 		);
 		serializer.SerializeValue<std::uintptr_t>(
-			reinterpret_cast<std::uintptr_t>(nsc.OnDestroyImpl)
+			reinterpret_cast<std::uintptr_t>(nsc.OnDestroy)
 		);
 		serializer.SerializeValue<std::uintptr_t>(
-			reinterpret_cast<std::uintptr_t>(nsc.OnUpdateImpl)
+			reinterpret_cast<std::uintptr_t>(nsc.OnUpdate)
 		);
 		serializer.SerializeValue<std::uintptr_t>(
-			reinterpret_cast<std::uintptr_t>(nsc.OnEventImpl)
+			reinterpret_cast<std::uintptr_t>(nsc.OnEvent)
 		);
 	}
 
@@ -143,16 +156,16 @@ namespace Quark {
 		nsc.InstanciateScript = reinterpret_cast<decltype(nsc.InstanciateScript)>(
 			deserializer.DeserializeValue<std::uintptr_t>()
 		);
-		nsc.OnCreateImpl = reinterpret_cast<decltype(nsc.OnCreateImpl)>(
+		nsc.OnCreate = reinterpret_cast<decltype(nsc.OnCreate)>(
 			deserializer.DeserializeValue<std::uintptr_t>()
 		);
-		nsc.OnDestroyImpl = reinterpret_cast<decltype(nsc.OnDestroyImpl)>(
+		nsc.OnDestroy = reinterpret_cast<decltype(nsc.OnDestroy)>(
 			deserializer.DeserializeValue<std::uintptr_t>()
 		);
-		nsc.OnUpdateImpl = reinterpret_cast<decltype(nsc.OnUpdateImpl)>(
+		nsc.OnUpdate = reinterpret_cast<decltype(nsc.OnUpdate)>(
 			deserializer.DeserializeValue<std::uintptr_t>()
 		);
-		nsc.OnEventImpl = reinterpret_cast<decltype(nsc.OnEventImpl)>(
+		nsc.OnEvent = reinterpret_cast<decltype(nsc.OnEvent)>(
 			deserializer.DeserializeValue<std::uintptr_t>()
 		);
 		return nsc;

@@ -3,9 +3,12 @@
 
 #include <chrono>
 
-namespace Quark {
+#include "Quark/Renderer/Renderer.h"
+#include "Quark/Renderer/Renderer2D.h"
 
-	extern bool g_Running;
+#include "Quark/Scripting/ScriptRuntime.h"
+
+namespace Quark {
 
 	Application::Application(const ApplicationSpecification& spec) : Singleton(this),
 		m_Spec(spec)
@@ -13,6 +16,9 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		m_AppMainThreadId = std::this_thread::get_id();
+
+		if (m_Spec.RuntimeDir.empty())
+			m_Spec.RuntimeDir = GetRuntimeDirectory();
 
 		if (!m_Spec.AssetDir.empty())
 			std::filesystem::current_path(m_Spec.AssetDir);
@@ -32,6 +38,8 @@ namespace Quark {
 		QK_CORE_INFO(Renderer::GetSpecification());
 
 		m_Window->AppendTitle(fmt::format(" - {0} ({1})", QK_PLATFORM_NAME, Renderer::GetAPIName()));
+
+		ScriptRuntime::Initialize();
 
 		if (m_Spec.HasFlags(ApplicationFlagBits::LaunchRenderer2D))
 		{
@@ -59,6 +67,8 @@ namespace Quark {
 			delete m_Layers[i];
 
 		delete m_ImGuiLayer;
+
+		ScriptRuntime::Shutdown();
 
 		Renderer2D::Dispose();
 		Renderer::Dispose();
@@ -181,10 +191,5 @@ namespace Quark {
 
 		if (it != m_Layers.end())
 			m_Layers.erase(it);
-	}
-
-	void Application::SetRestartPolicy(ApplicationRestartPolicy policy)
-	{
-		g_Running = policy == ApplicationRestartPolicy::Restart;
 	}
 }

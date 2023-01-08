@@ -20,12 +20,12 @@ VulkanApp::VulkanApp(const ApplicationSpecification& spec)
 
 		Vec3f axis = { randomFloat.Next(), randomFloat.Next(), randomFloat.Next() };
 
-		auto& transform = sprite.AddComponent<Transform3DComponent>();
+		auto& transform = sprite.GetComponent<Transform3DComponent>();
 		transform.Position = Vec3f{ random(), random(), random() };
 		transform.Scale = axis * 10.f;
 		transform.Rotate(randomFloat.Next() * glm::radians(360.0f), axis);
 
-		auto& physics = sprite.AddComponent<PhysicsComponent>();
+		auto& physics = sprite.GetComponent<PhysicsComponent>();
 		physics.Velocity = axis * 100.0f;
 
 		auto& src = sprite.AddComponent<TexturedSpriteRendererComponent>();

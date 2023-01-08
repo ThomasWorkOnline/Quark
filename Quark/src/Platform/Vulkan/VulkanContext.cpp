@@ -264,9 +264,9 @@ namespace Quark {
 		createInfo.pNext = &messengerCreateInfo;
 #endif
 		VkResult vkRes = vkCreateInstance(&createInfo, nullptr, &m_Instance);
-		Verify(vkRes == VK_SUCCESS, "Failed to create the Vulkan instance (code: {0})", vkRes);
+		QK_CORE_VERIFY(vkRes == VK_SUCCESS, "Failed to create the Vulkan instance (code: {0})", vkRes);
 
 		vkRes = CreateDebugUtilsMessengerEXT(m_Instance, &messengerCreateInfo, nullptr, &m_DebugMessenger);
-		Verify(vkRes == VK_SUCCESS, "Failed to create a Vulkan debug messenger (code: {0})", vkRes);
+		QK_CORE_VERIFY(vkRes == VK_SUCCESS, "Failed to create a Vulkan debug messenger (code: {0})", vkRes);
 	}
 }

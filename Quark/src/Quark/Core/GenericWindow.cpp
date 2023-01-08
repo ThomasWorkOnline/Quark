@@ -73,7 +73,7 @@ namespace Quark {
 		if (s_WindowCount == 0)
 		{
 			int initCode = glfwInit();
-			Verify(initCode == GLFW_TRUE, "Could not initialize GLFW!");
+			QK_CORE_VERIFY(initCode == GLFW_TRUE, "Could not initialize GLFW!");
 
 			QK_CORE_TRACE("Initialized GLFW!");
 
@@ -90,7 +90,7 @@ namespace Quark {
 		glfwWindowHint(GLFW_SAMPLES, GetIntegerSampleCount(spec.Samples));
 
 		m_Window = glfwCreateWindow(spec.Width, spec.Height, spec.Title.c_str(), nullptr, nullptr);
-		Verify(m_Window, "Failed to create window!");
+		QK_CORE_VERIFY(m_Window, "Failed to create window!");
 
 		++s_WindowCount;
 

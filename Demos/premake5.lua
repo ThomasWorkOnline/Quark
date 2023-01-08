@@ -17,7 +17,7 @@ project "Demos"
 	{
 		"src",
 		"%{wks.location}/Quark/src",
-		"%{wks.location}/RuntimeCore/src",
+		"%{wks.location}/Quark-RuntimeCore/src",
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.spdlog}",
@@ -26,7 +26,7 @@ project "Demos"
 
 	links
 	{
-		"RuntimeCore"
+		"Quark-RuntimeCore"
 	}
 
 	filter { "configurations:Dist", "system:windows" }

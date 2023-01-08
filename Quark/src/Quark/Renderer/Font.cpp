@@ -39,10 +39,10 @@ namespace Quark {
 
 		FT_Error error;
 		error = FT_New_Face(s_Library, filepath.data(), 0, &m_Face);
-		Verify(error == FT_Err_Ok, "Could not load new font face at path: '{0}' ({1})", filepath, FT_Error_String(error));
+		QK_CORE_VERIFY(error == FT_Err_Ok, "Could not load new font face at path: '{0}' ({1})", filepath, FT_Error_String(error));
 
 		error = FT_Set_Pixel_Sizes(m_Face, 0, fontSize);
-		Verify(error == FT_Err_Ok, "Could not set font dimensions. ({0}: {1} requested)", FT_Error_String(error), fontSize);
+		QK_CORE_VERIFY(error == FT_Err_Ok, "Could not set font dimensions. ({0}: {1} requested)", FT_Error_String(error), fontSize);
 
 		QK_CORE_TRACE("Loading {0} glyphs from font at path: '{1}'", GlyphCount, filepath);
 

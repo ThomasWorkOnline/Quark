@@ -66,11 +66,11 @@ namespace Quark {
 			wglMakeCurrent(m_DeviceContext, m_Context);
 			wglDeleteContext(rc);
 
-			ThrowRuntimeError("Could not set the current context!");
+			QK_THROW_RUNTIME_ERROR("Could not set the current context!");
 		}
 
 		int success = gladLoadGL();
-		Verify(success, "Failed to initialize OpenGL context");
+		QK_CORE_VERIFY(success, "Failed to initialize OpenGL context");
 
 		wglMakeCurrent(m_DeviceContext, m_Context);
 		wglDeleteContext(rc);

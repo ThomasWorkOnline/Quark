@@ -26,7 +26,7 @@ namespace Quark {
 		sinks.push_back(logSink);
 
 		m_CoreLogger = std::make_shared<spdlog::logger>("Core", sinks.begin(), sinks.end());
-		m_ClientLogger = std::make_shared<spdlog::logger>("Client", sinks.begin(), sinks.end());
+		m_ClientLogger = std::make_shared<spdlog::logger>("App", sinks.begin(), sinks.end());
 		
 #if defined(QK_DEBUG)
 		m_CoreLogger->set_level(spdlog::level::trace);

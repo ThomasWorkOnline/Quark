@@ -98,6 +98,7 @@ namespace Quark {
 				case ComponentType::SpriteRendererComponent: AddEntityComponent<SpriteRendererComponent>(entity, in); break;
 				case ComponentType::TexturedSpriteRendererComponent: AddEntityComponent<TexturedSpriteRendererComponent>(entity, in); break;
 				case ComponentType::TextRendererComponent: AddEntityComponent<TextRendererComponent>(entity, in); break;
+				case ComponentType::ScriptComponent: AddEntityComponent<ScriptComponent>(entity, in); break;
 				case ComponentType::NativeScriptComponent: AddEntityComponent<NativeScriptComponent>(entity, in); break;
 			}
 		}
@@ -106,7 +107,7 @@ namespace Quark {
 	RuntimeSceneSerializer::RuntimeSceneSerializer(std::string_view scenePath)
 		: m_SceneFile(std::fopen(scenePath.data(), "wb"))
 	{
-		Verify(m_SceneFile, "Could not open '{0}'!", scenePath);
+		QK_CORE_VERIFY(m_SceneFile, "Could not open '{0}'!", scenePath);
 	}
 
 	RuntimeSceneSerializer::~RuntimeSceneSerializer()
@@ -140,7 +141,7 @@ namespace Quark {
 	RuntimeSceneDeserializer::RuntimeSceneDeserializer(std::string_view scenePath)
 		: m_SceneFile(std::fopen(scenePath.data(), "rb"))
 	{
-		Verify(m_SceneFile, "No given scene '{0}' exists!", scenePath);
+		QK_CORE_VERIFY(m_SceneFile, "No given scene '{0}' exists!", scenePath);
 	}
 
 	RuntimeSceneDeserializer::~RuntimeSceneDeserializer()

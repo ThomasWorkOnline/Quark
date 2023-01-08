@@ -1,7 +1,6 @@
 #include "qkpch.h"
 #include "Renderer2D.h"
 
-#include "Quark/Core/Application.h"
 #include "Quark/Filesystem/Filesystem.h"
 
 #include "Sampler.h"
@@ -718,7 +717,7 @@ namespace Quark {
 		s_Data->Samplers[0] = s_Data->SamplerPool[0].get();
 
 		{
-			auto& coreDirectory = Application::Get()->GetSpecification().CoreDir;
+			auto& coreDirectory = GetRuntimeDirectory();
 			auto spriteVertexSource = Filesystem::ReadTextFile((coreDirectory / "assets/shaders/version/4.50/Sprite.vert").string());
 			auto spriteFragmentSource = Filesystem::ReadTextFile((coreDirectory / "assets/shaders/version/4.50/Sprite.frag").string());
 
@@ -747,7 +746,7 @@ namespace Quark {
 		s_Data->LineVertices = new LineVertex[Renderer2DData::MaxVertices];
 
 		{
-			auto& coreDirectory = Application::Get()->GetSpecification().CoreDir;
+			auto& coreDirectory = GetRuntimeDirectory();
 			auto lineVertexSource = Filesystem::ReadTextFile((coreDirectory / "assets/shaders/version/4.20/Line.vert").string());
 			auto lineFragmentSource = Filesystem::ReadTextFile((coreDirectory / "assets/shaders/version/4.20/Line.frag").string());
 

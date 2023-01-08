@@ -8,22 +8,12 @@
 #include "Quark/Event/ApplicationEvent.h"
 #include "Quark/ImGui/ImGuiLayer.h"
 
-#include "Quark/Renderer/Renderer.h"
-#include "Quark/Renderer/Renderer2D.h"
+#include "Quark/Renderer/GraphicsAPI.h"
 
 #include <thread>
 #include <filesystem>
 
 namespace Quark {
-
-	enum ApplicationFlagBits
-	{
-		None                    = 0,
-		LaunchRenderer2D        = BIT(0),
-		EnableAudioOutputDevice = BIT(1)
-	};
-
-	using ApplicationFlags = std::underlying_type_t<ApplicationFlagBits>;
 
 	enum class ApplicationRestartPolicy
 	{
@@ -31,23 +21,22 @@ namespace Quark {
 		Restart
 	};
 
-	struct CommandLineArguments
-	{
-		int    Argc = 0;
-		char** Argv = nullptr;
+	extern void SetRestartPolicy(ApplicationRestartPolicy policy);
 
-		CommandLineArguments() = default;
-		CommandLineArguments(int argc, char** argv)
-			: Argc(argc), Argv(argv)
-		{
-		}
+	enum ApplicationFlagBits
+	{
+		None = 0,
+		LaunchRenderer2D = BIT(0),
+		EnableAudioOutputDevice = BIT(1)
 	};
+
+	using ApplicationFlags = std::underlying_type_t<ApplicationFlagBits>;
 
 	struct ApplicationSpecification
 	{
 		std::string           AppName;
 		std::filesystem::path AssetDir;
-		std::filesystem::path CoreDir;
+		std::filesystem::path RuntimeDir;
 
 		uint32_t              Width = 1280, Height = 720;
 
@@ -55,7 +44,7 @@ namespace Quark {
 		ApplicationFlags      Flags{};
 		KeyCode               FullscreenKey = KeyCode::F11;
 
-		RHI                   GraphicsAPI = Renderer::GetPreferredRHI();
+		RHI                   GraphicsAPI = GraphicsAPI::GetDefaultRHIForPlatform();
 		SampleCount           Samples     = SampleCount::SampleCount8;
 		bool                  VSync = true;
 
@@ -88,8 +77,6 @@ namespace Quark {
 		AudioOutputDevice* GetAudioOutputDevice() const { return m_AudioOutputDevice.get(); }
 
 		AudioOutputDevice* OpenAudioOutputDevice(std::string_view deviceName);
-
-		static void SetRestartPolicy(ApplicationRestartPolicy policy);
 
 	protected:
 		virtual void OnEvent(Event& e) {}

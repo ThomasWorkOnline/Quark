@@ -43,7 +43,7 @@ namespace Quark {
 			&m_Data     // Additional application data
 		);
 
-		Verify(m_WindowHandle, "Window handle is nullptr");
+		QK_CORE_VERIFY(m_WindowHandle, "Window handle is nullptr");
 		++s_WindowCount;
 
 		// Creating the graphics context

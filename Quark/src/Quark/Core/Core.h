@@ -33,8 +33,8 @@
 #include <stdexcept>
 #include <utility>
 
-#define ThrowRuntimeError(...) throw std::runtime_error(fmt::format(__VA_ARGS__))
-#define Verify(x, ...) do { if (!(x)) { ThrowRuntimeError(__VA_ARGS__); } } while (false)
+#define QK_THROW_RUNTIME_ERROR(...) throw std::runtime_error(fmt::format(__VA_ARGS__))
+#define QK_CORE_VERIFY(x, ...) do { if (!(x)) { QK_THROW_RUNTIME_ERROR(__VA_ARGS__); } } while (false)
 
 ////////////////////////////////////////////////////////////////
 // Logging Macros
@@ -58,6 +58,22 @@
 #define sizeof_array(x) (sizeof(x) / sizeof(x[0]))
 
 namespace Quark {
+
+	struct CommandLineArguments
+	{
+		int    Argc = 0;
+		char** Argv = nullptr;
+
+		CommandLineArguments() = default;
+		CommandLineArguments(int argc, char** argv)
+			: Argc(argc), Argv(argv)
+		{
+		}
+	};
+
+	extern CommandLineArguments GetCommandLineArguments();
+
+	extern const std::filesystem::path& GetRuntimeDirectory();
 
 	namespace RuntimeCore {
 

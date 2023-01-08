@@ -59,7 +59,7 @@ namespace Quark {
 		QK_PROFILE_FUNCTION();
 
 		FILE* in = std::fopen(filepath.data(), "rb");
-		Verify(in, "Could not open image: '{0}'", filepath);
+		QK_CORE_VERIFY(in, "Could not open image: '{0}'", filepath);
 
 		try
 		{
@@ -122,13 +122,13 @@ namespace Quark {
 			size_t readSize = std::fread(fileData.data(), 1, fileSize, in);
 			fileData.resize(readSize);
 
-			Verify(readSize == fileSize, "Expected size and read size do not match");
+			QK_CORE_VERIFY(readSize == fileSize, "Expected size and read size do not match");
 			unsigned int error = lodepng_decode(&imageData, &width, &height, &state, fileData.data(), fileSize);
 
 			if (error)
 			{
 				lodepng_state_cleanup(&state);
-				ThrowRuntimeError("Failed to decode PNG image: {0}", lodepng_error_text(error));
+				QK_THROW_RUNTIME_ERROR("Failed to decode PNG image: {0}", lodepng_error_text(error));
 			}
 		}
 
@@ -150,7 +150,7 @@ namespace Quark {
 		int width, height, channels;
 		float* imageData = stbi_loadf_from_file(in, &width, &height, &channels, 0);
 
-		Verify(imageData, "Failed to load HDR image data");
+		QK_CORE_VERIFY(imageData, "Failed to load HDR image data");
 
 		uint32_t bitsPerChannel;
 		stbi_is_16_bit_from_file(in)
